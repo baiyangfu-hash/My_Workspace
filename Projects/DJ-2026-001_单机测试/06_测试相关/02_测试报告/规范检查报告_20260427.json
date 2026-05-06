@@ -1,0 +1,435 @@
+{
+    "report_id": "RPT-CHECK-20260427032105",
+    "report_type": "规范检查报告",
+    "generated_at": "2026-04-27T03:21:05.823930",
+    "project_info": {
+        "id": "PRJ-20260427-10b202fe",
+        "code": "DJ-2026-001",
+        "name": "单机测试",
+        "manager": "侧"
+    },
+    "result": {
+        "summary": {
+            "total": 59,
+            "passed": 44,
+            "warnings": 6,
+            "errors": 9,
+            "pass_rate": 74.58
+        },
+        "items": [
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 00_项目管理/01_立项与需求",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\00_项目管理\\01_立项与需求",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 00_项目管理/04_变更管理",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\00_项目管理\\04_变更管理",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 01_需求与设计/11_Eplan电气/Export_PDF",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\01_需求与设计\\11_Eplan电气\\Export_PDF",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 01_需求与设计/11_Eplan电气/Source",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\01_需求与设计\\11_Eplan电气\\Source",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 02_PLC程序/程序文档",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\程序文档",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 02_PLC程序/通用ST程序及变量表",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\通用ST程序及变量表",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 02_PLC程序/通用ST程序及变量表/Device",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\通用ST程序及变量表\\Device",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 02_PLC程序/通用ST程序及变量表/Logic",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\通用ST程序及变量表\\Logic",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 02_PLC程序/通用ST程序及变量表/Main",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\通用ST程序及变量表\\Main",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 03_HMI设计/操作手册",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\03_HMI设计\\操作手册",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 05_测试与验证/测试报告",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\05_测试与验证\\测试报告",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 06_文档与交付/操作手册",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\06_文档与交付\\操作手册",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-必填目录",
+                "message": "必填目录已创建: 06_文档与交付/验收交付清单",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\06_文档与交付\\验收交付清单",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 01_需求与设计/13_软件方案",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\01_需求与设计\\13_软件方案",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 02_PLC程序/编译器导出pdf程序",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\编译器导出pdf程序",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 02_PLC程序/编译器源程序文件",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\02_PLC程序\\编译器源程序文件",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 03_HMI设计/编译器HMI导出pdf",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\03_HMI设计\\编译器HMI导出pdf",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 03_HMI设计/编译器HMI源程序",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\03_HMI设计\\编译器HMI源程序",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 03_HMI设计/HMI功能分析报告.md",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\03_HMI设计\\HMI功能分析报告.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构-可选目录",
+                "message": "可选目录已创建: 03_HMI设计/HMI详细设计说明书.md",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试\\03_HMI设计\\HMI详细设计说明书.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "目录结构完整性",
+                "message": "所有13个必填目录均已创建，目录结构完整",
+                "path": "",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: 规范检查报告_20260427.json",
+                "path": "06_测试相关\\02_测试报告\\规范检查报告_20260427.json",
+                "line": 0
+            },
+            {
+                "level": "warning",
+                "rule": "文件命名-文档规范",
+                "message": "文档命名不规范: 规范检查报告_20260427.md，建议格式: 数字-名称_类型-V版本号.扩展名",
+                "path": "06_测试相关\\02_测试报告\\规范检查报告_20260427.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_操作手册.md，请使用字母、数字、下划线或连字符",
+                "path": "06_文档与交付\\操作手册\\{project_code}_操作手册.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: 设备培训文档.md",
+                "path": "06_文档与交付\\操作手册\\设备培训文档.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: 设备维护手册.md",
+                "path": "06_文档与交付\\操作手册\\设备维护手册.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_验收交付清单.md，请使用字母、数字、下划线或连字符",
+                "path": "06_文档与交付\\验收交付清单\\{project_code}_验收交付清单.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: 验收测试报告.md",
+                "path": "05_测试与验证\\测试报告\\验收测试报告.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "03_HMI设计\\HMI功能分析报告.md\\README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "03_HMI设计\\HMI详细设计说明书.md\\README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "03_HMI设计\\操作手册\\README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "03_HMI设计\\编译器HMI导出pdf\\README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "03_HMI设计\\编译器HMI源程序\\README.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_IO分配表.md，请使用字母、数字、下划线或连字符",
+                "path": "02_PLC程序\\程序文档\\{project_code}_IO分配表.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_PLC程序设计总文档.md，请使用字母、数字、下划线或连字符",
+                "path": "02_PLC程序\\程序文档\\{project_code}_PLC程序设计总文档.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_系统架构设计说明书.md，请使用字母、数字、下划线或连字符",
+                "path": "02_PLC程序\\程序文档\\{project_code}_系统架构设计说明书.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_联锁逻辑设计说明书.md，请使用字母、数字、下划线或连字符",
+                "path": "02_PLC程序\\程序文档\\{project_code}_联锁逻辑设计说明书.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "02_PLC程序\\编译器导出pdf程序\\README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "02_PLC程序\\编译器源程序文件\\README.md",
+                "line": 0
+            },
+            {
+                "level": "warning",
+                "rule": "文件命名-文档规范",
+                "message": "文档命名不规范: PLC变量定义文档.md，建议格式: 数字-名称_类型-V版本号.扩展名",
+                "path": "02_PLC程序\\通用ST程序及变量表\\PLC变量定义文档.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: FB_Device_IOMapping_V1.0.0.st",
+                "path": "02_PLC程序\\通用ST程序及变量表\\Device\\FB_Device_IOMapping_V1.0.0.st",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: FB_Device_Layer_V1.0.0.st",
+                "path": "02_PLC程序\\通用ST程序及变量表\\Device\\FB_Device_Layer_V1.0.0.st",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: FB_Logic_Layer_V1.0.0.st",
+                "path": "02_PLC程序\\通用ST程序及变量表\\Logic\\FB_Logic_Layer_V1.0.0.st",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: FB_Main_Control_V1.0.0.st",
+                "path": "02_PLC程序\\通用ST程序及变量表\\Main\\FB_Main_Control_V1.0.0.st",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: FB_Main_Initialization_V1.0.0.st",
+                "path": "02_PLC程序\\通用ST程序及变量表\\Main\\FB_Main_Initialization_V1.0.0.st",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-基本检查",
+                "message": "文件命名通过基本检查: MainProgram_V1.0.0.st",
+                "path": "02_PLC程序\\通用ST程序及变量表\\Main\\MainProgram_V1.0.0.st",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_需求规格说明书_REQ-V1.0.0.md，请使用字母、数字、下划线或连字符",
+                "path": "01_需求与设计\\13_软件方案\\{project_code}_需求规格说明书_REQ-V1.0.0.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "01_需求与设计\\11_Eplan电气\\Export_PDF\\README.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "01_需求与设计\\11_Eplan电气\\Source\\README.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_需求分析文档.md，请使用字母、数字、下划线或连字符",
+                "path": "00_项目管理\\01_立项与需求\\{project_code}_需求分析文档.md",
+                "line": 0
+            },
+            {
+                "level": "error",
+                "rule": "文件命名-非法字符",
+                "message": "文件名包含非法字符: {project_code}_项目立项表.md，请使用字母、数字、下划线或连字符",
+                "path": "00_项目管理\\01_立项与需求\\{project_code}_项目立项表.md",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文件命名-特殊文件",
+                "message": "特殊文件命名正确: README.md",
+                "path": "00_项目管理\\04_变更管理\\README.md",
+                "line": 0
+            },
+            {
+                "level": "warning",
+                "rule": "文件命名总体检查",
+                "message": "共检查32个文件，发现11个命名不规范问题",
+                "path": "",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文档完整性-README文件",
+                "message": "README文件已创建，大小: 159字节",
+                "path": "README.md",
+                "line": 0
+            },
+            {
+                "level": "warning",
+                "rule": "文档完整性-.gitignore内容",
+                "message": ".gitignore文件存在但可能缺少常见规则（当前包含: 0/4个标准规则）",
+                "path": ".gitignore",
+                "line": 0
+            },
+            {
+                "level": "warning",
+                "rule": "文档完整性-项目立项表",
+                "message": "00_项目基础信息目录不存在，无法验证项目立项表",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试",
+                "line": 0
+            },
+            {
+                "level": "warning",
+                "rule": "文档完整性-需求设计文档",
+                "message": "01_项目文档目录不存在，无法验证需求文档",
+                "path": "D:\\BaiduSyncdisk\\My_Workspace\\Projects\\DJ-2026-001_单机测试",
+                "line": 0
+            },
+            {
+                "level": "pass",
+                "rule": "文档完整性-总体评估",
+                "message": "所有必要文档（2/2）均已就位，文档完整性良好",
+                "path": "",
+                "line": 0
+            }
+        ]
+    }
+}

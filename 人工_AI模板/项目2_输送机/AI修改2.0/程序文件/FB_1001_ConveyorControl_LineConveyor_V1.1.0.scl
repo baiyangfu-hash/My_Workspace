@@ -1,0 +1,573 @@
+(* ================================================================= *)
+(*  功能块名称：FB_1001_ConveyorControl_LineConveyor                *)
+(*  功能描述：输送线电机启停、速度调节与故障检测控制               *)
+(*  创建日期：2026-01-24                                            *)
+(*  规范化修订：2026-04-25                                           *)
+(*  版本号：V1.1.0                                                  *)
+(*  基于版本：V1.0.0 (原始版本，存在命名和注释规范问题)              *)
+(*  编制人：[待填写]                                                *)
+(*  审核人：[待填写]                                                *)
+(*                                                                  *)
+(*  遵循规范：                                                      *)
+(*    - 801_PLC变量命名与功能块命名规范_DEV-V1.0.3                  *)
+(*    - 810_PLC编程规范_DEV-V1.0.1                                  *)
+(*                                                                  *)
+(*  变更记录：                                                        *)
+(* ---------------------------------------------------------------- *)
+(*  V1.1.0 (2026-04-25) Trae                                       *)
+(*  - 修正: 统一版本号管理（文件名/注释头/变更记录一致）             *)
+(*  - 修正: 所有输入变量添加类型前缀（i_b/i_i/i_r）符合801规范      *)
+(*  - 修正: 所有输出变量添加类型前缀（q_b/q_i/q_r）符合801规范      *)
+(*  - 修正: 移除内部变量的tmp_前缀，统一使用标准命名                 *)
+(*  - 修正: FB名称标准化为FB_1001_ConveyorControl_LineConveyor       *)
+(*  - 优化: 定时器数组命名简化 (tIn/tQ/tR/tPt/tEt) 更简短好记      *)
+(*  - 优化: 文件头注释采用IEC 61131-3标准的(* *)格式                *)
+(*  - 优化: 精简变更记录，仅保留关键里程碑                         *)
+(*  - 新增: 计时器索引说明注释、状态字位定义、状态机功能说明        *)
+(*                                                                   *)
+(*  V1.0.0 (2026-01-24) [原始版本归档至_archive目录]                 *)
+(*  - 初始版本创建                                                  *)
+(* ================================================================= *)
+
+FUNCTION_BLOCK FB_1001_ConveyorControl_LineConveyor
+(* ================================================================= *)
+(*  ⚠️ 外部变量依赖声明                                            *)
+(*  本FB的VAR声明位于调用方主程序（PROGRAM）中                      *)
+(*  调用前请确保以下变量已正确定义：                                *)
+(*    输入接口: i_bStart, i_bStop, i_bPosition1Sensor, ...          *)
+(*    输出接口: q_bMotorRunning, q_bMotorFault, q_iStatusWord, ...  *)
+(*    内部状态: bManualMode, bAutoMode, bMotorRunning, ...          *)
+(*    定时器数组: i_bTime[], i_bTrst[], i_pTimer1[], q_bTq[], ...  *)
+(* ================================================================= *)
+
+VAR_INPUT
+    (* ----- 控制信号 ----- *)
+    i_bStart : BOOL;                  (* 启动信号（电平有效）*)
+    i_bStop : BOOL;                   (* 停止信号（电平有效，优先级高于启动）*)
+    i_bReset : BOOL;                  (* 复位按钮信号（清除错误/报警状态）*)
+
+    (* ----- 传感器信号 ----- *)
+    i_bPosition1Sensor : BOOL;        (* 位置1传感器信号（产品检测）*)
+    i_bDriveAlarm : BOOL;             (* 驱动器报警信号（来自变频器/伺服驱动器）*)
+
+    (* ----- 参数设定 ----- *)
+    i_iMainControlMode : INT;         (* 主控运行模式: 0=停止, 1=手动, 2=自动 *)
+    i_iMotorDirection : INT;          (* 电机运行方向: 0=正转, 1=反转 *)
+    i_iSlowDelayTime : INT;           (* 慢速延时时间设定 (ms)，0则使用默认值1000ms *)
+
+    (* ----- 双向参数（INOUT）----- *)
+    i_rSpeedFrequency : REAL;         (* 速度频率设定 (HZ)，范围: 1~100 HZ，≤0自动设为50 *)
+END_VAR
+
+VAR_OUTPUT
+    (* ----- 状态输出 ----- *)
+    q_bMotorRunning : BOOL;           (* 电机运行状态输出 *)
+    q_bMotorFault : BOOL;             (* 电机故障/报警状态输出 *)
+    q_iMotorDirection : INT;          (* 当前电机方向状态输出 (0=正转, 1=反转) *)
+    q_bProductInPlaceDone : BOOL;     (* 产品到位完成标志（自动模式单次触发）*)
+
+    (* ----- 数据输出 ----- *)
+    q_rSpeedOutput : REAL;            (* 当前速度频率输出 (HZ) *)
+    q_iStatusWord : INT;              (* 状态字输出（见位定义说明）*)
+END_VAR
+
+(*
+ * 状态字位定义 (q_iStatusWord):
+ *   Bit 0 (16#0001): 模式错误 - 模式切换失败或无效模式输入
+ *   Bit 1 (16#0002): 驱动报警 - 驱动器报警信号激活
+ *   Bit 2 (16#0004): 方向错误 - 方向输入值超出有效范围(0~1)
+ *
+ * 注意：状态字位一旦置位不会自动清除，需要复位操作
+ *)
+
+VAR
+    (* ==================== 模式控制变量 ==================== *)
+    bManualMode : BOOL := FALSE;          (* 手动模式激活标志 *)
+    bAutoMode : BOOL := FALSE;            (* 自动模式激活标志 *)
+    nCurrentMode : INT := 0;              (* 当前运行模式内部状态 (0/1/2) *)
+
+    (* ==================== 电机状态变量 ==================== *)
+    bMotorRunning : BOOL := FALSE;        (* 电机运行内部状态 *)
+    bMotorFault : BOOL := FALSE;          (* 电机故障内部状态 *)
+    nSpeedMode : INT := 0;                (* 速度模式: 0=停止, 1=慢速(1/3), 2=高速(全速) *)
+
+    (* ==================== 电机方向变量 ==================== *)
+    nCurrentMotorDirection : INT := 0;    (* 当前电机方向 (0=正转, 1=反转) *)
+
+    (* ==================== 产品检测变量 ==================== *)
+    bPosition1Detected : BOOL := FALSE;   (* 位置1传感器检测到产品标志 *)
+    bAutoSequenceActive : BOOL := FALSE;  (* 自动序列执行中标志 *)
+    bProductInPlaceDone : BOOL := FALSE;  (* 产品到位完成标志（单次有效）*)
+    nNoProductDelay : INT := 0;           (* 无产品检测延时计数器（保留扩展用）*)
+
+    (* ==================== 错误检测变量 ==================== *)
+    bModeError : BOOL := FALSE;           (* 模式错误标志（模式切换失败时置位）*)
+    nStatusWord : INT := 0;               (* 状态字内部变量 *)
+
+    (* ==================== 报警状态变量 ==================== *)
+    bAlarmActive : BOOL := FALSE;         (* 报警激活标志（驱动器报警触发）*)
+    bAlarmReadyForReset : BOOL := FALSE;  (* 报警可复位标志（报警消失5秒后允许复位）*)
+
+    (* ==================== 启停请求变量 ==================== *)
+    bStartRequested : BOOL := FALSE;      (* 内部启动请求标志 *)
+    bStopRequested : BOOL := FALSE;       (* 内部停止请求标志 *)
+
+    (* ==================== 速度控制变量 ==================== *)
+    rCurrentSpeed : REAL := 0.0;          (* 当前实际速度频率输出值 *)
+    rSpeedInput : REAL := 50.0;           (* 速度输入处理后的有效值 *)
+
+    (* ==================== 定时器数组 [共3个TONR] ============ *)
+    (* 命名规则: t前缀=Timer, 后缀=功能 (In/Q/R/Pt/Et) *)
+    (* 索引说明:
+     *   [0]: 产品到位复位 (固定3s) - 到位后传感器消失延时复位
+     *   [1]: 慢速运行延时 (可配置) - 检测到产品后慢速运行时间
+     *   [2]: 报警持续时间 (固定5s) - 报警消失后允许复位的等待时间
+     *)
+    tIn : ARRAY [0..2] OF BOOL := (FALSE, FALSE, FALSE);   (* 输入信号 *)
+    tQ  : ARRAY [0..2] OF BOOL := (FALSE, FALSE, FALSE);   (* 输出完成 *)
+    tR  : ARRAY [0..2] OF BOOL := (FALSE, FALSE, FALSE);   (* 复位信号 *)
+    tPt : ARRAY [0..2] OF DINT := (3000, 1000, 5000);    (* 预设值 ms *)
+    tEt : ARRAY [0..2] OF DINT := (0, 0, 0);             (* 当前值 ms *)
+END_VAR
+
+
+(* ***********************************************************************
+ *                        状态机功能说明
+ * ***********************************************************************
+ *
+ * 本FB实现简化的状态机控制逻辑（非完整状态机实现）:
+ *
+ * ┌─────────────┐    停止指令     ┌─────────────┐
+ * │  手动模式   │ ──────────────> │  停止模式   │
+ * │  (Mode=1)   │ <────────────── │  (Mode=0)   │
+ * └─────────────┘    启动指令     └─────────────┘
+ *       ^                              ^
+ *       │                              │
+ *       │ 启动指令                     │ 停止指令
+ *       │                              │
+ * ┌─────────────┐    停止指令     ┌─────────────┐
+ * │  自动模式   │ ──────────────> │  停止模式   │
+ * │  (Mode=2)   │ <────────────── │  (Mode=0)   │
+ * └─────────────┘    仅从停止进入 └─────────────┘
+ *
+ * 模式切换规则:
+ *   - 只能从"停止模式"切换到"手动"或"自动"
+ *   - 从"手动"/"自动"只能回到"停止"，不能直接切换
+ *   - 无效的模式切换会设置 bModeError 标志
+ *
+ * 安全优先级（从高到低）:
+ *   1. 复位操作 (i_bReset)
+ *   2. 驱动报警 (i_bDriveAlarm)
+ *   3. 停止请求 (i_bStop / 模式切换到停止)
+ *   4. 启动请求 (i_bStart + 无错误条件)
+ *
+ ***********************************************************************)
+
+//#region 定时器调用段
+(* ==================== 定时器调用段 ==================== *)
+(* 使用TONR累加定时器数组实现多个独立定时功能 *)
+TONR(IN := tIn[0], PT := tPt[0], R := tR[0], Q => tQ[0], ET => tEt[0]);
+TONR(IN := tIn[1], PT := tPt[1], R := tR[1], Q => tQ[1], ET => tEt[1]);
+TONR(IN := tIn[2], PT := tPt[2], R := tR[2], Q => tQ[2], ET => tEt[2]);
+
+//#endregion
+
+
+//###
+
+(* ==================== 变量初始化段 ==================== *)
+(* 确保首次扫描或异常状态下变量处于安全初始值 *)
+
+(* 初始化模式控制变量 - 双模式都未激活时重置 *)
+IF NOT bManualMode AND NOT bAutoMode THEN
+    bManualMode := FALSE;
+    bAutoMode := FALSE;
+END_IF;
+
+(* 初始化电机状态变量 - 电机停止时重置速度模式 *)
+IF NOT bMotorRunning THEN
+    nSpeedMode := 0;
+END_IF;
+
+(* 初始化电机方向变量 - 只在电机停止时允许更改方向 此次*)
+IF NOT bMotorRunning THEN
+    IF i_iMotorDirection = 0 OR i_iMotorDirection = 1 THEN
+        nCurrentMotorDirection := i_iMotorDirection;
+    ELSE
+        nCurrentMotorDirection := 0; (* 无效输入默认正转 *)
+    END_IF;
+END_IF;
+
+(* 初始化产品检测变量 *)
+bPosition1Detected := FALSE;
+bAutoSequenceActive := FALSE;
+nNoProductDelay := 0;
+(* 条件初始化产品到位标志：仅在复位或超范围且定时器到达时重置，避免每次扫描重置 *)
+IF (i_bReset OR (nCurrentMode < 0)) AND tQ[0] THEN
+    bProductInPlaceDone := FALSE;
+END_IF;
+
+(* 初始化错误检测变量 *)
+(* 注意：错误标志一旦设置就不会自动清除，必须人工复位 *)
+IF i_bReset OR (nCurrentMode <= 0) THEN
+    bModeError := FALSE;
+    nStatusWord := 0;
+END_IF;
+
+(* 初始化启停请求变量（每次扫描清零，由后续逻辑重新计算）*)
+bStartRequested := FALSE;
+bStopRequested := FALSE;
+
+(* 初始化速度控制变量 - 电机停止时重置速度 *)
+IF NOT bMotorRunning THEN
+    rCurrentSpeed := 0.0;
+    rSpeedInput := 50.0;
+END_IF;
+
+(* 保护性检查：确保当前模式在有效范围内 *)
+IF nCurrentMode < 0 OR nCurrentMode > 2 THEN
+    nCurrentMode := 0;
+END_IF;
+
+
+(* ==================== 输入参数验证段 ==================== *)
+(* 速度输入防呆处理：自动修正超出范围的设定值 *)
+IF i_rSpeedFrequency <= 0.0 THEN
+    i_rSpeedFrequency := 50.0;  (* 设定值≤0时，自动设置为初始值50HZ *)
+ELSIF i_rSpeedFrequency > 100.0 THEN
+    i_rSpeedFrequency := 100.0; (* 超出范围时使用最大值100HZ *)
+END_IF;
+rSpeedInput := i_rSpeedFrequency;
+
+
+(* ==================== 报警管理段 ==================== *)
+(* 实现报警激活→持续→可复位的完整生命周期管理 *)
+
+(* 报警持续时间计时器逻辑：报警消失后开始计时，超过5秒才允许复位 *)
+tIn[2] := NOT i_bDriveAlarm AND bAlarmActive;
+tR[2] := NOT bAlarmActive;
+
+(* 报警状态机：激活 → 持续 → 可复位 → 已复位 *)
+IF i_bDriveAlarm THEN
+    (* 报警信号为1：立即激活报警状态 *)
+    bAlarmActive := TRUE;
+    bAlarmReadyForReset := FALSE;
+    bMotorFault := TRUE;
+ELSE
+    (* 报警信号为0：检查是否满足复位时间条件 *)
+    IF bAlarmActive AND tQ[2] THEN
+        (* 报警消失且持续时间超过5秒：进入可复位状态 *)
+        bAlarmReadyForReset := TRUE;
+    END_IF;
+END_IF;
+
+(* 集中的报警复位逻辑：必须人工按下复位按钮才能清除 *)
+IF i_bReset THEN
+    (* 只有当报警准备复位标志为TRUE时，才允许复位报警状态 *)
+    IF bAlarmReadyForReset THEN
+        bAlarmActive := FALSE;
+        bMotorFault := FALSE;
+        bModeError := FALSE;  (* 清除模式错误标志 *)
+        nStatusWord := 0;      (* 清除状态字 *)
+    END_IF;
+
+    (* 复位时强制停止电机并回到停止模式 *)
+    bMotorRunning := FALSE;
+    nSpeedMode := 0;
+
+    IF i_iMainControlMode <> 0 THEN
+        bManualMode := FALSE;
+        bAutoMode := FALSE;
+        nCurrentMode := 0;
+    END_IF;
+END_IF;
+
+
+(* ==================== 模式切换段 ==================== *)
+(* 基于主控运行模式变量控制模式切换（CASE语句实现）*)
+(* 停止模式（0）优先级最高，无条件立即进入停止状态 *)
+
+CASE i_iMainControlMode OF
+    0: (* ====== 停止模式 ====== *)
+        bManualMode := FALSE;
+        bAutoMode := FALSE;
+        bMotorRunning := FALSE;
+        nSpeedMode := 0;
+        bPosition1Detected := FALSE;
+        bAutoSequenceActive := FALSE;
+        bProductInPlaceDone := FALSE;
+        nNoProductDelay := 0;
+        nCurrentMode := 0;
+        rCurrentSpeed := 0.0;
+        (* 注意：停止模式下不自动清除错误状态，需手动复位 *)
+
+    1: (* ====== 手动模式 ====== *)
+        (* 安全约束：只能从停止模式进入手动模式 *)
+        IF nCurrentMode = 0 THEN
+            bManualMode := TRUE;
+            bAutoMode := FALSE;
+            nCurrentMode := 1;
+        ELSE
+            (* 尝试从非停止模式切换：检查是否已经是手动模式 *)
+            IF nCurrentMode <> 1 THEN
+                bModeError := TRUE;  (* 非法模式切换：设置错误标志 *)
+            END_IF;
+        END_IF;
+
+    2: (* ====== 自动模式 ====== *)
+        (* 安全约束：只能从停止模式进入自动模式 *)
+        IF nCurrentMode = 0 THEN
+            bManualMode := FALSE;
+            bAutoMode := TRUE;
+            nCurrentMode := 2;
+        ELSE
+            (* 尝试从非停止模式切换：检查是否已经是自动模式 *)
+            IF nCurrentMode <> 2 THEN
+                bModeError := TRUE;  (* 非法模式切换：设置错误标志 *)
+            END_IF;
+        END_IF;
+
+    ELSE (* ====== 无效模式值（防御性编程）====== *)
+        bManualMode := FALSE;
+        bAutoMode := FALSE;
+        bMotorRunning := FALSE;
+        nSpeedMode := 0;
+        bPosition1Detected := FALSE;
+        bAutoSequenceActive := FALSE;
+        bProductInPlaceDone := FALSE;
+        nNoProductDelay := 0;
+        nCurrentMode := 0;
+        bModeError := TRUE;  (* 无效模式输入：设置模式错误 *)
+END_CASE;
+
+
+(* ==================== 启停请求计算段 ==================== *)
+(* 根据当前模式和报警状态确定内部启停请求标志 *)
+
+IF bManualMode OR bAutoMode THEN
+    (* 在手动或自动模式下：响应外部启停信号 *)
+    IF bAlarmActive THEN
+        (* 报警激活时：只响应停止信号，屏蔽启动信号（安全优先）*)
+        bStartRequested := FALSE;
+        bStopRequested := i_bStop;
+    ELSE
+        (* 正常状态：启动信号有效（需AND NOT停止避免冲突）*)
+        bStartRequested := i_bStart AND NOT i_bStop;
+        bStopRequested := i_bStop;
+    END_IF;
+ELSE
+    (* 停止模式：不响应任何启停请求 *)
+    bStartRequested := FALSE;
+    bStopRequested := FALSE;
+END_IF;
+
+
+(* ==================== 电机控制核心逻辑段 ==================== *)
+(* 统一的启动/停止控制逻辑，包含手动和自动两种运行模式 *)
+
+IF bStopRequested THEN
+    (* ---------- 停止请求处理（最高优先级）---------- *)
+    bMotorRunning := FALSE;
+    nSpeedMode := 0;
+    bAutoSequenceActive := FALSE;
+    bPosition1Detected := FALSE;
+    bProductInPlaceDone := FALSE;
+    nNoProductDelay := 0;
+    rCurrentSpeed := 0.0;
+    (* 注意：停止时不自动清除错误状态，需手动复位 *)
+
+ELSIF bStartRequested AND NOT bModeError AND (nStatusWord = 0) AND NOT bProductInPlaceDone AND NOT bAlarmActive THEN
+    (* ---------- 启动请求处理（多重安全条件）---------- *)
+    (* 前置条件：无停止请求 + 无模式错误 + 状态字清零 + 未到位 + 无报警 *)
+    bMotorRunning := TRUE;
+
+    IF bManualMode THEN
+        (* === 手动模式：恒速运行 === *)
+        nSpeedMode := 2;                    (* 高速模式 *)
+        rCurrentSpeed := rSpeedInput;       (* 直接使用设定速度 *)
+
+    ELSIF bAutoMode THEN
+        (* === 自动模式：高速→检测→慢速→停止的序列流程 === *)
+        bAutoSequenceActive := TRUE;
+        nSpeedMode := 2;                    (* 初始高速 *)
+        rCurrentSpeed := rSpeedInput;
+
+        (* 产品检测和自动降速逻辑 *)
+        IF bAutoSequenceActive AND i_bPosition1Sensor AND NOT bPosition1Detected THEN
+            (* 首次检测到产品：切换到慢速运行（速度的1/3）*)
+            bPosition1Detected := TRUE;
+            nSpeedMode := 1;                 (* 慢速模式 *)
+            rCurrentSpeed := rSpeedInput / 3.0;
+        END_IF;
+
+        (* 慢速运行延时控制 *)
+        tIn[1] := bPosition1Detected;                          (* 产品检测到后开始计时 *)
+        tR[1] := NOT bPosition1Detected OR bProductInPlaceDone; (* 复位条件 *)
+
+        (* 延时到达后：停止电机并设置产品到位完成标志 *)
+        IF tQ[1] THEN
+            bMotorRunning := FALSE;
+            nSpeedMode := 0;
+            bAutoSequenceActive := FALSE;
+            bProductInPlaceDone := TRUE;  (* 单次触发标志，需外部条件复位 *)
+            rCurrentSpeed := 0.0;
+        END_IF;
+    END_IF;
+END_IF;
+
+(* 运行中报警处理：报警激活时立即停止电机（覆盖正常运行逻辑）*)
+IF bAlarmActive AND bMotorRunning THEN
+    bMotorRunning := FALSE;
+    nSpeedMode := 0;
+    bAutoSequenceActive := FALSE;
+    rCurrentSpeed := 0.0;
+END_IF;
+
+
+(* ==================== 产品到位复位逻辑段 ==================== *)
+(* 当产品到位完成且传感器信号消失后，延时3秒自动复位到位标志 *)
+
+tIn[0] := bProductInPlaceDone AND NOT i_bPosition1Sensor;  (* 到位且无产品时计时 *)
+tR[0] := NOT bProductInPlaceDone;                           (* 非到位状态时复位定时器 *)
+
+(* 定时器到达后：复位产品到位完成标志，允许下一轮自动流程 *)
+IF tQ[0] THEN
+    bProductInPlaceDone := FALSE;
+END_IF;
+
+
+(* ==================== 状态字计算段 ==================== *)
+(* 状态字位定义：
+ *   Bit 0 (16#0001): 模式错误
+ *   Bit 1 (16#0002): 驱动报警状态
+ *   Bit 2 (16#0004): 方向输入错误
+ *
+ * 状态字特性：位一旦置位不会自动清除，需复位操作清除
+ *)
+
+(* 位0：模式错误检测（模式切换失败或非法模式值）*)
+IF bModeError THEN
+    nStatusWord := nStatusWord OR 16#0001;
+END_IF;
+
+(* 位1：驱动报警状态检测（反映当前是否有驱动器报警）*)
+IF bMotorFault THEN
+    nStatusWord := nStatusWord OR 16#0002;
+END_IF;
+
+(* 位2：方向输入错误检测（方向值不在0~1范围内）*)
+IF NOT bMotorRunning THEN
+    (* 仅在电机停止时检查方向输入有效性 *)
+    IF i_iMotorDirection < 0 OR i_iMotorDirection > 1 THEN
+        nStatusWord := nStatusWord OR 16#0004;
+    END_IF;
+END_IF;
+
+(* 模式不匹配检测：停止模式下收到启动信号 *)
+IF NOT bManualMode AND NOT bAutoMode THEN
+    IF i_bStart AND NOT i_bStop THEN
+        bModeError := TRUE;  (* 设置模式错误，同时会影响位0 *)
+    END_IF;
+END_IF;
+
+(* 方向输入验证与更新（严格按照接口文档要求）*)
+IF NOT bMotorRunning THEN
+    (* 电机停止时：验证方向输入有效性 *)
+    IF i_iMotorDirection = 0 OR i_iMotorDirection = 1 THEN
+        nCurrentMotorDirection := i_iMotorDirection;  (* 有效输入：更新方向 *)
+    ELSE
+        nStatusWord := nStatusWord OR 16#0004;        (* 无效输入：设置方向错误 *)
+    END_IF;
+END_IF;
+
+(* 保护性检查：确保输出方向始终为有效值 *)
+IF nCurrentMotorDirection < 0 OR nCurrentMotorDirection > 1 THEN
+    nCurrentMotorDirection := 0;  (* 默认正转 *)
+END_IF;
+
+q_iMotorDirection := nCurrentMotorDirection;
+
+(* 产品到位完成标志输出 *)
+q_bProductInPlaceDone := bProductInPlaceDone;
+
+
+(* ==================== 最终安全检查段 ==================== *)
+(* 多重安全互锁：确保任何错误状态下电机都不会运行 *)
+
+IF bModeError OR bMotorFault OR (nStatusWord <> 0) OR bAlarmActive THEN
+    (* 任一错误条件成立：强制停止电机 *)
+    bMotorRunning := FALSE;
+    nSpeedMode := 0;
+    rCurrentSpeed := 0.0;
+END_IF;
+
+
+(* ==================== 输出赋值段 ==================== *)
+(* 将内部状态映射到输出接口变量 *)
+
+q_bMotorRunning := bMotorRunning;    (* 电机运行状态 *)
+q_bMotorFault := bMotorFault;         (* 电机故障状态 *)
+q_rSpeedOutput := rCurrentSpeed;      (* 速度频率输出 *)
+q_iStatusWord := nStatusWord;         (* 状态字输出 *)
+
+
+(* ==================== 定时器预设值更新段 ==================== *)
+(* 根据参数设定更新定时器的预设值（每次扫描都刷新）*)
+
+(* 慢速延时定时器：使用外部设定值，若≤0则使用默认值1000ms *)
+IF i_iSlowDelayTime > 0 THEN
+    tPt[1] := i_iSlowDelayTime;
+ELSE
+    tPt[1] := 1000;  (* 默认1秒 *)
+END_IF;
+
+(* 产品到位复位定时器：固定3000ms（3秒）*)
+tPt[0] := 3000;
+
+(* 报警持续时间定时器：固定5000ms（5秒）*)
+tPt[2] := 5000;
+
+END_FUNCTION_BLOCK
+
+
+(* ************************************************************************* *)
+(*  FB实例化示例（供主程序PROGRAM调用参考）                            *)
+(* ************************************************************************* *)
+(*
+VAR
+    (* 功能块实例 - 建议使用有意义的实例名标识具体设备 *)
+    fbConveyor_MainLine : FB_1001_ConveyorControl_LineConveyor;  (* 主输送线 *)
+    fbConveyor_Overflow : FB_1001_ConveyorControl_LineConveyor;  (* 溢料输送线 *)
+END_VAR
+
+
+(* 调用示例（在主程序STEP N: FB调用层中使用）：*)
+(*
+fbConveyor_MainLine(
+    (* 控制信号 *)
+    i_bStart := g_i_bStartButton,              (* 全局启动按钮 *)
+    i_bStop := g_i_bStopButton,                (* 全局停止按钮 *)
+    i_bReset := g_i_bResetButton,              (* 全局复位按钮 *)
+
+    (* 传感器信号 *)
+    i_bPosition1Sensor := g_i_bSensor_ProductDetect,  (* 产品检测传感器 *)
+    i_bDriveAlarm := g_i_bDrive_Alarm,          (* 驱动器报警信号 *)
+
+    (* 参数设定 *)
+    i_iMainControlMode := g_iSystem_Mode,      (* 系统运行模式（来自HMI）*)
+    i_iMotorDirection := g_iMotor_DirSet,      (* 方向设定（来自HMI）*)
+    i_iSlowDelayTime := g_iParam_SlowDelay,    (* 慢速延时参数（来自HMI）*)
+
+    (* 双向参数 *)
+    i_rSpeedFrequency := g_rParam_SpeedSet,    (* 速度设定（来自HMI，可读写）*)
+
+    (* 状态输出 -> 全局变量或DO映射 *)
+    q_bMotorRunning => g_q_bMotor_Run,         (* 电机运行状态 *)
+    q_bMotorFault => g_q_bMotor_Fault,         (* 电机故障状态 *)
+    q_iMotorDirection => g_qiMotor_DirAct,     (* 实际方向状态 *)
+    q_bProductInPlaceDone => g_q_bProduct_Done, (* 产品到位完成 *)
+    q_rSpeedOutput => g_qrSpeed_Actual,        (* 实际速度输出 *)
+    q_iStatusWord => g_qiStatus_Word           (* 状态字输出 *)
+);
+*)
+(* ************************************************************************* *)

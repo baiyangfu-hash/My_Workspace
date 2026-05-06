@@ -1,0 +1,277 @@
+// ============================================
+// DJ-2026-014 三段式玻璃输送线控制系统
+// 主程序 (PRG)
+// PLC: 汇川H5U系列 (Autoshop编程环境)
+// 版本: V1.0.0 [2026-04-12]
+// 功能: 实例化3个FB_ConveyorControlV4,实现联锁逻辑
+//
+// 架构说明:
+//   上游(Line1) → 本站(Line2/核心) → 下游(Line3)
+//   产品: 玻璃 1300x700x10mm (约2.3kg/片)
+// ============================================
+
+PROGRAM PRG_Main_GlassConveyor
+VAR
+
+    (* ========== FB实例定义 ========== *)
+    (* 三个独立的输送线控制功能块实例 *)
+    fbConveyorUpstream   : FB_ConveyorControlV4;  // 上游输送线 (Line1)
+    fbConveyorStation    : FB_ConveyorControlV4;  // 本站输送线 (Line2) - 核心工位
+    fbConveyorDownstream : FB_ConveyorControlV4;  // 下游输送线 (Line3)
+
+
+    (* ========== 联锁逻辑变量 ========== *)
+
+    (* 正向联锁标志 - 防堆积 *)
+    bAllowUpstream : BOOL := TRUE;  // 上游允许运行 = NOT 本站到位完成
+    bAllowStation  : BOOL := TRUE;  // 本站允许运行 = NOT 下游到位完成
+
+    (* 反向联锁标志 - 故障传播 *)
+    bSystemFault   : BOOL := FALSE;  // 系统总故障(任一线故障)
+    bEmergencyStop : BOOL := FALSE;  // 急停状态
+    bSystemOffline : BOOL := FALSE;  // 离线调试模式
+
+
+    (* ========== 系统状态变量 ========== *)
+    nSystemStatus   : INT := 0;      // 0停止/1运行/2故障/3急停
+    nProductCount   : DINT := 0;     // 生产计数(本站完成次数累加)
+
+
+    (* ========== 边沿检测(用于计数) ========== *)
+    fbRisingCounter_StationDone : R_TRIG;  // 本站产品到位上升沿检测器
+
+
+END_VAR
+
+
+(* ==================== 主逻辑开始 ==================== *)
+
+
+(* ---------- Step 1: 急停处理 (最高优先级) ---------- *)
+(* X_EmergencyStop 为常闭触点,正常时TRUE,急停断开时FALSE *)
+bEmergencyStop := NOT X_EmergencyStop;
+
+IF bEmergencyStop THEN
+    (* 急停激活 *)
+    nSystemStatus := 3;
+    D_SystemStatus := 3;
+    Y_Alarm_Buzzer := TRUE;
+    Y_Alarm_TowerLight := TRUE;  (* 红灯 *)
+ELSE
+    (* 急停解除 *)
+    Y_Alarm_Buzzer := FALSE;
+END_IF;
+
+
+(* ---------- Step 2: 计算正向联锁条件 (防堆积) ---------- *)
+
+(* 规则1: 上游允许运行的条件 = 本站没有产品到位 AND 无系统故障 AND 无急停 *)
+bAllowUpstream := NOT fbConveyorStation.q_ProductInPlaceDone
+                AND NOT bSystemFault
+                AND NOT bEmergencyStop;
+
+(* 规则2: 本站允许运行的条件 = 下游没有产品到位 AND 无系统故障 AND 无急停 *)
+bAllowStation := NOT fbConveyorDownstream.q_ProductInPlaceDone
+              AND NOT bSystemFault
+              AND NOT bEmergencyStop;
+
+
+(* ---------- Step 3: 计算反向联锁 (故障传播) ---------- *)
+
+(* 检测任一输送线的驱动报警 *)
+bSystemFault := fbConveyorUpstream.q_MotorFault
+             OR fbConveyorStation.q_MotorFault
+             OR fbConveyorDownstream.q_MotorFault;
+
+IF bSystemFault THEN
+    nSystemStatus := 2;
+    D_SystemStatus := 2;
+    Y_Alarm_TowerLight := TRUE;
+
+    (* 故障传播: 下游故障 → 禁止本站和上游 *)
+    IF fbConveyorDownstream.q_MotorFault THEN
+        bAllowStation := FALSE;
+        bAllowUpstream := FALSE;
+    ELSIF fbConveyorStation.q_MotorFault THEN
+        (* 本站故障 → 仅禁止上游 *)
+        bAllowUpstream := FALSE;
+    END_IF;
+ELSIF NOT bEmergencyStop THEN
+    (* 判断是否处于运行状态 *)
+    IF fbConveyorUpstream.q_MotorRunning
+       OR fbConveyorStation.q_MotorRunning
+       OR fbConveyorDownstream.q_MotorRunning THEN
+        nSystemStatus := 1;
+        D_SystemStatus := 1;
+        Y_Alarm_TowerLight := FALSE;  (* 绿灯或熄灭 *)
+    ELSE
+        nSystemStatus := 0;
+        D_SystemStatus := 0;
+    END_IF;
+ELSE
+    nSystemStatus := 0;
+    D_SystemStatus := 0;
+END_IF;
+
+
+(* ---------- Step 4: 准备上游FB输入参数 (加入联锁) ---------- *)
+
+fbConveyorUpstream.i_Start := X_Start_Upstream
+                          AND bAllowUpstream;
+
+fbConveyorUpstream.i_Stop := X_Stop_Upstream
+                         OR NOT bAllowUpstream
+                         OR bEmergencyStop;
+
+fbConveyorUpstream.i_Position1Sensor := X_SensorUpstream_Position1;
+fbConveyorUpstream.i_MainControlMode := D_MainControlMode;
+fbConveyorUpstream.i_MotorDirection := D_MotorDirection_Upstream;
+fbConveyorUpstream.i_SlowDelayTime := D_SlowDelayTime;
+fbConveyorUpstream.i_Reset := X_SystemReset;
+fbConveyorUpstream.i_DriveAlarm := X_DriveAlarm_Upstream;
+fbConveyorUpstream.i_Offline := bSystemOffline;
+fbConveyorUpstream.i_SpeedFrequency := I_SpeedSet_Upstream;
+
+
+(* ---------- Step 5: 准备本站FB输入参数 (加入联锁) ---------- *)
+
+fbConveyorStation.i_Start := X_Start_Station
+                        AND bAllowStation;
+
+fbConveyorStation.i_Stop := X_Stop_Station
+                       OR NOT bAllowStation
+                       OR bEmergencyStop;
+
+fbConveyorStation.i_Position1Sensor := X_SensorStation_Position1;
+fbConveyorStation.i_MainControlMode := D_MainControlMode;
+fbConveyorStation.i_MotorDirection := D_MotorDirection_Station;
+fbConveyorStation.i_SlowDelayTime := D_SlowDelayTime;
+fbConveyorStation.i_Reset := X_SystemReset;
+fbConveyorStation.i_DriveAlarm := X_DriveAlarm_Station;
+fbConveyorStation.i_Offline := bSystemOffline;
+fbConveyorStation.i_SpeedFrequency := I_SpeedSet_Station;
+
+
+(* ---------- Step 6: 准备下游FB输入参数 (无下游约束,受急停控制) ---------- *)
+
+fbConveyorDownstream.i_Start := X_Start_Downstream
+                           AND NOT bSystemFault
+                           AND NOT bEmergencyStop;
+
+fbConveyorDownstream.i_Stop := X_Stop_Downstream
+                          OR bSystemFault
+                          OR bEmergencyStop;
+
+fbConveyorDownstream.i_Position1Sensor := X_SensorDownstream_Position1;
+fbConveyorDownstream.i_MainControlMode := D_MainControlMode;
+fbConveyorDownstream.i_MotorDirection := D_MotorDirection_Downstream;
+fbConveyorDownstream.i_SlowDelayTime := D_SlowDelayTime;
+fbConveyorDownstream.i_Reset := X_SystemReset;
+fbConveyorDownstream.i_DriveAlarm := X_DriveAlarm_Downstream;
+fbConveyorDownstream.i_Offline := bSystemOffline;
+fbConveyorDownstream.i_SpeedFrequency := I_SpeedSet_Downstream;
+
+
+(* ---------- Step 7: 调用3个FB实例 (核心控制逻辑) ---------- *)
+(* 注意: 调用顺序不影响逻辑,但建议按物料流向顺序调用 *)
+
+fbConveyorUpstream();
+fbConveyorStation();
+fbConveyorDownstream();
+
+
+(* ---------- Step 8: 映射输出到物理IO ---------- *)
+
+(* 8.1 电机运行输出 *)
+Y_MotorRun_Upstream   := fbConveyorUpstream.q_MotorRunning;
+Y_MotorRun_Station    := fbConveyorStation.q_MotorRunning;
+Y_MotorRun_Downstream := fbConveyorDownstream.q_MotorRunning;
+
+(* 8.2 运行指示灯 (绿色) *)
+Y_RunInd_Upstream     := fbConveyorUpstream.q_MotorRunning;
+Y_RunInd_Station      := fbConveyorStation.q_MotorRunning;
+Y_RunInd_Downstream   := fbConveyorDownstream.q_MotorRunning;
+
+(* 8.3 故障指示灯 (红色) *)
+Y_FaultInd_Upstream   := fbConveyorUpstream.q_MotorFault;
+Y_FaultInd_Station    := fbConveyorStation.q_MotorFault;
+Y_FaultInd_Downstream := fbConveyorDownstream.q_MotorFault;
+
+(* 8.4 产品到位指示 (黄色) *)
+Y_ProductDone_Upstream   := fbConveyorUpstream.q_ProductInPlaceDone;
+Y_ProductDone_Station    := fbConveyorStation.q_ProductInPlaceDone;
+Y_ProductDone_Downstream := fbConveyorDownstream.q_ProductInPlaceDone;
+
+(* 8.5 速度模拟量输出 (到变频器) *)
+Q_SpeedFreq_Upstream   := fbConveyorUpstream.q_SpeedOutput;
+Q_SpeedFreq_Station    := fbConveyorStation.q_SpeedOutput;
+Q_SpeedFreq_Downstream := fbConveyorDownstream.q_SpeedOutput;
+
+(* 8.6 状态字输出到数据寄存器 (供HMI读取) *)
+D_StatusWord_Upstream   := fbConveyorUpstream.q_StatusWord;
+D_StatusWord_Station    := fbConveyorStation.q_StatusWord;
+D_StatusWord_Downstream := fbConveyorDownstream.q_StatusWord;
+
+
+(* ---------- Step 9: 生产计数 (本站产品到位完成上升沿) ---------- *)
+fbRisingCounter_StationDone(CLK := fbConveyorStation.q_ProductInPlaceDone);
+
+IF fbRisingCounter_StationDone.Q THEN
+    nProductCount := nProductCount + 1;
+    D_ProductCount := nProductCount;
+END_IF;
+
+
+(* ==================== 主逻辑结束 ==================== *)
+
+
+(*
+ * ============================================
+ * 变量地址映射速查表 (对应 GVL_GlobalVariables.scl)
+ * ============================================
+ *
+ * 【操作按钮】
+ *   %IX0.0  X_SystemReset         系统复位
+ *   %IX0.1  X_EmergencyStop        急停(常闭)
+ *   %IX0.2  X_Start_Upstream      上游启动
+ *   %IX0.3  X_Stop_Upstream       上游停止
+ *   %IX0.4  X_Start_Station       本站启动
+ *   %IX0.5  X_Stop_Station        本站停止
+ *   %IX0.6  X_Start_Downstream    下游启动
+ *   %IX0.7  X_Stop_Downstream     下游停止
+ *
+ * 【传感器】
+ *   %IX1.0  X_SensorUpstream_Inlet     上游入口
+ *   %IX1.1  X_SensorUpstream_Position1 上游到位
+ *   %IX1.2  X_SensorStation_Position1   本站到位
+ *   %IX1.3  X_SensorDownstream_Position1 下游到位
+ *   %IX1.4  X_SensorDownstream_Outlet   下游出口
+ *
+ * 【驱动器状态】
+ *   %IX2.0  X_DriveAlarm_Upstream    上游报警
+ *   %IX2.1  X_DriveAlarm_Station     本站报警
+ *   %IX2.2  X_DriveAlarm_Downstream  下游报警
+ *
+ * 【电机输出】
+ *   %QX0.0  Y_MotorRun_Upstream     上游电机
+ *   %QX0.1  Y_MotorRun_Station      本站电机
+ *   %QX0.2  Y_MotorRun_Downstream   下游电机
+ *
+ * 【指示灯】
+ *   %QX1.0~2  运行指示(绿)/故障指示(红)/到位指示(黄)
+ *   %QX2.1  Y_Alarm_Buzzer          蜂鸣器
+ *   %QX2.2  Y_Alarm_TowerLight       塔灯
+ *
+ * 【寄存器】
+ *   %DW0    D_MainControlMode       模式设定
+ *   %DW2/4/6 方向设定(上/本/下)
+ *   %DW10/12/14 状态字(上/本/下)
+ *   %DW16   D_SystemStatus          系统状态
+ *   %DW18   D_ProductCount          生产计数
+ *
+ * 【模拟量】
+ *   %IW0/2/4 速度设定(Hz)  上/本/下
+ *   %QW0/2/4 速度输出(V)  上/本/下
+ *
+ * ============================================
+ *)

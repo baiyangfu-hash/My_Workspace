@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug PLC (DJ-2026-000)",
+            "type": "plc",
+            "request": "launch",
+            "program": "${file}",
+            "plcRoot": "d:\\BaiduSyncdisk\\My_Workspace\\0100_项目\\DJ-2026-000",
+            "stopOnEntry": false,
+            "entryOb": "OB1"
+        },
+        {
+            "name": "Debug PLC (DJ-2026-005)",
+            "type": "plc",
+            "request": "launch",
+            "program": "${file}",
+            "plcRoot": "d:\\BaiduSyncdisk\\My_Workspace\\0100_项目\\DJ-2026-005",
+            "stopOnEntry": false,
+            "entryOb": "OB1"
+        }
+    ]
+}
