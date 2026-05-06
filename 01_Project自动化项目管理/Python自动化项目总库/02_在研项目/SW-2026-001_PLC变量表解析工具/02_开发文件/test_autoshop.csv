@@ -1,0 +1,4 @@
+变量名,数据类型,地址,注释
+Var1,INT,DB1.DBW0,变量1
+Var2,BOOL,DB1.DBX1.0,变量2
+Var3,REAL,DB1.DBD2,变量3

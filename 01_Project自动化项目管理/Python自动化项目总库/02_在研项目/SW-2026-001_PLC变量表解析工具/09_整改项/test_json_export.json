@@ -1,0 +1,240 @@
+[
+  {
+    "name": "i_bStartProcessing",
+    "type": "BOOL",
+    "address": "",
+    "description": "开始加工信号，上升沿触发",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder1HomeSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸1原点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder1ExtendSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸1动点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder2HomeSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸2原点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder2ExtendSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸2动点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder3HomeSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸3原点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder3ExtendSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸3动点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder4HomeSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸4原点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bCylinder4ExtendSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸4动点传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bBarcodeAppliedSensor",
+    "type": "BOOL",
+    "address": "",
+    "description": "条码已贴传感器信号",
+    "scope": "IN"
+  },
+  {
+    "name": "i_bEmergencyStop",
+    "type": "BOOL",
+    "address": "",
+    "description": "紧急停止信号",
+    "scope": "IN"
+  },
+  {
+    "name": "q_bCylinder1Extend",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸1伸出控制信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bCylinder2Extend",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸2伸出控制信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bCylinder3Extend",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸3伸出控制信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bCylinder4Extend",
+    "type": "BOOL",
+    "address": "",
+    "description": "气缸4伸出控制信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bApplyBarcode",
+    "type": "BOOL",
+    "address": "",
+    "description": "贴条码控制信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bProcessingActive",
+    "type": "BOOL",
+    "address": "",
+    "description": "加工进行中信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bProcessingDone",
+    "type": "BOOL",
+    "address": "",
+    "description": "加工完成信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_bError",
+    "type": "BOOL",
+    "address": "",
+    "description": "错误信号",
+    "scope": "OUT"
+  },
+  {
+    "name": "q_nStatusWord",
+    "type": "INT",
+    "address": "",
+    "description": "状态字(0:空闲",
+    "scope": "OUT"
+  },
+  {
+    "name": "bStartTriggered",
+    "type": "BOOL",
+    "address": "",
+    "description": "开始信号触发标志",
+    "scope": "VAR"
+  },
+  {
+    "name": "bAllCylindersExtended",
+    "type": "BOOL",
+    "address": "",
+    "description": "所有气缸伸出到位标志",
+    "scope": "VAR"
+  },
+  {
+    "name": "bAllCylindersRetracted",
+    "type": "BOOL",
+    "address": "",
+    "description": "所有气缸收回到位标志",
+    "scope": "VAR"
+  },
+  {
+    "name": "bBarcodeApplied",
+    "type": "BOOL",
+    "address": "",
+    "description": "条码已贴标志",
+    "scope": "VAR"
+  },
+  {
+    "name": "tCylinderExtendTimer",
+    "type": "TON",
+    "address": "",
+    "description": "",
+    "scope": "VAR"
+  },
+  {
+    "name": "tBarcodeApplyTimer",
+    "type": "TON",
+    "address": "",
+    "description": "",
+    "scope": "VAR"
+  },
+  {
+    "name": "tCylinderRetractTimer",
+    "type": "TON",
+    "address": "",
+    "description": "",
+    "scope": "VAR"
+  },
+  {
+    "name": "tErrorTimer",
+    "type": "TON",
+    "address": "",
+    "description": "",
+    "scope": "VAR"
+  },
+  {
+    "name": "c_nCylinderExtendTime",
+    "type": "TIME",
+    "address": "",
+    "description": "气缸伸出时间",
+    "scope": "VAR"
+  },
+  {
+    "name": "c_nBarcodeApplyTime",
+    "type": "TIME",
+    "address": "",
+    "description": "贴条码时间",
+    "scope": "VAR"
+  },
+  {
+    "name": "c_nCylinderRetractTime",
+    "type": "TIME",
+    "address": "",
+    "description": "气缸收回时间",
+    "scope": "VAR"
+  },
+  {
+    "name": "c_nErrorTimeout",
+    "type": "TIME",
+    "address": "",
+    "description": "错误检测超时时间",
+    "scope": "VAR"
+  },
+  {
+    "name": "bAllCylindersExtendedTemp",
+    "type": "BOOL",
+    "address": "",
+    "description": "所有气缸伸出到位临时标志",
+    "scope": "VAR"
+  },
+  {
+    "name": "bAllCylindersRetractedTemp",
+    "type": "BOOL",
+    "address": "",
+    "description": "所有气缸收回到位临时标志",
+    "scope": "VAR"
+  }
+]

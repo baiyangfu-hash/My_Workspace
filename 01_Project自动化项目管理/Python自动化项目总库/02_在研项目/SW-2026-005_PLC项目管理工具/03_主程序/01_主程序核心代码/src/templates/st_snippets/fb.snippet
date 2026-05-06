@@ -1,0 +1,53 @@
+# ST代码片段: Function Block模板
+# 用途: 快速生成标准FB结构
+# 触发关键字: fb
+
+FUNCTION_BLOCK {{FB_NAME}}
+VAR_INPUT
+    (* 输入变量 *)
+    bEnable     : BOOL;
+    bReset      : BOOL;
+END_VAR
+
+VAR_OUTPUT
+    (* 输出变量 *)
+    bDone       : BOOL;
+    bError      : BOOL;
+    nErrorID    : INT;
+END_VAR
+
+VAR
+    (* 内部变量 *)
+    fbState     : INT := 0;   (* 状态机状态 *)
+    tonDelay    : TON;        (* 延时定时器 *)
+END_VAR
+
+
+(* ===== 状态机主逻辑 ===== *)
+CASE fbState OF
+    0:  (* 待机/初始化 *)
+        bDone := FALSE;
+        bError := FALSE;
+        nErrorID := 0;
+        IF bEnable THEN
+            fbState := 10;
+        END_IF;
+
+    10: (* 运行中 - 请根据实际需求修改 *)
+        (* TODO: 添加业务逻辑 *)
+        IF bReset THEN
+            fbState := 0;
+        ELSIF NOT bEnable THEN
+            fbState := 20;
+        END_IF;
+
+    20: (* 停止处理 *)
+        bDone := TRUE;
+        fbState := 0;
+
+ELSE
+    bError := TRUE;
+    nErrorID := 1;  (* 未知状态 *)
+END_CASE;
+
+END_FUNCTION_BLOCK

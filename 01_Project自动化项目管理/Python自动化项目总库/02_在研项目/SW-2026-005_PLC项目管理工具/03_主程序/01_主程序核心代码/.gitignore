@@ -1,0 +1,89 @@
+# -*- coding: utf-8 -*-
+"""
+.gitignore - SW-2026-005 PLC项目管理工具
+"""
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# === 虚拟环境 ===
+venv/
+ENV/
+env/
+.venv/
+
+# === IDE ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# === 操作系统 ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === 项目特定 ===
+# 数据库文件
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# 日志文件
+logs/*.log
+*.log
+
+# 备份文件
+backups/
+*.bak
+*.tmp
+
+# 配置文件 (敏感信息)
+config/app_config.json
+config/database_config.json
+
+# 运行时数据
+data/
+*.pid
+
+# 测试覆盖率
+htmlcov/
+.coverage
+.coverage.*
+pytest_cache/
+.nox/
+
+# mypy
+.mypy_cache/
+
+# 打包输出
+dist/
+build/
+*.spec
+
+# QSS编译缓存 (如有)
+*.qss.cache
