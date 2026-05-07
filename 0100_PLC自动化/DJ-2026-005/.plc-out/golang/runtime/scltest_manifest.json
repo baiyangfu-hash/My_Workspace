@@ -1,0 +1,13 @@
+{
+  "cases": [
+    {
+      "sourcePath": "02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest",
+      "ordinalInFile": 1,
+      "name": "test_simple",
+      "line": 1,
+      "column": 1,
+      "stableId": "scltest:02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest:L1:C1:test_simple",
+      "goTestName": "TestUserCase001_TestSimple"
+    }
+  ]
+}

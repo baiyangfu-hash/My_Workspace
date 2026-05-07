@@ -1,0 +1,4 @@
+{"name": "DJ-2026-005_边框缓存机", 
+"description": "边框缓存机PLC控制项目", 
+"version": "1.0.0", 
+"libraries": ["../01_SharedLibraries/SysLib"]}

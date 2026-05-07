@@ -1,0 +1,1650 @@
+{
+  "original_to_generated": [
+    {
+      "key": "FB_VALVECONTROL.AutoManual",
+      "value": "FB_VALVECONTROL.v_AutoManual"
+    },
+    {
+      "key": "FB_VALVECONTROL.AutoManual",
+      "value": "FB_VALVECONTROL.v_AutoManual"
+    },
+    {
+      "key": "FB_VALVECONTROL.CloseCmd",
+      "value": "FB_VALVECONTROL.v_CloseCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.CloseCmd",
+      "value": "FB_VALVECONTROL.v_CloseCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.CloseCmd_R",
+      "value": "FB_VALVECONTROL.v_CLOSECMD_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.CloseCmd_R",
+      "value": "FB_VALVECONTROL.v_CLOSECMD_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.CloseLimit",
+      "value": "FB_VALVECONTROL.v_CloseLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.CloseLimit",
+      "value": "FB_VALVECONTROL.v_CloseLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.FaultLocked",
+      "value": "FB_VALVECONTROL.v_FaultLocked"
+    },
+    {
+      "key": "FB_VALVECONTROL.FaultLocked",
+      "value": "FB_VALVECONTROL.v_FaultLocked"
+    },
+    {
+      "key": "FB_VALVECONTROL.FaultReset",
+      "value": "FB_VALVECONTROL.v_FaultReset"
+    },
+    {
+      "key": "FB_VALVECONTROL.FaultReset",
+      "value": "FB_VALVECONTROL.v_FaultReset"
+    },
+    {
+      "key": "FB_VALVECONTROL.FaultStatus",
+      "value": "FB_VALVECONTROL.v_FaultStatus"
+    },
+    {
+      "key": "FB_VALVECONTROL.FaultStatus",
+      "value": "FB_VALVECONTROL.v_FaultStatus"
+    },
+    {
+      "key": "FB_VALVECONTROL.OpenCmd",
+      "value": "FB_VALVECONTROL.v_OpenCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.OpenCmd",
+      "value": "FB_VALVECONTROL.v_OpenCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.OpenCmd_R",
+      "value": "FB_VALVECONTROL.v_OPENCMD_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.OpenCmd_R",
+      "value": "FB_VALVECONTROL.v_OPENCMD_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.OpenLimit",
+      "value": "FB_VALVECONTROL.v_OpenLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.OpenLimit",
+      "value": "FB_VALVECONTROL.v_OpenLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.OverCurrent",
+      "value": "FB_VALVECONTROL.v_OverCurrent"
+    },
+    {
+      "key": "FB_VALVECONTROL.OverCurrent",
+      "value": "FB_VALVECONTROL.v_OverCurrent"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveClose",
+      "value": "FB_VALVECONTROL.v_ValveClose"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveClose",
+      "value": "FB_VALVECONTROL.v_ValveClose"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveOpen",
+      "value": "FB_VALVECONTROL.v_ValveOpen"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveOpen",
+      "value": "FB_VALVECONTROL.v_ValveOpen"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveState",
+      "value": "FB_VALVECONTROL.v_ValveState"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveState",
+      "value": "FB_VALVECONTROL.v_ValveState"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveState",
+      "value": "FB_VALVECONTROL.v_ValveState"
+    },
+    {
+      "key": "FB_VALVECONTROL.ValveState",
+      "value": "FB_VALVECONTROL.v_ValveState"
+    },
+    {
+      "key": "FB_ValveControl",
+      "value": "FB_ValveControl"
+    },
+    {
+      "key": "GLOBALVARS.Counter_A",
+      "value": "GLOBALVARS.v_COUNTER_A"
+    },
+    {
+      "key": "GLOBALVARS.Counter_A",
+      "value": "GLOBALVARS.v_COUNTER_A"
+    },
+    {
+      "key": "GLOBALVARS.Counter_B",
+      "value": "GLOBALVARS.v_COUNTER_B"
+    },
+    {
+      "key": "GLOBALVARS.Counter_B",
+      "value": "GLOBALVARS.v_COUNTER_B"
+    },
+    {
+      "key": "GLOBALVARS.FaultReset",
+      "value": "GLOBALVARS.v_FaultReset"
+    },
+    {
+      "key": "GLOBALVARS.FaultReset",
+      "value": "GLOBALVARS.v_FaultReset"
+    },
+    {
+      "key": "GLOBALVARS.FaultStatus",
+      "value": "GLOBALVARS.v_FaultStatus"
+    },
+    {
+      "key": "GLOBALVARS.FaultStatus",
+      "value": "GLOBALVARS.v_FaultStatus"
+    },
+    {
+      "key": "GLOBALVARS.Hmibutton",
+      "value": "GLOBALVARS.v_Hmibutton"
+    },
+    {
+      "key": "GLOBALVARS.Hmibutton",
+      "value": "GLOBALVARS.v_Hmibutton"
+    },
+    {
+      "key": "GLOBALVARS.ValveClose",
+      "value": "GLOBALVARS.v_ValveClose"
+    },
+    {
+      "key": "GLOBALVARS.ValveClose",
+      "value": "GLOBALVARS.v_ValveClose"
+    },
+    {
+      "key": "GLOBALVARS.ValveCtrl",
+      "value": "GLOBALVARS.v_ValveCtrl"
+    },
+    {
+      "key": "GLOBALVARS.ValveCtrl",
+      "value": "GLOBALVARS.v_ValveCtrl"
+    },
+    {
+      "key": "GLOBALVARS.ValveOpen",
+      "value": "GLOBALVARS.v_ValveOpen"
+    },
+    {
+      "key": "GLOBALVARS.ValveOpen",
+      "value": "GLOBALVARS.v_ValveOpen"
+    },
+    {
+      "key": "GLOBALVARS.ValveState",
+      "value": "GLOBALVARS.v_ValveState"
+    },
+    {
+      "key": "GLOBALVARS.ValveState",
+      "value": "GLOBALVARS.v_ValveState"
+    },
+    {
+      "key": "GLOBALVARS.ValveState",
+      "value": "GLOBALVARS.v_ValveState"
+    },
+    {
+      "key": "GLOBALVARS.ValveState",
+      "value": "GLOBALVARS.v_ValveState"
+    },
+    {
+      "key": "GLOBALVARS.bOut_A",
+      "value": "GLOBALVARS.v_BOUT_A"
+    },
+    {
+      "key": "GLOBALVARS.bOut_A",
+      "value": "GLOBALVARS.v_BOUT_A"
+    },
+    {
+      "key": "GLOBALVARS.bOut_B",
+      "value": "GLOBALVARS.v_BOUT_B"
+    },
+    {
+      "key": "GLOBALVARS.bOut_B",
+      "value": "GLOBALVARS.v_BOUT_B"
+    },
+    {
+      "key": "GLOBALVARS.bStart_A",
+      "value": "GLOBALVARS.v_BSTART_A"
+    },
+    {
+      "key": "GLOBALVARS.bStart_A",
+      "value": "GLOBALVARS.v_BSTART_A"
+    },
+    {
+      "key": "GLOBALVARS.bStart_B",
+      "value": "GLOBALVARS.v_BSTART_B"
+    },
+    {
+      "key": "GLOBALVARS.bStart_B",
+      "value": "GLOBALVARS.v_BSTART_B"
+    },
+    {
+      "key": "GlobalVars",
+      "value": "GlobalVars"
+    },
+    {
+      "key": "Memory.GlobalVars",
+      "value": "Memory.v_GlobalVars"
+    },
+    {
+      "key": "OB1",
+      "value": "OB1"
+    }
+  ],
+  "generated_to_original": [
+    {
+      "key": "FB_VALVECONTROL.v_AutoManual",
+      "value": "FB_VALVECONTROL.AutoManual"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_AutoManual",
+      "value": "FB_VALVECONTROL.AutoManual"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_CLOSECMD_R",
+      "value": "FB_VALVECONTROL.CloseCmd_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_CLOSECMD_R",
+      "value": "FB_VALVECONTROL.CloseCmd_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_CloseCmd",
+      "value": "FB_VALVECONTROL.CloseCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_CloseCmd",
+      "value": "FB_VALVECONTROL.CloseCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_CloseLimit",
+      "value": "FB_VALVECONTROL.CloseLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_CloseLimit",
+      "value": "FB_VALVECONTROL.CloseLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_FaultLocked",
+      "value": "FB_VALVECONTROL.FaultLocked"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_FaultLocked",
+      "value": "FB_VALVECONTROL.FaultLocked"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_FaultReset",
+      "value": "FB_VALVECONTROL.FaultReset"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_FaultReset",
+      "value": "FB_VALVECONTROL.FaultReset"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_FaultStatus",
+      "value": "FB_VALVECONTROL.FaultStatus"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_FaultStatus",
+      "value": "FB_VALVECONTROL.FaultStatus"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OPENCMD_R",
+      "value": "FB_VALVECONTROL.OpenCmd_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OPENCMD_R",
+      "value": "FB_VALVECONTROL.OpenCmd_R"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OpenCmd",
+      "value": "FB_VALVECONTROL.OpenCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OpenCmd",
+      "value": "FB_VALVECONTROL.OpenCmd"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OpenLimit",
+      "value": "FB_VALVECONTROL.OpenLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OpenLimit",
+      "value": "FB_VALVECONTROL.OpenLimit"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OverCurrent",
+      "value": "FB_VALVECONTROL.OverCurrent"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_OverCurrent",
+      "value": "FB_VALVECONTROL.OverCurrent"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveClose",
+      "value": "FB_VALVECONTROL.ValveClose"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveClose",
+      "value": "FB_VALVECONTROL.ValveClose"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveOpen",
+      "value": "FB_VALVECONTROL.ValveOpen"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveOpen",
+      "value": "FB_VALVECONTROL.ValveOpen"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveState",
+      "value": "FB_VALVECONTROL.ValveState"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveState",
+      "value": "FB_VALVECONTROL.ValveState"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveState",
+      "value": "FB_VALVECONTROL.ValveState"
+    },
+    {
+      "key": "FB_VALVECONTROL.v_ValveState",
+      "value": "FB_VALVECONTROL.ValveState"
+    },
+    {
+      "key": "FB_ValveControl",
+      "value": "FB_ValveControl"
+    },
+    {
+      "key": "GLOBALVARS.v_BOUT_A",
+      "value": "GLOBALVARS.bOut_A"
+    },
+    {
+      "key": "GLOBALVARS.v_BOUT_A",
+      "value": "GLOBALVARS.bOut_A"
+    },
+    {
+      "key": "GLOBALVARS.v_BOUT_B",
+      "value": "GLOBALVARS.bOut_B"
+    },
+    {
+      "key": "GLOBALVARS.v_BOUT_B",
+      "value": "GLOBALVARS.bOut_B"
+    },
+    {
+      "key": "GLOBALVARS.v_BSTART_A",
+      "value": "GLOBALVARS.bStart_A"
+    },
+    {
+      "key": "GLOBALVARS.v_BSTART_A",
+      "value": "GLOBALVARS.bStart_A"
+    },
+    {
+      "key": "GLOBALVARS.v_BSTART_B",
+      "value": "GLOBALVARS.bStart_B"
+    },
+    {
+      "key": "GLOBALVARS.v_BSTART_B",
+      "value": "GLOBALVARS.bStart_B"
+    },
+    {
+      "key": "GLOBALVARS.v_COUNTER_A",
+      "value": "GLOBALVARS.Counter_A"
+    },
+    {
+      "key": "GLOBALVARS.v_COUNTER_A",
+      "value": "GLOBALVARS.Counter_A"
+    },
+    {
+      "key": "GLOBALVARS.v_COUNTER_B",
+      "value": "GLOBALVARS.Counter_B"
+    },
+    {
+      "key": "GLOBALVARS.v_COUNTER_B",
+      "value": "GLOBALVARS.Counter_B"
+    },
+    {
+      "key": "GLOBALVARS.v_FaultReset",
+      "value": "GLOBALVARS.FaultReset"
+    },
+    {
+      "key": "GLOBALVARS.v_FaultReset",
+      "value": "GLOBALVARS.FaultReset"
+    },
+    {
+      "key": "GLOBALVARS.v_FaultStatus",
+      "value": "GLOBALVARS.FaultStatus"
+    },
+    {
+      "key": "GLOBALVARS.v_FaultStatus",
+      "value": "GLOBALVARS.FaultStatus"
+    },
+    {
+      "key": "GLOBALVARS.v_Hmibutton",
+      "value": "GLOBALVARS.Hmibutton"
+    },
+    {
+      "key": "GLOBALVARS.v_Hmibutton",
+      "value": "GLOBALVARS.Hmibutton"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveClose",
+      "value": "GLOBALVARS.ValveClose"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveClose",
+      "value": "GLOBALVARS.ValveClose"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveCtrl",
+      "value": "GLOBALVARS.ValveCtrl"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveCtrl",
+      "value": "GLOBALVARS.ValveCtrl"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveOpen",
+      "value": "GLOBALVARS.ValveOpen"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveOpen",
+      "value": "GLOBALVARS.ValveOpen"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveState",
+      "value": "GLOBALVARS.ValveState"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveState",
+      "value": "GLOBALVARS.ValveState"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveState",
+      "value": "GLOBALVARS.ValveState"
+    },
+    {
+      "key": "GLOBALVARS.v_ValveState",
+      "value": "GLOBALVARS.ValveState"
+    },
+    {
+      "key": "GlobalVars",
+      "value": "GlobalVars"
+    },
+    {
+      "key": "Memory.v_GlobalVars",
+      "value": "Memory.GlobalVars"
+    },
+    {
+      "key": "OB1",
+      "value": "OB1"
+    }
+  ],
+  "entries": [
+    {
+      "original": "GlobalVars",
+      "generated": "GlobalVars",
+      "kind": "DATA_BLOCK",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 17,
+      "column": 12
+    },
+    {
+      "original": "FB_ValveControl",
+      "generated": "FB_ValveControl",
+      "kind": "FUNCTION_BLOCK",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 23,
+      "column": 16
+    },
+    {
+      "original": "OB1",
+      "generated": "OB1",
+      "kind": "ORGANIZATION_BLOCK",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 19,
+      "column": 20
+    },
+    {
+      "original": "FB_VALVECONTROL.AutoManual",
+      "generated": "FB_VALVECONTROL.v_AutoManual",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 28,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OpenCmd",
+      "generated": "FB_VALVECONTROL.v_OpenCmd",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 33,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.CloseCmd",
+      "generated": "FB_VALVECONTROL.v_CloseCmd",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 34,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OverCurrent",
+      "generated": "FB_VALVECONTROL.v_OverCurrent",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 39,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OpenLimit",
+      "generated": "FB_VALVECONTROL.v_OpenLimit",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 40,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.CloseLimit",
+      "generated": "FB_VALVECONTROL.v_CloseLimit",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 41,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.FaultReset",
+      "generated": "FB_VALVECONTROL.v_FaultReset",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 46,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.FaultStatus",
+      "generated": "FB_VALVECONTROL.v_FaultStatus",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 53,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveOpen",
+      "generated": "FB_VALVECONTROL.v_ValveOpen",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 54,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveClose",
+      "generated": "FB_VALVECONTROL.v_ValveClose",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 55,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveState",
+      "generated": "FB_VALVECONTROL.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 56,
+      "column": 6
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveState",
+      "generated": "FB_VALVECONTROL.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 64,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OpenCmd_R",
+      "generated": "FB_VALVECONTROL.v_OPENCMD_R",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 67,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.CloseCmd_R",
+      "generated": "FB_VALVECONTROL.v_CLOSECMD_R",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 68,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.FaultLocked",
+      "generated": "FB_VALVECONTROL.v_FaultLocked",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 70,
+      "column": 5
+    },
+    {
+      "original": "GLOBALVARS.Hmibutton",
+      "generated": "GLOBALVARS.v_Hmibutton",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 22,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveState",
+      "generated": "GLOBALVARS.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 30,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveOpen",
+      "generated": "GLOBALVARS.v_ValveOpen",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 31,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveClose",
+      "generated": "GLOBALVARS.v_ValveClose",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 32,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.FaultStatus",
+      "generated": "GLOBALVARS.v_FaultStatus",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 33,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.FaultReset",
+      "generated": "GLOBALVARS.v_FaultReset",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 38,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveCtrl",
+      "generated": "GLOBALVARS.v_ValveCtrl",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 39,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.Counter_A",
+      "generated": "GLOBALVARS.v_COUNTER_A",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 45,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bStart_A",
+      "generated": "GLOBALVARS.v_BSTART_A",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 49,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bOut_A",
+      "generated": "GLOBALVARS.v_BOUT_A",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 52,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.Counter_B",
+      "generated": "GLOBALVARS.v_COUNTER_B",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 58,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bStart_B",
+      "generated": "GLOBALVARS.v_BSTART_B",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 61,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bOut_B",
+      "generated": "GLOBALVARS.v_BOUT_B",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 62,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveState",
+      "generated": "GLOBALVARS.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 63,
+      "column": 9
+    },
+    {
+      "original": "FB_VALVECONTROL.AutoManual",
+      "generated": "FB_VALVECONTROL.v_AutoManual",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 28,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OpenCmd",
+      "generated": "FB_VALVECONTROL.v_OpenCmd",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 33,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.CloseCmd",
+      "generated": "FB_VALVECONTROL.v_CloseCmd",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 34,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OverCurrent",
+      "generated": "FB_VALVECONTROL.v_OverCurrent",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 39,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OpenLimit",
+      "generated": "FB_VALVECONTROL.v_OpenLimit",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 40,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.CloseLimit",
+      "generated": "FB_VALVECONTROL.v_CloseLimit",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 41,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.FaultReset",
+      "generated": "FB_VALVECONTROL.v_FaultReset",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 46,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.FaultStatus",
+      "generated": "FB_VALVECONTROL.v_FaultStatus",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 53,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveOpen",
+      "generated": "FB_VALVECONTROL.v_ValveOpen",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 54,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveClose",
+      "generated": "FB_VALVECONTROL.v_ValveClose",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 55,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveState",
+      "generated": "FB_VALVECONTROL.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 56,
+      "column": 6
+    },
+    {
+      "original": "FB_VALVECONTROL.ValveState",
+      "generated": "FB_VALVECONTROL.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 64,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.OpenCmd_R",
+      "generated": "FB_VALVECONTROL.v_OPENCMD_R",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 67,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.CloseCmd_R",
+      "generated": "FB_VALVECONTROL.v_CLOSECMD_R",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 68,
+      "column": 5
+    },
+    {
+      "original": "FB_VALVECONTROL.FaultLocked",
+      "generated": "FB_VALVECONTROL.v_FaultLocked",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 70,
+      "column": 5
+    },
+    {
+      "original": "GLOBALVARS.Hmibutton",
+      "generated": "GLOBALVARS.v_Hmibutton",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 22,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveState",
+      "generated": "GLOBALVARS.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 30,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveOpen",
+      "generated": "GLOBALVARS.v_ValveOpen",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 31,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveClose",
+      "generated": "GLOBALVARS.v_ValveClose",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 32,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.FaultStatus",
+      "generated": "GLOBALVARS.v_FaultStatus",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 33,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.FaultReset",
+      "generated": "GLOBALVARS.v_FaultReset",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 38,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveCtrl",
+      "generated": "GLOBALVARS.v_ValveCtrl",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 39,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.Counter_A",
+      "generated": "GLOBALVARS.v_COUNTER_A",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 45,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bStart_A",
+      "generated": "GLOBALVARS.v_BSTART_A",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 49,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bOut_A",
+      "generated": "GLOBALVARS.v_BOUT_A",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 52,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.Counter_B",
+      "generated": "GLOBALVARS.v_COUNTER_B",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 58,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bStart_B",
+      "generated": "GLOBALVARS.v_BSTART_B",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 61,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.bOut_B",
+      "generated": "GLOBALVARS.v_BOUT_B",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 62,
+      "column": 9
+    },
+    {
+      "original": "GLOBALVARS.ValveState",
+      "generated": "GLOBALVARS.v_ValveState",
+      "kind": "FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 63,
+      "column": 9
+    },
+    {
+      "original": "Memory.GlobalVars",
+      "generated": "Memory.v_GlobalVars",
+      "kind": "MEM_FIELD",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "line": 17,
+      "column": 12
+    }
+  ],
+  "statement_variables": [
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:79",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 79,
+      "column": 5,
+      "variables": [
+        {
+          "name": "OverCurrent"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:80",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 80,
+      "column": 9,
+      "variables": [
+        {
+          "name": "FaultLocked",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:81",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 81,
+      "column": 9,
+      "variables": [
+        {
+          "name": "FaultStatus",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:84",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 84,
+      "column": 9,
+      "variables": [
+        {
+          "name": "ValveOpen",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:85",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 85,
+      "column": 9,
+      "variables": [
+        {
+          "name": "ValveClose",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:86",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 86,
+      "column": 9,
+      "variables": [
+        {
+          "name": "ValveState",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:90",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 90,
+      "column": 5,
+      "variables": [
+        {
+          "name": "FaultReset"
+        },
+        {
+          "name": "OverCurrent"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:91",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 91,
+      "column": 9,
+      "variables": [
+        {
+          "name": "FaultLocked",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:92",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 92,
+      "column": 9,
+      "variables": [
+        {
+          "name": "FaultStatus",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:96",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 96,
+      "column": 5,
+      "variables": [
+        {
+          "name": "FaultLocked"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:97",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 97,
+      "column": 9
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:104",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 104,
+      "column": 5,
+      "variables": [
+        {
+          "name": "AutoManual"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:109",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 109,
+      "column": 9,
+      "variables": [
+        {
+          "name": "OpenCmd"
+        },
+        {
+          "name": "OpenCmd_R"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:111",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 111,
+      "column": 13,
+      "variables": [
+        {
+          "name": "ValveState"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:112",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 112,
+      "column": 17,
+      "variables": [
+        {
+          "name": "ValveState",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:113",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 113,
+      "column": 17,
+      "variables": [
+        {
+          "name": "ValveOpen",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:114",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 114,
+      "column": 17,
+      "variables": [
+        {
+          "name": "ValveClose",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:121",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 121,
+      "column": 9,
+      "variables": [
+        {
+          "name": "CloseCmd"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:123",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 123,
+      "column": 13,
+      "variables": [
+        {
+          "name": "ValveState"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:124",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 124,
+      "column": 17,
+      "variables": [
+        {
+          "name": "ValveState",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:125",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 125,
+      "column": 17,
+      "variables": [
+        {
+          "name": "ValveClose",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:126",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 126,
+      "column": 17,
+      "variables": [
+        {
+          "name": "ValveOpen",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:134",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 134,
+      "column": 9,
+      "variables": [
+        {
+          "name": "OpenLimit"
+        },
+        {
+          "name": "ValveState"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:135",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 135,
+      "column": 13,
+      "variables": [
+        {
+          "name": "ValveState",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:136",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 136,
+      "column": 13,
+      "variables": [
+        {
+          "name": "ValveOpen",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:140",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 140,
+      "column": 9,
+      "variables": [
+        {
+          "name": "CloseLimit"
+        },
+        {
+          "name": "ValveState"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:141",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 141,
+      "column": 13,
+      "variables": [
+        {
+          "name": "ValveState",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:142",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 142,
+      "column": 13,
+      "variables": [
+        {
+          "name": "ValveClose",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:148",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 148,
+      "column": 9,
+      "variables": [
+        {
+          "name": "ValveOpen",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:149",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 149,
+      "column": 9,
+      "variables": [
+        {
+          "name": "ValveClose",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:155",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 155,
+      "column": 5,
+      "variables": [
+        {
+          "name": "OpenCmd_R",
+          "is_write": true
+        },
+        {
+          "name": "OpenCmd"
+        }
+      ]
+    },
+    {
+      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:156",
+      "block": "FB_ValveControl",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "line": 156,
+      "column": 5,
+      "variables": [
+        {
+          "name": "CloseCmd_R",
+          "is_write": true
+        },
+        {
+          "name": "CloseCmd"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:26",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 26,
+      "column": 1,
+      "variables": [
+        {
+          "name": "GlobalVars.Hmibutton[0]"
+        },
+        {
+          "name": "GlobalVars.Hmibutton[1]"
+        },
+        {
+          "name": "GlobalVars.Hmibutton[2]"
+        },
+        {
+          "name": "GlobalVars.Hmibutton[3]"
+        },
+        {
+          "name": "GlobalVars.Hmibutton[4]"
+        },
+        {
+          "name": "GlobalVars.Hmibutton[5]"
+        },
+        {
+          "name": "GlobalVars.Hmibutton[6]"
+        },
+        {
+          "name": "GlobalVars.FaultStatus",
+          "is_write": true
+        },
+        {
+          "name": "GlobalVars.ValveOpen",
+          "is_write": true
+        },
+        {
+          "name": "GlobalVars.ValveClose",
+          "is_write": true
+        },
+        {
+          "name": "GlobalVars.ValveState",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:48",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 48,
+      "column": 1,
+      "variables": [
+        {
+          "name": "GlobalVars.Hmibutton[7]"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:49",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 49,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_A",
+          "is_write": true
+        },
+        {
+          "name": "GlobalVars.Counter_A"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:51",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 51,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_A"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:52",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 52,
+      "column": 9,
+      "variables": [
+        {
+          "name": "GlobalVars.bOut_A",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:53",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 53,
+      "column": 9,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_A",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:56",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 56,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.bOut_A",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:57",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 57,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_A",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:64",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 64,
+      "column": 1,
+      "variables": [
+        {
+          "name": "GlobalVars.Hmibutton[8]"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:65",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 65,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_B",
+          "is_write": true
+        },
+        {
+          "name": "GlobalVars.Counter_B"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:67",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 67,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_B"
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:68",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 68,
+      "column": 9,
+      "variables": [
+        {
+          "name": "GlobalVars.bOut_B",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:69",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 69,
+      "column": 9,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_B",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:72",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 72,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.bOut_B",
+          "is_write": true
+        }
+      ]
+    },
+    {
+      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:73",
+      "block": "OB1",
+      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "line": 73,
+      "column": 5,
+      "variables": [
+        {
+          "name": "GlobalVars.Counter_B",
+          "is_write": true
+        }
+      ]
+    }
+  ]
+}

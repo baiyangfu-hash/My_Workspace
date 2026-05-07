@@ -1,0 +1,407 @@
+// ============================================================================
+// FB_1002_SingleLayerConveyor_BufferFraming
+// Description: Single layer conveyor control for buffer framing machine
+// Project: DJ-2026-005
+// Version: V1.0.0
+// Date: 2026-05-04
+// ============================================================================
+//
+// Function:
+//   1. Auto mode: 8-step state machine for single layer material separation
+//   2. Manual mode: direct control of each actuator
+//   3. Alarm detection: 7 alarm types (1-7 range)
+//   4. Timer: uses SysLib FB_TON (DINT PT/ET, not TIME)
+//
+// State Machine Steps:
+//   0 = Idle
+//   1 = Wait for pre-separate sensor
+//   2 = Block cylinder down
+//   3 = Separate cylinder push (hold for SeparateTime)
+//   4 = Separate cylinder reset
+//   5 = Wait for position sensor
+//   6 = Conveyor forward
+//   7 = Wait for upstream allow feed
+//   8 = Feed complete signal
+//
+// Alarm Codes (1-7):
+//   1 = Block cylinder action timeout
+//   2 = Separate cylinder push timeout
+//   3 = Separate cylinder reset timeout
+//   4 = Position sensor timeout
+//   5 = Conveyor forward timeout
+//   6 = Block sensor conflict (up+down both TRUE)
+//   7 = Separate sensor conflict (up+down both TRUE)
+// ============================================================================
+
+FUNCTION_BLOCK FB_1002_SingleLayerConveyor_BufferFraming
+
+//#region 100_VAR_INPUT
+VAR_INPUT
+    // System control signals
+    i_bEnable           : BOOL;    // Total enable signal
+    i_bAutoMode         : BOOL;    // Auto running mode selection
+    i_bManualMode       : BOOL;    // Manual debug mode selection
+    i_bStart            : BOOL;    // Auto cycle start button
+    i_bStop             : BOOL;    // Auto cycle stop button
+    i_bReset            : BOOL;    // Fault reset/init button
+
+    // Process parameters
+    i_rConveyorSpeed    : REAL;    // Conveyor speed setting (Hz or m/min)
+    i_iSeparateTime     : INT;     // Separate action hold time (ms)
+    i_iBlockWaitTime    : INT;     // Block cylinder action wait time (ms)
+
+    // Manual operation signals
+    i_bLx_BlockDown     : BOOL;    // Manual - block cylinder down
+    i_bLx_BlockUp       : BOOL;    // Manual - block cylinder up
+    i_bLx_SeparatePush  : BOOL;    // Manual - separate cylinder push
+    i_bLx_SeparateReset : BOOL;    // Manual - separate cylinder reset
+    i_bLx_ConveyorFwd   : BOOL;    // Manual - conveyor forward
+    i_bLx_ConveyorRev   : BOOL;    // Manual - conveyor reverse
+
+    // Sensor inputs
+    i_bPreSeparateSensor    : BOOL;    // Pre-separate material arrival sensor
+    i_bPositionSensor1      : BOOL;    // Position sensor 1
+    i_bPositionSensor2      : BOOL;    // Position sensor 2
+    i_bBlockCylinderUp      : BOOL;    // Block cylinder up (release) position
+    i_bBlockCylinderDown    : BOOL;    // Block cylinder down (block) position
+    i_bSeparateCylinderUp   : BOOL;    // Separate cylinder retract position
+    i_bSeparateCylinderDown : BOOL;    // Separate cylinder extend position
+
+    // Upstream/downstream signals
+    i_bUpstreamAllowFeed    : BOOL;    // Downstream allows this layer to feed
+END_VAR
+//#endregion 100_VAR_INPUT
+
+//#region 200_VAR_OUTPUT
+VAR_OUTPUT
+    // Actuator outputs
+    o_bBlockSolenoid    : BOOL;    // TRUE=down(block), FALSE=up(release)
+    o_bSeparateSolenoid : BOOL;    // TRUE=push(separate), FALSE=reset
+    o_bConveyorFwd      : BOOL;    // Conveyor forward rotation
+    o_bConveyorSlow     : BOOL;    // Conveyor slow speed
+    o_bConveyorRev      : BOOL;    // Conveyor reverse rotation
+
+    // Downstream signal
+    o_bFeedComplete     : BOOL;    // This layer feed complete
+
+    // Status outputs
+    o_bRunning          : BOOL;    // Currently auto running
+    o_bFault            : BOOL;    // This layer has fault
+    o_iCurrentState     : INT;     // Current state (0=idle, 1-8=step, 99=fault)
+    o_iAlarmCode        : INT;     // Alarm code (0=none, 1-7=alarm type)
+END_VAR
+//#endregion 200_VAR_OUTPUT
+
+//#region 300_VAR
+VAR
+    // State machine core
+    s_iCurrentStep      : INT;     // Current state machine step
+    s_bRunning          : BOOL;    // Auto running flag
+    s_bFault            : BOOL;    // Fault flag
+    s_iActiveAlarmCode  : INT;     // Active alarm code
+
+    // Timers (SysLib FB_TON, PT/ET are DINT)
+    fb_tBlockTimer      : FB_TON;  // Block cylinder action timer
+    fb_tSeparateTimer   : FB_TON;  // Separate action hold timer
+    fb_tSeparateResetTimer : FB_TON; // Separate reset timer
+    fb_tPositionTimer   : FB_TON;  // Position sensor wait timer
+    fb_tConveyorTimer   : FB_TON;  // Conveyor forward timer
+
+    // Timer Q output variables
+    s_bBlockTimer_Q         : BOOL;
+    s_bSeparateTimer_Q      : BOOL;
+    s_bSeparateResetTimer_Q : BOOL;
+    s_bPositionTimer_Q      : BOOL;
+    s_bConveyorTimer_Q      : BOOL;
+
+    // Timer ET output variables (DINT, scan cycles)
+    s_diBlockTimer_ET          : DINT;
+    s_diSeparateTimer_ET       : DINT;
+    s_diSeparateResetTimer_ET  : DINT;
+    s_diPositionTimer_ET       : DINT;
+    s_diConveyorTimer_ET       : DINT;
+
+    // Material present flag
+    s_bMaterialPresent   : BOOL;   // Material detected at position
+END_VAR
+//#endregion 300_VAR
+
+//#region 400_VAR_CONSTANT
+VAR CONSTANT
+    // State machine steps
+    STP_Idle            : INT := 0;   // Idle
+    STP_WaitPreSeparate : INT := 1;   // Wait for pre-separate sensor
+    STP_BlockDown       : INT := 2;   // Block cylinder down
+    STP_SeparatePush    : INT := 3;   // Separate cylinder push
+    STP_SeparateReset   : INT := 4;   // Separate cylinder reset
+    STP_WaitPosition    : INT := 5;   // Wait for position sensor
+    STP_ConveyorFwd     : INT := 6;   // Conveyor forward
+    STP_WaitAllowFeed   : INT := 7;   // Wait for upstream allow feed
+    STP_FeedComplete    : INT := 8;   // Feed complete signal
+
+    // Alarm codes (1-7)
+    ALM_BlockTimeout        : INT := 1;  // Block cylinder action timeout
+    ALM_SeparatePushTimeout : INT := 2;  // Separate push timeout
+    ALM_SeparateResetTimeout : INT := 3; // Separate reset timeout
+    ALM_PositionTimeout     : INT := 4;  // Position sensor timeout
+    ALM_ConveyorTimeout     : INT := 5;  // Conveyor forward timeout
+    ALM_BlockSensorConflict : INT := 6;  // Block sensor conflict
+    ALM_SeparateSensorConflict : INT := 7; // Separate sensor conflict
+
+    // Default timer values (DINT, scan cycles, assuming 1ms/cycle)
+    T_DEF_BlockAction    : DINT := 3000;   // Block cylinder timeout (3s)
+    T_DEF_SeparateHold   : DINT := 500;    // Separate hold time
+    T_DEF_SeparateReset  : DINT := 500;    // Separate reset time
+    T_DEF_PositionWait   : DINT := 5000;   // Position sensor wait (5s)
+    T_DEF_ConveyorRun    : DINT := 3000;   // Conveyor forward time (3s)
+END_VAR
+//#endregion 400_VAR_CONSTANT
+
+// ============================================================================
+// Main program logic
+// ============================================================================
+
+// --- Enable off: safe state, all outputs zero ---
+IF NOT i_bEnable THEN
+    o_bBlockSolenoid := FALSE;
+    o_bSeparateSolenoid := FALSE;
+    o_bConveyorFwd := FALSE;
+    o_bConveyorSlow := FALSE;
+    o_bConveyorRev := FALSE;
+    o_bFeedComplete := FALSE;
+    s_iCurrentStep := STP_Idle;
+    s_bRunning := FALSE;
+    s_bFault := FALSE;
+    s_iActiveAlarmCode := 0;
+    s_bMaterialPresent := FALSE;
+    o_bRunning := FALSE;
+    o_bFault := FALSE;
+    o_iCurrentState := STP_Idle;
+    o_iAlarmCode := 0;
+
+    fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
+    fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
+    fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
+    fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
+    fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+    RETURN;
+END_IF;
+
+// --- Sensor conflict detection ---
+IF i_bBlockCylinderUp AND i_bBlockCylinderDown THEN
+    s_iActiveAlarmCode := ALM_BlockSensorConflict;
+    s_bFault := TRUE;
+END_IF;
+IF i_bSeparateCylinderUp AND i_bSeparateCylinderDown THEN
+    s_iActiveAlarmCode := ALM_SeparateSensorConflict;
+    s_bFault := TRUE;
+END_IF;
+
+// --- Fault handling ---
+IF s_bFault THEN
+    o_bBlockSolenoid := FALSE;
+    o_bSeparateSolenoid := FALSE;
+    o_bConveyorFwd := FALSE;
+    o_bConveyorSlow := FALSE;
+    o_bConveyorRev := FALSE;
+    o_bFeedComplete := FALSE;
+    s_bRunning := FALSE;
+    fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
+    fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
+    fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
+    fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
+    fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+
+    // Reset handling
+    IF i_bReset THEN
+        s_iActiveAlarmCode := 0;
+        s_bFault := FALSE;
+        s_iCurrentStep := STP_Idle;
+        s_bMaterialPresent := FALSE;
+    END_IF;
+
+    o_bRunning := FALSE;
+    o_bFault := TRUE;
+    o_iCurrentState := 99;
+    o_iAlarmCode := s_iActiveAlarmCode;
+    RETURN;
+END_IF;
+
+// --- Stop handling ---
+IF i_bStop AND s_bRunning THEN
+    s_iCurrentStep := STP_Idle;
+    s_bRunning := FALSE;
+    o_bBlockSolenoid := FALSE;
+    o_bSeparateSolenoid := FALSE;
+    o_bConveyorFwd := FALSE;
+    o_bConveyorSlow := FALSE;
+    o_bConveyorRev := FALSE;
+    o_bFeedComplete := FALSE;
+    fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
+    fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
+    fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
+    fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
+    fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+END_IF;
+
+// --- Mode dispatch ---
+IF i_bAutoMode THEN
+    // ========================================================================
+    // Auto mode: 8-step state machine
+    // ========================================================================
+    CASE s_iCurrentStep OF
+
+    STP_Idle:
+        o_bBlockSolenoid := FALSE;
+        o_bSeparateSolenoid := FALSE;
+        o_bConveyorFwd := FALSE;
+        o_bConveyorSlow := FALSE;
+        o_bConveyorRev := FALSE;
+        o_bFeedComplete := FALSE;
+        s_bMaterialPresent := FALSE;
+
+        IF i_bStart THEN
+            s_iCurrentStep := STP_WaitPreSeparate;
+            s_bRunning := TRUE;
+        END_IF;
+
+    STP_WaitPreSeparate:
+        IF i_bPreSeparateSensor THEN
+            s_iCurrentStep := STP_BlockDown;
+            o_bBlockSolenoid := TRUE;
+            fb_tBlockTimer(IN := TRUE, PT := T_DEF_BlockAction, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
+        END_IF;
+
+    STP_BlockDown:
+        o_bBlockSolenoid := TRUE;
+        IF i_bBlockCylinderDown THEN
+            fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
+            s_iCurrentStep := STP_SeparatePush;
+            o_bSeparateSolenoid := TRUE;
+            fb_tSeparateTimer(IN := TRUE, PT := i_iSeparateTime, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
+        ELSIF s_bBlockTimer_Q THEN
+            fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
+            s_iActiveAlarmCode := ALM_BlockTimeout;
+            s_bFault := TRUE;
+        END_IF;
+
+    STP_SeparatePush:
+        o_bBlockSolenoid := TRUE;
+        o_bSeparateSolenoid := TRUE;
+        IF s_bSeparateTimer_Q THEN
+            fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
+            s_iCurrentStep := STP_SeparateReset;
+            o_bSeparateSolenoid := FALSE;
+            fb_tSeparateResetTimer(IN := TRUE, PT := T_DEF_SeparateReset, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
+        END_IF;
+
+    STP_SeparateReset:
+        o_bBlockSolenoid := TRUE;
+        o_bSeparateSolenoid := FALSE;
+        IF i_bSeparateCylinderUp OR s_bSeparateResetTimer_Q THEN
+            fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
+            s_iCurrentStep := STP_WaitPosition;
+            fb_tPositionTimer(IN := TRUE, PT := T_DEF_PositionWait, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
+        END_IF;
+
+    STP_WaitPosition:
+        o_bBlockSolenoid := TRUE;
+        s_bMaterialPresent := i_bPositionSensor1 AND i_bPositionSensor2;
+        IF s_bMaterialPresent THEN
+            fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
+            s_iCurrentStep := STP_ConveyorFwd;
+            o_bConveyorFwd := TRUE;
+            fb_tConveyorTimer(IN := TRUE, PT := T_DEF_ConveyorRun, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+        ELSIF s_bPositionTimer_Q THEN
+            fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
+            s_iActiveAlarmCode := ALM_PositionTimeout;
+            s_bFault := TRUE;
+        END_IF;
+
+    STP_ConveyorFwd:
+        o_bConveyorFwd := TRUE;
+        o_bBlockSolenoid := FALSE;
+        IF s_bConveyorTimer_Q THEN
+            fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+            s_iCurrentStep := STP_WaitAllowFeed;
+            o_bConveyorFwd := FALSE;
+        END_IF;
+
+    STP_WaitAllowFeed:
+        IF i_bUpstreamAllowFeed THEN
+            s_iCurrentStep := STP_FeedComplete;
+            o_bFeedComplete := TRUE;
+        END_IF;
+
+    STP_FeedComplete:
+        o_bFeedComplete := TRUE;
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+        o_bFeedComplete := FALSE;
+
+    ELSE
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+    END_CASE;
+
+ELSIF i_bManualMode THEN
+    // ========================================================================
+    // Manual mode: direct control
+    // ========================================================================
+    s_bRunning := FALSE;
+    s_iCurrentStep := STP_Idle;
+    o_bFeedComplete := FALSE;
+
+    // Block cylinder manual
+    IF i_bLx_BlockDown AND NOT i_bLx_BlockUp THEN
+        o_bBlockSolenoid := TRUE;
+    ELSIF i_bLx_BlockUp AND NOT i_bLx_BlockDown THEN
+        o_bBlockSolenoid := FALSE;
+    END_IF;
+
+    // Separate cylinder manual
+    IF i_bLx_SeparatePush AND NOT i_bLx_SeparateReset THEN
+        o_bSeparateSolenoid := TRUE;
+    ELSIF i_bLx_SeparateReset AND NOT i_bLx_SeparatePush THEN
+        o_bSeparateSolenoid := FALSE;
+    END_IF;
+
+    // Conveyor manual
+    IF i_bLx_ConveyorFwd AND NOT i_bLx_ConveyorRev THEN
+        o_bConveyorFwd := TRUE;
+        o_bConveyorRev := FALSE;
+    ELSIF i_bLx_ConveyorRev AND NOT i_bLx_ConveyorFwd THEN
+        o_bConveyorRev := TRUE;
+        o_bConveyorFwd := FALSE;
+    ELSE
+        o_bConveyorFwd := FALSE;
+        o_bConveyorRev := FALSE;
+    END_IF;
+
+    o_bConveyorSlow := FALSE;
+
+ELSE
+    // Invalid mode: safe state
+    o_bBlockSolenoid := FALSE;
+    o_bSeparateSolenoid := FALSE;
+    o_bConveyorFwd := FALSE;
+    o_bConveyorSlow := FALSE;
+    o_bConveyorRev := FALSE;
+    o_bFeedComplete := FALSE;
+    IF NOT s_bFault THEN
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+    END_IF;
+END_IF;
+
+// --- Status output ---
+o_bRunning := s_bRunning;
+o_bFault := s_bFault;
+IF s_bFault THEN
+    o_iCurrentState := 99;
+ELSE
+    o_iCurrentState := s_iCurrentStep;
+END_IF;
+o_iAlarmCode := s_iActiveAlarmCode;
+
+END_FUNCTION_BLOCK

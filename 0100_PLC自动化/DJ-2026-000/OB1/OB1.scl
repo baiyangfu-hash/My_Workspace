@@ -1,0 +1,76 @@
+// ============================================================================
+// OB1.scl - 主组织块（Main Organization Block）
+// ============================================================================
+// 功能说明：
+//   1. 调用阀门控制功能块 FB_ValveControl
+//   2. 实现两个定时器（方案A和方案B）- 使用手动计数器方式
+//
+// 定时器工作原理：
+//   当启动信号为TRUE时，计数器每个扫描周期+1。
+//   当计数器达到预设值时，输出信号变为TRUE。
+//   当启动信号变为FALSE时，计数器清零，输出复位。
+//
+// 变更记录：
+//   V4.1.0 (2026-05-01): 初始版本
+//          - 实现基本的定时器逻辑（手动计数器方式）
+//          - 支持两个独立定时器A和B
+// ============================================================================
+
+ORGANIZATION_BLOCK OB1
+BEGIN
+
+//第一部分：调用阀门控制功能块
+// ============================================================================
+//  第一部分：调用阀门控制功能块
+// ============================================================================
+GlobalVars.ValveCtrl(
+    AutoManual  := GlobalVars.Hmibutton[0],  // [输入] 自动/手动模式切换 (TRUE=自动)
+    OpenCmd     := GlobalVars.Hmibutton[1],  // [输入] 开阀命令 (上升沿触发)
+    CloseCmd    := GlobalVars.Hmibutton[2],  // [输入] 关阀命令
+    OverCurrent := GlobalVars.Hmibutton[3],  // [输入] 过流检测信号 (TRUE=过流故障)
+    OpenLimit   := GlobalVars.Hmibutton[4],  // [输入] 开到位限位开关 (TRUE=已开到位)
+    CloseLimit  := GlobalVars.Hmibutton[5],  // [输入] 关到位限位开关 (TRUE=已关到位)
+    FaultReset  := GlobalVars.Hmibutton[6],  // [输入] 故障复位按钮
+    FaultStatus => GlobalVars.FaultStatus,   // [输出] 当前是否有故障
+    ValveOpen   => GlobalVars.ValveOpen,     // [输出] 阀门是否正在打开
+    ValveClose  => GlobalVars.ValveClose,     // [输出] 阀门是否正在关闭
+    ValveState  => GlobalVars.ValveState     // [输出] 阀门当前状态机状态
+                                            //   0=关闭中/已关, 1=打开中, 2=已打开, 3=关闭中/已关
+);
+
+
+
+
+// ============================================================================
+// #region 第二部分：定时器A - 手动计数器实现
+// ============================================================================
+
+IF GlobalVars.Hmibutton[7] THEN
+    GlobalVars.Counter_A := GlobalVars.Counter_A + 1;
+    
+    IF GlobalVars.Counter_A >= 50 THEN
+        GlobalVars.bOut_A := TRUE;
+        GlobalVars.Counter_A := 50;
+    END_IF;
+ELSE
+    GlobalVars.bOut_A := FALSE;
+    GlobalVars.Counter_A := 0;
+END_IF;
+
+// ============================================================================
+// 第三部分：定时器B - 手动计数器实现
+// ============================================================================
+
+IF GlobalVars.Hmibutton[8] THEN
+    GlobalVars.Counter_B := GlobalVars.Counter_B + 1;
+    
+    IF GlobalVars.Counter_B >= 50 THEN
+        GlobalVars.bOut_B := TRUE;
+        GlobalVars.Counter_B := 50;
+    END_IF;
+ELSE
+    GlobalVars.bOut_B := FALSE;
+    GlobalVars.Counter_B := 0;
+END_IF;
+
+END_ORGANIZATION_BLOCK

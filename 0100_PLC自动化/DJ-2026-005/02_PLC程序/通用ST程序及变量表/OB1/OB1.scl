@@ -1,0 +1,388 @@
+// ============================================================================
+// OB1.scl - Buffer Framing Machine Main Organization Block
+// ============================================================================
+// Description:
+//   DJ-2026-005 Buffer Framing Machine PLC control system main loop program.
+//   Responsible for instantiating and calling all station function blocks.
+//
+// Architecture:
+//   "Master + Function Block" pattern, OB1 as dispatch center:
+//   - No business logic included
+//   - Only responsible for FB instantiation and call order management
+//   - All I/O mapping through GlobalVars data block
+//
+// FB Call Order (by process flow):
+//   1. FB_ExternalDeviceInteraction   - External device interaction
+//   2. FB_1001_Conveyor4Layer         - 4-layer conveyor control
+//   3. FB_1003_PickPlace              - Pick and place mechanism
+//   4. FB_1004_GlueMachineFeeder      - Glue machine feeder mechanism
+//   5. FB_2001_CommonAlarm            - Common alarm management
+//
+// Change Log:
+//   V6.0.0 (2026-05-04): V6.0.0 full compliance rewrite
+//          - Unified PickPlace interface: Grip->Clamp, Close->Action, Open->Release
+//          - Sensor naming: HomePoint->HomePos, WorkPoint->Closed/Opened
+//          - Servo naming: Home->HomePos, Forward->Fwd, Reverse->Rev
+//          - Output naming: ServoEnable->Enable, FeedComplete->PlaceComplete
+//          - Position naming: _CurrentPosition->CurrentPos
+//          - Layer naming: PickupLayer->PickLayer
+//          - Timer debug: FeedCompleteHold->PlaceCompleteHold, TIME->DINT
+//          - Removed underscore in detect sensors: LongEdge1_Detect->LongEdge1Detect
+//   V5.0.0 (2026-05-03): V5.0.0 full rewrite - 100% English variable names
+//   V2.0.0 (2026-05-03): Complete rewrite based on actual FB definitions
+//   V1.0.0 (2026-05-02): Initial version
+// ============================================================================
+
+ORGANIZATION_BLOCK OB1
+
+BEGIN
+    // ============================================================================
+    // Part 1: Call External Device Interaction FB
+    // ============================================================================
+    GlobalVars.fbExternalDevice(
+        // --- System control signals (6) ---
+        i_bEnable           := GlobalVars.stExternal.i_bEnable,
+        i_bAutoMode       := GlobalVars.stExternal.i_bAutoMode,
+        i_bManualMode       := GlobalVars.stExternal.i_bManualMode,
+        i_bStart           := GlobalVars.stExternal.i_bStart,
+        i_bStop           := GlobalVars.stExternal.i_bStop,
+        i_bReset           := GlobalVars.stExternal.i_bReset,
+
+        // --- Frame machine input signals (7) ---
+        i_bFrameMachine_AutoRunning    := GlobalVars.stExternal.i_bFrameMachine_AutoRunning,
+        i_bFrameMachine_AllowFeed  := GlobalVars.stExternal.i_bFrameMachine_AllowFeed,
+        i_bFrameMaterialRequest  := GlobalVars.stExternal.i_bFrameMaterialRequest,
+        i_bDoorOpenRequest  := GlobalVars.stExternal.i_bDoorOpenRequest,
+        i_bFrameMachine_EStop      := GlobalVars.stExternal.i_bFrameMachine_EStop,
+        i_bFrameMachine_SafetyErr  := GlobalVars.stExternal.i_bFrameMachine_SafetyErr,
+        i_bFrameMachine_CommErr  := GlobalVars.stExternal.i_bFrameMachine_CommErr,
+
+        // --- Glue machine input signals (6) ---
+        i_bGlueMachine_AutoRunning    := GlobalVars.stExternal.i_bGlueMachine_AutoRunning,
+        i_bGlueMachine_AllowFeed  := GlobalVars.stExternal.i_bGlueMachine_AllowFeed,
+        i_bGlueMachine_PickComplete  := GlobalVars.stExternal.i_bGlueMachine_PickComplete,
+        i_bGlueMachine_Fault      := GlobalVars.stExternal.i_bGlueMachine_Fault,
+        i_bGlueMachine_EStop      := GlobalVars.stExternal.i_bGlueMachine_EStop,
+        i_bGlueMachine_CommErr  := GlobalVars.stExternal.i_bGlueMachine_CommErr,
+
+        // --- Robot input signals (5, reserved) ---
+        i_bRobot_AutoRunning    := GlobalVars.stExternal.i_bRobot_AutoRunning,
+        i_bRobot_StackComplete  := GlobalVars.stExternal.i_bRobot_StackComplete,
+        i_bRobot_Fault      := GlobalVars.stExternal.i_bRobot_Fault,
+        i_bRobot_EStop      := GlobalVars.stExternal.i_bRobot_EStop,
+        i_bRobot_CommErr  := GlobalVars.stExternal.i_bRobot_CommErr,
+
+        // --- Local status signals (3) ---
+        i_bLocalReady        := GlobalVars.stExternal.i_bLocalReady,
+        i_bAnyAlarmActive    := GlobalVars.stExternal.i_bAnyAlarmActive,
+        i_bSystemFault        := GlobalVars.stExternal.i_bSystemFault,
+
+        // === Output signals ===
+        // --- Frame machine output signals (5) ---
+        q_bFrameMachine_RequestFeed  => GlobalVars.stExternal.o_bFrameMachine_RequestFeed,
+        q_bFrameMachine_Pause      => GlobalVars.stExternal.o_bFrameMachine_Pause,
+        q_bFrameMachine_EStop      => GlobalVars.stExternal.o_bFrameMachine_EStop,
+        q_bDoorOpenRequest         => GlobalVars.stExternal.o_bDoorOpenRequest,
+        q_bFrameMachine_Ready      => GlobalVars.stExternal.o_bFrameMachine_Ready,
+
+        // --- Glue machine output signals (4) ---
+        q_bGlueMachine_RequestRun  => GlobalVars.stExternal.o_bGlueMachine_RequestRun,
+        q_bAllowPickup         => GlobalVars.stExternal.o_bAllowPickup,
+        q_bSafetyZoneSignal       => GlobalVars.stExternal.o_bSafetyZoneSignal,
+        q_bGlueMachine_ResetReq  => GlobalVars.stExternal.o_bGlueMachine_ResetReq,
+
+        // --- Robot output signals (3, reserved) ---
+        q_bRobot_AllowStacking  => GlobalVars.stExternal.o_bRobot_AllowStacking,
+        q_bRobot_StopStacking  => GlobalVars.stExternal.o_bRobot_StopStacking,
+        q_bRobot_ResetReq  => GlobalVars.stExternal.o_bRobot_ResetReq,
+
+        // --- Status and alarm outputs (4) ---
+        q_bFrameMachine_EmergencyStop   => GlobalVars.stExternal.o_bFrameMachine_EmergencyStop,
+        q_bExternalDeviceFault     => GlobalVars.stExternal.o_bExternalDeviceFault,
+        q_iExternalDeviceAlarmSummary => GlobalVars.stExternal.o_iExternalDeviceAlarmSummary,
+        q_bSystemSafetyConditionMet => GlobalVars.stExternal.o_bSystemSafetyConditionMet
+    );
+
+    // ============================================================================
+    // Part 2: Call 4-Layer Conveyor FB (Container Mode)
+    // ============================================================================
+    GlobalVars.fbConveyor4Layer(
+        // --- System control signals (9) ---
+        i_bEnable               := GlobalVars.stConveyor.i_bEnable,
+        i_bAutoMode           := GlobalVars.stConveyor.i_bAutoMode,
+        i_bManualMode           := GlobalVars.stConveyor.i_bManualMode,
+        i_bStart               := GlobalVars.stConveyor.i_bStart,
+        i_bStop               := GlobalVars.stConveyor.i_bStop,
+        i_bReset               := GlobalVars.stConveyor.i_bReset,
+
+        // --- Process parameters (3) ---
+        i_rConveyorSpeed           := GlobalVars.stConveyor.i_rConveyorSpeed,
+        i_iSeparateTime           := GlobalVars.stConveyor.i_iSeparateTime,
+        i_iBlockWaitTime        := GlobalVars.stConveyor.i_iBlockWaitTime,
+
+        // --- Manual operation signals (6 types x 4 layers = 24 BOOL, ARRAY[1..4]) ---
+        i_bLx_BlockDown           := GlobalVars.stConveyor.i_bLx_BlockDown,
+        i_bLx_BlockUp           := GlobalVars.stConveyor.i_bLx_BlockUp,
+        i_bLx_SeparatePush           := GlobalVars.stConveyor.i_bLx_SeparatePush,
+        i_bLx_SeparateReset           := GlobalVars.stConveyor.i_bLx_SeparateReset,
+        i_bLx_ConveyorFwd           := GlobalVars.stConveyor.i_bLx_ConveyorFwd,
+        i_bLx_ConveyorRev           := GlobalVars.stConveyor.i_bLx_ConveyorRev,
+
+        // --- Sensor inputs (7 types x 4 layers = 28 BOOL, ARRAY[1..4]) ---
+        i_bPreSeparateSensor       := GlobalVars.stConveyor.i_bPreSeparateSensor,
+        i_bPositionSensor1        := GlobalVars.stConveyor.i_bPositionSensor1,
+        i_bPositionSensor2        := GlobalVars.stConveyor.i_bPositionSensor2,
+        i_bBlockCylinderUp       := GlobalVars.stConveyor.i_bBlockCylinderUp,
+        i_bBlockCylinderDown       := GlobalVars.stConveyor.i_bBlockCylinderDown,
+        i_bSeparateCylinderUp       := GlobalVars.stConveyor.i_bSeparateCylinderUp,
+        i_bSeparateCylinderDown       := GlobalVars.stConveyor.i_bSeparateCylinderDown,
+
+        // --- Downstream feedback signals (4 BOOL, ARRAY[1..4]) ---
+        i_bFeedComplete         := GlobalVars.stConveyor.i_bFeedComplete,
+
+        // === Output signals ===
+        // --- Actuator request outputs (5 types x 4 layers = 20 BOOL, ARRAY[1..4]) ---
+        o_bBlockSolenoid         => GlobalVars.stConveyor.o_bBlockSolenoid,
+        o_bSeparateSolenoid         => GlobalVars.stConveyor.o_bSeparateSolenoid,
+        o_bConveyorFwd         => GlobalVars.stConveyor.o_bConveyorFwd,
+        o_bConveyorSlow         => GlobalVars.stConveyor.o_bConveyorSlow,
+        o_bConveyorRev         => GlobalVars.stConveyor.o_bConveyorRev,
+
+        // --- Downstream signal outputs (4 BOOL, ARRAY[1..4]) ---
+        o_bFeedComplete           => GlobalVars.stConveyor.o_bFeedComplete,
+
+        // --- Status/HMI display outputs (4) ---
+        o_bRunning             => GlobalVars.stConveyor.o_bRunning,
+        o_bFault               => GlobalVars.stConveyor.o_bFault,
+        o_iCurrentState           => GlobalVars.stConveyor.o_iCurrentState,
+        o_LxCurrentStep          => GlobalVars.stConveyor.o_LxCurrentStep,
+
+        // --- Alarm output (1) ---
+        o_iAlarmCode       => GlobalVars.stConveyor.o_iAlarmCode
+    );
+
+    // ============================================================================
+    // Part 3: Call Pick and Place FB (11-step state machine, V6.0.0)
+    // ============================================================================
+    // V6.0.0 interface changes:
+    //   Grip->Clamp, Close->Action, Open->Release
+    //   HomePoint->HomePos, WorkPoint->Closed/Opened
+    //   Home->HomePos, Forward->Fwd, Reverse->Rev
+    //   ServoEnable->Enable, FeedComplete->PlaceComplete
+    //   _CurrentPosition->CurrentPos, PickupLayer->PickLayer
+    //   LongEdge1_Detect->LongEdge1Detect (no underscore)
+    //   Timer ET: TIME->DINT
+    // ============================================================================
+    GlobalVars.fbPickPlace(
+        // --- System control signals (6) ---
+        i_bEnable           := GlobalVars.stPickPlace.i_bEnable,
+        i_bAutoMode       := GlobalVars.stPickPlace.i_bAutoMode,
+        i_bManualMode       := GlobalVars.stPickPlace.i_bManualMode,
+        i_bStart           := GlobalVars.stPickPlace.i_bStart,
+        i_bStop           := GlobalVars.stPickPlace.i_bStop,
+        i_bReset           := GlobalVars.stPickPlace.i_bReset,
+
+        // --- Manual operation signals (14 BOOL) ---
+        // Servo jog control (4)
+        i_bLx_ZAxis_JogUp      := GlobalVars.stPickPlace.i_bLx_ZAxis_JogUp,
+        i_bLx_ZAxis_JogDown      := GlobalVars.stPickPlace.i_bLx_ZAxis_JogDown,
+        i_bLx_X1Axis_JogFwd     := GlobalVars.stPickPlace.i_bLx_X1Axis_JogFwd,
+        i_bLx_X1Axis_JogRev     := GlobalVars.stPickPlace.i_bLx_X1Axis_JogRev,
+
+        // Cylinder manual control (10, dual solenoid)
+        i_bLx_Lift_Up       := GlobalVars.stPickPlace.i_bLx_Lift_Up,
+        i_bLx_Lift_Down       := GlobalVars.stPickPlace.i_bLx_Lift_Down,
+        i_bLx_FrontClamp     := GlobalVars.stPickPlace.i_bLx_FrontClamp,
+        i_bLx_FrontUnclamp     := GlobalVars.stPickPlace.i_bLx_FrontUnclamp,
+        i_bLx_RearClamp     := GlobalVars.stPickPlace.i_bLx_RearClamp,
+        i_bLx_RearUnclamp     := GlobalVars.stPickPlace.i_bLx_RearUnclamp,
+        i_bLx_FrontClamp2    := GlobalVars.stPickPlace.i_bLx_FrontClamp2,
+        i_bLx_FrontUnclamp2    := GlobalVars.stPickPlace.i_bLx_FrontUnclamp2,
+        i_bLx_RearClamp2    := GlobalVars.stPickPlace.i_bLx_RearClamp2,
+        i_bLx_RearUnclamp2    := GlobalVars.stPickPlace.i_bLx_RearUnclamp2,
+
+        // --- Process parameters (6, REAL/INT) ---
+        // Speed parameters (4 REAL)
+        i_rPickupSpeed       := GlobalVars.stPickPlace.i_rPickupSpeed,
+        i_rPlaceSpeed       := GlobalVars.stPickPlace.i_rPlaceSpeed,
+        i_rZAxisSpeed        := GlobalVars.stPickPlace.i_rZAxisSpeed,
+        i_rX1AxisSpeed       := GlobalVars.stPickPlace.i_rX1AxisSpeed,
+
+        // Action time parameters (2 INT)
+        i_iClampConfirmTime   := GlobalVars.stPickPlace.i_iClampConfirmTime,
+        i_iLiftActionTime   := GlobalVars.stPickPlace.i_iLiftActionTime,
+
+        // --- Sensor inputs (26 BOOL) ---
+        // Cylinder position sensors (10 magnetic switches)
+        i_bLift_WorkPoint       := GlobalVars.stPickPlace.i_bLift_WorkPoint,
+        i_bLift_HomePos       := GlobalVars.stPickPlace.i_bLift_HomePos,
+        i_bFrontClamp_Closed     := GlobalVars.stPickPlace.i_bFrontClamp_Closed,
+        i_bFrontClamp_Opened     := GlobalVars.stPickPlace.i_bFrontClamp_Opened,
+        i_bRearClamp_Closed     := GlobalVars.stPickPlace.i_bRearClamp_Closed,
+        i_bRearClamp_Opened     := GlobalVars.stPickPlace.i_bRearClamp_Opened,
+        i_bFrontClamp2_Closed    := GlobalVars.stPickPlace.i_bFrontClamp2_Closed,
+        i_bFrontClamp2_Opened    := GlobalVars.stPickPlace.i_bFrontClamp2_Opened,
+        i_bRearClamp2_Closed    := GlobalVars.stPickPlace.i_bRearClamp2_Closed,
+        i_bRearClamp2_Opened    := GlobalVars.stPickPlace.i_bRearClamp2_Opened,
+
+        // Product detection sensors (4 photoelectric)
+        i_bLongEdge1Detect       := GlobalVars.stPickPlace.i_bLongEdge1Detect,
+        i_bLongEdge2Detect       := GlobalVars.stPickPlace.i_bLongEdge2Detect,
+        i_bShortEdge1Detect       := GlobalVars.stPickPlace.i_bShortEdge1Detect,
+        i_bShortEdge2Detect       := GlobalVars.stPickPlace.i_bShortEdge2Detect,
+
+        // Servo axis status (12)
+        // Home signals (3)
+        i_bZAxis_HomePos        := GlobalVars.stPickPlace.i_bZAxis_HomePos,
+        i_bX1Axis_HomePos       := GlobalVars.stPickPlace.i_bX1Axis_HomePos,
+        i_bX2Axis_HomePos       := GlobalVars.stPickPlace.i_bX2Axis_HomePos,
+
+        // Servo fault alarms (3)
+        i_bZAxis_ServoFault    := GlobalVars.stPickPlace.i_bZAxis_ServoFault,
+        i_bX1Axis_ServoFault   := GlobalVars.stPickPlace.i_bX1Axis_ServoFault,
+        i_bX2Axis_ServoFault   := GlobalVars.stPickPlace.i_bX2Axis_ServoFault,
+
+        // Limit switch signals (6)
+        i_bZAxis_FwdLimit    := GlobalVars.stPickPlace.i_bZAxis_FwdLimit,
+        i_bZAxis_RevLimit    := GlobalVars.stPickPlace.i_bZAxis_RevLimit,
+        i_bX1Axis_FwdLimit   := GlobalVars.stPickPlace.i_bX1Axis_FwdLimit,
+        i_bX1Axis_RevLimit   := GlobalVars.stPickPlace.i_bX1Axis_RevLimit,
+        i_bX2Axis_FwdLimit   := GlobalVars.stPickPlace.i_bX2Axis_FwdLimit,
+        i_bX2Axis_RevLimit   := GlobalVars.stPickPlace.i_bX2Axis_RevLimit,
+
+        // --- Upstream signals (4 BOOL, from conveyor) ---
+        i_bConveyor_L1_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L1_FeedComplete,
+        i_bConveyor_L2_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L2_FeedComplete,
+        i_bConveyor_L3_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L3_FeedComplete,
+        i_bConveyor_L4_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L4_FeedComplete,
+
+        // === Output signals ===
+        // --- Cylinder control outputs (10 BOOL, dual solenoid) ---
+        o_bLift_Up       => GlobalVars.stPickPlace.o_bLift_Up,
+        o_bLift_Down       => GlobalVars.stPickPlace.o_bLift_Down,
+        o_bFrontClamp_Action     => GlobalVars.stPickPlace.o_bFrontClamp_Action,
+        o_bFrontClamp_Release     => GlobalVars.stPickPlace.o_bFrontClamp_Release,
+        o_bRearClamp_Action     => GlobalVars.stPickPlace.o_bRearClamp_Action,
+        o_bRearClamp_Release     => GlobalVars.stPickPlace.o_bRearClamp_Release,
+        o_bFrontClamp2_Action    => GlobalVars.stPickPlace.o_bFrontClamp2_Action,
+        o_bFrontClamp2_Release    => GlobalVars.stPickPlace.o_bFrontClamp2_Release,
+        o_bRearClamp2_Action    => GlobalVars.stPickPlace.o_bRearClamp2_Action,
+        o_bRearClamp2_Release    => GlobalVars.stPickPlace.o_bRearClamp2_Release,
+
+        // --- Servo control outputs (3 BOOL, Z axis only) ---
+        o_bZAxis_PulseOutput    => GlobalVars.stPickPlace.o_bZAxis_PulseOutput,
+        o_bZAxis_DirectionOutput    => GlobalVars.stPickPlace.o_bZAxis_DirectionOutput,
+        o_bZAxis_Enable    => GlobalVars.stPickPlace.o_bZAxis_Enable,
+
+        // --- Downstream signal output (1 BOOL) ---
+        o_bPlaceComplete_ToFeeder => GlobalVars.stPickPlace.o_bPlaceComplete_ToFeeder,
+
+        // --- Status/HMI display outputs (7) ---
+        o_bRunning           => GlobalVars.stPickPlace.o_bRunning,
+        o_bFault             => GlobalVars.stPickPlace.o_bFault,
+        o_iCurrentState           => GlobalVars.stPickPlace.o_iCurrentState,
+        o_rZAxisCurrentPos         => GlobalVars.stPickPlace.o_rZAxisCurrentPos,
+        o_rX1AxisCurrentPos        => GlobalVars.stPickPlace.o_rX1AxisCurrentPos,
+        o_rX2AxisCurrentPos        => GlobalVars.stPickPlace.o_rX2AxisCurrentPos,
+        o_iCurrentPickLayer        => GlobalVars.stPickPlace.o_iCurrentPickLayer,
+
+        // --- Alarm output (1) ---
+        o_iStationAlarmCode        => GlobalVars.stPickPlace.o_iStationAlarmCode,
+
+        // --- Timer debug outputs (4 DINT, scan cycles) ---
+        q_ePlaceCompleteHold_Elapsed => GlobalVars.stPickPlace.q_ePlaceCompleteHold_Elapsed,
+        q_eAction_Elapsed         => GlobalVars.stPickPlace.q_eAction_Elapsed,
+        q_eProductDetectStable_Elapsed => GlobalVars.stPickPlace.q_eProductDetectStable_Elapsed,
+        q_eInit_Elapsed       => GlobalVars.stPickPlace.q_eInit_Elapsed
+    );
+
+    // ============================================================================
+    // Part 4: Call Glue Machine Feeder FB (6-step state machine)
+    // ============================================================================
+    GlobalVars.fbGlueFeeder(
+        // --- System control signals (6) ---
+        i_bEnable           := GlobalVars.stFeeder.i_bEnable,
+        i_bAutoMode       := GlobalVars.stFeeder.i_bAutoMode,
+        i_bManualMode       := GlobalVars.stFeeder.i_bManualMode,
+        i_bStart           := GlobalVars.stFeeder.i_bStart,
+        i_bStop           := GlobalVars.stFeeder.i_bStop,
+        i_bReset           := GlobalVars.stFeeder.i_bReset,
+
+        // --- Manual operation signals (2 BOOL, X2 axis jog) ---
+        i_bLx_X2Axis_JogFwd     := GlobalVars.stFeeder.i_bLx_X2Axis_JogFwd,
+        i_bLx_X2Axis_JogRev     := GlobalVars.stFeeder.i_bLx_X2Axis_JogRev,
+
+        // --- Process parameters (3 REAL) ---
+        i_rFeedSpeed       := GlobalVars.stFeeder.i_rFeedSpeed,
+        rStandbyPosition       := GlobalVars.stFeeder.rStandbyPosition,
+        rPickupPosition       := GlobalVars.stFeeder.rPickupPosition,
+
+        // --- Sensor/servo signals (4 BOOL) ---
+        i_bX2Axis_Home      := GlobalVars.stFeeder.i_bX2Axis_Home,
+        i_bX2Axis_ForwardLimit   := GlobalVars.stFeeder.i_bX2Axis_ForwardLimit,
+        i_bX2Axis_ReverseLimit   := GlobalVars.stFeeder.i_bX2Axis_ReverseLimit,
+        i_bX2Axis_ServoFault  := GlobalVars.stFeeder.i_bX2Axis_ServoFault,
+
+        // --- Glue machine interaction signals (2 BOOL) ---
+        i_bGlueMachine_AllowFeed := GlobalVars.stFeeder.i_bGlueMachine_AllowFeed,
+        i_bGlueMachine_PickupComplete := GlobalVars.stFeeder.i_bGlueMachine_PickupComplete,
+
+        // --- Upstream signal (1 BOOL, from pick/place) ---
+        i_bPickPlace_FeedComplete := GlobalVars.stFeeder.i_bPickPlace_FeedComplete,
+
+        // === Output signals ===
+        // --- Actuator request outputs (3 BOOL) ---
+        o_bAllowPickup        => GlobalVars.stFeeder.o_bAllowPickup,
+        o_bX2Axis_RequestFwd    => GlobalVars.stFeeder.o_bX2Axis_RequestFwd,
+        o_bX2Axis_RequestRev    => GlobalVars.stFeeder.o_bX2Axis_RequestRev,
+
+        // --- Safety zone management signal (1 BOOL) ---
+        o_bSafetyZoneSignal      => GlobalVars.stFeeder.o_bSafetyZoneSignal,
+
+        // --- Status/HMI display outputs (5) ---
+        o_bRunning          => GlobalVars.stFeeder.o_bRunning,
+        o_bFault            => GlobalVars.stFeeder.o_bFault,
+        o_iCurrentState        => GlobalVars.stFeeder.o_iCurrentState,
+        o_rX2Axis_CurrentPosition    => GlobalVars.stFeeder.o_rX2Axis_CurrentPosition,
+        o_iStationAlarmCode    => GlobalVars.stFeeder.o_iStationAlarmCode,
+
+        // --- Timer debug outputs (4 DINT, scan cycles) ---
+        q_eCommTimeout_Elapsed  => GlobalVars.stFeeder.q_eCommTimeout_Elapsed,
+        q_eAction_Elapsed      => GlobalVars.stFeeder.q_eAction_Elapsed,
+        q_eInit_Elapsed    => GlobalVars.stFeeder.q_eInit_Elapsed,
+        q_ePickupHold_Elapsed  => GlobalVars.stFeeder.q_ePickupHold_Elapsed
+    );
+
+    // ============================================================================
+    // Part 5: Call Common Alarm Management FB
+    // ============================================================================
+    GlobalVars.fbCommonAlarm(
+        // --- Three station alarm code inputs (3 INT) ---
+        i_iConveyorAlarm      := GlobalVars.stConveyor.o_iAlarmCode,
+        i_iPickPlaceAlarm      := GlobalVars.stPickPlace.o_iStationAlarmCode,
+        i_iFeederAlarm    := GlobalVars.stFeeder.o_iStationAlarmCode,
+
+        // --- Operation control (1 BOOL) ---
+        i_bReset            := GlobalVars.stGlobal.i_bReset,
+
+        // === Global outputs ===
+        // --- HMI display outputs (2) ---
+        o_wGlobalAlarmWord      => GlobalVars.stGlobal.o_wGlobalAlarmWord,
+        o_iCurrentAlarmCode    => GlobalVars.stGlobal.o_iCurrentAlarmCode,
+
+        // --- Global interlock output (1 BOOL) ---
+        o_bAnyAlarmActive    => GlobalVars.stGlobal.o_bAnyAlarmActive,
+
+        // --- MES data interface outputs (3) ---
+        o_iMESAlarmCount     => GlobalVars.stGlobal.o_iMESAlarmCount,
+        o_iMESAlarmQueue     => GlobalVars.stGlobal.o_iMESAlarmQueue,
+        o_bNewAlarmFlag      => GlobalVars.stGlobal.o_bNewAlarmFlag,
+
+        // --- Multi-alarm status outputs (9) ---
+        o_iStationAlarmStatus    => GlobalVars.stGlobal.o_iStationAlarmStatus,
+        o_bConveyorAlarmActive  => GlobalVars.stGlobal.o_bConveyorAlarmActive,
+        o_bPickPlaceAlarmActive  => GlobalVars.stGlobal.o_bPickPlaceAlarmActive,
+        o_bFeederAlarmActive => GlobalVars.stGlobal.o_bFeederAlarmActive
+    );
+
+END_ORGANIZATION_BLOCK

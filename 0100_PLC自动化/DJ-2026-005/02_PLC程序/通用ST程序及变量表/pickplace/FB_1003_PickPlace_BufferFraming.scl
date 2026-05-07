@@ -1,0 +1,994 @@
+// ============================================================================
+// FB_1003_PickPlace_BufferFraming
+// Description: Pick and place mechanism for buffer framing machine
+// Project: DJ-2026-005
+// Version: V6.0.0
+// Date: 2026-05-04
+// ============================================================================
+//
+// Function:
+//   1. Auto mode: 11-step state machine for pick/place cycle
+//   2. Manual mode: 14 manual operations with interlock
+//   3. Initialization: cylinder reset, servo enable, state clear
+//   4. Alarm detection: 8 alarm types (101-108 range)
+//   5. 4-layer cycle counter (pick 2 layers per cycle, 2 cycles total)
+//   6. Timer: uses SysLib FB_TON (DINT PT/ET, not TIME)
+//
+// State Machine Steps:
+//   0 = Idle
+//   1 = Wait for conveyor feed complete
+//   2 = Z axis down to pickup height
+//   3 = Grip clamp (front+rear simultaneously)
+//   4 = Product detect confirm
+//   5 = Z axis up to safe height
+//   6 = X1 axis move to place position
+//   7 = Z axis down to place height
+//   8 = Grip unclamp (front+rear simultaneously)
+//   9 = Z axis up to safe height
+//   10 = Place complete notify downstream
+//
+// Alarm Codes (101-108):
+//   101 = Z axis servo fault
+//   102 = X1 axis servo fault
+//   103 = Lift down timeout
+//   104 = Lift up timeout
+//   105 = Clamp timeout
+//   106 = Unclamp timeout
+//   107 = Product detect fail
+//   108 = X1 axis move timeout
+//
+// V6.0.0 Changes (from V4.2.0):
+//   - METHOD syntax removed (Siemens LSP incompatible) -> inline code
+//   - CALL_ prefix removed from method names
+//   - All T#0ms -> 0 (FB_TON PT is DINT, not TIME)
+//   - All timer calls use complete 4 params (IN/PT/Q/ET)
+//   - Timer Q access unified via s_bXxx_Q variables
+//   - Timer constant types INT -> DINT
+//   - Duplicate output assignments removed
+//   - Missing outputs in Idle step added
+//   - Clamp/Unclamp timeout logic fixed (IF/ELSIF)
+// ============================================================================
+
+FUNCTION_BLOCK FB_1003_PickPlace_BufferFraming
+
+//#region 100_VAR_INPUT
+VAR_INPUT
+    // System control signals (6)
+    i_bEnable               : BOOL;    // Total enable signal
+    i_bAutoMode             : BOOL;    // Auto running mode selection
+    i_bManualMode           : BOOL;    // Manual debug mode selection
+    i_bStart                : BOOL;    // Auto cycle start button (rising edge)
+    i_bStop                 : BOOL;    // Auto cycle stop button (level)
+    i_bReset                : BOOL;    // Fault reset/init button (level)
+
+    // Manual operation signals (14 BOOL)
+    // Servo jog control (4)
+    i_bLx_ZAxis_JogUp       : BOOL;    // Manual-Z axis jog up
+    i_bLx_ZAxis_JogDown     : BOOL;    // Manual-Z axis jog down
+    i_bLx_X1Axis_JogFwd     : BOOL;    // Manual-X1 axis jog forward
+    i_bLx_X1Axis_JogRev     : BOOL;    // Manual-X1 axis jog reverse
+
+    // Cylinder manual control (10, dual solenoid)
+    i_bLx_Lift_Up           : BOOL;    // Manual-lift cylinder up
+    i_bLx_Lift_Down         : BOOL;    // Manual-lift cylinder down
+    i_bLx_FrontClamp        : BOOL;    // Manual-front clamp close
+    i_bLx_FrontUnclamp      : BOOL;    // Manual-front clamp open
+    i_bLx_RearClamp         : BOOL;    // Manual-rear clamp close
+    i_bLx_RearUnclamp       : BOOL;    // Manual-rear clamp open
+    i_bLx_FrontClamp2       : BOOL;    // Manual-front clamp2 close
+    i_bLx_FrontUnclamp2     : BOOL;    // Manual-front clamp2 open
+    i_bLx_RearClamp2        : BOOL;    // Manual-rear clamp2 close
+    i_bLx_RearUnclamp2      : BOOL;    // Manual-rear clamp2 open
+
+    // Process parameters (6, REAL/INT)
+    // Speed parameters (4 REAL)
+    i_rPickupSpeed          : REAL;    // Pickup Z axis speed (mm/s or %)
+    i_rPlaceSpeed           : REAL;    // Place Z axis speed (mm/s or %)
+    i_rZAxisSpeed           : REAL;    // Z axis general speed (mm/s)
+    i_rX1AxisSpeed          : REAL;    // X1 axis general speed (mm/s)
+
+    // Action time parameters (2 INT)
+    i_iClampConfirmTime     : INT;     // Clamp confirm wait time (ms)
+    i_iLiftActionTime       : INT;     // Lift action timeout time (ms)
+
+    // Sensor inputs (26 BOOL)
+    // Cylinder position sensors (10 magnetic switches)
+    i_bLift_WorkPoint       : BOOL;    // Lift cylinder down position
+    i_bLift_HomePos         : BOOL;    // Lift cylinder up position
+    i_bFrontClamp_Closed    : BOOL;    // Front clamp closed position
+    i_bFrontClamp_Opened    : BOOL;    // Front clamp opened position
+    i_bRearClamp_Closed     : BOOL;    // Rear clamp closed position
+    i_bRearClamp_Opened     : BOOL;    // Rear clamp opened position
+    i_bFrontClamp2_Closed   : BOOL;    // Front clamp2 closed position
+    i_bFrontClamp2_Opened   : BOOL;    // Front clamp2 opened position
+    i_bRearClamp2_Closed    : BOOL;    // Rear clamp2 closed position
+    i_bRearClamp2_Opened    : BOOL;    // Rear clamp2 opened position
+
+    // Product detection sensors (4 photoelectric)
+    i_bLongEdge1Detect      : BOOL;    // Long edge 1 presence detection
+    i_bLongEdge2Detect      : BOOL;    // Long edge 2 presence detection
+    i_bShortEdge1Detect     : BOOL;    // Short edge 1 presence detection
+    i_bShortEdge2Detect     : BOOL;    // Short edge 2 presence detection
+
+    // Servo axis status (12)
+    // Home signals (3)
+    i_bZAxis_HomePos        : BOOL;    // Z axis servo home signal
+    i_bX1Axis_HomePos       : BOOL;    // X1 axis servo home signal
+    i_bX2Axis_HomePos       : BOOL;    // X2 axis servo home signal (reserved)
+
+    // Servo fault alarms (3)
+    i_bZAxis_ServoFault     : BOOL;    // Z axis servo drive fault
+    i_bX1Axis_ServoFault    : BOOL;    // X1 axis servo drive fault
+    i_bX2Axis_ServoFault    : BOOL;    // X2 axis servo drive fault (reserved)
+
+    // Limit switch signals (6)
+    i_bZAxis_FwdLimit       : BOOL;    // Z axis forward limit (upper)
+    i_bZAxis_RevLimit       : BOOL;    // Z axis reverse limit (lower)
+    i_bX1Axis_FwdLimit      : BOOL;    // X1 axis forward limit
+    i_bX1Axis_RevLimit      : BOOL;    // X1 axis reverse limit
+    i_bX2Axis_FwdLimit      : BOOL;    // X2 axis forward limit (reserved)
+    i_bX2Axis_RevLimit      : BOOL;    // X2 axis reverse limit (reserved)
+
+    // Upstream signals (4 BOOL, from conveyor)
+    i_bConveyor_L1_FeedComplete : BOOL; // Conveyor layer 1 feed complete
+    i_bConveyor_L2_FeedComplete : BOOL; // Conveyor layer 2 feed complete
+    i_bConveyor_L3_FeedComplete : BOOL; // Conveyor layer 3 feed complete
+    i_bConveyor_L4_FeedComplete : BOOL; // Conveyor layer 4 feed complete
+END_VAR
+//#endregion 100_VAR_INPUT
+
+//#region 200_VAR_OUTPUT
+VAR_OUTPUT
+    // Cylinder control outputs (10 BOOL, dual solenoid)
+    o_bLift_Up              : BOOL;    // Lift cylinder up solenoid
+    o_bLift_Down            : BOOL;    // Lift cylinder down solenoid
+    o_bFrontClamp_Action    : BOOL;    // Front clamp close solenoid
+    o_bFrontClamp_Release   : BOOL;    // Front clamp open solenoid
+    o_bRearClamp_Action     : BOOL;    // Rear clamp close solenoid
+    o_bRearClamp_Release    : BOOL;    // Rear clamp open solenoid
+    o_bFrontClamp2_Action   : BOOL;    // Front clamp2 close solenoid
+    o_bFrontClamp2_Release  : BOOL;    // Front clamp2 open solenoid
+    o_bRearClamp2_Action    : BOOL;    // Rear clamp2 close solenoid
+    o_bRearClamp2_Release   : BOOL;    // Rear clamp2 open solenoid
+
+    // Servo control outputs (3 BOOL, Z axis only)
+    o_bZAxis_PulseOutput    : BOOL;    // Z axis pulse output enable
+    o_bZAxis_DirectionOutput : BOOL;   // Z axis direction control
+    o_bZAxis_Enable         : BOOL;    // Z axis servo enable (SON)
+
+    // Downstream signal output (1 BOOL)
+    o_bPlaceComplete_ToFeeder : BOOL;   // Place complete notify downstream
+
+    // Status/HMI display outputs (7)
+    o_bRunning              : BOOL;    // Currently auto running
+    o_bFault                : BOOL;    // This station has fault
+    o_iCurrentState         : INT;     // Current state (0-10, 99=fault)
+    o_rZAxisCurrentPos      : REAL;    // Z axis current position (mm)
+    o_rX1AxisCurrentPos     : REAL;    // X1 axis current position (mm)
+    o_rX2AxisCurrentPos     : REAL;    // X2 axis current position (mm, reserved)
+    o_iCurrentPickLayer     : INT;     // Current processing layer (0=idle, 1-4)
+
+    // Alarm output (1)
+    o_iStationAlarmCode     : INT;     // Alarm code (0=none, 101-108)
+
+    // Timer debug outputs (4 DINT, scan cycles)
+    q_ePlaceCompleteHold_Elapsed : DINT; // Place complete hold timer elapsed
+    q_eAction_Elapsed       : DINT;     // Action timer elapsed
+    q_eProductDetectStable_Elapsed : DINT; // Product detect stable timer elapsed
+    q_eInit_Elapsed         : DINT;     // Init timer elapsed
+END_VAR
+//#endregion 200_VAR_OUTPUT
+
+//#region 300_VAR
+VAR
+    // State machine core
+    s_iCurrentStep          : INT;     // Current state machine step (0-10)
+    s_bRunning              : BOOL;    // Auto running flag
+    s_bFault                : BOOL;    // Fault flag
+    s_bStartTriggered       : BOOL;    // Start signal latched
+
+    // 4-layer cycle counter
+    s_iCompletedLayers      : INT;     // Completed pick/place layers (0-4)
+    s_iCurrentPickLayerNum  : INT;     // Current pick layer number (1-4)
+    s_iPickCount            : INT;     // Current pick count (1 or 2)
+
+    // Place complete pulse
+    s_bPlaceCompletePulse   : BOOL;    // Place complete single-cycle pulse
+
+    // Timers (SysLib FB_TON, PT/ET are DINT)
+    fb_tPlaceCompleteHoldTimer : FB_TON; // Place complete hold timer
+    fb_tActionTimer         : FB_TON;  // General action timer
+    fb_tProductDetectStableTimer : FB_TON; // Product detect stable timer
+    fb_tInitTimer           : FB_TON;  // Initialization timer
+
+    // Timer Q output variables
+    s_bPlaceCompleteHoldTimer_Q : BOOL;
+    s_bActionTimer_Q        : BOOL;
+    s_bProductDetectStableTimer_Q : BOOL;
+    s_bInitTimer_Q          : BOOL;
+
+    // System level internal variables
+    s_bInitComplete         : BOOL;    // Power-on init complete flag
+    s_bInitializing         : BOOL;    // Currently initializing
+    s_bProductDetected      : BOOL;    // Product detection result
+
+    // Alarm
+    s_iActiveAlarmCode      : INT;     // Current highest priority alarm code
+
+    // Servo motion request flags
+    s_bZAxis_RequestDown    : BOOL;    // Z axis down motion request
+    s_bZAxis_RequestUp      : BOOL;    // Z axis up motion request
+    s_bX1Axis_RequestFwd    : BOOL;    // X1 axis forward move request
+    s_bX1Axis_RequestRev    : BOOL;    // X1 axis reverse move request
+    s_bX1AxisAtPickupPos    : BOOL;    // X1 axis at pickup position flag
+    s_bX1AxisAtPlacePos     : BOOL;    // X1 axis at place position flag
+
+    // Sensor conflict detection
+    s_bLiftConflict         : BOOL;    // Lift up+down both TRUE
+    s_bFrontClampConflict   : BOOL;    // Front clamp closed+opened both TRUE
+    s_bRearClampConflict    : BOOL;    // Rear clamp closed+opened both TRUE
+    s_bFrontClamp2Conflict  : BOOL;    // Front clamp2 closed+opened both TRUE
+    s_bRearClamp2Conflict   : BOOL;    // Rear clamp2 closed+opened both TRUE
+
+    // Manual operation interlock
+    s_bManualAllowed        : BOOL;    // Manual operation allowed flag
+END_VAR
+//#endregion 300_VAR
+
+//#region 400_VAR_CONSTANT
+VAR CONSTANT
+    // State machine steps (11: 0 idle + 10 work steps)
+    STP_Idle                : INT := 0;   // Idle
+    STP_WaitingFeedComplete : INT := 1;   // Wait for conveyor feed complete
+    STP_PickupDown          : INT := 2;   // Z axis down to pickup height
+    STP_GripClamp           : INT := 3;   // Grip clamp (front+rear)
+    STP_ProductDetect       : INT := 4;   // Product detect confirm
+    STP_PickupUp            : INT := 5;   // Z axis up to safe height
+    STP_MovingToPlacePos    : INT := 6;   // X1 axis move to place position
+    STP_PlaceDown           : INT := 7;   // Z axis down to place height
+    STP_GripUnclamp         : INT := 8;   // Grip unclamp (front+rear)
+    STP_PlaceUp             : INT := 9;   // Z axis up to safe height
+    STP_PlaceCompleteNotify : INT := 10;  // Send place complete signal
+
+    // Alarm codes (101-108)
+    ALM_ZAxisServoFault     : INT := 101;  // Z axis servo fault
+    ALM_X1AxisServoFault    : INT := 102;  // X1 axis servo fault
+    ALM_LiftDownTimeout     : INT := 103;  // Lift down not in position
+    ALM_LiftUpTimeout       : INT := 104;  // Lift up not in position
+    ALM_ClampTimeout        : INT := 105;  // Clamp not confirmed
+    ALM_UnclampTimeout      : INT := 106;  // Unclamp not confirmed
+    ALM_ProductDetectFail   : INT := 107;  // Product detect failed
+    ALM_MovementTimeout     : INT := 108;  // X1 axis move timeout
+
+    // Default timer values (DINT, scan cycles)
+    T_DEF_LiftActionTime        : DINT := 2000;   // Lift action time
+    T_DEF_ClampConfirmTime      : DINT := 800;    // Clamp confirm time
+    T_DEF_UnclampConfirmTime    : DINT := 800;    // Unclamp confirm time
+    T_DEF_ProductDetectStableTime : DINT := 300;  // Product detect stable time
+    T_DEF_MovementTimeoutTime   : DINT := 5000;   // X1 axis move timeout
+    T_DEF_PlaceCompleteHoldTime : DINT := 500;    // Place complete hold time
+    T_DEF_InitTimeout           : DINT := 10000;  // Init total timeout (10s)
+
+    // Layer constants
+    LAYER_TOTAL             : INT := 4;       // Total layers
+    PICK_TIMES              : INT := 2;       // Pick times (2 layers per pick)
+END_VAR
+//#endregion 400_VAR_CONSTANT
+
+// ============================================================================
+// Main program logic
+// ============================================================================
+
+// --- Enable off: safe state, all outputs zero ---
+IF NOT i_bEnable THEN
+    o_bLift_Up := FALSE;
+    o_bLift_Down := FALSE;
+    o_bFrontClamp_Action := FALSE;
+    o_bFrontClamp_Release := FALSE;
+    o_bRearClamp_Action := FALSE;
+    o_bRearClamp_Release := FALSE;
+    o_bFrontClamp2_Action := FALSE;
+    o_bFrontClamp2_Release := FALSE;
+    o_bRearClamp2_Action := FALSE;
+    o_bRearClamp2_Release := FALSE;
+    o_bZAxis_PulseOutput := FALSE;
+    o_bZAxis_DirectionOutput := FALSE;
+    o_bZAxis_Enable := FALSE;
+    o_bPlaceComplete_ToFeeder := FALSE;
+    s_iCurrentStep := STP_Idle;
+    s_bRunning := FALSE;
+    s_bFault := FALSE;
+    s_bStartTriggered := FALSE;
+    s_iCompletedLayers := 0;
+    s_iCurrentPickLayerNum := 0;
+    s_iPickCount := 0;
+    s_bPlaceCompletePulse := FALSE;
+    s_bProductDetected := FALSE;
+    s_bZAxis_RequestDown := FALSE;
+    s_bZAxis_RequestUp := FALSE;
+    s_bX1Axis_RequestFwd := FALSE;
+    s_bX1Axis_RequestRev := FALSE;
+    s_bX1AxisAtPickupPos := FALSE;
+    s_bX1AxisAtPlacePos := FALSE;
+    s_iActiveAlarmCode := 0;
+    o_iStationAlarmCode := 0;
+    o_bFault := FALSE;
+    s_bInitComplete := FALSE;
+    s_bInitializing := FALSE;
+    o_bRunning := FALSE;
+    o_iCurrentState := STP_Idle;
+    o_iCurrentPickLayer := 0;
+
+    fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+    fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
+    fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
+    fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
+    RETURN;
+END_IF;
+
+// --- Initialization (after power-on or reset) ---
+IF NOT s_bInitComplete THEN
+    s_bInitializing := TRUE;
+    fb_tInitTimer(IN := TRUE, PT := T_DEF_InitTimeout, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
+
+    // Cylinder safe position: lift up, all clamps open
+    o_bLift_Up := TRUE;
+    o_bLift_Down := FALSE;
+    o_bFrontClamp_Action := FALSE;
+    o_bFrontClamp_Release := TRUE;
+    o_bRearClamp_Action := FALSE;
+    o_bRearClamp_Release := TRUE;
+    o_bFrontClamp2_Action := FALSE;
+    o_bFrontClamp2_Release := TRUE;
+    o_bRearClamp2_Action := FALSE;
+    o_bRearClamp2_Release := TRUE;
+
+    // Servo enable
+    o_bZAxis_Enable := TRUE;
+    o_bZAxis_PulseOutput := FALSE;
+    o_bZAxis_DirectionOutput := FALSE;
+    o_bPlaceComplete_ToFeeder := FALSE;
+
+    s_iCurrentStep := STP_Idle;
+    s_bFault := FALSE;
+    s_iActiveAlarmCode := 0;
+
+    // Check init conditions: lift at home + all clamps opened, or timeout
+    IF (i_bLift_HomePos AND
+        i_bFrontClamp_Opened AND i_bRearClamp_Opened AND
+        i_bFrontClamp2_Opened AND i_bRearClamp2_Opened)
+       OR s_bInitTimer_Q THEN
+        s_bInitComplete := TRUE;
+        s_bInitializing := FALSE;
+        fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
+        // Close cylinder outputs after init (enter idle safe state)
+        o_bLift_Up := FALSE;
+        o_bFrontClamp_Release := FALSE;
+        o_bRearClamp_Release := FALSE;
+        o_bFrontClamp2_Release := FALSE;
+        o_bRearClamp2_Release := FALSE;
+    END_IF;
+
+    o_bRunning := FALSE;
+    o_iCurrentState := STP_Idle;
+    o_iCurrentPickLayer := 0;
+    RETURN;
+END_IF;
+
+// --- Servo fault detection (all modes, highest priority) ---
+IF i_bZAxis_ServoFault THEN
+    IF s_iActiveAlarmCode <> ALM_ZAxisServoFault THEN
+        s_iActiveAlarmCode := ALM_ZAxisServoFault;
+        s_bFault := TRUE;
+    END_IF;
+    o_bZAxis_PulseOutput := FALSE;
+ELSIF s_iActiveAlarmCode = ALM_ZAxisServoFault THEN
+    s_iActiveAlarmCode := 0;
+    s_bFault := FALSE;
+END_IF;
+
+IF i_bX1Axis_ServoFault THEN
+    IF s_iActiveAlarmCode <> ALM_X1AxisServoFault THEN
+        s_iActiveAlarmCode := ALM_X1AxisServoFault;
+        s_bFault := TRUE;
+    END_IF;
+ELSIF s_iActiveAlarmCode = ALM_X1AxisServoFault THEN
+    s_iActiveAlarmCode := 0;
+    s_bFault := FALSE;
+END_IF;
+
+// --- Sensor conflict detection (all modes) ---
+s_bLiftConflict := i_bLift_WorkPoint AND i_bLift_HomePos;
+s_bFrontClampConflict := i_bFrontClamp_Closed AND i_bFrontClamp_Opened;
+s_bRearClampConflict := i_bRearClamp_Closed AND i_bRearClamp_Opened;
+s_bFrontClamp2Conflict := i_bFrontClamp2_Closed AND i_bFrontClamp2_Opened;
+s_bRearClamp2Conflict := i_bRearClamp2_Closed AND i_bRearClamp2_Opened;
+
+// --- Mode dispatch ---
+IF i_bAutoMode THEN
+    // ========================================================================
+    // Auto mode: 11-step pick/place state machine (inlined, no METHOD)
+    // ========================================================================
+
+    // Fault: stop state machine
+    IF s_bFault THEN
+        s_bRunning := FALSE;
+        o_bLift_Up := FALSE;
+        o_bLift_Down := FALSE;
+        o_bFrontClamp_Action := FALSE;
+        o_bFrontClamp_Release := FALSE;
+        o_bRearClamp_Action := FALSE;
+        o_bRearClamp_Release := FALSE;
+        o_bFrontClamp2_Action := FALSE;
+        o_bFrontClamp2_Release := FALSE;
+        o_bRearClamp2_Action := FALSE;
+        o_bRearClamp2_Release := FALSE;
+        o_bZAxis_PulseOutput := FALSE;
+        o_bZAxis_DirectionOutput := FALSE;
+        o_bPlaceComplete_ToFeeder := FALSE;
+        s_bZAxis_RequestDown := FALSE;
+        s_bZAxis_RequestUp := FALSE;
+        s_bX1Axis_RequestFwd := FALSE;
+        s_bX1Axis_RequestRev := FALSE;
+        fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+        fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
+    ELSE
+        // Start trigger detection (rising edge)
+        IF i_bStart AND NOT s_bStartTriggered THEN
+            s_bStartTriggered := TRUE;
+            IF s_iCompletedLayers >= LAYER_TOTAL THEN
+                s_iCompletedLayers := 0;
+            END_IF;
+            s_iPickCount := (s_iCompletedLayers / 2) + 1;
+            IF s_iPickCount > PICK_TIMES THEN
+                s_iPickCount := 1;
+                s_iCompletedLayers := 0;
+            END_IF;
+        END_IF;
+
+        // State machine
+        CASE s_iCurrentStep OF
+
+        STP_Idle:
+            s_bRunning := FALSE;
+            o_bLift_Up := FALSE;
+            o_bLift_Down := FALSE;
+            o_bFrontClamp_Action := FALSE;
+            o_bFrontClamp_Release := FALSE;
+            o_bRearClamp_Action := FALSE;
+            o_bRearClamp_Release := FALSE;
+            o_bFrontClamp2_Action := FALSE;
+            o_bFrontClamp2_Release := FALSE;
+            o_bRearClamp2_Action := FALSE;
+            o_bRearClamp2_Release := FALSE;
+            o_bZAxis_PulseOutput := FALSE;
+            o_bZAxis_DirectionOutput := FALSE;
+            o_bPlaceComplete_ToFeeder := FALSE;
+            s_bZAxis_RequestDown := FALSE;
+            s_bZAxis_RequestUp := FALSE;
+            s_bX1Axis_RequestFwd := FALSE;
+            s_bX1Axis_RequestRev := FALSE;
+            s_iCurrentPickLayerNum := 0;
+
+            IF s_bStartTriggered THEN
+                s_iCurrentStep := STP_WaitingFeedComplete;
+                s_bRunning := TRUE;
+                IF s_iCompletedLayers < 2 THEN
+                    s_iCurrentPickLayerNum := 1;
+                ELSE
+                    s_iCurrentPickLayerNum := 3;
+                END_IF;
+            END_IF;
+
+        STP_WaitingFeedComplete:
+            IF s_iCompletedLayers < 2 THEN
+                IF i_bConveyor_L1_FeedComplete AND i_bConveyor_L2_FeedComplete THEN
+                    s_iCurrentStep := STP_PickupDown;
+                    fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                    s_bZAxis_RequestDown := TRUE;
+                    s_bZAxis_RequestUp := FALSE;
+                    o_bZAxis_PulseOutput := TRUE;
+                    o_bZAxis_DirectionOutput := TRUE;
+                END_IF;
+            ELSE
+                IF i_bConveyor_L3_FeedComplete AND i_bConveyor_L4_FeedComplete THEN
+                    s_iCurrentStep := STP_PickupDown;
+                    fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                    s_bZAxis_RequestDown := TRUE;
+                    s_bZAxis_RequestUp := FALSE;
+                    o_bZAxis_PulseOutput := TRUE;
+                    o_bZAxis_DirectionOutput := TRUE;
+                END_IF;
+            END_IF;
+
+        STP_PickupDown:
+            o_bZAxis_PulseOutput := TRUE;
+            o_bZAxis_DirectionOutput := TRUE;
+            o_bLift_Down := TRUE;
+            o_bLift_Up := FALSE;
+
+            IF i_bLift_WorkPoint THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bZAxis_RequestDown := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Down := FALSE;
+                s_iCurrentStep := STP_GripClamp;
+                fb_tActionTimer(IN := TRUE, PT := i_iClampConfirmTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                o_bFrontClamp_Action := TRUE;
+                o_bRearClamp_Action := TRUE;
+            ELSIF s_bActionTimer_Q THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_LiftDownTimeout;
+                s_bFault := TRUE;
+                s_bZAxis_RequestDown := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Down := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_GripClamp:
+            o_bFrontClamp_Action := TRUE;
+            o_bRearClamp_Action := TRUE;
+            o_bFrontClamp_Release := FALSE;
+            o_bRearClamp_Release := FALSE;
+
+            IF s_bActionTimer_Q AND (i_bFrontClamp_Closed AND i_bRearClamp_Closed) THEN
+                // Timer done AND sensors confirmed -> proceed
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iCurrentStep := STP_ProductDetect;
+                fb_tProductDetectStableTimer(IN := TRUE, PT := T_DEF_ProductDetectStableTime, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
+            ELSIF s_bActionTimer_Q AND NOT (i_bFrontClamp_Closed AND i_bRearClamp_Closed) THEN
+                // Timer done BUT sensors NOT confirmed -> clamp timeout alarm
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_ClampTimeout;
+                s_bFault := TRUE;
+                o_bFrontClamp_Action := FALSE;
+                o_bRearClamp_Action := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_ProductDetect:
+            o_bFrontClamp_Action := TRUE;
+            o_bRearClamp_Action := TRUE;
+
+            IF s_bProductDetectStableTimer_Q THEN
+                fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
+
+                s_bProductDetected :=
+                    i_bLongEdge1Detect AND i_bLongEdge2Detect AND
+                    i_bShortEdge1Detect AND i_bShortEdge2Detect;
+
+                IF s_bProductDetected THEN
+                    s_iCurrentStep := STP_PickupUp;
+                    fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                    s_bZAxis_RequestUp := TRUE;
+                    o_bZAxis_PulseOutput := TRUE;
+                    o_bZAxis_DirectionOutput := FALSE;
+                    o_bLift_Up := TRUE;
+                    o_bFrontClamp_Action := FALSE;
+                    o_bRearClamp_Action := FALSE;
+                ELSE
+                    s_iActiveAlarmCode := ALM_ProductDetectFail;
+                    s_bFault := TRUE;
+                    o_bFrontClamp_Action := FALSE;
+                    o_bRearClamp_Action := FALSE;
+                    s_iCurrentStep := STP_Idle;
+                    s_bRunning := FALSE;
+                    s_bStartTriggered := FALSE;
+                END_IF;
+            END_IF;
+
+        STP_PickupUp:
+            o_bZAxis_PulseOutput := TRUE;
+            o_bZAxis_DirectionOutput := FALSE;
+            o_bLift_Up := TRUE;
+            o_bLift_Down := FALSE;
+
+            IF i_bLift_HomePos THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bZAxis_RequestUp := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Up := FALSE;
+                s_iCurrentStep := STP_MovingToPlacePos;
+                fb_tActionTimer(IN := TRUE, PT := T_DEF_MovementTimeoutTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bX1Axis_RequestFwd := FALSE;
+                s_bX1Axis_RequestRev := TRUE;
+                s_bX1AxisAtPickupPos := FALSE;
+            ELSIF s_bActionTimer_Q THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_LiftUpTimeout;
+                s_bFault := TRUE;
+                s_bZAxis_RequestUp := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Up := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_MovingToPlacePos:
+            s_bX1Axis_RequestRev := TRUE;
+            s_bX1Axis_RequestFwd := FALSE;
+
+            IF i_bX1Axis_RevLimit THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bX1Axis_RequestRev := FALSE;
+                s_bX1AxisAtPlacePos := TRUE;
+                s_iCurrentStep := STP_PlaceDown;
+                fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bZAxis_RequestDown := TRUE;
+                s_bZAxis_RequestUp := FALSE;
+                o_bZAxis_PulseOutput := TRUE;
+                o_bZAxis_DirectionOutput := TRUE;
+            ELSIF s_bActionTimer_Q THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_MovementTimeout;
+                s_bFault := TRUE;
+                s_bX1Axis_RequestRev := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_PlaceDown:
+            o_bZAxis_PulseOutput := TRUE;
+            o_bZAxis_DirectionOutput := TRUE;
+            o_bLift_Down := TRUE;
+            o_bLift_Up := FALSE;
+
+            IF i_bLift_WorkPoint THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bZAxis_RequestDown := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Down := FALSE;
+                s_iCurrentStep := STP_GripUnclamp;
+                fb_tActionTimer(IN := TRUE, PT := T_DEF_UnclampConfirmTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                o_bFrontClamp_Release := TRUE;
+                o_bRearClamp_Release := TRUE;
+            ELSIF s_bActionTimer_Q THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_LiftDownTimeout;
+                s_bFault := TRUE;
+                s_bZAxis_RequestDown := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Down := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_GripUnclamp:
+            o_bFrontClamp_Release := TRUE;
+            o_bRearClamp_Release := TRUE;
+            o_bFrontClamp_Action := FALSE;
+            o_bRearClamp_Action := FALSE;
+
+            IF s_bActionTimer_Q AND (i_bFrontClamp_Opened AND i_bRearClamp_Opened) THEN
+                // Timer done AND sensors confirmed -> proceed
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iCurrentStep := STP_PlaceUp;
+                fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bZAxis_RequestUp := TRUE;
+                o_bZAxis_PulseOutput := TRUE;
+                o_bZAxis_DirectionOutput := FALSE;
+                o_bLift_Up := TRUE;
+                o_bFrontClamp_Release := FALSE;
+                o_bRearClamp_Release := FALSE;
+            ELSIF s_bActionTimer_Q AND NOT (i_bFrontClamp_Opened AND i_bRearClamp_Opened) THEN
+                // Timer done BUT sensors NOT confirmed -> unclamp timeout alarm
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_UnclampTimeout;
+                s_bFault := TRUE;
+                o_bFrontClamp_Release := FALSE;
+                o_bRearClamp_Release := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_PlaceUp:
+            o_bZAxis_PulseOutput := TRUE;
+            o_bZAxis_DirectionOutput := FALSE;
+            o_bLift_Up := TRUE;
+            o_bLift_Down := FALSE;
+
+            IF i_bLift_HomePos THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_bZAxis_RequestUp := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Up := FALSE;
+                s_iCurrentStep := STP_PlaceCompleteNotify;
+                fb_tPlaceCompleteHoldTimer(IN := TRUE, PT := T_DEF_PlaceCompleteHoldTime, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
+                o_bPlaceComplete_ToFeeder := TRUE;
+                s_bPlaceCompletePulse := TRUE;
+            ELSIF s_bActionTimer_Q THEN
+                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+                s_iActiveAlarmCode := ALM_LiftUpTimeout;
+                s_bFault := TRUE;
+                s_bZAxis_RequestUp := FALSE;
+                o_bZAxis_PulseOutput := FALSE;
+                o_bLift_Up := FALSE;
+                s_iCurrentStep := STP_Idle;
+                s_bRunning := FALSE;
+                s_bStartTriggered := FALSE;
+            END_IF;
+
+        STP_PlaceCompleteNotify:
+            o_bPlaceComplete_ToFeeder := TRUE;
+
+            IF s_bPlaceCompleteHoldTimer_Q THEN
+                fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
+                o_bPlaceComplete_ToFeeder := FALSE;
+                s_bPlaceCompletePulse := FALSE;
+
+                s_iCompletedLayers := s_iCompletedLayers + 2;
+
+                IF s_iCompletedLayers >= LAYER_TOTAL THEN
+                    s_iCompletedLayers := 0;
+                    s_iCurrentStep := STP_Idle;
+                    s_bRunning := FALSE;
+                    s_bStartTriggered := FALSE;
+                    s_iCurrentPickLayerNum := 0;
+                ELSE
+                    s_iCurrentStep := STP_WaitingFeedComplete;
+                    IF s_iCompletedLayers < 2 THEN
+                        s_iCurrentPickLayerNum := 1;
+                    ELSE
+                        s_iCurrentPickLayerNum := 3;
+                    END_IF;
+                END_IF;
+            END_IF;
+
+        ELSE
+            s_iCurrentStep := STP_Idle;
+            s_bRunning := FALSE;
+        END_CASE;
+    END_IF;
+
+ELSIF i_bManualMode THEN
+    // ========================================================================
+    // Manual mode: 14 manual operations with interlock (inlined, no METHOD)
+    // ========================================================================
+
+    IF s_bFault THEN
+        s_bManualAllowed := FALSE;
+        o_bLift_Up := FALSE;
+        o_bLift_Down := FALSE;
+        o_bFrontClamp_Action := FALSE;
+        o_bFrontClamp_Release := FALSE;
+        o_bRearClamp_Action := FALSE;
+        o_bRearClamp_Release := FALSE;
+        o_bFrontClamp2_Action := FALSE;
+        o_bFrontClamp2_Release := FALSE;
+        o_bRearClamp2_Action := FALSE;
+        o_bRearClamp2_Release := FALSE;
+        o_bZAxis_PulseOutput := FALSE;
+        o_bZAxis_DirectionOutput := FALSE;
+        o_bPlaceComplete_ToFeeder := FALSE;
+        s_bZAxis_RequestDown := FALSE;
+        s_bZAxis_RequestUp := FALSE;
+        s_bX1Axis_RequestFwd := FALSE;
+        s_bX1Axis_RequestRev := FALSE;
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+    ELSE
+        s_bManualAllowed := TRUE;
+        s_bRunning := FALSE;
+        s_iCurrentStep := STP_Idle;
+        o_iCurrentPickLayer := 0;
+        o_bPlaceComplete_ToFeeder := FALSE;
+
+        // Z axis jog: up/down interlock
+        IF i_bLx_ZAxis_JogUp AND NOT i_bLx_ZAxis_JogDown THEN
+            IF NOT i_bZAxis_FwdLimit THEN
+                s_bZAxis_RequestUp := TRUE;
+                s_bZAxis_RequestDown := FALSE;
+                o_bZAxis_DirectionOutput := FALSE;
+            END_IF;
+        ELSIF i_bLx_ZAxis_JogDown AND NOT i_bLx_ZAxis_JogUp THEN
+            IF NOT i_bZAxis_RevLimit THEN
+                s_bZAxis_RequestDown := TRUE;
+                s_bZAxis_RequestUp := FALSE;
+                o_bZAxis_DirectionOutput := TRUE;
+            END_IF;
+        ELSE
+            s_bZAxis_RequestDown := FALSE;
+            s_bZAxis_RequestUp := FALSE;
+        END_IF;
+
+        // X1 axis jog: forward/reverse interlock
+        IF i_bLx_X1Axis_JogFwd AND NOT i_bLx_X1Axis_JogRev THEN
+            IF NOT i_bX1Axis_FwdLimit THEN
+                s_bX1Axis_RequestFwd := TRUE;
+                s_bX1Axis_RequestRev := FALSE;
+            END_IF;
+        ELSIF i_bLx_X1Axis_JogRev AND NOT i_bLx_X1Axis_JogFwd THEN
+            IF NOT i_bX1Axis_RevLimit THEN
+                s_bX1Axis_RequestRev := TRUE;
+                s_bX1Axis_RequestFwd := FALSE;
+            END_IF;
+        ELSE
+            s_bX1Axis_RequestFwd := FALSE;
+            s_bX1Axis_RequestRev := FALSE;
+        END_IF;
+
+        // Lift cylinder manual
+        IF i_bLx_Lift_Up AND NOT i_bLx_Lift_Down THEN
+            o_bLift_Up := TRUE;
+            o_bLift_Down := FALSE;
+        ELSIF i_bLx_Lift_Down AND NOT i_bLx_Lift_Up THEN
+            o_bLift_Down := TRUE;
+            o_bLift_Up := FALSE;
+        ELSE
+            o_bLift_Up := FALSE;
+            o_bLift_Down := FALSE;
+        END_IF;
+
+        // Front clamp manual
+        IF i_bLx_FrontClamp AND NOT i_bLx_FrontUnclamp THEN
+            o_bFrontClamp_Action := TRUE;
+            o_bFrontClamp_Release := FALSE;
+        ELSIF i_bLx_FrontUnclamp AND NOT i_bLx_FrontClamp THEN
+            o_bFrontClamp_Release := TRUE;
+            o_bFrontClamp_Action := FALSE;
+        ELSE
+            o_bFrontClamp_Action := FALSE;
+            o_bFrontClamp_Release := FALSE;
+        END_IF;
+
+        // Rear clamp manual
+        IF i_bLx_RearClamp AND NOT i_bLx_RearUnclamp THEN
+            o_bRearClamp_Action := TRUE;
+            o_bRearClamp_Release := FALSE;
+        ELSIF i_bLx_RearUnclamp AND NOT i_bLx_RearClamp THEN
+            o_bRearClamp_Release := TRUE;
+            o_bRearClamp_Action := FALSE;
+        ELSE
+            o_bRearClamp_Action := FALSE;
+            o_bRearClamp_Release := FALSE;
+        END_IF;
+
+        // Front clamp2 manual
+        IF i_bLx_FrontClamp2 AND NOT i_bLx_FrontUnclamp2 THEN
+            o_bFrontClamp2_Action := TRUE;
+            o_bFrontClamp2_Release := FALSE;
+        ELSIF i_bLx_FrontUnclamp2 AND NOT i_bLx_FrontClamp2 THEN
+            o_bFrontClamp2_Release := TRUE;
+            o_bFrontClamp2_Action := FALSE;
+        ELSE
+            o_bFrontClamp2_Action := FALSE;
+            o_bFrontClamp2_Release := FALSE;
+        END_IF;
+
+        // Rear clamp2 manual
+        IF i_bLx_RearClamp2 AND NOT i_bLx_RearUnclamp2 THEN
+            o_bRearClamp2_Action := TRUE;
+            o_bRearClamp2_Release := FALSE;
+        ELSIF i_bLx_RearUnclamp2 AND NOT i_bLx_RearClamp2 THEN
+            o_bRearClamp2_Release := TRUE;
+            o_bRearClamp2_Action := FALSE;
+        ELSE
+            o_bRearClamp2_Action := FALSE;
+            o_bRearClamp2_Release := FALSE;
+        END_IF;
+    END_IF;
+
+ELSE
+    // Invalid mode: safe state
+    o_bLift_Up := FALSE;
+    o_bLift_Down := FALSE;
+    o_bFrontClamp_Action := FALSE;
+    o_bFrontClamp_Release := FALSE;
+    o_bRearClamp_Action := FALSE;
+    o_bRearClamp_Release := FALSE;
+    o_bFrontClamp2_Action := FALSE;
+    o_bFrontClamp2_Release := FALSE;
+    o_bRearClamp2_Action := FALSE;
+    o_bRearClamp2_Release := FALSE;
+    o_bZAxis_PulseOutput := FALSE;
+    o_bZAxis_DirectionOutput := FALSE;
+    o_bPlaceComplete_ToFeeder := FALSE;
+    s_bZAxis_RequestDown := FALSE;
+    s_bZAxis_RequestUp := FALSE;
+    s_bX1Axis_RequestFwd := FALSE;
+    s_bX1Axis_RequestRev := FALSE;
+    IF NOT s_bFault THEN
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+    END_IF;
+END_IF;
+
+// --- Stop handling ---
+IF i_bStop THEN
+    IF s_bRunning AND NOT s_bFault THEN
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+        s_bStartTriggered := FALSE;
+        o_bLift_Up := FALSE;
+        o_bLift_Down := FALSE;
+        o_bFrontClamp_Action := FALSE;
+        o_bFrontClamp_Release := FALSE;
+        o_bRearClamp_Action := FALSE;
+        o_bRearClamp_Release := FALSE;
+        o_bFrontClamp2_Action := FALSE;
+        o_bFrontClamp2_Release := FALSE;
+        o_bRearClamp2_Action := FALSE;
+        o_bRearClamp2_Release := FALSE;
+        o_bZAxis_PulseOutput := FALSE;
+        o_bZAxis_DirectionOutput := FALSE;
+        o_bPlaceComplete_ToFeeder := FALSE;
+        s_bZAxis_RequestDown := FALSE;
+        s_bZAxis_RequestUp := FALSE;
+        s_bX1Axis_RequestFwd := FALSE;
+        s_bX1Axis_RequestRev := FALSE;
+        fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+        fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
+        fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
+    END_IF;
+END_IF;
+
+// --- Reset handling ---
+IF i_bReset THEN
+    IF s_bFault THEN
+        s_iActiveAlarmCode := 0;
+        s_bFault := FALSE;
+        o_iStationAlarmCode := 0;
+        s_iCurrentStep := STP_Idle;
+        s_bRunning := FALSE;
+        s_bStartTriggered := FALSE;
+        s_iCompletedLayers := 0;
+        s_iCurrentPickLayerNum := 0;
+        s_iPickCount := 0;
+        s_bPlaceCompletePulse := FALSE;
+        s_bProductDetected := FALSE;
+        o_bLift_Up := FALSE;
+        o_bLift_Down := FALSE;
+        o_bFrontClamp_Action := FALSE;
+        o_bFrontClamp_Release := FALSE;
+        o_bRearClamp_Action := FALSE;
+        o_bRearClamp_Release := FALSE;
+        o_bFrontClamp2_Action := FALSE;
+        o_bFrontClamp2_Release := FALSE;
+        o_bRearClamp2_Action := FALSE;
+        o_bRearClamp2_Release := FALSE;
+        o_bZAxis_PulseOutput := FALSE;
+        o_bZAxis_DirectionOutput := FALSE;
+        o_bPlaceComplete_ToFeeder := FALSE;
+        s_bZAxis_RequestDown := FALSE;
+        s_bZAxis_RequestUp := FALSE;
+        s_bX1Axis_RequestFwd := FALSE;
+        s_bX1Axis_RequestRev := FALSE;
+        s_bX1AxisAtPickupPos := FALSE;
+        s_bX1AxisAtPlacePos := FALSE;
+        fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
+        fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
+        fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
+        s_bInitComplete := FALSE;
+    END_IF;
+END_IF;
+
+// --- Status output ---
+o_bRunning := s_bRunning;
+o_bFault := s_bFault;
+
+IF s_bFault THEN
+    o_iCurrentState := 99;
+ELSE
+    o_iCurrentState := s_iCurrentStep;
+END_IF;
+
+IF s_bRunning THEN
+    o_iCurrentPickLayer := s_iCurrentPickLayerNum;
+ELSIF s_iCompletedLayers >= LAYER_TOTAL THEN
+    o_iCurrentPickLayer := 0;
+ELSE
+    o_iCurrentPickLayer := 0;
+END_IF;
+
+o_iStationAlarmCode := s_iActiveAlarmCode;
+
+END_FUNCTION_BLOCK

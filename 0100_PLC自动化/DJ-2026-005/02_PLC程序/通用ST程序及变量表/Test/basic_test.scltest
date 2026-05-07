@@ -1,0 +1,11 @@
+TEST_CASE "test_simple"
+    SET GlobalVars.stExternal.i_bFrameMachine_EStop := FALSE;
+    SET GlobalVars.stExternal.i_bGlueMachine_EStop := FALSE;
+    SET GlobalVars.stExternal.i_bGlueMachine_Fault := FALSE;
+    SET GlobalVars.stExternal.i_bRobot_EStop := FALSE;
+    SET GlobalVars.stExternal.i_bRobot_Fault := FALSE;
+    
+    WAIT_CYCLES 2000;
+    
+    ASSERT GlobalVars.stExternal.o_bSystemSafetyConditionMet = TRUE;
+END_TEST_CASE

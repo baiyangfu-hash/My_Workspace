@@ -1,0 +1,1 @@
+# IDE files\n.vscode/\n.idea/\n\n# Build files\nbuild/\ndist/\n\n# Log files\nlogs/\n*.log\n\n# Environment files\n.env\n.env.local\n\n# OS files\n.DS_Store\nThumbs.db\n\n# Trae files\n.trae/
