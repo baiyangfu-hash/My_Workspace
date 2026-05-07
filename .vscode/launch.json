@@ -6,7 +6,7 @@
             "type": "plc",
             "request": "launch",
             "program": "${file}",
-            "plcRoot": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000",
+            "plcRoot": "./0100_PLC自动化/DJ-2026-000",
             "stopOnEntry": false,
             "entryOb": "OB1"
         },
@@ -15,7 +15,7 @@
             "type": "plc",
             "request": "launch",
             "program": "${file}",
-            "plcRoot": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-005",
+            "plcRoot": "./0100_PLC自动化/DJ-2026-005",
             "stopOnEntry": false,
             "entryOb": "OB1"
         }

@@ -1,7 +1,7 @@
 # Docker 开发环境使用指南
 
-> **版本**: V1.1.0 (换电脑开发专用版)
-> **更新日期**: 2026-05-06
+> **版本**: V1.2.0 (PLC调试配置完整版)
+> **更新日期**: 2026-05-07
 > **适用场景**:
 >   - ✅ 更换电脑后快速恢复开发环境
 >   - ✅ 多电脑协同开发
@@ -19,6 +19,7 @@
 - [🔧 详细步骤：首次配置（当前电脑）](#-详细步骤首次配置当前电脑)
 - [🚀 详细步骤：迁移到新电脑](#-详细步骤迁移到新电脑)
 - [✅ 环境验证清单](#-环境验证清单)
+- [🔌 PLC 调试配置指南（Docker 环境）](#-plc-调试配置指南docker-环境)  🆕
 - [💰 Trae Pro Token 优化策略](#-trae-pro-token-优化策略)
 - [🛠️ 常用操作速查](#-常用操作速查)
 - [❌ 故障排查手册](#-故障排查手册)
@@ -452,6 +453,209 @@ your.email@example.com
   ssh -T git@github.com
   # 应输出: Hi username! You've successfully authenticated
   ```
+
+### PLC 开发环境验证（Docker 环境特有）
+
+- [ ] **Siemens LSP 扩展已安装？**
+  - 左侧扩展栏能看到：**Siemens LSP** 或 **siemens-lsp**
+  - 打开 `.scl` 文件时能看到语法高亮和错误提示
+
+- [ ] **PLC 调试配置可用？**
+  ```bash
+  # 检查 launch.json 是否存在
+  cat /workspace/.vscode/launch.json
+  # 应显示包含 "Debug PLC (DJ-2026-000)" 和 "Debug PLC (DJ-2026-005)" 的配置
+  ```
+
+- [ ] **多项目切换正常？**
+  - 按 F5 → 应看到调试目标选择列表
+  - 能在 DJ-2026-000 和 DJ-2026-005 之间切换
+
+---
+
+## 🔌 PLC 调试配置指南（Docker 环境）
+
+> **重要**: 本章节专门针对 Docker 容器内的 PLC 开发环境配置
+
+### 1. Siemens LSP 扩展安装
+
+#### 方法A：自动安装（推荐）
+
+[devcontainer.json](.devcontainer/devcontainer.json) 已预配置以下扩展，容器启动时会自动安装：
+
+```json
+"extensions": [
+  // ... 其他扩展 ...
+  "siemens-mindsphere.vscode-siemens-plc",  // Siemens LSP 扩展
+]
+```
+
+> ⚠️ **如果扩展未自动安装**，请使用方法B
+
+#### 方法B：手动安装
+
+1. 在 VS Code 中按 `Ctrl+Shift+X` 打开扩展面板
+2. 搜索 **"Siemens LSP"** 或 **"siemens-lsp"**
+3. 点击安装 **Siemens Industrial Edge LSP** (ID: `siemens-mindsphere.vscode-siemens-plc`)
+4. 安装完成后 **重新加载窗口** (`Ctrl+Shift+P` → "Developer: Reload Window")
+
+---
+
+### 2. launch.json 配置说明
+
+#### 配置文件位置
+
+```
+.vscode/
+└── launch.json    ← PLC 调试配置文件（已预配置）
+```
+
+#### 当前配置内容
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug PLC (DJ-2026-000)",
+      "type": "plc",
+      "request": "launch",
+      "program": "${file}",
+      "plcRoot": "./0100_PLC自动化/DJ-2026-000",
+      "stopOnEntry": false,
+      "entryOb": "OB1"
+    },
+    {
+      "name": "Debug PLC (DJ-2026-005)",
+      "type": "plc",
+      "request": "launch",
+      "program": "${file}",
+      "plcRoot": "./0100_PLC自动化/DJ-2026-005",
+      "stopOnEntry": false,
+      "entryOb": "OB1"
+    }
+  ]
+}
+```
+
+#### ⚠️ 关键配置规则（必须遵守）
+
+| 规则 | 正确示例 ❌→✅ | 原因 |
+|------|---------------|------|
+| **必须使用相对路径** | `"./0100_PLC自动化/..."` | Docker 容器内路径解析需要 |
+| **禁止 `${workspaceFolder}`** | ~~`${workspaceFolder}/...`~~ | Siemens LSP 不支持此变量 |
+| **禁止硬编码绝对路径** | ~~`d:/xxx/...`~~ | 跨机器不兼容 |
+
+---
+
+### 3. 多项目调试操作步骤
+
+#### 步骤 1：打开 PLC 项目文件
+
+```
+# 在 VS Code 中打开任意 .scl 文件，例如：
+0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/main.scl
+```
+
+#### 步骤 2：启动调试
+
+**方法 A：快捷键（推荐）**
+```
+按 F5 → 选择调试目标 → 开始调试
+```
+
+**方法 B：调试面板**
+```
+1. 按 Ctrl+Shift+D 打开调试面板
+2. 点击顶部的下拉菜单
+3. 选择目标：
+   - Debug PLC (DJ-2026-000)  ← 测试项目
+   - Debug PLC (DJ-2026-005)  ← 边框缓存机项目
+4. 点击 ▶️ 绿色运行按钮
+```
+
+#### 步骤 3：切换调试目标
+
+无需修改任何配置，只需：
+1. 打开目标项目的 `.scl` 文件
+2. 在调试面板下拉菜单中选择对应配置
+3. 按 F5 启动
+
+---
+
+### 4. 新增 PLC 项目配置模板
+
+如果需要添加新的 PLC 项目（如 DJ-2026-XXX），在 `launch.json` 的 `configurations` 数组中添加：
+
+```json
+{
+  "name": "Debug PLC (DJ-2026-XXX)",           // 显示名称
+  "type": "plc",                                // 固定值
+  "request": "launch",                          // 固定值
+  "program": "${file}",                         // 固定值（当前打开的文件）
+  "plcRoot": "./0100_PLC自动化/DJ-2026-XXX",    // ← 修改这里！相对路径
+  "stopOnEntry": false,                         // 是否在入口暂停
+  "entryOb": "OB1"                              // 入口程序块
+}
+```
+
+**路径计算方法**:
+```
+工作空间根目录 (/workspace)
+└── 0100_PLC自动化/
+    └── DJ-2026-XXX/          ← plcRoot 指向此目录
+        └── .plc.json         ← 必须存在此文件
+```
+
+---
+
+### 5. 常见问题排查
+
+#### 问题 1："Unable to resolve a unique PLC root"
+
+**原因**: `plcRoot` 路径配置错误或使用了不支持的变量
+
+**解决方案**:
+```json
+// ❌ 错误配置
+"plcRoot": "${workspaceFolder}/0100_PLC自动化/DJ-2026-005"
+"plcRoot": "d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005"
+
+// ✅ 正确配置
+"plcRoot": "./0100_PLC自动化/DJ-2026-005"
+```
+
+#### 问题 2："Configured plcRoot does not point to a folder with .plc.json"
+
+**原因**: 目标目录缺少 `.plc.json` 配置文件
+
+**解决方案**:
+```bash
+# 在容器内检查
+ls /workspace/0100_PLC自动化/DJ-2026-005/.plc.json
+# 如果不存在，需要创建该项目的 .plc.json
+```
+
+参考规范文档：[907_项目配置规范.md](../0100_PLC自动化/00_通用规范/PLC编程/907_项目配置规范.md)
+
+#### 问题 3：Docker 内无法连接真实 PLC
+
+**说明**: 这是**正常行为**
+
+Docker 容器是隔离环境，默认无法访问宿主机网络中的 PLC 设备。
+
+**如需连接真实 PLC**（高级用法）:
+```yaml
+# 编辑 docker-compose.yml，添加网络模式
+services:
+  dev:
+    network_mode: host    # 使用宿主机网络（Windows 不支持）
+    # 或者映射端口
+    ports:
+      - "102:102"        # PLC 默认端口
+```
+
+> 💡 **推荐做法**: 在宿主机本地环境进行 PLC 联调测试，Docker 环境主要用于代码开发和仿真测试。
 
 ---
 
@@ -1089,6 +1293,7 @@ deploy:
 
 | 版本 | 日期 | 主要变更 | 影响范围 |
 |------|------|----------|----------|
+| **V1.2.0** | **2026-05-07** | **🆕 新增 PLC 调试配置指南章节**<br>**🆕 添加 Siemens LSP 扩展安装说明**<br>**🆕 添加 launch.json 配置规则（相对路径）**<br>**🆕 添加多项目调试操作步骤**<br>**🆕 添加常见问题排查** | 所有使用PLC开发的用户 |
 | **V1.1.0** | **2026-05-06** | **🆕 修复post-create.sh路径错误**<br>**🆕 添加Trae Pro Token优化章节**<br>**🆕 增强故障排查手册**<br>**🆕 更新目录名称(0100_PLC自动化)** | 所有用户 |
 | V1.0.0 | 2026-05-05 | 初始版本 | - |
 
@@ -1155,7 +1360,7 @@ deploy:
 
 ---
 
-**最后更新**: 2026-05-06
+**最后更新**: 2026-05-07
 **维护者**: 开发团队
 **适用范围**: 所有使用Docker开发环境的团队成员
 **下次审查**: 按需（当目录结构或依赖发生重大变化时）
