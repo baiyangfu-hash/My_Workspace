@@ -6,6 +6,8 @@
 
 FROM mcr.microsoft.com/devcontainers/python:0-3.11-bullseye
 
+ARG GO_VERSION=1.24.0
+
 # 避免交互式提示
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
@@ -20,8 +22,6 @@ RUN echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib 
 
 # 安装系统依赖包
 RUN apt-get update && apt-get install -y \
-    # ==================== Go语言环境 ====================
-    golang-go \
     # ==================== GUI支持库（PyQt5需要）====================
     libgl1-mesa-dev \
     libglu1-mesa-dev \
@@ -59,6 +59,15 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+RUN set -e && \
+    curl -fSL "https://mirrors.tuna.tsinghua.edu.cn/golang/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz || \
+    curl -fSL "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tgz && \
+    ln -sf /usr/local/go/bin/go /usr/local/bin/go && \
+    ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt && \
+    rm -f /tmp/go.tgz
+
 # 配置中文 locale 支持
 RUN sed -i '/zh_CN.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen zh_CN.UTF-8 && \
@@ -89,7 +98,7 @@ RUN mkdir -p /go/src /go/bin /workspace
 # 设置环境变量
 ENV PYTHONPATH=/workspace
 ENV GOPATH=/go
-ENV PATH="${GOPATH}/bin:${PATH}"
+ENV PATH="/usr/local/go/bin:${GOPATH}/bin:${PATH}"
 
 # 设置工作目录
 WORKDIR /workspace

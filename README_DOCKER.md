@@ -224,6 +224,8 @@ docker info
 2. 输入并选择：**"Dev Containers: Reopen in Container"**
 3. 等待构建完成
 
+> Trae 用户说明：Trae 可能无法使用 Dev Containers 扩展，但仍可使用本仓库的 Docker 环境。请直接参考 [README_DOCKER_TRAE.md](file:///c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/README_DOCKER_TRAE.md) 使用 `docker exec ... bash -lc '...'` 在容器内安装依赖与运行命令。
+
 ---
 
 ### Step 4: 首次启动验证（2分钟）

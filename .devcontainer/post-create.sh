@@ -8,6 +8,41 @@
 set -e  # 遇到错误立即退出
 
 echo "🚀 开始配置开发环境..."
+echo "📋 基础信息："
+echo "  • 位置: $(pwd)"
+echo "  • 用户: $(whoami)"
+echo "  • Python: $(python3 --version 2>/dev/null || python --version)"
+echo "  • Go: $(go version 2>/dev/null | awk '{print $3}' || echo 'not found')"
+echo ""
+
+is_go_version_ok() {
+    if ! command -v go >/dev/null 2>&1; then
+        return 1
+    fi
+    local ver major minor rest
+    ver="$(go version 2>/dev/null | awk '{print $3}' | sed 's/^go//')"
+    major="${ver%%.*}"
+    rest="${ver#*.}"
+    minor="${rest%%.*}"
+    if [ -z "$major" ] || [ -z "$minor" ]; then
+        return 1
+    fi
+    if [ "$major" -gt 1 ]; then
+        return 0
+    fi
+    if [ "$major" -eq 1 ] && [ "$minor" -ge 24 ]; then
+        return 0
+    fi
+    return 1
+}
+
+mkdir -p /home/vscode/.local
+
+pip_install_requirements() {
+    local req_file="$1"
+    python3 -m pip install --user -r "$req_file" && return 0
+    python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple -r "$req_file"
+}
 
 # ==================== Python 项目依赖安装 ====================
 echo "📦 检查并安装Python项目依赖..."
@@ -15,23 +50,28 @@ echo "📦 检查并安装Python项目依赖..."
 # SW-2026-004_Python项目管理工具
 if [ -f "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-004_Python项目管理工具/03_主程序/01_主程序核心代码/requirements.txt" ]; then
     echo "  → 安装 SW-2026-004 依赖..."
-    pip install --user -r "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-004_Python项目管理工具/03_主程序/01_主程序核心代码/requirements.txt" || echo "  ⚠️ SW-2026-004 部分依赖安装失败（可手动执行 pip install）"
+    pip_install_requirements "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-004_Python项目管理工具/03_主程序/01_主程序核心代码/requirements.txt" || echo "  ⚠️ SW-2026-004 部分依赖安装失败（可手动执行 pip install）"
 fi
 
 # SW-2026-001_PLC变量表解析工具
 if [ -f "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-001_PLC变量表解析工具/02_开发文件/requirements.txt" ]; then
     echo "  → 安装 SW-2026-001 依赖..."
-    pip install --user -r "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-001_PLC变量表解析工具/02_开发文件/requirements.txt" || echo "  ⚠️ SW-2026-001 部分依赖安装失败（可手动执行 pip install）"
+    pip_install_requirements "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-001_PLC变量表解析工具/02_开发文件/requirements.txt" || echo "  ⚠️ SW-2026-001 部分依赖安装失败（可手动执行 pip install）"
 fi
 
 # SW-2026-005_PLC项目管理工具
 if [ -f "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-005_PLC项目管理工具/03_主程序/01_主程序核心代码/requirements.txt" ]; then
     echo "  → 安装 SW-2026-005 依赖..."
-    pip install --user -r "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-005_PLC项目管理工具/03_主程序/01_主程序核心代码/requirements.txt" || echo "  ⚠️ SW-2026-005 部分依赖安装失败（可手动执行 pip install）"
+    pip_install_requirements "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-005_PLC项目管理工具/03_主程序/01_主程序核心代码/requirements.txt" || echo "  ⚠️ SW-2026-005 部分依赖安装失败（可手动执行 pip install）"
 fi
 
 # ==================== Go 模块依赖下载 ====================
 echo "📦 检查并下载Go模块依赖..."
+
+if ! is_go_version_ok; then
+    echo "  ⚠️ Go版本不满足要求（需要 go1.24+），已跳过 Go 模块下载"
+    echo ""
+else
 
 # DJ-2026-005 PLC项目 (主程序 .plc-out)
 if [ -f "0100_PLC自动化/DJ-2026-005/.plc-out/golang/go.mod" ]; then
@@ -52,6 +92,7 @@ if [ -f "0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/.
     echo "  → 下载 DJ-2026-005 通用ST程序 Go模块..."
     cd "0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/.plc-out/golang" && go mod download 2>/dev/null && echo "  ✅ 通用ST程序Go模块下载完成" || echo "  ⚠️ 通用ST程序Go模块下载失败（可手动执行 go mod download）"
     cd /workspace
+fi
 fi
 
 # ==================== Git配置检查 ====================
@@ -76,7 +117,7 @@ echo "=========================================="
 echo ""
 echo "📋 环境信息："
 echo "  • Python: $(python3 --version 2>/dev/null || python --version)"
-echo "  • Go: $(go version | awk '{print $3}')"
+echo "  • Go: $(go version 2>/dev/null | awk '{print $3}' || echo 'not found')"
 echo "  • 工作空间: /workspace"
 echo "  • 容器用户: $(whoami)"
 echo ""
