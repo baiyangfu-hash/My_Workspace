@@ -58,6 +58,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QFrame,
     QScrollArea,
+    QSizePolicy,
 )
 from PyQt5.QtCore import (
     Qt,
@@ -1034,9 +1035,6 @@ class DiagnosticPanel(QWidget):
         self._list_fix_steps = QListWidget()
         self._list_fix_steps.setMaximumHeight(140)
         self._list_fix_steps.setAlternatingRowColors(True)
-        self._list_fix_steps.setPlaceholderText(
-            '选中问题后显示修复步骤...'
-        )
         right_panel.addWidget(self._list_fix_steps)
 
         # 操作按钮
@@ -1046,7 +1044,7 @@ class DiagnosticPanel(QWidget):
         self._btn_copy_fix.clicked.connect(self._copy_fix_steps)
         fix_btn_layout.addWidget(self._btn_copy_fix)
         fix_btn_layout.addStretch()
-        right_panel.addLayout(fix_btn_btn_layout)
+        right_panel.addLayout(fix_btn_layout)
 
         detail_layout.addLayout(right_panel, stretch=1)
 
@@ -1420,7 +1418,7 @@ class DiagnosticPanel(QWidget):
 
         # 按钮状态
         self._btn_start.setEnabled(False)
-        self._btn_start.setText('\U00023F3 诊断中...')
+        self._btn_start.setText('\u23F3 诊断中...')
 
         # 类型选择禁用
         self._combo_type.setEnabled(False)

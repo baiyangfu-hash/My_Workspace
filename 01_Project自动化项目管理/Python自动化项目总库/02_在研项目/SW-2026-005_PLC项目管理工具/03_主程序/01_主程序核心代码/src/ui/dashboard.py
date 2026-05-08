@@ -19,6 +19,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
+from src.utils.logger import setup_logger
+
+logger = setup_logger(__name__)
+
 
 class StatCard(QFrame):
     """统计卡片组件 - 用于展示关键指标"""

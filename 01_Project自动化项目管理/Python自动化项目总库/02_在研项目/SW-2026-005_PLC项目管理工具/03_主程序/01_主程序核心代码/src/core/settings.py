@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .config import ConfigLoader
+from src.utils.path_resolver import get_default_resolver
 
 
 class SettingsManager:
@@ -111,6 +112,13 @@ class SettingsManager:
             json.dump(cls._settings, f, indent=4, ensure_ascii=False)
 
     @classmethod
+    def _get_base_path(cls):
+        """获取路径规范化的基准路径（settings.json所在目录）"""
+        if cls._settings_path:
+            return cls._settings_path.parent
+        return None
+
+    @classmethod
     def add_recent_project(cls, project_path: str, project_name: str):
         """
         添加最近打开的项目
@@ -120,22 +128,35 @@ class SettingsManager:
             project_name: 项目名称
         """
         recent = cls.get("recent_projects", [])
+        resolver = get_default_resolver()
+        base_path = cls._get_base_path()
 
-        # 移除已存在的同名条目
-        recent = [r for r in recent if r.get("path") != project_path]
+        normalized_path = resolver.normalize(project_path, base_path)
 
-        # 在头部插入新条目
-        recent.insert(0, {"path": project_path, "name": project_name})
+        recent = [r for r in recent if r.get("path") != normalized_path]
 
-        # 限制数量
+        recent.insert(0, {"path": normalized_path, "name": project_name})
+
         max_count = cls.get("max_recent_projects", 10)
         cls.set("recent_projects", recent[:max_count])
         cls.save()
 
     @classmethod
     def get_recent_projects(cls) -> List[Dict[str, str]]:
-        """获取最近打开的项目列表"""
-        return cls.get("recent_projects", [])
+        """获取最近打开的项目列表（路径已解析为绝对路径）"""
+        raw_list = cls.get("recent_projects", [])
+        resolver = get_default_resolver()
+        base_path = cls._get_base_path()
+
+        resolved_list = []
+        for item in raw_list:
+            resolved_item = {
+                "path": resolver.resolve(item.get("path", ""), base_path),
+                "name": item.get("name", ""),
+            }
+            resolved_list.append(resolved_item)
+
+        return resolved_list
 
     @classmethod
     def reset_to_defaults(cls):
