@@ -10,6 +10,14 @@ FROM mcr.microsoft.com/devcontainers/python:0-3.11-bullseye
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
 
+# 删除 Yarn 仓库配置（密钥已过期，导致构建失败）
+RUN rm -rf /etc/apt/sources.list.d/*.list 2>/dev/null || true
+
+# 配置国内 Debian 镜像源（加速下载）
+RUN echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian-security/ bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
+
 # 安装系统依赖包
 RUN apt-get update && apt-get install -y \
     # ==================== Go语言环境 ====================
