@@ -33,7 +33,6 @@ SW-2026-005 PLC项目管理工具 - 主窗口 (薄壳设计)
     - 引入 EventBus 实现事件解耦
 """
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -48,11 +47,8 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QDockWidget,
 )
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QCloseEvent, QFont
 from PyQt5.QtCore import Qt
-
-if TYPE_CHECKING:
-    from PyQt5.QtGui import QCloseEvent
 
 from src.core.config import ConfigLoader
 from src.core.constants import APP_NAME, VERSION
@@ -650,8 +646,22 @@ class MainWindow(QMainWindow):
         Args:
             path: 打开的项目路径
         """
-        # 可以在这里添加额外的打开后处理逻辑
-        pass
+        try:
+            from src.services.project_service import ProjectService
+
+            project, error = ProjectService.load_project_from_path(path)
+            if project:
+                self._project_tree_widget.load_project(project)
+                self.statusBar().showMessage(
+                    f"已加载项目: {project.name} | 类型: {project.project_type.value}"
+                )
+                logger.info(f"项目打开并加载成功: {project.name}")
+            else:
+                logger.warning(f"项目打开失败: {error}")
+                QMessageBox.warning(self, "打开项目失败", error or "未知错误")
+        except Exception as e:
+            logger.exception(f"处理项目打开事件失败: {e}")
+            QMessageBox.critical(self, "错误", f"打开项目失败:\n{e}")
 
     def _on_document_open(self, path: str):
         """
