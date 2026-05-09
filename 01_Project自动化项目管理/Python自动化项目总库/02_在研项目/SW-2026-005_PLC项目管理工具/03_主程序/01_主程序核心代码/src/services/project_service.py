@@ -11,8 +11,17 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.core.project import Project
-from src.core.constants import BusinessLine, ProjectStatus, TEMPLATE_METADATA, PLCBrand, HMIBrand
+from src.core.constants import (
+    BusinessLine,
+    ProjectStatus,
+    ProjectType,
+    WorkflowStage,
+    TEMPLATE_METADATA,
+    PLCBrand,
+    HMIBrand,
+)
 from src.services.template_service import TemplateService
+from src.services.artifact_registry_service import ArtifactRegistryService
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -67,6 +76,8 @@ class ProjectService:
                 path=str(base_path / name),
                 plc_brand=plc_brand,
                 hmi_brand=hmi_brand,
+                project_type=ProjectType.GENERIC,
+                workflow_stage=WorkflowStage.INITIATION,
             )
 
             # 生成项目编号
@@ -161,13 +172,20 @@ class ProjectService:
         Returns:
             Tuple[Project | None, str | None]
         """
-        meta_file = Path(project_path) / "project.json"
-        if not meta_file.exists():
-            return None, f"未找到项目文件: {meta_file}"
-
         try:
+            project_root = Path(project_path)
+
+            # 优先识别DJ单机项目，支持导入现有工程目录
+            if ArtifactRegistryService.detect_project_type(project_path) == ProjectType.DJ_SINGLE_MACHINE:
+                return cls.import_dj_project(project_path)
+
+            meta_file = project_root / "project.json"
+            if not meta_file.exists():
+                return None, f"未找到项目文件: {meta_file}"
+
             project = Project.load_from_file(str(meta_file))
             if project:
+                cls._enrich_project_metadata(project)
                 cls._projects[project.project_id] = project
                 logger.info(f"项目已加载: {project.name}")
             return project, None
@@ -320,8 +338,11 @@ class ProjectService:
                 path=str(project_root),
                 plc_brand=project_info.get("plc_brand"),
                 hmi_brand=project_info.get("hmi_brand"),
+                project_type=ProjectType.DJ_SINGLE_MACHINE,
+                workflow_stage=WorkflowStage.INITIATION,
             )
             project.code = project_id
+            cls._enrich_project_metadata(project)
 
             cls._projects[project.project_id] = project
 
@@ -340,10 +361,103 @@ class ProjectService:
             error_msg = f"文件系统错误: {e}"
             logger.error(error_msg)
             return None, error_msg
-        except Exception as e:
-            error_msg = f"项目创建异常: {e}"
-            logger.exception(error_msg)
-            return None, error_msg
+
+    @classmethod
+    def import_dj_project(
+        cls, project_path: str
+    ) -> Tuple[Optional[Project], Optional[str]]:
+        """
+        导入现有DJ单机项目
+
+        - 自动识别项目类型
+        - 扫描关键资产
+        - 忽略 .trae / .plc-out 等目录
+        """
+        root = Path(project_path)
+        if not root.exists() or not root.is_dir():
+            return None, f"项目目录不存在: {project_path}"
+
+        project_type = ArtifactRegistryService.detect_project_type(project_path)
+        if project_type != ProjectType.DJ_SINGLE_MACHINE:
+            return None, f"目录不符合DJ单机项目结构: {project_path}"
+
+        project_file = root / ".plc_project.json"
+        project: Optional[Project] = None
+
+        if project_file.exists():
+            project = Project.load_from_file(str(project_file))
+
+        if project is None:
+            project = Project(
+                name=root.name,
+                code=root.name.split("_")[0] if "_" in root.name else root.name,
+                description="导入的DJ单机项目",
+                business_line=BusinessLine.DEVICE,
+                status=ProjectStatus.ACTIVE,
+                path=str(root),
+                template_id="TPL-DJ-SINGLE-MACHINE",
+                project_type=ProjectType.DJ_SINGLE_MACHINE,
+                workflow_stage=WorkflowStage.DESIGN,
+            )
+
+        cls._enrich_project_metadata(project)
+        cls._projects[project.project_id] = project
+        logger.info(f"DJ项目导入成功: {project.path}")
+        return project, None
+
+    @classmethod
+    def _enrich_project_metadata(cls, project: Project) -> None:
+        """补充项目画像信息"""
+        assets = ArtifactRegistryService.scan_project_assets(project.path)
+        asset_summary = ArtifactRegistryService.summarize_assets(assets)
+
+        project.project_type = ArtifactRegistryService.detect_project_type(
+            project.path
+        )
+        project.artifact_roots = ArtifactRegistryService.get_artifact_roots(
+            assets
+        )
+        project.extra["artifacts"] = [asset.to_dict() for asset in assets]
+        project.extra["artifact_summary"] = asset_summary
+        project.documents = [
+            asset.to_dict()
+            for asset in assets
+            if asset.category == "document"
+        ]
+
+        project.change_status_summary = cls._build_change_summary(assets)
+        project.workflow_stage = cls._infer_workflow_stage(asset_summary)
+
+    @classmethod
+    def _build_change_summary(
+        cls, assets: List[Any]
+    ) -> Dict[str, int]:
+        """构建简化变更状态摘要"""
+        total_changes = sum(
+            1 for asset in assets if asset.artifact_type == "change_order"
+        )
+        return {
+            "total": total_changes,
+            "completed": 0,
+            "in_progress": total_changes,
+        }
+
+    @classmethod
+    def _infer_workflow_stage(
+        cls, asset_summary: Dict[str, int]
+    ) -> WorkflowStage:
+        """根据资产情况推断阶段"""
+        if asset_summary.get("doc_delivery", 0) > 0:
+            return WorkflowStage.DELIVERY
+        if asset_summary.get("plc_test", 0) > 0:
+            return WorkflowStage.TESTING
+        if asset_summary.get("plc_source", 0) > 0:
+            return WorkflowStage.DEVELOPMENT
+        if asset_summary.get("doc_arc", 0) > 0 or asset_summary.get(
+            "doc_dsn", 0
+        ) > 0:
+            return WorkflowStage.DESIGN
+        return WorkflowStage.INITIATION
 
     @classmethod
     def _create_directory_structure(

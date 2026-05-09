@@ -26,6 +26,8 @@ class DocumentModel:
     status: str = "draft"           # draft/review/approved/released
     file_path: str = ""
     project_id: str = ""
+    artifact_type: str = ""
+    is_authoritative: bool = True
     created_at: str = ""
     updated_at: str = ""
     content_preview: str = ""       # 前200字符预览
@@ -53,6 +55,8 @@ class DocumentModel:
             "status": self.status,
             "file_path": self.file_path,
             "project_id": self.project_id,
+            "artifact_type": self.artifact_type,
+            "is_authoritative": self.is_authoritative,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "word_count": self.word_count,

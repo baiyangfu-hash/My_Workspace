@@ -1,0 +1,22 @@
+{
+  "project_type": "dj_single_machine",
+  "ignored_directories": [".trae", ".plc-out", ".git", "__pycache__"],
+  "required_roots": [
+    "00_项目管理/04_变更管理",
+    "02_PLC程序/通用ST程序及变量表",
+    "03_HMI设计",
+    "04_现场调试",
+    "06_文档与交付"
+  ],
+  "required_plc_assets": [
+    "OB1/OB1.scl",
+    "DB1/GlobalVars.db"
+  ],
+  "required_categories": [
+    "doc_req",
+    "doc_arc",
+    "doc_dsn",
+    "plc_source",
+    "plc_test"
+  ]
+}

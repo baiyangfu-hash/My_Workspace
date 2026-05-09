@@ -15,6 +15,8 @@ from typing import Any, Dict, List, Optional
 from .constants import (
     BusinessLine,
     ProjectStatus,
+    ProjectType,
+    WorkflowStage,
     PLCBrand,
     HMIBrand,
     PROJECT_STATUS_DESC,
@@ -57,6 +59,10 @@ class Project:
     updated_at: str = ""
     path: str = ""
     template_id: str = ""
+    project_type: ProjectType = ProjectType.GENERIC
+    workflow_stage: WorkflowStage = WorkflowStage.INITIATION
+    artifact_roots: List[Dict[str, Any]] = field(default_factory=list)
+    change_status_summary: Dict[str, int] = field(default_factory=dict)
     documents: List[Dict[str, Any]] = field(default_factory=list)
     extra: Dict[str, Any] = field(default_factory=dict)
 
@@ -87,6 +93,8 @@ class Project:
         data = asdict(self)
         data["business_line"] = self.business_line.value
         data["status"] = self.status.value
+        data["project_type"] = self.project_type.value
+        data["workflow_stage"] = self.workflow_stage.value
         data["plc_brand"] = self.plc_brand.value
         data["hmi_brand"] = self.hmi_brand.value
         return data
@@ -98,6 +106,10 @@ class Project:
             data["business_line"] = BusinessLine(data["business_line"])
         if "status" in data and isinstance(data["status"], str):
             data["status"] = ProjectStatus(data["status"])
+        if "project_type" in data and isinstance(data["project_type"], str):
+            data["project_type"] = ProjectType(data["project_type"])
+        if "workflow_stage" in data and isinstance(data["workflow_stage"], str):
+            data["workflow_stage"] = WorkflowStage(data["workflow_stage"])
         if "plc_brand" in data and isinstance(data["plc_brand"], str):
             data["plc_brand"] = PLCBrand(data["plc_brand"])
         if "hmi_brand" in data and isinstance(data["hmi_brand"], str):

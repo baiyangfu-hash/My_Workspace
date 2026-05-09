@@ -101,7 +101,20 @@ class ProjectTreeWidget(QWidget):
         root_item.setData(0, Qt.UserRole, {"type": "project", "path": getattr(project, 'path', '')})
         root_item.setExpanded(True)
 
-        # 添加标准子节点（基于模板结构的占位）
+        project_type = getattr(project, "project_type", "generic")
+        project_type_value = getattr(project_type, "value", project_type)
+        if project_type_value == "dj_single_machine":
+            self._build_dj_project_nodes(root_item, project)
+        else:
+            self._build_generic_nodes(root_item)
+
+        self._status_label.setText(
+            f"\U0001F4C1 已加载: {project.name or '未命名'}"
+        )
+        logger.info(f"项目树已加载: {project.name}")
+
+    def _build_generic_nodes(self, root_item: QTreeWidgetItem):
+        """构建通用项目节点"""
         standard_nodes = [
             ("\U0001F4C2 项目基础信息", "folder"),
             ("\U0001F4CB 文档管理", "folder"),
@@ -120,14 +133,44 @@ class ProjectTreeWidget(QWidget):
                 "name": node_name.strip(),
             })
             if node_type == "folder":
-                # 添加空的子项使文件夹可展开
                 placeholder = QTreeWidgetItem(child)
                 placeholder.setText(0, "(空)")
 
-        self._status_label.setText(
-            f"\U0001F4C1 已加载: {project.name or '未命名'}"
-        )
-        logger.info(f"项目树已加载: {project.name}")
+    def _build_dj_project_nodes(self, root_item: QTreeWidgetItem, project):
+        """构建DJ单机项目节点"""
+        workflow_stage = getattr(project, "workflow_stage", "")
+        workflow_value = getattr(workflow_stage, "value", workflow_stage)
+        stage_node = QTreeWidgetItem(root_item)
+        stage_node.setText(0, f"\U0001F4DD 当前阶段: {workflow_value or 'unknown'}")
+        stage_node.setData(0, Qt.UserRole, {"type": "workflow"})
+
+        roots_node = QTreeWidgetItem(root_item)
+        roots_node.setText(0, "\U0001F4C2 核心资产")
+        roots_node.setExpanded(True)
+
+        for artifact in getattr(project, "artifact_roots", []):
+            child = QTreeWidgetItem(roots_node)
+            child.setText(
+                0,
+                f"{artifact.get('artifact_type', 'asset')}: {artifact.get('relative_path', artifact.get('name', ''))}",
+            )
+            child.setData(0, Qt.UserRole, artifact)
+
+        changes_node = QTreeWidgetItem(root_item)
+        changes_node.setText(0, "\U0001F4CB 变更摘要")
+        changes_node.setExpanded(True)
+        change_summary = getattr(project, "change_status_summary", {}) or {}
+        for key, value in change_summary.items():
+            child = QTreeWidgetItem(changes_node)
+            child.setText(0, f"{key}: {value}")
+
+        docs_node = QTreeWidgetItem(root_item)
+        docs_node.setText(0, "\U0001F4DD 文档资产")
+        docs_node.setExpanded(True)
+        for document in getattr(project, "documents", [])[:20]:
+            child = QTreeWidgetItem(docs_node)
+            child.setText(0, document.get("relative_path", document.get("name", "document")))
+            child.setData(0, Qt.UserRole, document)
 
     def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int):
         """处理双击事件"""

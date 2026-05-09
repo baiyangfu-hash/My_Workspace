@@ -79,6 +79,9 @@ else:
 # 打开项目
 project = ProjectService.open_project("D:/Projects/DJ-2026-005")
 
+# 导入现有DJ单机项目
+project, error = ProjectService.import_dj_project("D:/Projects/DJ-2026-005")
+
 # 关闭当前项目
 ProjectService.close_project()
 ```
@@ -145,6 +148,24 @@ if doc:
     print(f"文档生成: {doc.path}")
     print(f"预览:\n{doc.content[:200]}...")
 ```
+
+### 4.3 优先更新现有权威文档
+
+```python
+existing_path = DocumentService.find_authoritative_document(
+    project_path="D:/Projects/DJ-2026-005",
+    doc_type=DocumentType.REQ,
+)
+
+doc_path, error = DocumentService.create_or_update_document(
+    project_path="D:/Projects/DJ-2026-005",
+    doc_type=DocumentType.REQ,
+    content="# 更新后的需求文档",
+)
+```
+
+- 文档服务默认优先更新现有同类权威文档，避免重复创建。
+- 项目扫描和文档搜索默认忽略 `.trae` 与 `.plc-out` 目录。
 
 ---
 

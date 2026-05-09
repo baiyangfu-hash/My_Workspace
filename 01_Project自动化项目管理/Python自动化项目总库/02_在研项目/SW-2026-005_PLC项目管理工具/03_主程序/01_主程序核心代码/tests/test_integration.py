@@ -219,6 +219,114 @@ class TestPLCServiceInitialization:
             assert "test_" not in f.lower()
 
 
+class TestDJProjectGovernance:
+    """测试DJ单机项目导入与治理基础能力"""
+
+    @pytest.fixture
+    def temp_dj_project_dir(self):
+        """创建最小DJ单机项目目录"""
+        with tempfile.TemporaryDirectory(prefix="dj_project_") as tmpdir:
+            root = Path(tmpdir) / "DJ-2026-005"
+            (root / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU").mkdir(parents=True)
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "OB1").mkdir(parents=True)
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "DB1").mkdir(parents=True)
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "Test").mkdir(parents=True)
+            (root / "03_HMI设计").mkdir(parents=True)
+            (root / "04_现场调试").mkdir(parents=True)
+            (root / "06_文档与交付").mkdir(parents=True)
+            (root / "10_知识库").mkdir(parents=True)
+            (root / ".trae").mkdir(parents=True)
+            (root / ".plc-out").mkdir(parents=True)
+
+            (root / ".plc.json").write_text(
+                json.dumps(
+                    {
+                        "name": "DJ-2026-005",
+                        "description": "test",
+                        "version": "1.0.0",
+                        "libraries": ["../01_SharedLibraries/SysLib"],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            (root / "00_项目管理" / "01_需求与设计说明_REQ-V1.0.0.md").write_text(
+                "# REQ",
+                encoding="utf-8",
+            )
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "程序架构文档_ARC-V1.0.0.md").write_text(
+                "# ARC",
+                encoding="utf-8",
+            )
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "详细设计说明书_DSN-V1.0.0.md").write_text(
+                "# DSN",
+                encoding="utf-8",
+            )
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "OB1" / "OB1.scl").write_text(
+                "PROGRAM OB1\nEND_PROGRAM",
+                encoding="utf-8",
+            )
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "DB1" / "GlobalVars.db").write_text(
+                "DATA_BLOCK GlobalVars\nEND_DATA_BLOCK",
+                encoding="utf-8",
+            )
+            (root / "02_PLC程序" / "通用ST程序及变量表" / "Test" / "basic_test.scltest").write_text(
+                'TEST_CASE "smoke"\nEND_TEST_CASE',
+                encoding="utf-8",
+            )
+            (root / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU" / "CHG-DOCU-2026-001.md").write_text(
+                "# CHG-DOCU-2026-001",
+                encoding="utf-8",
+            )
+            (root / ".trae" / "ignored.md").write_text("# ignore", encoding="utf-8")
+            (root / ".plc-out" / "ignored.md").write_text("# ignore", encoding="utf-8")
+            yield root
+
+    def test_04b_artifact_registry_ignores_internal_dirs(self, temp_dj_project_dir):
+        """忽略 .trae 和 .plc-out 目录"""
+        from src.services.artifact_registry_service import ArtifactRegistryService
+
+        assets = ArtifactRegistryService.scan_project_assets(str(temp_dj_project_dir))
+        relative_paths = [asset.relative_path for asset in assets]
+
+        assert relative_paths
+        assert all(".trae" not in path for path in relative_paths)
+        assert all(".plc-out" not in path for path in relative_paths)
+
+    def test_04c_project_service_import_dj_project(self, temp_dj_project_dir):
+        """可导入DJ单机项目并识别画像信息"""
+        from src.services.project_service import ProjectService
+
+        project, error = ProjectService.import_dj_project(str(temp_dj_project_dir))
+
+        assert error is None
+        assert project is not None
+        assert getattr(project.project_type, "value", project.project_type) == "dj_single_machine"
+        assert len(project.artifact_roots) >= 3
+        assert project.change_status_summary["total"] == 1
+        assert project.extra["artifact_summary"]["plc_test"] == 1
+
+    def test_04d_document_service_updates_existing_authoritative_doc(self, temp_dj_project_dir):
+        """创建文档时优先更新现有权威文档，不新增重复文件"""
+        from src.core.constants import DocumentType
+        from src.services.document_service import DocumentService
+
+        existing_doc = temp_dj_project_dir / "00_项目管理" / "01_需求与设计说明_REQ-V1.0.0.md"
+        doc_path, error = DocumentService.create_or_update_document(
+            project_path=str(temp_dj_project_dir),
+            doc_type=DocumentType.REQ,
+            doc_name="新的需求文档",
+            content="# updated",
+        )
+
+        assert error is None
+        assert doc_path == str(existing_doc)
+        assert existing_doc.read_text(encoding="utf-8") == "# updated"
+        duplicate_files = list(temp_dj_project_dir.rglob("*新的需求文档*.md"))
+        assert duplicate_files == []
+
+
 class TestSpecCheckerServiceInterface:
     """测试SpecCheckerService的接口完整性"""
 

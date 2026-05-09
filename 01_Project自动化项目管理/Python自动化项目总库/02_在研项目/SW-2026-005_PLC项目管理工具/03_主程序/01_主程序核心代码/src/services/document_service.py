@@ -18,6 +18,19 @@ logger = setup_logger(__name__)
 class DocumentService:
     """文档服务类 - 管理PLC项目全生命周期的工程文档"""
 
+    UNIQUE_DOC_PATTERNS = {
+        DocumentType.REQ: ["*REQ*.md", "*需求*.md"],
+        DocumentType.DSN: ["*DSN*.md", "*设计*.md"],
+        DocumentType.IFC: ["*IFC*.md", "*接口*.md"],
+        DocumentType.UM: ["*UM*.md", "*手册*.md"],
+        DocumentType.CHG: ["*CHG*.md", "*变更*.md"],
+        DocumentType.ALM: ["*ALM*.md", "*报警*.md"],
+        DocumentType.VAR: ["*VAR*.md", "*变量*.md"],
+        DocumentType.IO: ["*IO*.md", "*IO分配*.md"],
+        DocumentType.ARC: ["*ARC*.md", "*架构*.md"],
+        DocumentType.TEST: ["*TEST*.md", "*测试*.md"],
+    }
+
     @classmethod
     def create_document(
         cls,
@@ -42,6 +55,30 @@ class DocumentService:
         Returns:
             Tuple[str | None, str | None]: (文档路径, 错误信息)
         """
+        return cls.create_or_update_document(
+            project_path=project_path,
+            doc_type=doc_type,
+            doc_name=doc_name,
+            version=version,
+            author=author,
+            content=content,
+        )
+
+    @classmethod
+    def create_or_update_document(
+        cls,
+        project_path: str,
+        doc_type: DocumentType,
+        doc_name: str = None,
+        version: str = "V1.0.0",
+        author: str = "",
+        content: str = None,
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        创建或更新项目文档
+
+        优先更新现有权威文档，避免出现重复文档。
+        """
         try:
             base = Path(project_path) / "02_Documents"
 
@@ -65,8 +102,12 @@ class DocumentService:
             # 文件名生成
             display_name = doc_name or DOCUMENT_TYPE_NAMES.get(doc_type, doc_type.name)
             safe_name = display_name.replace("/", "_").replace("\\", "_")
-            file_name = f"{safe_name}_{version}.md"
-            file_path = target_dir / file_name
+            existing_path = cls.find_authoritative_document(project_path, doc_type)
+            file_path = (
+                Path(existing_path)
+                if existing_path
+                else target_dir / f"{safe_name}_{version}.md"
+            )
 
             # 内容处理
             if content is None:
@@ -75,12 +116,33 @@ class DocumentService:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
 
-            logger.info(f"文档已创建: {file_path} ({doc_type.value})")
+            action = "更新" if existing_path else "创建"
+            logger.info(f"文档已{action}: {file_path} ({doc_type.value})")
             return str(file_path), None
 
         except Exception as e:
             logger.exception(f"文档创建失败: {e}")
             return None, str(e)
+
+    @classmethod
+    def find_authoritative_document(
+        cls, project_path: str, doc_type: DocumentType
+    ) -> Optional[str]:
+        """查找同类型权威文档，避免重复创建"""
+        project_root = Path(project_path)
+        patterns = cls.UNIQUE_DOC_PATTERNS.get(doc_type, [])
+        for pattern in patterns:
+            matches = [
+                path
+                for path in project_root.rglob(pattern)
+                if path.is_file()
+                and ".trae" not in path.parts
+                and ".plc-out" not in path.parts
+            ]
+            if matches:
+                matches.sort(key=lambda path: len(path.parts))
+                return str(matches[0])
+        return None
 
     @classmethod
     def _get_template_content(

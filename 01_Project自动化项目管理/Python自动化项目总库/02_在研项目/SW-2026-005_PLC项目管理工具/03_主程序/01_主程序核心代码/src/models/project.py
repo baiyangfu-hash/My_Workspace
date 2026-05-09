@@ -34,6 +34,10 @@ class ProjectModel:
     path: str = ""
     template_id: str = ""
     document_count: int = 0
+    project_type: str = "generic"
+    workflow_stage: str = "initiation"
+    artifact_roots: List[Dict[str, Any]] = field(default_factory=list)
+    change_status_summary: Dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
@@ -52,6 +56,10 @@ class ProjectModel:
             "path": self.path,
             "template_id": self.template_id,
             "document_count": self.document_count,
+            "project_type": self.project_type,
+            "workflow_stage": self.workflow_stage,
+            "artifact_roots": self.artifact_roots,
+            "change_status_summary": self.change_status_summary,
         }
 
     @classmethod

@@ -24,6 +24,13 @@
 docker compose -f .devcontainer\docker-compose.yml up -d --build
 ```
 
+如果后续环境自检发现 `go version` 仍然是 `go1.15.x`（说明 compose 的构建结果没有落到本地镜像），用下面两条强制构建并替换镜像：
+
+```powershell
+docker build -f .devcontainer\Dockerfile . --no-cache -t devcontainer-dev:latest
+docker compose -f .devcontainer\docker-compose.yml up -d --force-recreate
+```
+
 确认容器名：
 
 ```powershell
@@ -61,7 +68,7 @@ docker exec plc-python-dev-env bash -lc 'pwd; python3 -V; go version'
 ## 03. Python：安装并验证 SW-2026-005 依赖（PyQt5 必须可用）
 
 ```powershell
-docker exec plc-python-dev-env bash -lc 'cd "/workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-005_PLC项目管理工具/03_主程序/01_主程序核心代码" && python3 -m pip install -U pip && python3 -m pip install -r requirements.txt && python3 -c "import PyQt5; print(\"PyQt5 OK\")"'
+docker exec plc-python-dev-env bash -lc 'mkdir -p /home/vscode/.local && cd "/workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-005_PLC项目管理工具/03_主程序/01_主程序核心代码" && PYTHONUSERBASE=/home/vscode/.local python3 -m pip install --user -U pip && PYTHONUSERBASE=/home/vscode/.local python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt && python3 -c "import PyQt5; print(\"PyQt5 OK\")"'
 ```
 
 说明：
@@ -125,4 +132,3 @@ docker exec plc-python-dev-env bash -lc 'cd "/workspace/01_Project自动化项�
   ```powershell
   docker logs -n 200 plc-python-dev-env
   ```
-

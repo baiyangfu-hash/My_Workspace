@@ -74,6 +74,137 @@ PROJECT_STATUS_DESC = {
 
 
 # ============================================================
+# 项目类型 (ProjectType)
+# ============================================================
+class ProjectType(Enum):
+    """项目类型 - 用于区分管理模型和工作流模板"""
+    GENERIC = "generic"
+    DJ_SINGLE_MACHINE = "dj_single_machine"
+
+
+PROJECT_TYPE_DESC = {
+    ProjectType.GENERIC: "通用PLC项目",
+    ProjectType.DJ_SINGLE_MACHINE: "DJ单机项目",
+}
+
+
+# ============================================================
+# 工作流阶段 (WorkflowStage)
+# ============================================================
+class WorkflowStage(Enum):
+    """DJ单机项目标准阶段"""
+    INITIATION = "initiation"
+    DESIGN = "design"
+    DEVELOPMENT = "development"
+    COMMISSIONING = "commissioning"
+    TESTING = "testing"
+    DELIVERY = "delivery"
+    MAINTENANCE = "maintenance"
+
+
+WORKFLOW_STAGE_DESC = {
+    WorkflowStage.INITIATION: "立项与需求",
+    WorkflowStage.DESIGN: "方案与架构",
+    WorkflowStage.DEVELOPMENT: "PLC开发",
+    WorkflowStage.COMMISSIONING: "现场调试",
+    WorkflowStage.TESTING: "测试验证",
+    WorkflowStage.DELIVERY: "交付归档",
+    WorkflowStage.MAINTENANCE: "维护支持",
+}
+
+
+# ============================================================
+# 资产类型 (ProjectArtifactType)
+# ============================================================
+class ProjectArtifactType(Enum):
+    """项目资产类型"""
+    ROOT = "root"
+    CHANGE_ROOT = "change_root"
+    CHANGE_ORDER = "change_order"
+    PLC_ROOT = "plc_root"
+    PLC_SOURCE = "plc_source"
+    PLC_DB = "plc_db"
+    PLC_CONFIG = "plc_config"
+    PLC_TEST = "plc_test"
+    DOC_REQ = "doc_req"
+    DOC_DSN = "doc_dsn"
+    DOC_IFC = "doc_ifc"
+    DOC_CHG = "doc_chg"
+    DOC_UM = "doc_um"
+    DOC_ALM = "doc_alm"
+    DOC_IO = "doc_io"
+    DOC_VAR = "doc_var"
+    DOC_ARC = "doc_arc"
+    DOC_HMI = "doc_hmi"
+    DOC_DELIVERY = "doc_delivery"
+    DOC_MISC = "doc_misc"
+    HMI_SOURCE = "hmi_source"
+    DEBUG_DOC = "debug_doc"
+    DELIVERY = "delivery"
+    KNOWLEDGE = "knowledge"
+
+
+PROJECT_ARTIFACT_TYPE_DESC = {
+    ProjectArtifactType.ROOT: "项目根目录",
+    ProjectArtifactType.CHANGE_ROOT: "变更管理目录",
+    ProjectArtifactType.CHANGE_ORDER: "变更单",
+    ProjectArtifactType.PLC_ROOT: "PLC程序目录",
+    ProjectArtifactType.PLC_SOURCE: "PLC源码",
+    ProjectArtifactType.PLC_DB: "PLC数据块",
+    ProjectArtifactType.PLC_CONFIG: "PLC配置",
+    ProjectArtifactType.PLC_TEST: "PLC测试",
+    ProjectArtifactType.DOC_REQ: "需求文档",
+    ProjectArtifactType.DOC_DSN: "详细设计文档",
+    ProjectArtifactType.DOC_IFC: "接口文档",
+    ProjectArtifactType.DOC_CHG: "变更文档",
+    ProjectArtifactType.DOC_UM: "使用说明",
+    ProjectArtifactType.DOC_ALM: "报警文档",
+    ProjectArtifactType.DOC_IO: "IO文档",
+    ProjectArtifactType.DOC_VAR: "变量文档",
+    ProjectArtifactType.DOC_ARC: "架构文档",
+    ProjectArtifactType.DOC_HMI: "HMI文档",
+    ProjectArtifactType.DOC_DELIVERY: "交付文档",
+    ProjectArtifactType.DOC_MISC: "通用文档",
+    ProjectArtifactType.HMI_SOURCE: "HMI源码",
+    ProjectArtifactType.DEBUG_DOC: "调试文档",
+    ProjectArtifactType.DELIVERY: "交付资产",
+    ProjectArtifactType.KNOWLEDGE: "知识库",
+}
+
+
+# ============================================================
+# 变更状态/分类
+# ============================================================
+class ChangeStatus(Enum):
+    """变更单状态"""
+    DRAFT = "draft"
+    ANALYZING = "analyzing"
+    IN_PROGRESS = "in_progress"
+    VERIFYING = "verifying"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class ChangeCategory(Enum):
+    """变更单分类"""
+    DOCU = "DOCU"
+    PLC = "PLC"
+    HMI = "HMI"
+    ELEC = "ELEC"
+    SAFE = "SAFE"
+    MECH = "MECH"
+    SCPT = "SCPT"
+
+
+IGNORED_PROJECT_DIRS = {
+    ".trae",
+    ".plc-out",
+    ".git",
+    "__pycache__",
+}
+
+
+# ============================================================
 # 文档类型 (DocumentType)
 # ============================================================
 class DocumentType(Enum):
@@ -207,4 +338,5 @@ TEMPLATE_METADATA = [
 TEMPLATE_FILES = {
     "TPL-SINGLE-PLC-M001": "src/templates/project_structures/M001_full.json",
     "TPL-SINGLE-PLC-S001": "src/templates/project_structures/S001_lite.json",
+    "TPL-DJ-SINGLE-MACHINE": "src/templates/project_structures/DJ_single_machine.json",
 }
