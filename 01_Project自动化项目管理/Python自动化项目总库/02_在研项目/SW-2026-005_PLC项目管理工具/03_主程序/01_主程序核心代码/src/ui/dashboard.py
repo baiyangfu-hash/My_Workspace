@@ -122,7 +122,19 @@ class DashboardPage(QWidget):
 
     def _init_ui(self):
         """初始化仪表盘UI布局"""
-        main_layout = QVBoxLayout(self)
+        outer_layout = QVBoxLayout(self)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+        outer_layout.setSpacing(0)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("QScrollArea { border: none; }")
+
+        content = QWidget()
+        scroll.setWidget(content)
+        outer_layout.addWidget(scroll)
+
+        main_layout = QVBoxLayout(content)
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(16)
 

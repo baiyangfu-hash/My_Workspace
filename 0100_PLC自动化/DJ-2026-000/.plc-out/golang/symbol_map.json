@@ -504,7 +504,7 @@
       "original": "GlobalVars",
       "generated": "GlobalVars",
       "kind": "DATA_BLOCK",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 17,
       "column": 12
     },
@@ -512,7 +512,7 @@
       "original": "FB_ValveControl",
       "generated": "FB_ValveControl",
       "kind": "FUNCTION_BLOCK",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 23,
       "column": 16
     },
@@ -520,7 +520,7 @@
       "original": "OB1",
       "generated": "OB1",
       "kind": "ORGANIZATION_BLOCK",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 19,
       "column": 20
     },
@@ -528,7 +528,7 @@
       "original": "FB_VALVECONTROL.AutoManual",
       "generated": "FB_VALVECONTROL.v_AutoManual",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 28,
       "column": 5
     },
@@ -536,7 +536,7 @@
       "original": "FB_VALVECONTROL.OpenCmd",
       "generated": "FB_VALVECONTROL.v_OpenCmd",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 33,
       "column": 5
     },
@@ -544,7 +544,7 @@
       "original": "FB_VALVECONTROL.CloseCmd",
       "generated": "FB_VALVECONTROL.v_CloseCmd",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 34,
       "column": 5
     },
@@ -552,7 +552,7 @@
       "original": "FB_VALVECONTROL.OverCurrent",
       "generated": "FB_VALVECONTROL.v_OverCurrent",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 39,
       "column": 5
     },
@@ -560,7 +560,7 @@
       "original": "FB_VALVECONTROL.OpenLimit",
       "generated": "FB_VALVECONTROL.v_OpenLimit",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 40,
       "column": 5
     },
@@ -568,7 +568,7 @@
       "original": "FB_VALVECONTROL.CloseLimit",
       "generated": "FB_VALVECONTROL.v_CloseLimit",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 41,
       "column": 5
     },
@@ -576,7 +576,7 @@
       "original": "FB_VALVECONTROL.FaultReset",
       "generated": "FB_VALVECONTROL.v_FaultReset",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 46,
       "column": 5
     },
@@ -584,7 +584,7 @@
       "original": "FB_VALVECONTROL.FaultStatus",
       "generated": "FB_VALVECONTROL.v_FaultStatus",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 53,
       "column": 5
     },
@@ -592,7 +592,7 @@
       "original": "FB_VALVECONTROL.ValveOpen",
       "generated": "FB_VALVECONTROL.v_ValveOpen",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 54,
       "column": 5
     },
@@ -600,7 +600,7 @@
       "original": "FB_VALVECONTROL.ValveClose",
       "generated": "FB_VALVECONTROL.v_ValveClose",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 55,
       "column": 5
     },
@@ -608,7 +608,7 @@
       "original": "FB_VALVECONTROL.ValveState",
       "generated": "FB_VALVECONTROL.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 56,
       "column": 6
     },
@@ -616,7 +616,7 @@
       "original": "FB_VALVECONTROL.ValveState",
       "generated": "FB_VALVECONTROL.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 64,
       "column": 5
     },
@@ -624,7 +624,7 @@
       "original": "FB_VALVECONTROL.OpenCmd_R",
       "generated": "FB_VALVECONTROL.v_OPENCMD_R",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 67,
       "column": 5
     },
@@ -632,7 +632,7 @@
       "original": "FB_VALVECONTROL.CloseCmd_R",
       "generated": "FB_VALVECONTROL.v_CLOSECMD_R",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 68,
       "column": 5
     },
@@ -640,7 +640,7 @@
       "original": "FB_VALVECONTROL.FaultLocked",
       "generated": "FB_VALVECONTROL.v_FaultLocked",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 70,
       "column": 5
     },
@@ -648,7 +648,7 @@
       "original": "GLOBALVARS.Hmibutton",
       "generated": "GLOBALVARS.v_Hmibutton",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 22,
       "column": 9
     },
@@ -656,7 +656,7 @@
       "original": "GLOBALVARS.ValveState",
       "generated": "GLOBALVARS.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 30,
       "column": 9
     },
@@ -664,7 +664,7 @@
       "original": "GLOBALVARS.ValveOpen",
       "generated": "GLOBALVARS.v_ValveOpen",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 31,
       "column": 9
     },
@@ -672,7 +672,7 @@
       "original": "GLOBALVARS.ValveClose",
       "generated": "GLOBALVARS.v_ValveClose",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 32,
       "column": 9
     },
@@ -680,7 +680,7 @@
       "original": "GLOBALVARS.FaultStatus",
       "generated": "GLOBALVARS.v_FaultStatus",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 33,
       "column": 9
     },
@@ -688,7 +688,7 @@
       "original": "GLOBALVARS.FaultReset",
       "generated": "GLOBALVARS.v_FaultReset",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 38,
       "column": 9
     },
@@ -696,7 +696,7 @@
       "original": "GLOBALVARS.ValveCtrl",
       "generated": "GLOBALVARS.v_ValveCtrl",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 39,
       "column": 9
     },
@@ -704,7 +704,7 @@
       "original": "GLOBALVARS.Counter_A",
       "generated": "GLOBALVARS.v_COUNTER_A",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 45,
       "column": 9
     },
@@ -712,7 +712,7 @@
       "original": "GLOBALVARS.bStart_A",
       "generated": "GLOBALVARS.v_BSTART_A",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 49,
       "column": 9
     },
@@ -720,7 +720,7 @@
       "original": "GLOBALVARS.bOut_A",
       "generated": "GLOBALVARS.v_BOUT_A",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 52,
       "column": 9
     },
@@ -728,7 +728,7 @@
       "original": "GLOBALVARS.Counter_B",
       "generated": "GLOBALVARS.v_COUNTER_B",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 58,
       "column": 9
     },
@@ -736,7 +736,7 @@
       "original": "GLOBALVARS.bStart_B",
       "generated": "GLOBALVARS.v_BSTART_B",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 61,
       "column": 9
     },
@@ -744,7 +744,7 @@
       "original": "GLOBALVARS.bOut_B",
       "generated": "GLOBALVARS.v_BOUT_B",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 62,
       "column": 9
     },
@@ -752,7 +752,7 @@
       "original": "GLOBALVARS.ValveState",
       "generated": "GLOBALVARS.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 63,
       "column": 9
     },
@@ -760,7 +760,7 @@
       "original": "FB_VALVECONTROL.AutoManual",
       "generated": "FB_VALVECONTROL.v_AutoManual",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 28,
       "column": 5
     },
@@ -768,7 +768,7 @@
       "original": "FB_VALVECONTROL.OpenCmd",
       "generated": "FB_VALVECONTROL.v_OpenCmd",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 33,
       "column": 5
     },
@@ -776,7 +776,7 @@
       "original": "FB_VALVECONTROL.CloseCmd",
       "generated": "FB_VALVECONTROL.v_CloseCmd",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 34,
       "column": 5
     },
@@ -784,7 +784,7 @@
       "original": "FB_VALVECONTROL.OverCurrent",
       "generated": "FB_VALVECONTROL.v_OverCurrent",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 39,
       "column": 5
     },
@@ -792,7 +792,7 @@
       "original": "FB_VALVECONTROL.OpenLimit",
       "generated": "FB_VALVECONTROL.v_OpenLimit",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 40,
       "column": 5
     },
@@ -800,7 +800,7 @@
       "original": "FB_VALVECONTROL.CloseLimit",
       "generated": "FB_VALVECONTROL.v_CloseLimit",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 41,
       "column": 5
     },
@@ -808,7 +808,7 @@
       "original": "FB_VALVECONTROL.FaultReset",
       "generated": "FB_VALVECONTROL.v_FaultReset",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 46,
       "column": 5
     },
@@ -816,7 +816,7 @@
       "original": "FB_VALVECONTROL.FaultStatus",
       "generated": "FB_VALVECONTROL.v_FaultStatus",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 53,
       "column": 5
     },
@@ -824,7 +824,7 @@
       "original": "FB_VALVECONTROL.ValveOpen",
       "generated": "FB_VALVECONTROL.v_ValveOpen",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 54,
       "column": 5
     },
@@ -832,7 +832,7 @@
       "original": "FB_VALVECONTROL.ValveClose",
       "generated": "FB_VALVECONTROL.v_ValveClose",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 55,
       "column": 5
     },
@@ -840,7 +840,7 @@
       "original": "FB_VALVECONTROL.ValveState",
       "generated": "FB_VALVECONTROL.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 56,
       "column": 6
     },
@@ -848,7 +848,7 @@
       "original": "FB_VALVECONTROL.ValveState",
       "generated": "FB_VALVECONTROL.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 64,
       "column": 5
     },
@@ -856,7 +856,7 @@
       "original": "FB_VALVECONTROL.OpenCmd_R",
       "generated": "FB_VALVECONTROL.v_OPENCMD_R",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 67,
       "column": 5
     },
@@ -864,7 +864,7 @@
       "original": "FB_VALVECONTROL.CloseCmd_R",
       "generated": "FB_VALVECONTROL.v_CLOSECMD_R",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 68,
       "column": 5
     },
@@ -872,7 +872,7 @@
       "original": "FB_VALVECONTROL.FaultLocked",
       "generated": "FB_VALVECONTROL.v_FaultLocked",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 70,
       "column": 5
     },
@@ -880,7 +880,7 @@
       "original": "GLOBALVARS.Hmibutton",
       "generated": "GLOBALVARS.v_Hmibutton",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 22,
       "column": 9
     },
@@ -888,7 +888,7 @@
       "original": "GLOBALVARS.ValveState",
       "generated": "GLOBALVARS.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 30,
       "column": 9
     },
@@ -896,7 +896,7 @@
       "original": "GLOBALVARS.ValveOpen",
       "generated": "GLOBALVARS.v_ValveOpen",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 31,
       "column": 9
     },
@@ -904,7 +904,7 @@
       "original": "GLOBALVARS.ValveClose",
       "generated": "GLOBALVARS.v_ValveClose",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 32,
       "column": 9
     },
@@ -912,7 +912,7 @@
       "original": "GLOBALVARS.FaultStatus",
       "generated": "GLOBALVARS.v_FaultStatus",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 33,
       "column": 9
     },
@@ -920,7 +920,7 @@
       "original": "GLOBALVARS.FaultReset",
       "generated": "GLOBALVARS.v_FaultReset",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 38,
       "column": 9
     },
@@ -928,7 +928,7 @@
       "original": "GLOBALVARS.ValveCtrl",
       "generated": "GLOBALVARS.v_ValveCtrl",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 39,
       "column": 9
     },
@@ -936,7 +936,7 @@
       "original": "GLOBALVARS.Counter_A",
       "generated": "GLOBALVARS.v_COUNTER_A",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 45,
       "column": 9
     },
@@ -944,7 +944,7 @@
       "original": "GLOBALVARS.bStart_A",
       "generated": "GLOBALVARS.v_BSTART_A",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 49,
       "column": 9
     },
@@ -952,7 +952,7 @@
       "original": "GLOBALVARS.bOut_A",
       "generated": "GLOBALVARS.v_BOUT_A",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 52,
       "column": 9
     },
@@ -960,7 +960,7 @@
       "original": "GLOBALVARS.Counter_B",
       "generated": "GLOBALVARS.v_COUNTER_B",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 58,
       "column": 9
     },
@@ -968,7 +968,7 @@
       "original": "GLOBALVARS.bStart_B",
       "generated": "GLOBALVARS.v_BSTART_B",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 61,
       "column": 9
     },
@@ -976,7 +976,7 @@
       "original": "GLOBALVARS.bOut_B",
       "generated": "GLOBALVARS.v_BOUT_B",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 62,
       "column": 9
     },
@@ -984,7 +984,7 @@
       "original": "GLOBALVARS.ValveState",
       "generated": "GLOBALVARS.v_ValveState",
       "kind": "FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 63,
       "column": 9
     },
@@ -992,16 +992,16 @@
       "original": "Memory.GlobalVars",
       "generated": "Memory.v_GlobalVars",
       "kind": "MEM_FIELD",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\DB1\\GlobalVars.db",
       "line": 17,
       "column": 12
     }
   ],
   "statement_variables": [
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:79",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:79",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 79,
       "column": 5,
       "variables": [
@@ -1011,9 +1011,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:80",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:80",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 80,
       "column": 9,
       "variables": [
@@ -1024,9 +1024,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:81",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:81",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 81,
       "column": 9,
       "variables": [
@@ -1037,9 +1037,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:84",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:84",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 84,
       "column": 9,
       "variables": [
@@ -1050,9 +1050,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:85",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:85",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 85,
       "column": 9,
       "variables": [
@@ -1063,9 +1063,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:86",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:86",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 86,
       "column": 9,
       "variables": [
@@ -1076,9 +1076,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:90",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:90",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 90,
       "column": 5,
       "variables": [
@@ -1091,9 +1091,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:91",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:91",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 91,
       "column": 9,
       "variables": [
@@ -1104,9 +1104,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:92",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:92",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 92,
       "column": 9,
       "variables": [
@@ -1117,9 +1117,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:96",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:96",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 96,
       "column": 5,
       "variables": [
@@ -1129,16 +1129,16 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:97",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:97",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 97,
       "column": 9
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:104",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:104",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 104,
       "column": 5,
       "variables": [
@@ -1148,9 +1148,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:109",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:109",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 109,
       "column": 9,
       "variables": [
@@ -1163,9 +1163,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:111",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:111",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 111,
       "column": 13,
       "variables": [
@@ -1175,9 +1175,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:112",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:112",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 112,
       "column": 17,
       "variables": [
@@ -1188,9 +1188,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:113",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:113",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 113,
       "column": 17,
       "variables": [
@@ -1201,9 +1201,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:114",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:114",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 114,
       "column": 17,
       "variables": [
@@ -1214,9 +1214,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:121",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:121",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 121,
       "column": 9,
       "variables": [
@@ -1226,9 +1226,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:123",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:123",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 123,
       "column": 13,
       "variables": [
@@ -1238,9 +1238,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:124",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:124",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 124,
       "column": 17,
       "variables": [
@@ -1251,9 +1251,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:125",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:125",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 125,
       "column": 17,
       "variables": [
@@ -1264,9 +1264,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:126",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:126",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 126,
       "column": 17,
       "variables": [
@@ -1277,9 +1277,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:134",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:134",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 134,
       "column": 9,
       "variables": [
@@ -1292,9 +1292,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:135",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:135",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 135,
       "column": 13,
       "variables": [
@@ -1305,9 +1305,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:136",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:136",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 136,
       "column": 13,
       "variables": [
@@ -1318,9 +1318,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:140",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:140",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 140,
       "column": 9,
       "variables": [
@@ -1333,9 +1333,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:141",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:141",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 141,
       "column": 13,
       "variables": [
@@ -1346,9 +1346,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:142",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:142",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 142,
       "column": 13,
       "variables": [
@@ -1359,9 +1359,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:148",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:148",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 148,
       "column": 9,
       "variables": [
@@ -1372,9 +1372,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:149",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:149",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 149,
       "column": 9,
       "variables": [
@@ -1385,9 +1385,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:155",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:155",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 155,
       "column": 5,
       "variables": [
@@ -1401,9 +1401,9 @@
       ]
     },
     {
-      "debug_id": "FB_ValveControl.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:156",
+      "debug_id": "FB_ValveControl.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/FB100/FB_ValveControl.scl:156",
       "block": "FB_ValveControl",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\FB100\\FB_ValveControl.scl",
       "line": 156,
       "column": 5,
       "variables": [
@@ -1417,9 +1417,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:26",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:26",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 26,
       "column": 1,
       "variables": [
@@ -1463,9 +1463,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:48",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:48",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 48,
       "column": 1,
       "variables": [
@@ -1475,9 +1475,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:49",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:49",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 49,
       "column": 5,
       "variables": [
@@ -1491,9 +1491,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:51",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:51",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 51,
       "column": 5,
       "variables": [
@@ -1503,9 +1503,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:52",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:52",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 52,
       "column": 9,
       "variables": [
@@ -1516,9 +1516,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:53",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:53",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 53,
       "column": 9,
       "variables": [
@@ -1529,9 +1529,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:56",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:56",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 56,
       "column": 5,
       "variables": [
@@ -1542,9 +1542,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:57",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:57",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 57,
       "column": 5,
       "variables": [
@@ -1555,9 +1555,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:64",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:64",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 64,
       "column": 1,
       "variables": [
@@ -1567,9 +1567,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:65",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:65",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 65,
       "column": 5,
       "variables": [
@@ -1583,9 +1583,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:67",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:67",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 67,
       "column": 5,
       "variables": [
@@ -1595,9 +1595,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:68",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:68",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 68,
       "column": 9,
       "variables": [
@@ -1608,9 +1608,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:69",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:69",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 69,
       "column": 9,
       "variables": [
@@ -1621,9 +1621,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:72",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:72",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 72,
       "column": 5,
       "variables": [
@@ -1634,9 +1634,9 @@
       ]
     },
     {
-      "debug_id": "OB1.d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:73",
+      "debug_id": "OB1.c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-000/OB1/OB1.scl:73",
       "block": "OB1",
-      "path": "d:\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
+      "path": "c:\\Users\\fubai\\Documents\\BaiduSyncdisk\\My_Workspace\\0100_PLC自动化\\DJ-2026-000\\OB1\\OB1.scl",
       "line": 73,
       "column": 5,
       "variables": [

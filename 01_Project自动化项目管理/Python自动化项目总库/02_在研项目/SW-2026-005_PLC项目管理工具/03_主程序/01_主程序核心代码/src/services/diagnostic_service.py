@@ -19,7 +19,7 @@
 """
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from src.utils.logger import setup_logger
 

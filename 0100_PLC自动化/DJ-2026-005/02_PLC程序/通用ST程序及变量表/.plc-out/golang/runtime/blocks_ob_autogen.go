@@ -2,9 +2,9 @@
 
 package plcruntime
 
-//line d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:36:1
+//line c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:36:1
 func OB_OB1(mem *Memory) {
-//line d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:42:5
+//line c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:42:5
 	mem.v_GlobalVars.v_fbExternalDevice.v_i_bEnable = mem.v_GlobalVars.v_stExternal.v_i_bEnable
 	mem.v_GlobalVars.v_fbExternalDevice.v_i_bAutoMode = mem.v_GlobalVars.v_stExternal.v_i_bAutoMode
 	mem.v_GlobalVars.v_fbExternalDevice.v_i_bManualMode = mem.v_GlobalVars.v_stExternal.v_i_bManualMode
@@ -49,7 +49,7 @@ func OB_OB1(mem *Memory) {
 	mem.v_GlobalVars.v_stExternal.v_o_bExternalDeviceFault = mem.v_GlobalVars.v_fbExternalDevice.v_q_bExternalDeviceFault
 	mem.v_GlobalVars.v_stExternal.v_o_iExternalDeviceAlarmSummary = int16(mem.v_GlobalVars.v_fbExternalDevice.v_q_iExternalDeviceAlarmSummary)
 	mem.v_GlobalVars.v_stExternal.v_o_bSystemSafetyConditionMet = mem.v_GlobalVars.v_fbExternalDevice.v_q_bSystemSafetyConditionMet
-//line d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:109:5
+//line c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:109:5
 	mem.v_GlobalVars.v_fbConveyor4Layer.v_i_bEnable = mem.v_GlobalVars.v_stConveyor.v_i_bEnable
 	mem.v_GlobalVars.v_fbConveyor4Layer.v_i_bAutoMode = mem.v_GlobalVars.v_stConveyor.v_i_bAutoMode
 	mem.v_GlobalVars.v_fbConveyor4Layer.v_i_bManualMode = mem.v_GlobalVars.v_stConveyor.v_i_bManualMode
@@ -85,7 +85,7 @@ func OB_OB1(mem *Memory) {
 	mem.v_GlobalVars.v_stConveyor.v_o_iCurrentState = int16(mem.v_GlobalVars.v_fbConveyor4Layer.v_o_iCurrentState)
 	mem.v_GlobalVars.v_stConveyor.v_o_LxCurrentStep = mem.v_GlobalVars.v_fbConveyor4Layer.v_o_LxCurrentStep
 	mem.v_GlobalVars.v_stConveyor.v_o_iAlarmCode = int16(mem.v_GlobalVars.v_fbConveyor4Layer.v_o_iAlarmCode)
-//line d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:176:5
+//line c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:176:5
 	mem.v_GlobalVars.v_fbPickPlace.v_i_bEnable = mem.v_GlobalVars.v_stPickPlace.v_i_bEnable
 	mem.v_GlobalVars.v_fbPickPlace.v_i_bAutoMode = mem.v_GlobalVars.v_stPickPlace.v_i_bAutoMode
 	mem.v_GlobalVars.v_fbPickPlace.v_i_bManualMode = mem.v_GlobalVars.v_stPickPlace.v_i_bManualMode
@@ -169,7 +169,7 @@ func OB_OB1(mem *Memory) {
 	mem.v_GlobalVars.v_stPickPlace.v_q_eAction_Elapsed = int32(mem.v_GlobalVars.v_fbPickPlace.v_q_eAction_Elapsed)
 	mem.v_GlobalVars.v_stPickPlace.v_q_eProductDetectStable_Elapsed = int32(mem.v_GlobalVars.v_fbPickPlace.v_q_eProductDetectStable_Elapsed)
 	mem.v_GlobalVars.v_stPickPlace.v_q_eInit_Elapsed = int32(mem.v_GlobalVars.v_fbPickPlace.v_q_eInit_Elapsed)
-//line d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:302:5
+//line c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:302:5
 	mem.v_GlobalVars.v_fbGlueFeeder.v_i_bEnable = mem.v_GlobalVars.v_stFeeder.v_i_bEnable
 	mem.v_GlobalVars.v_fbGlueFeeder.v_i_bAutoMode = mem.v_GlobalVars.v_stFeeder.v_i_bAutoMode
 	mem.v_GlobalVars.v_fbGlueFeeder.v_i_bManualMode = mem.v_GlobalVars.v_stFeeder.v_i_bManualMode
@@ -202,7 +202,7 @@ func OB_OB1(mem *Memory) {
 	mem.v_GlobalVars.v_stFeeder.v_q_eAction_Elapsed = int32(mem.v_GlobalVars.v_fbGlueFeeder.v_q_eAction_Elapsed)
 	mem.v_GlobalVars.v_stFeeder.v_q_eInit_Elapsed = int32(mem.v_GlobalVars.v_fbGlueFeeder.v_q_eInit_Elapsed)
 	mem.v_GlobalVars.v_stFeeder.v_q_ePickupHold_Elapsed = int32(mem.v_GlobalVars.v_fbGlueFeeder.v_q_ePickupHold_Elapsed)
-//line d:/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:359:5
+//line c:/Users/fubai/Documents/BaiduSyncdisk/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/OB1/OB1.scl:359:5
 	mem.v_GlobalVars.v_fbCommonAlarm.v_i_iConveyorAlarm = int16(mem.v_GlobalVars.v_stConveyor.v_o_iAlarmCode)
 	mem.v_GlobalVars.v_fbCommonAlarm.v_i_iPickPlaceAlarm = int16(mem.v_GlobalVars.v_stPickPlace.v_o_iStationAlarmCode)
 	mem.v_GlobalVars.v_fbCommonAlarm.v_i_iFeederAlarm = int16(mem.v_GlobalVars.v_stFeeder.v_o_iStationAlarmCode)

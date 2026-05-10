@@ -47,7 +47,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QDockWidget,
 )
-from PyQt5.QtGui import QCloseEvent, QFont
+from PyQt5.QtGui import QCloseEvent, QFont, QGuiApplication
 from PyQt5.QtCore import Qt
 
 from src.core.config import ConfigLoader
@@ -77,8 +77,8 @@ class MainWindow(QMainWindow):
 
     # 常量定义
     WINDOW_TITLE = f"{APP_NAME} V{VERSION}"
-    MIN_WIDTH = 1400
-    MIN_HEIGHT = 900
+    MIN_WIDTH = 1000
+    MIN_HEIGHT = 700
     SIDEBAR_DEFAULT_WIDTH = 220
 
     def __init__(self, parent=None):
@@ -108,8 +108,7 @@ class MainWindow(QMainWindow):
 
         # 基础窗口设置
         self.setWindowTitle(self.WINDOW_TITLE)
-        self.setMinimumSize(self.MIN_WIDTH, self.MIN_HEIGHT)
-        self.resize(1500, 950)
+        self._apply_initial_geometry()
 
         # 初始化核心服务
         self._init_core_services()
@@ -127,6 +126,43 @@ class MainWindow(QMainWindow):
         self._load_initial_data()
 
         logger.info("主窗口初始化完成 (薄壳架构)")
+
+    def _apply_initial_geometry(self):
+        screen = self.screen() or QGuiApplication.primaryScreen()
+        if not screen:
+            self.setMinimumSize(self.MIN_WIDTH, self.MIN_HEIGHT)
+            self.resize(max(self.MIN_WIDTH, 1200), max(self.MIN_HEIGHT, 800))
+            return
+
+        available = screen.availableGeometry()
+
+        target_w = int(available.width() * 0.92)
+        target_h = int(available.height() * 0.92)
+        target_w = max(800, min(target_w, available.width()))
+        target_h = max(600, min(target_h, available.height()))
+
+        min_w = min(self.MIN_WIDTH, available.width())
+        min_h = min(self.MIN_HEIGHT, available.height())
+        self.setMinimumSize(min_w, min_h)
+
+        x = available.x() + max(0, (available.width() - target_w) // 2)
+        y = available.y() + max(0, (available.height() - target_h) // 2)
+        self.setGeometry(x, y, target_w, target_h)
+
+    def _calc_dock_min_size(self, max_width: int, max_height: int):
+        w = min(max_width, max(320, int(self.width() * 0.4)))
+        h = min(max_height, max(240, int(self.height() * 0.35)))
+        return w, h
+
+    def _on_splitter_moved(self, pos: int, index: int):
+        try:
+            if not self._splitter:
+                return
+            sizes = self._splitter.sizes()
+            if sizes:
+                SettingsManager.set("sidebar_width", int(sizes[0]))
+        except Exception:
+            pass
 
     def _init_core_services(self):
         """初始化核心服务"""
@@ -318,8 +354,8 @@ class MainWindow(QMainWindow):
         - 系统设置: 占位符 (TODO Phase 0.4后替换)
         """
         self._tool_box = QToolBox()
-        self._tool_box.setMinimumWidth(200)
-        self._tool_box.setMaximumWidth(300)
+        self._tool_box.setMinimumWidth(160)
+        self._tool_box.setMaximumWidth(380)
 
         # 页面1: 项目管理 (使用实际组件)
         from .widgets.project_tree import ProjectTreeWidget
@@ -385,7 +421,18 @@ class MainWindow(QMainWindow):
         self._splitter.addWidget(self._tab_widget)
         self._splitter.setStretchFactor(0, 0)
         self._splitter.setStretchFactor(1, 1)
-        self._splitter.setSizes([self.SIDEBAR_DEFAULT_WIDTH, 1200])
+        saved_width = SettingsManager.get("sidebar_width", self.SIDEBAR_DEFAULT_WIDTH)
+        try:
+            saved_width = int(saved_width)
+        except Exception:
+            saved_width = self.SIDEBAR_DEFAULT_WIDTH
+
+        min_sidebar = self._tool_box.minimumWidth() if self._tool_box else 160
+        max_sidebar = self._tool_box.maximumWidth() if self._tool_box else 380
+        sidebar_width = max(min_sidebar, min(saved_width, max_sidebar))
+        right_width = max(1, self.width() - sidebar_width)
+        self._splitter.setSizes([sidebar_width, right_width])
+        self._splitter.splitterMoved.connect(self._on_splitter_moved)
 
         # 将分割器添加到中央部件布局
         self.centralWidget().layout().addWidget(self._splitter)
@@ -441,8 +488,8 @@ class MainWindow(QMainWindow):
                 "\U0001F50D \u89C4\u8303\u68C0\u67E5", self
             )
             self._spec_check_dock.setWidget(self._spec_check_panel)
-            self._spec_check_dock.setMinimumWidth(600)
-            self._spec_check_dock.setMinimumHeight(400)
+            dock_w, dock_h = self._calc_dock_min_size(600, 400)
+            self._spec_check_dock.setMinimumSize(dock_w, dock_h)
             # 设置初始位置：右侧
             self.addDockWidget(Qt.RightDockWidgetArea, self._spec_check_dock)
 
@@ -460,8 +507,8 @@ class MainWindow(QMainWindow):
                 "\U0001F52C \u6DF1\u5EA6\u8BCA\u65AD", self
             )
             self._diagnostic_dock.setWidget(self._diagnostic_panel)
-            self._diagnostic_dock.setMinimumWidth(700)
-            self._diagnostic_dock.setMinimumHeight(450)
+            dock_w, dock_h = self._calc_dock_min_size(700, 450)
+            self._diagnostic_dock.setMinimumSize(dock_w, dock_h)
             # 设置初始位置：底部（在规范检查下方）
             self.addDockWidget(
                 Qt.BottomDockWidgetArea, self._diagnostic_dock
@@ -481,8 +528,8 @@ class MainWindow(QMainWindow):
                 "\u25B6 \u6D4B\u8BD5\u8FD0\u884C\u5668", self
             )
             self._test_runner_dock.setWidget(self._test_runner_panel)
-            self._test_runner_dock.setMinimumWidth(650)
-            self._test_runner_dock.setMinimumHeight(400)
+            dock_w, dock_h = self._calc_dock_min_size(650, 400)
+            self._test_runner_dock.setMinimumSize(dock_w, dock_h)
             # 设置初始位置：底部（与诊断面板并列）
             self.addDockWidget(
                 Qt.BottomDockWidgetArea, self._test_runner_dock

@@ -215,8 +215,9 @@ class TestPLCServiceInitialization:
         assert len(files) >= 1
         # 确保测试文件被排除
         for f in files:
-            assert "_test" not in f.lower()
-            assert "test_" not in f.lower()
+            file_name = Path(f).name.lower()
+            assert "_test" not in file_name
+            assert "test_" not in file_name
 
 
 class TestDJProjectGovernance:

@@ -1,7 +1,7 @@
 # 执行阶段文档索引
 
 > **项目**: SW-2026-005 PLC项目管理工具
-> **阶段**: 03_执行过程 | **更新日期**: 2026-05-08
+> **阶段**: 03_执行过程 | **更新日期**: 2026-05-10
 > **状态**: 🚧 进行中 (MVP开发阶段)
 
 ---
@@ -22,6 +22,8 @@
 │   └── (按日期组织)
 └── 04_发布说明/                  ← (待创建) 版本发布清单
     └── RELEASE_NOTES.md
+└── 05_用户手册/                  ← 用户操作手册（已创建）
+    └── 012_用户操作手册_UM-V2.0.0.md
 ```
 
 ---
@@ -73,7 +75,7 @@
 |------|------|----------|----------|
 | ProjectService | project_service.py | create_project/open_project/close_project | ✅ 14个test case |
 | TemplateService | template_service.py | get_template/apply_template | ✅ test_template_service.py |
-| DocumentService | document_service.py | generate_document/get_template_types | 🔧 开发中 |
+| DocumentService | document_service.py | generate_document/get_template_types | ✅ 模板已补齐 |
 | DiagnosticService | diagnostic_service.py | run_diagnosis/run_lsp_check | ✅ test_health_analyzer.py |
 | SpecCheckerService | spec_checker_service.py | run_checks/get_available_rules | ✅ test_checker_framework.py |
 | PLCService | plc_service.py | read_plc_json/validate_config | ✅ 基础验证 |
@@ -159,7 +161,7 @@
 
 | Issue ID | 严重程度 | 模块 | 描述 | 状态 | 计划修复 |
 |----------|----------|------|------|------|----------|
-| BUG-001 | P2 | STEditor | QScintilla未安装时降级提示不够明显 | 🔄 修复中 | Sprint 6 |
+| BUG-001 | P2 | STEditor | QScintilla未安装时降级提示不够明显 | ✅ 已修复 | Sprint 6（2026-05-10，回归用例通过） |
 | BUG-002 | P2 | PathResolver | Linux路径分隔符处理不兼容 | ⏸️ 延后 | V2.0 (跨平台支持) |
 | BUG-003 | P3 | Dashboard | 大项目(>500文件)时统计卡片加载缓慢 | 📝 已记录 | V1.3.0 (性能优化) |
 
@@ -197,5 +199,23 @@
 
 ---
 
-*最后更新: 2026-05-08 by AI Assistant (Trae)*
+## 🗓️ 今日任务（2026-05-10）
+
+| 时间戳 | 任务 | 目标/验收 |
+|---|---|---|
+| 2026-05-10 09:00 | 审查执行过程与当前未完成事项 | 明确“今日必须交付”与风险点 |
+| 2026-05-10 09:20 | 完善 DocumentService 的文档模板体系 | 支持 REQ/DSN/IFC/UM/CHG/ALM/VAR/IO/ARC/TEST/SUM 的模板内容 |
+| 2026-05-10 10:30 | 补充 DocumentService 单元测试 | 覆盖模板生成基础正确性（标题/版本字段等） |
+| 2026-05-10 11:10 | 建立执行过程配套目录与台账模板 | 创建 01_测试报告/02_变更管理/04_发布说明 的基础文件 |
+| 2026-05-10 11:30 | 更新进度与变更记录 | README 今日任务标记完成；变更列表/台账记录本次变更 |
+
+### 执行记录（当日）
+
+- [x] 2026-05-10 09:00 进度审查完成
+- [x] 2026-05-10 09:20 DocumentService 模板完善完成
+- [x] 2026-05-10 10:30 DocumentService 测试补齐完成
+- [x] 2026-05-10 11:10 执行过程目录与台账创建完成
+- [x] 2026-05-10 11:30 进度与变更记录完成
+
+*最后更新: 2026-05-10 by AI Assistant (Trae)*
 *下一更新: Sprint 6 结束后 (预计 2026-05-24)*

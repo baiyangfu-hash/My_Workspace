@@ -441,10 +441,11 @@ class PLCService:
 
         # 排除测试文件和示例文件
         st_files = [
-            f for f in st_files
-            if "_test" not in f.lower()
-               and "test_" not in f.lower()
-               and "example" not in f.lower()
+            f
+            for f in st_files
+            if "_test" not in Path(f).name.lower()
+            and "test_" not in Path(f).name.lower()
+            and "example" not in Path(f).name.lower()
         ]
 
         logger.info(f"在项目中找到 {len(st_files)} 个ST源码文件")

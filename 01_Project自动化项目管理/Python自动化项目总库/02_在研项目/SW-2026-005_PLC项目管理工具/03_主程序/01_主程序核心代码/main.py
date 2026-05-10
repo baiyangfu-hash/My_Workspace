@@ -39,8 +39,19 @@ logger = setup_logger(__name__)
 
 def run_gui():
     """启动GUI界面"""
+    from PyQt5.QtCore import QCoreApplication, Qt
+    from PyQt5.QtGui import QGuiApplication
     from PyQt5.QtWidgets import QApplication
     from src.ui.main_window import MainWindow
+
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    try:
+        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+        )
+    except Exception:
+        pass
 
     app = QApplication(sys.argv)
     app.setApplicationName(ConfigLoader.get("app_name", "PLC项目管理工具"))
