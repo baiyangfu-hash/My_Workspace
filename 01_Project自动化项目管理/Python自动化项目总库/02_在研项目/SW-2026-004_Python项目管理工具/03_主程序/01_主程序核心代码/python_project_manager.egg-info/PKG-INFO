@@ -1,0 +1,57 @@
+Metadata-Version: 2.4
+Name: python-project-manager
+Version: 2.1.0
+Summary: Python自动化项目总库管理系统
+Home-page: https://github.com/example/python-project-manager
+Author: 技术团队
+Author-email: support@example.com
+License: MIT
+Project-URL: Bug Reports, https://github.com/example/python-project-manager/issues
+Project-URL: Source, https://github.com/example/python-project-manager
+Project-URL: Documentation, https://github.com/example/python-project-manager/wiki
+Keywords: project management,automation,version control,change management
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: PyQt5==5.15.10
+Requires-Dist: Flask==3.0.2
+Requires-Dist: Click==8.1.7
+Requires-Dist: SQLAlchemy==2.0.27
+Requires-Dist: pytest==8.0.1
+Requires-Dist: python-dotenv==1.0.1
+Requires-Dist: requests==2.31.0
+Requires-Dist: python-dateutil==2.8.2
+Requires-Dist: markdown==3.5.2
+Requires-Dist: pyinstaller==6.4.0
+Requires-Dist: networkx==3.2.1
+Requires-Dist: bcrypt==4.1.2
+Requires-Dist: pydantic==2.6.3
+Requires-Dist: pydantic-settings==2.2.1
+Requires-Dist: dependency-injector==4.41.0
+Requires-Dist: alembic==1.13.1
+Requires-Dist: mypy==1.9.0
+Requires-Dist: flake8==7.0.0
+Requires-Dist: black==24.2.0
+Requires-Dist: pytest-cov==4.1.0
+Requires-Dist: pytest-asyncio==0.23.5
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
