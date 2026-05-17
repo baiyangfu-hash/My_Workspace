@@ -1,285 +1,285 @@
 // ============================================================================
 // FB_1003_PickPlace_BufferFraming
-// Description: Pick and place mechanism for buffer framing machine
-// Project: DJ-2026-005
-// Version: V6.0.0
-// Date: 2026-05-04
+// 描述：边框缓存机取放料机构
+// 项目：DJ-2026-005
+// 版本：V6.0.0
+// 日期：2026-05-04
 // ============================================================================
 //
-// Function:
-//   1. Auto mode: 11-step state machine for pick/place cycle
-//   2. Manual mode: 14 manual operations with interlock
-//   3. Initialization: cylinder reset, servo enable, state clear
-//   4. Alarm detection: 8 alarm types (101-108 range)
-//   5. 4-layer cycle counter (pick 2 layers per cycle, 2 cycles total)
-//   6. Timer: uses SysLib FB_TON (DINT PT/ET, not TIME)
+// 功能：
+//   1. 自动模式：取/放循环的 11 步状态机
+//   2. 手动模式：14 个手动操作并带互锁
+//   3. 初始化：气缸复位、伺服使能、状态清零
+//   4. 报警检测：8 种报警类型（101~108）
+//   5. 4层循环计数（每次取2层，共2次循环）
+//   6. 定时器：使用 SysLib FB_TON（PT/ET 为 DINT，不用 TIME）
 //
-// State Machine Steps:
-//   0 = Idle
-//   1 = Wait for conveyor feed complete
-//   2 = Z axis down to pickup height
-//   3 = Grip clamp (front+rear simultaneously)
-//   4 = Product detect confirm
-//   5 = Z axis up to safe height
-//   6 = X1 axis move to place position
-//   7 = Z axis down to place height
-//   8 = Grip unclamp (front+rear simultaneously)
-//   9 = Z axis up to safe height
-//   10 = Place complete notify downstream
+// 状态机步骤：
+//   0 = 空闲
+//   1 = 等待输送机放料完成
+//   2 = Z轴下降至取料高度
+//   3 = 夹爪夹紧（前+后同时）
+//   4 = 产品检测确认
+//   5 = Z轴上升至安全高度
+//   6 = X1轴移动到放料位置
+//   7 = Z轴下降至放料高度
+//   8 = 夹爪松开（前+后同时）
+//   9 = Z轴上升至安全高度
+//   10 = 放料完成通知下游
 //
-// Alarm Codes (101-108):
-//   101 = Z axis servo fault
-//   102 = X1 axis servo fault
-//   103 = Lift down timeout
-//   104 = Lift up timeout
-//   105 = Clamp timeout
-//   106 = Unclamp timeout
-//   107 = Product detect fail
-//   108 = X1 axis move timeout
+// 报警码（101~108）：
+//   101 = Z轴伺服故障
+//   102 = X1轴伺服故障
+//   103 = 升降下降超时
+//   104 = 升降上升超时
+//   105 = 夹紧超时
+//   106 = 松开超时
+//   107 = 产品检测失败
+//   108 = X1轴移动超时
 //
-// V6.0.0 Changes (from V4.2.0):
-//   - METHOD syntax removed (Siemens LSP incompatible) -> inline code
-//   - CALL_ prefix removed from method names
-//   - All T#0ms -> 0 (FB_TON PT is DINT, not TIME)
-//   - All timer calls use complete 4 params (IN/PT/Q/ET)
-//   - Timer Q access unified via s_bXxx_Q variables
-//   - Timer constant types INT -> DINT
-//   - Duplicate output assignments removed
-//   - Missing outputs in Idle step added
-//   - Clamp/Unclamp timeout logic fixed (IF/ELSIF)
+// V6.0.0 变更（相对 V4.2.0）：
+//   - 移除 METHOD 语法（Siemens LSP 不兼容）→ 改为内联代码
+//   - 移除方法名 CALL_ 前缀
+//   - 所有 T#0ms → 0（FB_TON 的 PT 为 DINT，不用 TIME）
+//   - 所有定时器调用统一使用 4 参数（IN/PT/Q/ET）
+//   - 定时器 Q 读取统一通过 s_bXxx_Q 变量
+//   - 定时器常量类型 INT → DINT
+//   - 删除重复的输出赋值
+//   - 补齐空闲步骤缺失的输出赋值
+//   - 修复夹紧/松开超时逻辑（IF/ELSIF）
 // ============================================================================
 
 FUNCTION_BLOCK FB_1003_PickPlace_BufferFraming
 
 //#region 100_VAR_INPUT
 VAR_INPUT
-    // System control signals (6)
-    i_bEnable               : BOOL;    // Total enable signal
-    i_bAutoMode             : BOOL;    // Auto running mode selection
-    i_bManualMode           : BOOL;    // Manual debug mode selection
-    i_bStart                : BOOL;    // Auto cycle start button (rising edge)
-    i_bStop                 : BOOL;    // Auto cycle stop button (level)
-    i_bReset                : BOOL;    // Fault reset/init button (level)
+    // 系统控制信号（6）
+    i_bEnable               : BOOL;    // 总使能
+    i_bAutoMode             : BOOL;    // 自动模式选择
+    i_bManualMode           : BOOL;    // 手动调试模式选择
+    i_bStart                : BOOL;    // 自动启动按钮（上升沿）
+    i_bStop                 : BOOL;    // 自动停止按钮（电平）
+    i_bReset                : BOOL;    // 故障复位/初始化按钮（电平）
 
-    // Manual operation signals (14 BOOL)
-    // Servo jog control (4)
-    i_bLx_ZAxis_JogUp       : BOOL;    // Manual-Z axis jog up
-    i_bLx_ZAxis_JogDown     : BOOL;    // Manual-Z axis jog down
-    i_bLx_X1Axis_JogFwd     : BOOL;    // Manual-X1 axis jog forward
-    i_bLx_X1Axis_JogRev     : BOOL;    // Manual-X1 axis jog reverse
+    // 手动操作信号（14个BOOL）
+    // 伺服点动控制（4）
+    i_bLx_ZAxis_JogUp       : BOOL;    // 手动-Z轴上点动
+    i_bLx_ZAxis_JogDown     : BOOL;    // 手动-Z轴下点动
+    i_bLx_X1Axis_JogFwd     : BOOL;    // 手动-X1轴前点动
+    i_bLx_X1Axis_JogRev     : BOOL;    // 手动-X1轴后点动
 
-    // Cylinder manual control (10, dual solenoid)
-    i_bLx_Lift_Up           : BOOL;    // Manual-lift cylinder up
-    i_bLx_Lift_Down         : BOOL;    // Manual-lift cylinder down
-    i_bLx_FrontClamp        : BOOL;    // Manual-front clamp close
-    i_bLx_FrontUnclamp      : BOOL;    // Manual-front clamp open
-    i_bLx_RearClamp         : BOOL;    // Manual-rear clamp close
-    i_bLx_RearUnclamp       : BOOL;    // Manual-rear clamp open
-    i_bLx_FrontClamp2       : BOOL;    // Manual-front clamp2 close
-    i_bLx_FrontUnclamp2     : BOOL;    // Manual-front clamp2 open
-    i_bLx_RearClamp2        : BOOL;    // Manual-rear clamp2 close
-    i_bLx_RearUnclamp2      : BOOL;    // Manual-rear clamp2 open
+    // 气缸手动控制（10，双电磁阀）
+    i_bLx_Lift_Up           : BOOL;    // 手动-升降上升
+    i_bLx_Lift_Down         : BOOL;    // 手动-升降下降
+    i_bLx_FrontClamp        : BOOL;    // 手动-前夹紧夹紧
+    i_bLx_FrontUnclamp      : BOOL;    // 手动-前夹紧松开
+    i_bLx_RearClamp         : BOOL;    // 手动-后夹紧夹紧
+    i_bLx_RearUnclamp       : BOOL;    // 手动-后夹紧松开
+    i_bLx_FrontClamp2       : BOOL;    // 手动-前夹紧2夹紧
+    i_bLx_FrontUnclamp2     : BOOL;    // 手动-前夹紧2松开
+    i_bLx_RearClamp2        : BOOL;    // 手动-后夹紧2夹紧
+    i_bLx_RearUnclamp2      : BOOL;    // 手动-后夹紧2松开
 
-    // Process parameters (6, REAL/INT)
-    // Speed parameters (4 REAL)
-    i_rPickupSpeed          : REAL;    // Pickup Z axis speed (mm/s or %)
-    i_rPlaceSpeed           : REAL;    // Place Z axis speed (mm/s or %)
-    i_rZAxisSpeed           : REAL;    // Z axis general speed (mm/s)
-    i_rX1AxisSpeed          : REAL;    // X1 axis general speed (mm/s)
+    // 工艺参数（6，REAL/INT）
+    // 速度参数（4个REAL）
+    i_rPickupSpeed          : REAL;    // 取料Z轴速度（mm/s 或 %）
+    i_rPlaceSpeed           : REAL;    // 放料Z轴速度（mm/s 或 %）
+    i_rZAxisSpeed           : REAL;    // Z轴通用速度（mm/s）
+    i_rX1AxisSpeed          : REAL;    // X1轴通用速度（mm/s）
 
-    // Action time parameters (2 INT)
-    i_iClampConfirmTime     : INT;     // Clamp confirm wait time (ms)
-    i_iLiftActionTime       : INT;     // Lift action timeout time (ms)
+    // 动作时间参数（2个INT）
+    i_iClampConfirmTime     : INT;     // 夹紧确认等待时间（ms）
+    i_iLiftActionTime       : INT;     // 升降动作超时（ms）
 
-    // Sensor inputs (26 BOOL)
-    // Cylinder position sensors (10 magnetic switches)
-    i_bLift_WorkPoint       : BOOL;    // Lift cylinder down position
-    i_bLift_HomePos         : BOOL;    // Lift cylinder up position
-    i_bFrontClamp_Closed    : BOOL;    // Front clamp closed position
-    i_bFrontClamp_Opened    : BOOL;    // Front clamp opened position
-    i_bRearClamp_Closed     : BOOL;    // Rear clamp closed position
-    i_bRearClamp_Opened     : BOOL;    // Rear clamp opened position
-    i_bFrontClamp2_Closed   : BOOL;    // Front clamp2 closed position
-    i_bFrontClamp2_Opened   : BOOL;    // Front clamp2 opened position
-    i_bRearClamp2_Closed    : BOOL;    // Rear clamp2 closed position
-    i_bRearClamp2_Opened    : BOOL;    // Rear clamp2 opened position
+    // 传感器输入（26个BOOL）
+    // 气缸位置传感器（10个磁性开关）
+    i_bLift_WorkPoint       : BOOL;    // 升降气缸下位
+    i_bLift_HomePos         : BOOL;    // 升降气缸上位
+    i_bFrontClamp_Closed    : BOOL;    // 前夹紧夹紧到位
+    i_bFrontClamp_Opened    : BOOL;    // 前夹紧松开到位
+    i_bRearClamp_Closed     : BOOL;    // 后夹紧夹紧到位
+    i_bRearClamp_Opened     : BOOL;    // 后夹紧松开到位
+    i_bFrontClamp2_Closed   : BOOL;    // 前夹紧2夹紧到位
+    i_bFrontClamp2_Opened   : BOOL;    // 前夹紧2松开到位
+    i_bRearClamp2_Closed    : BOOL;    // 后夹紧2夹紧到位
+    i_bRearClamp2_Opened    : BOOL;    // 后夹紧2松开到位
 
-    // Product detection sensors (4 photoelectric)
-    i_bLongEdge1Detect      : BOOL;    // Long edge 1 presence detection
-    i_bLongEdge2Detect      : BOOL;    // Long edge 2 presence detection
-    i_bShortEdge1Detect     : BOOL;    // Short edge 1 presence detection
-    i_bShortEdge2Detect     : BOOL;    // Short edge 2 presence detection
+    // 产品检测传感器（4个光电）
+    i_bLongEdge1Detect      : BOOL;    // 长边1存在检测
+    i_bLongEdge2Detect      : BOOL;    // 长边2存在检测
+    i_bShortEdge1Detect     : BOOL;    // 短边1存在检测
+    i_bShortEdge2Detect     : BOOL;    // 短边2存在检测
 
-    // Servo axis status (12)
-    // Home signals (3)
-    i_bZAxis_HomePos        : BOOL;    // Z axis servo home signal
-    i_bX1Axis_HomePos       : BOOL;    // X1 axis servo home signal
-    i_bX2Axis_HomePos       : BOOL;    // X2 axis servo home signal (reserved)
+    // 伺服轴状态（12）
+    // 原点信号（3）
+    i_bZAxis_HomePos        : BOOL;    // Z轴伺服原点信号
+    i_bX1Axis_HomePos       : BOOL;    // X1轴伺服原点信号
+    i_bX2Axis_HomePos       : BOOL;    // X2轴伺服原点信号（预留）
 
-    // Servo fault alarms (3)
-    i_bZAxis_ServoFault     : BOOL;    // Z axis servo drive fault
-    i_bX1Axis_ServoFault    : BOOL;    // X1 axis servo drive fault
-    i_bX2Axis_ServoFault    : BOOL;    // X2 axis servo drive fault (reserved)
+    // 伺服故障报警（3）
+    i_bZAxis_ServoFault     : BOOL;    // Z轴伺服驱动故障
+    i_bX1Axis_ServoFault    : BOOL;    // X1轴伺服驱动故障
+    i_bX2Axis_ServoFault    : BOOL;    // X2轴伺服驱动故障（预留）
 
-    // Limit switch signals (6)
-    i_bZAxis_FwdLimit       : BOOL;    // Z axis forward limit (upper)
-    i_bZAxis_RevLimit       : BOOL;    // Z axis reverse limit (lower)
-    i_bX1Axis_FwdLimit      : BOOL;    // X1 axis forward limit
-    i_bX1Axis_RevLimit      : BOOL;    // X1 axis reverse limit
-    i_bX2Axis_FwdLimit      : BOOL;    // X2 axis forward limit (reserved)
-    i_bX2Axis_RevLimit      : BOOL;    // X2 axis reverse limit (reserved)
+    // 限位开关信号（6）
+    i_bZAxis_FwdLimit       : BOOL;    // Z轴正向限位（上限）
+    i_bZAxis_RevLimit       : BOOL;    // Z轴反向限位（下限）
+    i_bX1Axis_FwdLimit      : BOOL;    // X1轴正向限位
+    i_bX1Axis_RevLimit      : BOOL;    // X1轴反向限位
+    i_bX2Axis_FwdLimit      : BOOL;    // X2轴正向限位（预留）
+    i_bX2Axis_RevLimit      : BOOL;    // X2轴反向限位（预留）
 
-    // Upstream signals (4 BOOL, from conveyor)
-    i_bConveyor_L1_FeedComplete : BOOL; // Conveyor layer 1 feed complete
-    i_bConveyor_L2_FeedComplete : BOOL; // Conveyor layer 2 feed complete
-    i_bConveyor_L3_FeedComplete : BOOL; // Conveyor layer 3 feed complete
-    i_bConveyor_L4_FeedComplete : BOOL; // Conveyor layer 4 feed complete
+    // 上游信号（4个BOOL，来自输送机）
+    i_bConveyor_L1_FeedComplete : BOOL; // 输送机1层放料完成
+    i_bConveyor_L2_FeedComplete : BOOL; // 输送机2层放料完成
+    i_bConveyor_L3_FeedComplete : BOOL; // 输送机3层放料完成
+    i_bConveyor_L4_FeedComplete : BOOL; // 输送机4层放料完成
 END_VAR
 //#endregion 100_VAR_INPUT
 
 //#region 200_VAR_OUTPUT
 VAR_OUTPUT
-    // Cylinder control outputs (10 BOOL, dual solenoid)
-    o_bLift_Up              : BOOL;    // Lift cylinder up solenoid
-    o_bLift_Down            : BOOL;    // Lift cylinder down solenoid
-    o_bFrontClamp_Action    : BOOL;    // Front clamp close solenoid
-    o_bFrontClamp_Release   : BOOL;    // Front clamp open solenoid
-    o_bRearClamp_Action     : BOOL;    // Rear clamp close solenoid
-    o_bRearClamp_Release    : BOOL;    // Rear clamp open solenoid
-    o_bFrontClamp2_Action   : BOOL;    // Front clamp2 close solenoid
-    o_bFrontClamp2_Release  : BOOL;    // Front clamp2 open solenoid
-    o_bRearClamp2_Action    : BOOL;    // Rear clamp2 close solenoid
-    o_bRearClamp2_Release   : BOOL;    // Rear clamp2 open solenoid
+    // 气缸控制输出（10个BOOL，双电磁阀）
+    o_bLift_Up              : BOOL;    // 升降上升电磁阀
+    o_bLift_Down            : BOOL;    // 升降下降电磁阀
+    o_bFrontClamp_Action    : BOOL;    // 前夹紧夹紧电磁阀
+    o_bFrontClamp_Release   : BOOL;    // 前夹紧松开电磁阀
+    o_bRearClamp_Action     : BOOL;    // 后夹紧夹紧电磁阀
+    o_bRearClamp_Release    : BOOL;    // 后夹紧松开电磁阀
+    o_bFrontClamp2_Action   : BOOL;    // 前夹紧2夹紧电磁阀
+    o_bFrontClamp2_Release  : BOOL;    // 前夹紧2松开电磁阀
+    o_bRearClamp2_Action    : BOOL;    // 后夹紧2夹紧电磁阀
+    o_bRearClamp2_Release   : BOOL;    // 后夹紧2松开电磁阀
 
-    // Servo control outputs (3 BOOL, Z axis only)
-    o_bZAxis_PulseOutput    : BOOL;    // Z axis pulse output enable
-    o_bZAxis_DirectionOutput : BOOL;   // Z axis direction control
-    o_bZAxis_Enable         : BOOL;    // Z axis servo enable (SON)
+    // 伺服控制输出（3个BOOL，仅Z轴）
+    o_bZAxis_PulseOutput    : BOOL;    // Z轴脉冲输出使能
+    o_bZAxis_DirectionOutput : BOOL;   // Z轴方向控制
+    o_bZAxis_Enable         : BOOL;    // Z轴伺服使能（SON）
 
-    // Downstream signal output (1 BOOL)
-    o_bPlaceComplete_ToFeeder : BOOL;   // Place complete notify downstream
+    // 下游信号输出（1个BOOL）
+    o_bPlaceComplete_ToFeeder : BOOL;   // 放料完成通知下游
 
-    // Status/HMI display outputs (7)
-    o_bRunning              : BOOL;    // Currently auto running
-    o_bFault                : BOOL;    // This station has fault
-    o_iCurrentState         : INT;     // Current state (0-10, 99=fault)
-    o_rZAxisCurrentPos      : REAL;    // Z axis current position (mm)
-    o_rX1AxisCurrentPos     : REAL;    // X1 axis current position (mm)
-    o_rX2AxisCurrentPos     : REAL;    // X2 axis current position (mm, reserved)
-    o_iCurrentPickLayer     : INT;     // Current processing layer (0=idle, 1-4)
+    // 状态/HMI显示输出（7）
+    o_bRunning              : BOOL;    // 自动运行中
+    o_bFault                : BOOL;    // 本工站故障
+    o_iCurrentState         : INT;     // 当前状态（0~10，99=故障）
+    o_rZAxisCurrentPos      : REAL;    // Z轴当前位置（mm）
+    o_rX1AxisCurrentPos     : REAL;    // X1轴当前位置（mm）
+    o_rX2AxisCurrentPos     : REAL;    // X2轴当前位置（mm，预留）
+    o_iCurrentPickLayer     : INT;     // 当前处理层（0=空闲，1~4）
 
-    // Alarm output (1)
-    o_iStationAlarmCode     : INT;     // Alarm code (0=none, 101-108)
+    // 报警输出（1）
+    o_iStationAlarmCode     : INT;     // 报警码（0=无，101~108）
 
-    // Timer debug outputs (4 DINT, scan cycles)
-    q_ePlaceCompleteHold_Elapsed : DINT; // Place complete hold timer elapsed
-    q_eAction_Elapsed       : DINT;     // Action timer elapsed
-    q_eProductDetectStable_Elapsed : DINT; // Product detect stable timer elapsed
-    q_eInit_Elapsed         : DINT;     // Init timer elapsed
+    // 定时器调试输出（4个DINT，扫描周期数）
+    q_ePlaceCompleteHold_Elapsed : DINT; // 放料完成保持定时累计
+    q_eAction_Elapsed       : DINT;     // 动作定时累计
+    q_eProductDetectStable_Elapsed : DINT; // 产品检测稳定定时累计
+    q_eInit_Elapsed         : DINT;     // 初始化定时累计
 END_VAR
 //#endregion 200_VAR_OUTPUT
 
 //#region 300_VAR
 VAR
-    // State machine core
-    s_iCurrentStep          : INT;     // Current state machine step (0-10)
-    s_bRunning              : BOOL;    // Auto running flag
-    s_bFault                : BOOL;    // Fault flag
-    s_bStartTriggered       : BOOL;    // Start signal latched
+    // 状态机核心
+    s_iCurrentStep          : INT;     // 当前状态机步骤（0~10）
+    s_bRunning              : BOOL;    // 自动运行标志
+    s_bFault                : BOOL;    // 故障标志
+    s_bStartTriggered       : BOOL;    // 启动信号锁存
 
-    // 4-layer cycle counter
-    s_iCompletedLayers      : INT;     // Completed pick/place layers (0-4)
-    s_iCurrentPickLayerNum  : INT;     // Current pick layer number (1-4)
-    s_iPickCount            : INT;     // Current pick count (1 or 2)
+    // 4层循环计数
+    s_iCompletedLayers      : INT;     // 已完成层数（0~4）
+    s_iCurrentPickLayerNum  : INT;     // 当前取料层号（1~4）
+    s_iPickCount            : INT;     // 当前取料次数（1或2）
 
-    // Place complete pulse
-    s_bPlaceCompletePulse   : BOOL;    // Place complete single-cycle pulse
+    // 放料完成脉冲
+    s_bPlaceCompletePulse   : BOOL;    // 放料完成单周期脉冲
 
-    // Timers (SysLib FB_TON, PT/ET are DINT)
-    fb_tPlaceCompleteHoldTimer : FB_TON; // Place complete hold timer
-    fb_tActionTimer         : FB_TON;  // General action timer
-    fb_tProductDetectStableTimer : FB_TON; // Product detect stable timer
-    fb_tInitTimer           : FB_TON;  // Initialization timer
+    // 定时器（SysLib FB_TON，PT/ET 为 DINT）
+    fb_tPlaceCompleteHoldTimer : FB_TON; // 放料完成保持定时器
+    fb_tActionTimer         : FB_TON;  // 通用动作定时器
+    fb_tProductDetectStableTimer : FB_TON; // 产品检测稳定定时器
+    fb_tInitTimer           : FB_TON;  // 初始化定时器
 
-    // Timer Q output variables
+    // 定时器 Q 输出
     s_bPlaceCompleteHoldTimer_Q : BOOL;
     s_bActionTimer_Q        : BOOL;
     s_bProductDetectStableTimer_Q : BOOL;
     s_bInitTimer_Q          : BOOL;
 
-    // System level internal variables
-    s_bInitComplete         : BOOL;    // Power-on init complete flag
-    s_bInitializing         : BOOL;    // Currently initializing
-    s_bProductDetected      : BOOL;    // Product detection result
+    // 系统级内部变量
+    s_bInitComplete         : BOOL;    // 上电初始化完成
+    s_bInitializing         : BOOL;    // 初始化进行中
+    s_bProductDetected      : BOOL;    // 产品检测结果
 
-    // Alarm
-    s_iActiveAlarmCode      : INT;     // Current highest priority alarm code
+    // 报警
+    s_iActiveAlarmCode      : INT;     // 当前最高优先级报警码
 
-    // Servo motion request flags
-    s_bZAxis_RequestDown    : BOOL;    // Z axis down motion request
-    s_bZAxis_RequestUp      : BOOL;    // Z axis up motion request
-    s_bX1Axis_RequestFwd    : BOOL;    // X1 axis forward move request
-    s_bX1Axis_RequestRev    : BOOL;    // X1 axis reverse move request
-    s_bX1AxisAtPickupPos    : BOOL;    // X1 axis at pickup position flag
-    s_bX1AxisAtPlacePos     : BOOL;    // X1 axis at place position flag
+    // 伺服运动请求标志
+    s_bZAxis_RequestDown    : BOOL;    // Z轴下降请求
+    s_bZAxis_RequestUp      : BOOL;    // Z轴上升请求
+    s_bX1Axis_RequestFwd    : BOOL;    // X1轴前移请求
+    s_bX1Axis_RequestRev    : BOOL;    // X1轴后移请求
+    s_bX1AxisAtPickupPos    : BOOL;    // X1轴在取料位标志
+    s_bX1AxisAtPlacePos     : BOOL;    // X1轴在放料位标志
 
-    // Sensor conflict detection
-    s_bLiftConflict         : BOOL;    // Lift up+down both TRUE
-    s_bFrontClampConflict   : BOOL;    // Front clamp closed+opened both TRUE
-    s_bRearClampConflict    : BOOL;    // Rear clamp closed+opened both TRUE
-    s_bFrontClamp2Conflict  : BOOL;    // Front clamp2 closed+opened both TRUE
-    s_bRearClamp2Conflict   : BOOL;    // Rear clamp2 closed+opened both TRUE
+    // 传感器冲突检测
+    s_bLiftConflict         : BOOL;    // 升降上位+下位同时为TRUE
+    s_bFrontClampConflict   : BOOL;    // 前夹紧夹紧到位+松开到位同时为TRUE
+    s_bRearClampConflict    : BOOL;    // 后夹紧夹紧到位+松开到位同时为TRUE
+    s_bFrontClamp2Conflict  : BOOL;    // 前夹紧2夹紧到位+松开到位同时为TRUE
+    s_bRearClamp2Conflict   : BOOL;    // 后夹紧2夹紧到位+松开到位同时为TRUE
 
-    // Manual operation interlock
-    s_bManualAllowed        : BOOL;    // Manual operation allowed flag
+    // 手动操作互锁
+    s_bManualAllowed        : BOOL;    // 允许手动操作标志
 END_VAR
 //#endregion 300_VAR
 
 //#region 400_VAR_CONSTANT
 VAR CONSTANT
-    // State machine steps (11: 0 idle + 10 work steps)
-    STP_Idle                : INT := 0;   // Idle
-    STP_WaitingFeedComplete : INT := 1;   // Wait for conveyor feed complete
-    STP_PickupDown          : INT := 2;   // Z axis down to pickup height
-    STP_GripClamp           : INT := 3;   // Grip clamp (front+rear)
-    STP_ProductDetect       : INT := 4;   // Product detect confirm
-    STP_PickupUp            : INT := 5;   // Z axis up to safe height
-    STP_MovingToPlacePos    : INT := 6;   // X1 axis move to place position
-    STP_PlaceDown           : INT := 7;   // Z axis down to place height
-    STP_GripUnclamp         : INT := 8;   // Grip unclamp (front+rear)
-    STP_PlaceUp             : INT := 9;   // Z axis up to safe height
-    STP_PlaceCompleteNotify : INT := 10;  // Send place complete signal
+    // 状态机步骤（11：0空闲 + 10个工作步骤）
+    STP_Idle                : INT := 0;   // 空闲
+    STP_WaitingFeedComplete : INT := 1;   // 等待输送机放料完成
+    STP_PickupDown          : INT := 2;   // Z轴下降至取料高度
+    STP_GripClamp           : INT := 3;   // 夹爪夹紧（前+后）
+    STP_ProductDetect       : INT := 4;   // 产品检测确认
+    STP_PickupUp            : INT := 5;   // Z轴上升至安全高度
+    STP_MovingToPlacePos    : INT := 6;   // X1轴移动到放料位置
+    STP_PlaceDown           : INT := 7;   // Z轴下降至放料高度
+    STP_GripUnclamp         : INT := 8;   // 夹爪松开（前+后）
+    STP_PlaceUp             : INT := 9;   // Z轴上升至安全高度
+    STP_PlaceCompleteNotify : INT := 10;  // 发送放料完成信号
 
-    // Alarm codes (101-108)
-    ALM_ZAxisServoFault     : INT := 101;  // Z axis servo fault
-    ALM_X1AxisServoFault    : INT := 102;  // X1 axis servo fault
-    ALM_LiftDownTimeout     : INT := 103;  // Lift down not in position
-    ALM_LiftUpTimeout       : INT := 104;  // Lift up not in position
-    ALM_ClampTimeout        : INT := 105;  // Clamp not confirmed
-    ALM_UnclampTimeout      : INT := 106;  // Unclamp not confirmed
-    ALM_ProductDetectFail   : INT := 107;  // Product detect failed
-    ALM_MovementTimeout     : INT := 108;  // X1 axis move timeout
+    // 报警码（101~108）
+    ALM_ZAxisServoFault     : INT := 101;  // Z轴伺服故障
+    ALM_X1AxisServoFault    : INT := 102;  // X1轴伺服故障
+    ALM_LiftDownTimeout     : INT := 103;  // 升降下降未到位
+    ALM_LiftUpTimeout       : INT := 104;  // 升降上升未到位
+    ALM_ClampTimeout        : INT := 105;  // 夹紧确认超时
+    ALM_UnclampTimeout      : INT := 106;  // 松开确认超时
+    ALM_ProductDetectFail   : INT := 107;  // 产品检测失败
+    ALM_MovementTimeout     : INT := 108;  // X1轴移动超时
 
-    // Default timer values (DINT, scan cycles)
-    T_DEF_LiftActionTime        : DINT := 2000;   // Lift action time
-    T_DEF_ClampConfirmTime      : DINT := 800;    // Clamp confirm time
-    T_DEF_UnclampConfirmTime    : DINT := 800;    // Unclamp confirm time
-    T_DEF_ProductDetectStableTime : DINT := 300;  // Product detect stable time
-    T_DEF_MovementTimeoutTime   : DINT := 5000;   // X1 axis move timeout
-    T_DEF_PlaceCompleteHoldTime : DINT := 500;    // Place complete hold time
-    T_DEF_InitTimeout           : DINT := 10000;  // Init total timeout (10s)
+    // 默认定时参数（DINT，扫描周期数）
+    T_DEF_LiftActionTime        : DINT := 2000;   // 升降动作时间
+    T_DEF_ClampConfirmTime      : DINT := 800;    // 夹紧确认时间
+    T_DEF_UnclampConfirmTime    : DINT := 800;    // 松开确认时间
+    T_DEF_ProductDetectStableTime : DINT := 300;  // 产品检测稳定时间
+    T_DEF_MovementTimeoutTime   : DINT := 5000;   // X1轴移动超时
+    T_DEF_PlaceCompleteHoldTime : DINT := 500;    // 放料完成保持时间
+    T_DEF_InitTimeout           : DINT := 10000;  // 初始化总超时（10s）
 
-    // Layer constants
-    LAYER_TOTAL             : INT := 4;       // Total layers
-    PICK_TIMES              : INT := 2;       // Pick times (2 layers per pick)
+    // 层相关常量
+    LAYER_TOTAL             : INT := 4;       // 总层数
+    PICK_TIMES              : INT := 2;       // 取料次数（每次取2层）
 END_VAR
 //#endregion 400_VAR_CONSTANT
 
 // ============================================================================
-// Main program logic
+// 主程序逻辑
 // ============================================================================
 
-// --- Enable off: safe state, all outputs zero ---
+// --- 使能关闭：进入安全状态，所有输出清零 ---
 IF NOT i_bEnable THEN
     o_bLift_Up := FALSE;
     o_bLift_Down := FALSE;
@@ -326,12 +326,12 @@ IF NOT i_bEnable THEN
     RETURN;
 END_IF;
 
-// --- Initialization (after power-on or reset) ---
+// --- 初始化（上电或复位后） ---
 IF NOT s_bInitComplete THEN
     s_bInitializing := TRUE;
     fb_tInitTimer(IN := TRUE, PT := T_DEF_InitTimeout, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
 
-    // Cylinder safe position: lift up, all clamps open
+    // 气缸安全位：升降上升，所有夹爪松开
     o_bLift_Up := TRUE;
     o_bLift_Down := FALSE;
     o_bFrontClamp_Action := FALSE;
@@ -343,7 +343,7 @@ IF NOT s_bInitComplete THEN
     o_bRearClamp2_Action := FALSE;
     o_bRearClamp2_Release := TRUE;
 
-    // Servo enable
+    // 伺服使能
     o_bZAxis_Enable := TRUE;
     o_bZAxis_PulseOutput := FALSE;
     o_bZAxis_DirectionOutput := FALSE;
@@ -353,7 +353,7 @@ IF NOT s_bInitComplete THEN
     s_bFault := FALSE;
     s_iActiveAlarmCode := 0;
 
-    // Check init conditions: lift at home + all clamps opened, or timeout
+    // 初始化完成条件：升降在原点 + 所有夹爪已松开，或初始化超时
     IF (i_bLift_HomePos AND
         i_bFrontClamp_Opened AND i_bRearClamp_Opened AND
         i_bFrontClamp2_Opened AND i_bRearClamp2_Opened)
@@ -361,7 +361,7 @@ IF NOT s_bInitComplete THEN
         s_bInitComplete := TRUE;
         s_bInitializing := FALSE;
         fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-        // Close cylinder outputs after init (enter idle safe state)
+        // 初始化后关闭气缸输出（进入空闲安全状态）
         o_bLift_Up := FALSE;
         o_bFrontClamp_Release := FALSE;
         o_bRearClamp_Release := FALSE;
@@ -375,7 +375,7 @@ IF NOT s_bInitComplete THEN
     RETURN;
 END_IF;
 
-// --- Servo fault detection (all modes, highest priority) ---
+// --- 伺服故障检测（全模式，最高优先级） ---
 IF i_bZAxis_ServoFault THEN
     IF s_iActiveAlarmCode <> ALM_ZAxisServoFault THEN
         s_iActiveAlarmCode := ALM_ZAxisServoFault;
@@ -397,20 +397,20 @@ ELSIF s_iActiveAlarmCode = ALM_X1AxisServoFault THEN
     s_bFault := FALSE;
 END_IF;
 
-// --- Sensor conflict detection (all modes) ---
+// --- 传感器冲突检测（全模式） ---
 s_bLiftConflict := i_bLift_WorkPoint AND i_bLift_HomePos;
 s_bFrontClampConflict := i_bFrontClamp_Closed AND i_bFrontClamp_Opened;
 s_bRearClampConflict := i_bRearClamp_Closed AND i_bRearClamp_Opened;
 s_bFrontClamp2Conflict := i_bFrontClamp2_Closed AND i_bFrontClamp2_Opened;
 s_bRearClamp2Conflict := i_bRearClamp2_Closed AND i_bRearClamp2_Opened;
 
-// --- Mode dispatch ---
+// --- 模式分发 ---
 IF i_bAutoMode THEN
     // ========================================================================
-    // Auto mode: 11-step pick/place state machine (inlined, no METHOD)
+    // 自动模式：11步取放状态机（内联实现，无 METHOD）
     // ========================================================================
 
-    // Fault: stop state machine
+    // 故障：停止状态机
     IF s_bFault THEN
         s_bRunning := FALSE;
         o_bLift_Up := FALSE;
@@ -433,7 +433,7 @@ IF i_bAutoMode THEN
         fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
         fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
     ELSE
-        // Start trigger detection (rising edge)
+        // 启动触发检测（上升沿）
         IF i_bStart AND NOT s_bStartTriggered THEN
             s_bStartTriggered := TRUE;
             IF s_iCompletedLayers >= LAYER_TOTAL THEN
@@ -446,7 +446,7 @@ IF i_bAutoMode THEN
             END_IF;
         END_IF;
 
-        // State machine
+        // 状态机
         CASE s_iCurrentStep OF
 
         STP_Idle:
@@ -535,12 +535,12 @@ IF i_bAutoMode THEN
             o_bRearClamp_Release := FALSE;
 
             IF s_bActionTimer_Q AND (i_bFrontClamp_Closed AND i_bRearClamp_Closed) THEN
-                // Timer done AND sensors confirmed -> proceed
+                // 定时到且传感器确认完成 → 进入下一步
                 fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
                 s_iCurrentStep := STP_ProductDetect;
                 fb_tProductDetectStableTimer(IN := TRUE, PT := T_DEF_ProductDetectStableTime, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
             ELSIF s_bActionTimer_Q AND NOT (i_bFrontClamp_Closed AND i_bRearClamp_Closed) THEN
-                // Timer done BUT sensors NOT confirmed -> clamp timeout alarm
+                // 定时到但传感器未确认 → 触发夹紧超时报警
                 fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
                 s_iActiveAlarmCode := ALM_ClampTimeout;
                 s_bFault := TRUE;
@@ -668,7 +668,7 @@ IF i_bAutoMode THEN
             o_bRearClamp_Action := FALSE;
 
             IF s_bActionTimer_Q AND (i_bFrontClamp_Opened AND i_bRearClamp_Opened) THEN
-                // Timer done AND sensors confirmed -> proceed
+                // 定时到且传感器确认完成 → 进入下一步
                 fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
                 s_iCurrentStep := STP_PlaceUp;
                 fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
@@ -679,7 +679,7 @@ IF i_bAutoMode THEN
                 o_bFrontClamp_Release := FALSE;
                 o_bRearClamp_Release := FALSE;
             ELSIF s_bActionTimer_Q AND NOT (i_bFrontClamp_Opened AND i_bRearClamp_Opened) THEN
-                // Timer done BUT sensors NOT confirmed -> unclamp timeout alarm
+                // 定时到但传感器未确认 → 触发松开超时报警
                 fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
                 s_iActiveAlarmCode := ALM_UnclampTimeout;
                 s_bFault := TRUE;
@@ -751,7 +751,7 @@ IF i_bAutoMode THEN
 
 ELSIF i_bManualMode THEN
     // ========================================================================
-    // Manual mode: 14 manual operations with interlock (inlined, no METHOD)
+    // 手动模式：14个手动操作并带互锁（内联实现，无 METHOD）
     // ========================================================================
 
     IF s_bFault THEN
@@ -782,7 +782,7 @@ ELSIF i_bManualMode THEN
         o_iCurrentPickLayer := 0;
         o_bPlaceComplete_ToFeeder := FALSE;
 
-        // Z axis jog: up/down interlock
+        // Z轴点动：上/下互锁
         IF i_bLx_ZAxis_JogUp AND NOT i_bLx_ZAxis_JogDown THEN
             IF NOT i_bZAxis_FwdLimit THEN
                 s_bZAxis_RequestUp := TRUE;
@@ -800,7 +800,7 @@ ELSIF i_bManualMode THEN
             s_bZAxis_RequestUp := FALSE;
         END_IF;
 
-        // X1 axis jog: forward/reverse interlock
+        // X1轴点动：前/后互锁
         IF i_bLx_X1Axis_JogFwd AND NOT i_bLx_X1Axis_JogRev THEN
             IF NOT i_bX1Axis_FwdLimit THEN
                 s_bX1Axis_RequestFwd := TRUE;
@@ -816,7 +816,7 @@ ELSIF i_bManualMode THEN
             s_bX1Axis_RequestRev := FALSE;
         END_IF;
 
-        // Lift cylinder manual
+        // 升降气缸手动
         IF i_bLx_Lift_Up AND NOT i_bLx_Lift_Down THEN
             o_bLift_Up := TRUE;
             o_bLift_Down := FALSE;
@@ -828,7 +828,7 @@ ELSIF i_bManualMode THEN
             o_bLift_Down := FALSE;
         END_IF;
 
-        // Front clamp manual
+        // 前夹紧手动
         IF i_bLx_FrontClamp AND NOT i_bLx_FrontUnclamp THEN
             o_bFrontClamp_Action := TRUE;
             o_bFrontClamp_Release := FALSE;
@@ -840,7 +840,7 @@ ELSIF i_bManualMode THEN
             o_bFrontClamp_Release := FALSE;
         END_IF;
 
-        // Rear clamp manual
+        // 后夹紧手动
         IF i_bLx_RearClamp AND NOT i_bLx_RearUnclamp THEN
             o_bRearClamp_Action := TRUE;
             o_bRearClamp_Release := FALSE;
@@ -852,7 +852,7 @@ ELSIF i_bManualMode THEN
             o_bRearClamp_Release := FALSE;
         END_IF;
 
-        // Front clamp2 manual
+        // 前夹紧2手动
         IF i_bLx_FrontClamp2 AND NOT i_bLx_FrontUnclamp2 THEN
             o_bFrontClamp2_Action := TRUE;
             o_bFrontClamp2_Release := FALSE;
@@ -864,7 +864,7 @@ ELSIF i_bManualMode THEN
             o_bFrontClamp2_Release := FALSE;
         END_IF;
 
-        // Rear clamp2 manual
+        // 后夹紧2手动
         IF i_bLx_RearClamp2 AND NOT i_bLx_RearUnclamp2 THEN
             o_bRearClamp2_Action := TRUE;
             o_bRearClamp2_Release := FALSE;
@@ -878,7 +878,7 @@ ELSIF i_bManualMode THEN
     END_IF;
 
 ELSE
-    // Invalid mode: safe state
+    // 无效模式：安全状态
     o_bLift_Up := FALSE;
     o_bLift_Down := FALSE;
     o_bFrontClamp_Action := FALSE;
@@ -902,7 +902,7 @@ ELSE
     END_IF;
 END_IF;
 
-// --- Stop handling ---
+// --- 停止处理 ---
 IF i_bStop THEN
     IF s_bRunning AND NOT s_bFault THEN
         s_iCurrentStep := STP_Idle;
@@ -931,7 +931,7 @@ IF i_bStop THEN
     END_IF;
 END_IF;
 
-// --- Reset handling ---
+// --- 复位处理 ---
 IF i_bReset THEN
     IF s_bFault THEN
         s_iActiveAlarmCode := 0;
@@ -971,7 +971,7 @@ IF i_bReset THEN
     END_IF;
 END_IF;
 
-// --- Status output ---
+// --- 状态输出 ---
 o_bRunning := s_bRunning;
 o_bFault := s_bFault;
 

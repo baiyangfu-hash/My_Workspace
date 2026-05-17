@@ -1,46 +1,46 @@
 // ============================================================================
-// OB1.scl - Buffer Framing Machine Main Organization Block
+// OB1.scl - 边框缓存机主组织块
 // ============================================================================
-// Description:
-//   DJ-2026-005 Buffer Framing Machine PLC control system main loop program.
-//   Responsible for instantiating and calling all station function blocks.
+// 描述:
+//   DJ-2026-005 边框缓存机 PLC 控制系统主循环程序。
+//   负责实例化并按工艺顺序调用各工站功能块。
 //
-// Architecture:
-//   "Master + Function Block" pattern, OB1 as dispatch center:
-//   - No business logic included
-//   - Only responsible for FB instantiation and call order management
-//   - All I/O mapping through GlobalVars data block
+// 架构:
+//   “主控 + 功能块”模式，OB1 作为调度中心:
+//   - 不包含业务逻辑
+//   - 仅负责 FB 实例化与调用顺序管理
+//   - 所有 I/O 映射通过 GlobalVars 数据块完成
 //
-// FB Call Order (by process flow):
-//   1. FB_ExternalDeviceInteraction   - External device interaction
-//   2. FB_1001_Conveyor4Layer         - 4-layer conveyor control
-//   3. FB_1003_PickPlace              - Pick and place mechanism
-//   4. FB_1004_GlueMachineFeeder      - Glue machine feeder mechanism
-//   5. FB_2001_CommonAlarm            - Common alarm management
+// FB 调用顺序（按工艺流程）:
+//   1. FB_ExternalDeviceInteraction   - 外部设备交互
+//   2. FB_1001_Conveyor4Layer         - 四层输送机控制
+//   3. FB_1003_PickPlace              - 取放料机构
+//   4. FB_1004_GlueMachineFeeder      - 打胶机送料机构
+//   5. FB_2001_CommonAlarm            - 公共报警管理
 //
-// Change Log:
-//   V6.0.0 (2026-05-04): V6.0.0 full compliance rewrite
-//          - Unified PickPlace interface: Grip->Clamp, Close->Action, Open->Release
-//          - Sensor naming: HomePoint->HomePos, WorkPoint->Closed/Opened
-//          - Servo naming: Home->HomePos, Forward->Fwd, Reverse->Rev
-//          - Output naming: ServoEnable->Enable, FeedComplete->PlaceComplete
-//          - Position naming: _CurrentPosition->CurrentPos
-//          - Layer naming: PickupLayer->PickLayer
-//          - Timer debug: FeedCompleteHold->PlaceCompleteHold, TIME->DINT
-//          - Removed underscore in detect sensors: LongEdge1_Detect->LongEdge1Detect
-//   V5.0.0 (2026-05-03): V5.0.0 full rewrite - 100% English variable names
-//   V2.0.0 (2026-05-03): Complete rewrite based on actual FB definitions
-//   V1.0.0 (2026-05-02): Initial version
+// 变更记录:
+//   V6.0.0 (2026-05-04): V6.0.0 全面规范改写
+//          - 统一取放料接口: Grip->Clamp, Close->Action, Open->Release
+//          - 传感器命名: HomePoint->HomePos, WorkPoint->Closed/Opened
+//          - 伺服命名: Home->HomePos, Forward->Fwd, Reverse->Rev
+//          - 输出命名: ServoEnable->Enable, FeedComplete->PlaceComplete
+//          - 位置命名: _CurrentPosition->CurrentPos
+//          - 层命名: PickupLayer->PickLayer
+//          - 定时器调试: FeedCompleteHold->PlaceCompleteHold, TIME->DINT
+//          - 检测传感器去下划线: LongEdge1_Detect->LongEdge1Detect
+//   V5.0.0 (2026-05-03): V5.0.0 全面改写 - 变量名统一英文
+//   V2.0.0 (2026-05-03): 基于实际 FB 定义进行重写
+//   V1.0.0 (2026-05-02): 初始版本
 // ============================================================================
 
 ORGANIZATION_BLOCK OB1
 
 BEGIN
     // ============================================================================
-    // Part 1: Call External Device Interaction FB
+    // 第1部分：调用外部设备交互 FB
     // ============================================================================
     GlobalVars.fbExternalDevice(
-        // --- System control signals (6) ---
+        // --- 系统控制信号（6） ---
         i_bEnable           := GlobalVars.stExternal.i_bEnable,
         i_bAutoMode       := GlobalVars.stExternal.i_bAutoMode,
         i_bManualMode       := GlobalVars.stExternal.i_bManualMode,
@@ -48,7 +48,7 @@ BEGIN
         i_bStop           := GlobalVars.stExternal.i_bStop,
         i_bReset           := GlobalVars.stExternal.i_bReset,
 
-        // --- Frame machine input signals (7) ---
+        // --- 组框机输入信号（7） ---
         i_bFrameMachine_AutoRunning    := GlobalVars.stExternal.i_bFrameMachine_AutoRunning,
         i_bFrameMachine_AllowFeed  := GlobalVars.stExternal.i_bFrameMachine_AllowFeed,
         i_bFrameMaterialRequest  := GlobalVars.stExternal.i_bFrameMaterialRequest,
@@ -57,7 +57,7 @@ BEGIN
         i_bFrameMachine_SafetyErr  := GlobalVars.stExternal.i_bFrameMachine_SafetyErr,
         i_bFrameMachine_CommErr  := GlobalVars.stExternal.i_bFrameMachine_CommErr,
 
-        // --- Glue machine input signals (6) ---
+        // --- 打胶机输入信号（6） ---
         i_bGlueMachine_AutoRunning    := GlobalVars.stExternal.i_bGlueMachine_AutoRunning,
         i_bGlueMachine_AllowFeed  := GlobalVars.stExternal.i_bGlueMachine_AllowFeed,
         i_bGlueMachine_PickComplete  := GlobalVars.stExternal.i_bGlueMachine_PickComplete,
@@ -65,38 +65,38 @@ BEGIN
         i_bGlueMachine_EStop      := GlobalVars.stExternal.i_bGlueMachine_EStop,
         i_bGlueMachine_CommErr  := GlobalVars.stExternal.i_bGlueMachine_CommErr,
 
-        // --- Robot input signals (5, reserved) ---
+        // --- 机器人输入信号（5，预留） ---
         i_bRobot_AutoRunning    := GlobalVars.stExternal.i_bRobot_AutoRunning,
         i_bRobot_StackComplete  := GlobalVars.stExternal.i_bRobot_StackComplete,
         i_bRobot_Fault      := GlobalVars.stExternal.i_bRobot_Fault,
         i_bRobot_EStop      := GlobalVars.stExternal.i_bRobot_EStop,
         i_bRobot_CommErr  := GlobalVars.stExternal.i_bRobot_CommErr,
 
-        // --- Local status signals (3) ---
+        // --- 本机状态信号（3） ---
         i_bLocalReady        := GlobalVars.stExternal.i_bLocalReady,
         i_bAnyAlarmActive    := GlobalVars.stExternal.i_bAnyAlarmActive,
         i_bSystemFault        := GlobalVars.stExternal.i_bSystemFault,
 
-        // === Output signals ===
-        // --- Frame machine output signals (5) ---
+        // === 输出信号 ===
+        // --- 组框机输出信号（5） ---
         q_bFrameMachine_RequestFeed  => GlobalVars.stExternal.o_bFrameMachine_RequestFeed,
         q_bFrameMachine_Pause      => GlobalVars.stExternal.o_bFrameMachine_Pause,
         q_bFrameMachine_EStop      => GlobalVars.stExternal.o_bFrameMachine_EStop,
         q_bDoorOpenRequest         => GlobalVars.stExternal.o_bDoorOpenRequest,
         q_bFrameMachine_Ready      => GlobalVars.stExternal.o_bFrameMachine_Ready,
 
-        // --- Glue machine output signals (4) ---
+        // --- 打胶机输出信号（4） ---
         q_bGlueMachine_RequestRun  => GlobalVars.stExternal.o_bGlueMachine_RequestRun,
         q_bAllowPickup         => GlobalVars.stExternal.o_bAllowPickup,
         q_bSafetyZoneSignal       => GlobalVars.stExternal.o_bSafetyZoneSignal,
         q_bGlueMachine_ResetReq  => GlobalVars.stExternal.o_bGlueMachine_ResetReq,
 
-        // --- Robot output signals (3, reserved) ---
+        // --- 机器人输出信号（3，预留） ---
         q_bRobot_AllowStacking  => GlobalVars.stExternal.o_bRobot_AllowStacking,
         q_bRobot_StopStacking  => GlobalVars.stExternal.o_bRobot_StopStacking,
         q_bRobot_ResetReq  => GlobalVars.stExternal.o_bRobot_ResetReq,
 
-        // --- Status and alarm outputs (4) ---
+        // --- 状态与报警输出（4） ---
         q_bFrameMachine_EmergencyStop   => GlobalVars.stExternal.o_bFrameMachine_EmergencyStop,
         q_bExternalDeviceFault     => GlobalVars.stExternal.o_bExternalDeviceFault,
         q_iExternalDeviceAlarmSummary => GlobalVars.stExternal.o_iExternalDeviceAlarmSummary,
@@ -104,10 +104,10 @@ BEGIN
     );
 
     // ============================================================================
-    // Part 2: Call 4-Layer Conveyor FB (Container Mode)
+    // 第2部分：调用四层输送机 FB（容器模式）
     // ============================================================================
     GlobalVars.fbConveyor4Layer(
-        // --- System control signals (9) ---
+        // --- 系统控制信号（9） ---
         i_bEnable               := GlobalVars.stConveyor.i_bEnable,
         i_bAutoMode           := GlobalVars.stConveyor.i_bAutoMode,
         i_bManualMode           := GlobalVars.stConveyor.i_bManualMode,
@@ -115,12 +115,12 @@ BEGIN
         i_bStop               := GlobalVars.stConveyor.i_bStop,
         i_bReset               := GlobalVars.stConveyor.i_bReset,
 
-        // --- Process parameters (3) ---
+        // --- 工艺参数（3） ---
         i_rConveyorSpeed           := GlobalVars.stConveyor.i_rConveyorSpeed,
         i_iSeparateTime           := GlobalVars.stConveyor.i_iSeparateTime,
         i_iBlockWaitTime        := GlobalVars.stConveyor.i_iBlockWaitTime,
 
-        // --- Manual operation signals (6 types x 4 layers = 24 BOOL, ARRAY[1..4]) ---
+        // --- 手动操作信号（6类×4层=24个BOOL，ARRAY[1..4]） ---
         i_bLx_BlockDown           := GlobalVars.stConveyor.i_bLx_BlockDown,
         i_bLx_BlockUp           := GlobalVars.stConveyor.i_bLx_BlockUp,
         i_bLx_SeparatePush           := GlobalVars.stConveyor.i_bLx_SeparatePush,
@@ -128,7 +128,7 @@ BEGIN
         i_bLx_ConveyorFwd           := GlobalVars.stConveyor.i_bLx_ConveyorFwd,
         i_bLx_ConveyorRev           := GlobalVars.stConveyor.i_bLx_ConveyorRev,
 
-        // --- Sensor inputs (7 types x 4 layers = 28 BOOL, ARRAY[1..4]) ---
+        // --- 传感器输入（7类×4层=28个BOOL，ARRAY[1..4]） ---
         i_bPreSeparateSensor       := GlobalVars.stConveyor.i_bPreSeparateSensor,
         i_bPositionSensor1        := GlobalVars.stConveyor.i_bPositionSensor1,
         i_bPositionSensor2        := GlobalVars.stConveyor.i_bPositionSensor2,
@@ -137,44 +137,44 @@ BEGIN
         i_bSeparateCylinderUp       := GlobalVars.stConveyor.i_bSeparateCylinderUp,
         i_bSeparateCylinderDown       := GlobalVars.stConveyor.i_bSeparateCylinderDown,
 
-        // --- Downstream feedback signals (4 BOOL, ARRAY[1..4]) ---
+        // --- 下游反馈信号（4个BOOL，ARRAY[1..4]） ---
         i_bFeedComplete         := GlobalVars.stConveyor.i_bFeedComplete,
 
-        // === Output signals ===
-        // --- Actuator request outputs (5 types x 4 layers = 20 BOOL, ARRAY[1..4]) ---
+        // === 输出信号 ===
+        // --- 执行器请求输出（5类×4层=20个BOOL，ARRAY[1..4]） ---
         o_bBlockSolenoid         => GlobalVars.stConveyor.o_bBlockSolenoid,
         o_bSeparateSolenoid         => GlobalVars.stConveyor.o_bSeparateSolenoid,
         o_bConveyorFwd         => GlobalVars.stConveyor.o_bConveyorFwd,
         o_bConveyorSlow         => GlobalVars.stConveyor.o_bConveyorSlow,
         o_bConveyorRev         => GlobalVars.stConveyor.o_bConveyorRev,
 
-        // --- Downstream signal outputs (4 BOOL, ARRAY[1..4]) ---
+        // --- 下游信号输出（4个BOOL，ARRAY[1..4]） ---
         o_bFeedComplete           => GlobalVars.stConveyor.o_bFeedComplete,
 
-        // --- Status/HMI display outputs (4) ---
+        // --- 状态/HMI显示输出（4） ---
         o_bRunning             => GlobalVars.stConveyor.o_bRunning,
         o_bFault               => GlobalVars.stConveyor.o_bFault,
         o_iCurrentState           => GlobalVars.stConveyor.o_iCurrentState,
         o_LxCurrentStep          => GlobalVars.stConveyor.o_LxCurrentStep,
 
-        // --- Alarm output (1) ---
+        // --- 报警输出（1） ---
         o_iAlarmCode       => GlobalVars.stConveyor.o_iAlarmCode
     );
 
     // ============================================================================
-    // Part 3: Call Pick and Place FB (11-step state machine, V6.0.0)
+    // 第3部分：调用取放料 FB（11步状态机，V6.0.0）
     // ============================================================================
-    // V6.0.0 interface changes:
+    // V6.0.0 接口变更:
     //   Grip->Clamp, Close->Action, Open->Release
     //   HomePoint->HomePos, WorkPoint->Closed/Opened
     //   Home->HomePos, Forward->Fwd, Reverse->Rev
     //   ServoEnable->Enable, FeedComplete->PlaceComplete
     //   _CurrentPosition->CurrentPos, PickupLayer->PickLayer
     //   LongEdge1_Detect->LongEdge1Detect (no underscore)
-    //   Timer ET: TIME->DINT
+    //   定时器 ET: TIME->DINT
     // ============================================================================
     GlobalVars.fbPickPlace(
-        // --- System control signals (6) ---
+        // --- 系统控制信号（6） ---
         i_bEnable           := GlobalVars.stPickPlace.i_bEnable,
         i_bAutoMode       := GlobalVars.stPickPlace.i_bAutoMode,
         i_bManualMode       := GlobalVars.stPickPlace.i_bManualMode,
@@ -182,14 +182,14 @@ BEGIN
         i_bStop           := GlobalVars.stPickPlace.i_bStop,
         i_bReset           := GlobalVars.stPickPlace.i_bReset,
 
-        // --- Manual operation signals (14 BOOL) ---
-        // Servo jog control (4)
+        // --- 手动操作信号（14个BOOL） ---
+        // 伺服点动控制（4）
         i_bLx_ZAxis_JogUp      := GlobalVars.stPickPlace.i_bLx_ZAxis_JogUp,
         i_bLx_ZAxis_JogDown      := GlobalVars.stPickPlace.i_bLx_ZAxis_JogDown,
         i_bLx_X1Axis_JogFwd     := GlobalVars.stPickPlace.i_bLx_X1Axis_JogFwd,
         i_bLx_X1Axis_JogRev     := GlobalVars.stPickPlace.i_bLx_X1Axis_JogRev,
 
-        // Cylinder manual control (10, dual solenoid)
+        // 气缸手动控制（10，双电磁阀）
         i_bLx_Lift_Up       := GlobalVars.stPickPlace.i_bLx_Lift_Up,
         i_bLx_Lift_Down       := GlobalVars.stPickPlace.i_bLx_Lift_Down,
         i_bLx_FrontClamp     := GlobalVars.stPickPlace.i_bLx_FrontClamp,
@@ -201,19 +201,19 @@ BEGIN
         i_bLx_RearClamp2    := GlobalVars.stPickPlace.i_bLx_RearClamp2,
         i_bLx_RearUnclamp2    := GlobalVars.stPickPlace.i_bLx_RearUnclamp2,
 
-        // --- Process parameters (6, REAL/INT) ---
-        // Speed parameters (4 REAL)
+        // --- 工艺参数（6，REAL/INT） ---
+        // 速度参数（4个REAL）
         i_rPickupSpeed       := GlobalVars.stPickPlace.i_rPickupSpeed,
         i_rPlaceSpeed       := GlobalVars.stPickPlace.i_rPlaceSpeed,
         i_rZAxisSpeed        := GlobalVars.stPickPlace.i_rZAxisSpeed,
         i_rX1AxisSpeed       := GlobalVars.stPickPlace.i_rX1AxisSpeed,
 
-        // Action time parameters (2 INT)
+        // 动作时间参数（2个INT）
         i_iClampConfirmTime   := GlobalVars.stPickPlace.i_iClampConfirmTime,
         i_iLiftActionTime   := GlobalVars.stPickPlace.i_iLiftActionTime,
 
-        // --- Sensor inputs (26 BOOL) ---
-        // Cylinder position sensors (10 magnetic switches)
+        // --- 传感器输入（26个BOOL） ---
+        // 气缸位置传感器（10个磁性开关）
         i_bLift_WorkPoint       := GlobalVars.stPickPlace.i_bLift_WorkPoint,
         i_bLift_HomePos       := GlobalVars.stPickPlace.i_bLift_HomePos,
         i_bFrontClamp_Closed     := GlobalVars.stPickPlace.i_bFrontClamp_Closed,
@@ -225,24 +225,24 @@ BEGIN
         i_bRearClamp2_Closed    := GlobalVars.stPickPlace.i_bRearClamp2_Closed,
         i_bRearClamp2_Opened    := GlobalVars.stPickPlace.i_bRearClamp2_Opened,
 
-        // Product detection sensors (4 photoelectric)
+        // 产品检测传感器（4个光电）
         i_bLongEdge1Detect       := GlobalVars.stPickPlace.i_bLongEdge1Detect,
         i_bLongEdge2Detect       := GlobalVars.stPickPlace.i_bLongEdge2Detect,
         i_bShortEdge1Detect       := GlobalVars.stPickPlace.i_bShortEdge1Detect,
         i_bShortEdge2Detect       := GlobalVars.stPickPlace.i_bShortEdge2Detect,
 
-        // Servo axis status (12)
-        // Home signals (3)
+        // 伺服轴状态（12）
+        // 原点信号（3）
         i_bZAxis_HomePos        := GlobalVars.stPickPlace.i_bZAxis_HomePos,
         i_bX1Axis_HomePos       := GlobalVars.stPickPlace.i_bX1Axis_HomePos,
         i_bX2Axis_HomePos       := GlobalVars.stPickPlace.i_bX2Axis_HomePos,
 
-        // Servo fault alarms (3)
+        // 伺服故障报警（3）
         i_bZAxis_ServoFault    := GlobalVars.stPickPlace.i_bZAxis_ServoFault,
         i_bX1Axis_ServoFault   := GlobalVars.stPickPlace.i_bX1Axis_ServoFault,
         i_bX2Axis_ServoFault   := GlobalVars.stPickPlace.i_bX2Axis_ServoFault,
 
-        // Limit switch signals (6)
+        // 限位开关信号（6）
         i_bZAxis_FwdLimit    := GlobalVars.stPickPlace.i_bZAxis_FwdLimit,
         i_bZAxis_RevLimit    := GlobalVars.stPickPlace.i_bZAxis_RevLimit,
         i_bX1Axis_FwdLimit   := GlobalVars.stPickPlace.i_bX1Axis_FwdLimit,
@@ -250,14 +250,14 @@ BEGIN
         i_bX2Axis_FwdLimit   := GlobalVars.stPickPlace.i_bX2Axis_FwdLimit,
         i_bX2Axis_RevLimit   := GlobalVars.stPickPlace.i_bX2Axis_RevLimit,
 
-        // --- Upstream signals (4 BOOL, from conveyor) ---
+        // --- 上游信号（4个BOOL，来自输送机） ---
         i_bConveyor_L1_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L1_FeedComplete,
         i_bConveyor_L2_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L2_FeedComplete,
         i_bConveyor_L3_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L3_FeedComplete,
         i_bConveyor_L4_FeedComplete := GlobalVars.stPickPlace.i_bConveyor_L4_FeedComplete,
 
-        // === Output signals ===
-        // --- Cylinder control outputs (10 BOOL, dual solenoid) ---
+        // === 输出信号 ===
+        // --- 气缸控制输出（10个BOOL，双电磁阀） ---
         o_bLift_Up       => GlobalVars.stPickPlace.o_bLift_Up,
         o_bLift_Down       => GlobalVars.stPickPlace.o_bLift_Down,
         o_bFrontClamp_Action     => GlobalVars.stPickPlace.o_bFrontClamp_Action,
@@ -269,15 +269,15 @@ BEGIN
         o_bRearClamp2_Action    => GlobalVars.stPickPlace.o_bRearClamp2_Action,
         o_bRearClamp2_Release    => GlobalVars.stPickPlace.o_bRearClamp2_Release,
 
-        // --- Servo control outputs (3 BOOL, Z axis only) ---
+        // --- 伺服控制输出（3个BOOL，仅Z轴） ---
         o_bZAxis_PulseOutput    => GlobalVars.stPickPlace.o_bZAxis_PulseOutput,
         o_bZAxis_DirectionOutput    => GlobalVars.stPickPlace.o_bZAxis_DirectionOutput,
         o_bZAxis_Enable    => GlobalVars.stPickPlace.o_bZAxis_Enable,
 
-        // --- Downstream signal output (1 BOOL) ---
+        // --- 下游信号输出（1个BOOL） ---
         o_bPlaceComplete_ToFeeder => GlobalVars.stPickPlace.o_bPlaceComplete_ToFeeder,
 
-        // --- Status/HMI display outputs (7) ---
+        // --- 状态/HMI显示输出（7） ---
         o_bRunning           => GlobalVars.stPickPlace.o_bRunning,
         o_bFault             => GlobalVars.stPickPlace.o_bFault,
         o_iCurrentState           => GlobalVars.stPickPlace.o_iCurrentState,
@@ -286,10 +286,10 @@ BEGIN
         o_rX2AxisCurrentPos        => GlobalVars.stPickPlace.o_rX2AxisCurrentPos,
         o_iCurrentPickLayer        => GlobalVars.stPickPlace.o_iCurrentPickLayer,
 
-        // --- Alarm output (1) ---
+        // --- 报警输出（1） ---
         o_iStationAlarmCode        => GlobalVars.stPickPlace.o_iStationAlarmCode,
 
-        // --- Timer debug outputs (4 DINT, scan cycles) ---
+        // --- 定时器调试输出（4个DINT，扫描周期数） ---
         q_ePlaceCompleteHold_Elapsed => GlobalVars.stPickPlace.q_ePlaceCompleteHold_Elapsed,
         q_eAction_Elapsed         => GlobalVars.stPickPlace.q_eAction_Elapsed,
         q_eProductDetectStable_Elapsed => GlobalVars.stPickPlace.q_eProductDetectStable_Elapsed,
@@ -297,10 +297,10 @@ BEGIN
     );
 
     // ============================================================================
-    // Part 4: Call Glue Machine Feeder FB (6-step state machine)
+    // 第4部分：调用打胶机送料 FB（6步状态机）
     // ============================================================================
     GlobalVars.fbGlueFeeder(
-        // --- System control signals (6) ---
+        // --- 系统控制信号（6） ---
         i_bEnable           := GlobalVars.stFeeder.i_bEnable,
         i_bAutoMode       := GlobalVars.stFeeder.i_bAutoMode,
         i_bManualMode       := GlobalVars.stFeeder.i_bManualMode,
@@ -308,45 +308,45 @@ BEGIN
         i_bStop           := GlobalVars.stFeeder.i_bStop,
         i_bReset           := GlobalVars.stFeeder.i_bReset,
 
-        // --- Manual operation signals (2 BOOL, X2 axis jog) ---
+        // --- 手动操作信号（2个BOOL，X2轴点动） ---
         i_bLx_X2Axis_JogFwd     := GlobalVars.stFeeder.i_bLx_X2Axis_JogFwd,
         i_bLx_X2Axis_JogRev     := GlobalVars.stFeeder.i_bLx_X2Axis_JogRev,
 
-        // --- Process parameters (3 REAL) ---
+        // --- 工艺参数（3个REAL） ---
         i_rFeedSpeed       := GlobalVars.stFeeder.i_rFeedSpeed,
         rStandbyPosition       := GlobalVars.stFeeder.rStandbyPosition,
         rPickupPosition       := GlobalVars.stFeeder.rPickupPosition,
 
-        // --- Sensor/servo signals (4 BOOL) ---
+        // --- 传感器/伺服信号（4个BOOL） ---
         i_bX2Axis_Home      := GlobalVars.stFeeder.i_bX2Axis_Home,
         i_bX2Axis_ForwardLimit   := GlobalVars.stFeeder.i_bX2Axis_ForwardLimit,
         i_bX2Axis_ReverseLimit   := GlobalVars.stFeeder.i_bX2Axis_ReverseLimit,
         i_bX2Axis_ServoFault  := GlobalVars.stFeeder.i_bX2Axis_ServoFault,
 
-        // --- Glue machine interaction signals (2 BOOL) ---
+        // --- 打胶机交互信号（2个BOOL） ---
         i_bGlueMachine_AllowFeed := GlobalVars.stFeeder.i_bGlueMachine_AllowFeed,
         i_bGlueMachine_PickupComplete := GlobalVars.stFeeder.i_bGlueMachine_PickupComplete,
 
-        // --- Upstream signal (1 BOOL, from pick/place) ---
+        // --- 上游信号（1个BOOL，来自取放料） ---
         i_bPickPlace_FeedComplete := GlobalVars.stFeeder.i_bPickPlace_FeedComplete,
 
-        // === Output signals ===
-        // --- Actuator request outputs (3 BOOL) ---
+        // === 输出信号 ===
+        // --- 执行器请求输出（3个BOOL） ---
         o_bAllowPickup        => GlobalVars.stFeeder.o_bAllowPickup,
         o_bX2Axis_RequestFwd    => GlobalVars.stFeeder.o_bX2Axis_RequestFwd,
         o_bX2Axis_RequestRev    => GlobalVars.stFeeder.o_bX2Axis_RequestRev,
 
-        // --- Safety zone management signal (1 BOOL) ---
+        // --- 安全区管理信号（1个BOOL） ---
         o_bSafetyZoneSignal      => GlobalVars.stFeeder.o_bSafetyZoneSignal,
 
-        // --- Status/HMI display outputs (5) ---
+        // --- 状态/HMI显示输出（5） ---
         o_bRunning          => GlobalVars.stFeeder.o_bRunning,
         o_bFault            => GlobalVars.stFeeder.o_bFault,
         o_iCurrentState        => GlobalVars.stFeeder.o_iCurrentState,
         o_rX2Axis_CurrentPosition    => GlobalVars.stFeeder.o_rX2Axis_CurrentPosition,
         o_iStationAlarmCode    => GlobalVars.stFeeder.o_iStationAlarmCode,
 
-        // --- Timer debug outputs (4 DINT, scan cycles) ---
+        // --- 定时器调试输出（4个DINT，扫描周期数） ---
         q_eCommTimeout_Elapsed  => GlobalVars.stFeeder.q_eCommTimeout_Elapsed,
         q_eAction_Elapsed      => GlobalVars.stFeeder.q_eAction_Elapsed,
         q_eInit_Elapsed    => GlobalVars.stFeeder.q_eInit_Elapsed,
@@ -354,31 +354,31 @@ BEGIN
     );
 
     // ============================================================================
-    // Part 5: Call Common Alarm Management FB
+    // 第5部分：调用公共报警管理 FB
     // ============================================================================
     GlobalVars.fbCommonAlarm(
-        // --- Three station alarm code inputs (3 INT) ---
+        // --- 三工站报警码输入（3个INT） ---
         i_iConveyorAlarm      := GlobalVars.stConveyor.o_iAlarmCode,
         i_iPickPlaceAlarm      := GlobalVars.stPickPlace.o_iStationAlarmCode,
         i_iFeederAlarm    := GlobalVars.stFeeder.o_iStationAlarmCode,
 
-        // --- Operation control (1 BOOL) ---
+        // --- 操作控制（1个BOOL） ---
         i_bReset            := GlobalVars.stGlobal.i_bReset,
 
-        // === Global outputs ===
-        // --- HMI display outputs (2) ---
+        // === 全局输出 ===
+        // --- HMI显示输出（2） ---
         o_wGlobalAlarmWord      => GlobalVars.stGlobal.o_wGlobalAlarmWord,
         o_iCurrentAlarmCode    => GlobalVars.stGlobal.o_iCurrentAlarmCode,
 
-        // --- Global interlock output (1 BOOL) ---
+        // --- 全局互锁输出（1个BOOL） ---
         o_bAnyAlarmActive    => GlobalVars.stGlobal.o_bAnyAlarmActive,
 
-        // --- MES data interface outputs (3) ---
+        // --- MES数据接口输出（3） ---
         o_iMESAlarmCount     => GlobalVars.stGlobal.o_iMESAlarmCount,
         o_iMESAlarmQueue     => GlobalVars.stGlobal.o_iMESAlarmQueue,
         o_bNewAlarmFlag      => GlobalVars.stGlobal.o_bNewAlarmFlag,
 
-        // --- Multi-alarm status outputs (9) ---
+        // --- 多报警状态输出（9） ---
         o_iStationAlarmStatus    => GlobalVars.stGlobal.o_iStationAlarmStatus,
         o_bConveyorAlarmActive  => GlobalVars.stGlobal.o_bConveyorAlarmActive,
         o_bPickPlaceAlarmActive  => GlobalVars.stGlobal.o_bPickPlaceAlarmActive,

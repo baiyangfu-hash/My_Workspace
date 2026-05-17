@@ -16,3 +16,6 @@ env/
 logs/
 .DS_Store
 Thumbs.db
+
+**/.plc-out/
+.plc-out/

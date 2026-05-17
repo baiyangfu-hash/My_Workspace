@@ -1,0 +1,120 @@
+﻿  Found link https://files.pythonhosted.org/packages/65/4a/a571c5d86b11d98244fc822bf75322d2f5663372b8a80d2348d8a55c4332/idna-0.8.tar.gz (from https://pypi.org/simple/idna/), version: 0.8
+  Found link https://files.pythonhosted.org/packages/c8/6b/d109774559ad508c094c6e7d9b7f97722e61a964976c24ca3a4fa0a0b870/idna-0.9.tar.gz (from https://pypi.org/simple/idna/), version: 0.9
+  Found link https://files.pythonhosted.org/packages/c4/93/a80bccdee90d97b113b76e2f0ba8e3260034bd0e55cea3ccb66098e710d8/idna-1.0.tar.gz (from https://pypi.org/simple/idna/), version: 1.0
+  Found link https://files.pythonhosted.org/packages/0d/3b/ebe79efc3c00fc8dfd391938c6594c73539aeb55d5a38ebb901bae95c770/idna-1.1.tar.gz (from https://pypi.org/simple/idna/), version: 1.1
+  Found link https://files.pythonhosted.org/packages/7c/75/b566d769455929ee6ab308d8a1c6c5aecc4928e72b25d42dd019c99f7015/idna-2.0-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.0
+  Found link https://files.pythonhosted.org/packages/69/27/5f76009f13c6dda4ed5016cbfebf68773f21374f9792db02821c05326a75/idna-2.0.tar.gz (from https://pypi.org/simple/idna/), version: 2.0
+  Skipping link: none of the wheel's tags (py2-none-any) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/ff/ee/57ca2b52dea2df65a15d4ab2669c89ff29fa227668917cebc43e689360be/idna-2.1-py2-none-any.whl (from https://pypi.org/simple/idna/)
+  Found link https://files.pythonhosted.org/packages/71/02/dee75fc3e6f7455bf69221164f94586ee13552c5f33c8002335667a3d122/idna-2.1-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.1
+  Found link https://files.pythonhosted.org/packages/fb/84/8c27516fbaa8147acd2e431086b473c453c428e24e8fb99a1d89ce381851/idna-2.1.tar.gz (from https://pypi.org/simple/idna/), version: 2.1
+  Found link https://files.pythonhosted.org/packages/6b/f4/bb42887fb16eb5f5957897fec9e16d18c56dd8cdd2a729c13947ed786b92/idna-2.2-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.2
+  Found link https://files.pythonhosted.org/packages/94/fe/efb1cb6f505e1a560b3d080ae6b9fddc11e7c542d694ce4635c49b1ccdcb/idna-2.2.tar.gz (from https://pypi.org/simple/idna/), version: 2.2
+  Found link https://files.pythonhosted.org/packages/e6/d7/930b670f75990f8fa5b2ad598b997d66afbf24b672ce504df224e6a4d760/idna-2.3-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.3
+  Found link https://files.pythonhosted.org/packages/81/62/c32d933d487d9756f55782de85a70b90cd6827a59a3e330f6adada408241/idna-2.3.tar.gz (from https://pypi.org/simple/idna/), version: 2.3
+  Found link https://files.pythonhosted.org/packages/08/c6/71319d9ac2055156562992b16cb01dbee74f431c0372d580a8fef6ca0e4c/idna-2.4-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.4
+  Found link https://files.pythonhosted.org/packages/a3/06/40cb383eaea6e97047666db51abc2f2b32046f3e2a6e5ab2b946630f6062/idna-2.4.tar.gz (from https://pypi.org/simple/idna/), version: 2.4
+  Found link https://files.pythonhosted.org/packages/11/7d/9bbbd7bb35f34b0169542487d2a8859e44306bb2e6a4455d491800a5621f/idna-2.5-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.5
+  Found link https://files.pythonhosted.org/packages/d8/82/28a51052215014efc07feac7330ed758702fc0581347098a81699b5281cb/idna-2.5.tar.gz (from https://pypi.org/simple/idna/), version: 2.5
+  Found link https://files.pythonhosted.org/packages/27/cc/6dd9a3869f15c2edfab863b992838277279ce92663d334df9ecf5106f5c6/idna-2.6-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.6
+  Found link https://files.pythonhosted.org/packages/f4/bd/0467d62790828c23c47fc1dfa1b1f052b24efdf5290f071c7a91d0d82fd3/idna-2.6.tar.gz (from https://pypi.org/simple/idna/), version: 2.6
+  Found link https://files.pythonhosted.org/packages/4b/2a/0276479a4b3caeb8a8c1af2f8e4355746a97fab05a372e4a2c6a6b876165/idna-2.7-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.7
+  Found link https://files.pythonhosted.org/packages/65/c4/80f97e9c9628f3cac9b98bfca0402ede54e0563b56482e3e6e45c43c4935/idna-2.7.tar.gz (from https://pypi.org/simple/idna/), version: 2.7
+  Found link https://files.pythonhosted.org/packages/14/2c/cd551d81dbe15200be1cf41cd03869a46fe7226e7450af7a6545bfc474c9/idna-2.8-py2.py3-none-any.whl (from https://pypi.org/simple/idna/), version: 2.8
+  Found link https://files.pythonhosted.org/packages/ad/13/eb56951b6f7950cadb579ca166e448ba77f9d24efc03edd7e55fa57d04b7/idna-2.8.tar.gz (from https://pypi.org/simple/idna/), version: 2.8
+  Found link https://files.pythonhosted.org/packages/89/e3/afebe61c546d18fb1709a61bee788254b40e736cff7271c7de5de2dc4128/idna-2.9-py2.py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*), version: 2.9
+  Found link https://files.pythonhosted.org/packages/cb/19/57503b5de719ee45e83472f339f617b0c01ad75cba44aba1e4c97c2b0abd/idna-2.9.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*), version: 2.9
+  Found link https://files.pythonhosted.org/packages/a2/38/928ddce2273eaa564f6f50de919327bf3a00f091b5baba8dfa9460f3a8a8/idna-2.10-py2.py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*), version: 2.10
+  Found link https://files.pythonhosted.org/packages/ea/b7/e0e3c1c467636186c39925827be42f16fee389dc404ac29e930e9136be70/idna-2.10.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*), version: 2.10
+  Found link https://files.pythonhosted.org/packages/0f/6b/3a878f15ef3324754bf4780f8f047d692d9860be894ff8fb3135cef8bed8/idna-3.0-py2.py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.4), version: 3.0
+  Found link https://files.pythonhosted.org/packages/2f/2e/bfe821bd26194fb474e0932df8ed82e24bd312ba628a8644d93c5a28b5d4/idna-3.0.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.4), version: 3.0
+  Found link https://files.pythonhosted.org/packages/29/88/c52aae187d3b128a0f13f36a6c987fc0d408d03a678ad9996516925d8495/idna-3.1-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.4), version: 3.1
+  Found link https://files.pythonhosted.org/packages/9f/24/1444ee2c9aee531783c031072a273182109c6800320868ab87675d147a05/idna-3.1.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.4), version: 3.1
+  Found link https://files.pythonhosted.org/packages/d7/77/ff688d1504cdc4db2a938e2b7b9adee5dd52e34efbd2431051efc9984de9/idna-3.2-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.2
+  Found link https://files.pythonhosted.org/packages/cb/38/4c4d00ddfa48abe616d7e572e02a04273603db446975ab46bbcd36552005/idna-3.2.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.2
+  Found link https://files.pythonhosted.org/packages/04/a2/d918dcd22354d8958fe113e1a3630137e0fc8b44859ade3063982eacd2a4/idna-3.3-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.3
+  Found link https://files.pythonhosted.org/packages/62/08/e3fc7c8161090f742f504f40b1bccbfc544d4a4e09eb774bf40aafce5436/idna-3.3.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.3
+  Found link https://files.pythonhosted.org/packages/fc/34/3030de6f1370931b9dbb4dad48f6ab1015ab1d32447850b9fc94e60097be/idna-3.4-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.4
+  Found link https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.4
+  Found link https://files.pythonhosted.org/packages/ea/65/9c7a31be86861d43da3d4f8661f677b38120320540773a04979ad6fa9ecd/idna-3.5-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.5
+  Found link https://files.pythonhosted.org/packages/9b/c4/db3e4b22ebc18ee797dae8e14b5db68e5826ae6337334c276f1cb4ff84fb/idna-3.5.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.5
+  Found link https://files.pythonhosted.org/packages/c2/e7/a82b05cf63a603df6e68d59ae6a68bf5064484a0718ea5033660af4b54a9/idna-3.6-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.6
+  Found link https://files.pythonhosted.org/packages/bf/3f/ea4b9117521a1e9c50344b909be7886dd00a519552724809bb1f486986c2/idna-3.6.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.6
+  Found link https://files.pythonhosted.org/packages/e5/3e/741d8c82801c347547f8a2a06aa57dbb1992be9e948df2ea0eda2c8b79e8/idna-3.7-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.7
+  Found link https://files.pythonhosted.org/packages/21/ed/f86a79a07470cb07819390452f178b3bef1d375f2ec021ecfc709fc7cf07/idna-3.7.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.5), version: 3.7
+  Found link https://files.pythonhosted.org/packages/22/7e/d71db821f177828df9dea8c42ac46473366f191be53080e552e628aad991/idna-3.8-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.6), version: 3.8
+  Found link https://files.pythonhosted.org/packages/e8/ac/e349c5e6d4543326c6883ee9491e3921e0d07b55fdf3cce184b40d63e72a/idna-3.8.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.6), version: 3.8
+  Found link https://files.pythonhosted.org/packages/6d/15/61933d1999bc5ad8cad612d67f02fa5b16a423076ea0816e39c2e797af12/idna-3.9-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.6), version: 3.9
+  Found link https://files.pythonhosted.org/packages/00/6f/93e724eafe34e860d15d37a4f72a1511dd37c43a76a8671b22a15029d545/idna-3.9.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.6), version: 3.9
+  Found link https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.6), version: 3.10
+  Found link https://files.pythonhosted.org/packages/f1/70/7703c29685631f5a7590aa73f1f1d3fa9a380e654b86af429e0934a32f7d/idna-3.10.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.6), version: 3.10
+  Found link https://files.pythonhosted.org/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.11
+  Found link https://files.pythonhosted.org/packages/6f/6d/0703ccc57f3a7233505399edb88de3cbd678da106337b9fcde432b65ed60/idna-3.11.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.11
+  Found link https://files.pythonhosted.org/packages/53/b2/acc33950394b3becb2b664741a0c0889c7ef9f9ffbfa8d47eddb53a50abd/idna-3.12-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.12
+  Found link https://files.pythonhosted.org/packages/22/12/2948fbe5513d062169bd91f7d7b1cd97bc8894f32946b71fa39f6e63ca0c/idna-3.12.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.12
+  Found link https://files.pythonhosted.org/packages/5d/13/ad7d7ca3808a898b4612b6fe93cde56b53f3034dcde235acb1f0e1df24c6/idna-3.13-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.13
+  Found link https://files.pythonhosted.org/packages/ce/cc/762dfb036166873f0059f3b7de4565e1b5bc3d6f28a414c13da27e442f99/idna-3.13.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.13
+  Found link https://files.pythonhosted.org/packages/6c/3c/3f62dee257eb3d6b2c1ef2a09d36d9793c7111156a73b5654d2c2305e5ce/idna-3.14-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.14
+  Found link https://files.pythonhosted.org/packages/05/b1/efac073e0c297ecf2fb33c346989a529d4e19164f1759102dee5953ee17e/idna-3.14.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.14
+  Found link https://files.pythonhosted.org/packages/d2/23/408243171aa9aaba178d3e2559159c24c1171a641aa83b67bdd3394ead8e/idna-3.15-py3-none-any.whl (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.15
+  Found link https://files.pythonhosted.org/packages/82/77/7b3966d0b9d1d31a36ddf1746926a11dface89a83409bf1483f0237aa758/idna-3.15.tar.gz (from https://pypi.org/simple/idna/) (requires-python:>=3.8), version: 3.15
+Skipping link: not a file: https://pypi.org/simple/idna/
+Given no hashes to check 64 links for project 'idna': discarding no candidates
+Collecting idna (from httpx->paddlepaddle==3.2.2)
+  Obtaining dependency information for idna from https://files.pythonhosted.org/packages/d2/23/408243171aa9aaba178d3e2559159c24c1171a641aa83b67bdd3394ead8e/idna-3.15-py3-none-any.whl.metadata
+  Created temporary directory: C:\Users\fubai\AppData\Local\Temp\pip-unpack-1c8g2jt9
+  https://files.pythonhosted.org:443 "GET /packages/d2/23/408243171aa9aaba178d3e2559159c24c1171a641aa83b67bdd3394ead8e/idna-3.15-py3-none-any.whl.metadata HTTP/1.1" 200 7699
+  Downloading idna-3.15-py3-none-any.whl.metadata (7.7 kB)
+  Created temporary directory: C:\Users\fubai\AppData\Local\Temp\pip-metadata-t12rajt3
+1 location(s) to search for versions of h11:
+* https://pypi.org/simple/h11/
+Fetching project page and analyzing links: https://pypi.org/simple/h11/
+Getting page https://pypi.org/simple/h11/
+Found index url https://pypi.org/simple/
+https://pypi.org:443 "GET /simple/h11/ HTTP/1.1" 200 3826
+Fetched page https://pypi.org/simple/h11/ as application/vnd.pypi.simple.v1+json
+  Found link https://files.pythonhosted.org/packages/12/98/ffc43bd13b8eba5845d0af8af29168114806c723973d2975f1a40b209b10/h11-0.5.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.5.0
+  Found link https://files.pythonhosted.org/packages/12/ff/44ed346ee21204c096e7ee6cce0af452af2d55a79005d8a11e83ff158f48/h11-0.5.0.zip (from https://pypi.org/simple/h11/), version: 0.5.0
+  Found link https://files.pythonhosted.org/packages/ce/3e/bbfc1d314ed17e47892912d6007118b85d8eaf6d22516011c52936133ae1/h11-0.6.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.6.0
+  Found link https://files.pythonhosted.org/packages/8c/25/1ee4ef3a44506f3b2d8438eba6b0179a3fcc07579c1f94e5960aa41bef48/h11-0.6.0.zip (from https://pypi.org/simple/h11/), version: 0.6.0
+  Found link https://files.pythonhosted.org/packages/97/57/c0734cec5a9344d1feab295046011edbc6ba8e877ce1b822373257acdb61/h11-0.7.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.7.0
+  Found link https://files.pythonhosted.org/packages/50/13/954a4bd263857262a0b07155b47f5494a02b97984a5bcc6263bf89f12586/h11-0.7.0.zip (from https://pypi.org/simple/h11/), version: 0.7.0
+  Found link https://files.pythonhosted.org/packages/ee/fe/1456cd63075491d0e9b64af9599921c2233d9cbd07cabc0f45346477a97f/h11-0.8.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.8.0
+  Found link https://files.pythonhosted.org/packages/12/47/4cb52caa281cffc1fce515d7fdc4727935f2606ab1c5a76d8fe3ba510133/h11-0.8.0.tar.gz (from https://pypi.org/simple/h11/), version: 0.8.0
+  Found link https://files.pythonhosted.org/packages/f9/f3/8e4cf5fa1a3d8bda942a0b1cf92f87815494216fd439f82eb99073141ba0/h11-0.8.1-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.8.1
+  Found link https://files.pythonhosted.org/packages/cd/de/1ea0125d32541f33e59d59bcad9260cf110c150c3db6fdea0e55159ba26d/h11-0.8.1.tar.gz (from https://pypi.org/simple/h11/), version: 0.8.1
+  Found link https://files.pythonhosted.org/packages/5a/fd/3dad730b0f95e78aeeb742f96fa7bbecbdd56a58e405d3da440d5bfb90c6/h11-0.9.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.9.0
+  Found link https://files.pythonhosted.org/packages/34/5a/abaa557d20b210117d8c3e6b0b817ce9b329b2e81f87612e60102a924323/h11-0.9.0.tar.gz (from https://pypi.org/simple/h11/), version: 0.9.0
+  Found link https://files.pythonhosted.org/packages/1f/0d/9a3a4de68d76bbacd4851ed9be9aeef8f170532d3907e009fe1fda81d350/h11-0.10.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.10.0
+  Found link https://files.pythonhosted.org/packages/ae/04/02a79bf37b2d33b69b636ce9253de063da3f262733835824bed06d49c2c5/h11-0.10.0.tar.gz (from https://pypi.org/simple/h11/), version: 0.10.0
+  Found link https://files.pythonhosted.org/packages/b2/79/9c5f5cd738ec2a9b26453b3093915c0999f24454e2773921025c03b5509e/h11-0.11.0-py2.py3-none-any.whl (from https://pypi.org/simple/h11/), version: 0.11.0
+  Found link https://files.pythonhosted.org/packages/22/01/01dc716e71eeead6c6329a19028548ac4a5c2a769a130722548c63479038/h11-0.11.0.tar.gz (from https://pypi.org/simple/h11/), version: 0.11.0
+  Found link https://files.pythonhosted.org/packages/60/0f/7a0eeea938eaf61074f29fed9717f2010e8d0e0905d36b38d3275a1e4622/h11-0.12.0-py3-none-any.whl (from https://pypi.org/simple/h11/) (requires-python:>=3.6), version: 0.12.0
+  Found link https://files.pythonhosted.org/packages/bd/e9/72c3dc8f7dd7874812be6a6ec788ba1300bfe31570963a7e788c86280cb9/h11-0.12.0.tar.gz (from https://pypi.org/simple/h11/) (requires-python:>=3.6), version: 0.12.0
+  Found link https://files.pythonhosted.org/packages/19/d2/32a15a4955be1b8114a1c570999eefd31279c7f9aa2d2a43d492a79b53c5/h11-0.13.0-py3-none-any.whl (from https://pypi.org/simple/h11/) (requires-python:>=3.6), version: 0.13.0
+  Found link https://files.pythonhosted.org/packages/fa/a6/450568b2d62dd633be53f69890332bb0ce78183ffbe1e514c2b3102efff5/h11-0.13.0.tar.gz (from https://pypi.org/simple/h11/) (requires-python:>=3.6), version: 0.13.0
+  Found link https://files.pythonhosted.org/packages/95/04/ff642e65ad6b90db43e668d70ffb6736436c7ce41fcc549f4e9472234127/h11-0.14.0-py3-none-any.whl (from https://pypi.org/simple/h11/) (requires-python:>=3.7), version: 0.14.0
+  Found link https://files.pythonhosted.org/packages/f5/38/3af3d3633a34a3316095b39c8e8fb4853a28a536e55d347bd8d8e9a14b03/h11-0.14.0.tar.gz (from https://pypi.org/simple/h11/) (requires-python:>=3.7), version: 0.14.0
+  Found link https://files.pythonhosted.org/packages/be/df/b7f5fb41d8a028392661f3507b5d3ef41dafebee7b95dce68cf5697e3710/h11-0.15.0-py3-none-any.whl (from https://pypi.org/simple/h11/) (requires-python:>=3.8), version: 0.15.0
+  Found link https://files.pythonhosted.org/packages/2d/97/37b2c35d6e21fbaa1a066a6372712e7603f423d36ca1b32f6004eae8897e/h11-0.15.0.tar.gz (from https://pypi.org/simple/h11/) (requires-python:>=3.8), version: 0.15.0
+  Found link https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl (from https://pypi.org/simple/h11/) (requires-python:>=3.8), version: 0.16.0
+  Found link https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6fb3c75474d40b3052059d95df7e73351460c8588d963/h11-0.16.0.tar.gz (from https://pypi.org/simple/h11/) (requires-python:>=3.8), version: 0.16.0
+Skipping link: not a file: https://pypi.org/simple/h11/
+Given no hashes to check 2 links for project 'h11': discarding no candidates
+Collecting h11>=0.16 (from httpcore==1.*->httpx->paddlepaddle==3.2.2)
+  Obtaining dependency information for h11>=0.16 from https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl.metadata
+  Created temporary directory: C:\Users\fubai\AppData\Local\Temp\pip-unpack-s5p9a84s
+  https://files.pythonhosted.org:443 "GET /packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl.metadata HTTP/1.1" 200 8348
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+  Created temporary directory: C:\Users\fubai\AppData\Local\Temp\pip-metadata-vqxo407i
+Given no hashes to check 38 links for project 'idna': discarding no candidates
+Given no hashes to check 40 links for project 'typing-extensions': discarding no candidates
+Created temporary directory: C:\Users\fubai\AppData\Local\Temp\pip-unpack-5x7_e7g5
+https://files.pythonhosted.org:443 "GET /packages/29/e8/dfbc67e971765c82b9e808296ba700dd2bbecc5e29d5e07e655fa23dab99/paddlepaddle-3.2.2-cp311-cp311-win_amd64.whl HTTP/1.1" 200 101715828
+Downloading paddlepaddle-3.2.2-cp311-cp311-win_amd64.whl (101.7 MB)
+   ---------------------------------------- 101.7/101.7 MB 541.6 kB/s  0:03:23
+Downloading link https://files.pythonhosted.org/packages/29/e8/dfbc67e971765c82b9e808296ba700dd2bbecc5e29d5e07e655fa23dab99/paddlepaddle-3.2.2-cp311-cp311-win_amd64.whl (from https://pypi.org/simple/paddlepaddle/) to C:\Users\fubai\AppData\Local\Temp\pip-unpack-5x7_e7g5\paddlepaddle-3.2.2-cp311-cp311-win_amd64.whl
+https://files.pythonhosted.org:443 "GET /packages/bc/19/404708a7e54ad2798907210462fd950c3442ea51acc8790f3da48d2bee8b/opt_einsum-3.3.0-py3-none-any.whl HTTP/1.1" 200 65486
+Downloading opt_einsum-3.3.0-py3-none-any.whl (65 kB)
+Downloading link https://files.pythonhosted.org/packages/bc/19/404708a7e54ad2798907210462fd950c3442ea51acc8790f3da48d2bee8b/opt_einsum-3.3.0-py3-none-any.whl (from https://pypi.org/simple/opt-einsum/) (requires-python:>=3.5) to C:\Users\fubai\AppData\Local\Temp\pip-unpack-5x7_e7g5\opt_einsum-3.3.0-py3-none-any.whl
+https://files.pythonhosted.org:443 "GET /packages/f0/66/d215f3fb93541617adb5d58b3b9508e8a6413e499711e0adc0b80bcb445d/numpy-2.4.5-cp311-cp311-win_amd64.whl HTTP/1.1" 200 12608238
+Downloading numpy-2.4.5-cp311-cp311-win_amd64.whl (12.6 MB)

@@ -286,9 +286,9 @@
 |---------|:-----|:-----|
 | FB_1002源代码 | [FB_1002_SingleLayerConveyor_BufferFraming_V4.1.0.st](./FB_1002_SingleLayerConveyor_BufferFraming_V4.1.0.st) | 单层输送机ST实现 |
 | FB_1001源代码 | [FB_1001_Conveyor4Layer_BufferFraming_V4.1.0.st](./FB_1001_Conveyor4Layer_BufferFraming_V4.1.0.st) | 四层容器ST实现 |
-| IO分配表 | `../../程序文档/015_DJ-2026-005_IO分配表_IO-V3.0.0.md` | 物理地址确认 |
+| IO分配表 | `../../程序文档/015_DJ-2026-005_IO分配表_IO-V2.0.0.md` | 物理地址确认 |
 | 报警码定义 | `../公共服务/报警码定义_ALM-DJ-2026-005-V4.1.0.md` | 全局报警码体系(含1~7段) |
-| PLC变量定义文档 | `../PLC变量定义文档_VAR-DJ-2026-005-V4.1.0.md` | 全局变量命名规范 |
+| PLC变量定义文档 | `../../程序文档/PLC变量定义文档_VAR-DJ-2026-005-V2.0.0.md` | 全局变量命名规范 |
 
 ---
 

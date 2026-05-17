@@ -1,158 +1,158 @@
 // ============================================================================
 // FB_1004_GlueMachineFeeder_BufferFraming
-// Description: Glue machine feeder mechanism for buffer framing machine
-// Project: DJ-2026-005
-// Version: V6.0.0
-// Date: 2026-05-04
+// 描述：边框缓存机打胶机送料机构
+// 项目：DJ-2026-005
+// 版本：V6.0.0
+// 日期：2026-05-04
 // ============================================================================
 //
-// Function:
-//   1. Auto mode: 6-step state machine for X2 axis feeding
-//   2. Manual mode: X2 axis jog control
-//   3. Safety zone management (interlock with PickPlace)
-//   4. Glue machine interaction (allow pickup, comm timeout)
-//   5. Alarm detection: 5 alarm types (201-205 range)
-//   6. Timer: uses SysLib FB_TON (DINT PT/ET, not TIME)
+// 功能：
+//   1. 自动模式：X2轴送料的 6 步状态机
+//   2. 手动模式：X2轴点动控制
+//   3. 安全区管理（与取放料互锁）
+//   4. 打胶机交互（允许取料、通信超时）
+//   5. 报警检测：5 种报警类型（201~205）
+//   6. 定时器：使用 SysLib FB_TON（PT/ET 为 DINT，不用 TIME）
 //
-// State Machine Steps:
-//   0 = Idle
-//   1 = Wait for PickPlace feed complete
-//   2 = Move X2 axis to pickup position
-//   3 = Wait for glue machine allow feed
-//   4 = Send allow pickup signal (hold for timer)
-//   5 = Return X2 axis to standby position
+// 状态机步骤：
+//   0 = 空闲
+//   1 = 等待取放料放料完成
+//   2 = X2轴移动到取料位
+//   3 = 等待打胶机允许送料
+//   4 = 发送允许取料信号（保持一段时间）
+//   5 = X2轴返回待机位
 //
-// Alarm Codes (201-205):
-//   201 = Communication timeout with glue machine
-//   202 = Safety zone conflict
-//   203 = X2 axis servo fault
-//   204 = X2 axis move timeout
-//   205 = Pickup position arrival timeout
+// 报警码（201~205）：
+//   201 = 与打胶机通信超时
+//   202 = 安全区冲突
+//   203 = X2轴伺服故障
+//   204 = X2轴移动超时
+//   205 = 到达取料位超时
 // ============================================================================
 
 FUNCTION_BLOCK FB_1004_GlueMachineFeeder_BufferFraming
 
 //#region 100_VAR_INPUT
 VAR_INPUT
-    // System control signals (6)
-    i_bEnable                   : BOOL;    // Total enable signal
-    i_bAutoMode                 : BOOL;    // Auto running mode selection
-    i_bManualMode               : BOOL;    // Manual debug mode selection
-    i_bStart                    : BOOL;    // Auto cycle start button
-    i_bStop                     : BOOL;    // Auto cycle stop button
-    i_bReset                    : BOOL;    // Fault reset/init button
+    // 系统控制信号（6）
+    i_bEnable                   : BOOL;    // 总使能
+    i_bAutoMode                 : BOOL;    // 自动模式选择
+    i_bManualMode               : BOOL;    // 手动调试模式选择
+    i_bStart                    : BOOL;    // 自动启动按钮
+    i_bStop                     : BOOL;    // 自动停止按钮
+    i_bReset                    : BOOL;    // 故障复位/初始化按钮
 
-    // Manual operation signals (2)
-    i_bLx_X2Axis_JogFwd         : BOOL;    // Manual-X2 axis jog forward
-    i_bLx_X2Axis_JogRev         : BOOL;    // Manual-X2 axis jog reverse
+    // 手动操作信号（2）
+    i_bLx_X2Axis_JogFwd         : BOOL;    // 手动-X2轴前点动
+    i_bLx_X2Axis_JogRev         : BOOL;    // 手动-X2轴后点动
 
-    // Process parameters (3 REAL)
-    i_rFeedSpeed                : REAL;    // X2 axis feed speed (mm/s or %)
-    rStandbyPosition            : REAL;    // X2 axis standby position (mm)
-    rPickupPosition             : REAL;    // X2 axis pickup position (mm)
+    // 工艺参数（3个REAL）
+    i_rFeedSpeed                : REAL;    // X2轴送料速度（mm/s 或 %）
+    rStandbyPosition            : REAL;    // X2轴待机位（mm）
+    rPickupPosition             : REAL;    // X2轴取料位（mm）
 
-    // X2 axis servo status (4)
-    i_bX2Axis_Home              : BOOL;    // X2 axis servo home signal
-    i_bX2Axis_ForwardLimit      : BOOL;    // X2 axis forward limit
-    i_bX2Axis_ReverseLimit      : BOOL;    // X2 axis reverse limit
-    i_bX2Axis_ServoFault        : BOOL;    // X2 axis servo drive fault
+    // X2轴伺服状态（4）
+    i_bX2Axis_Home              : BOOL;    // X2轴伺服原点信号
+    i_bX2Axis_ForwardLimit      : BOOL;    // X2轴正向限位
+    i_bX2Axis_ReverseLimit      : BOOL;    // X2轴反向限位
+    i_bX2Axis_ServoFault        : BOOL;    // X2轴伺服驱动故障
 
-    // Glue machine interaction (2)
-    i_bGlueMachine_AllowFeed    : BOOL;    // Glue machine ready to receive
-    i_bGlueMachine_PickupComplete : BOOL;  // Glue machine completed pickup
+    // 打胶机交互（2）
+    i_bGlueMachine_AllowFeed    : BOOL;    // 打胶机允许送料
+    i_bGlueMachine_PickupComplete : BOOL;  // 打胶机取料完成
 
-    // Upstream signal (1)
-    i_bPickPlace_FeedComplete   : BOOL;    // PickPlace feed complete signal
+    // 上游信号（1）
+    i_bPickPlace_FeedComplete   : BOOL;    // 取放料放料完成信号
 END_VAR
 //#endregion 100_VAR_INPUT
 
 //#region 200_VAR_OUTPUT
 VAR_OUTPUT
-    // Downstream signal (1)
-    o_bAllowPickup              : BOOL;    // Allow pickup signal -> Y44
+    // 下游信号（1）
+    o_bAllowPickup              : BOOL;    // 允许取料信号 -> Y44
 
-    // Motion request (2)
-    o_bX2Axis_RequestFwd        : BOOL;    // X2 axis forward move request
-    o_bX2Axis_RequestRev        : BOOL;    // X2 axis reverse move request
+    // 运动请求（2）
+    o_bX2Axis_RequestFwd        : BOOL;    // X2轴前移请求
+    o_bX2Axis_RequestRev        : BOOL;    // X2轴后移请求
 
-    // Safety zone management (1)
-    o_bSafetyZoneSignal         : BOOL;    // Safety zone signal -> Y47
+    // 安全区管理（1）
+    o_bSafetyZoneSignal         : BOOL;    // 安全区信号 -> Y47
 
-    // Status/HMI display (5)
-    o_bRunning                  : BOOL;    // Currently auto running
-    o_bFault                    : BOOL;    // This station has fault
-    o_iCurrentState             : INT;     // Current state (0-5, 99=fault)
-    o_rX2Axis_CurrentPosition   : REAL;    // X2 axis current position (mm)
-    o_iStationAlarmCode         : INT;     // Alarm code (0=none, 201-205)
+    // 状态/HMI显示（5）
+    o_bRunning                  : BOOL;    // 自动运行中
+    o_bFault                    : BOOL;    // 本工站故障
+    o_iCurrentState             : INT;     // 当前状态（0~5，99=故障）
+    o_rX2Axis_CurrentPosition   : REAL;    // X2轴当前位置（mm）
+    o_iStationAlarmCode         : INT;     // 报警码（0=无，201~205）
 
-    // Timer debug outputs (4 DINT, scan cycles)
-    q_eCommTimeout_Elapsed      : DINT;    // Comm timeout timer elapsed
-    q_eAction_Elapsed           : DINT;    // Action timer elapsed
-    q_eInit_Elapsed             : DINT;    // Init timer elapsed
-    q_ePickupHold_Elapsed       : DINT;    // Pickup hold timer elapsed
+    // 定时器调试输出（4个DINT，扫描周期数）
+    q_eCommTimeout_Elapsed      : DINT;    // 通信超时定时累计
+    q_eAction_Elapsed           : DINT;    // 动作定时累计
+    q_eInit_Elapsed             : DINT;    // 初始化定时累计
+    q_ePickupHold_Elapsed       : DINT;    // 允许取料保持定时累计
 END_VAR
 //#endregion 200_VAR_OUTPUT
 
 //#region 300_VAR
 VAR
-    // State machine core
-    s_iCurrentStep          : INT;     // Current state machine step
-    s_bRunning              : BOOL;    // Auto running flag
-    s_bFault                : BOOL;    // Fault flag
-    s_iActiveAlarmCode      : INT;     // Active alarm code
-    s_bStartTriggered       : BOOL;    // Start signal latched
+    // 状态机核心
+    s_iCurrentStep          : INT;     // 当前状态机步骤
+    s_bRunning              : BOOL;    // 自动运行标志
+    s_bFault                : BOOL;    // 故障标志
+    s_iActiveAlarmCode      : INT;     // 当前激活报警码
+    s_bStartTriggered       : BOOL;    // 启动信号锁存
 
-    // Timers (SysLib FB_TON, PT/ET are DINT)
-    fb_tCommTimeoutTimer    : FB_TON;  // Communication timeout timer
-    fb_tActionTimer         : FB_TON;  // X2 axis move action timer
-    fb_tInitTimer           : FB_TON;  // Initialization timer
-    fb_tPickupHoldTimer     : FB_TON;  // Allow pickup hold timer
+    // 定时器（SysLib FB_TON，PT/ET 为 DINT）
+    fb_tCommTimeoutTimer    : FB_TON;  // 通信超时定时器
+    fb_tActionTimer         : FB_TON;  // X2轴移动动作定时器
+    fb_tInitTimer           : FB_TON;  // 初始化定时器
+    fb_tPickupHoldTimer     : FB_TON;  // 允许取料保持定时器
 
-    // Timer Q output variables
+    // 定时器 Q 输出
     s_bCommTimeoutTimer_Q   : BOOL;
     s_bActionTimer_Q        : BOOL;
     s_bInitTimer_Q          : BOOL;
     s_bPickupHoldTimer_Q    : BOOL;
 
-    // Safety zone management
-    s_bSafetyZoneActive     : BOOL;    // Safety zone is active (X2 in motion)
+    // 安全区管理
+    s_bSafetyZoneActive     : BOOL;    // 安全区激活（X2运动中）
 
-    // Initialization
-    s_bInitComplete         : BOOL;    // Initialization complete flag
-    s_bInitializing         : BOOL;    // Currently initializing
+    // 初始化
+    s_bInitComplete         : BOOL;    // 初始化完成标志
+    s_bInitializing         : BOOL;    // 初始化进行中
 END_VAR
 //#endregion 300_VAR
 
 //#region 400_VAR_CONSTANT
 VAR CONSTANT
-    // State machine steps
-    STP_Idle            : INT := 0;   // Idle
-    STP_WaitFeed        : INT := 1;   // Wait for PickPlace feed complete
-    STP_MoveToPickup    : INT := 2;   // Move X2 to pickup position
-    STP_WaitAllowFeed   : INT := 3;   // Wait for glue machine allow feed
-    STP_SendAllowPickup : INT := 4;   // Send allow pickup signal
-    STP_ReturnStandby   : INT := 5;   // Return X2 to standby position
+    // 状态机步骤
+    STP_Idle            : INT := 0;   // 空闲
+    STP_WaitFeed        : INT := 1;   // 等待取放料放料完成
+    STP_MoveToPickup    : INT := 2;   // X2移动到取料位
+    STP_WaitAllowFeed   : INT := 3;   // 等待打胶机允许送料
+    STP_SendAllowPickup : INT := 4;   // 发送允许取料信号
+    STP_ReturnStandby   : INT := 5;   // X2返回待机位
 
-    // Alarm codes (201-205)
-    ALM_CommTimeout         : INT := 201;  // Communication timeout
-    ALM_SafetyZoneConflict  : INT := 202;  // Safety zone conflict
-    ALM_X2AxisServoFault    : INT := 203;  // X2 axis servo fault
-    ALM_X2AxisMoveTimeout   : INT := 204;  // X2 axis move timeout
-    ALM_PickupPosTimeout    : INT := 205;  // Pickup position timeout
+    // 报警码（201~205）
+    ALM_CommTimeout         : INT := 201;  // 通信超时
+    ALM_SafetyZoneConflict  : INT := 202;  // 安全区冲突
+    ALM_X2AxisServoFault    : INT := 203;  // X2轴伺服故障
+    ALM_X2AxisMoveTimeout   : INT := 204;  // X2轴移动超时
+    ALM_PickupPosTimeout    : INT := 205;  // 到达取料位超时
 
-    // Default timer values (DINT, scan cycles)
-    T_DEF_CommTimeout       : DINT := 10000;  // Comm timeout (10s)
-    T_DEF_MoveTimeout       : DINT := 5000;   // Move timeout (5s)
-    T_DEF_InitTimeout       : DINT := 10000;  // Init timeout (10s)
-    T_DEF_PickupHoldTime    : DINT := 500;    // Pickup hold time
+    // 默认定时参数（DINT，扫描周期数）
+    T_DEF_CommTimeout       : DINT := 10000;  // 通信超时（10s）
+    T_DEF_MoveTimeout       : DINT := 5000;   // 移动超时（5s）
+    T_DEF_InitTimeout       : DINT := 10000;  // 初始化超时（10s）
+    T_DEF_PickupHoldTime    : DINT := 500;    // 允许取料保持时间
 END_VAR
 //#endregion 400_VAR_CONSTANT
 
 // ============================================================================
-// Main program logic
+// 主程序逻辑
 // ============================================================================
 
-// --- Enable off: safe state ---
+// --- 使能关闭：安全状态 ---
 IF NOT i_bEnable THEN
     o_bAllowPickup := FALSE;
     o_bX2Axis_RequestFwd := FALSE;
@@ -178,7 +178,7 @@ IF NOT i_bEnable THEN
     RETURN;
 END_IF;
 
-// --- X2 axis servo fault detection (highest priority) ---
+// --- X2轴伺服故障检测（最高优先级） ---
 IF i_bX2Axis_ServoFault THEN
     IF s_iActiveAlarmCode <> ALM_X2AxisServoFault THEN
         s_iActiveAlarmCode := ALM_X2AxisServoFault;
@@ -191,7 +191,7 @@ ELSIF s_iActiveAlarmCode = ALM_X2AxisServoFault THEN
     s_bFault := FALSE;
 END_IF;
 
-// --- Fault handling ---
+// --- 故障处理 ---
 IF s_bFault THEN
     o_bAllowPickup := FALSE;
     o_bX2Axis_RequestFwd := FALSE;
@@ -218,7 +218,7 @@ IF s_bFault THEN
     RETURN;
 END_IF;
 
-// --- Stop handling ---
+// --- 停止处理 ---
 IF i_bStop AND s_bRunning THEN
     s_iCurrentStep := STP_Idle;
     s_bRunning := FALSE;
@@ -233,12 +233,12 @@ IF i_bStop AND s_bRunning THEN
     fb_tPickupHoldTimer(IN := FALSE, PT := 0, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
 END_IF;
 
-// --- Initialization ---
+// --- 初始化 ---
 IF NOT s_bInitComplete THEN
     s_bInitializing := TRUE;
     fb_tInitTimer(IN := TRUE, PT := T_DEF_InitTimeout, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
 
-    // Wait for X2 axis at home position or timeout
+    // 等待X2轴到原点或超时
     IF i_bX2Axis_Home OR s_bInitTimer_Q THEN
         s_bInitComplete := TRUE;
         s_bInitializing := FALSE;
@@ -250,13 +250,13 @@ IF NOT s_bInitComplete THEN
     RETURN;
 END_IF;
 
-// --- Mode dispatch ---
+// --- 模式分发 ---
 IF i_bAutoMode THEN
     // ========================================================================
-    // Auto mode: 6-step state machine
+    // 自动模式：6步状态机
     // ========================================================================
 
-    // Start trigger detection
+    // 启动触发检测
     IF i_bStart AND NOT s_bStartTriggered THEN
         s_bStartTriggered := TRUE;
     END_IF;
@@ -276,10 +276,10 @@ IF i_bAutoMode THEN
         END_IF;
 
     STP_WaitFeed:
-        // Wait for PickPlace feed complete signal
+        // 等待取放料放料完成信号
         IF i_bPickPlace_FeedComplete THEN
             s_iCurrentStep := STP_MoveToPickup;
-            // Start X2 axis forward move
+            // 启动X2轴前移动作
             o_bX2Axis_RequestFwd := TRUE;
             o_bX2Axis_RequestRev := FALSE;
             s_bSafetyZoneActive := TRUE;
@@ -288,19 +288,19 @@ IF i_bAutoMode THEN
         END_IF;
 
     STP_MoveToPickup:
-        // X2 axis moving to pickup position
+        // X2轴前移到取料位
         o_bX2Axis_RequestFwd := TRUE;
         o_bSafetyZoneSignal := TRUE;
 
         IF i_bX2Axis_ForwardLimit THEN
-            // Arrived at pickup position
+            // 到达取料位
             fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
             o_bX2Axis_RequestFwd := FALSE;
             s_iCurrentStep := STP_WaitAllowFeed;
-            // Start comm timeout timer
+            // 启动通信超时定时器
             fb_tCommTimeoutTimer(IN := TRUE, PT := T_DEF_CommTimeout, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
         ELSIF s_bActionTimer_Q THEN
-            // Move timeout
+            // 移动超时
             fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
             s_iActiveAlarmCode := ALM_X2AxisMoveTimeout;
             s_bFault := TRUE;
@@ -308,7 +308,7 @@ IF i_bAutoMode THEN
         END_IF;
 
     STP_WaitAllowFeed:
-        // Wait for glue machine to allow feed
+        // 等待打胶机允许送料
         o_bSafetyZoneSignal := TRUE;
 
         IF i_bGlueMachine_AllowFeed THEN
@@ -317,14 +317,14 @@ IF i_bAutoMode THEN
             o_bAllowPickup := TRUE;
             fb_tPickupHoldTimer(IN := TRUE, PT := T_DEF_PickupHoldTime, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
         ELSIF s_bCommTimeoutTimer_Q THEN
-            // Communication timeout
+            // 通信超时
             fb_tCommTimeoutTimer(IN := FALSE, PT := 0, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
             s_iActiveAlarmCode := ALM_CommTimeout;
             s_bFault := TRUE;
         END_IF;
 
     STP_SendAllowPickup:
-        // Hold allow pickup signal for timer duration
+        // 允许取料信号保持到定时到
         o_bAllowPickup := TRUE;
         o_bSafetyZoneSignal := TRUE;
 
@@ -332,19 +332,19 @@ IF i_bAutoMode THEN
             fb_tPickupHoldTimer(IN := FALSE, PT := 0, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
             o_bAllowPickup := FALSE;
             s_iCurrentStep := STP_ReturnStandby;
-            // Start X2 axis reverse move
+            // 启动X2轴后移动作
             o_bX2Axis_RequestRev := TRUE;
             o_bX2Axis_RequestFwd := FALSE;
             fb_tActionTimer(IN := TRUE, PT := T_DEF_MoveTimeout, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
         END_IF;
 
     STP_ReturnStandby:
-        // X2 axis returning to standby position
+        // X2轴返回待机位
         o_bX2Axis_RequestRev := TRUE;
         o_bSafetyZoneSignal := TRUE;
 
         IF i_bX2Axis_ReverseLimit OR i_bX2Axis_Home THEN
-            // Arrived at standby position
+            // 到达待机位
             fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
             o_bX2Axis_RequestRev := FALSE;
             o_bSafetyZoneSignal := FALSE;
@@ -353,7 +353,7 @@ IF i_bAutoMode THEN
             s_bRunning := FALSE;
             s_bStartTriggered := FALSE;
         ELSIF s_bActionTimer_Q THEN
-            // Move timeout
+            // 移动超时
             fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
             s_iActiveAlarmCode := ALM_X2AxisMoveTimeout;
             s_bFault := TRUE;
@@ -367,7 +367,7 @@ IF i_bAutoMode THEN
 
 ELSIF i_bManualMode THEN
     // ========================================================================
-    // Manual mode: X2 axis jog control
+    // 手动模式：X2轴点动控制
     // ========================================================================
     s_bRunning := FALSE;
     s_iCurrentStep := STP_Idle;
@@ -376,7 +376,7 @@ ELSIF i_bManualMode THEN
     o_bSafetyZoneSignal := FALSE;
     s_bSafetyZoneActive := FALSE;
 
-    // X2 axis jog: forward/reverse interlock
+    // X2轴点动：前/后互锁
     IF i_bLx_X2Axis_JogFwd AND NOT i_bLx_X2Axis_JogRev THEN
         IF NOT i_bX2Axis_ForwardLimit THEN
             o_bX2Axis_RequestFwd := TRUE;
@@ -393,7 +393,7 @@ ELSIF i_bManualMode THEN
     END_IF;
 
 ELSE
-    // Invalid mode: safe state
+    // 无效模式：安全状态
     o_bAllowPickup := FALSE;
     o_bX2Axis_RequestFwd := FALSE;
     o_bX2Axis_RequestRev := FALSE;
@@ -405,7 +405,7 @@ ELSE
     END_IF;
 END_IF;
 
-// --- Status output ---
+// --- 状态输出 ---
 o_bRunning := s_bRunning;
 o_bFault := s_bFault;
 IF s_bFault THEN

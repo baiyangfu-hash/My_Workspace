@@ -15,7 +15,7 @@
             "type": "plc",
             "request": "launch",
             "program": "${file}",
-            "plcRoot": "./0100_PLC自动化/DJ-2026-005",
+            "plcRoot": "./0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表",
             "stopOnEntry": false,
             "entryOb": "OB1"
         }
