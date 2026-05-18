@@ -3,11 +3,92 @@
     {
       "sourcePath": "Test/basic_test.scltest",
       "ordinalInFile": 1,
-      "name": "test_simple",
-      "line": 1,
+      "name": "TC01_External_Ready",
+      "line": 28,
       "column": 1,
-      "stableId": "scltest:Test/basic_test.scltest:L1:C1:test_simple",
-      "goTestName": "TestUserCase001_TestSimple"
+      "stableId": "scltest:Test/basic_test.scltest:L28:C1:TC01_External_Ready",
+      "goTestName": "TestUserCase001_TC01ExternalReady"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 2,
+      "name": "TC02_External_EStop",
+      "line": 42,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L42:C1:TC02_External_EStop",
+      "goTestName": "TestUserCase002_TC02ExternalEStop"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 3,
+      "name": "TC03_External_Alarm",
+      "line": 54,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L54:C1:TC03_External_Alarm",
+      "goTestName": "TestUserCase003_TC03ExternalAlarm"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 4,
+      "name": "TC04_External_Safety",
+      "line": 66,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L66:C1:TC04_External_Safety",
+      "goTestName": "TestUserCase004_TC04ExternalSafety"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 5,
+      "name": "TC05_External_DoorOpen",
+      "line": 77,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L77:C1:TC05_External_DoorOpen",
+      "goTestName": "TestUserCase005_TC05ExternalDoorOpen"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 6,
+      "name": "TC06_PickPlace_Clamp",
+      "line": 90,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L90:C1:TC06_PickPlace_Clamp",
+      "goTestName": "TestUserCase006_TC06PickPlaceClamp"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 7,
+      "name": "TC07_PickPlace_LiftUp",
+      "line": 105,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L105:C1:TC07_PickPlace_LiftUp",
+      "goTestName": "TestUserCase007_TC07PickPlaceLiftUp"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 8,
+      "name": "TC08_PickPlace_Unclamp",
+      "line": 119,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L119:C1:TC08_PickPlace_Unclamp",
+      "goTestName": "TestUserCase008_TC08PickPlaceUnclamp"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 9,
+      "name": "TC09_CommonAlarm_Reset",
+      "line": 135,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L135:C1:TC09_CommonAlarm_Reset",
+      "goTestName": "TestUserCase009_TC09CommonAlarmReset"
+    },
+    {
+      "sourcePath": "Test/basic_test.scltest",
+      "ordinalInFile": 10,
+      "name": "TC10_CommonAlarm_NoAlarm",
+      "line": 150,
+      "column": 1,
+      "stableId": "scltest:Test/basic_test.scltest:L150:C1:TC10_CommonAlarm_NoAlarm",
+      "goTestName": "TestUserCase010_TC10CommonAlarmNoAlarm"
     }
   ]
 }

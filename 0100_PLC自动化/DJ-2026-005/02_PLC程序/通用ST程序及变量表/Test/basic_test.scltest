@@ -1,11 +1,166 @@
-TEST_CASE "test_simple"
-    SET GlobalVars.stExternal.i_bFrameMachine_EStop := FALSE;
-    SET GlobalVars.stExternal.i_bGlueMachine_EStop := FALSE;
-    SET GlobalVars.stExternal.i_bGlueMachine_Fault := FALSE;
-    SET GlobalVars.stExternal.i_bRobot_EStop := FALSE;
-    SET GlobalVars.stExternal.i_bRobot_Fault := FALSE;
-    
-    WAIT_CYCLES 2000;
-    
+// ============================================================================
+// basic_test.scltest - OB1主程序集成测试 (V6.0.1)
+// ============================================================================
+// 功能说明：
+//   包含 10 个测试用例，覆盖 OB1 调用的 5 个 FB：
+//
+//   TC01 - 外部设备: 自动模式+使能 → 组框机就绪
+//   TC02 - 外部设备: 组框机急停 → 紧急停止联锁
+//   TC03 - 外部设备: 打胶机故障 → 报警码300
+//   TC04 - 外部设备: 安全条件满足 → SafetyConditionMet
+//   TC05 - 外部设备: 开门请求 → 暂停+开门确认
+//   TC06 - 取放料: 手动夹紧 → Action=TRUE + Release=FALSE
+//   TC07 - 取放料: 手动上升 → LiftUp=TRUE
+//   TC08 - 取放料: 无操作 → Release=TRUE (NOT-Action逻辑)
+//   TC09 - 公共报警: 复位 → 所有输出清零
+//   TC10 - 公共报警: 全站手动 → 无报警激活
+//
+// OB1信号流(按调用顺序):
+//   1. fbExternalDevice  ← stExternal.i_*  → stExternal.o_*
+//   2. fbConveyor4Layer  ← stConveyor.i_*  → stConveyor.o_*
+//   3. fbPickPlace       ← stPickPlace.i_*  → stPickPlace.o_*
+//       → 后处理: o_*_Release := NOT o_*_Action
+//   4. stFeeder.i_bPickPlace_FeedComplete := stPickPlace.o_bPlaceComplete_ToFeeder
+//      fbGlueFeeder      ← stFeeder.i_*    → stFeeder.o_*
+//   5. fbCommonAlarm     ← 各站报警码       → stGlobal.o_*
+// ============================================================================
+
+TEST_CASE "TC01_External_Ready"
+    // ============================================================================
+    // 测试目标：自动模式+使能+无报警 → 组框机就绪
+    // ============================================================================
+    // FB逻辑: q_bFrameMachine_Ready := Auto AND Enable AND (NOT AnyAlarm) AND (NOT EmergencyStop)
+    // ============================================================================
+
+    SET GlobalVars.stExternal.i_bEnable := TRUE;
+    SET GlobalVars.stExternal.i_bAutoMode := TRUE;
+    SET GlobalVars.stExternal.i_bAnyAlarmActive := FALSE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stExternal.o_bFrameMachine_Ready = TRUE;
+END_TEST_CASE
+
+TEST_CASE "TC02_External_EStop"
+    // ============================================================================
+    // 测试目标：组框机急停 → 紧急停止联锁
+    // ============================================================================
+    // FB逻辑: IF FrameMachine_EStop THEN EmergencyStop := TRUE
+    // ============================================================================
+
+    SET GlobalVars.stExternal.i_bFrameMachine_EStop := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stExternal.o_bFrameMachine_EmergencyStop = TRUE;
+END_TEST_CASE
+
+TEST_CASE "TC03_External_Alarm"
+    // ============================================================================
+    // 测试目标：打胶机故障 → 报警汇总码300
+    // ============================================================================
+    // FB逻辑: IF GlueMachine_Fault THEN AlarmCode := 300
+    // ============================================================================
+
+    SET GlobalVars.stExternal.i_bGlueMachine_Fault := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stExternal.o_iExternalDeviceAlarmSummary = 300;
+END_TEST_CASE
+
+TEST_CASE "TC04_External_Safety"
+    // ============================================================================
+    // 测试目标：无急停无故障 → 安全条件满足
+    // ============================================================================
+    // FB逻辑: 所有设备EStop和Fault都为FALSE时 SafetyConditionMet := TRUE
+    // ============================================================================
+
+    WAIT_CYCLES 3;
     ASSERT GlobalVars.stExternal.o_bSystemSafetyConditionMet = TRUE;
+END_TEST_CASE
+
+TEST_CASE "TC05_External_DoorOpen"
+    // ============================================================================
+    // 测试目标：组框机开门请求 → 本机暂停+确认开门
+    // ============================================================================
+    // FB逻辑: IF DoorOpenRequest THEN Pause:=TRUE AND DoorOpen:=TRUE
+    // ============================================================================
+
+    SET GlobalVars.stExternal.i_bDoorOpenRequest := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stExternal.o_bFrameMachine_Pause = TRUE;
+    ASSERT GlobalVars.stExternal.o_bDoorOpenRequest = TRUE;
+END_TEST_CASE
+
+TEST_CASE "TC06_PickPlace_Clamp"
+    // ============================================================================
+    // 测试目标：取放料手动模式前夹紧 → Action=TRUE + Release=FALSE
+    // ============================================================================
+    // FB_1003手动: IF i_bLx_FrontClamp THEN q_bFrontClamp:=TRUE
+    // OB1后处理:  o_bFrontClamp_Release := NOT o_bFrontClamp_Action
+    // ============================================================================
+
+    SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
+    SET GlobalVars.stPickPlace.i_bLx_FrontClamp := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Action = TRUE;
+    ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Release = FALSE;
+END_TEST_CASE
+
+TEST_CASE "TC07_PickPlace_LiftUp"
+    // ============================================================================
+    // 测试目标：取放料手动模式上升 → LiftUp=TRUE + LiftDown=FALSE
+    // ============================================================================
+    // FB_1003手动: IF LiftUp AND NOT LiftDown THEN q_bLiftUp:=TRUE
+    // ============================================================================
+
+    SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
+    SET GlobalVars.stPickPlace.i_bLx_Lift_Up := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stPickPlace.o_bLift_Up = TRUE;
+    ASSERT GlobalVars.stPickPlace.o_bLift_Down = FALSE;
+END_TEST_CASE
+
+TEST_CASE "TC08_PickPlace_Unclamp"
+    // ============================================================================
+    // 测试目标：取放料手动模式无操作 → Release=TRUE (NOT-Action)
+    // ============================================================================
+    // FB_1003手动: 无按钮 → q_bFrontClamp:=FALSE
+    // OB1后处理:   o_bFrontClamp_Release := NOT FALSE = TRUE
+    // ============================================================================
+
+    SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Action = FALSE;
+    ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Release = TRUE;
+    ASSERT GlobalVars.stPickPlace.o_bRearClamp_Action = FALSE;
+    ASSERT GlobalVars.stPickPlace.o_bRearClamp_Release = TRUE;
+END_TEST_CASE
+
+TEST_CASE "TC09_CommonAlarm_Reset"
+    // ============================================================================
+    // 测试目标：复位 → 所有报警输出清零
+    // ============================================================================
+    // FB_2001: IF i_bReset THEN 清零所有输出 + RETURN
+    // ============================================================================
+
+    SET GlobalVars.stGlobal.i_bReset := TRUE;
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.stGlobal.o_wGlobalAlarmWord = 0;
+    ASSERT GlobalVars.stGlobal.o_iCurrentAlarmCode = 0;
+    ASSERT GlobalVars.stGlobal.o_bAnyAlarmActive = FALSE;
+    ASSERT GlobalVars.stGlobal.o_iMESAlarmCount = 0;
+END_TEST_CASE
+
+TEST_CASE "TC10_CommonAlarm_NoAlarm"
+    // ============================================================================
+    // 测试目标：全站手动模式健康 → 无报警激活
+    // ============================================================================
+    // 所有FB在手动模式输出报警码=0 → FB_2001汇总无报警
+    // ============================================================================
+
+    SET GlobalVars.stConveyor.i_bManualMode := TRUE;
+    SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
+    SET GlobalVars.stFeeder.i_bManualMode := TRUE;
+    SET GlobalVars.stGlobal.i_bReset := FALSE;
+    WAIT_CYCLES 5;
+    ASSERT GlobalVars.stGlobal.o_bAnyAlarmActive = FALSE;
+    ASSERT GlobalVars.stGlobal.o_bConveyorAlarmActive = FALSE;
+    ASSERT GlobalVars.stGlobal.o_bPickPlaceAlarmActive = FALSE;
+    ASSERT GlobalVars.stGlobal.o_bFeederAlarmActive = FALSE;
 END_TEST_CASE

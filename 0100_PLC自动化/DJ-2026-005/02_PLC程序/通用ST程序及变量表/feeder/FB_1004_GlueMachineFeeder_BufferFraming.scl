@@ -1,418 +1,277 @@
-// ============================================================================
-// FB_1004_GlueMachineFeeder_BufferFraming
-// 描述：边框缓存机打胶机送料机构
-// 项目：DJ-2026-005
-// 版本：V6.0.0
-// 日期：2026-05-04
-// ============================================================================
-//
-// 功能：
-//   1. 自动模式：X2轴送料的 6 步状态机
-//   2. 手动模式：X2轴点动控制
-//   3. 安全区管理（与取放料互锁）
-//   4. 打胶机交互（允许取料、通信超时）
-//   5. 报警检测：5 种报警类型（201~205）
-//   6. 定时器：使用 SysLib FB_TON（PT/ET 为 DINT，不用 TIME）
-//
-// 状态机步骤：
-//   0 = 空闲
-//   1 = 等待取放料放料完成
-//   2 = X2轴移动到取料位
-//   3 = 等待打胶机允许送料
-//   4 = 发送允许取料信号（保持一段时间）
-//   5 = X2轴返回待机位
-//
-// 报警码（201~205）：
-//   201 = 与打胶机通信超时
-//   202 = 安全区冲突
-//   203 = X2轴伺服故障
-//   204 = X2轴移动超时
-//   205 = 到达取料位超时
-// ============================================================================
+(* ================================================================= *)
+(*  功能块名称：FB_1004_GlueMachineFeeder_BufferFraming               *)
+(*  功能描述：打胶机送料机构 - 4步D760状态机(X2横移+打胶机交互)    *)
+(*  创建日期：2026-05-04                                              *)
+(*  版本号：V6.0.0                                                    *)
+(*  编制人：Trae                                                      *)
+(*  审核人：人工                                                      *)
+(*                                                                     *)
+(*  遵循规范：                                                         *)
+(*    - 801_PLC变量命名与功能块命名规范_DEV-V1.0.5                    *)
+(*    - 810_PLC编程规范_DEV-V1.0.2                                    *)
+(*                                                                     *)
+(*  变更记录：                                                          *)
+(* ---------------------------------------------------------------- *)
+(*  V6.0.0 (2026-05-18) Trae                                         *)
+(*  - 重写: 6步→4步D760状态机（对齐源程序D760~D763）               *)
+(*  - 重写: o_前缀→q_前缀（801规范）                               *)
+(*  - 新增: 轴抽象请求接口(q_bXxxReq+q_rTargetPos)                  *)
+(*  - 新增: 安全区信号(Y47)与打胶机允许取料(Y44)                   *)
+(*  - 新增: 送料平台边框检测(F81)                                  *)
+(*  - 新增: TONR定时器（tIn/tQ/tR/tPt/tEt简化命名）               *)
+(* ---------------------------------------------------------------- *)
+(*  V1.0.0 (2026-05-04)                                              *)
+(*  - 6步版本，含直接伺服控制（已废弃）                            *)
+(* ================================================================= *)
 
 FUNCTION_BLOCK FB_1004_GlueMachineFeeder_BufferFraming
 
-//#region 100_VAR_INPUT
+(* ==================== VAR_INPUT ==================== *)
 VAR_INPUT
-    // 系统控制信号（6）
-    i_bEnable                   : BOOL;    // 总使能
-    i_bAutoMode                 : BOOL;    // 自动模式选择
-    i_bManualMode               : BOOL;    // 手动调试模式选择
-    i_bStart                    : BOOL;    // 自动启动按钮
-    i_bStop                     : BOOL;    // 自动停止按钮
-    i_bReset                    : BOOL;    // 故障复位/初始化按钮
+    i_bAutoMode                 : BOOL;     (* 自动模式 *)
+    i_bManualMode               : BOOL;     (* 手动模式 *)
+    i_bStart                    : BOOL;     (* 启动 *)
+    i_bStop                     : BOOL;     (* 停止 *)
 
-    // 手动操作信号（2）
-    i_bLx_X2Axis_JogFwd         : BOOL;    // 手动-X2轴前点动
-    i_bLx_X2Axis_JogRev         : BOOL;    // 手动-X2轴后点动
+    i_bLx_X2JogPos              : BOOL;     (* 手动:X2正向点动 *)
+    i_bLx_X2JogNeg              : BOOL;     (* 手动:X2反向点动 *)
 
-    // 工艺参数（3个REAL）
-    i_rFeedSpeed                : REAL;    // X2轴送料速度（mm/s 或 %）
-    rStandbyPosition            : REAL;    // X2轴待机位（mm）
-    rPickupPosition             : REAL;    // X2轴取料位（mm）
+    i_bPlaceDone                : BOOL;     (* FB_1003放料完成脉冲 *)
+    i_rX2Speed                  : REAL;     (* X2轴速度 *)
 
-    // X2轴伺服状态（4）
-    i_bX2Axis_Home              : BOOL;    // X2轴伺服原点信号
-    i_bX2Axis_ForwardLimit      : BOOL;    // X2轴正向限位
-    i_bX2Axis_ReverseLimit      : BOOL;    // X2轴反向限位
-    i_bX2Axis_ServoFault        : BOOL;    // X2轴伺服驱动故障
+    i_bGlueMachineAllowFeed     : BOOL;     (* 打胶机允许送料(X76) *)
+    i_bGlueMachinePickupComplete : BOOL;    (* 打胶机取料完成(X102) *)
 
-    // 打胶机交互（2）
-    i_bGlueMachine_AllowFeed    : BOOL;    // 打胶机允许送料
-    i_bGlueMachine_PickupComplete : BOOL;  // 打胶机取料完成
-
-    // 上游信号（1）
-    i_bPickPlace_FeedComplete   : BOOL;    // 取放料放料完成信号
+    i_bX2ZoneSensor1            : BOOL;     (* X2区域前传感器1(X72) *)
+    i_bX2ZoneSensor2            : BOOL;     (* X2区域前传感器2(X73) *)
+    i_bX2ZoneSensor3            : BOOL;     (* X2区域后传感器1(X74) *)
+    i_bX2ZoneSensor4            : BOOL;     (* X2区域后传感器2(X75) *)
 END_VAR
-//#endregion 100_VAR_INPUT
 
-//#region 200_VAR_OUTPUT
+(* ==================== VAR_OUTPUT ==================== *)
 VAR_OUTPUT
-    // 下游信号（1）
-    o_bAllowPickup              : BOOL;    // 允许取料信号 -> Y44
-
-    // 运动请求（2）
-    o_bX2Axis_RequestFwd        : BOOL;    // X2轴前移请求
-    o_bX2Axis_RequestRev        : BOOL;    // X2轴后移请求
-
-    // 安全区管理（1）
-    o_bSafetyZoneSignal         : BOOL;    // 安全区信号 -> Y47
-
-    // 状态/HMI显示（5）
-    o_bRunning                  : BOOL;    // 自动运行中
-    o_bFault                    : BOOL;    // 本工站故障
-    o_iCurrentState             : INT;     // 当前状态（0~5，99=故障）
-    o_rX2Axis_CurrentPosition   : REAL;    // X2轴当前位置（mm）
-    o_iStationAlarmCode         : INT;     // 报警码（0=无，201~205）
-
-    // 定时器调试输出（4个DINT，扫描周期数）
-    q_eCommTimeout_Elapsed      : DINT;    // 通信超时定时累计
-    q_eAction_Elapsed           : DINT;    // 动作定时累计
-    q_eInit_Elapsed             : DINT;    // 初始化定时累计
-    q_ePickupHold_Elapsed       : DINT;    // 允许取料保持定时累计
+    q_bX2AxisHomeRequest        : BOOL;     (* X2回原点请求 *)
+    q_bX2AxisMoveAbsReq         : BOOL;     (* X2绝对定位请求 *)
+    q_rX2AxisTargetPos          : REAL;     (* X2目标位置 *)
+    q_bAllowPickup              : BOOL;     (* 允许打胶机抓料(Y44) *)
+    q_bSafetyZoneSignal         : BOOL;     (* 打胶机安全区(Y47) *)
+    q_iCurrentState             : INT;      (* 当前D760值(0~3) *)
+    q_iAlarmCode                : INT;      (* 当前报警码 *)
+    q_bFrameOnFeedPlatform      : BOOL;     (* 送料平台有边框(F81) *)
+    q_bRunning                  : BOOL;     (* 运行中 *)
 END_VAR
-//#endregion 200_VAR_OUTPUT
 
-//#region 300_VAR
+(* ==================== VAR ==================== *)
 VAR
-    // 状态机核心
-    s_iCurrentStep          : INT;     // 当前状态机步骤
-    s_bRunning              : BOOL;    // 自动运行标志
-    s_bFault                : BOOL;    // 故障标志
-    s_iActiveAlarmCode      : INT;     // 当前激活报警码
-    s_bStartTriggered       : BOOL;    // 启动信号锁存
+    bStepEntry              : BOOL;         (* 新步入口标志 *)
+    bRunning                : BOOL;         (* 运行标志 *)
+    iCurrentState           : INT;          (* 当前状态内部 *)
+    iAlarmCode              : INT;          (* 报警码内部 *)
+    bStartTriggered         : BOOL;         (* 启动锁存 *)
 
-    // 定时器（SysLib FB_TON，PT/ET 为 DINT）
-    fb_tCommTimeoutTimer    : FB_TON;  // 通信超时定时器
-    fb_tActionTimer         : FB_TON;  // X2轴移动动作定时器
-    fb_tInitTimer           : FB_TON;  // 初始化定时器
-    fb_tPickupHoldTimer     : FB_TON;  // 允许取料保持定时器
+    tIn                     : ARRAY[0..1] OF BOOL;
+    tQ                      : ARRAY[0..1] OF BOOL;
+    tR                      : ARRAY[0..1] OF BOOL;
+    tPt                     : ARRAY[0..1] OF DINT;
+    tEt                     : ARRAY[0..1] OF DINT;
 
-    // 定时器 Q 输出
-    s_bCommTimeoutTimer_Q   : BOOL;
-    s_bActionTimer_Q        : BOOL;
-    s_bInitTimer_Q          : BOOL;
-    s_bPickupHoldTimer_Q    : BOOL;
+    tMoveTimer              : FB_TONR;      (* X2移动超时 *)
+    tCommTimer              : FB_TONR;      (* 打胶机通信超时 *)
 
-    // 安全区管理
-    s_bSafetyZoneActive     : BOOL;    // 安全区激活（X2运动中）
+    bPlaceDoneMem           : BOOL;         (* 放料完成记忆 *)
+    bFrameOnPlatform        : BOOL;         (* 平台有边框 *)
 
-    // 初始化
-    s_bInitComplete         : BOOL;    // 初始化完成标志
-    s_bInitializing         : BOOL;    // 初始化进行中
+    rPickupPos              : REAL := 620.0;   (* D620取料点 *)
+    rGluePlacePos           : REAL := 630.0;   (* D630打胶机送料点 *)
+    rStandbyPos             : REAL := 610.0;   (* D610待机位 *)
 END_VAR
-//#endregion 300_VAR
 
-//#region 400_VAR_CONSTANT
+(* ==================== VAR_CONSTANT ==================== *)
 VAR CONSTANT
-    // 状态机步骤
-    STP_Idle            : INT := 0;   // 空闲
-    STP_WaitFeed        : INT := 1;   // 等待取放料放料完成
-    STP_MoveToPickup    : INT := 2;   // X2移动到取料位
-    STP_WaitAllowFeed   : INT := 3;   // 等待打胶机允许送料
-    STP_SendAllowPickup : INT := 4;   // 发送允许取料信号
-    STP_ReturnStandby   : INT := 5;   // X2返回待机位
+    D760_IDLE               : INT := 0;     (* 空闲待机 *)
+    D760_MOVE_TO_PICKUP     : INT := 1;     (* X2→取料位D620 *)
+    D760_MOVE_TO_GLUE       : INT := 2;     (* X2→打胶机送料D630 *)
+    D760_RETURN_STANDBY     : INT := 3;     (* X2→待机位D610 *)
 
-    // 报警码（201~205）
-    ALM_CommTimeout         : INT := 201;  // 通信超时
-    ALM_SafetyZoneConflict  : INT := 202;  // 安全区冲突
-    ALM_X2AxisServoFault    : INT := 203;  // X2轴伺服故障
-    ALM_X2AxisMoveTimeout   : INT := 204;  // X2轴移动超时
-    ALM_PickupPosTimeout    : INT := 205;  // 到达取料位超时
-
-    // 默认定时参数（DINT，扫描周期数）
-    T_DEF_CommTimeout       : DINT := 10000;  // 通信超时（10s）
-    T_DEF_MoveTimeout       : DINT := 5000;   // 移动超时（5s）
-    T_DEF_InitTimeout       : DINT := 10000;  // 初始化超时（10s）
-    T_DEF_PickupHoldTime    : DINT := 500;    // 允许取料保持时间
+    T_MOVE_DEFAULT          : DINT := 20000;   (* 移动超时默认20s *)
+    T_COMM_DEFAULT          : DINT := 10000;  (* 通信超时默认10s *)
 END_VAR
-//#endregion 400_VAR_CONSTANT
 
-// ============================================================================
-// 主程序逻辑
-// ============================================================================
+(* ==================== 定时器调用 ==================== *)
+tMoveTimer(IN := tIn[0], R := tR[0], PT := tPt[0], Q => tQ[0], ET => tEt[0]);
+tCommTimer(IN := tIn[1], R := tR[1], PT := tPt[1], Q => tQ[1], ET => tEt[1]);
 
-// --- 使能关闭：安全状态 ---
-IF NOT i_bEnable THEN
-    o_bAllowPickup := FALSE;
-    o_bX2Axis_RequestFwd := FALSE;
-    o_bX2Axis_RequestRev := FALSE;
-    o_bSafetyZoneSignal := FALSE;
-    o_bRunning := FALSE;
-    o_bFault := FALSE;
-    o_iCurrentState := STP_Idle;
-    o_rX2Axis_CurrentPosition := 0.0;
-    o_iStationAlarmCode := 0;
-    s_iCurrentStep := STP_Idle;
-    s_bRunning := FALSE;
-    s_bFault := FALSE;
-    s_iActiveAlarmCode := 0;
-    s_bStartTriggered := FALSE;
-    s_bSafetyZoneActive := FALSE;
-    s_bInitComplete := FALSE;
-    s_bInitializing := FALSE;
-    fb_tCommTimeoutTimer(IN := FALSE, PT := 0, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
-    fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-    fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-    fb_tPickupHoldTimer(IN := FALSE, PT := 0, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
+(* ==================== 使能关闭 ==================== *)
+IF NOT i_bAutoMode AND NOT i_bManualMode THEN
+    q_bX2AxisHomeRequest := FALSE; q_bX2AxisMoveAbsReq := FALSE;
+    q_rX2AxisTargetPos := 0.0;
+    q_bAllowPickup := FALSE; q_bSafetyZoneSignal := FALSE;
+    q_iAlarmCode := 0; q_bFrameOnFeedPlatform := FALSE;
+    q_bRunning := FALSE;
+    iCurrentState := D760_IDLE; bRunning := FALSE; bStepEntry := TRUE;
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    bPlaceDoneMem := FALSE;
     RETURN;
 END_IF;
 
-// --- X2轴伺服故障检测（最高优先级） ---
-IF i_bX2Axis_ServoFault THEN
-    IF s_iActiveAlarmCode <> ALM_X2AxisServoFault THEN
-        s_iActiveAlarmCode := ALM_X2AxisServoFault;
-        s_bFault := TRUE;
-    END_IF;
-    o_bX2Axis_RequestFwd := FALSE;
-    o_bX2Axis_RequestRev := FALSE;
-ELSIF s_iActiveAlarmCode = ALM_X2AxisServoFault THEN
-    s_iActiveAlarmCode := 0;
-    s_bFault := FALSE;
+(* ==================== 停止处理 ==================== *)
+IF i_bStop AND bRunning THEN
+    iCurrentState := D760_IDLE; bRunning := FALSE; bStepEntry := TRUE;
+    q_bX2AxisMoveAbsReq := FALSE;
+    q_bAllowPickup := FALSE; q_bSafetyZoneSignal := FALSE;
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    bPlaceDoneMem := FALSE;
 END_IF;
 
-// --- 故障处理 ---
-IF s_bFault THEN
-    o_bAllowPickup := FALSE;
-    o_bX2Axis_RequestFwd := FALSE;
-    o_bX2Axis_RequestRev := FALSE;
-    o_bSafetyZoneSignal := FALSE;
-    s_bRunning := FALSE;
-    s_bSafetyZoneActive := FALSE;
-    fb_tCommTimeoutTimer(IN := FALSE, PT := 0, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
-    fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-    fb_tPickupHoldTimer(IN := FALSE, PT := 0, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
-
-    IF i_bReset THEN
-        s_iActiveAlarmCode := 0;
-        s_bFault := FALSE;
-        s_iCurrentStep := STP_Idle;
-        s_bStartTriggered := FALSE;
-        s_bInitComplete := FALSE;
-    END_IF;
-
-    o_bRunning := FALSE;
-    o_bFault := TRUE;
-    o_iCurrentState := 99;
-    o_iStationAlarmCode := s_iActiveAlarmCode;
-    RETURN;
+(* ==================== 放料完成脉冲记忆 ==================== *)
+IF i_bPlaceDone THEN
+    bPlaceDoneMem := TRUE;
 END_IF;
 
-// --- 停止处理 ---
-IF i_bStop AND s_bRunning THEN
-    s_iCurrentStep := STP_Idle;
-    s_bRunning := FALSE;
-    s_bStartTriggered := FALSE;
-    o_bAllowPickup := FALSE;
-    o_bX2Axis_RequestFwd := FALSE;
-    o_bX2Axis_RequestRev := FALSE;
-    o_bSafetyZoneSignal := FALSE;
-    s_bSafetyZoneActive := FALSE;
-    fb_tCommTimeoutTimer(IN := FALSE, PT := 0, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
-    fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-    fb_tPickupHoldTimer(IN := FALSE, PT := 0, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
-END_IF;
-
-// --- 初始化 ---
-IF NOT s_bInitComplete THEN
-    s_bInitializing := TRUE;
-    fb_tInitTimer(IN := TRUE, PT := T_DEF_InitTimeout, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-
-    // 等待X2轴到原点或超时
-    IF i_bX2Axis_Home OR s_bInitTimer_Q THEN
-        s_bInitComplete := TRUE;
-        s_bInitializing := FALSE;
-        fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-    END_IF;
-
-    o_bRunning := FALSE;
-    o_iCurrentState := STP_Idle;
-    RETURN;
-END_IF;
-
-// --- 模式分发 ---
+(* ==================== 模式分发 ==================== *)
 IF i_bAutoMode THEN
-    // ========================================================================
-    // 自动模式：6步状态机
-    // ========================================================================
 
-    // 启动触发检测
-    IF i_bStart AND NOT s_bStartTriggered THEN
-        s_bStartTriggered := TRUE;
+    (* --- 启动触发 --- *)
+    IF i_bStart AND NOT bStartTriggered THEN
+        bStartTriggered := TRUE;
+        bRunning := TRUE;
     END_IF;
 
-    CASE s_iCurrentStep OF
+    CASE iCurrentState OF
 
-    STP_Idle:
-        o_bAllowPickup := FALSE;
-        o_bX2Axis_RequestFwd := FALSE;
-        o_bX2Axis_RequestRev := FALSE;
-        o_bSafetyZoneSignal := FALSE;
-        s_bSafetyZoneActive := FALSE;
+        D760_IDLE: (* 0 - 空闲待机 *)
+            IF bStepEntry THEN
+                q_bX2AxisMoveAbsReq := FALSE;
+                q_bAllowPickup := FALSE;
+                q_bSafetyZoneSignal := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-        IF s_bStartTriggered THEN
-            s_iCurrentStep := STP_WaitFeed;
-            s_bRunning := TRUE;
-        END_IF;
+            (* 检查送料平台是否有残留边框 *)
+            IF i_bX2ZoneSensor1 OR i_bX2ZoneSensor2 THEN
+                q_bFrameOnFeedPlatform := TRUE;
+                bFrameOnPlatform := TRUE;
+                iAlarmCode := 81;
+            END_IF;
 
-    STP_WaitFeed:
-        // 等待取放料放料完成信号
-        IF i_bPickPlace_FeedComplete THEN
-            s_iCurrentStep := STP_MoveToPickup;
-            // 启动X2轴前移动作
-            o_bX2Axis_RequestFwd := TRUE;
-            o_bX2Axis_RequestRev := FALSE;
-            s_bSafetyZoneActive := TRUE;
-            o_bSafetyZoneSignal := TRUE;
-            fb_tActionTimer(IN := TRUE, PT := T_DEF_MoveTimeout, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-        END_IF;
+            IF bPlaceDoneMem AND bStartTriggered THEN
+                bPlaceDoneMem := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := D760_MOVE_TO_PICKUP;
+            END_IF;
 
-    STP_MoveToPickup:
-        // X2轴前移到取料位
-        o_bX2Axis_RequestFwd := TRUE;
-        o_bSafetyZoneSignal := TRUE;
+        D760_MOVE_TO_PICKUP: (* 1 - X2→取料点D620 *)
+            IF bStepEntry THEN
+                q_rX2AxisTargetPos := rPickupPos;
+                q_bX2AxisMoveAbsReq := TRUE;
+                tPt[0] := T_MOVE_DEFAULT;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-        IF i_bX2Axis_ForwardLimit THEN
-            // 到达取料位
-            fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-            o_bX2Axis_RequestFwd := FALSE;
-            s_iCurrentStep := STP_WaitAllowFeed;
-            // 启动通信超时定时器
-            fb_tCommTimeoutTimer(IN := TRUE, PT := T_DEF_CommTimeout, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
-        ELSIF s_bActionTimer_Q THEN
-            // 移动超时
-            fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-            s_iActiveAlarmCode := ALM_X2AxisMoveTimeout;
-            s_bFault := TRUE;
-            o_bX2Axis_RequestFwd := FALSE;
-        END_IF;
+            (* X2到达取料点 *)
+            IF i_bX2ZoneSensor1 AND i_bX2ZoneSensor2 THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := D760_MOVE_TO_GLUE;
+            ELSIF tQ[0] THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bX2AxisMoveAbsReq := FALSE;
+                iAlarmCode := 203;
+                iCurrentState := D760_IDLE;
+                bRunning := FALSE;
+            END_IF;
 
-    STP_WaitAllowFeed:
-        // 等待打胶机允许送料
-        o_bSafetyZoneSignal := TRUE;
+        D760_MOVE_TO_GLUE: (* 2 - X2→放料点D630，与打胶机交互 *)
+            IF bStepEntry THEN
+                q_rX2AxisTargetPos := rGluePlacePos;
+                q_bX2AxisMoveAbsReq := TRUE;
+                tPt[0] := T_MOVE_DEFAULT;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-        IF i_bGlueMachine_AllowFeed THEN
-            fb_tCommTimeoutTimer(IN := FALSE, PT := 0, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
-            s_iCurrentStep := STP_SendAllowPickup;
-            o_bAllowPickup := TRUE;
-            fb_tPickupHoldTimer(IN := TRUE, PT := T_DEF_PickupHoldTime, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
-        ELSIF s_bCommTimeoutTimer_Q THEN
-            // 通信超时
-            fb_tCommTimeoutTimer(IN := FALSE, PT := 0, Q => s_bCommTimeoutTimer_Q, ET => q_eCommTimeout_Elapsed);
-            s_iActiveAlarmCode := ALM_CommTimeout;
-            s_bFault := TRUE;
-        END_IF;
+            IF i_bX2ZoneSensor3 OR i_bX2ZoneSensor4 THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bSafetyZoneSignal := TRUE;
+            ELSIF tQ[0] THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bX2AxisMoveAbsReq := FALSE;
+                iAlarmCode := 203;
+                iCurrentState := D760_IDLE;
+                bRunning := FALSE;
+            END_IF;
 
-    STP_SendAllowPickup:
-        // 允许取料信号保持到定时到
-        o_bAllowPickup := TRUE;
-        o_bSafetyZoneSignal := TRUE;
+            IF q_bSafetyZoneSignal THEN
+                IF i_bGlueMachineAllowFeed THEN
+                    q_bAllowPickup := TRUE;
+                END_IF;
+                IF i_bGlueMachinePickupComplete THEN
+                    q_bAllowPickup := FALSE;
+                    bStepEntry := TRUE;
+                    iCurrentState := D760_RETURN_STANDBY;
+                END_IF;
+            END_IF;
 
-        IF i_bGlueMachine_PickupComplete OR s_bPickupHoldTimer_Q THEN
-            fb_tPickupHoldTimer(IN := FALSE, PT := 0, Q => s_bPickupHoldTimer_Q, ET => q_ePickupHold_Elapsed);
-            o_bAllowPickup := FALSE;
-            s_iCurrentStep := STP_ReturnStandby;
-            // 启动X2轴后移动作
-            o_bX2Axis_RequestRev := TRUE;
-            o_bX2Axis_RequestFwd := FALSE;
-            fb_tActionTimer(IN := TRUE, PT := T_DEF_MoveTimeout, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-        END_IF;
+        D760_RETURN_STANDBY: (* 3 - X2→待机位D610 *)
+            IF bStepEntry THEN
+                q_rX2AxisTargetPos := rStandbyPos;
+                q_bX2AxisMoveAbsReq := TRUE;
+                tPt[0] := T_MOVE_DEFAULT;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-    STP_ReturnStandby:
-        // X2轴返回待机位
-        o_bX2Axis_RequestRev := TRUE;
-        o_bSafetyZoneSignal := TRUE;
+            IF i_bX2ZoneSensor1 AND i_bX2ZoneSensor2 THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bSafetyZoneSignal := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := D760_IDLE;
+                bRunning := FALSE; bStartTriggered := FALSE;
+            ELSIF tQ[0] THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bX2AxisMoveAbsReq := FALSE;
+                q_bSafetyZoneSignal := FALSE;
+                iAlarmCode := 203;
+                iCurrentState := D760_IDLE;
+                bRunning := FALSE;
+            END_IF;
 
-        IF i_bX2Axis_ReverseLimit OR i_bX2Axis_Home THEN
-            // 到达待机位
-            fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-            o_bX2Axis_RequestRev := FALSE;
-            o_bSafetyZoneSignal := FALSE;
-            s_bSafetyZoneActive := FALSE;
-            s_iCurrentStep := STP_Idle;
-            s_bRunning := FALSE;
-            s_bStartTriggered := FALSE;
-        ELSIF s_bActionTimer_Q THEN
-            // 移动超时
-            fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-            s_iActiveAlarmCode := ALM_X2AxisMoveTimeout;
-            s_bFault := TRUE;
-            o_bX2Axis_RequestRev := FALSE;
-        END_IF;
-
-    ELSE
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
+        ELSE
+            iCurrentState := D760_IDLE;
+            bRunning := FALSE; bStartTriggered := FALSE;
     END_CASE;
 
 ELSIF i_bManualMode THEN
-    // ========================================================================
-    // 手动模式：X2轴点动控制
-    // ========================================================================
-    s_bRunning := FALSE;
-    s_iCurrentStep := STP_Idle;
-    s_bStartTriggered := FALSE;
-    o_bAllowPickup := FALSE;
-    o_bSafetyZoneSignal := FALSE;
-    s_bSafetyZoneActive := FALSE;
+    (* ==================== 手动模式 ==================== *)
+    bRunning := FALSE; iCurrentState := D760_IDLE;
+    bStepEntry := TRUE; bStartTriggered := FALSE;
+    q_bAllowPickup := FALSE; q_bSafetyZoneSignal := FALSE;
+    bPlaceDoneMem := FALSE;
 
-    // X2轴点动：前/后互锁
-    IF i_bLx_X2Axis_JogFwd AND NOT i_bLx_X2Axis_JogRev THEN
-        IF NOT i_bX2Axis_ForwardLimit THEN
-            o_bX2Axis_RequestFwd := TRUE;
-            o_bX2Axis_RequestRev := FALSE;
-        END_IF;
-    ELSIF i_bLx_X2Axis_JogRev AND NOT i_bLx_X2Axis_JogFwd THEN
-        IF NOT i_bX2Axis_ReverseLimit THEN
-            o_bX2Axis_RequestRev := TRUE;
-            o_bX2Axis_RequestFwd := FALSE;
-        END_IF;
+    IF i_bLx_X2JogPos AND NOT i_bLx_X2JogNeg THEN
+        q_bX2AxisMoveAbsReq := TRUE;
+        q_rX2AxisTargetPos := rGluePlacePos;
+    ELSIF i_bLx_X2JogNeg AND NOT i_bLx_X2JogPos THEN
+        q_bX2AxisMoveAbsReq := TRUE;
+        q_rX2AxisTargetPos := rStandbyPos;
     ELSE
-        o_bX2Axis_RequestFwd := FALSE;
-        o_bX2Axis_RequestRev := FALSE;
+        q_bX2AxisMoveAbsReq := FALSE;
     END_IF;
 
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+
 ELSE
-    // 无效模式：安全状态
-    o_bAllowPickup := FALSE;
-    o_bX2Axis_RequestFwd := FALSE;
-    o_bX2Axis_RequestRev := FALSE;
-    o_bSafetyZoneSignal := FALSE;
-    s_bSafetyZoneActive := FALSE;
-    IF NOT s_bFault THEN
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
-    END_IF;
+    q_bX2AxisMoveAbsReq := FALSE;
+    q_bAllowPickup := FALSE; q_bSafetyZoneSignal := FALSE;
 END_IF;
 
-// --- 状态输出 ---
-o_bRunning := s_bRunning;
-o_bFault := s_bFault;
-IF s_bFault THEN
-    o_iCurrentState := 99;
-ELSE
-    o_iCurrentState := s_iCurrentStep;
-END_IF;
-o_iStationAlarmCode := s_iActiveAlarmCode;
+(* ==================== 状态输出 ==================== *)
+q_bRunning := bRunning;
+q_iCurrentState := iCurrentState;
+q_iAlarmCode := iAlarmCode;
 
 END_FUNCTION_BLOCK

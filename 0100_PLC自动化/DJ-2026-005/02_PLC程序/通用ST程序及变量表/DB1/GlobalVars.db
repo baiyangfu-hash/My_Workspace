@@ -1,5 +1,5 @@
 // ============================================================================
-// GlobalVars.db - 边框缓存机全局变量数据块 (Global Variable Data Block)
+// GlobalVars.db - 边框缓存机全局变量数据块
 // ============================================================================
 // 功能说明:
 //   定义 DJ-2026-005 边框缓存机 PLC 控制系统的所有全局变量.
@@ -56,25 +56,25 @@ VAR
     // =========================================================================
     stGlobal : STRUCT
         // --- 操作控制 (传给FB_2001) ---
-        i_bReset           : BOOL := FALSE;    // Global reset button
+        i_bReset           : BOOL := FALSE;    // 全局复位按钮
 
         // --- HMI显示输出 (来自FB_2001) ---
-        o_wGlobalAlarmWord     : WORD := 0;        // Global alarm word (D400, HMI alarm light)
-        o_iCurrentAlarmCode   : INT := 0;         // Highest priority alarm code (D402, HMI text display)
+        o_wGlobalAlarmWord     : WORD := 0;        // 全局报警字 (D400, HMI报警灯)
+        o_iCurrentAlarmCode   : INT := 0;         // 最高优先级报警代码 (D402, HMI文本显示)
 
         // --- 全局互锁输出 (来自FB_2001) ---
-        o_bAnyAlarmActive   : BOOL := FALSE;    // Global alarm active flag (M200, all stations stop)
+        o_bAnyAlarmActive   : BOOL := FALSE;    // 全局报警激活标志 (M200, 所有工站停止)
 
         // --- MES数据接口输出 (来自FB_2001) ---
-        o_iMESAlarmCount    : INT := 0;         // MES alarm cumulative count (D404)
-        o_iMESAlarmQueue    : ARRAY[0..9] OF INT;  // MES alarm queue (D406~D425, last 10 dedup records)
-        o_bNewAlarmFlag     : BOOL := FALSE;    // New alarm detection pulse (trigger MES upload)
+        o_iMESAlarmCount    : INT := 0;         // MES报警累计计数 (D404)
+        o_iMESAlarmQueue    : ARRAY[0..9] OF INT;  // MES报警队列 (D406~D425, 最近10条去重记录)
+        o_bNewAlarmFlag     : BOOL := FALSE;    // 新报警检测脉冲 (触发MES上传)
 
         // --- 多报警状态输出 (来自FB_2001) ---
-        o_iStationAlarmStatus   : ARRAY[1..3] OF INT;  // Three-station alarm status array [1]Conveyor [2]PickPlace [3]Feeder
-        o_bConveyorAlarmActive : BOOL := FALSE;    // Conveyor station has alarm flag
-        o_bPickPlaceAlarmActive : BOOL := FALSE;    // PickPlace station has alarm flag
-        o_bFeederAlarmActive : BOOL := FALSE;  // Feeder station has alarm flag
+        o_iStationAlarmStatus   : ARRAY[1..3] OF INT;  // 三站报警状态数组 [1]输送机 [2]取放料 [3]送料
+        o_bConveyorAlarmActive : BOOL := FALSE;    // 输送机站有报警标志
+        o_bPickPlaceAlarmActive : BOOL := FALSE;    // 取放料站有报警标志
+        o_bFeederAlarmActive : BOOL := FALSE;  // 送料站有报警标志
     END_STRUCT;
 
     // =========================================================================
@@ -86,66 +86,66 @@ VAR
     stExternal : STRUCT
         // === 输入信号 (27个) ===
         // --- 系统控制信号 (6个) ---
-        i_bEnable           : BOOL := FALSE;    // System enable
-        i_bAutoMode       : BOOL := FALSE;    // Auto mode selection
-        i_bManualMode       : BOOL := FALSE;    // Manual mode selection
-        i_bStart           : BOOL := FALSE;    // Start button
-        i_bStop           : BOOL := FALSE;    // Stop button
-        i_bReset           : BOOL := FALSE;    // Reset button
+        i_bEnable           : BOOL := FALSE;    // 系统使能
+        i_bAutoMode       : BOOL := FALSE;    // 自动模式选择
+        i_bManualMode       : BOOL := FALSE;    // 手动模式选择
+        i_bStart           : BOOL := FALSE;    // 启动按钮
+        i_bStop           : BOOL := FALSE;    // 停止按钮
+        i_bReset           : BOOL := FALSE;    // 复位按钮
 
         // --- 组框机输入信号 (7个) ---
-        i_bFrameMachine_AutoRunning   : BOOL := FALSE;   // Frame machine auto running
-        i_bFrameMachine_AllowFeed : BOOL := FALSE;   // Frame machine allow feeding to buffer
-        i_bFrameMaterialRequest : BOOL := FALSE;   // Frame machine has material to feed
-        i_bDoorOpenRequest : BOOL := FALSE;   // Frame machine door open request (need pause)
-        i_bFrameMachine_EStop     : BOOL := FALSE;   // Frame machine emergency stop (need interlock)
-        i_bFrameMachine_SafetyErr : BOOL := FALSE;   // Frame machine safety system error
-        i_bFrameMachine_CommErr : BOOL := FALSE;   // Communication error with frame machine
+        i_bFrameMachine_AutoRunning   : BOOL := FALSE;   // 组框机自动运行中
+        i_bFrameMachine_AllowFeed : BOOL := FALSE;   // 组框机允许向缓存送料
+        i_bFrameMaterialRequest : BOOL := FALSE;   // 组框机有料待送入
+        i_bDoorOpenRequest : BOOL := FALSE;   // 组框机开门请求 (需暂停)
+        i_bFrameMachine_EStop     : BOOL := FALSE;   // 组框机急停 (需互锁)
+        i_bFrameMachine_SafetyErr : BOOL := FALSE;   // 组框机安全系统错误
+        i_bFrameMachine_CommErr : BOOL := FALSE;   // 与组框机通信错误
 
         // --- 打胶机输入信号 (6个) ---
-        i_bGlueMachine_AutoRunning   : BOOL := FALSE;   // Glue machine auto running
-        i_bGlueMachine_AllowFeed : BOOL := FALSE;   // Glue machine ready to receive frame
-        i_bGlueMachine_PickComplete : BOOL := FALSE;   // Glue machine completed pickup
-        i_bGlueMachine_Fault     : BOOL := FALSE;   // Glue machine equipment fault alarm
-        i_bGlueMachine_EStop     : BOOL := FALSE;   // Glue machine emergency stop status
-        i_bGlueMachine_CommErr : BOOL := FALSE;   // Communication interrupted with glue machine
+        i_bGlueMachine_AutoRunning   : BOOL := FALSE;   // 打胶机自动运行中
+        i_bGlueMachine_AllowFeed : BOOL := FALSE;   // 打胶机准备好接收边框
+        i_bGlueMachine_PickComplete : BOOL := FALSE;   // 打胶机取料完成
+        i_bGlueMachine_Fault     : BOOL := FALSE;   // 打胶机设备故障报警
+        i_bGlueMachine_EStop     : BOOL := FALSE;   // 打胶机急停状态
+        i_bGlueMachine_CommErr : BOOL := FALSE;   // 与打胶机通信中断
 
         // --- 机器人输入信号 (5个, 预留) ---
-        i_bRobot_AutoRunning   : BOOL := FALSE;   // Robot auto running
-        i_bRobot_StackComplete : BOOL := FALSE;   // Robot completed stacking
-        i_bRobot_Fault     : BOOL := FALSE;   // Robot equipment fault
-        i_bRobot_EStop     : BOOL := FALSE;   // Robot emergency stop status
-        i_bRobot_CommErr : BOOL := FALSE;   // Communication error with robot
+        i_bRobot_AutoRunning   : BOOL := FALSE;   // 机器人自动运行中
+        i_bRobot_StackComplete : BOOL := FALSE;   // 机器人堆垛完成
+        i_bRobot_Fault     : BOOL := FALSE;   // 机器人设备故障
+        i_bRobot_EStop     : BOOL := FALSE;   // 机器人急停状态
+        i_bRobot_CommErr : BOOL := FALSE;   // 与机器人通信错误
 
         // --- 本机状态信号 (3个) ---
-        i_bLocalReady       : BOOL := FALSE;    // Local ready status (send to external devices)
-        i_bAnyAlarmActive   : BOOL := FALSE;    // Local has any alarm active (independent alarm detection)
-        i_bSystemFault       : BOOL := FALSE;    // Local system fault (independent fault detection)
+        i_bLocalReady       : BOOL := FALSE;    // 本机就绪状态 (发送给外部设备)
+        i_bAnyAlarmActive   : BOOL := FALSE;    // 本机有任何报警激活 (独立报警检测)
+        i_bSystemFault       : BOOL := FALSE;    // 本机系统故障 (独立故障检测)
 
         // === 输出信号 (20个) ===
         // --- 组框机输出信号 (5个) ---
-        o_bFrameMachine_RequestFeed : BOOL := FALSE;   // Request frame machine to feed frames
-        o_bFrameMachine_Pause     : BOOL := FALSE;   // Send pause command to frame machine
-        o_bFrameMachine_EStop     : BOOL := FALSE;   // Send emergency stop interlock signal to frame machine
-        o_bDoorOpenRequest        : BOOL := FALSE;   // Request door open operation from frame machine
-        o_bFrameMachine_Ready     : BOOL := FALSE;   // Local ready, can receive frames
+        o_bFrameMachine_RequestFeed : BOOL := FALSE;   // 请求组框机送料
+        o_bFrameMachine_Pause     : BOOL := FALSE;   // 向组框机发送暂停命令
+        o_bFrameMachine_EStop     : BOOL := FALSE;   // 向组框机发送急停互锁信号
+        o_bDoorOpenRequest        : BOOL := FALSE;   // 向组框机请求开门操作
+        o_bFrameMachine_Ready     : BOOL := FALSE;   // 本机就绪, 可接收边框
 
         // --- 打胶机输出信号 (4个) ---
-        o_bGlueMachine_RequestRun : BOOL := FALSE;   // Request glue machine to start running
-        o_bAllowPickup        : BOOL := FALSE;   // Notify glue machine can pick up frames
-        o_bSafetyZoneSignal      : BOOL := FALSE;   // Safety zone open/close signal
-        o_bGlueMachine_ResetReq : BOOL := FALSE;   // Send reset request to glue machine
+        o_bGlueMachine_RequestRun : BOOL := FALSE;   // 请求打胶机启动运行
+        o_bAllowPickup        : BOOL := FALSE;   // 通知打胶机可取料
+        o_bSafetyZoneSignal      : BOOL := FALSE;   // 安全区开/关信号
+        o_bGlueMachine_ResetReq : BOOL := FALSE;   // 向打胶机发送复位请求
 
         // --- 机器人输出信号 (3个, 预留) ---
-        o_bRobot_AllowStacking : BOOL := FALSE;   // Allow robot to perform stacking
-        o_bRobot_StopStacking : BOOL := FALSE;   // Stop robot stacking
-        o_bRobot_ResetReq : BOOL := FALSE;   // Send reset request to robot
+        o_bRobot_AllowStacking : BOOL := FALSE;   // 允许机器人执行堆垛
+        o_bRobot_StopStacking : BOOL := FALSE;   // 停止机器人堆垛
+        o_bRobot_ResetReq : BOOL := FALSE;   // 向机器人发送复位请求
 
         // --- 状态与报警输出 (4个) ---
-        o_bFrameMachine_EmergencyStop  : BOOL := FALSE;   // Force local stop when frame machine E-stop/safety error
-        o_bExternalDeviceFault    : BOOL := FALSE;   // External device fault flag
-        o_iExternalDeviceAlarmSummary : INT := 0;       // External device fault alarm code (300~399 range)
-        o_bSystemSafetyConditionMet : BOOL := FALSE;  // System safety condition satisfied
+        o_bFrameMachine_EmergencyStop  : BOOL := FALSE;   // 组框机急停/安全错误时强制本机停止
+        o_bExternalDeviceFault    : BOOL := FALSE;   // 外部设备故障标志
+        o_iExternalDeviceAlarmSummary : INT := 0;       // 外部设备故障报警代码 (300~399范围)
+        o_bSystemSafetyConditionMet : BOOL := FALSE;  // 系统安全条件满足
     END_STRUCT;
 
     // =========================================================================
@@ -158,57 +158,57 @@ VAR
     stConveyor : STRUCT
         // === 输入信号 ===
         // --- 系统控制信号 (9个, 含工艺参数) ---
-        i_bEnable               : BOOL := FALSE;    // Total enable signal
-        i_bAutoMode           : BOOL := FALSE;    // Auto running mode selection
-        i_bManualMode           : BOOL := FALSE;    // Manual debug mode selection
-        i_bStart               : BOOL := FALSE;    // Auto cycle start button
-        i_bStop               : BOOL := FALSE;    // Auto cycle stop button
-        i_bReset               : BOOL := FALSE;    // Fault reset/init button
+        i_bEnable               : BOOL := FALSE;    // 总使能信号
+        i_bAutoMode           : BOOL := FALSE;    // 自动运行模式选择
+        i_bManualMode           : BOOL := FALSE;    // 手动调试模式选择
+        i_bStart               : BOOL := FALSE;    // 自动循环启动按钮
+        i_bStop               : BOOL := FALSE;    // 自动循环停止按钮
+        i_bReset               : BOOL := FALSE;    // 故障复位/初始化按钮
 
         // --- 工艺参数 (3个, REAL/INT类型) ---
-        i_rConveyorSpeed           : REAL := 50.0;     // Conveyor speed setting (Hz or m/min)
-        i_iSeparateTime           : INT := 500;       // Separate action hold time (ms)
-        i_iBlockWaitTime        : INT := 200;       // Block cylinder action wait time (ms)
+        i_rConveyorSpeed           : REAL := 50.0;     // 输送机速度设定 (Hz 或 m/min)
+        i_iSeparateTime           : INT := 500;       // 分料动作保持时间 (ms)
+        i_iBlockWaitTime        : INT := 200;       // 挡料气缸动作等待时间 (ms)
 
         // --- 手动操作信号 (6类 × 4层 = 24个BOOL, ARRAY[1..4]) ---
-        i_bLx_BlockDown           : ARRAY[1..4] OF BOOL;  // Manual-block cylinder down
-        i_bLx_BlockUp           : ARRAY[1..4] OF BOOL;  // Manual-block cylinder up
-        i_bLx_SeparatePush           : ARRAY[1..4] OF BOOL;  // Manual-separate cylinder push
-        i_bLx_SeparateReset           : ARRAY[1..4] OF BOOL;  // Manual-separate cylinder reset
-        i_bLx_ConveyorFwd           : ARRAY[1..4] OF BOOL;  // Manual-conveyor forward
-        i_bLx_ConveyorRev           : ARRAY[1..4] OF BOOL;  // Manual-conveyor reverse
+        i_bLx_BlockDown           : ARRAY[1..4] OF BOOL;  // 手动-挡料气缸下降
+        i_bLx_BlockUp           : ARRAY[1..4] OF BOOL;  // 手动-挡料气缸上升
+        i_bLx_SeparatePush           : ARRAY[1..4] OF BOOL;  // 手动-分料气缸伸出
+        i_bLx_SeparateReset           : ARRAY[1..4] OF BOOL;  // 手动-分料气缸复位
+        i_bLx_ConveyorFwd           : ARRAY[1..4] OF BOOL;  // 手动-输送机正转
+        i_bLx_ConveyorRev           : ARRAY[1..4] OF BOOL;  // 手动-输送机反转
 
         // --- 传感器输入 (7类 × 4层 = 28个BOOL, ARRAY[1..4]) ---
-        i_bPreSeparateSensor       : ARRAY[1..4] OF BOOL;  // Pre-separate material arrival sensor
-        i_bPositionSensor1        : ARRAY[1..4] OF BOOL;  // Position sensor 1 (redundant detection)
-        i_bPositionSensor2        : ARRAY[1..4] OF BOOL;  // Position sensor 2 (redundant detection)
-        i_bBlockCylinderUp       : ARRAY[1..4] OF BOOL;  // Block cylinder up(release) position feedback
-        i_bBlockCylinderDown       : ARRAY[1..4] OF BOOL;  // Block down(block) position feedback
-        i_bSeparateCylinderUp       : ARRAY[1..4] OF BOOL;  // Separate cylinder retract position feedback
-        i_bSeparateCylinderDown       : ARRAY[1..4] OF BOOL;  // Separate cylinder extend position feedback
+        i_bPreSeparateSensor       : ARRAY[1..4] OF BOOL;  // 分料前来料检测传感器
+        i_bPositionSensor1        : ARRAY[1..4] OF BOOL;  // 位置传感器1 (冗余检测)
+        i_bPositionSensor2        : ARRAY[1..4] OF BOOL;  // 位置传感器2 (冗余检测)
+        i_bBlockCylinderUp       : ARRAY[1..4] OF BOOL;  // 挡料气缸上升(释放)位置反馈
+        i_bBlockCylinderDown       : ARRAY[1..4] OF BOOL;  // 挡料气缸下降(挡料)位置反馈
+        i_bSeparateCylinderUp       : ARRAY[1..4] OF BOOL;  // 分料气缸缩回位置反馈
+        i_bSeparateCylinderDown       : ARRAY[1..4] OF BOOL;  // 分料气缸伸出位置反馈
 
         // --- 下游反馈信号 (4个BOOL, ARRAY[1..4]) ---
-        i_bFeedComplete         : ARRAY[1..4] OF BOOL;  // PickPlace mechanism has picked this layer material
+        i_bFeedComplete         : ARRAY[1..4] OF BOOL;  // 取放料机构已取走该层物料
 
         // === 输出信号 (30个) ===
         // --- 执行器请求输出 (5类 × 4层 = 20个BOOL, ARRAY[1..4]) ---
-        o_bBlockSolenoid         : ARRAY[1..4] OF BOOL;  // TRUE=down(block), FALSE=up(release)
-        o_bSeparateSolenoid         : ARRAY[1..4] OF BOOL;  // TRUE=push(separate), FALSE=reset
-        o_bConveyorFwd         : ARRAY[1..4] OF BOOL;  // Conveyor forward rotation
-        o_bConveyorSlow         : ARRAY[1..4] OF BOOL;  // Conveyor slow speed (for precise positioning)
-        o_bConveyorRev         : ARRAY[1..4] OF BOOL;  // Conveyor reverse rotation (for unloading)
+        o_bBlockSolenoid         : ARRAY[1..4] OF BOOL;  // TRUE=下降(挡料), FALSE=上升(释放)
+        o_bSeparateSolenoid         : ARRAY[1..4] OF BOOL;  // TRUE=伸出(分料), FALSE=复位
+        o_bConveyorFwd         : ARRAY[1..4] OF BOOL;  // 输送机正转
+        o_bConveyorSlow         : ARRAY[1..4] OF BOOL;  // 输送机慢速 (用于精确定位)
+        o_bConveyorRev         : ARRAY[1..4] OF BOOL;  // 输送机反转 (用于卸料)
 
         // --- 下游信号输出 (4个BOOL, ARRAY[1..4]) ---
-        o_bFeedComplete           : ARRAY[1..4] OF BOOL;  // This layer feed complete, ready for pickup
+        o_bFeedComplete           : ARRAY[1..4] OF BOOL;  // 该层送料完成, 等待取料
 
         // --- 状态/HMI显示输出 (4个) ---
-        o_bRunning             : BOOL := FALSE;        // Any layer is currently auto running
-        o_bFault               : BOOL := FALSE;        // This station has fault (any alarm active)
-        o_iCurrentState           : INT := 0;             // Current main state code (0=idle, 1-8=step, 99=fault)
-        o_LxCurrentStep          : ARRAY[1..4] OF INT;   // Each layer current step (0-8)
+        o_bRunning             : BOOL := FALSE;        // 任意层当前自动运行中
+        o_bFault               : BOOL := FALSE;        // 本站有故障 (任意报警激活)
+        o_iCurrentState           : INT := 0;             // 当前主状态代码 (0=空闲, 1-8=步骤, 99=故障)
+        o_LxCurrentStep          : ARRAY[1..4] OF INT;   // 各层当前步骤 (0-8)
 
         // --- 报警输出 (1个) ---
-        o_iAlarmCode       : INT := 0;             // This station current valid alarm code (0=no alarm, 1-7=alarm type)
+        o_iAlarmCode       : INT := 0;             // 本站当前有效报警代码 (0=无报警, 1-7=报警类型)
     END_STRUCT;
 
     // =========================================================================
@@ -222,125 +222,125 @@ VAR
     stPickPlace : STRUCT
         // === 输入信号 (55个) ===
         // --- 系统控制信号 (8个) ---
-        i_bEnable               : BOOL := FALSE;    // Total enable signal
-        i_bAutoMode           : BOOL := FALSE;    // Auto running mode selection
-        i_bManualMode           : BOOL := FALSE;    // Manual debug mode selection
-        i_bStart               : BOOL := FALSE;    // Auto cycle start button (rising edge trigger)
-        i_bStop               : BOOL := FALSE;    // Auto cycle stop button (level effective)
-        i_bReset               : BOOL := FALSE;    // Fault reset/init button (level effective)
+        i_bEnable               : BOOL := FALSE;    // 总使能信号
+        i_bAutoMode           : BOOL := FALSE;    // 自动运行模式选择
+        i_bManualMode           : BOOL := FALSE;    // 手动调试模式选择
+        i_bStart               : BOOL := FALSE;    // 自动循环启动按钮 (上升沿触发)
+        i_bStop               : BOOL := FALSE;    // 自动循环停止按钮 (电平有效)
+        i_bReset               : BOOL := FALSE;    // 故障复位/初始化按钮 (电平有效)
 
         // --- 手动操作信号 (14个BOOL) ---
         // 伺服点动控制 (4个)
-        i_bLx_ZAxis_JogUp          : BOOL := FALSE;    // Manual-Z axis jog up
-        i_bLx_ZAxis_JogDown          : BOOL := FALSE;    // Manual-Z axis jog down
-        i_bLx_X1Axis_JogFwd         : BOOL := FALSE;    // Manual-X1 axis jog forward (pickup direction)
-        i_bLx_X1Axis_JogRev         : BOOL := FALSE;    // Manual-X1 axis jog reverse (place direction)
+        i_bLx_ZAxis_JogUp          : BOOL := FALSE;    // 手动-Z轴点动上升
+        i_bLx_ZAxis_JogDown          : BOOL := FALSE;    // 手动-Z轴点动下降
+        i_bLx_X1Axis_JogFwd         : BOOL := FALSE;    // 手动-X1轴点动前进 (取料方向)
+        i_bLx_X1Axis_JogRev         : BOOL := FALSE;    // 手动-X1轴点动后退 (放料方向)
 
         // 气缸手动控制 (10个, 双电磁阀)
-        i_bLx_Lift_Up           : BOOL := FALSE;    // Manual-lift cylinder up
-        i_bLx_Lift_Down           : BOOL := FALSE;    // Manual-lift cylinder down
-        i_bLx_FrontClamp         : BOOL := FALSE;    // Manual-front clamp action
-        i_bLx_FrontUnclamp         : BOOL := FALSE;    // Manual-front clamp release
-        i_bLx_RearClamp         : BOOL := FALSE;    // Manual-rear clamp action
-        i_bLx_RearUnclamp         : BOOL := FALSE;    // Manual-rear clamp release
-        i_bLx_FrontClamp2        : BOOL := FALSE;    // Manual-front clamp2 action (second front clamp)
-        i_bLx_FrontUnclamp2        : BOOL := FALSE;    // Manual-front clamp2 release
-        i_bLx_RearClamp2        : BOOL := FALSE;    // Manual-rear clamp2 action (second rear clamp)
-        i_bLx_RearUnclamp2        : BOOL := FALSE;    // Manual-rear clamp2 release
+        i_bLx_Lift_Up           : BOOL := FALSE;    // 手动-升降气缸上升
+        i_bLx_Lift_Down           : BOOL := FALSE;    // 手动-升降气缸下降
+        i_bLx_FrontClamp         : BOOL := FALSE;    // 手动-前夹爪夹紧
+        i_bLx_FrontUnclamp         : BOOL := FALSE;    // 手动-前夹爪松开
+        i_bLx_RearClamp         : BOOL := FALSE;    // 手动-后夹爪夹紧
+        i_bLx_RearUnclamp         : BOOL := FALSE;    // 手动-后夹爪松开
+        i_bLx_FrontClamp2        : BOOL := FALSE;    // 手动-前夹爪2夹紧 (第二前夹爪)
+        i_bLx_FrontUnclamp2        : BOOL := FALSE;    // 手动-前夹爪2松开
+        i_bLx_RearClamp2        : BOOL := FALSE;    // 手动-后夹爪2夹紧 (第二后夹爪)
+        i_bLx_RearUnclamp2        : BOOL := FALSE;    // 手动-后夹爪2松开
 
         // --- 工艺参数 (6个, REAL/INT类型) ---
         // 运动速度参数 (4个REAL)
-        i_rPickupSpeed           : REAL := 100.0;    // Pickup process Z axis down/up speed (mm/s or %)
-        i_rPlaceSpeed           : REAL := 80.0;     // Place process Z axis down/up speed (mm/s or %)
-        i_rZAxisSpeed            : REAL := 100.0;    // Z axis general motion speed setting (mm/s)
-        i_rX1AxisSpeed           : REAL := 150.0;    // X1 axis general motion speed setting (mm/s)
+        i_rPickupSpeed           : REAL := 100.0;    // 取料过程Z轴升降速度 (mm/s 或 %)
+        i_rPlaceSpeed           : REAL := 80.0;     // 放料过程Z轴升降速度 (mm/s 或 %)
+        i_rZAxisSpeed            : REAL := 100.0;    // Z轴通用运动速度设定 (mm/s)
+        i_rX1AxisSpeed           : REAL := 150.0;    // X1轴通用运动速度设定 (mm/s)
 
         // 动作时间参数 (2个INT)
-        i_iClampConfirmTime       : INT := 500;       // Clamp close confirm wait time (ms)
-        i_iLiftActionTime       : INT := 3000;      // Lift cylinder action timeout time (ms)
+        i_iClampConfirmTime       : INT := 500;       // 夹爪夹紧确认等待时间 (ms)
+        i_iLiftActionTime       : INT := 3000;      // 升降气缸动作超时时间 (ms)
 
         // --- 传感器输入 (26个BOOL) ---
         // 气缸位置传感器 (10个磁性开关)
-        i_bLift_WorkPoint           : BOOL := FALSE;    // Lift cylinder down position (work point)
-        i_bLift_HomePos           : BOOL := FALSE;    // Lift cylinder up position (home position)
-        i_bFrontClamp_Closed         : BOOL := FALSE;    // Front clamp closed position (work point)
-        i_bFrontClamp_Opened         : BOOL := FALSE;    // Front clamp opened position (home point)
-        i_bRearClamp_Closed         : BOOL := FALSE;    // Rear clamp closed position (work point)
-        i_bRearClamp_Opened         : BOOL := FALSE;    // Rear clamp opened position (home point)
-        i_bFrontClamp2_Closed        : BOOL := FALSE;    // Front clamp2 closed position (work point)
-        i_bFrontClamp2_Opened        : BOOL := FALSE;    // Front clamp2 opened position (home point)
-        i_bRearClamp2_Closed        : BOOL := FALSE;    // Rear clamp2 closed position (work point)
-        i_bRearClamp2_Opened        : BOOL := FALSE;    // Rear clamp2 opened position (home point)
+        i_bLift_WorkPoint           : BOOL := FALSE;    // 升降气缸下降位 (工作点)
+        i_bLift_HomePos           : BOOL := FALSE;    // 升降气缸上升位 (原点)
+        i_bFrontClamp_Closed         : BOOL := FALSE;    // 前夹爪夹紧位 (工作点)
+        i_bFrontClamp_Opened         : BOOL := FALSE;    // 前夹爪松开位 (原点)
+        i_bRearClamp_Closed         : BOOL := FALSE;    // 后夹爪夹紧位 (工作点)
+        i_bRearClamp_Opened         : BOOL := FALSE;    // 后夹爪松开位 (原点)
+        i_bFrontClamp2_Closed        : BOOL := FALSE;    // 前夹爪2夹紧位 (工作点)
+        i_bFrontClamp2_Opened        : BOOL := FALSE;    // 前夹爪2松开位 (原点)
+        i_bRearClamp2_Closed        : BOOL := FALSE;    // 后夹爪2夹紧位 (工作点)
+        i_bRearClamp2_Opened        : BOOL := FALSE;    // 后夹爪2松开位 (原点)
 
         // 产品检测传感器 (4个光电传感器)
-        i_bLongEdge1Detect           : BOOL := FALSE;    // Long edge 1 presence detection (photoelectric sensor)
-        i_bLongEdge2Detect           : BOOL := FALSE;    // Long edge 2 presence detection (photoelectric sensor)
-        i_bShortEdge1Detect           : BOOL := FALSE;    // Short edge 1 presence detection (photoelectric sensor)
-        i_bShortEdge2Detect           : BOOL := FALSE;    // Short edge 2 presence detection (photoelectric sensor)
+        i_bLongEdge1Detect           : BOOL := FALSE;    // 长边1到位检测 (光电传感器)
+        i_bLongEdge2Detect           : BOOL := FALSE;    // 长边2到位检测 (光电传感器)
+        i_bShortEdge1Detect           : BOOL := FALSE;    // 短边1到位检测 (光电传感器)
+        i_bShortEdge2Detect           : BOOL := FALSE;    // 短边2到位检测 (光电传感器)
 
         // 伺服轴状态信号 (12个, 来自驱动器和限位开关)
         // 原点信号 (3个)
-        i_bZAxis_HomePos            : BOOL := FALSE;    // Z axis servo home position signal (Home/ORG)
-        i_bX1Axis_HomePos           : BOOL := FALSE;    // X1 axis servo home position signal
-        i_bX2Axis_HomePos           : BOOL := FALSE;    // X2 axis servo home position signal (reserved)
+        i_bZAxis_HomePos            : BOOL := FALSE;    // Z轴伺服原点信号 (Home/ORG)
+        i_bX1Axis_HomePos           : BOOL := FALSE;    // X1轴伺服原点信号
+        i_bX2Axis_HomePos           : BOOL := FALSE;    // X2轴伺服原点信号 (预留)
 
         // 伺服故障报警 (3个)
-        i_bZAxis_ServoFault        : BOOL := FALSE;    // Z axis servo drive fault (ALM output)
-        i_bX1Axis_ServoFault       : BOOL := FALSE;    // X1 axis servo drive fault (ALM output)
-        i_bX2Axis_ServoFault       : BOOL := FALSE;    // X2 axis servo drive fault (reserved)
+        i_bZAxis_ServoFault        : BOOL := FALSE;    // Z轴伺服驱动器故障 (ALM输出)
+        i_bX1Axis_ServoFault       : BOOL := FALSE;    // X1轴伺服驱动器故障 (ALM输出)
+        i_bX2Axis_ServoFault       : BOOL := FALSE;    // X2轴伺服驱动器故障 (预留)
 
         // 限位开关信号 (6个)
-        i_bZAxis_FwdLimit        : BOOL := FALSE;    // Z axis forward limit (upper limit)
-        i_bZAxis_RevLimit        : BOOL := FALSE;    // Z axis reverse limit (lower limit)
-        i_bX1Axis_FwdLimit       : BOOL := FALSE;    // X1 axis forward limit (pickup side limit)
-        i_bX1Axis_RevLimit       : BOOL := FALSE;    // X1 axis reverse limit (place side limit)
-        i_bX2Axis_FwdLimit       : BOOL := FALSE;    // X2 axis forward limit (reserved)
-        i_bX2Axis_RevLimit       : BOOL := FALSE;    // X2 axis reverse limit (reserved)
+        i_bZAxis_FwdLimit        : BOOL := FALSE;    // Z轴正限位 (上限位)
+        i_bZAxis_RevLimit        : BOOL := FALSE;    // Z轴负限位 (下限位)
+        i_bX1Axis_FwdLimit       : BOOL := FALSE;    // X1轴正限位 (取料侧限位)
+        i_bX1Axis_RevLimit       : BOOL := FALSE;    // X1轴负限位 (放料侧限位)
+        i_bX2Axis_FwdLimit       : BOOL := FALSE;    // X2轴正限位 (预留)
+        i_bX2Axis_RevLimit       : BOOL := FALSE;    // X2轴负限位 (预留)
 
         // --- 上游信号 (4个BOOL, 来自四层输送机的放料完成信号) ---
-        i_bConveyor_L1_FeedComplete  : BOOL := FALSE;    // Conveyor layer 1 feed complete
-        i_bConveyor_L2_FeedComplete  : BOOL := FALSE;    // Conveyor layer 2 feed complete
-        i_bConveyor_L3_FeedComplete  : BOOL := FALSE;    // Conveyor layer 3 feed complete
-        i_bConveyor_L4_FeedComplete  : BOOL := FALSE;    // Conveyor layer 4 feed complete
+        i_bConveyor_L1_FeedComplete  : BOOL := FALSE;    // 输送机第1层送料完成
+        i_bConveyor_L2_FeedComplete  : BOOL := FALSE;    // 输送机第2层送料完成
+        i_bConveyor_L3_FeedComplete  : BOOL := FALSE;    // 输送机第3层送料完成
+        i_bConveyor_L4_FeedComplete  : BOOL := FALSE;    // 输送机第4层送料完成
 
         // === 输出信号 (30个) ===
         // --- 气缸控制输出 (10个BOOL, 双电磁阀) ---
-        o_bLift_Up           : BOOL := FALSE;    // Lift cylinder up solenoid -> Y address
-        o_bLift_Down           : BOOL := FALSE;    // Lift cylinder down solenoid -> Y address
-        o_bFrontClamp_Action         : BOOL := FALSE;    // Front clamp action solenoid -> Y address
-        o_bFrontClamp_Release         : BOOL := FALSE;    // Front clamp release solenoid -> Y address
-        o_bRearClamp_Action         : BOOL := FALSE;    // Rear clamp action solenoid -> Y address
-        o_bRearClamp_Release         : BOOL := FALSE;    // Rear clamp release solenoid -> Y address
-        o_bFrontClamp2_Action        : BOOL := FALSE;    // Front clamp2 action solenoid -> Y address
-        o_bFrontClamp2_Release        : BOOL := FALSE;    // Front clamp2 release solenoid -> Y address
-        o_bRearClamp2_Action        : BOOL := FALSE;    // Rear clamp2 action solenoid -> Y address
-        o_bRearClamp2_Release        : BOOL := FALSE;    // Rear clamp2 release solenoid -> Y address
+        o_bLift_Up           : BOOL := FALSE;    // 升降气缸上升电磁阀 -> Y地址
+        o_bLift_Down           : BOOL := FALSE;    // 升降气缸下降电磁阀 -> Y地址
+        o_bFrontClamp_Action         : BOOL := FALSE;    // 前夹爪夹紧电磁阀 -> Y地址
+        o_bFrontClamp_Release         : BOOL := FALSE;    // 前夹爪松开电磁阀 -> Y地址
+        o_bRearClamp_Action         : BOOL := FALSE;    // 后夹爪夹紧电磁阀 -> Y地址
+        o_bRearClamp_Release         : BOOL := FALSE;    // 后夹爪松开电磁阀 -> Y地址
+        o_bFrontClamp2_Action        : BOOL := FALSE;    // 前夹爪2夹紧电磁阀 -> Y地址
+        o_bFrontClamp2_Release        : BOOL := FALSE;    // 前夹爪2松开电磁阀 -> Y地址
+        o_bRearClamp2_Action        : BOOL := FALSE;    // 后夹爪2夹紧电磁阀 -> Y地址
+        o_bRearClamp2_Release        : BOOL := FALSE;    // 后夹爪2松开电磁阀 -> Y地址
 
         // --- 伺服控制输出 (3个BOOL, 仅Z轴由本功能块直接控制) ---
-        o_bZAxis_PulseOutput        : BOOL := FALSE;    // Z axis pulse output enable -> Y0 (PULSE)
-        o_bZAxis_DirectionOutput        : BOOL := FALSE;    // Z axis direction control -> Y4 (SIGN)
-        o_bZAxis_Enable        : BOOL := FALSE;    // Z axis servo enable (SON) -> Y10
+        o_bZAxis_PulseOutput        : BOOL := FALSE;    // Z轴脉冲输出使能 -> Y0 (PULSE)
+        o_bZAxis_DirectionOutput        : BOOL := FALSE;    // Z轴方向控制 -> Y4 (SIGN)
+        o_bZAxis_Enable        : BOOL := FALSE;    // Z轴伺服使能 (SON) -> Y10
 
         // --- 下游信号输出 (1个BOOL) ---
-        o_bPlaceComplete_ToFeeder  : BOOL := FALSE;    // Place complete notify downstream (glue machine can pickup)
+        o_bPlaceComplete_ToFeeder  : BOOL := FALSE;    // 放料完成通知下游 (打胶机可取料)
 
         // --- 状态/HMI显示输出 (7个) ---
-        o_bRunning              : BOOL := FALSE;    // This station is currently auto running
-        o_bFault                : BOOL := FALSE;    // This station has fault (any alarm active)
-        o_iCurrentState            : INT := 0;         // Current state machine step (0~10, 99=fault)
-        o_rZAxisCurrentPos         : REAL := 0.0;      // Z axis current position feedback (mm, from main control mapping)
-        o_rX1AxisCurrentPos        : REAL := 0.0;      // X1 axis current position feedback (mm, from main control mapping)
-        o_rX2AxisCurrentPos        : REAL := 0.0;      // X2 axis current position feedback (mm, reserved, from main control mapping)
-        o_iCurrentPickLayer        : INT := 0;         // Current processing layer number (0=idle, 1~4=layer number)
+        o_bRunning              : BOOL := FALSE;    // 本站当前自动运行中
+        o_bFault                : BOOL := FALSE;    // 本站有故障 (任意报警激活)
+        o_iCurrentState            : INT := 0;         // 当前状态机步骤 (0~10, 99=故障)
+        o_rZAxisCurrentPos         : REAL := 0.0;      // Z轴当前位置反馈 (mm, 来自主控映射)
+        o_rX1AxisCurrentPos        : REAL := 0.0;      // X1轴当前位置反馈 (mm, 来自主控映射)
+        o_rX2AxisCurrentPos        : REAL := 0.0;      // X2轴当前位置反馈 (mm, 预留, 来自主控映射)
+        o_iCurrentPickLayer        : INT := 0;         // 当前取料层号 (0=空闲, 1~4=层号)
 
         // --- 报警输出 (1个) ---
-        o_iStationAlarmCode        : INT := 0;         // This station current valid alarm code (0=no alarm, 101~199=alarm type)
+        o_iStationAlarmCode        : INT := 0;         // 本站当前有效报警代码 (0=无报警, 101~199=报警类型)
 
         // --- 定时器调试输出 (4个DINT, 给HMI显示已耗时间ms) ---
-        q_ePlaceCompleteHold_Elapsed : DINT;   // Place complete hold timer elapsed time (ms)
-        q_eAction_Elapsed         : DINT;   // General action timer elapsed time (ms)
-        q_eProductDetectStable_Elapsed : DINT;   // Product detect stable timer elapsed time (ms)
-        q_eInit_Elapsed       : DINT;   // Init timer elapsed time (ms)
+        q_ePlaceCompleteHold_Elapsed : DINT;   // 放料完成保持定时器已耗时间 (ms)
+        q_eAction_Elapsed         : DINT;   // 通用动作定时器已耗时间 (ms)
+        q_eProductDetectStable_Elapsed : DINT;   // 产品检测稳定定时器已耗时间 (ms)
+        q_eInit_Elapsed       : DINT;   // 初始化定时器已耗时间 (ms)
     END_STRUCT;
 
     // =========================================================================
@@ -353,58 +353,58 @@ VAR
     stFeeder : STRUCT
         // === 输入信号 (17个) ===
         // --- 系统控制信号 (6个) ---
-        i_bEnable               : BOOL := FALSE;    // Total enable signal
-        i_bAutoMode           : BOOL := FALSE;    // Auto running mode selection
-        i_bManualMode           : BOOL := FALSE;    // Manual debug mode selection
-        i_bStart               : BOOL := FALSE;    // Auto cycle start button (rising edge trigger)
-        i_bStop               : BOOL := FALSE;    // Auto cycle stop button (level effective)
-        i_bReset               : BOOL := FALSE;    // Fault reset/init button (level effective)
+        i_bEnable               : BOOL := FALSE;    // 总使能信号
+        i_bAutoMode           : BOOL := FALSE;    // 自动运行模式选择
+        i_bManualMode           : BOOL := FALSE;    // 手动调试模式选择
+        i_bStart               : BOOL := FALSE;    // 自动循环启动按钮 (上升沿触发)
+        i_bStop               : BOOL := FALSE;    // 自动循环停止按钮 (电平有效)
+        i_bReset               : BOOL := FALSE;    // 故障复位/初始化按钮 (电平有效)
 
         // --- 手动操作信号 (2个BOOL, X2轴点动) ---
-        i_bLx_X2Axis_JogFwd         : BOOL := FALSE;    // Manual-X2 axis jog forward (to glue machine pickup position)
-        i_bLx_X2Axis_JogRev         : BOOL := FALSE;    // Manual-X2 axis jog reverse (return to standby position)
+        i_bLx_X2Axis_JogFwd         : BOOL := FALSE;    // 手动-X2轴点动前进 (至打胶机取料位置)
+        i_bLx_X2Axis_JogRev         : BOOL := FALSE;    // 手动-X2轴点动后退 (返回待机位置)
 
         // --- 工艺参数 (3个REAL) ---
-        i_rFeedSpeed           : REAL := 120.0;    // X2 axis feed motion speed (mm/s or %)
-        rStandbyPosition           : REAL := 0.0;      // X2 axis standby position coordinate (mm, safe waiting position)
-        rPickupPosition           : REAL := 300.0;    // X2 axis pickup position coordinate (mm, glue machine pickup port position)
+        i_rFeedSpeed           : REAL := 120.0;    // X2轴送料运动速度 (mm/s 或 %)
+        rStandbyPosition           : REAL := 0.0;      // X2轴待机位置坐标 (mm, 安全等待位置)
+        rPickupPosition           : REAL := 300.0;    // X2轴取料位置坐标 (mm, 打胶机取料口位置)
 
         // --- 传感器/伺服信号 (4个BOOL) ---
-        i_bX2Axis_Home           : BOOL := FALSE;    // X2 axis servo home signal (Home/ORG)
-        i_bX2Axis_ForwardLimit       : BOOL := FALSE;    // X2 axis forward limit (to glue machine side limit)
-        i_bX2Axis_ReverseLimit       : BOOL := FALSE;    // X2 axis reverse limit (standby position side limit)
-        i_bX2Axis_ServoFault      : BOOL := FALSE;    // X2 axis servo drive fault (ALM output)
+        i_bX2Axis_Home           : BOOL := FALSE;    // X2轴伺服原点信号 (Home/ORG)
+        i_bX2Axis_ForwardLimit       : BOOL := FALSE;    // X2轴正限位 (向打胶机侧限位)
+        i_bX2Axis_ReverseLimit       : BOOL := FALSE;    // X2轴负限位 (待机位置侧限位)
+        i_bX2Axis_ServoFault      : BOOL := FALSE;    // X2轴伺服驱动器故障 (ALM输出)
 
         // --- 打胶机交互信号 (2个BOOL) ---
-        i_bGlueMachine_AllowFeed     : BOOL := FALSE;    // Glue machine allow feed signal (corresponding to physical address X76)
-        i_bGlueMachine_PickupComplete     : BOOL := FALSE;    // Glue machine pickup complete signal (corresponding to physical address X102)
+        i_bGlueMachine_AllowFeed     : BOOL := FALSE;    // 打胶机允许送料信号 (对应物理地址 X76)
+        i_bGlueMachine_PickupComplete     : BOOL := FALSE;    // 打胶机取料完成信号 (对应物理地址 X102)
 
         // --- 上游信号 (1个BOOL, 来自取放料机构) ---
-        i_bPickPlace_FeedComplete    : BOOL := FALSE;    // PickPlace mechanism feed complete signal
+        i_bPickPlace_FeedComplete    : BOOL := FALSE;    // 取放料机构送料完成信号
 
         // === 输出信号 (14个) ===
         // --- 执行器请求输出 (3个BOOL) ---
-        o_bAllowPickup            : BOOL := FALSE;    // Allow pickup signal -> main control mapping to Y44
-        o_bX2Axis_RequestFwd        : BOOL := FALSE;    // X2 axis forward move request (to glue machine pickup position)
-        o_bX2Axis_RequestRev        : BOOL := FALSE;    // X2 axis reverse move request (return to standby position)
+        o_bAllowPickup            : BOOL := FALSE;    // 允许取料信号 -> 主控映射至 Y44
+        o_bX2Axis_RequestFwd        : BOOL := FALSE;    // X2轴正转移动请求 (至打胶机取料位置)
+        o_bX2Axis_RequestRev        : BOOL := FALSE;    // X2轴反转移动请求 (返回待机位置)
 
         // --- 安全区管理信号 (1个BOOL) ---
-        o_bSafetyZoneSignal          : BOOL := FALSE;    // Safety zone signal -> main control mapping to Y47
+        o_bSafetyZoneSignal          : BOOL := FALSE;    // 安全区信号 -> 主控映射至 Y47
 
         // --- 状态/HMI显示输出 (4个) ---
-        o_bRunning              : BOOL := FALSE;    // This station is currently auto running
-        o_bFault                : BOOL := FALSE;    // This station has fault (any alarm active)
-        o_iCurrentState            : INT := 0;         // Current state machine step (0~5, 99=fault)
-        o_rX2Axis_CurrentPosition        : REAL := 0.0;      // X2 axis current position feedback (mm, from main control mapping)
+        o_bRunning              : BOOL := FALSE;    // 本站当前自动运行中
+        o_bFault                : BOOL := FALSE;    // 本站有故障 (任意报警激活)
+        o_iCurrentState            : INT := 0;         // 当前状态机步骤 (0~5, 99=故障)
+        o_rX2Axis_CurrentPosition        : REAL := 0.0;      // X2轴当前位置反馈 (mm, 来自主控映射)
 
         // --- 报警输出 (1个) ---
-        o_iStationAlarmCode        : INT := 0;         // This station current valid alarm code (0=no alarm, 201~299=alarm type)
+        o_iStationAlarmCode        : INT := 0;         // 本站当前有效报警代码 (0=无报警, 201~299=报警类型)
 
         // --- 定时器调试输出 (4个DINT, 给HMI显示已耗时间ms) ---
-        q_eCommTimeout_Elapsed    : DINT;    // Communication timeout timer elapsed time (ms)
-        q_eAction_Elapsed        : DINT;    // Action timer elapsed time (ms)
-        q_eInit_Elapsed      : DINT;    // Init timer elapsed time (ms)
-        q_ePickupHold_Elapsed    : DINT;    // Pickup hold timer elapsed time (ms)
+        q_eCommTimeout_Elapsed    : DINT;    // 通信超时定时器已耗时间 (ms)
+        q_eAction_Elapsed        : DINT;    // 动作定时器已耗时间 (ms)
+        q_eInit_Elapsed      : DINT;    // 初始化定时器已耗时间 (ms)
+        q_ePickupHold_Elapsed    : DINT;    // 取料保持定时器已耗时间 (ms)
     END_STRUCT;
 
     // =========================================================================

@@ -1,994 +1,397 @@
-// ============================================================================
-// FB_1003_PickPlace_BufferFraming
-// 描述：边框缓存机取放料机构
-// 项目：DJ-2026-005
-// 版本：V6.0.0
-// 日期：2026-05-04
-// ============================================================================
-//
-// 功能：
-//   1. 自动模式：取/放循环的 11 步状态机
-//   2. 手动模式：14 个手动操作并带互锁
-//   3. 初始化：气缸复位、伺服使能、状态清零
-//   4. 报警检测：8 种报警类型（101~108）
-//   5. 4层循环计数（每次取2层，共2次循环）
-//   6. 定时器：使用 SysLib FB_TON（PT/ET 为 DINT，不用 TIME）
-//
-// 状态机步骤：
-//   0 = 空闲
-//   1 = 等待输送机放料完成
-//   2 = Z轴下降至取料高度
-//   3 = 夹爪夹紧（前+后同时）
-//   4 = 产品检测确认
-//   5 = Z轴上升至安全高度
-//   6 = X1轴移动到放料位置
-//   7 = Z轴下降至放料高度
-//   8 = 夹爪松开（前+后同时）
-//   9 = Z轴上升至安全高度
-//   10 = 放料完成通知下游
-//
-// 报警码（101~108）：
-//   101 = Z轴伺服故障
-//   102 = X1轴伺服故障
-//   103 = 升降下降超时
-//   104 = 升降上升超时
-//   105 = 夹紧超时
-//   106 = 松开超时
-//   107 = 产品检测失败
-//   108 = X1轴移动超时
-//
-// V6.0.0 变更（相对 V4.2.0）：
-//   - 移除 METHOD 语法（Siemens LSP 不兼容）→ 改为内联代码
-//   - 移除方法名 CALL_ 前缀
-//   - 所有 T#0ms → 0（FB_TON 的 PT 为 DINT，不用 TIME）
-//   - 所有定时器调用统一使用 4 参数（IN/PT/Q/ET）
-//   - 定时器 Q 读取统一通过 s_bXxx_Q 变量
-//   - 定时器常量类型 INT → DINT
-//   - 删除重复的输出赋值
-//   - 补齐空闲步骤缺失的输出赋值
-//   - 修复夹紧/松开超时逻辑（IF/ELSIF）
-// ============================================================================
+(* ================================================================= *)
+(*  功能块名称：FB_1003_PickPlace_BufferFraming                       *)
+(*  功能描述：取放料机构控制 - 6步S20~S25状态机(Z升降+X1横移+4夹爪) *)
+(*  创建日期：2026-05-04                                              *)
+(*  版本号：V6.0.0                                                    *)
+(*  编制人：Trae                                                      *)
+(*  审核人：人工                                                      *)
+(*                                                                     *)
+(*  遵循规范：                                                         *)
+(*    - 801_PLC变量命名与功能块命名规范_DEV-V1.0.5                    *)
+(*    - 810_PLC编程规范_DEV-V1.0.2                                    *)
+(*                                                                     *)
+(*  变更记录：                                                          *)
+(* ---------------------------------------------------------------- *)
+(*  V6.0.0 (2026-05-18) Trae                                         *)
+(*  - 重写: 11步→6步S20~S25状态机（对齐源程序D160~D165）          *)
+(*  - 重写: 移除直接伺服控制，改用轴抽象请求接口                    *)
+(*  - 重写: o_前缀→q_前缀（801规范）                               *)
+(*  - 新增: 4组夹爪(前/后/前2/后2)独立控制                         *)
+(*  - 新增: 产品检测在S22步内完成(4光电+确认时间)                  *)
+(*  - 新增: 层选放料位置(L1/L3→D520, L2/L4→D540)                  *)
+(*  - 新增: 边框检测阻塞回原点(F80)                                *)
+(*  - 新增: TONR定时器（tIn/tQ/tR/tPt/tEt简化命名）               *)
+(* ---------------------------------------------------------------- *)
+(*  V4.2.0 (2026-05-04)                                              *)
+(*  - 11步版本，含直接伺服控制（已废弃）                            *)
+(* ================================================================= *)
 
 FUNCTION_BLOCK FB_1003_PickPlace_BufferFraming
 
-//#region 100_VAR_INPUT
+(* ==================== VAR_INPUT ==================== *)
 VAR_INPUT
-    // 系统控制信号（6）
-    i_bEnable               : BOOL;    // 总使能
-    i_bAutoMode             : BOOL;    // 自动模式选择
-    i_bManualMode           : BOOL;    // 手动调试模式选择
-    i_bStart                : BOOL;    // 自动启动按钮（上升沿）
-    i_bStop                 : BOOL;    // 自动停止按钮（电平）
-    i_bReset                : BOOL;    // 故障复位/初始化按钮（电平）
+    i_bAutoMode                 : BOOL;     (* 自动模式 *)
+    i_bManualMode               : BOOL;     (* 手动模式 *)
+    i_bStart                    : BOOL;     (* 启动 *)
+    i_bStop                     : BOOL;     (* 停止 *)
 
-    // 手动操作信号（14个BOOL）
-    // 伺服点动控制（4）
-    i_bLx_ZAxis_JogUp       : BOOL;    // 手动-Z轴上点动
-    i_bLx_ZAxis_JogDown     : BOOL;    // 手动-Z轴下点动
-    i_bLx_X1Axis_JogFwd     : BOOL;    // 手动-X1轴前点动
-    i_bLx_X1Axis_JogRev     : BOOL;    // 手动-X1轴后点动
+    i_bLx_FrontClamp            : BOOL;     (* 手动:前夹紧 *)
+    i_bLx_RearClamp             : BOOL;     (* 手动:后夹紧 *)
+    i_bLx_FrontClamp2           : BOOL;     (* 手动:前夹紧2 *)
+    i_bLx_RearClamp2            : BOOL;     (* 手动:后夹紧2 *)
+    i_bLx_LiftUp                : BOOL;     (* 手动:升降上升 *)
+    i_bLx_LiftDown              : BOOL;     (* 手动:升降下降 *)
 
-    // 气缸手动控制（10，双电磁阀）
-    i_bLx_Lift_Up           : BOOL;    // 手动-升降上升
-    i_bLx_Lift_Down         : BOOL;    // 手动-升降下降
-    i_bLx_FrontClamp        : BOOL;    // 手动-前夹紧夹紧
-    i_bLx_FrontUnclamp      : BOOL;    // 手动-前夹紧松开
-    i_bLx_RearClamp         : BOOL;    // 手动-后夹紧夹紧
-    i_bLx_RearUnclamp       : BOOL;    // 手动-后夹紧松开
-    i_bLx_FrontClamp2       : BOOL;    // 手动-前夹紧2夹紧
-    i_bLx_FrontUnclamp2     : BOOL;    // 手动-前夹紧2松开
-    i_bLx_RearClamp2        : BOOL;    // 手动-后夹紧2夹紧
-    i_bLx_RearUnclamp2      : BOOL;    // 手动-后夹紧2松开
+    i_iPickLayer                : INT;      (* 当前取料层号(1~4) *)
+    i_rZSpeed                   : REAL;     (* Z轴速度 *)
+    i_rX1Speed                  : REAL;     (* X1轴速度 *)
+    i_iClampConfirmTime         : INT;      (* 夹紧确认时间(ms) *)
+    i_iLiftActionTime           : INT;      (* 升降动作超时(ms) *)
 
-    // 工艺参数（6，REAL/INT）
-    // 速度参数（4个REAL）
-    i_rPickupSpeed          : REAL;    // 取料Z轴速度（mm/s 或 %）
-    i_rPlaceSpeed           : REAL;    // 放料Z轴速度（mm/s 或 %）
-    i_rZAxisSpeed           : REAL;    // Z轴通用速度（mm/s）
-    i_rX1AxisSpeed          : REAL;    // X1轴通用速度（mm/s）
+    i_bLayerFeedDone            : ARRAY[1..4] OF BOOL; (* L1~L4各层放料完成 *)
 
-    // 动作时间参数（2个INT）
-    i_iClampConfirmTime     : INT;     // 夹紧确认等待时间（ms）
-    i_iLiftActionTime       : INT;     // 升降动作超时（ms）
+    i_bLongEdge1Detect          : BOOL;     (* 长边1光电 *)
+    i_bLongEdge2Detect          : BOOL;     (* 长边2光电 *)
+    i_bShortEdge1Detect         : BOOL;     (* 短边1光电 *)
+    i_bShortEdge2Detect         : BOOL;     (* 短边2光电 *)
 
-    // 传感器输入（26个BOOL）
-    // 气缸位置传感器（10个磁性开关）
-    i_bLift_WorkPoint       : BOOL;    // 升降气缸下位
-    i_bLift_HomePos         : BOOL;    // 升降气缸上位
-    i_bFrontClamp_Closed    : BOOL;    // 前夹紧夹紧到位
-    i_bFrontClamp_Opened    : BOOL;    // 前夹紧松开到位
-    i_bRearClamp_Closed     : BOOL;    // 后夹紧夹紧到位
-    i_bRearClamp_Opened     : BOOL;    // 后夹紧松开到位
-    i_bFrontClamp2_Closed   : BOOL;    // 前夹紧2夹紧到位
-    i_bFrontClamp2_Opened   : BOOL;    // 前夹紧2松开到位
-    i_bRearClamp2_Closed    : BOOL;    // 后夹紧2夹紧到位
-    i_bRearClamp2_Opened    : BOOL;    // 后夹紧2松开到位
+    i_bFrontClampClosed         : BOOL;     (* 前夹紧位1 *)
+    i_bFrontClampOpened         : BOOL;     (* 前松开位1 *)
+    i_bRearClampClosed          : BOOL;     (* 后夹紧位1 *)
+    i_bRearClampOpened          : BOOL;     (* 后松开位1 *)
+    i_bFrontClamp2Closed        : BOOL;     (* 前夹紧位2 *)
+    i_bFrontClamp2Opened        : BOOL;     (* 前松开位2 *)
+    i_bRearClamp2Closed         : BOOL;     (* 后夹紧位2 *)
+    i_bRearClamp2Opened         : BOOL;     (* 后松开位2 *)
 
-    // 产品检测传感器（4个光电）
-    i_bLongEdge1Detect      : BOOL;    // 长边1存在检测
-    i_bLongEdge2Detect      : BOOL;    // 长边2存在检测
-    i_bShortEdge1Detect     : BOOL;    // 短边1存在检测
-    i_bShortEdge2Detect     : BOOL;    // 短边2存在检测
+    i_bLiftHomePos              : BOOL;     (* 升降上位 *)
+    i_bLiftWorkPoint            : BOOL;     (* 升降下位 *)
 
-    // 伺服轴状态（12）
-    // 原点信号（3）
-    i_bZAxis_HomePos        : BOOL;    // Z轴伺服原点信号
-    i_bX1Axis_HomePos       : BOOL;    // X1轴伺服原点信号
-    i_bX2Axis_HomePos       : BOOL;    // X2轴伺服原点信号（预留）
-
-    // 伺服故障报警（3）
-    i_bZAxis_ServoFault     : BOOL;    // Z轴伺服驱动故障
-    i_bX1Axis_ServoFault    : BOOL;    // X1轴伺服驱动故障
-    i_bX2Axis_ServoFault    : BOOL;    // X2轴伺服驱动故障（预留）
-
-    // 限位开关信号（6）
-    i_bZAxis_FwdLimit       : BOOL;    // Z轴正向限位（上限）
-    i_bZAxis_RevLimit       : BOOL;    // Z轴反向限位（下限）
-    i_bX1Axis_FwdLimit      : BOOL;    // X1轴正向限位
-    i_bX1Axis_RevLimit      : BOOL;    // X1轴反向限位
-    i_bX2Axis_FwdLimit      : BOOL;    // X2轴正向限位（预留）
-    i_bX2Axis_RevLimit      : BOOL;    // X2轴反向限位（预留）
-
-    // 上游信号（4个BOOL，来自输送机）
-    i_bConveyor_L1_FeedComplete : BOOL; // 输送机1层放料完成
-    i_bConveyor_L2_FeedComplete : BOOL; // 输送机2层放料完成
-    i_bConveyor_L3_FeedComplete : BOOL; // 输送机3层放料完成
-    i_bConveyor_L4_FeedComplete : BOOL; // 输送机4层放料完成
+    i_bFrameDetect1             : BOOL;     (* 边框检测1 *)
+    i_bFrameDetect2             : BOOL;     (* 边框检测2 *)
+    i_bFullMaterialDetect1      : BOOL;     (* 满料检测1 *)
+    i_bFullMaterialDetect2      : BOOL;     (* 满料检测2 *)
 END_VAR
-//#endregion 100_VAR_INPUT
 
-//#region 200_VAR_OUTPUT
+(* ==================== VAR_OUTPUT ==================== *)
 VAR_OUTPUT
-    // 气缸控制输出（10个BOOL，双电磁阀）
-    o_bLift_Up              : BOOL;    // 升降上升电磁阀
-    o_bLift_Down            : BOOL;    // 升降下降电磁阀
-    o_bFrontClamp_Action    : BOOL;    // 前夹紧夹紧电磁阀
-    o_bFrontClamp_Release   : BOOL;    // 前夹紧松开电磁阀
-    o_bRearClamp_Action     : BOOL;    // 后夹紧夹紧电磁阀
-    o_bRearClamp_Release    : BOOL;    // 后夹紧松开电磁阀
-    o_bFrontClamp2_Action   : BOOL;    // 前夹紧2夹紧电磁阀
-    o_bFrontClamp2_Release  : BOOL;    // 前夹紧2松开电磁阀
-    o_bRearClamp2_Action    : BOOL;    // 后夹紧2夹紧电磁阀
-    o_bRearClamp2_Release   : BOOL;    // 后夹紧2松开电磁阀
+    q_bFrontClamp               : BOOL;     (* 前夹紧输出 *)
+    q_bRearClamp                : BOOL;     (* 后夹紧输出 *)
+    q_bFrontClamp2              : BOOL;     (* 前夹紧2输出 *)
+    q_bRearClamp2               : BOOL;     (* 后夹紧2输出 *)
+    q_bLiftUp                   : BOOL;     (* 上升 *)
+    q_bLiftDown                 : BOOL;     (* 下降 *)
 
-    // 伺服控制输出（3个BOOL，仅Z轴）
-    o_bZAxis_PulseOutput    : BOOL;    // Z轴脉冲输出使能
-    o_bZAxis_DirectionOutput : BOOL;   // Z轴方向控制
-    o_bZAxis_Enable         : BOOL;    // Z轴伺服使能（SON）
+    q_bZAxisHomeRequest         : BOOL;     (* Z轴回原点请求 *)
+    q_bZAxisMoveAbsReq          : BOOL;     (* Z轴绝对定位请求 *)
+    q_rZAxisTargetPos           : REAL;     (* Z轴目标位置 *)
+    q_bX1AxisHomeRequest        : BOOL;     (* X1轴回原点请求 *)
+    q_bX1AxisMoveAbsReq         : BOOL;     (* X1轴绝对定位请求 *)
+    q_rX1AxisTargetPos          : REAL;     (* X1轴目标位置 *)
 
-    // 下游信号输出（1个BOOL）
-    o_bPlaceComplete_ToFeeder : BOOL;   // 放料完成通知下游
-
-    // 状态/HMI显示输出（7）
-    o_bRunning              : BOOL;    // 自动运行中
-    o_bFault                : BOOL;    // 本工站故障
-    o_iCurrentState         : INT;     // 当前状态（0~10，99=故障）
-    o_rZAxisCurrentPos      : REAL;    // Z轴当前位置（mm）
-    o_rX1AxisCurrentPos     : REAL;    // X1轴当前位置（mm）
-    o_rX2AxisCurrentPos     : REAL;    // X2轴当前位置（mm，预留）
-    o_iCurrentPickLayer     : INT;     // 当前处理层（0=空闲，1~4）
-
-    // 报警输出（1）
-    o_iStationAlarmCode     : INT;     // 报警码（0=无，101~108）
-
-    // 定时器调试输出（4个DINT，扫描周期数）
-    q_ePlaceCompleteHold_Elapsed : DINT; // 放料完成保持定时累计
-    q_eAction_Elapsed       : DINT;     // 动作定时累计
-    q_eProductDetectStable_Elapsed : DINT; // 产品检测稳定定时累计
-    q_eInit_Elapsed         : DINT;     // 初始化定时累计
+    q_iCurrentState             : INT;      (* 当前步序(0~5=S20~S25) *)
+    q_iCurrentPickLayer         : INT;      (* 当前取料层(1~4) *)
+    q_iAlarmCode                : INT;      (* 当前报警码 *)
+    q_bPlaceDoneToFeeder        : BOOL;     (* 放料完成通知FB_1004 *)
+    q_bSensorFault              : BOOL;     (* 夹紧/升降传感器冗余不一致 *)
+    q_bProductMissing           : BOOL;     (* 4光电未全检到 *)
+    q_bFrameOnPickupPlatform    : BOOL;     (* 取料平台有边框 *)
+    q_bRunning                  : BOOL;     (* 运行中 *)
 END_VAR
-//#endregion 200_VAR_OUTPUT
 
-//#region 300_VAR
+(* ==================== VAR ==================== *)
 VAR
-    // 状态机核心
-    s_iCurrentStep          : INT;     // 当前状态机步骤（0~10）
-    s_bRunning              : BOOL;    // 自动运行标志
-    s_bFault                : BOOL;    // 故障标志
-    s_bStartTriggered       : BOOL;    // 启动信号锁存
+    bStepEntry              : BOOL;         (* 新步入口标志 *)
+    bRunning                : BOOL;         (* 运行标志 *)
+    iCurrentState           : INT;          (* 当前状态内部 *)
+    iAlarmCode              : INT;          (* 报警码内部 *)
+    iPickLayer              : INT;          (* 当前取料层 *)
+    bStartTriggered         : BOOL;         (* 启动锁存 *)
 
-    // 4层循环计数
-    s_iCompletedLayers      : INT;     // 已完成层数（0~4）
-    s_iCurrentPickLayerNum  : INT;     // 当前取料层号（1~4）
-    s_iPickCount            : INT;     // 当前取料次数（1或2）
+    tIn                     : ARRAY[0..2] OF BOOL;
+    tQ                      : ARRAY[0..2] OF BOOL;
+    tR                      : ARRAY[0..2] OF BOOL;
+    tPt                     : ARRAY[0..2] OF DINT;
+    tEt                     : ARRAY[0..2] OF DINT;
 
-    // 放料完成脉冲
-    s_bPlaceCompletePulse   : BOOL;    // 放料完成单周期脉冲
+    tLiftTimer              : FB_TONR;      (* 升降超时 *)
+    tClampTimer             : FB_TONR;      (* 夹紧确认 *)
+    tPlaceDoneTimer         : FB_TONR;      (* 放料完成脉冲 *)
 
-    // 定时器（SysLib FB_TON，PT/ET 为 DINT）
-    fb_tPlaceCompleteHoldTimer : FB_TON; // 放料完成保持定时器
-    fb_tActionTimer         : FB_TON;  // 通用动作定时器
-    fb_tProductDetectStableTimer : FB_TON; // 产品检测稳定定时器
-    fb_tInitTimer           : FB_TON;  // 初始化定时器
+    bSensorFault            : BOOL;
+    bProductMissing         : BOOL;
+    bFrameOnPlatform        : BOOL;
+    bPlaceDonePulse         : BOOL;
 
-    // 定时器 Q 输出
-    s_bPlaceCompleteHoldTimer_Q : BOOL;
-    s_bActionTimer_Q        : BOOL;
-    s_bProductDetectStableTimer_Q : BOOL;
-    s_bInitTimer_Q          : BOOL;
-
-    // 系统级内部变量
-    s_bInitComplete         : BOOL;    // 上电初始化完成
-    s_bInitializing         : BOOL;    // 初始化进行中
-    s_bProductDetected      : BOOL;    // 产品检测结果
-
-    // 报警
-    s_iActiveAlarmCode      : INT;     // 当前最高优先级报警码
-
-    // 伺服运动请求标志
-    s_bZAxis_RequestDown    : BOOL;    // Z轴下降请求
-    s_bZAxis_RequestUp      : BOOL;    // Z轴上升请求
-    s_bX1Axis_RequestFwd    : BOOL;    // X1轴前移请求
-    s_bX1Axis_RequestRev    : BOOL;    // X1轴后移请求
-    s_bX1AxisAtPickupPos    : BOOL;    // X1轴在取料位标志
-    s_bX1AxisAtPlacePos     : BOOL;    // X1轴在放料位标志
-
-    // 传感器冲突检测
-    s_bLiftConflict         : BOOL;    // 升降上位+下位同时为TRUE
-    s_bFrontClampConflict   : BOOL;    // 前夹紧夹紧到位+松开到位同时为TRUE
-    s_bRearClampConflict    : BOOL;    // 后夹紧夹紧到位+松开到位同时为TRUE
-    s_bFrontClamp2Conflict  : BOOL;    // 前夹紧2夹紧到位+松开到位同时为TRUE
-    s_bRearClamp2Conflict   : BOOL;    // 后夹紧2夹紧到位+松开到位同时为TRUE
-
-    // 手动操作互锁
-    s_bManualAllowed        : BOOL;    // 允许手动操作标志
+    rPickHeight             : REAL := 514.0;   (* D514取片教点 *)
+    rPlaceHeightL1           : REAL := 520.0;   (* D520 L1/L3放片 *)
+    rPlaceHeightL2           : REAL := 540.0;   (* D540 L2/L4放片 *)
+    rPlaceDownHeight        : REAL := 524.0;   (* D524放片下教点 *)
 END_VAR
-//#endregion 300_VAR
 
-//#region 400_VAR_CONSTANT
+(* ==================== VAR_CONSTANT ==================== *)
 VAR CONSTANT
-    // 状态机步骤（11：0空闲 + 10个工作步骤）
-    STP_Idle                : INT := 0;   // 空闲
-    STP_WaitingFeedComplete : INT := 1;   // 等待输送机放料完成
-    STP_PickupDown          : INT := 2;   // Z轴下降至取料高度
-    STP_GripClamp           : INT := 3;   // 夹爪夹紧（前+后）
-    STP_ProductDetect       : INT := 4;   // 产品检测确认
-    STP_PickupUp            : INT := 5;   // Z轴上升至安全高度
-    STP_MovingToPlacePos    : INT := 6;   // X1轴移动到放料位置
-    STP_PlaceDown           : INT := 7;   // Z轴下降至放料高度
-    STP_GripUnclamp         : INT := 8;   // 夹爪松开（前+后）
-    STP_PlaceUp             : INT := 9;   // Z轴上升至安全高度
-    STP_PlaceCompleteNotify : INT := 10;  // 发送放料完成信号
+    S20_IDLE                : INT := 0;     (* 待机等待 *)
+    S21_UP_TO_PICK          : INT := 1;     (* 上升到取料高度 *)
+    S22_CLAMP_AND_DETECT    : INT := 2;     (* 夹紧与检测 *)
+    S23_MOVE_TO_PLACE       : INT := 3;     (* 移动到放料位置 *)
+    S24_DOWN_TO_PLACE       : INT := 4;     (* 下降到放料高度 *)
+    S25_UNCLAMP_AND_NOTIFY  : INT := 5;     (* 松开与通知 *)
 
-    // 报警码（101~108）
-    ALM_ZAxisServoFault     : INT := 101;  // Z轴伺服故障
-    ALM_X1AxisServoFault    : INT := 102;  // X1轴伺服故障
-    ALM_LiftDownTimeout     : INT := 103;  // 升降下降未到位
-    ALM_LiftUpTimeout       : INT := 104;  // 升降上升未到位
-    ALM_ClampTimeout        : INT := 105;  // 夹紧确认超时
-    ALM_UnclampTimeout      : INT := 106;  // 松开确认超时
-    ALM_ProductDetectFail   : INT := 107;  // 产品检测失败
-    ALM_MovementTimeout     : INT := 108;  // X1轴移动超时
-
-    // 默认定时参数（DINT，扫描周期数）
-    T_DEF_LiftActionTime        : DINT := 2000;   // 升降动作时间
-    T_DEF_ClampConfirmTime      : DINT := 800;    // 夹紧确认时间
-    T_DEF_UnclampConfirmTime    : DINT := 800;    // 松开确认时间
-    T_DEF_ProductDetectStableTime : DINT := 300;  // 产品检测稳定时间
-    T_DEF_MovementTimeoutTime   : DINT := 5000;   // X1轴移动超时
-    T_DEF_PlaceCompleteHoldTime : DINT := 500;    // 放料完成保持时间
-    T_DEF_InitTimeout           : DINT := 10000;  // 初始化总超时（10s）
-
-    // 层相关常量
-    LAYER_TOTAL             : INT := 4;       // 总层数
-    PICK_TIMES              : INT := 2;       // 取料次数（每次取2层）
+    T_LIFT_DEFAULT          : DINT := 3000;   (* 升降默认3s *)
+    T_CLAMP_DEFAULT         : DINT := 800;    (* 夹紧默认800ms *)
+    T_PLACE_DONE_PULSE      : DINT := 500;    (* 放料完成脉冲500ms *)
 END_VAR
-//#endregion 400_VAR_CONSTANT
 
-// ============================================================================
-// 主程序逻辑
-// ============================================================================
+(* ==================== 定时器调用 ==================== *)
+tLiftTimer(IN := tIn[0], R := tR[0], PT := tPt[0], Q => tQ[0], ET => tEt[0]);
+tClampTimer(IN := tIn[1], R := tR[1], PT := tPt[1], Q => tQ[1], ET => tEt[1]);
+tPlaceDoneTimer(IN := tIn[2], R := tR[2], PT := tPt[2], Q => tQ[2], ET => tEt[2]);
 
-// --- 使能关闭：进入安全状态，所有输出清零 ---
-IF NOT i_bEnable THEN
-    o_bLift_Up := FALSE;
-    o_bLift_Down := FALSE;
-    o_bFrontClamp_Action := FALSE;
-    o_bFrontClamp_Release := FALSE;
-    o_bRearClamp_Action := FALSE;
-    o_bRearClamp_Release := FALSE;
-    o_bFrontClamp2_Action := FALSE;
-    o_bFrontClamp2_Release := FALSE;
-    o_bRearClamp2_Action := FALSE;
-    o_bRearClamp2_Release := FALSE;
-    o_bZAxis_PulseOutput := FALSE;
-    o_bZAxis_DirectionOutput := FALSE;
-    o_bZAxis_Enable := FALSE;
-    o_bPlaceComplete_ToFeeder := FALSE;
-    s_iCurrentStep := STP_Idle;
-    s_bRunning := FALSE;
-    s_bFault := FALSE;
-    s_bStartTriggered := FALSE;
-    s_iCompletedLayers := 0;
-    s_iCurrentPickLayerNum := 0;
-    s_iPickCount := 0;
-    s_bPlaceCompletePulse := FALSE;
-    s_bProductDetected := FALSE;
-    s_bZAxis_RequestDown := FALSE;
-    s_bZAxis_RequestUp := FALSE;
-    s_bX1Axis_RequestFwd := FALSE;
-    s_bX1Axis_RequestRev := FALSE;
-    s_bX1AxisAtPickupPos := FALSE;
-    s_bX1AxisAtPlacePos := FALSE;
-    s_iActiveAlarmCode := 0;
-    o_iStationAlarmCode := 0;
-    o_bFault := FALSE;
-    s_bInitComplete := FALSE;
-    s_bInitializing := FALSE;
-    o_bRunning := FALSE;
-    o_iCurrentState := STP_Idle;
-    o_iCurrentPickLayer := 0;
-
-    fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-    fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
-    fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-    fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
+(* ==================== 使能关闭 ==================== *)
+IF NOT i_bAutoMode AND NOT i_bManualMode THEN
+    q_bFrontClamp := FALSE; q_bRearClamp := FALSE;
+    q_bFrontClamp2 := FALSE; q_bRearClamp2 := FALSE;
+    q_bLiftUp := FALSE; q_bLiftDown := FALSE;
+    q_bZAxisHomeRequest := FALSE; q_bZAxisMoveAbsReq := FALSE;
+    q_rZAxisTargetPos := 0.0;
+    q_bX1AxisHomeRequest := FALSE; q_bX1AxisMoveAbsReq := FALSE;
+    q_rX1AxisTargetPos := 0.0;
+    q_iAlarmCode := 0; q_bSensorFault := FALSE;
+    q_bProductMissing := FALSE; q_bFrameOnPickupPlatform := FALSE;
+    q_bPlaceDoneToFeeder := FALSE; q_bRunning := FALSE;
+    iCurrentState := S20_IDLE; bRunning := FALSE; bStepEntry := TRUE;
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    tIn[2] := FALSE; tR[2] := TRUE;
     RETURN;
 END_IF;
 
-// --- 初始化（上电或复位后） ---
-IF NOT s_bInitComplete THEN
-    s_bInitializing := TRUE;
-    fb_tInitTimer(IN := TRUE, PT := T_DEF_InitTimeout, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-
-    // 气缸安全位：升降上升，所有夹爪松开
-    o_bLift_Up := TRUE;
-    o_bLift_Down := FALSE;
-    o_bFrontClamp_Action := FALSE;
-    o_bFrontClamp_Release := TRUE;
-    o_bRearClamp_Action := FALSE;
-    o_bRearClamp_Release := TRUE;
-    o_bFrontClamp2_Action := FALSE;
-    o_bFrontClamp2_Release := TRUE;
-    o_bRearClamp2_Action := FALSE;
-    o_bRearClamp2_Release := TRUE;
-
-    // 伺服使能
-    o_bZAxis_Enable := TRUE;
-    o_bZAxis_PulseOutput := FALSE;
-    o_bZAxis_DirectionOutput := FALSE;
-    o_bPlaceComplete_ToFeeder := FALSE;
-
-    s_iCurrentStep := STP_Idle;
-    s_bFault := FALSE;
-    s_iActiveAlarmCode := 0;
-
-    // 初始化完成条件：升降在原点 + 所有夹爪已松开，或初始化超时
-    IF (i_bLift_HomePos AND
-        i_bFrontClamp_Opened AND i_bRearClamp_Opened AND
-        i_bFrontClamp2_Opened AND i_bRearClamp2_Opened)
-       OR s_bInitTimer_Q THEN
-        s_bInitComplete := TRUE;
-        s_bInitializing := FALSE;
-        fb_tInitTimer(IN := FALSE, PT := 0, Q => s_bInitTimer_Q, ET => q_eInit_Elapsed);
-        // 初始化后关闭气缸输出（进入空闲安全状态）
-        o_bLift_Up := FALSE;
-        o_bFrontClamp_Release := FALSE;
-        o_bRearClamp_Release := FALSE;
-        o_bFrontClamp2_Release := FALSE;
-        o_bRearClamp2_Release := FALSE;
-    END_IF;
-
-    o_bRunning := FALSE;
-    o_iCurrentState := STP_Idle;
-    o_iCurrentPickLayer := 0;
-    RETURN;
+(* ==================== 停止处理 ==================== *)
+IF i_bStop AND bRunning THEN
+    iCurrentState := S20_IDLE; bRunning := FALSE; bStepEntry := TRUE;
+    q_bFrontClamp := FALSE; q_bRearClamp := FALSE;
+    q_bFrontClamp2 := FALSE; q_bRearClamp2 := FALSE;
+    q_bLiftUp := FALSE; q_bLiftDown := FALSE;
+    q_bZAxisMoveAbsReq := FALSE; q_bX1AxisMoveAbsReq := FALSE;
+    q_bPlaceDoneToFeeder := FALSE;
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    tIn[2] := FALSE; tR[2] := TRUE;
 END_IF;
 
-// --- 伺服故障检测（全模式，最高优先级） ---
-IF i_bZAxis_ServoFault THEN
-    IF s_iActiveAlarmCode <> ALM_ZAxisServoFault THEN
-        s_iActiveAlarmCode := ALM_ZAxisServoFault;
-        s_bFault := TRUE;
-    END_IF;
-    o_bZAxis_PulseOutput := FALSE;
-ELSIF s_iActiveAlarmCode = ALM_ZAxisServoFault THEN
-    s_iActiveAlarmCode := 0;
-    s_bFault := FALSE;
-END_IF;
-
-IF i_bX1Axis_ServoFault THEN
-    IF s_iActiveAlarmCode <> ALM_X1AxisServoFault THEN
-        s_iActiveAlarmCode := ALM_X1AxisServoFault;
-        s_bFault := TRUE;
-    END_IF;
-ELSIF s_iActiveAlarmCode = ALM_X1AxisServoFault THEN
-    s_iActiveAlarmCode := 0;
-    s_bFault := FALSE;
-END_IF;
-
-// --- 传感器冲突检测（全模式） ---
-s_bLiftConflict := i_bLift_WorkPoint AND i_bLift_HomePos;
-s_bFrontClampConflict := i_bFrontClamp_Closed AND i_bFrontClamp_Opened;
-s_bRearClampConflict := i_bRearClamp_Closed AND i_bRearClamp_Opened;
-s_bFrontClamp2Conflict := i_bFrontClamp2_Closed AND i_bFrontClamp2_Opened;
-s_bRearClamp2Conflict := i_bRearClamp2_Closed AND i_bRearClamp2_Opened;
-
-// --- 模式分发 ---
+(* ==================== 模式分发 ==================== *)
 IF i_bAutoMode THEN
-    // ========================================================================
-    // 自动模式：11步取放状态机（内联实现，无 METHOD）
-    // ========================================================================
 
-    // 故障：停止状态机
-    IF s_bFault THEN
-        s_bRunning := FALSE;
-        o_bLift_Up := FALSE;
-        o_bLift_Down := FALSE;
-        o_bFrontClamp_Action := FALSE;
-        o_bFrontClamp_Release := FALSE;
-        o_bRearClamp_Action := FALSE;
-        o_bRearClamp_Release := FALSE;
-        o_bFrontClamp2_Action := FALSE;
-        o_bFrontClamp2_Release := FALSE;
-        o_bRearClamp2_Action := FALSE;
-        o_bRearClamp2_Release := FALSE;
-        o_bZAxis_PulseOutput := FALSE;
-        o_bZAxis_DirectionOutput := FALSE;
-        o_bPlaceComplete_ToFeeder := FALSE;
-        s_bZAxis_RequestDown := FALSE;
-        s_bZAxis_RequestUp := FALSE;
-        s_bX1Axis_RequestFwd := FALSE;
-        s_bX1Axis_RequestRev := FALSE;
-        fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-        fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
-    ELSE
-        // 启动触发检测（上升沿）
-        IF i_bStart AND NOT s_bStartTriggered THEN
-            s_bStartTriggered := TRUE;
-            IF s_iCompletedLayers >= LAYER_TOTAL THEN
-                s_iCompletedLayers := 0;
+    (* --- 启动触发 --- *)
+    IF i_bStart AND NOT bStartTriggered THEN
+        bStartTriggered := TRUE;
+    END_IF;
+
+    CASE iCurrentState OF
+
+        S20_IDLE: (* 0 - 待机等待 *)
+            IF bStepEntry THEN
+                q_bZAxisMoveAbsReq := FALSE;
+                q_bX1AxisMoveAbsReq := FALSE;
+                q_bPlaceDoneToFeeder := FALSE;
+                bStepEntry := FALSE;
             END_IF;
-            s_iPickCount := (s_iCompletedLayers / 2) + 1;
-            IF s_iPickCount > PICK_TIMES THEN
-                s_iPickCount := 1;
-                s_iCompletedLayers := 0;
+
+            (* 检查取料平台是否有残留边框 *)
+            IF i_bFrameDetect1 OR i_bFrameDetect2 THEN
+                q_bFrameOnPickupPlatform := TRUE;
+                bFrameOnPlatform := TRUE;
+                iAlarmCode := 80;
             END_IF;
-        END_IF;
 
-        // 状态机
-        CASE s_iCurrentStep OF
+            IF bStartTriggered AND i_iPickLayer > 0 AND i_iPickLayer <= 4 THEN
+                iPickLayer := i_iPickLayer;
+                bStepEntry := TRUE;
+                iCurrentState := S21_UP_TO_PICK;
+            END_IF;
 
-        STP_Idle:
-            s_bRunning := FALSE;
-            o_bLift_Up := FALSE;
-            o_bLift_Down := FALSE;
-            o_bFrontClamp_Action := FALSE;
-            o_bFrontClamp_Release := FALSE;
-            o_bRearClamp_Action := FALSE;
-            o_bRearClamp_Release := FALSE;
-            o_bFrontClamp2_Action := FALSE;
-            o_bFrontClamp2_Release := FALSE;
-            o_bRearClamp2_Action := FALSE;
-            o_bRearClamp2_Release := FALSE;
-            o_bZAxis_PulseOutput := FALSE;
-            o_bZAxis_DirectionOutput := FALSE;
-            o_bPlaceComplete_ToFeeder := FALSE;
-            s_bZAxis_RequestDown := FALSE;
-            s_bZAxis_RequestUp := FALSE;
-            s_bX1Axis_RequestFwd := FALSE;
-            s_bX1Axis_RequestRev := FALSE;
-            s_iCurrentPickLayerNum := 0;
-
-            IF s_bStartTriggered THEN
-                s_iCurrentStep := STP_WaitingFeedComplete;
-                s_bRunning := TRUE;
-                IF s_iCompletedLayers < 2 THEN
-                    s_iCurrentPickLayerNum := 1;
+        S21_UP_TO_PICK: (* 1 - Z上升到取料高度D514 *)
+            IF bStepEntry THEN
+                q_rZAxisTargetPos := rPickHeight;
+                q_bZAxisMoveAbsReq := TRUE;
+                IF i_iLiftActionTime > 0 THEN
+                    tPt[0] := INT_TO_DINT(i_iLiftActionTime);
                 ELSE
-                    s_iCurrentPickLayerNum := 3;
+                    tPt[0] := T_LIFT_DEFAULT;
                 END_IF;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
             END_IF;
 
-        STP_WaitingFeedComplete:
-            IF s_iCompletedLayers < 2 THEN
-                IF i_bConveyor_L1_FeedComplete AND i_bConveyor_L2_FeedComplete THEN
-                    s_iCurrentStep := STP_PickupDown;
-                    fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                    s_bZAxis_RequestDown := TRUE;
-                    s_bZAxis_RequestUp := FALSE;
-                    o_bZAxis_PulseOutput := TRUE;
-                    o_bZAxis_DirectionOutput := TRUE;
-                END_IF;
-            ELSE
-                IF i_bConveyor_L3_FeedComplete AND i_bConveyor_L4_FeedComplete THEN
-                    s_iCurrentStep := STP_PickupDown;
-                    fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                    s_bZAxis_RequestDown := TRUE;
-                    s_bZAxis_RequestUp := FALSE;
-                    o_bZAxis_PulseOutput := TRUE;
-                    o_bZAxis_DirectionOutput := TRUE;
-                END_IF;
+            (* Z轴到达目标位 *)
+            IF i_bLiftHomePos THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bZAxisMoveAbsReq := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := S22_CLAMP_AND_DETECT;
+            ELSIF tQ[0] THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bZAxisMoveAbsReq := FALSE;
+                iAlarmCode := 71;
+                iCurrentState := S20_IDLE;
+                bRunning := FALSE; bStartTriggered := FALSE;
             END_IF;
 
-        STP_PickupDown:
-            o_bZAxis_PulseOutput := TRUE;
-            o_bZAxis_DirectionOutput := TRUE;
-            o_bLift_Down := TRUE;
-            o_bLift_Up := FALSE;
-
-            IF i_bLift_WorkPoint THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bZAxis_RequestDown := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Down := FALSE;
-                s_iCurrentStep := STP_GripClamp;
-                fb_tActionTimer(IN := TRUE, PT := i_iClampConfirmTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                o_bFrontClamp_Action := TRUE;
-                o_bRearClamp_Action := TRUE;
-            ELSIF s_bActionTimer_Q THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_LiftDownTimeout;
-                s_bFault := TRUE;
-                s_bZAxis_RequestDown := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Down := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_GripClamp:
-            o_bFrontClamp_Action := TRUE;
-            o_bRearClamp_Action := TRUE;
-            o_bFrontClamp_Release := FALSE;
-            o_bRearClamp_Release := FALSE;
-
-            IF s_bActionTimer_Q AND (i_bFrontClamp_Closed AND i_bRearClamp_Closed) THEN
-                // 定时到且传感器确认完成 → 进入下一步
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iCurrentStep := STP_ProductDetect;
-                fb_tProductDetectStableTimer(IN := TRUE, PT := T_DEF_ProductDetectStableTime, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
-            ELSIF s_bActionTimer_Q AND NOT (i_bFrontClamp_Closed AND i_bRearClamp_Closed) THEN
-                // 定时到但传感器未确认 → 触发夹紧超时报警
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_ClampTimeout;
-                s_bFault := TRUE;
-                o_bFrontClamp_Action := FALSE;
-                o_bRearClamp_Action := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_ProductDetect:
-            o_bFrontClamp_Action := TRUE;
-            o_bRearClamp_Action := TRUE;
-
-            IF s_bProductDetectStableTimer_Q THEN
-                fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
-
-                s_bProductDetected :=
-                    i_bLongEdge1Detect AND i_bLongEdge2Detect AND
-                    i_bShortEdge1Detect AND i_bShortEdge2Detect;
-
-                IF s_bProductDetected THEN
-                    s_iCurrentStep := STP_PickupUp;
-                    fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                    s_bZAxis_RequestUp := TRUE;
-                    o_bZAxis_PulseOutput := TRUE;
-                    o_bZAxis_DirectionOutput := FALSE;
-                    o_bLift_Up := TRUE;
-                    o_bFrontClamp_Action := FALSE;
-                    o_bRearClamp_Action := FALSE;
+        S22_CLAMP_AND_DETECT: (* 2 - 四夹紧 + 四光电检测 *)
+            IF bStepEntry THEN
+                q_bFrontClamp := TRUE; q_bRearClamp := TRUE;
+                q_bFrontClamp2 := TRUE; q_bRearClamp2 := TRUE;
+                IF i_iClampConfirmTime > 0 THEN
+                    tPt[1] := INT_TO_DINT(i_iClampConfirmTime);
                 ELSE
-                    s_iActiveAlarmCode := ALM_ProductDetectFail;
-                    s_bFault := TRUE;
-                    o_bFrontClamp_Action := FALSE;
-                    o_bRearClamp_Action := FALSE;
-                    s_iCurrentStep := STP_Idle;
-                    s_bRunning := FALSE;
-                    s_bStartTriggered := FALSE;
+                    tPt[1] := T_CLAMP_DEFAULT;
                 END_IF;
+                tIn[1] := TRUE; tR[1] := FALSE;
+                bStepEntry := FALSE;
             END_IF;
 
-        STP_PickupUp:
-            o_bZAxis_PulseOutput := TRUE;
-            o_bZAxis_DirectionOutput := FALSE;
-            o_bLift_Up := TRUE;
-            o_bLift_Down := FALSE;
-
-            IF i_bLift_HomePos THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bZAxis_RequestUp := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Up := FALSE;
-                s_iCurrentStep := STP_MovingToPlacePos;
-                fb_tActionTimer(IN := TRUE, PT := T_DEF_MovementTimeoutTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bX1Axis_RequestFwd := FALSE;
-                s_bX1Axis_RequestRev := TRUE;
-                s_bX1AxisAtPickupPos := FALSE;
-            ELSIF s_bActionTimer_Q THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_LiftUpTimeout;
-                s_bFault := TRUE;
-                s_bZAxis_RequestUp := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Up := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_MovingToPlacePos:
-            s_bX1Axis_RequestRev := TRUE;
-            s_bX1Axis_RequestFwd := FALSE;
-
-            IF i_bX1Axis_RevLimit THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bX1Axis_RequestRev := FALSE;
-                s_bX1AxisAtPlacePos := TRUE;
-                s_iCurrentStep := STP_PlaceDown;
-                fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bZAxis_RequestDown := TRUE;
-                s_bZAxis_RequestUp := FALSE;
-                o_bZAxis_PulseOutput := TRUE;
-                o_bZAxis_DirectionOutput := TRUE;
-            ELSIF s_bActionTimer_Q THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_MovementTimeout;
-                s_bFault := TRUE;
-                s_bX1Axis_RequestRev := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_PlaceDown:
-            o_bZAxis_PulseOutput := TRUE;
-            o_bZAxis_DirectionOutput := TRUE;
-            o_bLift_Down := TRUE;
-            o_bLift_Up := FALSE;
-
-            IF i_bLift_WorkPoint THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bZAxis_RequestDown := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Down := FALSE;
-                s_iCurrentStep := STP_GripUnclamp;
-                fb_tActionTimer(IN := TRUE, PT := T_DEF_UnclampConfirmTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                o_bFrontClamp_Release := TRUE;
-                o_bRearClamp_Release := TRUE;
-            ELSIF s_bActionTimer_Q THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_LiftDownTimeout;
-                s_bFault := TRUE;
-                s_bZAxis_RequestDown := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Down := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_GripUnclamp:
-            o_bFrontClamp_Release := TRUE;
-            o_bRearClamp_Release := TRUE;
-            o_bFrontClamp_Action := FALSE;
-            o_bRearClamp_Action := FALSE;
-
-            IF s_bActionTimer_Q AND (i_bFrontClamp_Opened AND i_bRearClamp_Opened) THEN
-                // 定时到且传感器确认完成 → 进入下一步
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iCurrentStep := STP_PlaceUp;
-                fb_tActionTimer(IN := TRUE, PT := i_iLiftActionTime, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bZAxis_RequestUp := TRUE;
-                o_bZAxis_PulseOutput := TRUE;
-                o_bZAxis_DirectionOutput := FALSE;
-                o_bLift_Up := TRUE;
-                o_bFrontClamp_Release := FALSE;
-                o_bRearClamp_Release := FALSE;
-            ELSIF s_bActionTimer_Q AND NOT (i_bFrontClamp_Opened AND i_bRearClamp_Opened) THEN
-                // 定时到但传感器未确认 → 触发松开超时报警
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_UnclampTimeout;
-                s_bFault := TRUE;
-                o_bFrontClamp_Release := FALSE;
-                o_bRearClamp_Release := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_PlaceUp:
-            o_bZAxis_PulseOutput := TRUE;
-            o_bZAxis_DirectionOutput := FALSE;
-            o_bLift_Up := TRUE;
-            o_bLift_Down := FALSE;
-
-            IF i_bLift_HomePos THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_bZAxis_RequestUp := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Up := FALSE;
-                s_iCurrentStep := STP_PlaceCompleteNotify;
-                fb_tPlaceCompleteHoldTimer(IN := TRUE, PT := T_DEF_PlaceCompleteHoldTime, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
-                o_bPlaceComplete_ToFeeder := TRUE;
-                s_bPlaceCompletePulse := TRUE;
-            ELSIF s_bActionTimer_Q THEN
-                fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-                s_iActiveAlarmCode := ALM_LiftUpTimeout;
-                s_bFault := TRUE;
-                s_bZAxis_RequestUp := FALSE;
-                o_bZAxis_PulseOutput := FALSE;
-                o_bLift_Up := FALSE;
-                s_iCurrentStep := STP_Idle;
-                s_bRunning := FALSE;
-                s_bStartTriggered := FALSE;
-            END_IF;
-
-        STP_PlaceCompleteNotify:
-            o_bPlaceComplete_ToFeeder := TRUE;
-
-            IF s_bPlaceCompleteHoldTimer_Q THEN
-                fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
-                o_bPlaceComplete_ToFeeder := FALSE;
-                s_bPlaceCompletePulse := FALSE;
-
-                s_iCompletedLayers := s_iCompletedLayers + 2;
-
-                IF s_iCompletedLayers >= LAYER_TOTAL THEN
-                    s_iCompletedLayers := 0;
-                    s_iCurrentStep := STP_Idle;
-                    s_bRunning := FALSE;
-                    s_bStartTriggered := FALSE;
-                    s_iCurrentPickLayerNum := 0;
-                ELSE
-                    s_iCurrentStep := STP_WaitingFeedComplete;
-                    IF s_iCompletedLayers < 2 THEN
-                        s_iCurrentPickLayerNum := 1;
+            IF tQ[1] THEN
+                tIn[1] := FALSE; tR[1] := TRUE;
+                (* 检测四组夹紧到位 *)
+                IF i_bFrontClampClosed AND i_bRearClampClosed AND
+                   i_bFrontClamp2Closed AND i_bRearClamp2Closed THEN
+                    (* 夹紧到位，检测产品 *)
+                    IF i_bLongEdge1Detect AND i_bLongEdge2Detect AND
+                       i_bShortEdge1Detect AND i_bShortEdge2Detect THEN
+                        bStepEntry := TRUE;
+                        iCurrentState := S23_MOVE_TO_PLACE;
                     ELSE
-                        s_iCurrentPickLayerNum := 3;
+                        q_bProductMissing := TRUE;
+                        bProductMissing := TRUE;
+                        iAlarmCode := 72;
+                        iCurrentState := S25_UNCLAMP_AND_NOTIFY;
                     END_IF;
+                ELSE
+                    q_bSensorFault := TRUE;
+                    bSensorFault := TRUE;
+                    iAlarmCode := 71;
+                    iCurrentState := S25_UNCLAMP_AND_NOTIFY;
                 END_IF;
+            END_IF;
+
+        S23_MOVE_TO_PLACE: (* 3 - X1移动到放料位置，按层选 *)
+            IF bStepEntry THEN
+                IF (iPickLayer = 1) OR (iPickLayer = 3) THEN
+                    q_rX1AxisTargetPos := rPlaceHeightL1;
+                ELSE
+                    q_rX1AxisTargetPos := rPlaceHeightL2;
+                END_IF;
+                q_bX1AxisMoveAbsReq := TRUE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            (* X1到位后进入下降步 *)
+            IF i_bFullMaterialDetect1 OR i_bFullMaterialDetect2 THEN
+                q_bX1AxisMoveAbsReq := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := S24_DOWN_TO_PLACE;
+            END_IF;
+
+        S24_DOWN_TO_PLACE: (* 4 - Z下降到放料高度D524 *)
+            IF bStepEntry THEN
+                q_rZAxisTargetPos := rPlaceDownHeight;
+                q_bZAxisMoveAbsReq := TRUE;
+                q_bLiftDown := TRUE;
+                q_bLiftUp := FALSE;
+                IF i_iLiftActionTime > 0 THEN
+                    tPt[0] := INT_TO_DINT(i_iLiftActionTime);
+                ELSE
+                    tPt[0] := T_LIFT_DEFAULT;
+                END_IF;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF i_bLiftWorkPoint THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bZAxisMoveAbsReq := FALSE;
+                q_bLiftDown := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := S25_UNCLAMP_AND_NOTIFY;
+            ELSIF tQ[0] THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bZAxisMoveAbsReq := FALSE;
+                q_bLiftDown := FALSE;
+                iAlarmCode := 71;
+                iCurrentState := S20_IDLE;
+                bRunning := FALSE; bStartTriggered := FALSE;
+            END_IF;
+
+        S25_UNCLAMP_AND_NOTIFY: (* 5 - 四松开 + 通知FB_1004 *)
+            IF bStepEntry THEN
+                q_bFrontClamp := FALSE; q_bRearClamp := FALSE;
+                q_bFrontClamp2 := FALSE; q_bRearClamp2 := FALSE;
+                tPt[2] := T_PLACE_DONE_PULSE;
+                tIn[2] := TRUE; tR[2] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF tQ[2] THEN
+                tIn[2] := FALSE; tR[2] := TRUE;
+                q_bPlaceDoneToFeeder := TRUE;
+                bPlaceDonePulse := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := S20_IDLE;
+                bRunning := FALSE; bStartTriggered := FALSE;
             END_IF;
 
         ELSE
-            s_iCurrentStep := STP_Idle;
-            s_bRunning := FALSE;
-        END_CASE;
-    END_IF;
+            iCurrentState := S20_IDLE;
+            bRunning := FALSE; bStartTriggered := FALSE;
+    END_CASE;
 
 ELSIF i_bManualMode THEN
-    // ========================================================================
-    // 手动模式：14个手动操作并带互锁（内联实现，无 METHOD）
-    // ========================================================================
+    (* ==================== 手动模式 ==================== *)
+    bRunning := FALSE; iCurrentState := S20_IDLE;
+    bStepEntry := TRUE; bStartTriggered := FALSE;
+    q_bPlaceDoneToFeeder := FALSE;
 
-    IF s_bFault THEN
-        s_bManualAllowed := FALSE;
-        o_bLift_Up := FALSE;
-        o_bLift_Down := FALSE;
-        o_bFrontClamp_Action := FALSE;
-        o_bFrontClamp_Release := FALSE;
-        o_bRearClamp_Action := FALSE;
-        o_bRearClamp_Release := FALSE;
-        o_bFrontClamp2_Action := FALSE;
-        o_bFrontClamp2_Release := FALSE;
-        o_bRearClamp2_Action := FALSE;
-        o_bRearClamp2_Release := FALSE;
-        o_bZAxis_PulseOutput := FALSE;
-        o_bZAxis_DirectionOutput := FALSE;
-        o_bPlaceComplete_ToFeeder := FALSE;
-        s_bZAxis_RequestDown := FALSE;
-        s_bZAxis_RequestUp := FALSE;
-        s_bX1Axis_RequestFwd := FALSE;
-        s_bX1Axis_RequestRev := FALSE;
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
+    (* 前夹紧 *)
+    IF i_bLx_FrontClamp THEN q_bFrontClamp := TRUE; ELSE q_bFrontClamp := FALSE; END_IF;
+    (* 后夹紧 *)
+    IF i_bLx_RearClamp THEN q_bRearClamp := TRUE; ELSE q_bRearClamp := FALSE; END_IF;
+    (* 前夹紧2 *)
+    IF i_bLx_FrontClamp2 THEN q_bFrontClamp2 := TRUE; ELSE q_bFrontClamp2 := FALSE; END_IF;
+    (* 后夹紧2 *)
+    IF i_bLx_RearClamp2 THEN q_bRearClamp2 := TRUE; ELSE q_bRearClamp2 := FALSE; END_IF;
+
+    (* 升降 *)
+    IF i_bLx_LiftUp AND NOT i_bLx_LiftDown THEN
+        q_bLiftUp := TRUE; q_bLiftDown := FALSE;
+    ELSIF i_bLx_LiftDown AND NOT i_bLx_LiftUp THEN
+        q_bLiftDown := TRUE; q_bLiftUp := FALSE;
     ELSE
-        s_bManualAllowed := TRUE;
-        s_bRunning := FALSE;
-        s_iCurrentStep := STP_Idle;
-        o_iCurrentPickLayer := 0;
-        o_bPlaceComplete_ToFeeder := FALSE;
-
-        // Z轴点动：上/下互锁
-        IF i_bLx_ZAxis_JogUp AND NOT i_bLx_ZAxis_JogDown THEN
-            IF NOT i_bZAxis_FwdLimit THEN
-                s_bZAxis_RequestUp := TRUE;
-                s_bZAxis_RequestDown := FALSE;
-                o_bZAxis_DirectionOutput := FALSE;
-            END_IF;
-        ELSIF i_bLx_ZAxis_JogDown AND NOT i_bLx_ZAxis_JogUp THEN
-            IF NOT i_bZAxis_RevLimit THEN
-                s_bZAxis_RequestDown := TRUE;
-                s_bZAxis_RequestUp := FALSE;
-                o_bZAxis_DirectionOutput := TRUE;
-            END_IF;
-        ELSE
-            s_bZAxis_RequestDown := FALSE;
-            s_bZAxis_RequestUp := FALSE;
-        END_IF;
-
-        // X1轴点动：前/后互锁
-        IF i_bLx_X1Axis_JogFwd AND NOT i_bLx_X1Axis_JogRev THEN
-            IF NOT i_bX1Axis_FwdLimit THEN
-                s_bX1Axis_RequestFwd := TRUE;
-                s_bX1Axis_RequestRev := FALSE;
-            END_IF;
-        ELSIF i_bLx_X1Axis_JogRev AND NOT i_bLx_X1Axis_JogFwd THEN
-            IF NOT i_bX1Axis_RevLimit THEN
-                s_bX1Axis_RequestRev := TRUE;
-                s_bX1Axis_RequestFwd := FALSE;
-            END_IF;
-        ELSE
-            s_bX1Axis_RequestFwd := FALSE;
-            s_bX1Axis_RequestRev := FALSE;
-        END_IF;
-
-        // 升降气缸手动
-        IF i_bLx_Lift_Up AND NOT i_bLx_Lift_Down THEN
-            o_bLift_Up := TRUE;
-            o_bLift_Down := FALSE;
-        ELSIF i_bLx_Lift_Down AND NOT i_bLx_Lift_Up THEN
-            o_bLift_Down := TRUE;
-            o_bLift_Up := FALSE;
-        ELSE
-            o_bLift_Up := FALSE;
-            o_bLift_Down := FALSE;
-        END_IF;
-
-        // 前夹紧手动
-        IF i_bLx_FrontClamp AND NOT i_bLx_FrontUnclamp THEN
-            o_bFrontClamp_Action := TRUE;
-            o_bFrontClamp_Release := FALSE;
-        ELSIF i_bLx_FrontUnclamp AND NOT i_bLx_FrontClamp THEN
-            o_bFrontClamp_Release := TRUE;
-            o_bFrontClamp_Action := FALSE;
-        ELSE
-            o_bFrontClamp_Action := FALSE;
-            o_bFrontClamp_Release := FALSE;
-        END_IF;
-
-        // 后夹紧手动
-        IF i_bLx_RearClamp AND NOT i_bLx_RearUnclamp THEN
-            o_bRearClamp_Action := TRUE;
-            o_bRearClamp_Release := FALSE;
-        ELSIF i_bLx_RearUnclamp AND NOT i_bLx_RearClamp THEN
-            o_bRearClamp_Release := TRUE;
-            o_bRearClamp_Action := FALSE;
-        ELSE
-            o_bRearClamp_Action := FALSE;
-            o_bRearClamp_Release := FALSE;
-        END_IF;
-
-        // 前夹紧2手动
-        IF i_bLx_FrontClamp2 AND NOT i_bLx_FrontUnclamp2 THEN
-            o_bFrontClamp2_Action := TRUE;
-            o_bFrontClamp2_Release := FALSE;
-        ELSIF i_bLx_FrontUnclamp2 AND NOT i_bLx_FrontClamp2 THEN
-            o_bFrontClamp2_Release := TRUE;
-            o_bFrontClamp2_Action := FALSE;
-        ELSE
-            o_bFrontClamp2_Action := FALSE;
-            o_bFrontClamp2_Release := FALSE;
-        END_IF;
-
-        // 后夹紧2手动
-        IF i_bLx_RearClamp2 AND NOT i_bLx_RearUnclamp2 THEN
-            o_bRearClamp2_Action := TRUE;
-            o_bRearClamp2_Release := FALSE;
-        ELSIF i_bLx_RearUnclamp2 AND NOT i_bLx_RearClamp2 THEN
-            o_bRearClamp2_Release := TRUE;
-            o_bRearClamp2_Action := FALSE;
-        ELSE
-            o_bRearClamp2_Action := FALSE;
-            o_bRearClamp2_Release := FALSE;
-        END_IF;
+        q_bLiftUp := FALSE; q_bLiftDown := FALSE;
     END_IF;
+
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    tIn[2] := FALSE; tR[2] := TRUE;
 
 ELSE
-    // 无效模式：安全状态
-    o_bLift_Up := FALSE;
-    o_bLift_Down := FALSE;
-    o_bFrontClamp_Action := FALSE;
-    o_bFrontClamp_Release := FALSE;
-    o_bRearClamp_Action := FALSE;
-    o_bRearClamp_Release := FALSE;
-    o_bFrontClamp2_Action := FALSE;
-    o_bFrontClamp2_Release := FALSE;
-    o_bRearClamp2_Action := FALSE;
-    o_bRearClamp2_Release := FALSE;
-    o_bZAxis_PulseOutput := FALSE;
-    o_bZAxis_DirectionOutput := FALSE;
-    o_bPlaceComplete_ToFeeder := FALSE;
-    s_bZAxis_RequestDown := FALSE;
-    s_bZAxis_RequestUp := FALSE;
-    s_bX1Axis_RequestFwd := FALSE;
-    s_bX1Axis_RequestRev := FALSE;
-    IF NOT s_bFault THEN
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
-    END_IF;
+    q_bFrontClamp := FALSE; q_bRearClamp := FALSE;
+    q_bFrontClamp2 := FALSE; q_bRearClamp2 := FALSE;
+    q_bLiftUp := FALSE; q_bLiftDown := FALSE;
+    q_bZAxisMoveAbsReq := FALSE; q_bX1AxisMoveAbsReq := FALSE;
+    q_bPlaceDoneToFeeder := FALSE;
 END_IF;
 
-// --- 停止处理 ---
-IF i_bStop THEN
-    IF s_bRunning AND NOT s_bFault THEN
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
-        s_bStartTriggered := FALSE;
-        o_bLift_Up := FALSE;
-        o_bLift_Down := FALSE;
-        o_bFrontClamp_Action := FALSE;
-        o_bFrontClamp_Release := FALSE;
-        o_bRearClamp_Action := FALSE;
-        o_bRearClamp_Release := FALSE;
-        o_bFrontClamp2_Action := FALSE;
-        o_bFrontClamp2_Release := FALSE;
-        o_bRearClamp2_Action := FALSE;
-        o_bRearClamp2_Release := FALSE;
-        o_bZAxis_PulseOutput := FALSE;
-        o_bZAxis_DirectionOutput := FALSE;
-        o_bPlaceComplete_ToFeeder := FALSE;
-        s_bZAxis_RequestDown := FALSE;
-        s_bZAxis_RequestUp := FALSE;
-        s_bX1Axis_RequestFwd := FALSE;
-        s_bX1Axis_RequestRev := FALSE;
-        fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-        fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
-        fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
-    END_IF;
+(* ==================== 状态输出 ==================== *)
+q_bRunning := bRunning;
+q_iCurrentState := iCurrentState;
+q_iCurrentPickLayer := iPickLayer;
+q_iAlarmCode := iAlarmCode;
+
+(* 放料完成脉冲自清除 *)
+IF bPlaceDonePulse AND tQ[2] = FALSE THEN
+    q_bPlaceDoneToFeeder := FALSE;
+    bPlaceDonePulse := FALSE;
 END_IF;
-
-// --- 复位处理 ---
-IF i_bReset THEN
-    IF s_bFault THEN
-        s_iActiveAlarmCode := 0;
-        s_bFault := FALSE;
-        o_iStationAlarmCode := 0;
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
-        s_bStartTriggered := FALSE;
-        s_iCompletedLayers := 0;
-        s_iCurrentPickLayerNum := 0;
-        s_iPickCount := 0;
-        s_bPlaceCompletePulse := FALSE;
-        s_bProductDetected := FALSE;
-        o_bLift_Up := FALSE;
-        o_bLift_Down := FALSE;
-        o_bFrontClamp_Action := FALSE;
-        o_bFrontClamp_Release := FALSE;
-        o_bRearClamp_Action := FALSE;
-        o_bRearClamp_Release := FALSE;
-        o_bFrontClamp2_Action := FALSE;
-        o_bFrontClamp2_Release := FALSE;
-        o_bRearClamp2_Action := FALSE;
-        o_bRearClamp2_Release := FALSE;
-        o_bZAxis_PulseOutput := FALSE;
-        o_bZAxis_DirectionOutput := FALSE;
-        o_bPlaceComplete_ToFeeder := FALSE;
-        s_bZAxis_RequestDown := FALSE;
-        s_bZAxis_RequestUp := FALSE;
-        s_bX1Axis_RequestFwd := FALSE;
-        s_bX1Axis_RequestRev := FALSE;
-        s_bX1AxisAtPickupPos := FALSE;
-        s_bX1AxisAtPlacePos := FALSE;
-        fb_tActionTimer(IN := FALSE, PT := 0, Q => s_bActionTimer_Q, ET => q_eAction_Elapsed);
-        fb_tProductDetectStableTimer(IN := FALSE, PT := 0, Q => s_bProductDetectStableTimer_Q, ET => q_eProductDetectStable_Elapsed);
-        fb_tPlaceCompleteHoldTimer(IN := FALSE, PT := 0, Q => s_bPlaceCompleteHoldTimer_Q, ET => q_ePlaceCompleteHold_Elapsed);
-        s_bInitComplete := FALSE;
-    END_IF;
-END_IF;
-
-// --- 状态输出 ---
-o_bRunning := s_bRunning;
-o_bFault := s_bFault;
-
-IF s_bFault THEN
-    o_iCurrentState := 99;
-ELSE
-    o_iCurrentState := s_iCurrentStep;
-END_IF;
-
-IF s_bRunning THEN
-    o_iCurrentPickLayer := s_iCurrentPickLayerNum;
-ELSIF s_iCompletedLayers >= LAYER_TOTAL THEN
-    o_iCurrentPickLayer := 0;
-ELSE
-    o_iCurrentPickLayer := 0;
-END_IF;
-
-o_iStationAlarmCode := s_iActiveAlarmCode;
 
 END_FUNCTION_BLOCK

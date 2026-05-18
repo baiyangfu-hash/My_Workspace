@@ -10,6 +10,20 @@
 | **遵循规范** | IEC 61131-3, 810_PLC编程规范_DEV-V1.0.3, 801_PLC变量命名与功能块命名规范_DEV-V1.0.5 |
 | **架构版本** | V2.0.0 (OB1/DB/FB组件化交付 + 语义对齐优先) |
 
+### 1.1 编译器导出源程序（PNG）索引
+
+| 导出类型 | 数据名 | 页码范围 | 说明 |
+|---|---|---:|---|
+| 梯形图 | 系统运行 | 1~39 | 系统运行/互锁/状态位等基础逻辑 |
+| 梯形图 | X1轴 | 40~43 | X1轴相关控制与状态 |
+| 梯形图 | X2轴 | 44~48 | X2轴相关控制与状态 |
+| 梯形图 | Z轴 | 49~58 | Z轴相关控制与状态 |
+| 梯形图 | 报警 | 59~88 | 报警与故障相关逻辑 |
+| 梯形图 | 配置CC_Link | 89~90 | 通讯/配置相关逻辑（历史参考） |
+| FBD/LD | 分料 | 1~10 | 4层分料功能块调用与程序本体 |
+| ST | 分料送料IO映射 | 1~2 | 4层输送/分料的Y点输出映射与上料按钮 |
+| FB/FUN | 送料分料测试 | 1~13 | 分料/送料测试用Step状态机（历史参考） |
+
 ## 2. 版本变更说明 (V1.0.0 -> V2.0.0)
 
 ### 2.1 V2.0.0 变更摘要
@@ -79,7 +93,7 @@
 | 1 | PRG_MainControl_DJ2026005 | PROGRAM | `主控/PRG_MainControl_DJ2026005_V4.1.0.st` | IO映射(X<->逻辑变量<->Y)、HMI交互、工站实例化与调用、报警D区回写 |
 | 2 | FB_1001_Conveyor4Layer_BufferFraming | FUNCTION_BLOCK | `四层输送机/FB_1001_Conveyor4Layer_BufferFraming_V4.1.0.st` | 4层独立分料/输送控制(每层9步自动状态机) |
 | 3 | FB_1003_PickPlace_BufferFraming | FUNCTION_BLOCK | `取放料机构/FB_1003_PickPlace_BufferFraming_V4.1.0.st` | Z轴升降+X1轴横移+夹爪控制(11步状态机，一次取两根) |
-| 4 | FB_1004_GlueMachineFeeder_BufferFraming | FUNCTION_BLOCK | `打胶机送料机构/FB_1004_GlueMachineFeeder_BufferFraming_V4.1.0.st` | X2轴横移+打胶机交互(6步状态机) |
+| 4 | FB_1004_GlueMachineFeeder_BufferFraming | FUNCTION_BLOCK | `打胶机送料机构/FB_1004_GlueMachineFeeder_BufferFraming_V4.1.0.st` | X2轴横移+打胶机交互(4步状态机D760) |
 | 5 | FB_2001_CommonAlarm_AllStation | FUNCTION_BLOCK | `公共服务/FB_2001_CommonAlarm_AllStation_V4.1.0.st` | 三站报警汇总+全局报警字+MES队列管理 |
 
 ---
@@ -887,6 +901,8 @@
 | FB_1003_PickPlace_BufferFraming_V4.1.0.st | `02_PLC程序/通用ST程序及变量表/取放料机构/` | 取放料机构纯逻辑功能块源代码 |
 | FB_1004_GlueMachineFeeder_BufferFraming_V4.1.0.st | `02_PLC程序/通用ST程序及变量表/打胶机送料机构/` | 打胶机送料机构纯逻辑功能块源代码 |
 | FB_2001_CommonAlarm_AllStation_V4.1.0.st | `02_PLC程序/通用ST程序及变量表/公共服务/` | 公共报警管理功能块源代码 |
-| 详细设计说明书_DSN-DJ-2026-005-V4.1.0.md | `02_PLC程序/通用ST程序及变量表/` | 项目级详细设计说明书(V4.1.0版) |
+| 详细设计说明书_DSN-DJ-2026-005-V2.0.0.md | `02_PLC程序/程序文档/` | 项目级详细设计说明书(V2.0.0版) |
+| 程序架构文档_ARC-DJ-2026-005-V2.0.0.md | `02_PLC程序/程序文档/` | 系统架构概览、组件结构、关键技术特点 |
+| 018_DJ-2026-005_自动工艺流程图_FLOW-V2.0.0.md | `02_PLC程序/程序文档/` | 自动工艺流程图（与导出PNG索引对应） |
 | 报警码定义_ALM-DJ-2026-005-V4.1.0.md | `02_PLC程序/通用ST程序及变量表/公共服务/` | 20个报警码完整定义(含触发条件/处理建议) |
 | PLC程序设计总文档_PLC-V2.0.0.md | `02_PLC程序/程序文档/` | PLC程序设计总文档(V2.0.0版) |

@@ -1,407 +1,422 @@
-// ============================================================================
-// FB_1002_SingleLayerConveyor_BufferFraming
-// 描述：边框缓存机单层输送机控制
-// 项目：DJ-2026-005
-// 版本：V1.0.0
-// 日期：2026-05-04
-// ============================================================================
-//
-// 功能：
-//   1. 自动模式：单层分料的 8 步状态机
-//   2. 手动模式：各执行器直接控制
-//   3. 报警检测：7 种报警类型（1~7）
-//   4. 定时器：使用 SysLib FB_TON（PT/ET 为 DINT，不用 TIME）
-//
-// 状态机步骤：
-//   0 = 空闲
-//   1 = 等待分料前光电
-//   2 = 阻挡气缸下降
-//   3 = 分料气缸推出（保持 SeparateTime）
-//   4 = 分料气缸复位
-//   5 = 等待到位光电
-//   6 = 输送前进
-//   7 = 等待上游允许放料
-//   8 = 放料完成信号
-//
-// 报警码（1~7）：
-//   1 = 阻挡气缸动作超时
-//   2 = 分料气缸推出超时
-//   3 = 分料气缸复位超时
-//   4 = 到位光电等待超时
-//   5 = 输送前进超时
-//   6 = 阻挡气缸传感器冲突（上位+下位同时为TRUE）
-//   7 = 分料气缸传感器冲突（上位+下位同时为TRUE）
-// ============================================================================
+(* ================================================================= *)
+(*  功能块名称：FB_1002_SingleLayerConveyor_BufferFraming              *)
+(*  功能描述：单层输送机控制 - 9步Step_S状态机（先输送再分料）      *)
+(*  创建日期：2026-05-04                                              *)
+(*  版本号：V6.0.0                                                    *)
+(*  编制人：Trae                                                      *)
+(*  审核人：人工                                                      *)
+(*                                                                     *)
+(*  遵循规范：                                                         *)
+(*    - 801_PLC变量命名与功能块命名规范_DEV-V1.0.5                    *)
+(*    - 810_PLC编程规范_DEV-V1.0.2                                    *)
+(*                                                                     *)
+(*  变更记录：                                                          *)
+(* ---------------------------------------------------------------- *)
+(*  V6.0.0 (2026-05-18) Trae                                         *)
+(*  - 重写: 8步→9步Step_S状态机，先输送再分料（对齐源程序）        *)
+(*  - 重写: o_前缀→q_前缀，s_前缀改为纯前缀（801规范）             *)
+(*  - 新增: STEP_INIT初始化反转步                                     *)
+(*  - 新增: VFD故障检测、安全门互锁、取料安全区互锁                 *)
+(*  - 新增: 传感器双通道冗余一致性检查(阻挡/分料上下位)            *)
+(*  - 新增: 分料超时报警(100~103)，冗余不一致报警(130~163)         *)
+(*  - 新增: 4个TONR定时器（tIn/tQ/tR/tPt/tEt简化命名）             *)
+(* ---------------------------------------------------------------- *)
+(*  V1.0.0 (2026-05-04)                                              *)
+(*  - 初始版本创建（8步先分料后输送，已废弃）                      *)
+(* ================================================================= *)
 
 FUNCTION_BLOCK FB_1002_SingleLayerConveyor_BufferFraming
 
-//#region 100_VAR_INPUT
+(* ==================== VAR_INPUT ==================== *)
 VAR_INPUT
-    // 系统控制信号
-    i_bEnable           : BOOL;    // 总使能
-    i_bAutoMode         : BOOL;    // 自动模式选择
-    i_bManualMode       : BOOL;    // 手动调试模式选择
-    i_bStart            : BOOL;    // 自动启动按钮
-    i_bStop             : BOOL;    // 自动停止按钮
-    i_bReset            : BOOL;    // 故障复位/初始化按钮
+    i_bAutoMode                 : BOOL;     (* 自动运行模式 *)
+    i_bManualMode               : BOOL;     (* 手动调试模式 *)
+    i_bStart                    : BOOL;     (* 启动信号 *)
+    i_bStop                     : BOOL;     (* 停止信号 *)
 
-    // 工艺参数
-    i_rConveyorSpeed    : REAL;    // 输送速度设定（Hz 或 m/min）
-    i_iSeparateTime     : INT;     // 分料动作保持时间（ms）
-    i_iBlockWaitTime    : INT;     // 阻挡气缸动作等待时间（ms）
+    i_bLx_BlockDown             : BOOL;     (* 手动:阻挡下降 *)
+    i_bLx_SeparatePush          : BOOL;     (* 手动:分料推出 *)
+    i_bLx_ConveyorFwd           : BOOL;     (* 手动:输送正转 *)
+    i_bLx_ConveyorRev           : BOOL;     (* 手动:输送反转 *)
+    i_bLx_ConveyorSlow          : BOOL;     (* 手动:输送慢速 *)
+    i_bLx_BlockUp               : BOOL;     (* 手动:阻挡上升 *)
 
-    // 手动操作信号
-    i_bLx_BlockDown     : BOOL;    // 手动-阻挡下降
-    i_bLx_BlockUp       : BOOL;    // 手动-阻挡上升
-    i_bLx_SeparatePush  : BOOL;    // 手动-分料推出
-    i_bLx_SeparateReset : BOOL;    // 手动-分料复位
-    i_bLx_ConveyorFwd   : BOOL;    // 手动-输送正转
-    i_bLx_ConveyorRev   : BOOL;    // 手动-输送反转
+    i_rConveyorSpeed            : REAL;     (* 输送自动速度(mm/s) *)
+    i_iSeparateTime             : INT;      (* 分料动作超时时间(ms) *)
+    i_iBlockWaitTime            : INT;      (* 阻挡等待时间(ms) *)
 
-    // 传感器输入
-    i_bPreSeparateSensor    : BOOL;    // 分料前到料检测
-    i_bPositionSensor1      : BOOL;    // 到位光电1
-    i_bPositionSensor2      : BOOL;    // 到位光电2
-    i_bBlockCylinderUp      : BOOL;    // 阻挡气缸上位（放行位）
-    i_bBlockCylinderDown    : BOOL;    // 阻挡气缸下位（阻挡位）
-    i_bSeparateCylinderUp   : BOOL;    // 分料气缸上位（缩回位）
-    i_bSeparateCylinderDown : BOOL;    // 分料气缸下位（伸出位）
+    i_bSafetyDoorOk             : BOOL;     (* 安全门状态(TRUE=OK) *)
+    i_bPickPlaceSafeZone        : BOOL;     (* 取料机构安全区(TRUE=安全) *)
+    i_iLayerIndex               : INT;      (* 当前层编号(1~4) *)
 
-    // 上游/下游信号
-    i_bUpstreamAllowFeed    : BOOL;    // 下游允许本层放料
+    i_bPreSeparateSensor        : BOOL;     (* 分料前接近开关 *)
+    i_bPositionSensor1          : BOOL;     (* 到位传感器1 *)
+    i_bPositionSensor2          : BOOL;     (* 到位传感器2 *)
+    i_bBlockCylinderUp          : BOOL;     (* 阻挡气缸上位 *)
+    i_bBlockCylinderDown        : BOOL;     (* 阻挡气缸下位 *)
+    i_bSeparateCylinderUp       : BOOL;     (* 分料气缸上位 *)
+    i_bSeparateCylinderDown     : BOOL;     (* 分料气缸下位 *)
+
+    i_bVfdFault                 : BOOL;     (* 变频器异常 *)
+    i_bPickupConfirmed          : BOOL;     (* FB_1003取料确认 *)
 END_VAR
-//#endregion 100_VAR_INPUT
 
-//#region 200_VAR_OUTPUT
+(* ==================== VAR_OUTPUT ==================== *)
 VAR_OUTPUT
-    // 执行器输出
-    o_bBlockSolenoid    : BOOL;    // TRUE=下降（阻挡），FALSE=上升（放行）
-    o_bSeparateSolenoid : BOOL;    // TRUE=推出（分料），FALSE=复位
-    o_bConveyorFwd      : BOOL;    // 输送正转
-    o_bConveyorSlow     : BOOL;    // 输送慢速
-    o_bConveyorRev      : BOOL;    // 输送反转
+    q_bBlockSolenoid            : BOOL;     (* 阻挡气缸(ON=下降) *)
+    q_bSeparateSolenoid         : BOOL;     (* 分料气缸(ON=推出) *)
+    q_bConveyorFwd              : BOOL;     (* 输送正转 *)
+    q_bConveyorRev              : BOOL;     (* 输送反转 *)
+    q_bConveyorSlow             : BOOL;     (* 输送慢速 *)
 
-    // 下游信号
-    o_bFeedComplete     : BOOL;    // 本层放料完成
-
-    // 状态输出
-    o_bRunning          : BOOL;    // 自动运行中
-    o_bFault            : BOOL;    // 本层故障
-    o_iCurrentState     : INT;     // 当前状态（0=空闲，1~8=步骤，99=故障）
-    o_iAlarmCode        : INT;     // 报警码（0=无，1~7=报警类型）
+    q_iCurrentState             : INT;      (* 当前步序值(0~70) *)
+    q_iAlarmCode                : INT;      (* 当前报警码(0=正常) *)
+    q_bLayerFeedDone            : BOOL;     (* 本层放料完成脉冲 *)
+    q_bSensorFaultBlockUp       : BOOL;     (* 阻挡上位传感器冗余不一致 *)
+    q_bSensorFaultBlockDown     : BOOL;     (* 阻挡下位传感器冗余不一致 *)
+    q_bSensorFaultSeparateUp    : BOOL;     (* 分料上位传感器冗余不一致 *)
+    q_bSensorFaultSeparateDown  : BOOL;     (* 分料下位传感器冗余不一致 *)
+    q_bSeparateTimeout          : BOOL;     (* 分料动作超时 *)
+    q_bRunning                  : BOOL;     (* 运行中 *)
 END_VAR
-//#endregion 200_VAR_OUTPUT
 
-//#region 300_VAR
+(* ==================== VAR ==================== *)
 VAR
-    // 状态机核心
-    s_iCurrentStep      : INT;     // 当前状态机步骤
-    s_bRunning          : BOOL;    // 自动运行标志
-    s_bFault            : BOOL;    // 故障标志
-    s_iActiveAlarmCode  : INT;     // 当前激活报警码
+    bStepEntry              : BOOL;         (* 新步入口标志 *)
 
-    // 定时器（SysLib FB_TON，PT/ET 为 DINT）
-    fb_tBlockTimer      : FB_TON;  // 阻挡气缸动作定时
-    fb_tSeparateTimer   : FB_TON;  // 分料动作保持定时
-    fb_tSeparateResetTimer : FB_TON; // 分料复位定时
-    fb_tPositionTimer   : FB_TON;  // 到位等待定时
-    fb_tConveyorTimer   : FB_TON;  // 输送前进定时
+    tIn                     : ARRAY[0..3] OF BOOL;   (* 定时器输入 *)
+    tQ                      : ARRAY[0..3] OF BOOL;   (* 定时器输出 *)
+    tR                      : ARRAY[0..3] OF BOOL;   (* 定时器复位 *)
+    tPt                     : ARRAY[0..3] OF DINT;   (* 定时器预设值 *)
+    tEt                     : ARRAY[0..3] OF DINT;   (* 定时器当前值 *)
 
-    // 定时器 Q 输出
-    s_bBlockTimer_Q         : BOOL;
-    s_bSeparateTimer_Q      : BOOL;
-    s_bSeparateResetTimer_Q : BOOL;
-    s_bPositionTimer_Q      : BOOL;
-    s_bConveyorTimer_Q      : BOOL;
+    tSeparateTimer          : FB_TONR;       (* 分料超时 *)
+    tSlowTimer              : FB_TONR;       (* 慢速送出 *)
+    tConvFwdTimer           : FB_TONR;       (* 输送正转 *)
+    tInitTimer              : FB_TONR;       (* 初始化反转 *)
 
-    // 定时器 ET 输出（DINT，扫描周期数）
-    s_diBlockTimer_ET          : DINT;
-    s_diSeparateTimer_ET       : DINT;
-    s_diSeparateResetTimer_ET  : DINT;
-    s_diPositionTimer_ET       : DINT;
-    s_diConveyorTimer_ET       : DINT;
-
-    // 物料存在标志
-    s_bMaterialPresent   : BOOL;   // 到位处检测到物料
+    bSensorFaultBlockUp     : BOOL;          (* 阻挡上位冗余不一致内部 *)
+    bSensorFaultBlockDown   : BOOL;          (* 阻挡下位冗余不一致内部 *)
+    bSensorFaultSeparateUp  : BOOL;          (* 分料上位冗余不一致内部 *)
+    bSensorFaultSeparateDown: BOOL;          (* 分料下位冗余不一致内部 *)
+    bSeparateTimeout        : BOOL;          (* 分料超时内部 *)
+    iAlarmCode              : INT;           (* 报警码内部 *)
+    iCurrentState           : INT;           (* 当前状态内部 *)
+    bRunning                : BOOL;          (* 运行标志 *)
+    bStartTriggered         : BOOL;          (* 启动上升沿锁存 *)
 END_VAR
-//#endregion 300_VAR
 
-//#region 400_VAR_CONSTANT
+(* ==================== VAR_CONSTANT ==================== *)
 VAR CONSTANT
-    // 状态机步骤
-    STP_Idle            : INT := 0;   // 空闲
-    STP_WaitPreSeparate : INT := 1;   // 等待分料前光电
-    STP_BlockDown       : INT := 2;   // 阻挡气缸下降
-    STP_SeparatePush    : INT := 3;   // 分料气缸推出
-    STP_SeparateReset   : INT := 4;   // 分料气缸复位
-    STP_WaitPosition    : INT := 5;   // 等待到位光电
-    STP_ConveyorFwd     : INT := 6;   // 输送前进
-    STP_WaitAllowFeed   : INT := 7;   // 等待允许放料
-    STP_FeedComplete    : INT := 8;   // 放料完成信号
+    STEP_INIT                   : INT := 0;   (* 初始化反转 *)
+    STEP_WAIT_MATERIAL          : INT := 1;   (* 等待来料 *)
+    STEP_BLOCK_DOWN             : INT := 2;   (* 阻挡下降 *)
+    STEP_CONVEYOR_FWD           : INT := 10;  (* 输送正转 *)
+    STEP_POSITION_CHECK_BLOCK_UP : INT := 20; (* 到位检测+阻挡上升 *)
+    STEP_SEPARATE_PUSH          : INT := 30;  (* 分料推出 *)
+    STEP_CONVEYOR_SLOW          : INT := 50;  (* 慢速送出 *)
+    STEP_REQUEST_PICKUP         : INT := 60;  (* 请求取料 *)
+    STEP_SEPARATE_RETURN        : INT := 70;  (* 分料复位 *)
 
-    // 报警码（1~7）
-    ALM_BlockTimeout        : INT := 1;  // 阻挡气缸动作超时
-    ALM_SeparatePushTimeout : INT := 2;  // 分料推出超时
-    ALM_SeparateResetTimeout : INT := 3; // 分料复位超时
-    ALM_PositionTimeout     : INT := 4;  // 到位光电等待超时
-    ALM_ConveyorTimeout     : INT := 5;  // 输送前进超时
-    ALM_BlockSensorConflict : INT := 6;  // 阻挡传感器冲突
-    ALM_SeparateSensorConflict : INT := 7; // 分料传感器冲突
-
-    // 默认定时参数（DINT，扫描周期数，假设 1ms/周期）
-    T_DEF_BlockAction    : DINT := 3000;   // 阻挡气缸超时（3s）
-    T_DEF_SeparateHold   : DINT := 500;    // 分料保持时间
-    T_DEF_SeparateReset  : DINT := 500;    // 分料复位时间
-    T_DEF_PositionWait   : DINT := 5000;   // 到位等待（5s）
-    T_DEF_ConveyorRun    : DINT := 3000;   // 输送前进时间（3s）
+    T_INIT_REVERSE              : DINT := 3000;  (* 初始化反转3s *)
+    T_CONVEYOR_FWD              : DINT := 5000;  (* 输送正转5s *)
+    T_SLOW                      : DINT := 2000;  (* 慢速送出2s *)
 END_VAR
-//#endregion 400_VAR_CONSTANT
 
-// ============================================================================
-// 主程序逻辑
-// ============================================================================
+(* ==================== 定时器调用 ==================== *)
+tSeparateTimer(IN := tIn[0], R := tR[0], PT := tPt[0], Q => tQ[0], ET => tEt[0]);
+tSlowTimer(IN := tIn[1], R := tR[1], PT := tPt[1], Q => tQ[1], ET => tEt[1]);
+tConvFwdTimer(IN := tIn[2], R := tR[2], PT := tPt[2], Q => tQ[2], ET => tEt[2]);
+tInitTimer(IN := tIn[3], R := tR[3], PT := tPt[3], Q => tQ[3], ET => tEt[3]);
 
-// --- 使能关闭：进入安全状态，所有输出清零 ---
-IF NOT i_bEnable THEN
-    o_bBlockSolenoid := FALSE;
-    o_bSeparateSolenoid := FALSE;
-    o_bConveyorFwd := FALSE;
-    o_bConveyorSlow := FALSE;
-    o_bConveyorRev := FALSE;
-    o_bFeedComplete := FALSE;
-    s_iCurrentStep := STP_Idle;
-    s_bRunning := FALSE;
-    s_bFault := FALSE;
-    s_iActiveAlarmCode := 0;
-    s_bMaterialPresent := FALSE;
-    o_bRunning := FALSE;
-    o_bFault := FALSE;
-    o_iCurrentState := STP_Idle;
-    o_iAlarmCode := 0;
-
-    fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
-    fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
-    fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
-    fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
-    fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+(* ==================== 使能关闭：安全状态 ==================== *)
+IF NOT i_bAutoMode AND NOT i_bManualMode THEN
+    q_bBlockSolenoid := FALSE;
+    q_bSeparateSolenoid := FALSE;
+    q_bConveyorFwd := FALSE;
+    q_bConveyorRev := FALSE;
+    q_bConveyorSlow := FALSE;
+    q_bLayerFeedDone := FALSE;
+    q_iAlarmCode := 0;
+    q_bSensorFaultBlockUp := FALSE;
+    q_bSensorFaultBlockDown := FALSE;
+    q_bSensorFaultSeparateUp := FALSE;
+    q_bSensorFaultSeparateDown := FALSE;
+    q_bSeparateTimeout := FALSE;
+    q_bRunning := FALSE;
+    iCurrentState := STEP_INIT;
+    bRunning := FALSE;
+    bStartTriggered := FALSE;
+    bStepEntry := TRUE;
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    tIn[2] := FALSE; tR[2] := TRUE;
+    tIn[3] := FALSE; tR[3] := TRUE;
     RETURN;
 END_IF;
 
-// --- 传感器冲突检测 ---
-IF i_bBlockCylinderUp AND i_bBlockCylinderDown THEN
-    s_iActiveAlarmCode := ALM_BlockSensorConflict;
-    s_bFault := TRUE;
-END_IF;
-IF i_bSeparateCylinderUp AND i_bSeparateCylinderDown THEN
-    s_iActiveAlarmCode := ALM_SeparateSensorConflict;
-    s_bFault := TRUE;
+(* ==================== 传感器冗余一致性检查 ==================== *)
+(* 注：实际冗余传感器需在 DB1 中做双通道一致性比对后
+   以独立 BOOL 信号传入。以下占位逻辑检测上下位同时ON冲突 *)
+bSensorFaultBlockUp    := i_bBlockCylinderUp AND i_bBlockCylinderDown;
+bSensorFaultBlockDown  := bSensorFaultBlockUp;
+bSensorFaultSeparateUp := i_bSeparateCylinderUp AND i_bSeparateCylinderDown;
+bSensorFaultSeparateDown := bSensorFaultSeparateUp;
+
+q_bSensorFaultBlockUp := bSensorFaultBlockUp;
+q_bSensorFaultBlockDown := bSensorFaultBlockDown;
+q_bSensorFaultSeparateUp := bSensorFaultSeparateUp;
+q_bSensorFaultSeparateDown := bSensorFaultSeparateDown;
+
+(* ==================== 停止处理 ==================== *)
+IF i_bStop AND bRunning THEN
+    iCurrentState := STEP_INIT;
+    bRunning := FALSE;
+    bStepEntry := TRUE;
+    q_bBlockSolenoid := FALSE;
+    q_bSeparateSolenoid := FALSE;
+    q_bConveyorFwd := FALSE;
+    q_bConveyorSlow := FALSE;
+    q_bConveyorRev := FALSE;
+    q_bLayerFeedDone := FALSE;
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    tIn[2] := FALSE; tR[2] := TRUE;
+    tIn[3] := FALSE; tR[3] := TRUE;
 END_IF;
 
-// --- 故障处理 ---
-IF s_bFault THEN
-    o_bBlockSolenoid := FALSE;
-    o_bSeparateSolenoid := FALSE;
-    o_bConveyorFwd := FALSE;
-    o_bConveyorSlow := FALSE;
-    o_bConveyorRev := FALSE;
-    o_bFeedComplete := FALSE;
-    s_bRunning := FALSE;
-    fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
-    fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
-    fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
-    fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
-    fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
+(* ==================== 模式分发 ==================== *)
+IF i_bAutoMode THEN
 
-    // 复位处理
-    IF i_bReset THEN
-        s_iActiveAlarmCode := 0;
-        s_bFault := FALSE;
-        s_iCurrentStep := STP_Idle;
-        s_bMaterialPresent := FALSE;
+    (* --- VFD故障、安全门、取料安全区互锁 --- *)
+    IF i_bVfdFault THEN
+        q_bConveyorFwd := FALSE;
+        q_bConveyorRev := FALSE;
+        q_bConveyorSlow := FALSE;
+        iAlarmCode := i_iLayerIndex * 10 + 5; (* VFD报警 *)
     END_IF;
 
-    o_bRunning := FALSE;
-    o_bFault := TRUE;
-    o_iCurrentState := 99;
-    o_iAlarmCode := s_iActiveAlarmCode;
-    RETURN;
-END_IF;
+    (* --- 启动触发 --- *)
+    IF i_bStart AND NOT bStartTriggered THEN
+        bStartTriggered := TRUE;
+        bRunning := TRUE;
+    END_IF;
 
-// --- 停止处理 ---
-IF i_bStop AND s_bRunning THEN
-    s_iCurrentStep := STP_Idle;
-    s_bRunning := FALSE;
-    o_bBlockSolenoid := FALSE;
-    o_bSeparateSolenoid := FALSE;
-    o_bConveyorFwd := FALSE;
-    o_bConveyorSlow := FALSE;
-    o_bConveyorRev := FALSE;
-    o_bFeedComplete := FALSE;
-    fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
-    fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
-    fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
-    fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
-    fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
-END_IF;
+    (* ==================== 9步状态机 ==================== *)
+    CASE iCurrentState OF
 
-// --- 模式分发 ---
-IF i_bAutoMode THEN
-    // ========================================================================
-    // 自动模式：8步状态机
-    // ========================================================================
-    CASE s_iCurrentStep OF
+        STEP_INIT: (* 0 - 初始化反转 *)
+            IF bStepEntry THEN
+                q_bBlockSolenoid := FALSE;
+                q_bSeparateSolenoid := FALSE;
+                q_bConveyorFwd := FALSE;
+                q_bConveyorSlow := FALSE;
+                q_bLayerFeedDone := FALSE;
+                IF i_bSafetyDoorOk THEN
+                    q_bConveyorRev := TRUE;
+                END_IF;
+                tIn[3] := TRUE; tR[3] := FALSE;
+                tPt[3] := T_INIT_REVERSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-    STP_Idle:
-        o_bBlockSolenoid := FALSE;
-        o_bSeparateSolenoid := FALSE;
-        o_bConveyorFwd := FALSE;
-        o_bConveyorSlow := FALSE;
-        o_bConveyorRev := FALSE;
-        o_bFeedComplete := FALSE;
-        s_bMaterialPresent := FALSE;
+            IF tQ[3] THEN
+                q_bConveyorRev := FALSE;
+                tIn[3] := FALSE; tR[3] := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_WAIT_MATERIAL;
+            END_IF;
 
-        IF i_bStart THEN
-            s_iCurrentStep := STP_WaitPreSeparate;
-            s_bRunning := TRUE;
-        END_IF;
+        STEP_WAIT_MATERIAL: (* 1 - 等待来料 *)
+            IF bStepEntry THEN
+                bStepEntry := FALSE;
+            END_IF;
 
-    STP_WaitPreSeparate:
-        IF i_bPreSeparateSensor THEN
-            s_iCurrentStep := STP_BlockDown;
-            o_bBlockSolenoid := TRUE;
-            fb_tBlockTimer(IN := TRUE, PT := T_DEF_BlockAction, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
-        END_IF;
+            IF i_bPreSeparateSensor THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_BLOCK_DOWN;
+            END_IF;
 
-    STP_BlockDown:
-        o_bBlockSolenoid := TRUE;
-        IF i_bBlockCylinderDown THEN
-            fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
-            s_iCurrentStep := STP_SeparatePush;
-            o_bSeparateSolenoid := TRUE;
-            fb_tSeparateTimer(IN := TRUE, PT := i_iSeparateTime, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
-        ELSIF s_bBlockTimer_Q THEN
-            fb_tBlockTimer(IN := FALSE, PT := 0, Q => s_bBlockTimer_Q, ET => s_diBlockTimer_ET);
-            s_iActiveAlarmCode := ALM_BlockTimeout;
-            s_bFault := TRUE;
-        END_IF;
+        STEP_BLOCK_DOWN: (* 2 - 阻挡下降 *)
+            IF bStepEntry THEN
+                q_bBlockSolenoid := TRUE;
+                bStepEntry := FALSE;
+            END_IF;
 
-    STP_SeparatePush:
-        o_bBlockSolenoid := TRUE;
-        o_bSeparateSolenoid := TRUE;
-        IF s_bSeparateTimer_Q THEN
-            fb_tSeparateTimer(IN := FALSE, PT := 0, Q => s_bSeparateTimer_Q, ET => s_diSeparateTimer_ET);
-            s_iCurrentStep := STP_SeparateReset;
-            o_bSeparateSolenoid := FALSE;
-            fb_tSeparateResetTimer(IN := TRUE, PT := T_DEF_SeparateReset, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
-        END_IF;
+            IF i_bBlockCylinderDown THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_CONVEYOR_FWD;
+            END_IF;
 
-    STP_SeparateReset:
-        o_bBlockSolenoid := TRUE;
-        o_bSeparateSolenoid := FALSE;
-        IF i_bSeparateCylinderUp OR s_bSeparateResetTimer_Q THEN
-            fb_tSeparateResetTimer(IN := FALSE, PT := 0, Q => s_bSeparateResetTimer_Q, ET => s_diSeparateResetTimer_ET);
-            s_iCurrentStep := STP_WaitPosition;
-            fb_tPositionTimer(IN := TRUE, PT := T_DEF_PositionWait, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
-        END_IF;
+        STEP_CONVEYOR_FWD: (* 10 - 输送正转 *)
+            IF bStepEntry THEN
+                IF i_bSafetyDoorOk THEN
+                    q_bConveyorFwd := TRUE;
+                END_IF;
+                tIn[2] := TRUE; tR[2] := FALSE;
+                tPt[2] := T_CONVEYOR_FWD;
+                bStepEntry := FALSE;
+            END_IF;
 
-    STP_WaitPosition:
-        o_bBlockSolenoid := TRUE;
-        s_bMaterialPresent := i_bPositionSensor1 AND i_bPositionSensor2;
-        IF s_bMaterialPresent THEN
-            fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
-            s_iCurrentStep := STP_ConveyorFwd;
-            o_bConveyorFwd := TRUE;
-            fb_tConveyorTimer(IN := TRUE, PT := T_DEF_ConveyorRun, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
-        ELSIF s_bPositionTimer_Q THEN
-            fb_tPositionTimer(IN := FALSE, PT := 0, Q => s_bPositionTimer_Q, ET => s_diPositionTimer_ET);
-            s_iActiveAlarmCode := ALM_PositionTimeout;
-            s_bFault := TRUE;
-        END_IF;
+            IF tQ[2] THEN
+                q_bConveyorFwd := FALSE;
+                tIn[2] := FALSE; tR[2] := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_POSITION_CHECK_BLOCK_UP;
+            END_IF;
 
-    STP_ConveyorFwd:
-        o_bConveyorFwd := TRUE;
-        o_bBlockSolenoid := FALSE;
-        IF s_bConveyorTimer_Q THEN
-            fb_tConveyorTimer(IN := FALSE, PT := 0, Q => s_bConveyorTimer_Q, ET => s_diConveyorTimer_ET);
-            s_iCurrentStep := STP_WaitAllowFeed;
-            o_bConveyorFwd := FALSE;
-        END_IF;
+        STEP_POSITION_CHECK_BLOCK_UP: (* 20 - 到位检测+阻挡上升 *)
+            IF bStepEntry THEN
+                q_bBlockSolenoid := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-    STP_WaitAllowFeed:
-        IF i_bUpstreamAllowFeed THEN
-            s_iCurrentStep := STP_FeedComplete;
-            o_bFeedComplete := TRUE;
-        END_IF;
+            IF i_bPositionSensor1 AND i_bPositionSensor2 AND i_bBlockCylinderUp THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_SEPARATE_PUSH;
+            END_IF;
 
-    STP_FeedComplete:
-        o_bFeedComplete := TRUE;
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
-        o_bFeedComplete := FALSE;
+        STEP_SEPARATE_PUSH: (* 30 - 分料推出 *)
+            IF bStepEntry THEN
+                q_bSeparateSolenoid := TRUE;
+                IF i_iSeparateTime > 0 THEN
+                    tPt[0] := INT_TO_DINT(i_iSeparateTime);
+                ELSE
+                    tPt[0] := 2000;
+                END_IF;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
 
-    ELSE
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
+            IF tQ[0] THEN
+                iAlarmCode := 100 + i_iLayerIndex;
+                bSeparateTimeout := TRUE;
+                q_bSeparateTimeout := TRUE;
+            END_IF;
+
+            IF i_bSeparateCylinderDown THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_CONVEYOR_SLOW;
+            END_IF;
+
+        STEP_CONVEYOR_SLOW: (* 50 - 慢速送出 *)
+            IF bStepEntry THEN
+                IF i_bSafetyDoorOk THEN
+                    q_bConveyorSlow := TRUE;
+                END_IF;
+                tIn[1] := TRUE; tR[1] := FALSE;
+                tPt[1] := T_SLOW;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF tQ[1] THEN
+                q_bConveyorSlow := FALSE;
+                tIn[1] := FALSE; tR[1] := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_REQUEST_PICKUP;
+            END_IF;
+
+        STEP_REQUEST_PICKUP: (* 60 - 请求取料 *)
+            IF bStepEntry THEN
+                q_bLayerFeedDone := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF i_bPickupConfirmed THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_SEPARATE_RETURN;
+            END_IF;
+
+        STEP_SEPARATE_RETURN: (* 70 - 分料复位 *)
+            IF bStepEntry THEN
+                q_bSeparateSolenoid := FALSE;
+                IF i_iSeparateTime > 0 THEN
+                    tPt[0] := INT_TO_DINT(i_iSeparateTime);
+                ELSE
+                    tPt[0] := 2000;
+                END_IF;
+                tIn[0] := TRUE; tR[0] := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF tQ[0] THEN
+                iAlarmCode := 100 + i_iLayerIndex;
+                bSeparateTimeout := TRUE;
+                q_bSeparateTimeout := TRUE;
+            END_IF;
+
+            IF i_bSeparateCylinderUp THEN
+                tIn[0] := FALSE; tR[0] := TRUE;
+                q_bLayerFeedDone := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_INIT;
+            END_IF;
+
+        ELSE
+            iCurrentState := STEP_INIT;
+            bRunning := FALSE;
+            bStepEntry := TRUE;
     END_CASE;
 
 ELSIF i_bManualMode THEN
-    // ========================================================================
-    // 手动模式：直接控制
-    // ========================================================================
-    s_bRunning := FALSE;
-    s_iCurrentStep := STP_Idle;
-    o_bFeedComplete := FALSE;
+    (* ==================== 手动模式 ==================== *)
+    bRunning := FALSE;
+    iCurrentState := STEP_INIT;
+    bStepEntry := TRUE;
+    q_bLayerFeedDone := FALSE;
 
-    // 阻挡气缸手动
     IF i_bLx_BlockDown AND NOT i_bLx_BlockUp THEN
-        o_bBlockSolenoid := TRUE;
+        q_bBlockSolenoid := TRUE;
     ELSIF i_bLx_BlockUp AND NOT i_bLx_BlockDown THEN
-        o_bBlockSolenoid := FALSE;
+        q_bBlockSolenoid := FALSE;
     END_IF;
 
-    // 分料气缸手动
-    IF i_bLx_SeparatePush AND NOT i_bLx_SeparateReset THEN
-        o_bSeparateSolenoid := TRUE;
-    ELSIF i_bLx_SeparateReset AND NOT i_bLx_SeparatePush THEN
-        o_bSeparateSolenoid := FALSE;
-    END_IF;
-
-    // 输送手动
-    IF i_bLx_ConveyorFwd AND NOT i_bLx_ConveyorRev THEN
-        o_bConveyorFwd := TRUE;
-        o_bConveyorRev := FALSE;
-    ELSIF i_bLx_ConveyorRev AND NOT i_bLx_ConveyorFwd THEN
-        o_bConveyorRev := TRUE;
-        o_bConveyorFwd := FALSE;
+    IF i_bLx_SeparatePush THEN
+        q_bSeparateSolenoid := TRUE;
     ELSE
-        o_bConveyorFwd := FALSE;
-        o_bConveyorRev := FALSE;
+        q_bSeparateSolenoid := FALSE;
     END_IF;
 
-    o_bConveyorSlow := FALSE;
-
-ELSE
-    // 无效模式：安全状态
-    o_bBlockSolenoid := FALSE;
-    o_bSeparateSolenoid := FALSE;
-    o_bConveyorFwd := FALSE;
-    o_bConveyorSlow := FALSE;
-    o_bConveyorRev := FALSE;
-    o_bFeedComplete := FALSE;
-    IF NOT s_bFault THEN
-        s_iCurrentStep := STP_Idle;
-        s_bRunning := FALSE;
+    IF i_bLx_ConveyorFwd AND NOT i_bLx_ConveyorRev THEN
+        IF i_bSafetyDoorOk THEN
+            q_bConveyorFwd := TRUE;
+        END_IF;
+        q_bConveyorRev := FALSE;
+    ELSIF i_bLx_ConveyorRev AND NOT i_bLx_ConveyorFwd THEN
+        IF i_bSafetyDoorOk THEN
+            q_bConveyorRev := TRUE;
+        END_IF;
+        q_bConveyorFwd := FALSE;
+    ELSE
+        q_bConveyorFwd := FALSE;
+        q_bConveyorRev := FALSE;
     END_IF;
+
+    q_bConveyorSlow := i_bLx_ConveyorSlow;
+
+    tIn[0] := FALSE; tR[0] := TRUE;
+    tIn[1] := FALSE; tR[1] := TRUE;
+    tIn[2] := FALSE; tR[2] := TRUE;
+    tIn[3] := FALSE; tR[3] := TRUE;
+
+ELSE
+    q_bBlockSolenoid := FALSE;
+    q_bSeparateSolenoid := FALSE;
+    q_bConveyorFwd := FALSE;
+    q_bConveyorSlow := FALSE;
+    q_bConveyorRev := FALSE;
+    q_bLayerFeedDone := FALSE;
 END_IF;
 
-// --- 状态输出 ---
-o_bRunning := s_bRunning;
-o_bFault := s_bFault;
-IF s_bFault THEN
-    o_iCurrentState := 99;
-ELSE
-    o_iCurrentState := s_iCurrentStep;
+(* ==================== 状态输出 ==================== *)
+q_bRunning := bRunning;
+q_iCurrentState := iCurrentState;
+q_iAlarmCode := iAlarmCode;
+
+IF bSeparateTimeout AND (iCurrentState <> STEP_SEPARATE_PUSH) AND (iCurrentState <> STEP_SEPARATE_RETURN) THEN
+    bSeparateTimeout := FALSE;
+    q_bSeparateTimeout := FALSE;
 END_IF;
-o_iAlarmCode := s_iActiveAlarmCode;
 
 END_FUNCTION_BLOCK

@@ -5,8 +5,8 @@ package plcruntime
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:63:1
 func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyor4Layer_BufferFraming) {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:222:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:222", []DebugSnapshotVariable{{Name: "fbLayer1.i_bEnable", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bEnable), Type: "BOOL"}, {Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	db.v_fbLayer1.v_i_bEnable = db.v_i_bEnable
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:222", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer1.i_bEnable
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:223:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "fbLayer1.i_bAutoMode", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
 	db.v_fbLayer1.v_i_bAutoMode = db.v_i_bAutoMode
@@ -20,8 +20,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:226", []DebugSnapshotVariable{{Name: "fbLayer1.i_bStop", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bStop), Type: "BOOL"}, {Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}})
 	db.v_fbLayer1.v_i_bStop = db.v_i_bStop
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:227:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:227", []DebugSnapshotVariable{{Name: "fbLayer1.i_bReset", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bReset), Type: "BOOL"}, {Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-	db.v_fbLayer1.v_i_bReset = db.v_i_bReset
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:227", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer1.i_bReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:228:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:228", []DebugSnapshotVariable{{Name: "fbLayer1.i_rConveyorSpeed", Value: debugSnapshotValue(db.v_fbLayer1.v_i_rConveyorSpeed), Type: "REAL"}, {Name: "i_rConveyorSpeed", Value: debugSnapshotValue(db.v_i_rConveyorSpeed), Type: "REAL"}})
 	db.v_fbLayer1.v_i_rConveyorSpeed = float32(db.v_i_rConveyorSpeed)
@@ -32,8 +32,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:230", []DebugSnapshotVariable{{Name: "fbLayer1.i_iBlockWaitTime", Value: debugSnapshotValue(db.v_fbLayer1.v_i_iBlockWaitTime), Type: "INT"}, {Name: "i_iBlockWaitTime", Value: debugSnapshotValue(db.v_i_iBlockWaitTime), Type: "INT"}})
 	db.v_fbLayer1.v_i_iBlockWaitTime = int16(db.v_i_iBlockWaitTime)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:233:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:233", []DebugSnapshotVariable{{Name: "fbLayer2.i_bEnable", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bEnable), Type: "BOOL"}, {Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	db.v_fbLayer2.v_i_bEnable = db.v_i_bEnable
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:233", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer2.i_bEnable
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:234:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:234", []DebugSnapshotVariable{{Name: "fbLayer2.i_bAutoMode", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
 	db.v_fbLayer2.v_i_bAutoMode = db.v_i_bAutoMode
@@ -47,8 +47,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:237", []DebugSnapshotVariable{{Name: "fbLayer2.i_bStop", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bStop), Type: "BOOL"}, {Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}})
 	db.v_fbLayer2.v_i_bStop = db.v_i_bStop
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:238:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "fbLayer2.i_bReset", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bReset), Type: "BOOL"}, {Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-	db.v_fbLayer2.v_i_bReset = db.v_i_bReset
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer2.i_bReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:239:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:239", []DebugSnapshotVariable{{Name: "fbLayer2.i_rConveyorSpeed", Value: debugSnapshotValue(db.v_fbLayer2.v_i_rConveyorSpeed), Type: "REAL"}, {Name: "i_rConveyorSpeed", Value: debugSnapshotValue(db.v_i_rConveyorSpeed), Type: "REAL"}})
 	db.v_fbLayer2.v_i_rConveyorSpeed = float32(db.v_i_rConveyorSpeed)
@@ -59,8 +59,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:241", []DebugSnapshotVariable{{Name: "fbLayer2.i_iBlockWaitTime", Value: debugSnapshotValue(db.v_fbLayer2.v_i_iBlockWaitTime), Type: "INT"}, {Name: "i_iBlockWaitTime", Value: debugSnapshotValue(db.v_i_iBlockWaitTime), Type: "INT"}})
 	db.v_fbLayer2.v_i_iBlockWaitTime = int16(db.v_i_iBlockWaitTime)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:244:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "fbLayer3.i_bEnable", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bEnable), Type: "BOOL"}, {Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	db.v_fbLayer3.v_i_bEnable = db.v_i_bEnable
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer3.i_bEnable
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:245:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:245", []DebugSnapshotVariable{{Name: "fbLayer3.i_bAutoMode", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
 	db.v_fbLayer3.v_i_bAutoMode = db.v_i_bAutoMode
@@ -74,8 +74,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:248", []DebugSnapshotVariable{{Name: "fbLayer3.i_bStop", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bStop), Type: "BOOL"}, {Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}})
 	db.v_fbLayer3.v_i_bStop = db.v_i_bStop
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:249:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:249", []DebugSnapshotVariable{{Name: "fbLayer3.i_bReset", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bReset), Type: "BOOL"}, {Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-	db.v_fbLayer3.v_i_bReset = db.v_i_bReset
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:249", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer3.i_bReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:250:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:250", []DebugSnapshotVariable{{Name: "fbLayer3.i_rConveyorSpeed", Value: debugSnapshotValue(db.v_fbLayer3.v_i_rConveyorSpeed), Type: "REAL"}, {Name: "i_rConveyorSpeed", Value: debugSnapshotValue(db.v_i_rConveyorSpeed), Type: "REAL"}})
 	db.v_fbLayer3.v_i_rConveyorSpeed = float32(db.v_i_rConveyorSpeed)
@@ -86,8 +86,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:252", []DebugSnapshotVariable{{Name: "fbLayer3.i_iBlockWaitTime", Value: debugSnapshotValue(db.v_fbLayer3.v_i_iBlockWaitTime), Type: "INT"}, {Name: "i_iBlockWaitTime", Value: debugSnapshotValue(db.v_i_iBlockWaitTime), Type: "INT"}})
 	db.v_fbLayer3.v_i_iBlockWaitTime = int16(db.v_i_iBlockWaitTime)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:255:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:255", []DebugSnapshotVariable{{Name: "fbLayer4.i_bEnable", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bEnable), Type: "BOOL"}, {Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	db.v_fbLayer4.v_i_bEnable = db.v_i_bEnable
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:255", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer4.i_bEnable
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:256:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:256", []DebugSnapshotVariable{{Name: "fbLayer4.i_bAutoMode", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
 	db.v_fbLayer4.v_i_bAutoMode = db.v_i_bAutoMode
@@ -101,8 +101,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:259", []DebugSnapshotVariable{{Name: "fbLayer4.i_bStop", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bStop), Type: "BOOL"}, {Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}})
 	db.v_fbLayer4.v_i_bStop = db.v_i_bStop
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:260:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:260", []DebugSnapshotVariable{{Name: "fbLayer4.i_bReset", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bReset), Type: "BOOL"}, {Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-	db.v_fbLayer4.v_i_bReset = db.v_i_bReset
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:260", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer4.i_bReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:261:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:261", []DebugSnapshotVariable{{Name: "fbLayer4.i_rConveyorSpeed", Value: debugSnapshotValue(db.v_fbLayer4.v_i_rConveyorSpeed), Type: "REAL"}, {Name: "i_rConveyorSpeed", Value: debugSnapshotValue(db.v_i_rConveyorSpeed), Type: "REAL"}})
 	db.v_fbLayer4.v_i_rConveyorSpeed = float32(db.v_i_rConveyorSpeed)
@@ -122,8 +122,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:274", []DebugSnapshotVariable{{Name: "fbLayer1.i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bLx_SeparatePush), Type: "BOOL"}, {Name: "i_bLx_SeparatePush[1]", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush[(1 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer1.v_i_bLx_SeparatePush = db.v_i_bLx_SeparatePush[(1 - (1))]
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:275:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:275", []DebugSnapshotVariable{{Name: "fbLayer1.i_bLx_SeparateReset", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bLx_SeparateReset), Type: "BOOL"}, {Name: "i_bLx_SeparateReset[1]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(1 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer1.v_i_bLx_SeparateReset = db.v_i_bLx_SeparateReset[(1 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:275", []DebugSnapshotVariable{{Name: "i_bLx_SeparateReset[1]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(1 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer1.i_bLx_SeparateReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:276:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:276", []DebugSnapshotVariable{{Name: "fbLayer1.i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bLx_ConveyorFwd), Type: "BOOL"}, {Name: "i_bLx_ConveyorFwd[1]", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd[(1 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer1.v_i_bLx_ConveyorFwd = db.v_i_bLx_ConveyorFwd[(1 - (1))]
@@ -140,8 +140,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:282", []DebugSnapshotVariable{{Name: "fbLayer2.i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bLx_SeparatePush), Type: "BOOL"}, {Name: "i_bLx_SeparatePush[2]", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush[(2 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer2.v_i_bLx_SeparatePush = db.v_i_bLx_SeparatePush[(2 - (1))]
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:283:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "fbLayer2.i_bLx_SeparateReset", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bLx_SeparateReset), Type: "BOOL"}, {Name: "i_bLx_SeparateReset[2]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(2 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer2.v_i_bLx_SeparateReset = db.v_i_bLx_SeparateReset[(2 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "i_bLx_SeparateReset[2]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(2 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer2.i_bLx_SeparateReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:284:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:284", []DebugSnapshotVariable{{Name: "fbLayer2.i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bLx_ConveyorFwd), Type: "BOOL"}, {Name: "i_bLx_ConveyorFwd[2]", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd[(2 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer2.v_i_bLx_ConveyorFwd = db.v_i_bLx_ConveyorFwd[(2 - (1))]
@@ -158,8 +158,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:290", []DebugSnapshotVariable{{Name: "fbLayer3.i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bLx_SeparatePush), Type: "BOOL"}, {Name: "i_bLx_SeparatePush[3]", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush[(3 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer3.v_i_bLx_SeparatePush = db.v_i_bLx_SeparatePush[(3 - (1))]
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:291:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:291", []DebugSnapshotVariable{{Name: "fbLayer3.i_bLx_SeparateReset", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bLx_SeparateReset), Type: "BOOL"}, {Name: "i_bLx_SeparateReset[3]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(3 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer3.v_i_bLx_SeparateReset = db.v_i_bLx_SeparateReset[(3 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:291", []DebugSnapshotVariable{{Name: "i_bLx_SeparateReset[3]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(3 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer3.i_bLx_SeparateReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:292:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:292", []DebugSnapshotVariable{{Name: "fbLayer3.i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bLx_ConveyorFwd), Type: "BOOL"}, {Name: "i_bLx_ConveyorFwd[3]", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd[(3 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer3.v_i_bLx_ConveyorFwd = db.v_i_bLx_ConveyorFwd[(3 - (1))]
@@ -176,8 +176,8 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:298", []DebugSnapshotVariable{{Name: "fbLayer4.i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bLx_SeparatePush), Type: "BOOL"}, {Name: "i_bLx_SeparatePush[4]", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush[(4 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer4.v_i_bLx_SeparatePush = db.v_i_bLx_SeparatePush[(4 - (1))]
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:299:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "fbLayer4.i_bLx_SeparateReset", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bLx_SeparateReset), Type: "BOOL"}, {Name: "i_bLx_SeparateReset[4]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(4 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer4.v_i_bLx_SeparateReset = db.v_i_bLx_SeparateReset[(4 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "i_bLx_SeparateReset[4]", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset[(4 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer4.i_bLx_SeparateReset
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:300:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:300", []DebugSnapshotVariable{{Name: "fbLayer4.i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bLx_ConveyorFwd), Type: "BOOL"}, {Name: "i_bLx_ConveyorFwd[4]", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd[(4 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer4.v_i_bLx_ConveyorFwd = db.v_i_bLx_ConveyorFwd[(4 - (1))]
@@ -269,107 +269,107 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:343", []DebugSnapshotVariable{{Name: "fbLayer4.i_bSeparateCylinderDown", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bSeparateCylinderDown), Type: "BOOL"}, {Name: "i_bSeparateCylinderDown[4]", Value: debugSnapshotValue(db.v_i_bSeparateCylinderDown[(4 - (1))]), Type: "BOOL"}})
 	db.v_fbLayer4.v_i_bSeparateCylinderDown = db.v_i_bSeparateCylinderDown[(4 - (1))]
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:353:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "fbLayer1.i_bUpstreamAllowFeed", Value: debugSnapshotValue(db.v_fbLayer1.v_i_bUpstreamAllowFeed), Type: "BOOL"}, {Name: "i_bFeedComplete[1]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(1 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer1.v_i_bUpstreamAllowFeed = db.v_i_bFeedComplete[(1 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "i_bFeedComplete[1]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(1 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer1.i_bUpstreamAllowFeed
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:354:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:354", []DebugSnapshotVariable{{Name: "fbLayer2.i_bUpstreamAllowFeed", Value: debugSnapshotValue(db.v_fbLayer2.v_i_bUpstreamAllowFeed), Type: "BOOL"}, {Name: "i_bFeedComplete[2]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(2 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer2.v_i_bUpstreamAllowFeed = db.v_i_bFeedComplete[(2 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:354", []DebugSnapshotVariable{{Name: "i_bFeedComplete[2]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(2 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer2.i_bUpstreamAllowFeed
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:355:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:355", []DebugSnapshotVariable{{Name: "fbLayer3.i_bUpstreamAllowFeed", Value: debugSnapshotValue(db.v_fbLayer3.v_i_bUpstreamAllowFeed), Type: "BOOL"}, {Name: "i_bFeedComplete[3]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(3 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer3.v_i_bUpstreamAllowFeed = db.v_i_bFeedComplete[(3 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:355", []DebugSnapshotVariable{{Name: "i_bFeedComplete[3]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(3 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer3.i_bUpstreamAllowFeed
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:356:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "fbLayer4.i_bUpstreamAllowFeed", Value: debugSnapshotValue(db.v_fbLayer4.v_i_bUpstreamAllowFeed), Type: "BOOL"}, {Name: "i_bFeedComplete[4]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(4 - (1))]), Type: "BOOL"}})
-	db.v_fbLayer4.v_i_bUpstreamAllowFeed = db.v_i_bFeedComplete[(4 - (1))]
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "i_bFeedComplete[4]", Value: debugSnapshotValue(db.v_i_bFeedComplete[(4 - (1))]), Type: "BOOL"}})
+	// unsupported assignment target: fbLayer4.i_bUpstreamAllowFeed
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:384:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:384", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[1]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(1 - (1))]), Type: "BOOL"}, {Name: "fbLayer1.o_bBlockSolenoid", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bBlockSolenoid), Type: "BOOL"}})
-	db.v_o_bBlockSolenoid[(1 - (1))] = db.v_fbLayer1.v_o_bBlockSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:384", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[1]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(1 - (1))]), Type: "BOOL"}})
+	db.v_o_bBlockSolenoid[(1 - (1))] = ( /* UNRESOLVED:fbLayer1.o_bBlockSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:385:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:385", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[2]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(2 - (1))]), Type: "BOOL"}, {Name: "fbLayer2.o_bBlockSolenoid", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bBlockSolenoid), Type: "BOOL"}})
-	db.v_o_bBlockSolenoid[(2 - (1))] = db.v_fbLayer2.v_o_bBlockSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:385", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[2]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(2 - (1))]), Type: "BOOL"}})
+	db.v_o_bBlockSolenoid[(2 - (1))] = ( /* UNRESOLVED:fbLayer2.o_bBlockSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:386:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:386", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[3]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(3 - (1))]), Type: "BOOL"}, {Name: "fbLayer3.o_bBlockSolenoid", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bBlockSolenoid), Type: "BOOL"}})
-	db.v_o_bBlockSolenoid[(3 - (1))] = db.v_fbLayer3.v_o_bBlockSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:386", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[3]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(3 - (1))]), Type: "BOOL"}})
+	db.v_o_bBlockSolenoid[(3 - (1))] = ( /* UNRESOLVED:fbLayer3.o_bBlockSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:387:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[4]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(4 - (1))]), Type: "BOOL"}, {Name: "fbLayer4.o_bBlockSolenoid", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bBlockSolenoid), Type: "BOOL"}})
-	db.v_o_bBlockSolenoid[(4 - (1))] = db.v_fbLayer4.v_o_bBlockSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid[4]", Value: debugSnapshotValue(db.v_o_bBlockSolenoid[(4 - (1))]), Type: "BOOL"}})
+	db.v_o_bBlockSolenoid[(4 - (1))] = ( /* UNRESOLVED:fbLayer4.o_bBlockSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:390:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:390", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[1]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(1 - (1))]), Type: "BOOL"}, {Name: "fbLayer1.o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bSeparateSolenoid), Type: "BOOL"}})
-	db.v_o_bSeparateSolenoid[(1 - (1))] = db.v_fbLayer1.v_o_bSeparateSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:390", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[1]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(1 - (1))]), Type: "BOOL"}})
+	db.v_o_bSeparateSolenoid[(1 - (1))] = ( /* UNRESOLVED:fbLayer1.o_bSeparateSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:391:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:391", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[2]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(2 - (1))]), Type: "BOOL"}, {Name: "fbLayer2.o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bSeparateSolenoid), Type: "BOOL"}})
-	db.v_o_bSeparateSolenoid[(2 - (1))] = db.v_fbLayer2.v_o_bSeparateSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:391", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[2]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(2 - (1))]), Type: "BOOL"}})
+	db.v_o_bSeparateSolenoid[(2 - (1))] = ( /* UNRESOLVED:fbLayer2.o_bSeparateSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:392:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[3]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(3 - (1))]), Type: "BOOL"}, {Name: "fbLayer3.o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bSeparateSolenoid), Type: "BOOL"}})
-	db.v_o_bSeparateSolenoid[(3 - (1))] = db.v_fbLayer3.v_o_bSeparateSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[3]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(3 - (1))]), Type: "BOOL"}})
+	db.v_o_bSeparateSolenoid[(3 - (1))] = ( /* UNRESOLVED:fbLayer3.o_bSeparateSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:393:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:393", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[4]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(4 - (1))]), Type: "BOOL"}, {Name: "fbLayer4.o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bSeparateSolenoid), Type: "BOOL"}})
-	db.v_o_bSeparateSolenoid[(4 - (1))] = db.v_fbLayer4.v_o_bSeparateSolenoid
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:393", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid[4]", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid[(4 - (1))]), Type: "BOOL"}})
+	db.v_o_bSeparateSolenoid[(4 - (1))] = ( /* UNRESOLVED:fbLayer4.o_bSeparateSolenoid */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:396:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:396", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[1]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(1 - (1))]), Type: "BOOL"}, {Name: "fbLayer1.o_bConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bConveyorFwd), Type: "BOOL"}})
-	db.v_o_bConveyorFwd[(1 - (1))] = db.v_fbLayer1.v_o_bConveyorFwd
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:396", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[1]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(1 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorFwd[(1 - (1))] = ( /* UNRESOLVED:fbLayer1.o_bConveyorFwd */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:397:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:397", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[2]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(2 - (1))]), Type: "BOOL"}, {Name: "fbLayer2.o_bConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bConveyorFwd), Type: "BOOL"}})
-	db.v_o_bConveyorFwd[(2 - (1))] = db.v_fbLayer2.v_o_bConveyorFwd
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:397", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[2]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(2 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorFwd[(2 - (1))] = ( /* UNRESOLVED:fbLayer2.o_bConveyorFwd */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:398:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:398", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[3]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(3 - (1))]), Type: "BOOL"}, {Name: "fbLayer3.o_bConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bConveyorFwd), Type: "BOOL"}})
-	db.v_o_bConveyorFwd[(3 - (1))] = db.v_fbLayer3.v_o_bConveyorFwd
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:398", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[3]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(3 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorFwd[(3 - (1))] = ( /* UNRESOLVED:fbLayer3.o_bConveyorFwd */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:399:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:399", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[4]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(4 - (1))]), Type: "BOOL"}, {Name: "fbLayer4.o_bConveyorFwd", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bConveyorFwd), Type: "BOOL"}})
-	db.v_o_bConveyorFwd[(4 - (1))] = db.v_fbLayer4.v_o_bConveyorFwd
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:399", []DebugSnapshotVariable{{Name: "o_bConveyorFwd[4]", Value: debugSnapshotValue(db.v_o_bConveyorFwd[(4 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorFwd[(4 - (1))] = ( /* UNRESOLVED:fbLayer4.o_bConveyorFwd */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:402:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:402", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[1]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(1 - (1))]), Type: "BOOL"}, {Name: "fbLayer1.o_bConveyorSlow", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bConveyorSlow), Type: "BOOL"}})
-	db.v_o_bConveyorSlow[(1 - (1))] = db.v_fbLayer1.v_o_bConveyorSlow
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:402", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[1]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(1 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorSlow[(1 - (1))] = ( /* UNRESOLVED:fbLayer1.o_bConveyorSlow */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:403:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:403", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[2]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(2 - (1))]), Type: "BOOL"}, {Name: "fbLayer2.o_bConveyorSlow", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bConveyorSlow), Type: "BOOL"}})
-	db.v_o_bConveyorSlow[(2 - (1))] = db.v_fbLayer2.v_o_bConveyorSlow
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:403", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[2]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(2 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorSlow[(2 - (1))] = ( /* UNRESOLVED:fbLayer2.o_bConveyorSlow */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:404:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:404", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[3]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(3 - (1))]), Type: "BOOL"}, {Name: "fbLayer3.o_bConveyorSlow", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bConveyorSlow), Type: "BOOL"}})
-	db.v_o_bConveyorSlow[(3 - (1))] = db.v_fbLayer3.v_o_bConveyorSlow
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:404", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[3]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(3 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorSlow[(3 - (1))] = ( /* UNRESOLVED:fbLayer3.o_bConveyorSlow */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:405:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:405", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[4]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(4 - (1))]), Type: "BOOL"}, {Name: "fbLayer4.o_bConveyorSlow", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bConveyorSlow), Type: "BOOL"}})
-	db.v_o_bConveyorSlow[(4 - (1))] = db.v_fbLayer4.v_o_bConveyorSlow
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:405", []DebugSnapshotVariable{{Name: "o_bConveyorSlow[4]", Value: debugSnapshotValue(db.v_o_bConveyorSlow[(4 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorSlow[(4 - (1))] = ( /* UNRESOLVED:fbLayer4.o_bConveyorSlow */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:408:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:408", []DebugSnapshotVariable{{Name: "o_bConveyorRev[1]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(1 - (1))]), Type: "BOOL"}, {Name: "fbLayer1.o_bConveyorRev", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bConveyorRev), Type: "BOOL"}})
-	db.v_o_bConveyorRev[(1 - (1))] = db.v_fbLayer1.v_o_bConveyorRev
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:408", []DebugSnapshotVariable{{Name: "o_bConveyorRev[1]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(1 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorRev[(1 - (1))] = ( /* UNRESOLVED:fbLayer1.o_bConveyorRev */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:409:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:409", []DebugSnapshotVariable{{Name: "o_bConveyorRev[2]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(2 - (1))]), Type: "BOOL"}, {Name: "fbLayer2.o_bConveyorRev", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bConveyorRev), Type: "BOOL"}})
-	db.v_o_bConveyorRev[(2 - (1))] = db.v_fbLayer2.v_o_bConveyorRev
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:409", []DebugSnapshotVariable{{Name: "o_bConveyorRev[2]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(2 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorRev[(2 - (1))] = ( /* UNRESOLVED:fbLayer2.o_bConveyorRev */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:410:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:410", []DebugSnapshotVariable{{Name: "o_bConveyorRev[3]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(3 - (1))]), Type: "BOOL"}, {Name: "fbLayer3.o_bConveyorRev", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bConveyorRev), Type: "BOOL"}})
-	db.v_o_bConveyorRev[(3 - (1))] = db.v_fbLayer3.v_o_bConveyorRev
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:410", []DebugSnapshotVariable{{Name: "o_bConveyorRev[3]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(3 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorRev[(3 - (1))] = ( /* UNRESOLVED:fbLayer3.o_bConveyorRev */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:411:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:411", []DebugSnapshotVariable{{Name: "o_bConveyorRev[4]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(4 - (1))]), Type: "BOOL"}, {Name: "fbLayer4.o_bConveyorRev", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bConveyorRev), Type: "BOOL"}})
-	db.v_o_bConveyorRev[(4 - (1))] = db.v_fbLayer4.v_o_bConveyorRev
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:411", []DebugSnapshotVariable{{Name: "o_bConveyorRev[4]", Value: debugSnapshotValue(db.v_o_bConveyorRev[(4 - (1))]), Type: "BOOL"}})
+	db.v_o_bConveyorRev[(4 - (1))] = ( /* UNRESOLVED:fbLayer4.o_bConveyorRev */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:419:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:419", []DebugSnapshotVariable{{Name: "o_bFeedComplete[1]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(1 - (1))]), Type: "BOOL"}, {Name: "fbLayer1.o_bFeedComplete", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bFeedComplete), Type: "BOOL"}})
-	db.v_o_bFeedComplete[(1 - (1))] = db.v_fbLayer1.v_o_bFeedComplete
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:419", []DebugSnapshotVariable{{Name: "o_bFeedComplete[1]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(1 - (1))]), Type: "BOOL"}})
+	db.v_o_bFeedComplete[(1 - (1))] = ( /* UNRESOLVED:fbLayer1.o_bFeedComplete */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:420:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:420", []DebugSnapshotVariable{{Name: "o_bFeedComplete[2]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(2 - (1))]), Type: "BOOL"}, {Name: "fbLayer2.o_bFeedComplete", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bFeedComplete), Type: "BOOL"}})
-	db.v_o_bFeedComplete[(2 - (1))] = db.v_fbLayer2.v_o_bFeedComplete
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:420", []DebugSnapshotVariable{{Name: "o_bFeedComplete[2]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(2 - (1))]), Type: "BOOL"}})
+	db.v_o_bFeedComplete[(2 - (1))] = ( /* UNRESOLVED:fbLayer2.o_bFeedComplete */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:421:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:421", []DebugSnapshotVariable{{Name: "o_bFeedComplete[3]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(3 - (1))]), Type: "BOOL"}, {Name: "fbLayer3.o_bFeedComplete", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bFeedComplete), Type: "BOOL"}})
-	db.v_o_bFeedComplete[(3 - (1))] = db.v_fbLayer3.v_o_bFeedComplete
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:421", []DebugSnapshotVariable{{Name: "o_bFeedComplete[3]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(3 - (1))]), Type: "BOOL"}})
+	db.v_o_bFeedComplete[(3 - (1))] = ( /* UNRESOLVED:fbLayer3.o_bFeedComplete */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:422:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:422", []DebugSnapshotVariable{{Name: "o_bFeedComplete[4]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(4 - (1))]), Type: "BOOL"}, {Name: "fbLayer4.o_bFeedComplete", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bFeedComplete), Type: "BOOL"}})
-	db.v_o_bFeedComplete[(4 - (1))] = db.v_fbLayer4.v_o_bFeedComplete
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:422", []DebugSnapshotVariable{{Name: "o_bFeedComplete[4]", Value: debugSnapshotValue(db.v_o_bFeedComplete[(4 - (1))]), Type: "BOOL"}})
+	db.v_o_bFeedComplete[(4 - (1))] = ( /* UNRESOLVED:fbLayer4.o_bFeedComplete */ 0 != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:430:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:430", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[1]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(1 - (1))]), Type: "INT"}, {Name: "fbLayer1.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer1.v_o_iCurrentState), Type: "INT"}})
-	db.v_o_LxCurrentStep[(1 - (1))] = int16(db.v_fbLayer1.v_o_iCurrentState)
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:430", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[1]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(1 - (1))]), Type: "INT"}})
+	db.v_o_LxCurrentStep[(1 - (1))] = int16( /* UNRESOLVED:fbLayer1.o_iCurrentState */ 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:431:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:431", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[2]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(2 - (1))]), Type: "INT"}, {Name: "fbLayer2.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer2.v_o_iCurrentState), Type: "INT"}})
-	db.v_o_LxCurrentStep[(2 - (1))] = int16(db.v_fbLayer2.v_o_iCurrentState)
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:431", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[2]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(2 - (1))]), Type: "INT"}})
+	db.v_o_LxCurrentStep[(2 - (1))] = int16( /* UNRESOLVED:fbLayer2.o_iCurrentState */ 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:432:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:432", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[3]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(3 - (1))]), Type: "INT"}, {Name: "fbLayer3.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer3.v_o_iCurrentState), Type: "INT"}})
-	db.v_o_LxCurrentStep[(3 - (1))] = int16(db.v_fbLayer3.v_o_iCurrentState)
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:432", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[3]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(3 - (1))]), Type: "INT"}})
+	db.v_o_LxCurrentStep[(3 - (1))] = int16( /* UNRESOLVED:fbLayer3.o_iCurrentState */ 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:433:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:433", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[4]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(4 - (1))]), Type: "INT"}, {Name: "fbLayer4.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer4.v_o_iCurrentState), Type: "INT"}})
-	db.v_o_LxCurrentStep[(4 - (1))] = int16(db.v_fbLayer4.v_o_iCurrentState)
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:433", []DebugSnapshotVariable{{Name: "o_LxCurrentStep[4]", Value: debugSnapshotValue(db.v_o_LxCurrentStep[(4 - (1))]), Type: "INT"}})
+	db.v_o_LxCurrentStep[(4 - (1))] = int16( /* UNRESOLVED:fbLayer4.o_iCurrentState */ 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:442:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:442", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}, {Name: "fbLayer1.o_bRunning", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bRunning), Type: "BOOL"}, {Name: "fbLayer2.o_bRunning", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bRunning), Type: "BOOL"}, {Name: "fbLayer3.o_bRunning", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bRunning), Type: "BOOL"}, {Name: "fbLayer4.o_bRunning", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bRunning), Type: "BOOL"}})
-	db.v_o_bRunning = (db.v_fbLayer1.v_o_bRunning || db.v_fbLayer2.v_o_bRunning || db.v_fbLayer3.v_o_bRunning || db.v_fbLayer4.v_o_bRunning)
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:442", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
+	db.v_o_bRunning = (((( /* UNRESOLVED:fbLayer1.o_bRunning */ 0 | /* UNRESOLVED:fbLayer2.o_bRunning */ 0) | /* UNRESOLVED:fbLayer3.o_bRunning */ 0) | /* UNRESOLVED:fbLayer4.o_bRunning */ 0) != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:446:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:446", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}, {Name: "fbLayer1.o_bFault", Value: debugSnapshotValue(db.v_fbLayer1.v_o_bFault), Type: "BOOL"}, {Name: "fbLayer2.o_bFault", Value: debugSnapshotValue(db.v_fbLayer2.v_o_bFault), Type: "BOOL"}, {Name: "fbLayer3.o_bFault", Value: debugSnapshotValue(db.v_fbLayer3.v_o_bFault), Type: "BOOL"}, {Name: "fbLayer4.o_bFault", Value: debugSnapshotValue(db.v_fbLayer4.v_o_bFault), Type: "BOOL"}})
-	db.v_o_bFault = (db.v_fbLayer1.v_o_bFault || db.v_fbLayer2.v_o_bFault || db.v_fbLayer3.v_o_bFault || db.v_fbLayer4.v_o_bFault)
+	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:446", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
+	db.v_o_bFault = (((( /* UNRESOLVED:fbLayer1.o_bFault */ 0 | /* UNRESOLVED:fbLayer2.o_bFault */ 0) | /* UNRESOLVED:fbLayer3.o_bFault */ 0) | /* UNRESOLVED:fbLayer4.o_bFault */ 0) != 0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:454:1
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:454", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
 	if db.v_o_bFault {
@@ -381,32 +381,32 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:459", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
 		db.v_o_iCurrentState = int16(0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460:5
-		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460", []DebugSnapshotVariable{{Name: "fbLayer1.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer1.v_o_iCurrentState), Type: "INT"}})
-		if db.v_fbLayer1.v_o_iCurrentState > 0 {
+		debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460")
+		if /* UNRESOLVED:fbLayer1.o_iCurrentState */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:461:9
-			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:461", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "fbLayer1.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer1.v_o_iCurrentState), Type: "INT"}})
-			db.v_o_iCurrentState = int16(db.v_fbLayer1.v_o_iCurrentState)
+			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:461", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
+			db.v_o_iCurrentState = int16( /* UNRESOLVED:fbLayer1.o_iCurrentState */ 0)
 		} else {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460:5
-			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460", []DebugSnapshotVariable{{Name: "fbLayer2.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer2.v_o_iCurrentState), Type: "INT"}})
-			if db.v_fbLayer2.v_o_iCurrentState > 0 {
+			debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460")
+			if /* UNRESOLVED:fbLayer2.o_iCurrentState */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:463:9
-				debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:463", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "fbLayer2.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer2.v_o_iCurrentState), Type: "INT"}})
-				db.v_o_iCurrentState = int16(db.v_fbLayer2.v_o_iCurrentState)
+				debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:463", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
+				db.v_o_iCurrentState = int16( /* UNRESOLVED:fbLayer2.o_iCurrentState */ 0)
 			} else {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460:5
-				debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460", []DebugSnapshotVariable{{Name: "fbLayer3.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer3.v_o_iCurrentState), Type: "INT"}})
-				if db.v_fbLayer3.v_o_iCurrentState > 0 {
+				debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460")
+				if /* UNRESOLVED:fbLayer3.o_iCurrentState */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:465:9
-					debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:465", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "fbLayer3.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer3.v_o_iCurrentState), Type: "INT"}})
-					db.v_o_iCurrentState = int16(db.v_fbLayer3.v_o_iCurrentState)
+					debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:465", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
+					db.v_o_iCurrentState = int16( /* UNRESOLVED:fbLayer3.o_iCurrentState */ 0)
 				} else {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460:5
-					debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460", []DebugSnapshotVariable{{Name: "fbLayer4.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer4.v_o_iCurrentState), Type: "INT"}})
-					if db.v_fbLayer4.v_o_iCurrentState > 0 {
+					debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:460")
+					if /* UNRESOLVED:fbLayer4.o_iCurrentState */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:467:9
-						debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:467", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "fbLayer4.o_iCurrentState", Value: debugSnapshotValue(db.v_fbLayer4.v_o_iCurrentState), Type: "INT"}})
-						db.v_o_iCurrentState = int16(db.v_fbLayer4.v_o_iCurrentState)
+						debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:467", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
+						db.v_o_iCurrentState = int16( /* UNRESOLVED:fbLayer4.o_iCurrentState */ 0)
 					}
 				}
 			}
@@ -416,47 +416,47 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:474", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
 	db.v_s_iActiveAlarmCode = int16(0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:477:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:477", []DebugSnapshotVariable{{Name: "fbLayer1.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer1.v_o_iAlarmCode), Type: "INT"}})
-	if db.v_fbLayer1.v_o_iAlarmCode > 0 {
+	debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:477")
+	if /* UNRESOLVED:fbLayer1.o_iAlarmCode */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:478:5
-		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:478", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer1.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer1.v_o_iAlarmCode), Type: "INT"}})
-		if (db.v_s_iActiveAlarmCode == 0) || (db.v_fbLayer1.v_o_iAlarmCode < db.v_s_iActiveAlarmCode) {
+		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:478", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+		if (db.v_s_iActiveAlarmCode == 0) || ( /* UNRESOLVED:fbLayer1.o_iAlarmCode */ 0 < db.v_s_iActiveAlarmCode) {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:479:9
-			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:479", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer1.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer1.v_o_iAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(db.v_fbLayer1.v_o_iAlarmCode)
+			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:479", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+			db.v_s_iActiveAlarmCode = int16( /* UNRESOLVED:fbLayer1.o_iAlarmCode */ 0)
 		}
 	}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:484:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:484", []DebugSnapshotVariable{{Name: "fbLayer2.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer2.v_o_iAlarmCode), Type: "INT"}})
-	if db.v_fbLayer2.v_o_iAlarmCode > 0 {
+	debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:484")
+	if /* UNRESOLVED:fbLayer2.o_iAlarmCode */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:485:5
-		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:485", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer2.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer2.v_o_iAlarmCode), Type: "INT"}})
-		if (db.v_s_iActiveAlarmCode == 0) || (db.v_fbLayer2.v_o_iAlarmCode < db.v_s_iActiveAlarmCode) {
+		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:485", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+		if (db.v_s_iActiveAlarmCode == 0) || ( /* UNRESOLVED:fbLayer2.o_iAlarmCode */ 0 < db.v_s_iActiveAlarmCode) {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:486:9
-			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:486", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer2.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer2.v_o_iAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(db.v_fbLayer2.v_o_iAlarmCode)
+			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:486", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+			db.v_s_iActiveAlarmCode = int16( /* UNRESOLVED:fbLayer2.o_iAlarmCode */ 0)
 		}
 	}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:491:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:491", []DebugSnapshotVariable{{Name: "fbLayer3.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer3.v_o_iAlarmCode), Type: "INT"}})
-	if db.v_fbLayer3.v_o_iAlarmCode > 0 {
+	debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:491")
+	if /* UNRESOLVED:fbLayer3.o_iAlarmCode */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:492:5
-		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:492", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer3.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer3.v_o_iAlarmCode), Type: "INT"}})
-		if (db.v_s_iActiveAlarmCode == 0) || (db.v_fbLayer3.v_o_iAlarmCode < db.v_s_iActiveAlarmCode) {
+		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:492", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+		if (db.v_s_iActiveAlarmCode == 0) || ( /* UNRESOLVED:fbLayer3.o_iAlarmCode */ 0 < db.v_s_iActiveAlarmCode) {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:493:9
-			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:493", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer3.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer3.v_o_iAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(db.v_fbLayer3.v_o_iAlarmCode)
+			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:493", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+			db.v_s_iActiveAlarmCode = int16( /* UNRESOLVED:fbLayer3.o_iAlarmCode */ 0)
 		}
 	}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:498:1
-	debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:498", []DebugSnapshotVariable{{Name: "fbLayer4.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer4.v_o_iAlarmCode), Type: "INT"}})
-	if db.v_fbLayer4.v_o_iAlarmCode > 0 {
+	debugLine("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:498")
+	if /* UNRESOLVED:fbLayer4.o_iAlarmCode */ 0 > 0 {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:499:5
-		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:499", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer4.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer4.v_o_iAlarmCode), Type: "INT"}})
-		if (db.v_s_iActiveAlarmCode == 0) || (db.v_fbLayer4.v_o_iAlarmCode < db.v_s_iActiveAlarmCode) {
+		debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:499", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+		if (db.v_s_iActiveAlarmCode == 0) || ( /* UNRESOLVED:fbLayer4.o_iAlarmCode */ 0 < db.v_s_iActiveAlarmCode) {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:500:9
-			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:500", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "fbLayer4.o_iAlarmCode", Value: debugSnapshotValue(db.v_fbLayer4.v_o_iAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(db.v_fbLayer4.v_o_iAlarmCode)
+			debugLineWithSnapshot("FB_1001_Conveyor4Layer_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:500", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
+			db.v_s_iActiveAlarmCode = int16( /* UNRESOLVED:fbLayer4.o_iAlarmCode */ 0)
 		}
 	}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1001_Conveyor4Layer_BufferFraming.scl:505:1
@@ -464,3577 +464,2003 @@ func FB_FB_1001_Conveyor4Layer_BufferFraming(mem *Memory, db *DB_FB_1001_Conveyo
 	db.v_o_iAlarmCode = int16(db.v_s_iActiveAlarmCode)
 }
 
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:36:1
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:28:1
 func FB_FB_1002_SingleLayerConveyor_BufferFraming(mem *Memory, db *DB_FB_1002_SingleLayerConveyor_BufferFraming) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:165:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:165", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	if !(db.v_i_bEnable) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:166:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:166", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-		db.v_o_bBlockSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:167:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:167", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-		db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:168:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:168", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-		db.v_o_bConveyorFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:169:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:169", []DebugSnapshotVariable{{Name: "o_bConveyorSlow", Value: debugSnapshotValue(db.v_o_bConveyorSlow), Type: "BOOL"}})
-		db.v_o_bConveyorSlow = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:170:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:170", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-		db.v_o_bConveyorRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:171:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:171", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-		db.v_o_bFeedComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:172:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:172", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_s_iCurrentStep = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:127:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:127", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}, {Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}, {Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}, {Name: "tEt[0]", Value: debugSnapshotValue(db.v_tEt[0]), Type: "DINT"}})
+	db.v_tSeparateTimer.v_IN = db.v_tIn[0]
+	db.v_tSeparateTimer.v_R = db.v_tR[0]
+	db.v_tSeparateTimer.v_PT = int32(db.v_tPt[0])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 127)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tSeparateTimer)
+	}()
+	db.v_tQ[0] = db.v_tSeparateTimer.v_Q
+	db.v_tEt[0] = int32(db.v_tSeparateTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:128:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:128", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}, {Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}, {Name: "tPt[1]", Value: debugSnapshotValue(db.v_tPt[1]), Type: "DINT"}, {Name: "tQ[1]", Value: debugSnapshotValue(db.v_tQ[1]), Type: "BOOL"}, {Name: "tEt[1]", Value: debugSnapshotValue(db.v_tEt[1]), Type: "DINT"}})
+	db.v_tSlowTimer.v_IN = db.v_tIn[1]
+	db.v_tSlowTimer.v_R = db.v_tR[1]
+	db.v_tSlowTimer.v_PT = int32(db.v_tPt[1])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 128)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tSlowTimer)
+	}()
+	db.v_tQ[1] = db.v_tSlowTimer.v_Q
+	db.v_tEt[1] = int32(db.v_tSlowTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:129:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:129", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}, {Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}, {Name: "tPt[2]", Value: debugSnapshotValue(db.v_tPt[2]), Type: "DINT"}, {Name: "tQ[2]", Value: debugSnapshotValue(db.v_tQ[2]), Type: "BOOL"}, {Name: "tEt[2]", Value: debugSnapshotValue(db.v_tEt[2]), Type: "DINT"}})
+	db.v_tConvFwdTimer.v_IN = db.v_tIn[2]
+	db.v_tConvFwdTimer.v_R = db.v_tR[2]
+	db.v_tConvFwdTimer.v_PT = int32(db.v_tPt[2])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 129)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tConvFwdTimer)
+	}()
+	db.v_tQ[2] = db.v_tConvFwdTimer.v_Q
+	db.v_tEt[2] = int32(db.v_tConvFwdTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:130:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:130", []DebugSnapshotVariable{{Name: "tIn[3]", Value: debugSnapshotValue(db.v_tIn[3]), Type: "BOOL"}, {Name: "tR[3]", Value: debugSnapshotValue(db.v_tR[3]), Type: "BOOL"}, {Name: "tPt[3]", Value: debugSnapshotValue(db.v_tPt[3]), Type: "DINT"}, {Name: "tQ[3]", Value: debugSnapshotValue(db.v_tQ[3]), Type: "BOOL"}, {Name: "tEt[3]", Value: debugSnapshotValue(db.v_tEt[3]), Type: "DINT"}})
+	db.v_tInitTimer.v_IN = db.v_tIn[3]
+	db.v_tInitTimer.v_R = db.v_tR[3]
+	db.v_tInitTimer.v_PT = int32(db.v_tPt[3])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 130)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tInitTimer)
+	}()
+	db.v_tQ[3] = db.v_tInitTimer.v_Q
+	db.v_tEt[3] = int32(db.v_tInitTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:133:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:133", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
+	if !(db.v_i_bAutoMode) && !(db.v_i_bManualMode) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:134:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:134", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+		db.v_q_bBlockSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:135:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:135", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+		db.v_q_bSeparateSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:136:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:136", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+		db.v_q_bConveyorFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:137:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:137", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+		db.v_q_bConveyorRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:138:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:138", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+		db.v_q_bConveyorSlow = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:139:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:139", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+		db.v_q_bLayerFeedDone = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:140:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:140", []DebugSnapshotVariable{{Name: "q_iAlarmCode", Value: debugSnapshotValue(db.v_q_iAlarmCode), Type: "INT"}})
+		db.v_q_iAlarmCode = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:141:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:141", []DebugSnapshotVariable{{Name: "q_bSensorFaultBlockUp", Value: debugSnapshotValue(db.v_q_bSensorFaultBlockUp), Type: "BOOL"}})
+		db.v_q_bSensorFaultBlockUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:142:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:142", []DebugSnapshotVariable{{Name: "q_bSensorFaultBlockDown", Value: debugSnapshotValue(db.v_q_bSensorFaultBlockDown), Type: "BOOL"}})
+		db.v_q_bSensorFaultBlockDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:143:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:143", []DebugSnapshotVariable{{Name: "q_bSensorFaultSeparateUp", Value: debugSnapshotValue(db.v_q_bSensorFaultSeparateUp), Type: "BOOL"}})
+		db.v_q_bSensorFaultSeparateUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:144:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:144", []DebugSnapshotVariable{{Name: "q_bSensorFaultSeparateDown", Value: debugSnapshotValue(db.v_q_bSensorFaultSeparateDown), Type: "BOOL"}})
+		db.v_q_bSensorFaultSeparateDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:145:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:145", []DebugSnapshotVariable{{Name: "q_bSeparateTimeout", Value: debugSnapshotValue(db.v_q_bSeparateTimeout), Type: "BOOL"}})
+		db.v_q_bSeparateTimeout = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:146:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:146", []DebugSnapshotVariable{{Name: "q_bRunning", Value: debugSnapshotValue(db.v_q_bRunning), Type: "BOOL"}})
+		db.v_q_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:147:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:147", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_INIT", Value: debugSnapshotValue(0), Type: "INT"}})
+		db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:148:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:148", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+		db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:149:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:149", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+		db.v_bStartTriggered = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:150:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:150", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+		db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:151:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:151", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+		db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:151:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:151", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+		db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:152:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:152", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+		db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:152:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:152", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+		db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:153:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:153", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+		db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:153:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:153", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+		db.v_tR[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:154:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:154", []DebugSnapshotVariable{{Name: "tIn[3]", Value: debugSnapshotValue(db.v_tIn[3]), Type: "BOOL"}})
+		db.v_tIn[3] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:154:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:154", []DebugSnapshotVariable{{Name: "tR[3]", Value: debugSnapshotValue(db.v_tR[3]), Type: "BOOL"}})
+		db.v_tR[3] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:155:5
+		debugLine("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:155")
+		return
+	}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:161:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:161", []DebugSnapshotVariable{{Name: "bSensorFaultBlockUp", Value: debugSnapshotValue(db.v_bSensorFaultBlockUp), Type: "BOOL"}, {Name: "i_bBlockCylinderUp", Value: debugSnapshotValue(db.v_i_bBlockCylinderUp), Type: "BOOL"}, {Name: "i_bBlockCylinderDown", Value: debugSnapshotValue(db.v_i_bBlockCylinderDown), Type: "BOOL"}})
+	db.v_bSensorFaultBlockUp = (db.v_i_bBlockCylinderUp && db.v_i_bBlockCylinderDown)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:162:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:162", []DebugSnapshotVariable{{Name: "bSensorFaultBlockDown", Value: debugSnapshotValue(db.v_bSensorFaultBlockDown), Type: "BOOL"}, {Name: "bSensorFaultBlockUp", Value: debugSnapshotValue(db.v_bSensorFaultBlockUp), Type: "BOOL"}})
+	db.v_bSensorFaultBlockDown = db.v_bSensorFaultBlockUp
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:163:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:163", []DebugSnapshotVariable{{Name: "bSensorFaultSeparateUp", Value: debugSnapshotValue(db.v_bSensorFaultSeparateUp), Type: "BOOL"}, {Name: "i_bSeparateCylinderUp", Value: debugSnapshotValue(db.v_i_bSeparateCylinderUp), Type: "BOOL"}, {Name: "i_bSeparateCylinderDown", Value: debugSnapshotValue(db.v_i_bSeparateCylinderDown), Type: "BOOL"}})
+	db.v_bSensorFaultSeparateUp = (db.v_i_bSeparateCylinderUp && db.v_i_bSeparateCylinderDown)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:164:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:164", []DebugSnapshotVariable{{Name: "bSensorFaultSeparateDown", Value: debugSnapshotValue(db.v_bSensorFaultSeparateDown), Type: "BOOL"}, {Name: "bSensorFaultSeparateUp", Value: debugSnapshotValue(db.v_bSensorFaultSeparateUp), Type: "BOOL"}})
+	db.v_bSensorFaultSeparateDown = db.v_bSensorFaultSeparateUp
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:166:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:166", []DebugSnapshotVariable{{Name: "q_bSensorFaultBlockUp", Value: debugSnapshotValue(db.v_q_bSensorFaultBlockUp), Type: "BOOL"}, {Name: "bSensorFaultBlockUp", Value: debugSnapshotValue(db.v_bSensorFaultBlockUp), Type: "BOOL"}})
+	db.v_q_bSensorFaultBlockUp = db.v_bSensorFaultBlockUp
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:167:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:167", []DebugSnapshotVariable{{Name: "q_bSensorFaultBlockDown", Value: debugSnapshotValue(db.v_q_bSensorFaultBlockDown), Type: "BOOL"}, {Name: "bSensorFaultBlockDown", Value: debugSnapshotValue(db.v_bSensorFaultBlockDown), Type: "BOOL"}})
+	db.v_q_bSensorFaultBlockDown = db.v_bSensorFaultBlockDown
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:168:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:168", []DebugSnapshotVariable{{Name: "q_bSensorFaultSeparateUp", Value: debugSnapshotValue(db.v_q_bSensorFaultSeparateUp), Type: "BOOL"}, {Name: "bSensorFaultSeparateUp", Value: debugSnapshotValue(db.v_bSensorFaultSeparateUp), Type: "BOOL"}})
+	db.v_q_bSensorFaultSeparateUp = db.v_bSensorFaultSeparateUp
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:169:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:169", []DebugSnapshotVariable{{Name: "q_bSensorFaultSeparateDown", Value: debugSnapshotValue(db.v_q_bSensorFaultSeparateDown), Type: "BOOL"}, {Name: "bSensorFaultSeparateDown", Value: debugSnapshotValue(db.v_bSensorFaultSeparateDown), Type: "BOOL"}})
+	db.v_q_bSensorFaultSeparateDown = db.v_bSensorFaultSeparateDown
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:172:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:172", []DebugSnapshotVariable{{Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}, {Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+	if db.v_i_bStop && db.v_bRunning {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:173:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:173", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:173", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_INIT", Value: debugSnapshotValue(0), Type: "INT"}})
+		db.v_iCurrentState = int16(0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:174:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:174", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		db.v_s_bFault = false
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:174", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+		db.v_bRunning = false
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:175:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-		db.v_s_iActiveAlarmCode = int16(0)
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+		db.v_bStepEntry = true
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:176:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "s_bMaterialPresent", Value: debugSnapshotValue(db.v_s_bMaterialPresent), Type: "BOOL"}})
-		db.v_s_bMaterialPresent = false
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+		db.v_q_bBlockSolenoid = false
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:177:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:177", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:177", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+		db.v_q_bSeparateSolenoid = false
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:178:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:178", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
-		db.v_o_bFault = false
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:178", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+		db.v_q_bConveyorFwd = false
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:179:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:179", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_o_iCurrentState = int16(0)
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:179", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+		db.v_q_bConveyorSlow = false
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:180:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:180", []DebugSnapshotVariable{{Name: "o_iAlarmCode", Value: debugSnapshotValue(db.v_o_iAlarmCode), Type: "INT"}})
-		db.v_o_iAlarmCode = int16(0)
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:180", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+		db.v_q_bConveyorRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:181:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:181", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+		db.v_q_bLayerFeedDone = false
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:182:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:182", []DebugSnapshotVariable{{Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}, {Name: "s_diBlockTimer_ET", Value: debugSnapshotValue(db.v_s_diBlockTimer_ET), Type: "DINT"}})
-		db.v_fb_tBlockTimer.v_IN = false
-		db.v_fb_tBlockTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 182)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tBlockTimer)
-		}()
-		db.v_s_bBlockTimer_Q = db.v_fb_tBlockTimer.v_Q
-		db.v_s_diBlockTimer_ET = int32(db.v_fb_tBlockTimer.v_ET)
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:182", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+		db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:182:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:182", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+		db.v_tR[0] = true
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:183:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:183", []DebugSnapshotVariable{{Name: "s_bSeparateTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateTimer_ET), Type: "DINT"}})
-		db.v_fb_tSeparateTimer.v_IN = false
-		db.v_fb_tSeparateTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 183)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tSeparateTimer)
-		}()
-		db.v_s_bSeparateTimer_Q = db.v_fb_tSeparateTimer.v_Q
-		db.v_s_diSeparateTimer_ET = int32(db.v_fb_tSeparateTimer.v_ET)
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:183", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+		db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:183:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:183", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+		db.v_tR[1] = true
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:184:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "s_bSeparateResetTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateResetTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateResetTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateResetTimer_ET), Type: "DINT"}})
-		db.v_fb_tSeparateResetTimer.v_IN = false
-		db.v_fb_tSeparateResetTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 184)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tSeparateResetTimer)
-		}()
-		db.v_s_bSeparateResetTimer_Q = db.v_fb_tSeparateResetTimer.v_Q
-		db.v_s_diSeparateResetTimer_ET = int32(db.v_fb_tSeparateResetTimer.v_ET)
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+		db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:184:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+		db.v_tR[2] = true
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:185:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:185", []DebugSnapshotVariable{{Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}, {Name: "s_diPositionTimer_ET", Value: debugSnapshotValue(db.v_s_diPositionTimer_ET), Type: "DINT"}})
-		db.v_fb_tPositionTimer.v_IN = false
-		db.v_fb_tPositionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 185)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPositionTimer)
-		}()
-		db.v_s_bPositionTimer_Q = db.v_fb_tPositionTimer.v_Q
-		db.v_s_diPositionTimer_ET = int32(db.v_fb_tPositionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:186:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:186", []DebugSnapshotVariable{{Name: "s_bConveyorTimer_Q", Value: debugSnapshotValue(db.v_s_bConveyorTimer_Q), Type: "BOOL"}, {Name: "s_diConveyorTimer_ET", Value: debugSnapshotValue(db.v_s_diConveyorTimer_ET), Type: "DINT"}})
-		db.v_fb_tConveyorTimer.v_IN = false
-		db.v_fb_tConveyorTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 186)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tConveyorTimer)
-		}()
-		db.v_s_bConveyorTimer_Q = db.v_fb_tConveyorTimer.v_Q
-		db.v_s_diConveyorTimer_ET = int32(db.v_fb_tConveyorTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:187:5
-		debugLine("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:187")
-		return
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:185", []DebugSnapshotVariable{{Name: "tIn[3]", Value: debugSnapshotValue(db.v_tIn[3]), Type: "BOOL"}})
+		db.v_tIn[3] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:185:22
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:185", []DebugSnapshotVariable{{Name: "tR[3]", Value: debugSnapshotValue(db.v_tR[3]), Type: "BOOL"}})
+		db.v_tR[3] = true
 	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:191:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:191", []DebugSnapshotVariable{{Name: "i_bBlockCylinderUp", Value: debugSnapshotValue(db.v_i_bBlockCylinderUp), Type: "BOOL"}, {Name: "i_bBlockCylinderDown", Value: debugSnapshotValue(db.v_i_bBlockCylinderDown), Type: "BOOL"}})
-	if db.v_i_bBlockCylinderUp && db.v_i_bBlockCylinderDown {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:192:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:192", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_BlockSensorConflict", Value: debugSnapshotValue(6), Type: "INT"}})
-		db.v_s_iActiveAlarmCode = int16(6)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:193:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:193", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		db.v_s_bFault = true
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:195:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:195", []DebugSnapshotVariable{{Name: "i_bSeparateCylinderUp", Value: debugSnapshotValue(db.v_i_bSeparateCylinderUp), Type: "BOOL"}, {Name: "i_bSeparateCylinderDown", Value: debugSnapshotValue(db.v_i_bSeparateCylinderDown), Type: "BOOL"}})
-	if db.v_i_bSeparateCylinderUp && db.v_i_bSeparateCylinderDown {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:196:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:196", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_SeparateSensorConflict", Value: debugSnapshotValue(7), Type: "INT"}})
-		db.v_s_iActiveAlarmCode = int16(7)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:197:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:197", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		db.v_s_bFault = true
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:201:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:201", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:202:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:202", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-		db.v_o_bBlockSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:203:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:203", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-		db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:204:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:204", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-		db.v_o_bConveyorFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:205:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:205", []DebugSnapshotVariable{{Name: "o_bConveyorSlow", Value: debugSnapshotValue(db.v_o_bConveyorSlow), Type: "BOOL"}})
-		db.v_o_bConveyorSlow = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:206:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:206", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-		db.v_o_bConveyorRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:207:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:207", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-		db.v_o_bFeedComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:208:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:208", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:209:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:209", []DebugSnapshotVariable{{Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}, {Name: "s_diBlockTimer_ET", Value: debugSnapshotValue(db.v_s_diBlockTimer_ET), Type: "DINT"}})
-		db.v_fb_tBlockTimer.v_IN = false
-		db.v_fb_tBlockTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 209)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tBlockTimer)
-		}()
-		db.v_s_bBlockTimer_Q = db.v_fb_tBlockTimer.v_Q
-		db.v_s_diBlockTimer_ET = int32(db.v_fb_tBlockTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:210:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:210", []DebugSnapshotVariable{{Name: "s_bSeparateTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateTimer_ET), Type: "DINT"}})
-		db.v_fb_tSeparateTimer.v_IN = false
-		db.v_fb_tSeparateTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 210)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tSeparateTimer)
-		}()
-		db.v_s_bSeparateTimer_Q = db.v_fb_tSeparateTimer.v_Q
-		db.v_s_diSeparateTimer_ET = int32(db.v_fb_tSeparateTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:211:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:211", []DebugSnapshotVariable{{Name: "s_bSeparateResetTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateResetTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateResetTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateResetTimer_ET), Type: "DINT"}})
-		db.v_fb_tSeparateResetTimer.v_IN = false
-		db.v_fb_tSeparateResetTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 211)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tSeparateResetTimer)
-		}()
-		db.v_s_bSeparateResetTimer_Q = db.v_fb_tSeparateResetTimer.v_Q
-		db.v_s_diSeparateResetTimer_ET = int32(db.v_fb_tSeparateResetTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:212:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:212", []DebugSnapshotVariable{{Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}, {Name: "s_diPositionTimer_ET", Value: debugSnapshotValue(db.v_s_diPositionTimer_ET), Type: "DINT"}})
-		db.v_fb_tPositionTimer.v_IN = false
-		db.v_fb_tPositionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 212)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPositionTimer)
-		}()
-		db.v_s_bPositionTimer_Q = db.v_fb_tPositionTimer.v_Q
-		db.v_s_diPositionTimer_ET = int32(db.v_fb_tPositionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:213:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:213", []DebugSnapshotVariable{{Name: "s_bConveyorTimer_Q", Value: debugSnapshotValue(db.v_s_bConveyorTimer_Q), Type: "BOOL"}, {Name: "s_diConveyorTimer_ET", Value: debugSnapshotValue(db.v_s_diConveyorTimer_ET), Type: "DINT"}})
-		db.v_fb_tConveyorTimer.v_IN = false
-		db.v_fb_tConveyorTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 213)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tConveyorTimer)
-		}()
-		db.v_s_bConveyorTimer_Q = db.v_fb_tConveyorTimer.v_Q
-		db.v_s_diConveyorTimer_ET = int32(db.v_fb_tConveyorTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:216:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:216", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-		if db.v_i_bReset {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:217:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:217", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:218:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:218", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:219:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:219", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:220:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:220", []DebugSnapshotVariable{{Name: "s_bMaterialPresent", Value: debugSnapshotValue(db.v_s_bMaterialPresent), Type: "BOOL"}})
-			db.v_s_bMaterialPresent = false
-		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:223:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:224:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:224", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
-		db.v_o_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:225:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:225", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
-		db.v_o_iCurrentState = int16(99)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:226:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:226", []DebugSnapshotVariable{{Name: "o_iAlarmCode", Value: debugSnapshotValue(db.v_o_iAlarmCode), Type: "INT"}, {Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-		db.v_o_iAlarmCode = int16(db.v_s_iActiveAlarmCode)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:227:5
-		debugLine("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:227")
-		return
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:231:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:231", []DebugSnapshotVariable{{Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}, {Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-	if db.v_i_bStop && db.v_s_bRunning {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:232:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:232", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:233:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:233", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:234:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:234", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-		db.v_o_bBlockSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:235:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:235", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-		db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:236:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:236", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-		db.v_o_bConveyorFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:237:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:237", []DebugSnapshotVariable{{Name: "o_bConveyorSlow", Value: debugSnapshotValue(db.v_o_bConveyorSlow), Type: "BOOL"}})
-		db.v_o_bConveyorSlow = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:238:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-		db.v_o_bConveyorRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:239:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:239", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-		db.v_o_bFeedComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:240:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:240", []DebugSnapshotVariable{{Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}, {Name: "s_diBlockTimer_ET", Value: debugSnapshotValue(db.v_s_diBlockTimer_ET), Type: "DINT"}})
-		db.v_fb_tBlockTimer.v_IN = false
-		db.v_fb_tBlockTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 240)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tBlockTimer)
-		}()
-		db.v_s_bBlockTimer_Q = db.v_fb_tBlockTimer.v_Q
-		db.v_s_diBlockTimer_ET = int32(db.v_fb_tBlockTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:241:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:241", []DebugSnapshotVariable{{Name: "s_bSeparateTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateTimer_ET), Type: "DINT"}})
-		db.v_fb_tSeparateTimer.v_IN = false
-		db.v_fb_tSeparateTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 241)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tSeparateTimer)
-		}()
-		db.v_s_bSeparateTimer_Q = db.v_fb_tSeparateTimer.v_Q
-		db.v_s_diSeparateTimer_ET = int32(db.v_fb_tSeparateTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:242:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:242", []DebugSnapshotVariable{{Name: "s_bSeparateResetTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateResetTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateResetTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateResetTimer_ET), Type: "DINT"}})
-		db.v_fb_tSeparateResetTimer.v_IN = false
-		db.v_fb_tSeparateResetTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 242)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tSeparateResetTimer)
-		}()
-		db.v_s_bSeparateResetTimer_Q = db.v_fb_tSeparateResetTimer.v_Q
-		db.v_s_diSeparateResetTimer_ET = int32(db.v_fb_tSeparateResetTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:243:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:243", []DebugSnapshotVariable{{Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}, {Name: "s_diPositionTimer_ET", Value: debugSnapshotValue(db.v_s_diPositionTimer_ET), Type: "DINT"}})
-		db.v_fb_tPositionTimer.v_IN = false
-		db.v_fb_tPositionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 243)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPositionTimer)
-		}()
-		db.v_s_bPositionTimer_Q = db.v_fb_tPositionTimer.v_Q
-		db.v_s_diPositionTimer_ET = int32(db.v_fb_tPositionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:244:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "s_bConveyorTimer_Q", Value: debugSnapshotValue(db.v_s_bConveyorTimer_Q), Type: "BOOL"}, {Name: "s_diConveyorTimer_ET", Value: debugSnapshotValue(db.v_s_diConveyorTimer_ET), Type: "DINT"}})
-		db.v_fb_tConveyorTimer.v_IN = false
-		db.v_fb_tConveyorTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 244)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tConveyorTimer)
-		}()
-		db.v_s_bConveyorTimer_Q = db.v_fb_tConveyorTimer.v_Q
-		db.v_s_diConveyorTimer_ET = int32(db.v_fb_tConveyorTimer.v_ET)
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:248:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:248", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:189:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:189", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
 	if db.v_i_bAutoMode {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:252:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:252", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}, {Name: "STP_WaitPreSeparate", Value: debugSnapshotValue(1), Type: "INT"}, {Name: "STP_BlockDown", Value: debugSnapshotValue(2), Type: "INT"}, {Name: "STP_SeparatePush", Value: debugSnapshotValue(3), Type: "INT"}, {Name: "STP_SeparateReset", Value: debugSnapshotValue(4), Type: "INT"}, {Name: "STP_WaitPosition", Value: debugSnapshotValue(5), Type: "INT"}, {Name: "STP_ConveyorFwd", Value: debugSnapshotValue(6), Type: "INT"}, {Name: "STP_WaitAllowFeed", Value: debugSnapshotValue(7), Type: "INT"}, {Name: "STP_FeedComplete", Value: debugSnapshotValue(8), Type: "INT"}})
-		switch db.v_s_iCurrentStep {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:192:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:192", []DebugSnapshotVariable{{Name: "i_bVfdFault", Value: debugSnapshotValue(db.v_i_bVfdFault), Type: "BOOL"}})
+		if db.v_i_bVfdFault {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:193:9
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:193", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+			db.v_q_bConveyorFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:194:9
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:194", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+			db.v_q_bConveyorRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:195:9
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:195", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+			db.v_q_bConveyorSlow = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:196:9
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:196", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}, {Name: "i_iLayerIndex", Value: debugSnapshotValue(db.v_i_iLayerIndex), Type: "INT"}})
+			db.v_iAlarmCode = int16(((db.v_i_iLayerIndex * 10) + 5))
+		}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:200:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:200", []DebugSnapshotVariable{{Name: "i_bStart", Value: debugSnapshotValue(db.v_i_bStart), Type: "BOOL"}, {Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+		if db.v_i_bStart && !(db.v_bStartTriggered) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:201:9
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:201", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:202:9
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:202", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = true
+		}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:206:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:206", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_INIT", Value: debugSnapshotValue(0), Type: "INT"}, {Name: "STEP_WAIT_MATERIAL", Value: debugSnapshotValue(1), Type: "INT"}, {Name: "STEP_BLOCK_DOWN", Value: debugSnapshotValue(2), Type: "INT"}, {Name: "STEP_CONVEYOR_FWD", Value: debugSnapshotValue(10), Type: "INT"}, {Name: "STEP_POSITION_CHECK_BLOCK_UP", Value: debugSnapshotValue(20), Type: "INT"}, {Name: "STEP_SEPARATE_PUSH", Value: debugSnapshotValue(30), Type: "INT"}, {Name: "STEP_CONVEYOR_SLOW", Value: debugSnapshotValue(50), Type: "INT"}, {Name: "STEP_REQUEST_PICKUP", Value: debugSnapshotValue(60), Type: "INT"}, {Name: "STEP_SEPARATE_RETURN", Value: debugSnapshotValue(70), Type: "INT"}})
+		switch db.v_iCurrentState {
 		case 0:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:255:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:255", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:256:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:256", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-			db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:257:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:257", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-			db.v_o_bConveyorFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:258:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:258", []DebugSnapshotVariable{{Name: "o_bConveyorSlow", Value: debugSnapshotValue(db.v_o_bConveyorSlow), Type: "BOOL"}})
-			db.v_o_bConveyorSlow = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:259:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:259", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-			db.v_o_bConveyorRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:260:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:260", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-			db.v_o_bFeedComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:261:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:261", []DebugSnapshotVariable{{Name: "s_bMaterialPresent", Value: debugSnapshotValue(db.v_s_bMaterialPresent), Type: "BOOL"}})
-			db.v_s_bMaterialPresent = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:263:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:263", []DebugSnapshotVariable{{Name: "i_bStart", Value: debugSnapshotValue(db.v_i_bStart), Type: "BOOL"}})
-			if db.v_i_bStart {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:264:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:264", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitPreSeparate", Value: debugSnapshotValue(1), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(1)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:265:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:265", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:209:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:209", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:210:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:210", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+				db.v_q_bBlockSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:211:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:211", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+				db.v_q_bSeparateSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:212:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:212", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+				db.v_q_bConveyorFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:213:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:213", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+				db.v_q_bConveyorSlow = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:214:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:214", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+				db.v_q_bLayerFeedDone = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:215:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:215", []DebugSnapshotVariable{{Name: "i_bSafetyDoorOk", Value: debugSnapshotValue(db.v_i_bSafetyDoorOk), Type: "BOOL"}})
+				if db.v_i_bSafetyDoorOk {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:216:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:216", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+					db.v_q_bConveyorRev = true
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:218:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:218", []DebugSnapshotVariable{{Name: "tIn[3]", Value: debugSnapshotValue(db.v_tIn[3]), Type: "BOOL"}})
+				db.v_tIn[3] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:218:33
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:218", []DebugSnapshotVariable{{Name: "tR[3]", Value: debugSnapshotValue(db.v_tR[3]), Type: "BOOL"}})
+				db.v_tR[3] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:219:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:219", []DebugSnapshotVariable{{Name: "tPt[3]", Value: debugSnapshotValue(db.v_tPt[3]), Type: "DINT"}, {Name: "T_INIT_REVERSE", Value: debugSnapshotValue(3000), Type: "DINT"}})
+				db.v_tPt[3] = int32(3000)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:220:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:220", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:223:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "tQ[3]", Value: debugSnapshotValue(db.v_tQ[3]), Type: "BOOL"}})
+			if db.v_tQ[3] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:224:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:224", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+				db.v_q_bConveyorRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:225:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:225", []DebugSnapshotVariable{{Name: "tIn[3]", Value: debugSnapshotValue(db.v_tIn[3]), Type: "BOOL"}})
+				db.v_tIn[3] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:225:34
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:225", []DebugSnapshotVariable{{Name: "tR[3]", Value: debugSnapshotValue(db.v_tR[3]), Type: "BOOL"}})
+				db.v_tR[3] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:226:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:226", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:227:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:227", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_WAIT_MATERIAL", Value: debugSnapshotValue(1), Type: "INT"}})
+				db.v_iCurrentState = int16(1)
 			}
 		case 1:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:269:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:269", []DebugSnapshotVariable{{Name: "i_bPreSeparateSensor", Value: debugSnapshotValue(db.v_i_bPreSeparateSensor), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:231:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:231", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:232:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:232", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:235:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:235", []DebugSnapshotVariable{{Name: "i_bPreSeparateSensor", Value: debugSnapshotValue(db.v_i_bPreSeparateSensor), Type: "BOOL"}})
 			if db.v_i_bPreSeparateSensor {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:270:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:270", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_BlockDown", Value: debugSnapshotValue(2), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(2)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:271:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:271", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-				db.v_o_bBlockSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:272:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:272", []DebugSnapshotVariable{{Name: "T_DEF_BlockAction", Value: debugSnapshotValue(3000), Type: "DINT"}, {Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}, {Name: "s_diBlockTimer_ET", Value: debugSnapshotValue(db.v_s_diBlockTimer_ET), Type: "DINT"}})
-				db.v_fb_tBlockTimer.v_IN = true
-				db.v_fb_tBlockTimer.v_PT = int32(3000)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 272)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tBlockTimer)
-				}()
-				db.v_s_bBlockTimer_Q = db.v_fb_tBlockTimer.v_Q
-				db.v_s_diBlockTimer_ET = int32(db.v_fb_tBlockTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:236:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:236", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:237:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:237", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_BLOCK_DOWN", Value: debugSnapshotValue(2), Type: "INT"}})
+				db.v_iCurrentState = int16(2)
 			}
 		case 2:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:276:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:276", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:277:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:277", []DebugSnapshotVariable{{Name: "i_bBlockCylinderDown", Value: debugSnapshotValue(db.v_i_bBlockCylinderDown), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:241:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:241", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:242:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:242", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+				db.v_q_bBlockSolenoid = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:243:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:243", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:246:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:246", []DebugSnapshotVariable{{Name: "i_bBlockCylinderDown", Value: debugSnapshotValue(db.v_i_bBlockCylinderDown), Type: "BOOL"}})
 			if db.v_i_bBlockCylinderDown {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:278:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:278", []DebugSnapshotVariable{{Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}, {Name: "s_diBlockTimer_ET", Value: debugSnapshotValue(db.v_s_diBlockTimer_ET), Type: "DINT"}})
-				db.v_fb_tBlockTimer.v_IN = false
-				db.v_fb_tBlockTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 278)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tBlockTimer)
-				}()
-				db.v_s_bBlockTimer_Q = db.v_fb_tBlockTimer.v_Q
-				db.v_s_diBlockTimer_ET = int32(db.v_fb_tBlockTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:279:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:279", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_SeparatePush", Value: debugSnapshotValue(3), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(3)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:247:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:247", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:248:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:248", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_CONVEYOR_FWD", Value: debugSnapshotValue(10), Type: "INT"}})
+				db.v_iCurrentState = int16(10)
+			}
+		case 10:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:252:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:252", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:253:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:253", []DebugSnapshotVariable{{Name: "i_bSafetyDoorOk", Value: debugSnapshotValue(db.v_i_bSafetyDoorOk), Type: "BOOL"}})
+				if db.v_i_bSafetyDoorOk {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:254:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:254", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+					db.v_q_bConveyorFwd = true
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:256:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:256", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+				db.v_tIn[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:256:33
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:256", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+				db.v_tR[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:257:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:257", []DebugSnapshotVariable{{Name: "tPt[2]", Value: debugSnapshotValue(db.v_tPt[2]), Type: "DINT"}, {Name: "T_CONVEYOR_FWD", Value: debugSnapshotValue(5000), Type: "DINT"}})
+				db.v_tPt[2] = int32(5000)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:258:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:258", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:261:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:261", []DebugSnapshotVariable{{Name: "tQ[2]", Value: debugSnapshotValue(db.v_tQ[2]), Type: "BOOL"}})
+			if db.v_tQ[2] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:262:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:262", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+				db.v_q_bConveyorFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:263:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:263", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+				db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:263:34
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:263", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+				db.v_tR[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:264:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:264", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:265:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:265", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_POSITION_CHECK_BLOCK_UP", Value: debugSnapshotValue(20), Type: "INT"}})
+				db.v_iCurrentState = int16(20)
+			}
+		case 20:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:269:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:269", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:270:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:270", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+				db.v_q_bBlockSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:271:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:271", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:274:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:274", []DebugSnapshotVariable{{Name: "i_bPositionSensor1", Value: debugSnapshotValue(db.v_i_bPositionSensor1), Type: "BOOL"}, {Name: "i_bPositionSensor2", Value: debugSnapshotValue(db.v_i_bPositionSensor2), Type: "BOOL"}, {Name: "i_bBlockCylinderUp", Value: debugSnapshotValue(db.v_i_bBlockCylinderUp), Type: "BOOL"}})
+			if db.v_i_bPositionSensor1 && db.v_i_bPositionSensor2 && db.v_i_bBlockCylinderUp {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:275:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:275", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:276:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:276", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_SEPARATE_PUSH", Value: debugSnapshotValue(30), Type: "INT"}})
+				db.v_iCurrentState = int16(30)
+			}
+		case 30:
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:280:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:280", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-				db.v_o_bSeparateSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:281:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:281", []DebugSnapshotVariable{{Name: "i_iSeparateTime", Value: debugSnapshotValue(db.v_i_iSeparateTime), Type: "INT"}, {Name: "s_bSeparateTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateTimer_ET), Type: "DINT"}})
-				db.v_fb_tSeparateTimer.v_IN = true
-				db.v_fb_tSeparateTimer.v_PT = int32(db.v_i_iSeparateTime)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 281)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tSeparateTimer)
-				}()
-				db.v_s_bSeparateTimer_Q = db.v_fb_tSeparateTimer.v_Q
-				db.v_s_diSeparateTimer_ET = int32(db.v_fb_tSeparateTimer.v_ET)
-			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:277:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:277", []DebugSnapshotVariable{{Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}})
-				if db.v_s_bBlockTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:283:13
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "s_bBlockTimer_Q", Value: debugSnapshotValue(db.v_s_bBlockTimer_Q), Type: "BOOL"}, {Name: "s_diBlockTimer_ET", Value: debugSnapshotValue(db.v_s_diBlockTimer_ET), Type: "DINT"}})
-					db.v_fb_tBlockTimer.v_IN = false
-					db.v_fb_tBlockTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 283)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tBlockTimer)
-					}()
-					db.v_s_bBlockTimer_Q = db.v_fb_tBlockTimer.v_Q
-					db.v_s_diBlockTimer_ET = int32(db.v_fb_tBlockTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:284:13
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:284", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_BlockTimeout", Value: debugSnapshotValue(1), Type: "INT"}})
-					db.v_s_iActiveAlarmCode = int16(1)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:285:13
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:285", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-					db.v_s_bFault = true
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:280", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:281:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:281", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+				db.v_q_bSeparateSolenoid = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:282:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:282", []DebugSnapshotVariable{{Name: "i_iSeparateTime", Value: debugSnapshotValue(db.v_i_iSeparateTime), Type: "INT"}})
+				if db.v_i_iSeparateTime > 0 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:283:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "i_iSeparateTime", Value: debugSnapshotValue(db.v_i_iSeparateTime), Type: "INT"}})
+					db.v_tPt[0] = int32(db.v_i_iSeparateTime)
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:285:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:285", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}})
+					db.v_tPt[0] = int32(2000)
 				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:287:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:287", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:287:33
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:287", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:288:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:288", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
 			}
-		case 3:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:289:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:289", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:290:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:290", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-			db.v_o_bSeparateSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:291:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:291", []DebugSnapshotVariable{{Name: "s_bSeparateTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateTimer_Q), Type: "BOOL"}})
-			if db.v_s_bSeparateTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:292:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:292", []DebugSnapshotVariable{{Name: "s_bSeparateTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateTimer_ET), Type: "DINT"}})
-				db.v_fb_tSeparateTimer.v_IN = false
-				db.v_fb_tSeparateTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 292)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tSeparateTimer)
-				}()
-				db.v_s_bSeparateTimer_Q = db.v_fb_tSeparateTimer.v_Q
-				db.v_s_diSeparateTimer_ET = int32(db.v_fb_tSeparateTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:293:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:293", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_SeparateReset", Value: debugSnapshotValue(4), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(4)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:294:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:294", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-				db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:295:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:295", []DebugSnapshotVariable{{Name: "T_DEF_SeparateReset", Value: debugSnapshotValue(500), Type: "DINT"}, {Name: "s_bSeparateResetTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateResetTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateResetTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateResetTimer_ET), Type: "DINT"}})
-				db.v_fb_tSeparateResetTimer.v_IN = true
-				db.v_fb_tSeparateResetTimer.v_PT = int32(500)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 295)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tSeparateResetTimer)
-				}()
-				db.v_s_bSeparateResetTimer_Q = db.v_fb_tSeparateResetTimer.v_Q
-				db.v_s_diSeparateResetTimer_ET = int32(db.v_fb_tSeparateResetTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:291:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:291", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+			if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:292:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:292", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}, {Name: "i_iLayerIndex", Value: debugSnapshotValue(db.v_i_iLayerIndex), Type: "INT"}})
+				db.v_iAlarmCode = int16((100 + db.v_i_iLayerIndex))
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:293:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:293", []DebugSnapshotVariable{{Name: "bSeparateTimeout", Value: debugSnapshotValue(db.v_bSeparateTimeout), Type: "BOOL"}})
+				db.v_bSeparateTimeout = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:294:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:294", []DebugSnapshotVariable{{Name: "q_bSeparateTimeout", Value: debugSnapshotValue(db.v_q_bSeparateTimeout), Type: "BOOL"}})
+				db.v_q_bSeparateTimeout = true
 			}
-		case 4:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:299:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:300:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:300", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-			db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:301:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:301", []DebugSnapshotVariable{{Name: "i_bSeparateCylinderUp", Value: debugSnapshotValue(db.v_i_bSeparateCylinderUp), Type: "BOOL"}, {Name: "s_bSeparateResetTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateResetTimer_Q), Type: "BOOL"}})
-			if db.v_i_bSeparateCylinderUp || db.v_s_bSeparateResetTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:302:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:302", []DebugSnapshotVariable{{Name: "s_bSeparateResetTimer_Q", Value: debugSnapshotValue(db.v_s_bSeparateResetTimer_Q), Type: "BOOL"}, {Name: "s_diSeparateResetTimer_ET", Value: debugSnapshotValue(db.v_s_diSeparateResetTimer_ET), Type: "DINT"}})
-				db.v_fb_tSeparateResetTimer.v_IN = false
-				db.v_fb_tSeparateResetTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 302)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tSeparateResetTimer)
-				}()
-				db.v_s_bSeparateResetTimer_Q = db.v_fb_tSeparateResetTimer.v_Q
-				db.v_s_diSeparateResetTimer_ET = int32(db.v_fb_tSeparateResetTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:303:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:303", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitPosition", Value: debugSnapshotValue(5), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(5)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:297:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:297", []DebugSnapshotVariable{{Name: "i_bSeparateCylinderDown", Value: debugSnapshotValue(db.v_i_bSeparateCylinderDown), Type: "BOOL"}})
+			if db.v_i_bSeparateCylinderDown {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:298:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:298", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:298:34
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:298", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:299:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:300:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:300", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_CONVEYOR_SLOW", Value: debugSnapshotValue(50), Type: "INT"}})
+				db.v_iCurrentState = int16(50)
+			}
+		case 50:
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:304:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:304", []DebugSnapshotVariable{{Name: "T_DEF_PositionWait", Value: debugSnapshotValue(5000), Type: "DINT"}, {Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}, {Name: "s_diPositionTimer_ET", Value: debugSnapshotValue(db.v_s_diPositionTimer_ET), Type: "DINT"}})
-				db.v_fb_tPositionTimer.v_IN = true
-				db.v_fb_tPositionTimer.v_PT = int32(5000)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 304)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tPositionTimer)
-				}()
-				db.v_s_bPositionTimer_Q = db.v_fb_tPositionTimer.v_Q
-				db.v_s_diPositionTimer_ET = int32(db.v_fb_tPositionTimer.v_ET)
-			}
-		case 5:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:308:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:308", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:309:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:309", []DebugSnapshotVariable{{Name: "s_bMaterialPresent", Value: debugSnapshotValue(db.v_s_bMaterialPresent), Type: "BOOL"}, {Name: "i_bPositionSensor1", Value: debugSnapshotValue(db.v_i_bPositionSensor1), Type: "BOOL"}, {Name: "i_bPositionSensor2", Value: debugSnapshotValue(db.v_i_bPositionSensor2), Type: "BOOL"}})
-			db.v_s_bMaterialPresent = (db.v_i_bPositionSensor1 && db.v_i_bPositionSensor2)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:310:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:310", []DebugSnapshotVariable{{Name: "s_bMaterialPresent", Value: debugSnapshotValue(db.v_s_bMaterialPresent), Type: "BOOL"}})
-			if db.v_s_bMaterialPresent {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:311:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:311", []DebugSnapshotVariable{{Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}, {Name: "s_diPositionTimer_ET", Value: debugSnapshotValue(db.v_s_diPositionTimer_ET), Type: "DINT"}})
-				db.v_fb_tPositionTimer.v_IN = false
-				db.v_fb_tPositionTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 311)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tPositionTimer)
-				}()
-				db.v_s_bPositionTimer_Q = db.v_fb_tPositionTimer.v_Q
-				db.v_s_diPositionTimer_ET = int32(db.v_fb_tPositionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:312:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:312", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_ConveyorFwd", Value: debugSnapshotValue(6), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(6)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:313:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:313", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-				db.v_o_bConveyorFwd = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:314:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:314", []DebugSnapshotVariable{{Name: "T_DEF_ConveyorRun", Value: debugSnapshotValue(3000), Type: "DINT"}, {Name: "s_bConveyorTimer_Q", Value: debugSnapshotValue(db.v_s_bConveyorTimer_Q), Type: "BOOL"}, {Name: "s_diConveyorTimer_ET", Value: debugSnapshotValue(db.v_s_diConveyorTimer_ET), Type: "DINT"}})
-				db.v_fb_tConveyorTimer.v_IN = true
-				db.v_fb_tConveyorTimer.v_PT = int32(3000)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 314)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tConveyorTimer)
-				}()
-				db.v_s_bConveyorTimer_Q = db.v_fb_tConveyorTimer.v_Q
-				db.v_s_diConveyorTimer_ET = int32(db.v_fb_tConveyorTimer.v_ET)
-			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:310:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:310", []DebugSnapshotVariable{{Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}})
-				if db.v_s_bPositionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:316:13
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:316", []DebugSnapshotVariable{{Name: "s_bPositionTimer_Q", Value: debugSnapshotValue(db.v_s_bPositionTimer_Q), Type: "BOOL"}, {Name: "s_diPositionTimer_ET", Value: debugSnapshotValue(db.v_s_diPositionTimer_ET), Type: "DINT"}})
-					db.v_fb_tPositionTimer.v_IN = false
-					db.v_fb_tPositionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 316)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tPositionTimer)
-					}()
-					db.v_s_bPositionTimer_Q = db.v_fb_tPositionTimer.v_Q
-					db.v_s_diPositionTimer_ET = int32(db.v_fb_tPositionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:317:13
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:317", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_PositionTimeout", Value: debugSnapshotValue(4), Type: "INT"}})
-					db.v_s_iActiveAlarmCode = int16(4)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:318:13
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:318", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-					db.v_s_bFault = true
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:304", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:305:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:305", []DebugSnapshotVariable{{Name: "i_bSafetyDoorOk", Value: debugSnapshotValue(db.v_i_bSafetyDoorOk), Type: "BOOL"}})
+				if db.v_i_bSafetyDoorOk {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:306:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:306", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+					db.v_q_bConveyorSlow = true
 				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:308:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:308", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+				db.v_tIn[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:308:33
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:308", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+				db.v_tR[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:309:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:309", []DebugSnapshotVariable{{Name: "tPt[1]", Value: debugSnapshotValue(db.v_tPt[1]), Type: "DINT"}, {Name: "T_SLOW", Value: debugSnapshotValue(2000), Type: "DINT"}})
+				db.v_tPt[1] = int32(2000)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:310:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:310", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
 			}
-		case 6:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:322:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:322", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-			db.v_o_bConveyorFwd = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:323:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:323", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:324:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:324", []DebugSnapshotVariable{{Name: "s_bConveyorTimer_Q", Value: debugSnapshotValue(db.v_s_bConveyorTimer_Q), Type: "BOOL"}})
-			if db.v_s_bConveyorTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:325:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:325", []DebugSnapshotVariable{{Name: "s_bConveyorTimer_Q", Value: debugSnapshotValue(db.v_s_bConveyorTimer_Q), Type: "BOOL"}, {Name: "s_diConveyorTimer_ET", Value: debugSnapshotValue(db.v_s_diConveyorTimer_ET), Type: "DINT"}})
-				db.v_fb_tConveyorTimer.v_IN = false
-				db.v_fb_tConveyorTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl", 325)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tConveyorTimer)
-				}()
-				db.v_s_bConveyorTimer_Q = db.v_fb_tConveyorTimer.v_Q
-				db.v_s_diConveyorTimer_ET = int32(db.v_fb_tConveyorTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:313:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:313", []DebugSnapshotVariable{{Name: "tQ[1]", Value: debugSnapshotValue(db.v_tQ[1]), Type: "BOOL"}})
+			if db.v_tQ[1] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:314:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:314", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+				db.v_q_bConveyorSlow = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:315:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:315", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+				db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:315:34
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:315", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+				db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:316:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:316", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:317:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:317", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_REQUEST_PICKUP", Value: debugSnapshotValue(60), Type: "INT"}})
+				db.v_iCurrentState = int16(60)
+			}
+		case 60:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:321:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:321", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:322:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:322", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+				db.v_q_bLayerFeedDone = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:323:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:323", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:326:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:326", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitAllowFeed", Value: debugSnapshotValue(7), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(7)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:327:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:327", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-				db.v_o_bConveyorFwd = false
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:326", []DebugSnapshotVariable{{Name: "i_bPickupConfirmed", Value: debugSnapshotValue(db.v_i_bPickupConfirmed), Type: "BOOL"}})
+			if db.v_i_bPickupConfirmed {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:327:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:327", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:328:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:328", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_SEPARATE_RETURN", Value: debugSnapshotValue(70), Type: "INT"}})
+				db.v_iCurrentState = int16(70)
 			}
-		case 7:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:331:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:331", []DebugSnapshotVariable{{Name: "i_bUpstreamAllowFeed", Value: debugSnapshotValue(db.v_i_bUpstreamAllowFeed), Type: "BOOL"}})
-			if db.v_i_bUpstreamAllowFeed {
+		case 70:
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:332:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:332", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_FeedComplete", Value: debugSnapshotValue(8), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(8)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:333:13
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:333", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-				db.v_o_bFeedComplete = true
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:332", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:333:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:333", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+				db.v_q_bSeparateSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:334:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:334", []DebugSnapshotVariable{{Name: "i_iSeparateTime", Value: debugSnapshotValue(db.v_i_iSeparateTime), Type: "INT"}})
+				if db.v_i_iSeparateTime > 0 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:335:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:335", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "i_iSeparateTime", Value: debugSnapshotValue(db.v_i_iSeparateTime), Type: "INT"}})
+					db.v_tPt[0] = int32(db.v_i_iSeparateTime)
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:337:21
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:337", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}})
+					db.v_tPt[0] = int32(2000)
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:339:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:339", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:339:33
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:339", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:340:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:340", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
 			}
-		case 8:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:337:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:337", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-			db.v_o_bFeedComplete = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:338:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:338", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:339:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:339", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:340:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:340", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-			db.v_o_bFeedComplete = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:343:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:343", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+			if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:344:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:344", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}, {Name: "i_iLayerIndex", Value: debugSnapshotValue(db.v_i_iLayerIndex), Type: "INT"}})
+				db.v_iAlarmCode = int16((100 + db.v_i_iLayerIndex))
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:345:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:345", []DebugSnapshotVariable{{Name: "bSeparateTimeout", Value: debugSnapshotValue(db.v_bSeparateTimeout), Type: "BOOL"}})
+				db.v_bSeparateTimeout = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:346:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:346", []DebugSnapshotVariable{{Name: "q_bSeparateTimeout", Value: debugSnapshotValue(db.v_q_bSeparateTimeout), Type: "BOOL"}})
+				db.v_q_bSeparateTimeout = true
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:349:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:349", []DebugSnapshotVariable{{Name: "i_bSeparateCylinderUp", Value: debugSnapshotValue(db.v_i_bSeparateCylinderUp), Type: "BOOL"}})
+			if db.v_i_bSeparateCylinderUp {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:350:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:350", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:350:34
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:350", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:351:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:351", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+				db.v_q_bLayerFeedDone = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:352:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:352", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:353:17
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_INIT", Value: debugSnapshotValue(0), Type: "INT"}})
+				db.v_iCurrentState = int16(0)
+			}
 		default:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:343:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:343", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:344:9
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:344", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:357:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:357", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_INIT", Value: debugSnapshotValue(0), Type: "INT"}})
+			db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:358:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:358", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:359:13
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:359", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			db.v_bStepEntry = true
 		}
 	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:248:1
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:248", []DebugSnapshotVariable{{Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:189:1
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:189", []DebugSnapshotVariable{{Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
 		if db.v_i_bManualMode {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:351:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:351", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:352:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:352", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:353:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-			db.v_o_bFeedComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:356:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "i_bLx_BlockDown", Value: debugSnapshotValue(db.v_i_bLx_BlockDown), Type: "BOOL"}, {Name: "i_bLx_BlockUp", Value: debugSnapshotValue(db.v_i_bLx_BlockUp), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:364:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:364", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:365:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:365", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_INIT", Value: debugSnapshotValue(0), Type: "INT"}})
+			db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:366:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:366", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:367:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:367", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+			db.v_q_bLayerFeedDone = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:369:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:369", []DebugSnapshotVariable{{Name: "i_bLx_BlockDown", Value: debugSnapshotValue(db.v_i_bLx_BlockDown), Type: "BOOL"}, {Name: "i_bLx_BlockUp", Value: debugSnapshotValue(db.v_i_bLx_BlockUp), Type: "BOOL"}})
 			if db.v_i_bLx_BlockDown && !(db.v_i_bLx_BlockUp) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:357:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:357", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-				db.v_o_bBlockSolenoid = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:370:9
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:370", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+				db.v_q_bBlockSolenoid = true
 			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:356:5
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "i_bLx_BlockUp", Value: debugSnapshotValue(db.v_i_bLx_BlockUp), Type: "BOOL"}, {Name: "i_bLx_BlockDown", Value: debugSnapshotValue(db.v_i_bLx_BlockDown), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:369:5
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:369", []DebugSnapshotVariable{{Name: "i_bLx_BlockUp", Value: debugSnapshotValue(db.v_i_bLx_BlockUp), Type: "BOOL"}, {Name: "i_bLx_BlockDown", Value: debugSnapshotValue(db.v_i_bLx_BlockDown), Type: "BOOL"}})
 				if db.v_i_bLx_BlockUp && !(db.v_i_bLx_BlockDown) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:359:9
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:359", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-					db.v_o_bBlockSolenoid = false
-				}
-			}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:363:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:363", []DebugSnapshotVariable{{Name: "i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush), Type: "BOOL"}, {Name: "i_bLx_SeparateReset", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset), Type: "BOOL"}})
-			if db.v_i_bLx_SeparatePush && !(db.v_i_bLx_SeparateReset) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:364:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:364", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-				db.v_o_bSeparateSolenoid = true
-			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:363:5
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:363", []DebugSnapshotVariable{{Name: "i_bLx_SeparateReset", Value: debugSnapshotValue(db.v_i_bLx_SeparateReset), Type: "BOOL"}, {Name: "i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush), Type: "BOOL"}})
-				if db.v_i_bLx_SeparateReset && !(db.v_i_bLx_SeparatePush) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:366:9
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:366", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-					db.v_o_bSeparateSolenoid = false
-				}
-			}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:370:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:370", []DebugSnapshotVariable{{Name: "i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd), Type: "BOOL"}, {Name: "i_bLx_ConveyorRev", Value: debugSnapshotValue(db.v_i_bLx_ConveyorRev), Type: "BOOL"}})
-			if db.v_i_bLx_ConveyorFwd && !(db.v_i_bLx_ConveyorRev) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:371:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:371", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-				db.v_o_bConveyorFwd = true
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:372:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:372", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-				db.v_o_bConveyorRev = false
-			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:370:5
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:370", []DebugSnapshotVariable{{Name: "i_bLx_ConveyorRev", Value: debugSnapshotValue(db.v_i_bLx_ConveyorRev), Type: "BOOL"}, {Name: "i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd), Type: "BOOL"}})
-				if db.v_i_bLx_ConveyorRev && !(db.v_i_bLx_ConveyorFwd) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:374:9
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:374", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-					db.v_o_bConveyorRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:375:9
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:375", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-					db.v_o_bConveyorFwd = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:377:9
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:377", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-					db.v_o_bConveyorFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:378:9
-					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:378", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-					db.v_o_bConveyorRev = false
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:372", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+					db.v_q_bBlockSolenoid = false
 				}
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:375:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:375", []DebugSnapshotVariable{{Name: "i_bLx_SeparatePush", Value: debugSnapshotValue(db.v_i_bLx_SeparatePush), Type: "BOOL"}})
+			if db.v_i_bLx_SeparatePush {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:376:9
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:376", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+				db.v_q_bSeparateSolenoid = true
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:378:9
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:378", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+				db.v_q_bSeparateSolenoid = false
 			}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:381:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "o_bConveyorSlow", Value: debugSnapshotValue(db.v_o_bConveyorSlow), Type: "BOOL"}})
-			db.v_o_bConveyorSlow = false
-		} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:385:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:385", []DebugSnapshotVariable{{Name: "o_bBlockSolenoid", Value: debugSnapshotValue(db.v_o_bBlockSolenoid), Type: "BOOL"}})
-			db.v_o_bBlockSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:386:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:386", []DebugSnapshotVariable{{Name: "o_bSeparateSolenoid", Value: debugSnapshotValue(db.v_o_bSeparateSolenoid), Type: "BOOL"}})
-			db.v_o_bSeparateSolenoid = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:387:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "o_bConveyorFwd", Value: debugSnapshotValue(db.v_o_bConveyorFwd), Type: "BOOL"}})
-			db.v_o_bConveyorFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:388:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:388", []DebugSnapshotVariable{{Name: "o_bConveyorSlow", Value: debugSnapshotValue(db.v_o_bConveyorSlow), Type: "BOOL"}})
-			db.v_o_bConveyorSlow = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:389:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:389", []DebugSnapshotVariable{{Name: "o_bConveyorRev", Value: debugSnapshotValue(db.v_o_bConveyorRev), Type: "BOOL"}})
-			db.v_o_bConveyorRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:390:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:390", []DebugSnapshotVariable{{Name: "o_bFeedComplete", Value: debugSnapshotValue(db.v_o_bFeedComplete), Type: "BOOL"}})
-			db.v_o_bFeedComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:391:5
-			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:391", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			if !(db.v_s_bFault) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:392:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:393:9
-				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:393", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-			}
-		}
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:398:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:398", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}, {Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-	db.v_o_bRunning = db.v_s_bRunning
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:399:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:399", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}, {Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	db.v_o_bFault = db.v_s_bFault
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:400:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:400", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:401:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:401", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
-		db.v_o_iCurrentState = int16(99)
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:403:5
-		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:403", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}})
-		db.v_o_iCurrentState = int16(db.v_s_iCurrentStep)
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:405:1
-	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:405", []DebugSnapshotVariable{{Name: "o_iAlarmCode", Value: debugSnapshotValue(db.v_o_iAlarmCode), Type: "INT"}, {Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-	db.v_o_iAlarmCode = int16(db.v_s_iActiveAlarmCode)
-}
-
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:52:1
-func FB_FB_1003_PickPlace_BufferFraming(mem *Memory, db *DB_FB_1003_PickPlace_BufferFraming) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:283:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	if !(db.v_i_bEnable) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:284:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:284", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-		db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:285:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:285", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-		db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:286:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:286", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-		db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:287:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:287", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-		db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:288:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:288", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-		db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:289:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:289", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-		db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:290:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:290", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-		db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:291:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:291", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-		db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:292:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:292", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-		db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:293:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:293", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-		db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:294:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:294", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-		db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:295:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:295", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-		db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:296:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:296", []DebugSnapshotVariable{{Name: "o_bZAxis_Enable", Value: debugSnapshotValue(db.v_o_bZAxis_Enable), Type: "BOOL"}})
-		db.v_o_bZAxis_Enable = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:297:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:297", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-		db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:298:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:298", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:299:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:300:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:300", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		db.v_s_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:301:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:301", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-		db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:302:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:302", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-		db.v_s_iCompletedLayers = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:303:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:303", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-		db.v_s_iCurrentPickLayerNum = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:304:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:304", []DebugSnapshotVariable{{Name: "s_iPickCount", Value: debugSnapshotValue(db.v_s_iPickCount), Type: "INT"}})
-		db.v_s_iPickCount = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:305:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:305", []DebugSnapshotVariable{{Name: "s_bPlaceCompletePulse", Value: debugSnapshotValue(db.v_s_bPlaceCompletePulse), Type: "BOOL"}})
-		db.v_s_bPlaceCompletePulse = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:306:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:306", []DebugSnapshotVariable{{Name: "s_bProductDetected", Value: debugSnapshotValue(db.v_s_bProductDetected), Type: "BOOL"}})
-		db.v_s_bProductDetected = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:307:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:307", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-		db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:308:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:308", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-		db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:309:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:309", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-		db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:310:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:310", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-		db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:311:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:311", []DebugSnapshotVariable{{Name: "s_bX1AxisAtPickupPos", Value: debugSnapshotValue(db.v_s_bX1AxisAtPickupPos), Type: "BOOL"}})
-		db.v_s_bX1AxisAtPickupPos = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:312:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:312", []DebugSnapshotVariable{{Name: "s_bX1AxisAtPlacePos", Value: debugSnapshotValue(db.v_s_bX1AxisAtPlacePos), Type: "BOOL"}})
-		db.v_s_bX1AxisAtPlacePos = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:313:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:313", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-		db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:314:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:314", []DebugSnapshotVariable{{Name: "o_iStationAlarmCode", Value: debugSnapshotValue(db.v_o_iStationAlarmCode), Type: "INT"}})
-		db.v_o_iStationAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:315:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:315", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
-		db.v_o_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:316:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:316", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-		db.v_s_bInitComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:317:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:317", []DebugSnapshotVariable{{Name: "s_bInitializing", Value: debugSnapshotValue(db.v_s_bInitializing), Type: "BOOL"}})
-		db.v_s_bInitializing = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:318:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:318", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:319:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:319", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_o_iCurrentState = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:320:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:320", []DebugSnapshotVariable{{Name: "o_iCurrentPickLayer", Value: debugSnapshotValue(db.v_o_iCurrentPickLayer), Type: "INT"}})
-		db.v_o_iCurrentPickLayer = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:322:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:322", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-		db.v_fb_tActionTimer.v_IN = false
-		db.v_fb_tActionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 322)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tActionTimer)
-		}()
-		db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-		db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:323:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:323", []DebugSnapshotVariable{{Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}, {Name: "q_eProductDetectStable_Elapsed", Value: debugSnapshotValue(db.v_q_eProductDetectStable_Elapsed), Type: "DINT"}})
-		db.v_fb_tProductDetectStableTimer.v_IN = false
-		db.v_fb_tProductDetectStableTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 323)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tProductDetectStableTimer)
-		}()
-		db.v_s_bProductDetectStableTimer_Q = db.v_fb_tProductDetectStableTimer.v_Q
-		db.v_q_eProductDetectStable_Elapsed = int32(db.v_fb_tProductDetectStableTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:324:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:324", []DebugSnapshotVariable{{Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}, {Name: "q_eInit_Elapsed", Value: debugSnapshotValue(db.v_q_eInit_Elapsed), Type: "DINT"}})
-		db.v_fb_tInitTimer.v_IN = false
-		db.v_fb_tInitTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 324)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tInitTimer)
-		}()
-		db.v_s_bInitTimer_Q = db.v_fb_tInitTimer.v_Q
-		db.v_q_eInit_Elapsed = int32(db.v_fb_tInitTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:325:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:325", []DebugSnapshotVariable{{Name: "s_bPlaceCompleteHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPlaceCompleteHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePlaceCompleteHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePlaceCompleteHold_Elapsed), Type: "DINT"}})
-		db.v_fb_tPlaceCompleteHoldTimer.v_IN = false
-		db.v_fb_tPlaceCompleteHoldTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 325)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPlaceCompleteHoldTimer)
-		}()
-		db.v_s_bPlaceCompleteHoldTimer_Q = db.v_fb_tPlaceCompleteHoldTimer.v_Q
-		db.v_q_ePlaceCompleteHold_Elapsed = int32(db.v_fb_tPlaceCompleteHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:326:5
-		debugLine("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:326")
-		return
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:330:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:330", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-	if !(db.v_s_bInitComplete) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:331:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:331", []DebugSnapshotVariable{{Name: "s_bInitializing", Value: debugSnapshotValue(db.v_s_bInitializing), Type: "BOOL"}})
-		db.v_s_bInitializing = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:332:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:332", []DebugSnapshotVariable{{Name: "T_DEF_InitTimeout", Value: debugSnapshotValue(10000), Type: "DINT"}, {Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}, {Name: "q_eInit_Elapsed", Value: debugSnapshotValue(db.v_q_eInit_Elapsed), Type: "DINT"}})
-		db.v_fb_tInitTimer.v_IN = true
-		db.v_fb_tInitTimer.v_PT = int32(10000)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 332)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tInitTimer)
-		}()
-		db.v_s_bInitTimer_Q = db.v_fb_tInitTimer.v_Q
-		db.v_q_eInit_Elapsed = int32(db.v_fb_tInitTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:335:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:335", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-		db.v_o_bLift_Up = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:336:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:336", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-		db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:337:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:337", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-		db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:338:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:338", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-		db.v_o_bFrontClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:339:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:339", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-		db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:340:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:340", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-		db.v_o_bRearClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:341:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:341", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-		db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:342:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:342", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-		db.v_o_bFrontClamp2_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:343:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:343", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-		db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:344:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:344", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-		db.v_o_bRearClamp2_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:347:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:347", []DebugSnapshotVariable{{Name: "o_bZAxis_Enable", Value: debugSnapshotValue(db.v_o_bZAxis_Enable), Type: "BOOL"}})
-		db.v_o_bZAxis_Enable = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:348:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:348", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-		db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:349:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:349", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-		db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:350:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:350", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-		db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:352:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:352", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:353:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		db.v_s_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:354:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:354", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-		db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:357:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:357", []DebugSnapshotVariable{{Name: "i_bLift_HomePos", Value: debugSnapshotValue(db.v_i_bLift_HomePos), Type: "BOOL"}, {Name: "i_bFrontClamp_Opened", Value: debugSnapshotValue(db.v_i_bFrontClamp_Opened), Type: "BOOL"}, {Name: "i_bRearClamp_Opened", Value: debugSnapshotValue(db.v_i_bRearClamp_Opened), Type: "BOOL"}, {Name: "i_bFrontClamp2_Opened", Value: debugSnapshotValue(db.v_i_bFrontClamp2_Opened), Type: "BOOL"}, {Name: "i_bRearClamp2_Opened", Value: debugSnapshotValue(db.v_i_bRearClamp2_Opened), Type: "BOOL"}, {Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}})
-		if (db.v_i_bLift_HomePos && db.v_i_bFrontClamp_Opened && db.v_i_bRearClamp_Opened && db.v_i_bFrontClamp2_Opened && db.v_i_bRearClamp2_Opened) || db.v_s_bInitTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:361:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:361", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-			db.v_s_bInitComplete = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362", []DebugSnapshotVariable{{Name: "s_bInitializing", Value: debugSnapshotValue(db.v_s_bInitializing), Type: "BOOL"}})
-			db.v_s_bInitializing = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:363:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:363", []DebugSnapshotVariable{{Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}, {Name: "q_eInit_Elapsed", Value: debugSnapshotValue(db.v_q_eInit_Elapsed), Type: "DINT"}})
-			db.v_fb_tInitTimer.v_IN = false
-			db.v_fb_tInitTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 363)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tInitTimer)
-			}()
-			db.v_s_bInitTimer_Q = db.v_fb_tInitTimer.v_Q
-			db.v_q_eInit_Elapsed = int32(db.v_fb_tInitTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:365:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:365", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-			db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:366:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:366", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:367:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:367", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:368:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:368", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:369:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:369", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Release = false
-		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:372:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:372", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:373:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:373", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_o_iCurrentState = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:374:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:374", []DebugSnapshotVariable{{Name: "o_iCurrentPickLayer", Value: debugSnapshotValue(db.v_o_iCurrentPickLayer), Type: "INT"}})
-		db.v_o_iCurrentPickLayer = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:375:5
-		debugLine("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:375")
-		return
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379", []DebugSnapshotVariable{{Name: "i_bZAxis_ServoFault", Value: debugSnapshotValue(db.v_i_bZAxis_ServoFault), Type: "BOOL"}})
-	if db.v_i_bZAxis_ServoFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:380:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:380", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_ZAxisServoFault", Value: debugSnapshotValue(101), Type: "INT"}})
-		if db.v_s_iActiveAlarmCode != 101 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:381:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_ZAxisServoFault", Value: debugSnapshotValue(101), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(101)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:382:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:382", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = true
-		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:384:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:384", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-		db.v_o_bZAxis_PulseOutput = false
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379:1
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_ZAxisServoFault", Value: debugSnapshotValue(101), Type: "INT"}})
-		if db.v_s_iActiveAlarmCode == 101 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:386:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:386", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:387:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = false
-		}
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:390:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:390", []DebugSnapshotVariable{{Name: "i_bX1Axis_ServoFault", Value: debugSnapshotValue(db.v_i_bX1Axis_ServoFault), Type: "BOOL"}})
-	if db.v_i_bX1Axis_ServoFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:391:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:391", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X1AxisServoFault", Value: debugSnapshotValue(102), Type: "INT"}})
-		if db.v_s_iActiveAlarmCode != 102 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:392:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X1AxisServoFault", Value: debugSnapshotValue(102), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(102)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:393:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:393", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = true
-		}
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:390:1
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:390", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X1AxisServoFault", Value: debugSnapshotValue(102), Type: "INT"}})
-		if db.v_s_iActiveAlarmCode == 102 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:396:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:396", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:397:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:397", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = false
-		}
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:401:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:401", []DebugSnapshotVariable{{Name: "s_bLiftConflict", Value: debugSnapshotValue(db.v_s_bLiftConflict), Type: "BOOL"}, {Name: "i_bLift_WorkPoint", Value: debugSnapshotValue(db.v_i_bLift_WorkPoint), Type: "BOOL"}, {Name: "i_bLift_HomePos", Value: debugSnapshotValue(db.v_i_bLift_HomePos), Type: "BOOL"}})
-	db.v_s_bLiftConflict = (db.v_i_bLift_WorkPoint && db.v_i_bLift_HomePos)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:402:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:402", []DebugSnapshotVariable{{Name: "s_bFrontClampConflict", Value: debugSnapshotValue(db.v_s_bFrontClampConflict), Type: "BOOL"}, {Name: "i_bFrontClamp_Closed", Value: debugSnapshotValue(db.v_i_bFrontClamp_Closed), Type: "BOOL"}, {Name: "i_bFrontClamp_Opened", Value: debugSnapshotValue(db.v_i_bFrontClamp_Opened), Type: "BOOL"}})
-	db.v_s_bFrontClampConflict = (db.v_i_bFrontClamp_Closed && db.v_i_bFrontClamp_Opened)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:403:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:403", []DebugSnapshotVariable{{Name: "s_bRearClampConflict", Value: debugSnapshotValue(db.v_s_bRearClampConflict), Type: "BOOL"}, {Name: "i_bRearClamp_Closed", Value: debugSnapshotValue(db.v_i_bRearClamp_Closed), Type: "BOOL"}, {Name: "i_bRearClamp_Opened", Value: debugSnapshotValue(db.v_i_bRearClamp_Opened), Type: "BOOL"}})
-	db.v_s_bRearClampConflict = (db.v_i_bRearClamp_Closed && db.v_i_bRearClamp_Opened)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:404:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:404", []DebugSnapshotVariable{{Name: "s_bFrontClamp2Conflict", Value: debugSnapshotValue(db.v_s_bFrontClamp2Conflict), Type: "BOOL"}, {Name: "i_bFrontClamp2_Closed", Value: debugSnapshotValue(db.v_i_bFrontClamp2_Closed), Type: "BOOL"}, {Name: "i_bFrontClamp2_Opened", Value: debugSnapshotValue(db.v_i_bFrontClamp2_Opened), Type: "BOOL"}})
-	db.v_s_bFrontClamp2Conflict = (db.v_i_bFrontClamp2_Closed && db.v_i_bFrontClamp2_Opened)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:405:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:405", []DebugSnapshotVariable{{Name: "s_bRearClamp2Conflict", Value: debugSnapshotValue(db.v_s_bRearClamp2Conflict), Type: "BOOL"}, {Name: "i_bRearClamp2_Closed", Value: debugSnapshotValue(db.v_i_bRearClamp2_Closed), Type: "BOOL"}, {Name: "i_bRearClamp2_Opened", Value: debugSnapshotValue(db.v_i_bRearClamp2_Opened), Type: "BOOL"}})
-	db.v_s_bRearClamp2Conflict = (db.v_i_bRearClamp2_Closed && db.v_i_bRearClamp2_Opened)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:408:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:408", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
-	if db.v_i_bAutoMode {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:414:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:414", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:415:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:415", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:416:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:416", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-			db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:417:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:417", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-			db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:418:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:418", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:419:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:419", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:420:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:420", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:421:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:421", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:422:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:422", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:423:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:423", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:424:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:424", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:425:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:425", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:426:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:426", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:427:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:427", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:428:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:428", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-			db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:429:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:429", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:430:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:430", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:431:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:431", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:432:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:432", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:433:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:433", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-			db.v_fb_tActionTimer.v_IN = false
-			db.v_fb_tActionTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 433)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tActionTimer)
-			}()
-			db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-			db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:434:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:434", []DebugSnapshotVariable{{Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}, {Name: "q_eProductDetectStable_Elapsed", Value: debugSnapshotValue(db.v_q_eProductDetectStable_Elapsed), Type: "DINT"}})
-			db.v_fb_tProductDetectStableTimer.v_IN = false
-			db.v_fb_tProductDetectStableTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 434)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tProductDetectStableTimer)
-			}()
-			db.v_s_bProductDetectStableTimer_Q = db.v_fb_tProductDetectStableTimer.v_Q
-			db.v_q_eProductDetectStable_Elapsed = int32(db.v_fb_tProductDetectStableTimer.v_ET)
-		} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:437:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:437", []DebugSnapshotVariable{{Name: "i_bStart", Value: debugSnapshotValue(db.v_i_bStart), Type: "BOOL"}, {Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			if db.v_i_bStart && !(db.v_s_bStartTriggered) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:438:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:438", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-				db.v_s_bStartTriggered = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:439:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:439", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}, {Name: "LAYER_TOTAL", Value: debugSnapshotValue(4), Type: "INT"}})
-				if db.v_s_iCompletedLayers >= 4 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:440:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:440", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-					db.v_s_iCompletedLayers = int16(0)
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd), Type: "BOOL"}, {Name: "i_bLx_ConveyorRev", Value: debugSnapshotValue(db.v_i_bLx_ConveyorRev), Type: "BOOL"}})
+			if db.v_i_bLx_ConveyorFwd && !(db.v_i_bLx_ConveyorRev) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:382:9
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:382", []DebugSnapshotVariable{{Name: "i_bSafetyDoorOk", Value: debugSnapshotValue(db.v_i_bSafetyDoorOk), Type: "BOOL"}})
+				if db.v_i_bSafetyDoorOk {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:383:13
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:383", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+					db.v_q_bConveyorFwd = true
 				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:442:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:442", []DebugSnapshotVariable{{Name: "s_iPickCount", Value: debugSnapshotValue(db.v_s_iPickCount), Type: "INT"}, {Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-				db.v_s_iPickCount = int16(((db.v_s_iCompletedLayers / 2) + 1))
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:443:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:443", []DebugSnapshotVariable{{Name: "s_iPickCount", Value: debugSnapshotValue(db.v_s_iPickCount), Type: "INT"}, {Name: "PICK_TIMES", Value: debugSnapshotValue(2), Type: "INT"}})
-				if db.v_s_iPickCount > 2 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:444:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:444", []DebugSnapshotVariable{{Name: "s_iPickCount", Value: debugSnapshotValue(db.v_s_iPickCount), Type: "INT"}})
-					db.v_s_iPickCount = int16(1)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:445:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:445", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-					db.v_s_iCompletedLayers = int16(0)
-				}
-			}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:450:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:450", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}, {Name: "STP_WaitingFeedComplete", Value: debugSnapshotValue(1), Type: "INT"}, {Name: "STP_PickupDown", Value: debugSnapshotValue(2), Type: "INT"}, {Name: "STP_GripClamp", Value: debugSnapshotValue(3), Type: "INT"}, {Name: "STP_ProductDetect", Value: debugSnapshotValue(4), Type: "INT"}, {Name: "STP_PickupUp", Value: debugSnapshotValue(5), Type: "INT"}, {Name: "STP_MovingToPlacePos", Value: debugSnapshotValue(6), Type: "INT"}, {Name: "STP_PlaceDown", Value: debugSnapshotValue(7), Type: "INT"}, {Name: "STP_GripUnclamp", Value: debugSnapshotValue(8), Type: "INT"}, {Name: "STP_PlaceUp", Value: debugSnapshotValue(9), Type: "INT"}, {Name: "STP_PlaceCompleteNotify", Value: debugSnapshotValue(10), Type: "INT"}})
-			switch db.v_s_iCurrentStep {
-			case 0:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:453:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:453", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:454:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:454", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-				db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:455:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:455", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-				db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:456:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:456", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:457:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:457", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:458:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:458", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:459:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:459", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-				db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:460:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:460", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:461:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:461", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-				db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:462:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:462", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:463:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:463", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-				db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:464:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:464", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:465:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:465", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:466:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:466", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-				db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:467:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:467", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-				db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:468:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:468", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-				db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:469:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:469", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-				db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:470:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:470", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-				db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:471:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:471", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-				db.v_s_iCurrentPickLayerNum = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:473:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:473", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-				if db.v_s_bStartTriggered {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:474:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:474", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitingFeedComplete", Value: debugSnapshotValue(1), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(1)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:475:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:475", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-					db.v_s_bRunning = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:476:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:476", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-					if db.v_s_iCompletedLayers < 2 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:477:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:477", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-						db.v_s_iCurrentPickLayerNum = int16(1)
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:479:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:479", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-						db.v_s_iCurrentPickLayerNum = int16(3)
-					}
-				}
-			case 1:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:484:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:484", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-				if db.v_s_iCompletedLayers < 2 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:485:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:485", []DebugSnapshotVariable{{Name: "i_bConveyor_L1_FeedComplete", Value: debugSnapshotValue(db.v_i_bConveyor_L1_FeedComplete), Type: "BOOL"}, {Name: "i_bConveyor_L2_FeedComplete", Value: debugSnapshotValue(db.v_i_bConveyor_L2_FeedComplete), Type: "BOOL"}})
-					if db.v_i_bConveyor_L1_FeedComplete && db.v_i_bConveyor_L2_FeedComplete {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:486:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:486", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_PickupDown", Value: debugSnapshotValue(2), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(2)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:487:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:487", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = true
-						db.v_fb_tActionTimer.v_PT = int32(db.v_i_iLiftActionTime)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 487)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:488:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:488", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestDown = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:489:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:489", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:490:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:490", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:491:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:491", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_DirectionOutput = true
-					}
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:494:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:494", []DebugSnapshotVariable{{Name: "i_bConveyor_L3_FeedComplete", Value: debugSnapshotValue(db.v_i_bConveyor_L3_FeedComplete), Type: "BOOL"}, {Name: "i_bConveyor_L4_FeedComplete", Value: debugSnapshotValue(db.v_i_bConveyor_L4_FeedComplete), Type: "BOOL"}})
-					if db.v_i_bConveyor_L3_FeedComplete && db.v_i_bConveyor_L4_FeedComplete {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:495:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:495", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_PickupDown", Value: debugSnapshotValue(2), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(2)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:496:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:496", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = true
-						db.v_fb_tActionTimer.v_PT = int32(db.v_i_iLiftActionTime)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 496)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:497:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:497", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestDown = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:498:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:498", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:499:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:499", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:500:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:500", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_DirectionOutput = true
-					}
-				}
-			case 2:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:505:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:505", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:506:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:506", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_DirectionOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:507:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:507", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-				db.v_o_bLift_Down = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:508:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:508", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-				db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:510:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:510", []DebugSnapshotVariable{{Name: "i_bLift_WorkPoint", Value: debugSnapshotValue(db.v_i_bLift_WorkPoint), Type: "BOOL"}})
-				if db.v_i_bLift_WorkPoint {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:511:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:511", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 511)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:512:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:512", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:513:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:513", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:514:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:514", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-					db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:515:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:515", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_GripClamp", Value: debugSnapshotValue(3), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(3)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:516:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:516", []DebugSnapshotVariable{{Name: "i_iClampConfirmTime", Value: debugSnapshotValue(db.v_i_iClampConfirmTime), Type: "INT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = true
-					db.v_fb_tActionTimer.v_PT = int32(db.v_i_iClampConfirmTime)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 516)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:517:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:517", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-					db.v_o_bFrontClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:518:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:518", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-					db.v_o_bRearClamp_Action = true
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:510:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:510", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:520:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:520", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 520)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:521:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:521", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_LiftDownTimeout", Value: debugSnapshotValue(103), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(103)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:522:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:522", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:523:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:523", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:524:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:524", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:525:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:525", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-						db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:526:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:526", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:527:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:527", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:528:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:528", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 3:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:532:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:532", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:533:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:533", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:534:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:534", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:535:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:535", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-				db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:537:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:537", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "i_bFrontClamp_Closed", Value: debugSnapshotValue(db.v_i_bFrontClamp_Closed), Type: "BOOL"}, {Name: "i_bRearClamp_Closed", Value: debugSnapshotValue(db.v_i_bRearClamp_Closed), Type: "BOOL"}})
-				if db.v_s_bActionTimer_Q && db.v_i_bFrontClamp_Closed && db.v_i_bRearClamp_Closed {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:539:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:539", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 539)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:540:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:540", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_ProductDetect", Value: debugSnapshotValue(4), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(4)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:541:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:541", []DebugSnapshotVariable{{Name: "T_DEF_ProductDetectStableTime", Value: debugSnapshotValue(300), Type: "DINT"}, {Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}, {Name: "q_eProductDetectStable_Elapsed", Value: debugSnapshotValue(db.v_q_eProductDetectStable_Elapsed), Type: "DINT"}})
-					db.v_fb_tProductDetectStableTimer.v_IN = true
-					db.v_fb_tProductDetectStableTimer.v_PT = int32(300)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 541)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tProductDetectStableTimer)
-					}()
-					db.v_s_bProductDetectStableTimer_Q = db.v_fb_tProductDetectStableTimer.v_Q
-					db.v_q_eProductDetectStable_Elapsed = int32(db.v_fb_tProductDetectStableTimer.v_ET)
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:537:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:537", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "i_bFrontClamp_Closed", Value: debugSnapshotValue(db.v_i_bFrontClamp_Closed), Type: "BOOL"}, {Name: "i_bRearClamp_Closed", Value: debugSnapshotValue(db.v_i_bRearClamp_Closed), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q && !(db.v_i_bFrontClamp_Closed && db.v_i_bRearClamp_Closed) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:544:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:544", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 544)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:545:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:545", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_ClampTimeout", Value: debugSnapshotValue(105), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(105)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:546:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:546", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:547:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:547", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:548:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:548", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:549:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:549", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:550:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:550", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:551:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:551", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 4:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:555:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:555", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:556:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:556", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:558:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:558", []DebugSnapshotVariable{{Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}})
-				if db.v_s_bProductDetectStableTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:559:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:559", []DebugSnapshotVariable{{Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}, {Name: "q_eProductDetectStable_Elapsed", Value: debugSnapshotValue(db.v_q_eProductDetectStable_Elapsed), Type: "DINT"}})
-					db.v_fb_tProductDetectStableTimer.v_IN = false
-					db.v_fb_tProductDetectStableTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 559)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tProductDetectStableTimer)
-					}()
-					db.v_s_bProductDetectStableTimer_Q = db.v_fb_tProductDetectStableTimer.v_Q
-					db.v_q_eProductDetectStable_Elapsed = int32(db.v_fb_tProductDetectStableTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:561:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:561", []DebugSnapshotVariable{{Name: "s_bProductDetected", Value: debugSnapshotValue(db.v_s_bProductDetected), Type: "BOOL"}, {Name: "i_bLongEdge1Detect", Value: debugSnapshotValue(db.v_i_bLongEdge1Detect), Type: "BOOL"}, {Name: "i_bLongEdge2Detect", Value: debugSnapshotValue(db.v_i_bLongEdge2Detect), Type: "BOOL"}, {Name: "i_bShortEdge1Detect", Value: debugSnapshotValue(db.v_i_bShortEdge1Detect), Type: "BOOL"}, {Name: "i_bShortEdge2Detect", Value: debugSnapshotValue(db.v_i_bShortEdge2Detect), Type: "BOOL"}})
-					db.v_s_bProductDetected = (db.v_i_bLongEdge1Detect && db.v_i_bLongEdge2Detect && db.v_i_bShortEdge1Detect && db.v_i_bShortEdge2Detect)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:565:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:565", []DebugSnapshotVariable{{Name: "s_bProductDetected", Value: debugSnapshotValue(db.v_s_bProductDetected), Type: "BOOL"}})
-					if db.v_s_bProductDetected {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:566:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:566", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_PickupUp", Value: debugSnapshotValue(5), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(5)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:567:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:567", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = true
-						db.v_fb_tActionTimer.v_PT = int32(db.v_i_iLiftActionTime)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 567)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:568:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:568", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:569:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:569", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:570:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:570", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:571:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:571", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-						db.v_o_bLift_Up = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:572:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:572", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:573:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:573", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp_Action = false
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:575:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:575", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_ProductDetectFail", Value: debugSnapshotValue(107), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(107)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:576:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:576", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:577:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:577", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:578:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:578", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:579:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:579", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:580:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:580", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:581:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:581", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 5:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:586:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:586", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:587:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:587", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:588:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:588", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-				db.v_o_bLift_Up = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:589:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:589", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-				db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:591:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:591", []DebugSnapshotVariable{{Name: "i_bLift_HomePos", Value: debugSnapshotValue(db.v_i_bLift_HomePos), Type: "BOOL"}})
-				if db.v_i_bLift_HomePos {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:592:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:592", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 592)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:593:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:593", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:594:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:594", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:595:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:595", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-					db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:596:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:596", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_MovingToPlacePos", Value: debugSnapshotValue(6), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(6)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:597:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:597", []DebugSnapshotVariable{{Name: "T_DEF_MovementTimeoutTime", Value: debugSnapshotValue(5000), Type: "DINT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = true
-					db.v_fb_tActionTimer.v_PT = int32(5000)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 597)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:598:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:598", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-					db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:599:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:599", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-					db.v_s_bX1Axis_RequestRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:600:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:600", []DebugSnapshotVariable{{Name: "s_bX1AxisAtPickupPos", Value: debugSnapshotValue(db.v_s_bX1AxisAtPickupPos), Type: "BOOL"}})
-					db.v_s_bX1AxisAtPickupPos = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:591:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:591", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:602:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:602", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 602)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:603:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:603", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_LiftUpTimeout", Value: debugSnapshotValue(104), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(104)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:604:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:604", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:605:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:605", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:606:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:606", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:607:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:607", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-						db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:608:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:608", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:609:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:609", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:610:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:610", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 6:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:614:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:614", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-				db.v_s_bX1Axis_RequestRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:615:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:615", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-				db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:617:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:617", []DebugSnapshotVariable{{Name: "i_bX1Axis_RevLimit", Value: debugSnapshotValue(db.v_i_bX1Axis_RevLimit), Type: "BOOL"}})
-				if db.v_i_bX1Axis_RevLimit {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:618:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:618", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 618)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:619:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:619", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-					db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:620:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:620", []DebugSnapshotVariable{{Name: "s_bX1AxisAtPlacePos", Value: debugSnapshotValue(db.v_s_bX1AxisAtPlacePos), Type: "BOOL"}})
-					db.v_s_bX1AxisAtPlacePos = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:621:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:621", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_PlaceDown", Value: debugSnapshotValue(7), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(7)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:622:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:622", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = true
-					db.v_fb_tActionTimer.v_PT = int32(db.v_i_iLiftActionTime)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 622)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:623:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:623", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestDown = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:624:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:624", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:625:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:625", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:626:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:626", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_DirectionOutput = true
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:617:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:617", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:628:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:628", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 628)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:629:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:629", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_MovementTimeout", Value: debugSnapshotValue(108), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(108)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:630:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:630", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:631:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:631", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-						db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:632:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:632", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:633:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:633", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:634:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:634", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 7:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:638:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:638", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:639:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:639", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_DirectionOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:640:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:640", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-				db.v_o_bLift_Down = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:641:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:641", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-				db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:643:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:643", []DebugSnapshotVariable{{Name: "i_bLift_WorkPoint", Value: debugSnapshotValue(db.v_i_bLift_WorkPoint), Type: "BOOL"}})
-				if db.v_i_bLift_WorkPoint {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:644:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:644", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 644)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:645:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:645", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:646:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:646", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:647:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:647", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-					db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:648:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:648", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_GripUnclamp", Value: debugSnapshotValue(8), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(8)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:649:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:649", []DebugSnapshotVariable{{Name: "T_DEF_UnclampConfirmTime", Value: debugSnapshotValue(800), Type: "DINT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = true
-					db.v_fb_tActionTimer.v_PT = int32(800)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 649)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:650:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:650", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-					db.v_o_bFrontClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:651:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:651", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-					db.v_o_bRearClamp_Release = true
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:643:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:643", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:653:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:653", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 653)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:654:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:654", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_LiftDownTimeout", Value: debugSnapshotValue(103), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(103)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:655:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:655", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:656:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:656", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:657:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:657", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:658:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:658", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-						db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:659:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:659", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:660:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:660", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:661:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:661", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 8:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:665:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:665", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:666:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:666", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-				db.v_o_bRearClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:667:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:667", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:668:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:668", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:670:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:670", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "i_bFrontClamp_Opened", Value: debugSnapshotValue(db.v_i_bFrontClamp_Opened), Type: "BOOL"}, {Name: "i_bRearClamp_Opened", Value: debugSnapshotValue(db.v_i_bRearClamp_Opened), Type: "BOOL"}})
-				if db.v_s_bActionTimer_Q && db.v_i_bFrontClamp_Opened && db.v_i_bRearClamp_Opened {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:672:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:672", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 672)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:673:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:673", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_PlaceUp", Value: debugSnapshotValue(9), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(9)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:674:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:674", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = true
-					db.v_fb_tActionTimer.v_PT = int32(db.v_i_iLiftActionTime)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 674)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:675:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:675", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestUp = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:676:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:676", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:677:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:677", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:678:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:678", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-					db.v_o_bLift_Up = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:679:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:679", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-					db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:680:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:680", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-					db.v_o_bRearClamp_Release = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:670:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:670", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "i_bFrontClamp_Opened", Value: debugSnapshotValue(db.v_i_bFrontClamp_Opened), Type: "BOOL"}, {Name: "i_bRearClamp_Opened", Value: debugSnapshotValue(db.v_i_bRearClamp_Opened), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q && !(db.v_i_bFrontClamp_Opened && db.v_i_bRearClamp_Opened) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:683:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:683", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 683)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:684:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:684", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_UnclampTimeout", Value: debugSnapshotValue(106), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(106)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:685:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:685", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:686:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:686", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:687:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:687", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-						db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:688:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:688", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:689:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:689", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:690:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:690", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 9:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:694:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:694", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_PulseOutput = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:695:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:695", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:696:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:696", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-				db.v_o_bLift_Up = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:697:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:697", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-				db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:699:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:699", []DebugSnapshotVariable{{Name: "i_bLift_HomePos", Value: debugSnapshotValue(db.v_i_bLift_HomePos), Type: "BOOL"}})
-				if db.v_i_bLift_HomePos {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:700:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:700", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 700)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:701:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:701", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-					db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:702:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:702", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-					db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:703:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:703", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-					db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:704:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:704", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_PlaceCompleteNotify", Value: debugSnapshotValue(10), Type: "INT"}})
-					db.v_s_iCurrentStep = int16(10)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:705:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:705", []DebugSnapshotVariable{{Name: "T_DEF_PlaceCompleteHoldTime", Value: debugSnapshotValue(500), Type: "DINT"}, {Name: "s_bPlaceCompleteHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPlaceCompleteHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePlaceCompleteHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePlaceCompleteHold_Elapsed), Type: "DINT"}})
-					db.v_fb_tPlaceCompleteHoldTimer.v_IN = true
-					db.v_fb_tPlaceCompleteHoldTimer.v_PT = int32(500)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 705)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tPlaceCompleteHoldTimer)
-					}()
-					db.v_s_bPlaceCompleteHoldTimer_Q = db.v_fb_tPlaceCompleteHoldTimer.v_Q
-					db.v_q_ePlaceCompleteHold_Elapsed = int32(db.v_fb_tPlaceCompleteHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:706:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:706", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-					db.v_o_bPlaceComplete_ToFeeder = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:707:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:707", []DebugSnapshotVariable{{Name: "s_bPlaceCompletePulse", Value: debugSnapshotValue(db.v_s_bPlaceCompletePulse), Type: "BOOL"}})
-					db.v_s_bPlaceCompletePulse = true
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:699:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:699", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-					if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:709:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:709", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-						db.v_fb_tActionTimer.v_IN = false
-						db.v_fb_tActionTimer.v_PT = int32(0)
-						func() {
-							PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 709)
-							defer PopFrame()
-							FB_FB_TON(mem, &db.v_fb_tActionTimer)
-						}()
-						db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-						db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:710:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:710", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_LiftUpTimeout", Value: debugSnapshotValue(104), Type: "INT"}})
-						db.v_s_iActiveAlarmCode = int16(104)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:711:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:711", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-						db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:712:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:712", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:713:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:713", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:714:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:714", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-						db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:715:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:715", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:716:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:716", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:717:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:717", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-					}
-				}
-			case 10:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:721:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:721", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-				db.v_o_bPlaceComplete_ToFeeder = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:723:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:723", []DebugSnapshotVariable{{Name: "s_bPlaceCompleteHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPlaceCompleteHoldTimer_Q), Type: "BOOL"}})
-				if db.v_s_bPlaceCompleteHoldTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:724:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:724", []DebugSnapshotVariable{{Name: "s_bPlaceCompleteHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPlaceCompleteHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePlaceCompleteHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePlaceCompleteHold_Elapsed), Type: "DINT"}})
-					db.v_fb_tPlaceCompleteHoldTimer.v_IN = false
-					db.v_fb_tPlaceCompleteHoldTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 724)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tPlaceCompleteHoldTimer)
-					}()
-					db.v_s_bPlaceCompleteHoldTimer_Q = db.v_fb_tPlaceCompleteHoldTimer.v_Q
-					db.v_q_ePlaceCompleteHold_Elapsed = int32(db.v_fb_tPlaceCompleteHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:725:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:725", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-					db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:726:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:726", []DebugSnapshotVariable{{Name: "s_bPlaceCompletePulse", Value: debugSnapshotValue(db.v_s_bPlaceCompletePulse), Type: "BOOL"}})
-					db.v_s_bPlaceCompletePulse = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:728:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:728", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-					db.v_s_iCompletedLayers = int16((db.v_s_iCompletedLayers + 2))
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:730:17
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:730", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}, {Name: "LAYER_TOTAL", Value: debugSnapshotValue(4), Type: "INT"}})
-					if db.v_s_iCompletedLayers >= 4 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:731:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:731", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-						db.v_s_iCompletedLayers = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:732:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:732", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:733:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:733", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-						db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:734:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:734", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-						db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:735:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:735", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-						db.v_s_iCurrentPickLayerNum = int16(0)
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:737:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:737", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitingFeedComplete", Value: debugSnapshotValue(1), Type: "INT"}})
-						db.v_s_iCurrentStep = int16(1)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:738:21
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:738", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-						if db.v_s_iCompletedLayers < 2 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:739:25
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:739", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-							db.v_s_iCurrentPickLayerNum = int16(1)
-						} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:741:25
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:741", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-							db.v_s_iCurrentPickLayerNum = int16(3)
-						}
-					}
-				}
-			default:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:747:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:747", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:748:13
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:748", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-			}
-		}
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:408:1
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:408", []DebugSnapshotVariable{{Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
-		if db.v_i_bManualMode {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:757:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:757", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:758:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:758", []DebugSnapshotVariable{{Name: "s_bManualAllowed", Value: debugSnapshotValue(db.v_s_bManualAllowed), Type: "BOOL"}})
-				db.v_s_bManualAllowed = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:759:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:759", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-				db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:760:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:760", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-				db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:761:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:761", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:762:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:762", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-				db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:763:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:763", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:764:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:764", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-				db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:765:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:765", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-				db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:766:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:766", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-				db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:767:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:767", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-				db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:768:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:768", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-				db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:769:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:769", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:770:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:770", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-				db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:771:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:771", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-				db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:772:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:772", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-				db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:773:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:773", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-				db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:774:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:774", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-				db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:775:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:775", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-				db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:776:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:776", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:777:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:777", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:385:9
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:385", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+				db.v_q_bConveyorRev = false
 			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:779:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:779", []DebugSnapshotVariable{{Name: "s_bManualAllowed", Value: debugSnapshotValue(db.v_s_bManualAllowed), Type: "BOOL"}})
-				db.v_s_bManualAllowed = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:780:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:780", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:781:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:781", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:782:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:782", []DebugSnapshotVariable{{Name: "o_iCurrentPickLayer", Value: debugSnapshotValue(db.v_o_iCurrentPickLayer), Type: "INT"}})
-				db.v_o_iCurrentPickLayer = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:783:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:783", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-				db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:786:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:786", []DebugSnapshotVariable{{Name: "i_bLx_ZAxis_JogUp", Value: debugSnapshotValue(db.v_i_bLx_ZAxis_JogUp), Type: "BOOL"}, {Name: "i_bLx_ZAxis_JogDown", Value: debugSnapshotValue(db.v_i_bLx_ZAxis_JogDown), Type: "BOOL"}})
-				if db.v_i_bLx_ZAxis_JogUp && !(db.v_i_bLx_ZAxis_JogDown) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:787:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:787", []DebugSnapshotVariable{{Name: "i_bZAxis_FwdLimit", Value: debugSnapshotValue(db.v_i_bZAxis_FwdLimit), Type: "BOOL"}})
-					if !(db.v_i_bZAxis_FwdLimit) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:788:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:788", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:789:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:789", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:790:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:790", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-						db.v_o_bZAxis_DirectionOutput = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:381:5
+				debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "i_bLx_ConveyorRev", Value: debugSnapshotValue(db.v_i_bLx_ConveyorRev), Type: "BOOL"}, {Name: "i_bLx_ConveyorFwd", Value: debugSnapshotValue(db.v_i_bLx_ConveyorFwd), Type: "BOOL"}})
+				if db.v_i_bLx_ConveyorRev && !(db.v_i_bLx_ConveyorFwd) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:387:9
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "i_bSafetyDoorOk", Value: debugSnapshotValue(db.v_i_bSafetyDoorOk), Type: "BOOL"}})
+					if db.v_i_bSafetyDoorOk {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:388:13
+						debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:388", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+						db.v_q_bConveyorRev = true
 					}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:390:9
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:390", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+					db.v_q_bConveyorFwd = false
 				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:786:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:786", []DebugSnapshotVariable{{Name: "i_bLx_ZAxis_JogDown", Value: debugSnapshotValue(db.v_i_bLx_ZAxis_JogDown), Type: "BOOL"}, {Name: "i_bLx_ZAxis_JogUp", Value: debugSnapshotValue(db.v_i_bLx_ZAxis_JogUp), Type: "BOOL"}})
-					if db.v_i_bLx_ZAxis_JogDown && !(db.v_i_bLx_ZAxis_JogUp) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:793:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:793", []DebugSnapshotVariable{{Name: "i_bZAxis_RevLimit", Value: debugSnapshotValue(db.v_i_bZAxis_RevLimit), Type: "BOOL"}})
-						if !(db.v_i_bZAxis_RevLimit) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:794:17
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:794", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-							db.v_s_bZAxis_RequestDown = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:795:17
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:795", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-							db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:796:17
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:796", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-							db.v_o_bZAxis_DirectionOutput = true
-						}
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:799:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:799", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:800:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:800", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-						db.v_s_bZAxis_RequestUp = false
-					}
-				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:804:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:804", []DebugSnapshotVariable{{Name: "i_bLx_X1Axis_JogFwd", Value: debugSnapshotValue(db.v_i_bLx_X1Axis_JogFwd), Type: "BOOL"}, {Name: "i_bLx_X1Axis_JogRev", Value: debugSnapshotValue(db.v_i_bLx_X1Axis_JogRev), Type: "BOOL"}})
-				if db.v_i_bLx_X1Axis_JogFwd && !(db.v_i_bLx_X1Axis_JogRev) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:805:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:805", []DebugSnapshotVariable{{Name: "i_bX1Axis_FwdLimit", Value: debugSnapshotValue(db.v_i_bX1Axis_FwdLimit), Type: "BOOL"}})
-					if !(db.v_i_bX1Axis_FwdLimit) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:806:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:806", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-						db.v_s_bX1Axis_RequestFwd = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:807:17
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:807", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-						db.v_s_bX1Axis_RequestRev = false
-					}
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:804:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:804", []DebugSnapshotVariable{{Name: "i_bLx_X1Axis_JogRev", Value: debugSnapshotValue(db.v_i_bLx_X1Axis_JogRev), Type: "BOOL"}, {Name: "i_bLx_X1Axis_JogFwd", Value: debugSnapshotValue(db.v_i_bLx_X1Axis_JogFwd), Type: "BOOL"}})
-					if db.v_i_bLx_X1Axis_JogRev && !(db.v_i_bLx_X1Axis_JogFwd) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:810:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:810", []DebugSnapshotVariable{{Name: "i_bX1Axis_RevLimit", Value: debugSnapshotValue(db.v_i_bX1Axis_RevLimit), Type: "BOOL"}})
-						if !(db.v_i_bX1Axis_RevLimit) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:811:17
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:811", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-							db.v_s_bX1Axis_RequestRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:812:17
-							debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:812", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-							db.v_s_bX1Axis_RequestFwd = false
-						}
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:815:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:815", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-						db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:816:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:816", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-						db.v_s_bX1Axis_RequestRev = false
-					}
-				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:820:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:820", []DebugSnapshotVariable{{Name: "i_bLx_Lift_Up", Value: debugSnapshotValue(db.v_i_bLx_Lift_Up), Type: "BOOL"}, {Name: "i_bLx_Lift_Down", Value: debugSnapshotValue(db.v_i_bLx_Lift_Down), Type: "BOOL"}})
-				if db.v_i_bLx_Lift_Up && !(db.v_i_bLx_Lift_Down) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:821:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:821", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-					db.v_o_bLift_Up = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:822:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:822", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-					db.v_o_bLift_Down = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:820:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:820", []DebugSnapshotVariable{{Name: "i_bLx_Lift_Down", Value: debugSnapshotValue(db.v_i_bLx_Lift_Down), Type: "BOOL"}, {Name: "i_bLx_Lift_Up", Value: debugSnapshotValue(db.v_i_bLx_Lift_Up), Type: "BOOL"}})
-					if db.v_i_bLx_Lift_Down && !(db.v_i_bLx_Lift_Up) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:824:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:824", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-						db.v_o_bLift_Down = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:825:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:825", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-						db.v_o_bLift_Up = false
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:827:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:827", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-						db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:828:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:828", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-						db.v_o_bLift_Down = false
-					}
-				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:832:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:832", []DebugSnapshotVariable{{Name: "i_bLx_FrontClamp", Value: debugSnapshotValue(db.v_i_bLx_FrontClamp), Type: "BOOL"}, {Name: "i_bLx_FrontUnclamp", Value: debugSnapshotValue(db.v_i_bLx_FrontUnclamp), Type: "BOOL"}})
-				if db.v_i_bLx_FrontClamp && !(db.v_i_bLx_FrontUnclamp) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:833:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:833", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-					db.v_o_bFrontClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:834:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:834", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-					db.v_o_bFrontClamp_Release = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:832:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:832", []DebugSnapshotVariable{{Name: "i_bLx_FrontUnclamp", Value: debugSnapshotValue(db.v_i_bLx_FrontUnclamp), Type: "BOOL"}, {Name: "i_bLx_FrontClamp", Value: debugSnapshotValue(db.v_i_bLx_FrontClamp), Type: "BOOL"}})
-					if db.v_i_bLx_FrontUnclamp && !(db.v_i_bLx_FrontClamp) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:836:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:836", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:837:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:837", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Action = false
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:839:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:839", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:840:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:840", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-						db.v_o_bFrontClamp_Release = false
-					}
-				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:844:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:844", []DebugSnapshotVariable{{Name: "i_bLx_RearClamp", Value: debugSnapshotValue(db.v_i_bLx_RearClamp), Type: "BOOL"}, {Name: "i_bLx_RearUnclamp", Value: debugSnapshotValue(db.v_i_bLx_RearUnclamp), Type: "BOOL"}})
-				if db.v_i_bLx_RearClamp && !(db.v_i_bLx_RearUnclamp) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:845:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:845", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-					db.v_o_bRearClamp_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:846:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:846", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-					db.v_o_bRearClamp_Release = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:844:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:844", []DebugSnapshotVariable{{Name: "i_bLx_RearUnclamp", Value: debugSnapshotValue(db.v_i_bLx_RearUnclamp), Type: "BOOL"}, {Name: "i_bLx_RearClamp", Value: debugSnapshotValue(db.v_i_bLx_RearClamp), Type: "BOOL"}})
-					if db.v_i_bLx_RearUnclamp && !(db.v_i_bLx_RearClamp) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:848:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:848", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-						db.v_o_bRearClamp_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:849:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:849", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp_Action = false
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:851:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:851", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:852:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:852", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-						db.v_o_bRearClamp_Release = false
-					}
-				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:856:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:856", []DebugSnapshotVariable{{Name: "i_bLx_FrontClamp2", Value: debugSnapshotValue(db.v_i_bLx_FrontClamp2), Type: "BOOL"}, {Name: "i_bLx_FrontUnclamp2", Value: debugSnapshotValue(db.v_i_bLx_FrontUnclamp2), Type: "BOOL"}})
-				if db.v_i_bLx_FrontClamp2 && !(db.v_i_bLx_FrontUnclamp2) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:857:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:857", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-					db.v_o_bFrontClamp2_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:858:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:858", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-					db.v_o_bFrontClamp2_Release = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:856:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:856", []DebugSnapshotVariable{{Name: "i_bLx_FrontUnclamp2", Value: debugSnapshotValue(db.v_i_bLx_FrontUnclamp2), Type: "BOOL"}, {Name: "i_bLx_FrontClamp2", Value: debugSnapshotValue(db.v_i_bLx_FrontClamp2), Type: "BOOL"}})
-					if db.v_i_bLx_FrontUnclamp2 && !(db.v_i_bLx_FrontClamp2) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:860:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:860", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-						db.v_o_bFrontClamp2_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:861:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:861", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp2_Action = false
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:863:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:863", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-						db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:864:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:864", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-						db.v_o_bFrontClamp2_Release = false
-					}
-				}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:868:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:868", []DebugSnapshotVariable{{Name: "i_bLx_RearClamp2", Value: debugSnapshotValue(db.v_i_bLx_RearClamp2), Type: "BOOL"}, {Name: "i_bLx_RearUnclamp2", Value: debugSnapshotValue(db.v_i_bLx_RearUnclamp2), Type: "BOOL"}})
-				if db.v_i_bLx_RearClamp2 && !(db.v_i_bLx_RearUnclamp2) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:869:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:869", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-					db.v_o_bRearClamp2_Action = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:870:13
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:870", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-					db.v_o_bRearClamp2_Release = false
-				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:868:9
-					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:868", []DebugSnapshotVariable{{Name: "i_bLx_RearUnclamp2", Value: debugSnapshotValue(db.v_i_bLx_RearUnclamp2), Type: "BOOL"}, {Name: "i_bLx_RearClamp2", Value: debugSnapshotValue(db.v_i_bLx_RearClamp2), Type: "BOOL"}})
-					if db.v_i_bLx_RearUnclamp2 && !(db.v_i_bLx_RearClamp2) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:872:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:872", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-						db.v_o_bRearClamp2_Release = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:873:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:873", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp2_Action = false
-					} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:875:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:875", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-						db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:876:13
-						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:876", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-						db.v_o_bRearClamp2_Release = false
-					}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:392:9
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+					db.v_q_bConveyorFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:393:9
+					debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:393", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+					db.v_q_bConveyorRev = false
 				}
 			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:396:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:396", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}, {Name: "i_bLx_ConveyorSlow", Value: debugSnapshotValue(db.v_i_bLx_ConveyorSlow), Type: "BOOL"}})
+			db.v_q_bConveyorSlow = db.v_i_bLx_ConveyorSlow
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:398:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:398", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+			db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:398:22
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:398", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+			db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:399:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:399", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+			db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:399:22
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:399", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+			db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:400:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:400", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+			db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:400:22
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:400", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+			db.v_tR[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:401:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:401", []DebugSnapshotVariable{{Name: "tIn[3]", Value: debugSnapshotValue(db.v_tIn[3]), Type: "BOOL"}})
+			db.v_tIn[3] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:401:22
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:401", []DebugSnapshotVariable{{Name: "tR[3]", Value: debugSnapshotValue(db.v_tR[3]), Type: "BOOL"}})
+			db.v_tR[3] = true
 		} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:882:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:882", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-			db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:883:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:883", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-			db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:884:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:884", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:885:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:885", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:886:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:886", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:887:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:887", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:888:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:888", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:889:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:889", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:890:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:890", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:891:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:891", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:892:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:892", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:893:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:893", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:894:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:894", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-			db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:895:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:895", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:896:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:896", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:897:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:897", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:898:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:898", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:899:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:899", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			if !(db.v_s_bFault) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:900:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:900", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:901:9
-				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:901", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:404:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:404", []DebugSnapshotVariable{{Name: "q_bBlockSolenoid", Value: debugSnapshotValue(db.v_q_bBlockSolenoid), Type: "BOOL"}})
+			db.v_q_bBlockSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:405:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:405", []DebugSnapshotVariable{{Name: "q_bSeparateSolenoid", Value: debugSnapshotValue(db.v_q_bSeparateSolenoid), Type: "BOOL"}})
+			db.v_q_bSeparateSolenoid = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:406:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:406", []DebugSnapshotVariable{{Name: "q_bConveyorFwd", Value: debugSnapshotValue(db.v_q_bConveyorFwd), Type: "BOOL"}})
+			db.v_q_bConveyorFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:407:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:407", []DebugSnapshotVariable{{Name: "q_bConveyorSlow", Value: debugSnapshotValue(db.v_q_bConveyorSlow), Type: "BOOL"}})
+			db.v_q_bConveyorSlow = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:408:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:408", []DebugSnapshotVariable{{Name: "q_bConveyorRev", Value: debugSnapshotValue(db.v_q_bConveyorRev), Type: "BOOL"}})
+			db.v_q_bConveyorRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:409:5
+			debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:409", []DebugSnapshotVariable{{Name: "q_bLayerFeedDone", Value: debugSnapshotValue(db.v_q_bLayerFeedDone), Type: "BOOL"}})
+			db.v_q_bLayerFeedDone = false
 		}
 	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:906:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:906", []DebugSnapshotVariable{{Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}})
-	if db.v_i_bStop {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:907:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:907", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}, {Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		if db.v_s_bRunning && !(db.v_s_bFault) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:908:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:908", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:909:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:909", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:910:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:910", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:911:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:911", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-			db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:912:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:912", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-			db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:913:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:913", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:914:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:914", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:915:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:915", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:916:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:916", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:917:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:917", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:918:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:918", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:919:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:919", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:920:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:920", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:921:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:921", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:922:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:922", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:923:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:923", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-			db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:924:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:924", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:925:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:925", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:926:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:926", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:927:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:927", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:928:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:928", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-			db.v_fb_tActionTimer.v_IN = false
-			db.v_fb_tActionTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 928)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tActionTimer)
-			}()
-			db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-			db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:929:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:929", []DebugSnapshotVariable{{Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}, {Name: "q_eProductDetectStable_Elapsed", Value: debugSnapshotValue(db.v_q_eProductDetectStable_Elapsed), Type: "DINT"}})
-			db.v_fb_tProductDetectStableTimer.v_IN = false
-			db.v_fb_tProductDetectStableTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 929)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tProductDetectStableTimer)
-			}()
-			db.v_s_bProductDetectStableTimer_Q = db.v_fb_tProductDetectStableTimer.v_Q
-			db.v_q_eProductDetectStable_Elapsed = int32(db.v_fb_tProductDetectStableTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:930:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:930", []DebugSnapshotVariable{{Name: "s_bPlaceCompleteHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPlaceCompleteHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePlaceCompleteHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePlaceCompleteHold_Elapsed), Type: "DINT"}})
-			db.v_fb_tPlaceCompleteHoldTimer.v_IN = false
-			db.v_fb_tPlaceCompleteHoldTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 930)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tPlaceCompleteHoldTimer)
-			}()
-			db.v_s_bPlaceCompleteHoldTimer_Q = db.v_fb_tPlaceCompleteHoldTimer.v_Q
-			db.v_q_ePlaceCompleteHold_Elapsed = int32(db.v_fb_tPlaceCompleteHoldTimer.v_ET)
-		}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:413:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:413", []DebugSnapshotVariable{{Name: "q_bRunning", Value: debugSnapshotValue(db.v_q_bRunning), Type: "BOOL"}, {Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+	db.v_q_bRunning = db.v_bRunning
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:414:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:414", []DebugSnapshotVariable{{Name: "q_iCurrentState", Value: debugSnapshotValue(db.v_q_iCurrentState), Type: "INT"}, {Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}})
+	db.v_q_iCurrentState = int16(db.v_iCurrentState)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:415:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:415", []DebugSnapshotVariable{{Name: "q_iAlarmCode", Value: debugSnapshotValue(db.v_q_iAlarmCode), Type: "INT"}, {Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+	db.v_q_iAlarmCode = int16(db.v_iAlarmCode)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:417:1
+	debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:417", []DebugSnapshotVariable{{Name: "bSeparateTimeout", Value: debugSnapshotValue(db.v_bSeparateTimeout), Type: "BOOL"}, {Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "STEP_SEPARATE_PUSH", Value: debugSnapshotValue(30), Type: "INT"}, {Name: "STEP_SEPARATE_RETURN", Value: debugSnapshotValue(70), Type: "INT"}})
+	if db.v_bSeparateTimeout && (db.v_iCurrentState != 30) && (db.v_iCurrentState != 70) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:418:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:418", []DebugSnapshotVariable{{Name: "bSeparateTimeout", Value: debugSnapshotValue(db.v_bSeparateTimeout), Type: "BOOL"}})
+		db.v_bSeparateTimeout = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:419:5
+		debugLineWithSnapshot("FB_1002_SingleLayerConveyor_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl:419", []DebugSnapshotVariable{{Name: "q_bSeparateTimeout", Value: debugSnapshotValue(db.v_q_bSeparateTimeout), Type: "BOOL"}})
+		db.v_q_bSeparateTimeout = false
 	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:935:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:935", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-	if db.v_i_bReset {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:936:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:936", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:937:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:937", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:938:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:938", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:939:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:939", []DebugSnapshotVariable{{Name: "o_iStationAlarmCode", Value: debugSnapshotValue(db.v_o_iStationAlarmCode), Type: "INT"}})
-			db.v_o_iStationAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:940:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:940", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:941:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:941", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:942:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:942", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:943:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:943", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}})
-			db.v_s_iCompletedLayers = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:944:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:944", []DebugSnapshotVariable{{Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-			db.v_s_iCurrentPickLayerNum = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:945:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:945", []DebugSnapshotVariable{{Name: "s_iPickCount", Value: debugSnapshotValue(db.v_s_iPickCount), Type: "INT"}})
-			db.v_s_iPickCount = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:946:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:946", []DebugSnapshotVariable{{Name: "s_bPlaceCompletePulse", Value: debugSnapshotValue(db.v_s_bPlaceCompletePulse), Type: "BOOL"}})
-			db.v_s_bPlaceCompletePulse = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:947:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:947", []DebugSnapshotVariable{{Name: "s_bProductDetected", Value: debugSnapshotValue(db.v_s_bProductDetected), Type: "BOOL"}})
-			db.v_s_bProductDetected = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:948:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:948", []DebugSnapshotVariable{{Name: "o_bLift_Up", Value: debugSnapshotValue(db.v_o_bLift_Up), Type: "BOOL"}})
-			db.v_o_bLift_Up = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:949:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:949", []DebugSnapshotVariable{{Name: "o_bLift_Down", Value: debugSnapshotValue(db.v_o_bLift_Down), Type: "BOOL"}})
-			db.v_o_bLift_Down = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:950:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:950", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:951:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:951", []DebugSnapshotVariable{{Name: "o_bFrontClamp_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:952:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:952", []DebugSnapshotVariable{{Name: "o_bRearClamp_Action", Value: debugSnapshotValue(db.v_o_bRearClamp_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:953:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:953", []DebugSnapshotVariable{{Name: "o_bRearClamp_Release", Value: debugSnapshotValue(db.v_o_bRearClamp_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:954:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:954", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Action", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Action), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:955:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:955", []DebugSnapshotVariable{{Name: "o_bFrontClamp2_Release", Value: debugSnapshotValue(db.v_o_bFrontClamp2_Release), Type: "BOOL"}})
-			db.v_o_bFrontClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:956:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:956", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Action", Value: debugSnapshotValue(db.v_o_bRearClamp2_Action), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Action = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:957:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:957", []DebugSnapshotVariable{{Name: "o_bRearClamp2_Release", Value: debugSnapshotValue(db.v_o_bRearClamp2_Release), Type: "BOOL"}})
-			db.v_o_bRearClamp2_Release = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:958:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:958", []DebugSnapshotVariable{{Name: "o_bZAxis_PulseOutput", Value: debugSnapshotValue(db.v_o_bZAxis_PulseOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_PulseOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:959:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:959", []DebugSnapshotVariable{{Name: "o_bZAxis_DirectionOutput", Value: debugSnapshotValue(db.v_o_bZAxis_DirectionOutput), Type: "BOOL"}})
-			db.v_o_bZAxis_DirectionOutput = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:960:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:960", []DebugSnapshotVariable{{Name: "o_bPlaceComplete_ToFeeder", Value: debugSnapshotValue(db.v_o_bPlaceComplete_ToFeeder), Type: "BOOL"}})
-			db.v_o_bPlaceComplete_ToFeeder = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:961:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:961", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestDown", Value: debugSnapshotValue(db.v_s_bZAxis_RequestDown), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestDown = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:962:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:962", []DebugSnapshotVariable{{Name: "s_bZAxis_RequestUp", Value: debugSnapshotValue(db.v_s_bZAxis_RequestUp), Type: "BOOL"}})
-			db.v_s_bZAxis_RequestUp = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:963:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:963", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestFwd", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestFwd), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:964:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:964", []DebugSnapshotVariable{{Name: "s_bX1Axis_RequestRev", Value: debugSnapshotValue(db.v_s_bX1Axis_RequestRev), Type: "BOOL"}})
-			db.v_s_bX1Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:965:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:965", []DebugSnapshotVariable{{Name: "s_bX1AxisAtPickupPos", Value: debugSnapshotValue(db.v_s_bX1AxisAtPickupPos), Type: "BOOL"}})
-			db.v_s_bX1AxisAtPickupPos = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:966:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:966", []DebugSnapshotVariable{{Name: "s_bX1AxisAtPlacePos", Value: debugSnapshotValue(db.v_s_bX1AxisAtPlacePos), Type: "BOOL"}})
-			db.v_s_bX1AxisAtPlacePos = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:967:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:967", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-			db.v_fb_tActionTimer.v_IN = false
-			db.v_fb_tActionTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 967)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tActionTimer)
-			}()
-			db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-			db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:968:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:968", []DebugSnapshotVariable{{Name: "s_bProductDetectStableTimer_Q", Value: debugSnapshotValue(db.v_s_bProductDetectStableTimer_Q), Type: "BOOL"}, {Name: "q_eProductDetectStable_Elapsed", Value: debugSnapshotValue(db.v_q_eProductDetectStable_Elapsed), Type: "DINT"}})
-			db.v_fb_tProductDetectStableTimer.v_IN = false
-			db.v_fb_tProductDetectStableTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 968)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tProductDetectStableTimer)
-			}()
-			db.v_s_bProductDetectStableTimer_Q = db.v_fb_tProductDetectStableTimer.v_Q
-			db.v_q_eProductDetectStable_Elapsed = int32(db.v_fb_tProductDetectStableTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:969:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:969", []DebugSnapshotVariable{{Name: "s_bPlaceCompleteHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPlaceCompleteHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePlaceCompleteHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePlaceCompleteHold_Elapsed), Type: "DINT"}})
-			db.v_fb_tPlaceCompleteHoldTimer.v_IN = false
-			db.v_fb_tPlaceCompleteHoldTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 969)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tPlaceCompleteHoldTimer)
-			}()
-			db.v_s_bPlaceCompleteHoldTimer_Q = db.v_fb_tPlaceCompleteHoldTimer.v_Q
-			db.v_q_ePlaceCompleteHold_Elapsed = int32(db.v_fb_tPlaceCompleteHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:970:9
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:970", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-			db.v_s_bInitComplete = false
-		}
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:975:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:975", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}, {Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-	db.v_o_bRunning = db.v_s_bRunning
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:976:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:976", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}, {Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	db.v_o_bFault = db.v_s_bFault
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:978:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:978", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:979:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:979", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
-		db.v_o_iCurrentState = int16(99)
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:981:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:981", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}})
-		db.v_o_iCurrentState = int16(db.v_s_iCurrentStep)
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:984:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:984", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-	if db.v_s_bRunning {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:985:5
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:985", []DebugSnapshotVariable{{Name: "o_iCurrentPickLayer", Value: debugSnapshotValue(db.v_o_iCurrentPickLayer), Type: "INT"}, {Name: "s_iCurrentPickLayerNum", Value: debugSnapshotValue(db.v_s_iCurrentPickLayerNum), Type: "INT"}})
-		db.v_o_iCurrentPickLayer = int16(db.v_s_iCurrentPickLayerNum)
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:984:1
-		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:984", []DebugSnapshotVariable{{Name: "s_iCompletedLayers", Value: debugSnapshotValue(db.v_s_iCompletedLayers), Type: "INT"}, {Name: "LAYER_TOTAL", Value: debugSnapshotValue(4), Type: "INT"}})
-		if db.v_s_iCompletedLayers >= 4 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:987:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:987", []DebugSnapshotVariable{{Name: "o_iCurrentPickLayer", Value: debugSnapshotValue(db.v_o_iCurrentPickLayer), Type: "INT"}})
-			db.v_o_iCurrentPickLayer = int16(0)
-		} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:989:5
-			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:989", []DebugSnapshotVariable{{Name: "o_iCurrentPickLayer", Value: debugSnapshotValue(db.v_o_iCurrentPickLayer), Type: "INT"}})
-			db.v_o_iCurrentPickLayer = int16(0)
-		}
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:992:1
-	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:992", []DebugSnapshotVariable{{Name: "o_iStationAlarmCode", Value: debugSnapshotValue(db.v_o_iStationAlarmCode), Type: "INT"}, {Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-	db.v_o_iStationAlarmCode = int16(db.v_s_iActiveAlarmCode)
 }
 
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:33:1
-func FB_FB_1004_GlueMachineFeeder_BufferFraming(mem *Memory, db *DB_FB_1004_GlueMachineFeeder_BufferFraming) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:156:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:156", []DebugSnapshotVariable{{Name: "i_bEnable", Value: debugSnapshotValue(db.v_i_bEnable), Type: "BOOL"}})
-	if !(db.v_i_bEnable) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:157:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:157", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-		db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:158:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:158", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:159:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:159", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:160:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:160", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-		db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:161:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:161", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:162:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:162", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
-		db.v_o_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:163:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:163", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_o_iCurrentState = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:164:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:164", []DebugSnapshotVariable{{Name: "o_rX2Axis_CurrentPosition", Value: debugSnapshotValue(db.v_o_rX2Axis_CurrentPosition), Type: "REAL"}})
-		db.v_o_rX2Axis_CurrentPosition = float32(0.0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:165:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:165", []DebugSnapshotVariable{{Name: "o_iStationAlarmCode", Value: debugSnapshotValue(db.v_o_iStationAlarmCode), Type: "INT"}})
-		db.v_o_iStationAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:166:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:166", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:167:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:167", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:168:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:168", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-		db.v_s_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:169:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:169", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-		db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:170:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:170", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-		db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:171:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:171", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-		db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:172:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:172", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-		db.v_s_bInitComplete = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:173:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:173", []DebugSnapshotVariable{{Name: "s_bInitializing", Value: debugSnapshotValue(db.v_s_bInitializing), Type: "BOOL"}})
-		db.v_s_bInitializing = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:174:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:174", []DebugSnapshotVariable{{Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}, {Name: "q_eCommTimeout_Elapsed", Value: debugSnapshotValue(db.v_q_eCommTimeout_Elapsed), Type: "DINT"}})
-		db.v_fb_tCommTimeoutTimer.v_IN = false
-		db.v_fb_tCommTimeoutTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 174)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tCommTimeoutTimer)
-		}()
-		db.v_s_bCommTimeoutTimer_Q = db.v_fb_tCommTimeoutTimer.v_Q
-		db.v_q_eCommTimeout_Elapsed = int32(db.v_fb_tCommTimeoutTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:175:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-		db.v_fb_tActionTimer.v_IN = false
-		db.v_fb_tActionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 175)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tActionTimer)
-		}()
-		db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-		db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:176:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}, {Name: "q_eInit_Elapsed", Value: debugSnapshotValue(db.v_q_eInit_Elapsed), Type: "DINT"}})
-		db.v_fb_tInitTimer.v_IN = false
-		db.v_fb_tInitTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 176)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tInitTimer)
-		}()
-		db.v_s_bInitTimer_Q = db.v_fb_tInitTimer.v_Q
-		db.v_q_eInit_Elapsed = int32(db.v_fb_tInitTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:177:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:177", []DebugSnapshotVariable{{Name: "s_bPickupHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPickupHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePickupHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePickupHold_Elapsed), Type: "DINT"}})
-		db.v_fb_tPickupHoldTimer.v_IN = false
-		db.v_fb_tPickupHoldTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 177)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPickupHoldTimer)
-		}()
-		db.v_s_bPickupHoldTimer_Q = db.v_fb_tPickupHoldTimer.v_Q
-		db.v_q_ePickupHold_Elapsed = int32(db.v_fb_tPickupHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:178:5
-		debugLine("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:178")
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:29:1
+func FB_FB_1003_PickPlace_BufferFraming(mem *Memory, db *DB_FB_1003_PickPlace_BufferFraming) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:147:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:147", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}, {Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}, {Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}, {Name: "tEt[0]", Value: debugSnapshotValue(db.v_tEt[0]), Type: "DINT"}})
+	db.v_tLiftTimer.v_IN = db.v_tIn[0]
+	db.v_tLiftTimer.v_R = db.v_tR[0]
+	db.v_tLiftTimer.v_PT = int32(db.v_tPt[0])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 147)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tLiftTimer)
+	}()
+	db.v_tQ[0] = db.v_tLiftTimer.v_Q
+	db.v_tEt[0] = int32(db.v_tLiftTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:148:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:148", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}, {Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}, {Name: "tPt[1]", Value: debugSnapshotValue(db.v_tPt[1]), Type: "DINT"}, {Name: "tQ[1]", Value: debugSnapshotValue(db.v_tQ[1]), Type: "BOOL"}, {Name: "tEt[1]", Value: debugSnapshotValue(db.v_tEt[1]), Type: "DINT"}})
+	db.v_tClampTimer.v_IN = db.v_tIn[1]
+	db.v_tClampTimer.v_R = db.v_tR[1]
+	db.v_tClampTimer.v_PT = int32(db.v_tPt[1])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 148)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tClampTimer)
+	}()
+	db.v_tQ[1] = db.v_tClampTimer.v_Q
+	db.v_tEt[1] = int32(db.v_tClampTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:149:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:149", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}, {Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}, {Name: "tPt[2]", Value: debugSnapshotValue(db.v_tPt[2]), Type: "DINT"}, {Name: "tQ[2]", Value: debugSnapshotValue(db.v_tQ[2]), Type: "BOOL"}, {Name: "tEt[2]", Value: debugSnapshotValue(db.v_tEt[2]), Type: "DINT"}})
+	db.v_tPlaceDoneTimer.v_IN = db.v_tIn[2]
+	db.v_tPlaceDoneTimer.v_R = db.v_tR[2]
+	db.v_tPlaceDoneTimer.v_PT = int32(db.v_tPt[2])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl", 149)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tPlaceDoneTimer)
+	}()
+	db.v_tQ[2] = db.v_tPlaceDoneTimer.v_Q
+	db.v_tEt[2] = int32(db.v_tPlaceDoneTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:152:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:152", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
+	if !(db.v_i_bAutoMode) && !(db.v_i_bManualMode) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:153:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:153", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+		db.v_q_bFrontClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:153:29
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:153", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+		db.v_q_bRearClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:154:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:154", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+		db.v_q_bFrontClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:154:30
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:154", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+		db.v_q_bRearClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:155:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:155", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+		db.v_q_bLiftUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:155:25
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:155", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+		db.v_q_bLiftDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:156:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:156", []DebugSnapshotVariable{{Name: "q_bZAxisHomeRequest", Value: debugSnapshotValue(db.v_q_bZAxisHomeRequest), Type: "BOOL"}})
+		db.v_q_bZAxisHomeRequest = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:156:35
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:156", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+		db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:157:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:157", []DebugSnapshotVariable{{Name: "q_rZAxisTargetPos", Value: debugSnapshotValue(db.v_q_rZAxisTargetPos), Type: "REAL"}})
+		db.v_q_rZAxisTargetPos = float32(0.0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:158:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:158", []DebugSnapshotVariable{{Name: "q_bX1AxisHomeRequest", Value: debugSnapshotValue(db.v_q_bX1AxisHomeRequest), Type: "BOOL"}})
+		db.v_q_bX1AxisHomeRequest = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:158:36
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:158", []DebugSnapshotVariable{{Name: "q_bX1AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX1AxisMoveAbsReq), Type: "BOOL"}})
+		db.v_q_bX1AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:159:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:159", []DebugSnapshotVariable{{Name: "q_rX1AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX1AxisTargetPos), Type: "REAL"}})
+		db.v_q_rX1AxisTargetPos = float32(0.0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:160:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:160", []DebugSnapshotVariable{{Name: "q_iAlarmCode", Value: debugSnapshotValue(db.v_q_iAlarmCode), Type: "INT"}})
+		db.v_q_iAlarmCode = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:160:24
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:160", []DebugSnapshotVariable{{Name: "q_bSensorFault", Value: debugSnapshotValue(db.v_q_bSensorFault), Type: "BOOL"}})
+		db.v_q_bSensorFault = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:161:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:161", []DebugSnapshotVariable{{Name: "q_bProductMissing", Value: debugSnapshotValue(db.v_q_bProductMissing), Type: "BOOL"}})
+		db.v_q_bProductMissing = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:161:33
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:161", []DebugSnapshotVariable{{Name: "q_bFrameOnPickupPlatform", Value: debugSnapshotValue(db.v_q_bFrameOnPickupPlatform), Type: "BOOL"}})
+		db.v_q_bFrameOnPickupPlatform = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:162:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:162", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+		db.v_q_bPlaceDoneToFeeder = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:162:36
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:162", []DebugSnapshotVariable{{Name: "q_bRunning", Value: debugSnapshotValue(db.v_q_bRunning), Type: "BOOL"}})
+		db.v_q_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:163:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:163", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+		db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:163:32
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:163", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+		db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:163:51
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:163", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+		db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:164:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:164", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+		db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:164:22
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:164", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+		db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:165:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:165", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+		db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:165:22
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:165", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+		db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:166:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:166", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+		db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:166:22
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:166", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+		db.v_tR[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:167:5
+		debugLine("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:167")
 		return
 	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:182:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:182", []DebugSnapshotVariable{{Name: "i_bX2Axis_ServoFault", Value: debugSnapshotValue(db.v_i_bX2Axis_ServoFault), Type: "BOOL"}})
-	if db.v_i_bX2Axis_ServoFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:183:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:183", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X2AxisServoFault", Value: debugSnapshotValue(203), Type: "INT"}})
-		if db.v_s_iActiveAlarmCode != 203 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:184:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X2AxisServoFault", Value: debugSnapshotValue(203), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(203)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:185:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:185", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = true
-		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:187:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:187", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:188:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:188", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestRev = false
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:182:1
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:182", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X2AxisServoFault", Value: debugSnapshotValue(203), Type: "INT"}})
-		if db.v_s_iActiveAlarmCode == 203 {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:190:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:190", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:191:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:191", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = false
-		}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:171:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:171", []DebugSnapshotVariable{{Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}, {Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+	if db.v_i_bStop && db.v_bRunning {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:172:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:172", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+		db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:172:32
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:172", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+		db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:172:51
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:172", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+		db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:173:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:173", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+		db.v_q_bFrontClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:173:29
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:173", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+		db.v_q_bRearClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:174:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:174", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+		db.v_q_bFrontClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:174:30
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:174", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+		db.v_q_bRearClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:175:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+		db.v_q_bLiftUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:175:25
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+		db.v_q_bLiftDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:176:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+		db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:176:34
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "q_bX1AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX1AxisMoveAbsReq), Type: "BOOL"}})
+		db.v_q_bX1AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:177:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:177", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+		db.v_q_bPlaceDoneToFeeder = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:178:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:178", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+		db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:178:22
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:178", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+		db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:179:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:179", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+		db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:179:22
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:179", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+		db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:180:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:180", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+		db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:180:22
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:180", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+		db.v_tR[2] = true
 	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:195:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:195", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:196:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:196", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-		db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:197:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:197", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:198:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:198", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:199:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:199", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-		db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:200:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:200", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:201:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:201", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-		db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:202:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:202", []DebugSnapshotVariable{{Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}, {Name: "q_eCommTimeout_Elapsed", Value: debugSnapshotValue(db.v_q_eCommTimeout_Elapsed), Type: "DINT"}})
-		db.v_fb_tCommTimeoutTimer.v_IN = false
-		db.v_fb_tCommTimeoutTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 202)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tCommTimeoutTimer)
-		}()
-		db.v_s_bCommTimeoutTimer_Q = db.v_fb_tCommTimeoutTimer.v_Q
-		db.v_q_eCommTimeout_Elapsed = int32(db.v_fb_tCommTimeoutTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:203:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:203", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-		db.v_fb_tActionTimer.v_IN = false
-		db.v_fb_tActionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 203)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tActionTimer)
-		}()
-		db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-		db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:204:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:204", []DebugSnapshotVariable{{Name: "s_bPickupHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPickupHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePickupHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePickupHold_Elapsed), Type: "DINT"}})
-		db.v_fb_tPickupHoldTimer.v_IN = false
-		db.v_fb_tPickupHoldTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 204)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPickupHoldTimer)
-		}()
-		db.v_s_bPickupHoldTimer_Q = db.v_fb_tPickupHoldTimer.v_Q
-		db.v_q_ePickupHold_Elapsed = int32(db.v_fb_tPickupHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:206:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:206", []DebugSnapshotVariable{{Name: "i_bReset", Value: debugSnapshotValue(db.v_i_bReset), Type: "BOOL"}})
-		if db.v_i_bReset {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:207:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:207", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-			db.v_s_iActiveAlarmCode = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:208:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:208", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			db.v_s_bFault = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:209:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:209", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:210:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:210", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:211:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:211", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-			db.v_s_bInitComplete = false
-		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:214:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:214", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:215:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:215", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}})
-		db.v_o_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:216:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:216", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
-		db.v_o_iCurrentState = int16(99)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:217:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:217", []DebugSnapshotVariable{{Name: "o_iStationAlarmCode", Value: debugSnapshotValue(db.v_o_iStationAlarmCode), Type: "INT"}, {Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-		db.v_o_iStationAlarmCode = int16(db.v_s_iActiveAlarmCode)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:218:5
-		debugLine("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:218")
-		return
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:222:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:222", []DebugSnapshotVariable{{Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}, {Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-	if db.v_i_bStop && db.v_s_bRunning {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:223:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:224:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:224", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-		db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:225:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:225", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-		db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:226:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:226", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-		db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:227:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:227", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:228:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:228", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-		db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:229:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:229", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-		db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:230:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:230", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-		db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:231:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:231", []DebugSnapshotVariable{{Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}, {Name: "q_eCommTimeout_Elapsed", Value: debugSnapshotValue(db.v_q_eCommTimeout_Elapsed), Type: "DINT"}})
-		db.v_fb_tCommTimeoutTimer.v_IN = false
-		db.v_fb_tCommTimeoutTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 231)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tCommTimeoutTimer)
-		}()
-		db.v_s_bCommTimeoutTimer_Q = db.v_fb_tCommTimeoutTimer.v_Q
-		db.v_q_eCommTimeout_Elapsed = int32(db.v_fb_tCommTimeoutTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:232:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:232", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-		db.v_fb_tActionTimer.v_IN = false
-		db.v_fb_tActionTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 232)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tActionTimer)
-		}()
-		db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-		db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:233:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:233", []DebugSnapshotVariable{{Name: "s_bPickupHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPickupHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePickupHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePickupHold_Elapsed), Type: "DINT"}})
-		db.v_fb_tPickupHoldTimer.v_IN = false
-		db.v_fb_tPickupHoldTimer.v_PT = int32(0)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 233)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tPickupHoldTimer)
-		}()
-		db.v_s_bPickupHoldTimer_Q = db.v_fb_tPickupHoldTimer.v_Q
-		db.v_q_ePickupHold_Elapsed = int32(db.v_fb_tPickupHoldTimer.v_ET)
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:237:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:237", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-	if !(db.v_s_bInitComplete) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:238:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "s_bInitializing", Value: debugSnapshotValue(db.v_s_bInitializing), Type: "BOOL"}})
-		db.v_s_bInitializing = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:239:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:239", []DebugSnapshotVariable{{Name: "T_DEF_InitTimeout", Value: debugSnapshotValue(10000), Type: "DINT"}, {Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}, {Name: "q_eInit_Elapsed", Value: debugSnapshotValue(db.v_q_eInit_Elapsed), Type: "DINT"}})
-		db.v_fb_tInitTimer.v_IN = true
-		db.v_fb_tInitTimer.v_PT = int32(10000)
-		func() {
-			PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 239)
-			defer PopFrame()
-			FB_FB_TON(mem, &db.v_fb_tInitTimer)
-		}()
-		db.v_s_bInitTimer_Q = db.v_fb_tInitTimer.v_Q
-		db.v_q_eInit_Elapsed = int32(db.v_fb_tInitTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:242:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:242", []DebugSnapshotVariable{{Name: "i_bX2Axis_Home", Value: debugSnapshotValue(db.v_i_bX2Axis_Home), Type: "BOOL"}, {Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}})
-		if db.v_i_bX2Axis_Home || db.v_s_bInitTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:243:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:243", []DebugSnapshotVariable{{Name: "s_bInitComplete", Value: debugSnapshotValue(db.v_s_bInitComplete), Type: "BOOL"}})
-			db.v_s_bInitComplete = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:244:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "s_bInitializing", Value: debugSnapshotValue(db.v_s_bInitializing), Type: "BOOL"}})
-			db.v_s_bInitializing = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:245:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:245", []DebugSnapshotVariable{{Name: "s_bInitTimer_Q", Value: debugSnapshotValue(db.v_s_bInitTimer_Q), Type: "BOOL"}, {Name: "q_eInit_Elapsed", Value: debugSnapshotValue(db.v_q_eInit_Elapsed), Type: "DINT"}})
-			db.v_fb_tInitTimer.v_IN = false
-			db.v_fb_tInitTimer.v_PT = int32(0)
-			func() {
-				PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 245)
-				defer PopFrame()
-				FB_FB_TON(mem, &db.v_fb_tInitTimer)
-			}()
-			db.v_s_bInitTimer_Q = db.v_fb_tInitTimer.v_Q
-			db.v_q_eInit_Elapsed = int32(db.v_fb_tInitTimer.v_ET)
-		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:248:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:248", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}})
-		db.v_o_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:249:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:249", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-		db.v_o_iCurrentState = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:250:5
-		debugLine("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:250")
-		return
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:184:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
 	if db.v_i_bAutoMode {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:260:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:260", []DebugSnapshotVariable{{Name: "i_bStart", Value: debugSnapshotValue(db.v_i_bStart), Type: "BOOL"}, {Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-		if db.v_i_bStart && !(db.v_s_bStartTriggered) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:261:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:261", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			db.v_s_bStartTriggered = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:187:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:187", []DebugSnapshotVariable{{Name: "i_bStart", Value: debugSnapshotValue(db.v_i_bStart), Type: "BOOL"}, {Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+		if db.v_i_bStart && !(db.v_bStartTriggered) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:188:9
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:188", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = true
 		}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:264:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:264", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}, {Name: "STP_WaitFeed", Value: debugSnapshotValue(1), Type: "INT"}, {Name: "STP_MoveToPickup", Value: debugSnapshotValue(2), Type: "INT"}, {Name: "STP_WaitAllowFeed", Value: debugSnapshotValue(3), Type: "INT"}, {Name: "STP_SendAllowPickup", Value: debugSnapshotValue(4), Type: "INT"}, {Name: "STP_ReturnStandby", Value: debugSnapshotValue(5), Type: "INT"}})
-		switch db.v_s_iCurrentStep {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:191:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:191", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}, {Name: "S21_UP_TO_PICK", Value: debugSnapshotValue(1), Type: "INT"}, {Name: "S22_CLAMP_AND_DETECT", Value: debugSnapshotValue(2), Type: "INT"}, {Name: "S23_MOVE_TO_PLACE", Value: debugSnapshotValue(3), Type: "INT"}, {Name: "S24_DOWN_TO_PLACE", Value: debugSnapshotValue(4), Type: "INT"}, {Name: "S25_UNCLAMP_AND_NOTIFY", Value: debugSnapshotValue(5), Type: "INT"}})
+		switch db.v_iCurrentState {
 		case 0:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:267:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:267", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-			db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:268:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:268", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-			db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:269:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:269", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-			db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:270:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:270", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:271:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:271", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-			db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:273:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:273", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			if db.v_s_bStartTriggered {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:274:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:274", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitFeed", Value: debugSnapshotValue(1), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(1)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:275:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:275", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:194:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:194", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:195:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:195", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:196:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:196", []DebugSnapshotVariable{{Name: "q_bX1AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX1AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX1AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:197:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:197", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+				db.v_q_bPlaceDoneToFeeder = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:198:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:198", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:202:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:202", []DebugSnapshotVariable{{Name: "i_bFrameDetect1", Value: debugSnapshotValue(db.v_i_bFrameDetect1), Type: "BOOL"}, {Name: "i_bFrameDetect2", Value: debugSnapshotValue(db.v_i_bFrameDetect2), Type: "BOOL"}})
+			if db.v_i_bFrameDetect1 || db.v_i_bFrameDetect2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:203:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:203", []DebugSnapshotVariable{{Name: "q_bFrameOnPickupPlatform", Value: debugSnapshotValue(db.v_q_bFrameOnPickupPlatform), Type: "BOOL"}})
+				db.v_q_bFrameOnPickupPlatform = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:204:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:204", []DebugSnapshotVariable{{Name: "bFrameOnPlatform", Value: debugSnapshotValue(db.v_bFrameOnPlatform), Type: "BOOL"}})
+				db.v_bFrameOnPlatform = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:205:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:205", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+				db.v_iAlarmCode = int16(80)
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:208:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:208", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}, {Name: "i_iPickLayer", Value: debugSnapshotValue(db.v_i_iPickLayer), Type: "INT"}})
+			if db.v_bStartTriggered && (db.v_i_iPickLayer > 0) && (db.v_i_iPickLayer <= 4) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:209:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:209", []DebugSnapshotVariable{{Name: "iPickLayer", Value: debugSnapshotValue(db.v_iPickLayer), Type: "INT"}, {Name: "i_iPickLayer", Value: debugSnapshotValue(db.v_i_iPickLayer), Type: "INT"}})
+				db.v_iPickLayer = int16(db.v_i_iPickLayer)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:210:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:210", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:211:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:211", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S21_UP_TO_PICK", Value: debugSnapshotValue(1), Type: "INT"}})
+				db.v_iCurrentState = int16(1)
 			}
 		case 1:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:280:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:280", []DebugSnapshotVariable{{Name: "i_bPickPlace_FeedComplete", Value: debugSnapshotValue(db.v_i_bPickPlace_FeedComplete), Type: "BOOL"}})
-			if db.v_i_bPickPlace_FeedComplete {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:281:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:281", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_MoveToPickup", Value: debugSnapshotValue(2), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(2)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:283:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-				db.v_o_bX2Axis_RequestFwd = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:284:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:284", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-				db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:285:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:285", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-				db.v_s_bSafetyZoneActive = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:286:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:286", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-				db.v_o_bSafetyZoneSignal = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:287:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:287", []DebugSnapshotVariable{{Name: "T_DEF_MoveTimeout", Value: debugSnapshotValue(5000), Type: "DINT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-				db.v_fb_tActionTimer.v_IN = true
-				db.v_fb_tActionTimer.v_PT = int32(5000)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 287)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tActionTimer)
-				}()
-				db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-				db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:215:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:215", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:216:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:216", []DebugSnapshotVariable{{Name: "q_rZAxisTargetPos", Value: debugSnapshotValue(db.v_q_rZAxisTargetPos), Type: "REAL"}, {Name: "rPickHeight", Value: debugSnapshotValue(db.v_rPickHeight), Type: "REAL"}})
+				db.v_q_rZAxisTargetPos = float32(db.v_rPickHeight)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:217:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:217", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bZAxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:218:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:218", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}})
+				if db.v_i_iLiftActionTime > 0 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:219:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:219", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}})
+					db.v_tPt[0] = int32(db.v_i_iLiftActionTime)
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:221:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:221", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "T_LIFT_DEFAULT", Value: debugSnapshotValue(3000), Type: "DINT"}})
+					db.v_tPt[0] = int32(3000)
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:223:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:223:33
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:224:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:224", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:228:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:228", []DebugSnapshotVariable{{Name: "i_bLiftHomePos", Value: debugSnapshotValue(db.v_i_bLiftHomePos), Type: "BOOL"}})
+			if db.v_i_bLiftHomePos {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:229:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:229", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:229:34
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:229", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:230:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:230", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:231:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:231", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:232:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:232", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S22_CLAMP_AND_DETECT", Value: debugSnapshotValue(2), Type: "INT"}})
+				db.v_iCurrentState = int16(2)
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:228:13
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:228", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+				if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:234:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:234", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+					db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:234:34
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:234", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+					db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:235:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:235", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:236:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:236", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+					db.v_iAlarmCode = int16(71)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:237:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:237", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+					db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:238:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+					db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:238:36
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+					db.v_bStartTriggered = false
+				}
 			}
 		case 2:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:292:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:292", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-			db.v_o_bX2Axis_RequestFwd = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:293:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:293", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:295:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:295", []DebugSnapshotVariable{{Name: "i_bX2Axis_ForwardLimit", Value: debugSnapshotValue(db.v_i_bX2Axis_ForwardLimit), Type: "BOOL"}})
-			if db.v_i_bX2Axis_ForwardLimit {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:297:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:297", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-				db.v_fb_tActionTimer.v_IN = false
-				db.v_fb_tActionTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 297)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tActionTimer)
-				}()
-				db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-				db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:298:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:298", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-				db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:299:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_WaitAllowFeed", Value: debugSnapshotValue(3), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(3)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:301:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:301", []DebugSnapshotVariable{{Name: "T_DEF_CommTimeout", Value: debugSnapshotValue(10000), Type: "DINT"}, {Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}, {Name: "q_eCommTimeout_Elapsed", Value: debugSnapshotValue(db.v_q_eCommTimeout_Elapsed), Type: "DINT"}})
-				db.v_fb_tCommTimeoutTimer.v_IN = true
-				db.v_fb_tCommTimeoutTimer.v_PT = int32(10000)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 301)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tCommTimeoutTimer)
-				}()
-				db.v_s_bCommTimeoutTimer_Q = db.v_fb_tCommTimeoutTimer.v_Q
-				db.v_q_eCommTimeout_Elapsed = int32(db.v_fb_tCommTimeoutTimer.v_ET)
-			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:295:9
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:295", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-				if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:304:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:304", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 304)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:305:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:305", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X2AxisMoveTimeout", Value: debugSnapshotValue(204), Type: "INT"}})
-					db.v_s_iActiveAlarmCode = int16(204)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:306:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:306", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-					db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:307:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:307", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-					db.v_o_bX2Axis_RequestFwd = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:242:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:242", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:243:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:243", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+				db.v_q_bFrontClamp = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:243:40
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:243", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+				db.v_q_bRearClamp = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:244:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+				db.v_q_bFrontClamp2 = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:244:41
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+				db.v_q_bRearClamp2 = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:245:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:245", []DebugSnapshotVariable{{Name: "i_iClampConfirmTime", Value: debugSnapshotValue(db.v_i_iClampConfirmTime), Type: "INT"}})
+				if db.v_i_iClampConfirmTime > 0 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:246:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:246", []DebugSnapshotVariable{{Name: "tPt[1]", Value: debugSnapshotValue(db.v_tPt[1]), Type: "DINT"}, {Name: "i_iClampConfirmTime", Value: debugSnapshotValue(db.v_i_iClampConfirmTime), Type: "INT"}})
+					db.v_tPt[1] = int32(db.v_i_iClampConfirmTime)
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:248:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:248", []DebugSnapshotVariable{{Name: "tPt[1]", Value: debugSnapshotValue(db.v_tPt[1]), Type: "DINT"}, {Name: "T_CLAMP_DEFAULT", Value: debugSnapshotValue(800), Type: "DINT"}})
+					db.v_tPt[1] = int32(800)
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:250:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:250", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+				db.v_tIn[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:250:33
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:250", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+				db.v_tR[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:251:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:251", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:254:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:254", []DebugSnapshotVariable{{Name: "tQ[1]", Value: debugSnapshotValue(db.v_tQ[1]), Type: "BOOL"}})
+			if db.v_tQ[1] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:255:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:255", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+				db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:255:34
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:255", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+				db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:257:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:257", []DebugSnapshotVariable{{Name: "i_bFrontClampClosed", Value: debugSnapshotValue(db.v_i_bFrontClampClosed), Type: "BOOL"}, {Name: "i_bRearClampClosed", Value: debugSnapshotValue(db.v_i_bRearClampClosed), Type: "BOOL"}, {Name: "i_bFrontClamp2Closed", Value: debugSnapshotValue(db.v_i_bFrontClamp2Closed), Type: "BOOL"}, {Name: "i_bRearClamp2Closed", Value: debugSnapshotValue(db.v_i_bRearClamp2Closed), Type: "BOOL"}})
+				if db.v_i_bFrontClampClosed && db.v_i_bRearClampClosed && db.v_i_bFrontClamp2Closed && db.v_i_bRearClamp2Closed {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:260:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:260", []DebugSnapshotVariable{{Name: "i_bLongEdge1Detect", Value: debugSnapshotValue(db.v_i_bLongEdge1Detect), Type: "BOOL"}, {Name: "i_bLongEdge2Detect", Value: debugSnapshotValue(db.v_i_bLongEdge2Detect), Type: "BOOL"}, {Name: "i_bShortEdge1Detect", Value: debugSnapshotValue(db.v_i_bShortEdge1Detect), Type: "BOOL"}, {Name: "i_bShortEdge2Detect", Value: debugSnapshotValue(db.v_i_bShortEdge2Detect), Type: "BOOL"}})
+					if db.v_i_bLongEdge1Detect && db.v_i_bLongEdge2Detect && db.v_i_bShortEdge1Detect && db.v_i_bShortEdge2Detect {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:262:25
+						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:262", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+						db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:263:25
+						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:263", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S23_MOVE_TO_PLACE", Value: debugSnapshotValue(3), Type: "INT"}})
+						db.v_iCurrentState = int16(3)
+					} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:265:25
+						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:265", []DebugSnapshotVariable{{Name: "q_bProductMissing", Value: debugSnapshotValue(db.v_q_bProductMissing), Type: "BOOL"}})
+						db.v_q_bProductMissing = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:266:25
+						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:266", []DebugSnapshotVariable{{Name: "bProductMissing", Value: debugSnapshotValue(db.v_bProductMissing), Type: "BOOL"}})
+						db.v_bProductMissing = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:267:25
+						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:267", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+						db.v_iAlarmCode = int16(72)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:268:25
+						debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:268", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S25_UNCLAMP_AND_NOTIFY", Value: debugSnapshotValue(5), Type: "INT"}})
+						db.v_iCurrentState = int16(5)
+					}
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:271:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:271", []DebugSnapshotVariable{{Name: "q_bSensorFault", Value: debugSnapshotValue(db.v_q_bSensorFault), Type: "BOOL"}})
+					db.v_q_bSensorFault = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:272:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:272", []DebugSnapshotVariable{{Name: "bSensorFault", Value: debugSnapshotValue(db.v_bSensorFault), Type: "BOOL"}})
+					db.v_bSensorFault = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:273:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:273", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+					db.v_iAlarmCode = int16(71)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:274:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:274", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S25_UNCLAMP_AND_NOTIFY", Value: debugSnapshotValue(5), Type: "INT"}})
+					db.v_iCurrentState = int16(5)
 				}
 			}
 		case 3:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:312:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:312", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:314:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:314", []DebugSnapshotVariable{{Name: "i_bGlueMachine_AllowFeed", Value: debugSnapshotValue(db.v_i_bGlueMachine_AllowFeed), Type: "BOOL"}})
-			if db.v_i_bGlueMachine_AllowFeed {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:315:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:315", []DebugSnapshotVariable{{Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}, {Name: "q_eCommTimeout_Elapsed", Value: debugSnapshotValue(db.v_q_eCommTimeout_Elapsed), Type: "DINT"}})
-				db.v_fb_tCommTimeoutTimer.v_IN = false
-				db.v_fb_tCommTimeoutTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 315)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tCommTimeoutTimer)
-				}()
-				db.v_s_bCommTimeoutTimer_Q = db.v_fb_tCommTimeoutTimer.v_Q
-				db.v_q_eCommTimeout_Elapsed = int32(db.v_fb_tCommTimeoutTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:316:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:316", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_SendAllowPickup", Value: debugSnapshotValue(4), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(4)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:317:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:317", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-				db.v_o_bAllowPickup = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:318:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:318", []DebugSnapshotVariable{{Name: "T_DEF_PickupHoldTime", Value: debugSnapshotValue(500), Type: "DINT"}, {Name: "s_bPickupHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPickupHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePickupHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePickupHold_Elapsed), Type: "DINT"}})
-				db.v_fb_tPickupHoldTimer.v_IN = true
-				db.v_fb_tPickupHoldTimer.v_PT = int32(500)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 318)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tPickupHoldTimer)
-				}()
-				db.v_s_bPickupHoldTimer_Q = db.v_fb_tPickupHoldTimer.v_Q
-				db.v_q_ePickupHold_Elapsed = int32(db.v_fb_tPickupHoldTimer.v_ET)
-			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:314:9
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:314", []DebugSnapshotVariable{{Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}})
-				if db.v_s_bCommTimeoutTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:321:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:321", []DebugSnapshotVariable{{Name: "s_bCommTimeoutTimer_Q", Value: debugSnapshotValue(db.v_s_bCommTimeoutTimer_Q), Type: "BOOL"}, {Name: "q_eCommTimeout_Elapsed", Value: debugSnapshotValue(db.v_q_eCommTimeout_Elapsed), Type: "DINT"}})
-					db.v_fb_tCommTimeoutTimer.v_IN = false
-					db.v_fb_tCommTimeoutTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 321)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tCommTimeoutTimer)
-					}()
-					db.v_s_bCommTimeoutTimer_Q = db.v_fb_tCommTimeoutTimer.v_Q
-					db.v_q_eCommTimeout_Elapsed = int32(db.v_fb_tCommTimeoutTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:322:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:322", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_CommTimeout", Value: debugSnapshotValue(201), Type: "INT"}})
-					db.v_s_iActiveAlarmCode = int16(201)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:323:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:323", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-					db.v_s_bFault = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:279:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:279", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:280:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:280", []DebugSnapshotVariable{{Name: "iPickLayer", Value: debugSnapshotValue(db.v_iPickLayer), Type: "INT"}})
+				if (db.v_iPickLayer == 1) || (db.v_iPickLayer == 3) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:281:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:281", []DebugSnapshotVariable{{Name: "q_rX1AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX1AxisTargetPos), Type: "REAL"}, {Name: "rPlaceHeightL1", Value: debugSnapshotValue(db.v_rPlaceHeightL1), Type: "REAL"}})
+					db.v_q_rX1AxisTargetPos = float32(db.v_rPlaceHeightL1)
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:283:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:283", []DebugSnapshotVariable{{Name: "q_rX1AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX1AxisTargetPos), Type: "REAL"}, {Name: "rPlaceHeightL2", Value: debugSnapshotValue(db.v_rPlaceHeightL2), Type: "REAL"}})
+					db.v_q_rX1AxisTargetPos = float32(db.v_rPlaceHeightL2)
 				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:285:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:285", []DebugSnapshotVariable{{Name: "q_bX1AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX1AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX1AxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:286:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:286", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:290:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:290", []DebugSnapshotVariable{{Name: "i_bFullMaterialDetect1", Value: debugSnapshotValue(db.v_i_bFullMaterialDetect1), Type: "BOOL"}, {Name: "i_bFullMaterialDetect2", Value: debugSnapshotValue(db.v_i_bFullMaterialDetect2), Type: "BOOL"}})
+			if db.v_i_bFullMaterialDetect1 || db.v_i_bFullMaterialDetect2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:291:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:291", []DebugSnapshotVariable{{Name: "q_bX1AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX1AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX1AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:292:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:292", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:293:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:293", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S24_DOWN_TO_PLACE", Value: debugSnapshotValue(4), Type: "INT"}})
+				db.v_iCurrentState = int16(4)
 			}
 		case 4:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:328:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:328", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-			db.v_o_bAllowPickup = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:329:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:329", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:331:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:331", []DebugSnapshotVariable{{Name: "i_bGlueMachine_PickupComplete", Value: debugSnapshotValue(db.v_i_bGlueMachine_PickupComplete), Type: "BOOL"}, {Name: "s_bPickupHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPickupHoldTimer_Q), Type: "BOOL"}})
-			if db.v_i_bGlueMachine_PickupComplete || db.v_s_bPickupHoldTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:332:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:332", []DebugSnapshotVariable{{Name: "s_bPickupHoldTimer_Q", Value: debugSnapshotValue(db.v_s_bPickupHoldTimer_Q), Type: "BOOL"}, {Name: "q_ePickupHold_Elapsed", Value: debugSnapshotValue(db.v_q_ePickupHold_Elapsed), Type: "DINT"}})
-				db.v_fb_tPickupHoldTimer.v_IN = false
-				db.v_fb_tPickupHoldTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 332)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tPickupHoldTimer)
-				}()
-				db.v_s_bPickupHoldTimer_Q = db.v_fb_tPickupHoldTimer.v_Q
-				db.v_q_ePickupHold_Elapsed = int32(db.v_fb_tPickupHoldTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:333:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:333", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-				db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:334:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:334", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_ReturnStandby", Value: debugSnapshotValue(5), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(5)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:336:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:336", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-				db.v_o_bX2Axis_RequestRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:337:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:337", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-				db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:338:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:338", []DebugSnapshotVariable{{Name: "T_DEF_MoveTimeout", Value: debugSnapshotValue(5000), Type: "DINT"}, {Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-				db.v_fb_tActionTimer.v_IN = true
-				db.v_fb_tActionTimer.v_PT = int32(5000)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 338)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tActionTimer)
-				}()
-				db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-				db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:297:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:297", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:298:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:298", []DebugSnapshotVariable{{Name: "q_rZAxisTargetPos", Value: debugSnapshotValue(db.v_q_rZAxisTargetPos), Type: "REAL"}, {Name: "rPlaceDownHeight", Value: debugSnapshotValue(db.v_rPlaceDownHeight), Type: "REAL"}})
+				db.v_q_rZAxisTargetPos = float32(db.v_rPlaceDownHeight)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:299:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:299", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bZAxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:300:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:300", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+				db.v_q_bLiftDown = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:301:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:301", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+				db.v_q_bLiftUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:302:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:302", []DebugSnapshotVariable{{Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}})
+				if db.v_i_iLiftActionTime > 0 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:303:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:303", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "i_iLiftActionTime", Value: debugSnapshotValue(db.v_i_iLiftActionTime), Type: "INT"}})
+					db.v_tPt[0] = int32(db.v_i_iLiftActionTime)
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:305:21
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:305", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "T_LIFT_DEFAULT", Value: debugSnapshotValue(3000), Type: "DINT"}})
+					db.v_tPt[0] = int32(3000)
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:307:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:307", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:307:33
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:307", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:308:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:308", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:311:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:311", []DebugSnapshotVariable{{Name: "i_bLiftWorkPoint", Value: debugSnapshotValue(db.v_i_bLiftWorkPoint), Type: "BOOL"}})
+			if db.v_i_bLiftWorkPoint {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:312:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:312", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:312:34
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:312", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:313:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:313", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:314:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:314", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+				db.v_q_bLiftDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:315:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:315", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:316:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:316", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S25_UNCLAMP_AND_NOTIFY", Value: debugSnapshotValue(5), Type: "INT"}})
+				db.v_iCurrentState = int16(5)
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:311:13
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:311", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+				if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:318:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:318", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+					db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:318:34
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:318", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+					db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:319:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:319", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:320:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:320", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+					db.v_q_bLiftDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:321:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:321", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+					db.v_iAlarmCode = int16(71)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:322:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:322", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+					db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:323:17
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:323", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+					db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:323:36
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:323", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+					db.v_bStartTriggered = false
+				}
 			}
 		case 5:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:343:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:343", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-			db.v_o_bX2Axis_RequestRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:344:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:344", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:346:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:346", []DebugSnapshotVariable{{Name: "i_bX2Axis_ReverseLimit", Value: debugSnapshotValue(db.v_i_bX2Axis_ReverseLimit), Type: "BOOL"}, {Name: "i_bX2Axis_Home", Value: debugSnapshotValue(db.v_i_bX2Axis_Home), Type: "BOOL"}})
-			if db.v_i_bX2Axis_ReverseLimit || db.v_i_bX2Axis_Home {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:348:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:348", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-				db.v_fb_tActionTimer.v_IN = false
-				db.v_fb_tActionTimer.v_PT = int32(0)
-				func() {
-					PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 348)
-					defer PopFrame()
-					FB_FB_TON(mem, &db.v_fb_tActionTimer)
-				}()
-				db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-				db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:349:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:349", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-				db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:350:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:350", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-				db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:351:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:351", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-				db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:352:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:352", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:353:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:354:13
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:354", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-				db.v_s_bStartTriggered = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:327:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:327", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:328:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:328", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+				db.v_q_bFrontClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:328:41
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:328", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+				db.v_q_bRearClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:329:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:329", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+				db.v_q_bFrontClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:329:42
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:329", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+				db.v_q_bRearClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:330:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:330", []DebugSnapshotVariable{{Name: "tPt[2]", Value: debugSnapshotValue(db.v_tPt[2]), Type: "DINT"}, {Name: "T_PLACE_DONE_PULSE", Value: debugSnapshotValue(500), Type: "DINT"}})
+				db.v_tPt[2] = int32(500)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:331:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:331", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+				db.v_tIn[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:331:33
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:331", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+				db.v_tR[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:332:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:332", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:335:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:335", []DebugSnapshotVariable{{Name: "tQ[2]", Value: debugSnapshotValue(db.v_tQ[2]), Type: "BOOL"}})
+			if db.v_tQ[2] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:336:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:336", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+				db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:336:34
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:336", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+				db.v_tR[2] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:337:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:337", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+				db.v_q_bPlaceDoneToFeeder = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:338:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:338", []DebugSnapshotVariable{{Name: "bPlaceDonePulse", Value: debugSnapshotValue(db.v_bPlaceDonePulse), Type: "BOOL"}})
+				db.v_bPlaceDonePulse = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:339:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:339", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:340:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:340", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+				db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:341:17
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:341", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+				db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:341:36
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:341", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+				db.v_bStartTriggered = false
+			}
+		default:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:345:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:345", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+			db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:346:13
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:346", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:346:32
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:346", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = false
+		}
+	} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:184:1
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
+		if db.v_i_bManualMode {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:351:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:351", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:351:24
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:351", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "S20_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+			db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:352:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:352", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:352:25
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:352", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:353:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:353", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+			db.v_q_bPlaceDoneToFeeder = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:356:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "i_bLx_FrontClamp", Value: debugSnapshotValue(db.v_i_bLx_FrontClamp), Type: "BOOL"}})
+			if db.v_i_bLx_FrontClamp {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:356:30
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+				db.v_q_bFrontClamp = true
 			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:346:9
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:346", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}})
-				if db.v_s_bActionTimer_Q {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:357:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:357", []DebugSnapshotVariable{{Name: "s_bActionTimer_Q", Value: debugSnapshotValue(db.v_s_bActionTimer_Q), Type: "BOOL"}, {Name: "q_eAction_Elapsed", Value: debugSnapshotValue(db.v_q_eAction_Elapsed), Type: "DINT"}})
-					db.v_fb_tActionTimer.v_IN = false
-					db.v_fb_tActionTimer.v_PT = int32(0)
-					func() {
-						PushFrame("FB_TON", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 357)
-						defer PopFrame()
-						FB_FB_TON(mem, &db.v_fb_tActionTimer)
-					}()
-					db.v_s_bActionTimer_Q = db.v_fb_tActionTimer.v_Q
-					db.v_q_eAction_Elapsed = int32(db.v_fb_tActionTimer.v_ET)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:358:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:358", []DebugSnapshotVariable{{Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}, {Name: "ALM_X2AxisMoveTimeout", Value: debugSnapshotValue(204), Type: "INT"}})
-					db.v_s_iActiveAlarmCode = int16(204)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:359:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:359", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-					db.v_s_bFault = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:360:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:360", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-					db.v_o_bX2Axis_RequestRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:356:58
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:356", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+				db.v_q_bFrontClamp = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:358:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:358", []DebugSnapshotVariable{{Name: "i_bLx_RearClamp", Value: debugSnapshotValue(db.v_i_bLx_RearClamp), Type: "BOOL"}})
+			if db.v_i_bLx_RearClamp {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:358:29
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:358", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+				db.v_q_bRearClamp = true
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:358:56
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:358", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+				db.v_q_bRearClamp = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:360:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:360", []DebugSnapshotVariable{{Name: "i_bLx_FrontClamp2", Value: debugSnapshotValue(db.v_i_bLx_FrontClamp2), Type: "BOOL"}})
+			if db.v_i_bLx_FrontClamp2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:360:31
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:360", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+				db.v_q_bFrontClamp2 = true
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:360:60
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:360", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+				db.v_q_bFrontClamp2 = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362", []DebugSnapshotVariable{{Name: "i_bLx_RearClamp2", Value: debugSnapshotValue(db.v_i_bLx_RearClamp2), Type: "BOOL"}})
+			if db.v_i_bLx_RearClamp2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362:30
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+				db.v_q_bRearClamp2 = true
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362:58
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:362", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+				db.v_q_bRearClamp2 = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:365:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:365", []DebugSnapshotVariable{{Name: "i_bLx_LiftUp", Value: debugSnapshotValue(db.v_i_bLx_LiftUp), Type: "BOOL"}, {Name: "i_bLx_LiftDown", Value: debugSnapshotValue(db.v_i_bLx_LiftDown), Type: "BOOL"}})
+			if db.v_i_bLx_LiftUp && !(db.v_i_bLx_LiftDown) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:366:9
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:366", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+				db.v_q_bLiftUp = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:366:28
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:366", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+				db.v_q_bLiftDown = false
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:365:5
+				debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:365", []DebugSnapshotVariable{{Name: "i_bLx_LiftDown", Value: debugSnapshotValue(db.v_i_bLx_LiftDown), Type: "BOOL"}, {Name: "i_bLx_LiftUp", Value: debugSnapshotValue(db.v_i_bLx_LiftUp), Type: "BOOL"}})
+				if db.v_i_bLx_LiftDown && !(db.v_i_bLx_LiftUp) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:368:9
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:368", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+					db.v_q_bLiftDown = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:368:30
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:368", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+					db.v_q_bLiftUp = false
+				} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:370:9
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:370", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+					db.v_q_bLiftUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:370:29
+					debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:370", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+					db.v_q_bLiftDown = false
+				}
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:373:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:373", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+			db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:373:22
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:373", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+			db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:374:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:374", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+			db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:374:22
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:374", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+			db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:375:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:375", []DebugSnapshotVariable{{Name: "tIn[2]", Value: debugSnapshotValue(db.v_tIn[2]), Type: "BOOL"}})
+			db.v_tIn[2] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:375:22
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:375", []DebugSnapshotVariable{{Name: "tR[2]", Value: debugSnapshotValue(db.v_tR[2]), Type: "BOOL"}})
+			db.v_tR[2] = true
+		} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:378:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:378", []DebugSnapshotVariable{{Name: "q_bFrontClamp", Value: debugSnapshotValue(db.v_q_bFrontClamp), Type: "BOOL"}})
+			db.v_q_bFrontClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:378:29
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:378", []DebugSnapshotVariable{{Name: "q_bRearClamp", Value: debugSnapshotValue(db.v_q_bRearClamp), Type: "BOOL"}})
+			db.v_q_bRearClamp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379", []DebugSnapshotVariable{{Name: "q_bFrontClamp2", Value: debugSnapshotValue(db.v_q_bFrontClamp2), Type: "BOOL"}})
+			db.v_q_bFrontClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379:30
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:379", []DebugSnapshotVariable{{Name: "q_bRearClamp2", Value: debugSnapshotValue(db.v_q_bRearClamp2), Type: "BOOL"}})
+			db.v_q_bRearClamp2 = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:380:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:380", []DebugSnapshotVariable{{Name: "q_bLiftUp", Value: debugSnapshotValue(db.v_q_bLiftUp), Type: "BOOL"}})
+			db.v_q_bLiftUp = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:380:25
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:380", []DebugSnapshotVariable{{Name: "q_bLiftDown", Value: debugSnapshotValue(db.v_q_bLiftDown), Type: "BOOL"}})
+			db.v_q_bLiftDown = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:381:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "q_bZAxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bZAxisMoveAbsReq), Type: "BOOL"}})
+			db.v_q_bZAxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:381:34
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "q_bX1AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX1AxisMoveAbsReq), Type: "BOOL"}})
+			db.v_q_bX1AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:382:5
+			debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:382", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+			db.v_q_bPlaceDoneToFeeder = false
+		}
+	}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:386:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:386", []DebugSnapshotVariable{{Name: "q_bRunning", Value: debugSnapshotValue(db.v_q_bRunning), Type: "BOOL"}, {Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+	db.v_q_bRunning = db.v_bRunning
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:387:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "q_iCurrentState", Value: debugSnapshotValue(db.v_q_iCurrentState), Type: "INT"}, {Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}})
+	db.v_q_iCurrentState = int16(db.v_iCurrentState)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:388:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:388", []DebugSnapshotVariable{{Name: "q_iCurrentPickLayer", Value: debugSnapshotValue(db.v_q_iCurrentPickLayer), Type: "INT"}, {Name: "iPickLayer", Value: debugSnapshotValue(db.v_iPickLayer), Type: "INT"}})
+	db.v_q_iCurrentPickLayer = int16(db.v_iPickLayer)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:389:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:389", []DebugSnapshotVariable{{Name: "q_iAlarmCode", Value: debugSnapshotValue(db.v_q_iAlarmCode), Type: "INT"}, {Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+	db.v_q_iAlarmCode = int16(db.v_iAlarmCode)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:392:1
+	debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "bPlaceDonePulse", Value: debugSnapshotValue(db.v_bPlaceDonePulse), Type: "BOOL"}, {Name: "tQ[2]", Value: debugSnapshotValue(db.v_tQ[2]), Type: "BOOL"}})
+	if db.v_bPlaceDonePulse && (db.v_tQ[2] == false) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:393:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:393", []DebugSnapshotVariable{{Name: "q_bPlaceDoneToFeeder", Value: debugSnapshotValue(db.v_q_bPlaceDoneToFeeder), Type: "BOOL"}})
+		db.v_q_bPlaceDoneToFeeder = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:394:5
+		debugLineWithSnapshot("FB_1003_PickPlace_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl:394", []DebugSnapshotVariable{{Name: "bPlaceDonePulse", Value: debugSnapshotValue(db.v_bPlaceDonePulse), Type: "BOOL"}})
+		db.v_bPlaceDonePulse = false
+	}
+}
+
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:27:1
+func FB_FB_1004_GlueMachineFeeder_BufferFraming(mem *Memory, db *DB_FB_1004_GlueMachineFeeder_BufferFraming) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:101:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:101", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}, {Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}, {Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}, {Name: "tEt[0]", Value: debugSnapshotValue(db.v_tEt[0]), Type: "DINT"}})
+	db.v_tMoveTimer.v_IN = db.v_tIn[0]
+	db.v_tMoveTimer.v_R = db.v_tR[0]
+	db.v_tMoveTimer.v_PT = int32(db.v_tPt[0])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 101)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tMoveTimer)
+	}()
+	db.v_tQ[0] = db.v_tMoveTimer.v_Q
+	db.v_tEt[0] = int32(db.v_tMoveTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:102:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:102", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}, {Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}, {Name: "tPt[1]", Value: debugSnapshotValue(db.v_tPt[1]), Type: "DINT"}, {Name: "tQ[1]", Value: debugSnapshotValue(db.v_tQ[1]), Type: "BOOL"}, {Name: "tEt[1]", Value: debugSnapshotValue(db.v_tEt[1]), Type: "DINT"}})
+	db.v_tCommTimer.v_IN = db.v_tIn[1]
+	db.v_tCommTimer.v_R = db.v_tR[1]
+	db.v_tCommTimer.v_PT = int32(db.v_tPt[1])
+	func() {
+		PushFrame("FB_TONR", "c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl", 102)
+		defer PopFrame()
+		FB_FB_TONR(mem, &db.v_tCommTimer)
+	}()
+	db.v_tQ[1] = db.v_tCommTimer.v_Q
+	db.v_tEt[1] = int32(db.v_tCommTimer.v_ET)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:105:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:105", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}, {Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
+	if !(db.v_i_bAutoMode) && !(db.v_i_bManualMode) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:106:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:106", []DebugSnapshotVariable{{Name: "q_bX2AxisHomeRequest", Value: debugSnapshotValue(db.v_q_bX2AxisHomeRequest), Type: "BOOL"}})
+		db.v_q_bX2AxisHomeRequest = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:106:36
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:106", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+		db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:107:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:107", []DebugSnapshotVariable{{Name: "q_rX2AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX2AxisTargetPos), Type: "REAL"}})
+		db.v_q_rX2AxisTargetPos = float32(0.0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:108:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:108", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+		db.v_q_bAllowPickup = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:108:30
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:108", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+		db.v_q_bSafetyZoneSignal = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:109:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:109", []DebugSnapshotVariable{{Name: "q_iAlarmCode", Value: debugSnapshotValue(db.v_q_iAlarmCode), Type: "INT"}})
+		db.v_q_iAlarmCode = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:109:24
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:109", []DebugSnapshotVariable{{Name: "q_bFrameOnFeedPlatform", Value: debugSnapshotValue(db.v_q_bFrameOnFeedPlatform), Type: "BOOL"}})
+		db.v_q_bFrameOnFeedPlatform = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:110:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:110", []DebugSnapshotVariable{{Name: "q_bRunning", Value: debugSnapshotValue(db.v_q_bRunning), Type: "BOOL"}})
+		db.v_q_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:111:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:111", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+		db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:111:33
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:111", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+		db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:111:52
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:111", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+		db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:112:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:112", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+		db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:112:22
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:112", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+		db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:113:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:113", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+		db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:113:22
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:113", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+		db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:114:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:114", []DebugSnapshotVariable{{Name: "bPlaceDoneMem", Value: debugSnapshotValue(db.v_bPlaceDoneMem), Type: "BOOL"}})
+		db.v_bPlaceDoneMem = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:115:5
+		debugLine("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:115")
+		return
+	}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:119:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:119", []DebugSnapshotVariable{{Name: "i_bStop", Value: debugSnapshotValue(db.v_i_bStop), Type: "BOOL"}, {Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+	if db.v_i_bStop && db.v_bRunning {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:120:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:120", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+		db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:120:33
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:120", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+		db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:120:52
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:120", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+		db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:121:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:121", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+		db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:122:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:122", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+		db.v_q_bAllowPickup = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:122:30
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:122", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+		db.v_q_bSafetyZoneSignal = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:123:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:123", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+		db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:123:22
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:123", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+		db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:124:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:124", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+		db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:124:22
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:124", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+		db.v_tR[1] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:125:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:125", []DebugSnapshotVariable{{Name: "bPlaceDoneMem", Value: debugSnapshotValue(db.v_bPlaceDoneMem), Type: "BOOL"}})
+		db.v_bPlaceDoneMem = false
+	}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:129:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:129", []DebugSnapshotVariable{{Name: "i_bPlaceDone", Value: debugSnapshotValue(db.v_i_bPlaceDone), Type: "BOOL"}})
+	if db.v_i_bPlaceDone {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:130:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:130", []DebugSnapshotVariable{{Name: "bPlaceDoneMem", Value: debugSnapshotValue(db.v_bPlaceDoneMem), Type: "BOOL"}})
+		db.v_bPlaceDoneMem = true
+	}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:134:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:134", []DebugSnapshotVariable{{Name: "i_bAutoMode", Value: debugSnapshotValue(db.v_i_bAutoMode), Type: "BOOL"}})
+	if db.v_i_bAutoMode {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:137:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:137", []DebugSnapshotVariable{{Name: "i_bStart", Value: debugSnapshotValue(db.v_i_bStart), Type: "BOOL"}, {Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+		if db.v_i_bStart && !(db.v_bStartTriggered) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:138:9
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:138", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:139:9
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:139", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = true
+		}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:142:5
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:142", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}, {Name: "D760_MOVE_TO_PICKUP", Value: debugSnapshotValue(1), Type: "INT"}, {Name: "D760_MOVE_TO_GLUE", Value: debugSnapshotValue(2), Type: "INT"}, {Name: "D760_RETURN_STANDBY", Value: debugSnapshotValue(3), Type: "INT"}})
+		switch db.v_iCurrentState {
+		case 0:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:145:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:145", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:146:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:146", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:147:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:147", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+				db.v_q_bAllowPickup = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:148:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:148", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+				db.v_q_bSafetyZoneSignal = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:149:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:149", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:153:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:153", []DebugSnapshotVariable{{Name: "i_bX2ZoneSensor1", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor1), Type: "BOOL"}, {Name: "i_bX2ZoneSensor2", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor2), Type: "BOOL"}})
+			if db.v_i_bX2ZoneSensor1 || db.v_i_bX2ZoneSensor2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:154:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:154", []DebugSnapshotVariable{{Name: "q_bFrameOnFeedPlatform", Value: debugSnapshotValue(db.v_q_bFrameOnFeedPlatform), Type: "BOOL"}})
+				db.v_q_bFrameOnFeedPlatform = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:155:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:155", []DebugSnapshotVariable{{Name: "bFrameOnPlatform", Value: debugSnapshotValue(db.v_bFrameOnPlatform), Type: "BOOL"}})
+				db.v_bFrameOnPlatform = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:156:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:156", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+				db.v_iAlarmCode = int16(81)
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:159:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:159", []DebugSnapshotVariable{{Name: "bPlaceDoneMem", Value: debugSnapshotValue(db.v_bPlaceDoneMem), Type: "BOOL"}, {Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			if db.v_bPlaceDoneMem && db.v_bStartTriggered {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:160:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:160", []DebugSnapshotVariable{{Name: "bPlaceDoneMem", Value: debugSnapshotValue(db.v_bPlaceDoneMem), Type: "BOOL"}})
+				db.v_bPlaceDoneMem = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:161:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:161", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:162:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:162", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_MOVE_TO_PICKUP", Value: debugSnapshotValue(1), Type: "INT"}})
+				db.v_iCurrentState = int16(1)
+			}
+		case 1:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:166:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:166", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:167:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:167", []DebugSnapshotVariable{{Name: "q_rX2AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX2AxisTargetPos), Type: "REAL"}, {Name: "rPickupPos", Value: debugSnapshotValue(db.v_rPickupPos), Type: "REAL"}})
+				db.v_q_rX2AxisTargetPos = float32(db.v_rPickupPos)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:168:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:168", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX2AxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:169:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:169", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "T_MOVE_DEFAULT", Value: debugSnapshotValue(20000), Type: "DINT"}})
+				db.v_tPt[0] = int32(20000)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:170:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:170", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:170:33
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:170", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:171:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:171", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:175:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "i_bX2ZoneSensor1", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor1), Type: "BOOL"}, {Name: "i_bX2ZoneSensor2", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor2), Type: "BOOL"}})
+			if db.v_i_bX2ZoneSensor1 && db.v_i_bX2ZoneSensor2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:176:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:176:34
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:176", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:177:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:177", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:178:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:178", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_MOVE_TO_GLUE", Value: debugSnapshotValue(2), Type: "INT"}})
+				db.v_iCurrentState = int16(2)
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:175:13
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:175", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+				if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:180:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:180", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+					db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:180:34
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:180", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+					db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:181:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:181", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:182:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:182", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+					db.v_iAlarmCode = int16(203)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:183:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:183", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+					db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:184:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:184", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+					db.v_bRunning = false
+				}
+			}
+		case 2:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:188:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:188", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:189:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:189", []DebugSnapshotVariable{{Name: "q_rX2AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX2AxisTargetPos), Type: "REAL"}, {Name: "rGluePlacePos", Value: debugSnapshotValue(db.v_rGluePlacePos), Type: "REAL"}})
+				db.v_q_rX2AxisTargetPos = float32(db.v_rGluePlacePos)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:190:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:190", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX2AxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:191:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:191", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "T_MOVE_DEFAULT", Value: debugSnapshotValue(20000), Type: "DINT"}})
+				db.v_tPt[0] = int32(20000)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:192:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:192", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:192:33
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:192", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:193:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:193", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:196:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:196", []DebugSnapshotVariable{{Name: "i_bX2ZoneSensor3", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor3), Type: "BOOL"}, {Name: "i_bX2ZoneSensor4", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor4), Type: "BOOL"}})
+			if db.v_i_bX2ZoneSensor3 || db.v_i_bX2ZoneSensor4 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:197:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:197", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:197:34
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:197", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:198:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:198", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+				db.v_q_bSafetyZoneSignal = true
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:196:13
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:196", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+				if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:200:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:200", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+					db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:200:34
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:200", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+					db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:201:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:201", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:202:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:202", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+					db.v_iAlarmCode = int16(203)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:203:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:203", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+					db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:204:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:204", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+					db.v_bRunning = false
+				}
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:207:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:207", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+			if db.v_q_bSafetyZoneSignal {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:208:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:208", []DebugSnapshotVariable{{Name: "i_bGlueMachineAllowFeed", Value: debugSnapshotValue(db.v_i_bGlueMachineAllowFeed), Type: "BOOL"}})
+				if db.v_i_bGlueMachineAllowFeed {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:209:21
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:209", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+					db.v_q_bAllowPickup = true
+				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:211:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:211", []DebugSnapshotVariable{{Name: "i_bGlueMachinePickupComplete", Value: debugSnapshotValue(db.v_i_bGlueMachinePickupComplete), Type: "BOOL"}})
+				if db.v_i_bGlueMachinePickupComplete {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:212:21
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:212", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+					db.v_q_bAllowPickup = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:213:21
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:213", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+					db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:214:21
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:214", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_RETURN_STANDBY", Value: debugSnapshotValue(3), Type: "INT"}})
+					db.v_iCurrentState = int16(3)
+				}
+			}
+		case 3:
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:219:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:219", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			if db.v_bStepEntry {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:220:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:220", []DebugSnapshotVariable{{Name: "q_rX2AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX2AxisTargetPos), Type: "REAL"}, {Name: "rStandbyPos", Value: debugSnapshotValue(db.v_rStandbyPos), Type: "REAL"}})
+				db.v_q_rX2AxisTargetPos = float32(db.v_rStandbyPos)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:221:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:221", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX2AxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:222:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:222", []DebugSnapshotVariable{{Name: "tPt[0]", Value: debugSnapshotValue(db.v_tPt[0]), Type: "DINT"}, {Name: "T_MOVE_DEFAULT", Value: debugSnapshotValue(20000), Type: "DINT"}})
+				db.v_tPt[0] = int32(20000)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:223:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:223:33
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:223", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:224:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:224", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = false
+			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:227:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:227", []DebugSnapshotVariable{{Name: "i_bX2ZoneSensor1", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor1), Type: "BOOL"}, {Name: "i_bX2ZoneSensor2", Value: debugSnapshotValue(db.v_i_bX2ZoneSensor2), Type: "BOOL"}})
+			if db.v_i_bX2ZoneSensor1 && db.v_i_bX2ZoneSensor2 {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:228:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:228", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+				db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:228:34
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:228", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+				db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:229:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:229", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+				db.v_q_bSafetyZoneSignal = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:230:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:230", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+				db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:231:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:231", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+				db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:232:17
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:232", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+				db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:232:36
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:232", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+				db.v_bStartTriggered = false
+			} else {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:227:13
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:227", []DebugSnapshotVariable{{Name: "tQ[0]", Value: debugSnapshotValue(db.v_tQ[0]), Type: "BOOL"}})
+				if db.v_tQ[0] {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:234:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:234", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+					db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:234:34
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:234", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+					db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:235:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:235", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:236:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:236", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+					db.v_q_bSafetyZoneSignal = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:237:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:237", []DebugSnapshotVariable{{Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+					db.v_iAlarmCode = int16(203)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:238:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:238", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+					db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:239:17
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:239", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+					db.v_bRunning = false
 				}
 			}
 		default:
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:364:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:364", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:365:9
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:365", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:243:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:243", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+			db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:244:13
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:244:32
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:244", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = false
 		}
 	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254:1
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254", []DebugSnapshotVariable{{Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:134:1
+		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:134", []DebugSnapshotVariable{{Name: "i_bManualMode", Value: debugSnapshotValue(db.v_i_bManualMode), Type: "BOOL"}})
 		if db.v_i_bManualMode {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:372:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:372", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-			db.v_s_bRunning = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:373:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:373", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-			db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:374:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:374", []DebugSnapshotVariable{{Name: "s_bStartTriggered", Value: debugSnapshotValue(db.v_s_bStartTriggered), Type: "BOOL"}})
-			db.v_s_bStartTriggered = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:375:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:375", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-			db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:376:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:376", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:377:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:377", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-			db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:380:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:380", []DebugSnapshotVariable{{Name: "i_bLx_X2Axis_JogFwd", Value: debugSnapshotValue(db.v_i_bLx_X2Axis_JogFwd), Type: "BOOL"}, {Name: "i_bLx_X2Axis_JogRev", Value: debugSnapshotValue(db.v_i_bLx_X2Axis_JogRev), Type: "BOOL"}})
-			if db.v_i_bLx_X2Axis_JogFwd && !(db.v_i_bLx_X2Axis_JogRev) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:381:9
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:381", []DebugSnapshotVariable{{Name: "i_bX2Axis_ForwardLimit", Value: debugSnapshotValue(db.v_i_bX2Axis_ForwardLimit), Type: "BOOL"}})
-				if !(db.v_i_bX2Axis_ForwardLimit) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:382:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:382", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-					db.v_o_bX2Axis_RequestFwd = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:383:13
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:383", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-					db.v_o_bX2Axis_RequestRev = false
-				}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:249:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:249", []DebugSnapshotVariable{{Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+			db.v_bRunning = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:249:24
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:249", []DebugSnapshotVariable{{Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}, {Name: "D760_IDLE", Value: debugSnapshotValue(0), Type: "INT"}})
+			db.v_iCurrentState = int16(0)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:250:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:250", []DebugSnapshotVariable{{Name: "bStepEntry", Value: debugSnapshotValue(db.v_bStepEntry), Type: "BOOL"}})
+			db.v_bStepEntry = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:250:25
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:250", []DebugSnapshotVariable{{Name: "bStartTriggered", Value: debugSnapshotValue(db.v_bStartTriggered), Type: "BOOL"}})
+			db.v_bStartTriggered = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:251:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:251", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+			db.v_q_bAllowPickup = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:251:30
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:251", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+			db.v_q_bSafetyZoneSignal = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:252:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:252", []DebugSnapshotVariable{{Name: "bPlaceDoneMem", Value: debugSnapshotValue(db.v_bPlaceDoneMem), Type: "BOOL"}})
+			db.v_bPlaceDoneMem = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254", []DebugSnapshotVariable{{Name: "i_bLx_X2JogPos", Value: debugSnapshotValue(db.v_i_bLx_X2JogPos), Type: "BOOL"}, {Name: "i_bLx_X2JogNeg", Value: debugSnapshotValue(db.v_i_bLx_X2JogNeg), Type: "BOOL"}})
+			if db.v_i_bLx_X2JogPos && !(db.v_i_bLx_X2JogNeg) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:255:9
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:255", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+				db.v_q_bX2AxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:256:9
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:256", []DebugSnapshotVariable{{Name: "q_rX2AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX2AxisTargetPos), Type: "REAL"}, {Name: "rGluePlacePos", Value: debugSnapshotValue(db.v_rGluePlacePos), Type: "REAL"}})
+				db.v_q_rX2AxisTargetPos = float32(db.v_rGluePlacePos)
 			} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:380:5
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:380", []DebugSnapshotVariable{{Name: "i_bLx_X2Axis_JogRev", Value: debugSnapshotValue(db.v_i_bLx_X2Axis_JogRev), Type: "BOOL"}, {Name: "i_bLx_X2Axis_JogFwd", Value: debugSnapshotValue(db.v_i_bLx_X2Axis_JogFwd), Type: "BOOL"}})
-				if db.v_i_bLx_X2Axis_JogRev && !(db.v_i_bLx_X2Axis_JogFwd) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:386:9
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:386", []DebugSnapshotVariable{{Name: "i_bX2Axis_ReverseLimit", Value: debugSnapshotValue(db.v_i_bX2Axis_ReverseLimit), Type: "BOOL"}})
-					if !(db.v_i_bX2Axis_ReverseLimit) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:387:13
-						debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:387", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-						db.v_o_bX2Axis_RequestRev = true
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:388:13
-						debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:388", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-						db.v_o_bX2Axis_RequestFwd = false
-					}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254:5
+				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:254", []DebugSnapshotVariable{{Name: "i_bLx_X2JogNeg", Value: debugSnapshotValue(db.v_i_bLx_X2JogNeg), Type: "BOOL"}, {Name: "i_bLx_X2JogPos", Value: debugSnapshotValue(db.v_i_bLx_X2JogPos), Type: "BOOL"}})
+				if db.v_i_bLx_X2JogNeg && !(db.v_i_bLx_X2JogPos) {
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:258:9
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:258", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bX2AxisMoveAbsReq = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:259:9
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:259", []DebugSnapshotVariable{{Name: "q_rX2AxisTargetPos", Value: debugSnapshotValue(db.v_q_rX2AxisTargetPos), Type: "REAL"}, {Name: "rStandbyPos", Value: debugSnapshotValue(db.v_rStandbyPos), Type: "REAL"}})
+					db.v_q_rX2AxisTargetPos = float32(db.v_rStandbyPos)
 				} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:391:9
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:391", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-					db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:392:9
-					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:392", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-					db.v_o_bX2Axis_RequestRev = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:261:9
+					debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:261", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+					db.v_q_bX2AxisMoveAbsReq = false
 				}
 			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:264:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:264", []DebugSnapshotVariable{{Name: "tIn[0]", Value: debugSnapshotValue(db.v_tIn[0]), Type: "BOOL"}})
+			db.v_tIn[0] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:264:22
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:264", []DebugSnapshotVariable{{Name: "tR[0]", Value: debugSnapshotValue(db.v_tR[0]), Type: "BOOL"}})
+			db.v_tR[0] = true
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:265:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:265", []DebugSnapshotVariable{{Name: "tIn[1]", Value: debugSnapshotValue(db.v_tIn[1]), Type: "BOOL"}})
+			db.v_tIn[1] = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:265:22
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:265", []DebugSnapshotVariable{{Name: "tR[1]", Value: debugSnapshotValue(db.v_tR[1]), Type: "BOOL"}})
+			db.v_tR[1] = true
 		} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:397:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:397", []DebugSnapshotVariable{{Name: "o_bAllowPickup", Value: debugSnapshotValue(db.v_o_bAllowPickup), Type: "BOOL"}})
-			db.v_o_bAllowPickup = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:398:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:398", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestFwd", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestFwd), Type: "BOOL"}})
-			db.v_o_bX2Axis_RequestFwd = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:399:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:399", []DebugSnapshotVariable{{Name: "o_bX2Axis_RequestRev", Value: debugSnapshotValue(db.v_o_bX2Axis_RequestRev), Type: "BOOL"}})
-			db.v_o_bX2Axis_RequestRev = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:400:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:400", []DebugSnapshotVariable{{Name: "o_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_o_bSafetyZoneSignal), Type: "BOOL"}})
-			db.v_o_bSafetyZoneSignal = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:401:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:401", []DebugSnapshotVariable{{Name: "s_bSafetyZoneActive", Value: debugSnapshotValue(db.v_s_bSafetyZoneActive), Type: "BOOL"}})
-			db.v_s_bSafetyZoneActive = false
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:402:5
-			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:402", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-			if !(db.v_s_bFault) {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:403:9
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:403", []DebugSnapshotVariable{{Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}, {Name: "STP_Idle", Value: debugSnapshotValue(0), Type: "INT"}})
-				db.v_s_iCurrentStep = int16(0)
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:404:9
-				debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:404", []DebugSnapshotVariable{{Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-				db.v_s_bRunning = false
-			}
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:268:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:268", []DebugSnapshotVariable{{Name: "q_bX2AxisMoveAbsReq", Value: debugSnapshotValue(db.v_q_bX2AxisMoveAbsReq), Type: "BOOL"}})
+			db.v_q_bX2AxisMoveAbsReq = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:269:5
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:269", []DebugSnapshotVariable{{Name: "q_bAllowPickup", Value: debugSnapshotValue(db.v_q_bAllowPickup), Type: "BOOL"}})
+			db.v_q_bAllowPickup = false
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:269:30
+			debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:269", []DebugSnapshotVariable{{Name: "q_bSafetyZoneSignal", Value: debugSnapshotValue(db.v_q_bSafetyZoneSignal), Type: "BOOL"}})
+			db.v_q_bSafetyZoneSignal = false
 		}
 	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:409:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:409", []DebugSnapshotVariable{{Name: "o_bRunning", Value: debugSnapshotValue(db.v_o_bRunning), Type: "BOOL"}, {Name: "s_bRunning", Value: debugSnapshotValue(db.v_s_bRunning), Type: "BOOL"}})
-	db.v_o_bRunning = db.v_s_bRunning
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:410:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:410", []DebugSnapshotVariable{{Name: "o_bFault", Value: debugSnapshotValue(db.v_o_bFault), Type: "BOOL"}, {Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	db.v_o_bFault = db.v_s_bFault
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:411:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:411", []DebugSnapshotVariable{{Name: "s_bFault", Value: debugSnapshotValue(db.v_s_bFault), Type: "BOOL"}})
-	if db.v_s_bFault {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:412:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:412", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}})
-		db.v_o_iCurrentState = int16(99)
-	} else {
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:414:5
-		debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:414", []DebugSnapshotVariable{{Name: "o_iCurrentState", Value: debugSnapshotValue(db.v_o_iCurrentState), Type: "INT"}, {Name: "s_iCurrentStep", Value: debugSnapshotValue(db.v_s_iCurrentStep), Type: "INT"}})
-		db.v_o_iCurrentState = int16(db.v_s_iCurrentStep)
-	}
-//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:416:1
-	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:416", []DebugSnapshotVariable{{Name: "o_iStationAlarmCode", Value: debugSnapshotValue(db.v_o_iStationAlarmCode), Type: "INT"}, {Name: "s_iActiveAlarmCode", Value: debugSnapshotValue(db.v_s_iActiveAlarmCode), Type: "INT"}})
-	db.v_o_iStationAlarmCode = int16(db.v_s_iActiveAlarmCode)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:273:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:273", []DebugSnapshotVariable{{Name: "q_bRunning", Value: debugSnapshotValue(db.v_q_bRunning), Type: "BOOL"}, {Name: "bRunning", Value: debugSnapshotValue(db.v_bRunning), Type: "BOOL"}})
+	db.v_q_bRunning = db.v_bRunning
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:274:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:274", []DebugSnapshotVariable{{Name: "q_iCurrentState", Value: debugSnapshotValue(db.v_q_iCurrentState), Type: "INT"}, {Name: "iCurrentState", Value: debugSnapshotValue(db.v_iCurrentState), Type: "INT"}})
+	db.v_q_iCurrentState = int16(db.v_iCurrentState)
+//line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:275:1
+	debugLineWithSnapshot("FB_1004_GlueMachineFeeder_BufferFraming.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl:275", []DebugSnapshotVariable{{Name: "q_iAlarmCode", Value: debugSnapshotValue(db.v_q_iAlarmCode), Type: "INT"}, {Name: "iAlarmCode", Value: debugSnapshotValue(db.v_iAlarmCode), Type: "INT"}})
+	db.v_q_iAlarmCode = int16(db.v_iAlarmCode)
 }
 
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/DJ-2026-005/02_PLC程序/通用ST程序及变量表/common/FB_2001_CommonAlarm_AllStation.scl:39:1
