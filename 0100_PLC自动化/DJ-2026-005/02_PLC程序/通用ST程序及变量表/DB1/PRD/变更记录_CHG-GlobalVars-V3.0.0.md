@@ -5,13 +5,42 @@
 |------|------|
 | **文件名** | GlobalVars.db |
 | **功能描述** | 边框缓存机全局变量数据块 (OB1与各FB的数据交换中心) |
-| **当前版本** | V3.0.0 |
-| **最后更新** | 2026-05-03 |
+| **当前版本** | V7.0.0 |
+| **最后更新** | 2026-05-18 |
 | **关联文件** | OB1.scl, FB_1001~1004.scl, FB_2001.scl |
 
 ---
 
 ## 版本历史
+
+### V7.0.0 (2026-05-18) - **Conveyor子系统V7.0.0重构对齐**
+**变更类型**: REFACTOR | **影响范围**: stConveyor结构 + FB实例 | **优先级**: P0-Critical
+
+#### 变更概述
+- **根因**: Conveyor子系统从V6.0.0 (FB_1001容器) 重构为V7.0.0 (FB_1002编排器展开调用)
+- **目标**: stConveyor结构、FB实例声明与OB1 V7.0.0调用100%对齐
+- **范围**: stConveyor从42变量缩减到33变量，FB实例从5个变为7个
+
+#### 详细变更清单
+
+##### 1. stConveyor结构重写 (42→33变量)
+- **删除**: i_bEnable, i_bReset, i_rConveyorSpeed, i_iSeparateTime, i_iBlockWaitTime, i_bPickPlaceSafeZone, i_iLayerIndex (这些或不适用于FB_1002，或在重构中取消)
+- **删除**: 旧手动操作变量 i_bLx_BlockDown/BlockUp/SeparatePush/SeparateReset/ConveyorFwd/ConveyorRev
+- **删除**: 旧输出变量 o_bBlockSolenoid/o_bSeparateSolenoid/o_bConveyorFwd/Slow/Rev, o_bFeedComplete, o_bRunning, o_bFault, o_iCurrentState, o_LxCurrentStep, o_iAlarmCode
+- **删除**: 旧传感器故障变量 q_bSensorFaultBlockUp/Down/SeparateUp/Down, q_bSeparateTimeout
+- **新增**: i_iSeparateTimeoutMs (INT, 5000ms默认)
+- **新增**: 14组逐层输入数组 (i_a前缀): 7组传感器 + 6组手动操作 + i_aPickupConfirmed
+- **新增**: 10组逐层输出数组 (q_a前缀): 5组执行器 + q_aLayerStep/AlarmCode/Running/Fault/FeedDone/SensorFault
+- **新增**: 3个汇总变量: q_bRunning(OR), q_bFault(OR), q_iAlarmCode(MIN)
+
+##### 2. FB实例变更 (5→7个)
+- **删除**: fbConveyor4Layer : FB_1001_Conveyor4Layer_BufferFraming
+- **新增**: fbConveyor_L1~L4 : FB_1002_SingleLayerConveyor_BufferFraming (4个展开实例)
+
+##### 3. 命名规范
+- 逐层数组统一加 `_a` 前缀 (i_a / q_a)
+- 汇总标量统一加 `_b` / `_i` 前缀 (q_b / q_i)
+- 手动操作从 Lx_前缀改为 Man 前缀
 
 ### V3.0.0 (2026-05-03) - **V5.0.0全面重写：变量名100%英文化**
 **变更类型**: REWRITE | **影响范围**: 全局 | **优先级**: P0-Critical

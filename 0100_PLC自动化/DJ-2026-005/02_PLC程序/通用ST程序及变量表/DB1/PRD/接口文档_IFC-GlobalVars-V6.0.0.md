@@ -1,13 +1,13 @@
-# 接口文档 - GlobalVars.db (全局变量数据块 V6.0.0)
+# 接口文档 - GlobalVars.db (全局变量数据块 V7.0.0)
 
 ## 文档信息
 | 项目 | 内容 |
 |------|------|
 | **数据块名称** | GlobalVars |
 | **功能描述** | 边框缓存机PLC控制系统全局变量数据交换中心 |
-| **当前版本** | V6.0.0 |
+| **当前版本** | V7.0.0 |
 | **编译日期** | 2026-05-18 |
-| **总变量数** | ~150个 (5个STRUCT结构 + 5个FB实例) |
+| **总变量数** | ~140个 (5个STRUCT结构 + 7个FB实例) |
 | **符合规范** | 801_PLC变量命名与功能块命名规范_DEV-V1.0.5 |
 
 ---
@@ -23,14 +23,11 @@ DATA_BLOCK GlobalVars
 │   ├── 机器人(3输入): AutoRunning/Fault/EStop
 │   └── 输出(11): EStopActive/SafetyDoorFault[8]/HmiStopActive/...
 │
-├── stConveyor  : STRUCT (42变量)    ← FB_1001_Conveyor4Layer V6.0.0
-│   ├── 系统控制(4): AutoMode/ManualMode/Start/Stop
-│   ├── 工艺参数(3): ConveyorSpeed/SeparateTime/BlockWaitTime
-│   ├── 手动操作(6×ARRAY[1..4]): BlockDown/SeparatePush/ConveyorFwd/Rev/Slow/BlockUp
-│   ├── 安全(4): SafetyDoorOk/PickPlaceSafeZone/LayerIndex[4]/VfdFault
-│   ├── 传感器(7×ARRAY[1..4]): PreSeparate/Position1/2/BlockUp/Down/SeparateUp/Down
-│   ├── 上游反馈(1×ARRAY[1..4]): PickupConfirmed
-│   └── 输出(17): BlockSolenoid[4]/SeparateSolenoid[4]/.../Running/Fault/AlarmCode
+├── stConveyor  : STRUCT (33变量)    ← 4×FB_1002 V7.0.0 (展开调用)
+│   ├── 共享信号(6): AutoMode/ManualMode/Start/Stop/SeparateTimeoutMs/SafetyDoorOk/VfdFault
+│   ├── 逐层输入(14×ARRAY[1..4]): 传感器7组 + 手动操作6组 + PickupConfirmed
+│   ├── 逐层输出(10×ARRAY[1..4]): 执行器5组 + HMI状态5组
+│   └── 汇总(3): q_bRunning(OR)/q_bFault(OR)/q_iAlarmCode(MIN)
 │
 ├── stPickPlace : STRUCT (52变量)    ← FB_1003_PickPlace V6.0.0 (6步S20~S25)
 │   ├── 系统控制(4): AutoMode/ManualMode/Start/Stop
@@ -60,9 +57,12 @@ DATA_BLOCK GlobalVars
 │   ├── 控制(1): Reset
 │   └── 输出(10): CurrentAlarmCode/GlobalAlarmWord/AlarmCount/MesQueue[10]/NewAlarmPulse/Lights/Buzzer
 │
-└── FB实例(5)
+└── FB实例(7)
     ├── fbExternalDevice  : FB_ExternalDeviceInteraction
-    ├── fbConveyor4Layer  : FB_1001_Conveyor4Layer_BufferFraming
+    ├── fbConveyor_L1     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
+    ├── fbConveyor_L2     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
+    ├── fbConveyor_L3     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
+    ├── fbConveyor_L4     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
     ├── fbPickPlace       : FB_1003_PickPlace_BufferFraming
     ├── fbGlueFeeder      : FB_1004_GlueMachineFeeder_BufferFraming
     └── fbCommonAlarm     : FB_2001_CommonAlarm_AllStation
@@ -122,76 +122,64 @@ END_DATA_BLOCK
 
 ---
 
-### 第二部分: stConveyor结构 (42变量) - FB_1001_Conveyor4Layer V6.0.0
+### 第二部分: stConveyor结构 (33变量) - 4×FB_1002 V7.0.0
 
-#### 系统控制 (4个)
+**架构变化 V6→V7**: FB_1001 容器取消，OB1 展开调用 4 个 FB_1002 实例。每层共用信号为标量，逐层信号为 ARRAY[1..4]。
+
+#### 共享信号 (6个标量, 4层共用)
+
 | 变量名 | 类型 | 初始值 | 说明 |
 |--------|------|--------|------|
-| `i_bAutoMode` | BOOL | FALSE | 自动模式 |
-| `i_bManualMode` | BOOL | FALSE | 手动模式 |
-| `i_bStart` | BOOL | FALSE | 启动 |
-| `i_bStop` | BOOL | FALSE | 停止 |
-
-#### 工艺参数 (3个)
-| 变量名 | 类型 | 初始值 | 说明 | 范围 |
-|--------|------|--------|------|------|
-| `i_rConveyorSpeed` | REAL | 50.0 | 输送带速度(Hz) | 0~100 |
-| `i_iSeparateTime` | INT | 500 | 分料动作时间(ms) | 100~2000 |
-| `i_iBlockWaitTime` | INT | 200 | 阻挡等待时间(ms) | 50~1000 |
-
-#### 手动操作 ARRAY[1..4] (6个)
-| 变量名 | 类型 | 说明 |
-|--------|------|------|
-| `i_bLx_BlockDown` | ARRAY[1..4] OF BOOL | 手动-阻挡下降 |
-| `i_bLx_SeparatePush` | ARRAY[1..4] OF BOOL | 手动-分料推出 |
-| `i_bLx_ConveyorFwd` | ARRAY[1..4] OF BOOL | 手动-输送带正转 |
-| `i_bLx_ConveyorRev` | ARRAY[1..4] OF BOOL | 手动-输送带反转 |
-| `i_bLx_ConveyorSlow` | ARRAY[1..4] OF BOOL | 手动-输送带慢速 |
-| `i_bLx_BlockUp` | ARRAY[1..4] OF BOOL | 手动-阻挡上升 |
-
-#### 安全 (4个)
-| 变量名 | 类型 | 初始值 | 说明 |
-|--------|------|--------|------|
-| `i_bSafetyDoorOk` | BOOL | FALSE | 安全门OK |
-| `i_bPickPlaceSafeZone` | BOOL | FALSE | 取放料安全区 |
-| `i_iLayerIndex` | ARRAY[1..4] OF INT | - | 层号索引 |
+| `i_bAutoMode` | BOOL | FALSE | 自动运行模式 |
+| `i_bManualMode` | BOOL | FALSE | 手动调试模式 |
+| `i_bStart` | BOOL | FALSE | 自动循环启动 (上升沿) |
+| `i_bStop` | BOOL | FALSE | 停止 (电平有效) |
+| `i_iSeparateTimeoutMs` | INT | 5000 | 分料超时时间 (ms, 0~60000) |
+| `i_bSafetyDoorOk` | BOOL | TRUE | 安全门状态 (TRUE=关闭OK) |
 | `i_bVfdFault` | BOOL | FALSE | 变频器故障 |
 
-#### 传感器 ARRAY[1..4] (7个)
-| 变量名 | 类型 | 说明 |
-|--------|------|------|
-| `i_bPreSeparateSensor` | ARRAY[1..4] OF BOOL | 分料前传感器 |
-| `i_bPositionSensor1` | ARRAY[1..4] OF BOOL | 到位传感器1 |
-| `i_bPositionSensor2` | ARRAY[1..4] OF BOOL | 到位传感器2 |
-| `i_bBlockCylinderUp` | ARRAY[1..4] OF BOOL | 阻挡气缸上位 |
-| `i_bBlockCylinderDown` | ARRAY[1..4] OF BOOL | 阻挡气缸下位 |
-| `i_bSeparateCylinderUp` | ARRAY[1..4] OF BOOL | 分料气缸上位 |
-| `i_bSeparateCylinderDown` | ARRAY[1..4] OF BOOL | 分料气缸下位 |
+#### 逐层输入 ARRAY[1..4] (14组)
 
-#### 上游反馈 (1个)
-| 变量名 | 类型 | 说明 |
-|--------|------|------|
-| `i_bPickupConfirmed` | ARRAY[1..4] OF BOOL | FB_1003取料确认 |
+| 变量名 | 类型 | 说明 | 来源 |
+|--------|------|------|------|
+| `i_aPreSeparateSensor` | ARRAY[1..4] OF BOOL | 分料前接近开关 | IO |
+| `i_aPositionSensor1` | ARRAY[1..4] OF BOOL | 到位传感器1 | IO |
+| `i_aPositionSensor2` | ARRAY[1..4] OF BOOL | 到位传感器2 (冗余) | IO |
+| `i_aBlockCylinderUp` | ARRAY[1..4] OF BOOL | 阻挡气缸上位 | IO |
+| `i_aBlockCylinderDown` | ARRAY[1..4] OF BOOL | 阻挡气缸下位 | IO |
+| `i_aSeparateCylinderUp` | ARRAY[1..4] OF BOOL | 分料气缸上位 | IO |
+| `i_aSeparateCylinderDown` | ARRAY[1..4] OF BOOL | 分料气缸下位 | IO |
+| `i_aPickupConfirmed` | ARRAY[1..4] OF BOOL | 取料机构已取走物料 | ←FB_1003 |
+| `i_aManBlockExtend` | ARRAY[1..4] OF BOOL | 手动: 阻挡下降 | HMI |
+| `i_aManBlockRetract` | ARRAY[1..4] OF BOOL | 手动: 阻挡上升 | HMI |
+| `i_aManSeparatePush` | ARRAY[1..4] OF BOOL | 手动: 分料推出 | HMI |
+| `i_aManConveyorFwd` | ARRAY[1..4] OF BOOL | 手动: 输送正转 | HMI |
+| `i_aManConveyorRev` | ARRAY[1..4] OF BOOL | 手动: 输送反转 | HMI |
+| `i_aManConveyorSlow` | ARRAY[1..4] OF BOOL | 手动: 输送慢速 | HMI |
 
-#### 输出 (17个)
-| 变量名 | 类型 | 初始值 | 说明 |
-|--------|------|--------|------|
-| `q_bBlockSolenoid` | ARRAY[1..4] OF BOOL | - | 阻挡电磁阀 |
-| `q_bSeparateSolenoid` | ARRAY[1..4] OF BOOL | - | 分料电磁阀 |
-| `q_bConveyorFwd` | ARRAY[1..4] OF BOOL | - | 输送带正转 |
-| `q_bConveyorSlow` | ARRAY[1..4] OF BOOL | - | 输送带慢速 |
-| `q_bConveyorRev` | ARRAY[1..4] OF BOOL | - | 输送带反转 |
-| `q_bLayerFeedDone` | ARRAY[1..4] OF BOOL | - | 各层放料完成 |
-| `q_bRunning` | BOOL | FALSE | 运行中 |
-| `q_bFault` | BOOL | FALSE | 故障 |
-| `q_iCurrentState` | INT | 0 | 当前状态 |
-| `q_LxCurrentStep` | ARRAY[1..4] OF INT | - | 各层当前步序 |
-| `q_iAlarmCode` | INT | 0 | 报警码 |
-| `q_bSensorFaultBlockUp` | ARRAY[1..4] OF BOOL | - | 阻挡上位传感器故障 |
-| `q_bSensorFaultBlockDown` | ARRAY[1..4] OF BOOL | - | 阻挡下位传感器故障 |
-| `q_bSensorFaultSeparateUp` | ARRAY[1..4] OF BOOL | - | 分料上位传感器故障 |
-| `q_bSensorFaultSeparateDown` | ARRAY[1..4] OF BOOL | - | 分料下位传感器故障 |
-| `q_bSeparateTimeout` | ARRAY[1..4] OF BOOL | - | 分料超时 |
+#### 逐层输出 ARRAY[1..4] (10组)
+
+| 变量名 | 类型 | 说明 | 去向 |
+|--------|------|------|------|
+| `q_aBlockSolenoid` | ARRAY[1..4] OF BOOL | 阻挡电磁阀 (TRUE=下降) | IO (Y30~Y37) |
+| `q_aSeparateSolenoid` | ARRAY[1..4] OF BOOL | 分料电磁阀 (TRUE=推出) | IO (Y30~Y37) |
+| `q_aConveyorFwd` | ARRAY[1..4] OF BOOL | 输送带正转 | IO (Y10~Y23) |
+| `q_aConveyorRev` | ARRAY[1..4] OF BOOL | 输送带反转 | IO (Y10~Y23) |
+| `q_aConveyorSlow` | ARRAY[1..4] OF BOOL | 输送带慢速 | IO (Y10~Y23) |
+| `q_aLayerStep` | ARRAY[1..4] OF INT | 各层当前步序 0~70 | HMI |
+| `q_aLayerAlarmCode` | ARRAY[1..4] OF INT | 各层报警码 (0=正常) | HMI + FB_2001 |
+| `q_aLayerRunning` | ARRAY[1..4] OF BOOL | 各层运行中 | HMI |
+| `q_aLayerFault` | ARRAY[1..4] OF BOOL | 各层故障 | HMI |
+| `q_aLayerFeedDone` | ARRAY[1..4] OF BOOL | 各层放料完成 (脉冲) | →FB_1003 |
+| `q_aLayerSensorFault` | ARRAY[1..4] OF BOOL | 各层传感器故障 | →FB_2001 |
+
+#### 汇总变量 (OB1计算后回写, 3个)
+
+| 变量名 | 类型 | 初始值 | 说明 | 逻辑 |
+|--------|------|--------|------|------|
+| `q_bRunning` | BOOL | FALSE | 输送机总运行中 (HMI) | 4层 OR |
+| `q_bFault` | BOOL | FALSE | 输送机总故障 (HMI+互锁) | 4层 OR |
+| `q_iAlarmCode` | INT | 0 | 最高优先级报警码 (HMI+FB_2001) | 4层 MIN(>0) |
 
 ---
 
@@ -441,11 +429,11 @@ END_DATA_BLOCK
 
 | 版本 | 兼容性 | 说明 |
 |------|--------|------|
-| **V6.0.0** | ✅ 最新版 | 同步所有FB V6.0.0接口，q_前缀，WORD类型报警码 |
+| **V7.0.0** | ✅ 最新版 | Conveyor重构: FB_1001取消, 4×FB_1002展开, 33变量stConveyor |
+| V6.0.0 | ❌ 已废弃 | FB_1001容器架构, 42变量stConveyor, 不兼容 |
 | V3.0.0 | ❌ 已废弃 | o_前缀，INT类型报警码，接口不兼容 |
-| V1.0.0~V2.0.0 | ❌ 不兼容 | 初始版本，含中文变量名 |
 
-**升级路径**: V1~V3 → V6.0.0 (需同步更新OB1和所有FB调用)
+**升级路径**: V6.0.0 → V7.0.0 (stConveyor完全重写, OB1/DB1需同步更新)
 
 ---
 

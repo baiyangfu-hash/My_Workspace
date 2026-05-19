@@ -20,7 +20,7 @@ import (
 const entryGeneratedSymbol = "OB1"
 const entryKindSymbol = "ORGANIZATION_BLOCK"
 const entryFallbackFrameName = "OB1"
-const runtimeHasDebugSnapshots = true
+const runtimeHasDebugSnapshots = false
 
 type runtimeFrame struct {
 	Name   string `json:"name,omitempty"`
@@ -102,7 +102,7 @@ type debugSnapshotStore struct {
 	mu         sync.RWMutex
 	activeID   string
 	statements []statementVariableEntry
-	values     map[string]map[string]plcruntime.DebugSnapshotVariable
+	values     map[string]map[string]DebugSnapshotVariable
 }
 
 func newDebugSnapshotStore(entries []statementVariableEntry) *debugSnapshotStore {
@@ -137,10 +137,10 @@ func newDebugSnapshotStore(entries []statementVariableEntry) *debugSnapshotStore
 	if len(statements) == 0 {
 		return nil
 	}
-	return &debugSnapshotStore{statements: statements, values: map[string]map[string]plcruntime.DebugSnapshotVariable{}}
+	return &debugSnapshotStore{statements: statements, values: map[string]map[string]DebugSnapshotVariable{}}
 }
 
-func (s *debugSnapshotStore) Update(id string, vars []plcruntime.DebugSnapshotVariable) {
+func (s *debugSnapshotStore) Update(id string, vars []DebugSnapshotVariable) {
 	if s == nil {
 		return
 	}
@@ -148,7 +148,7 @@ func (s *debugSnapshotStore) Update(id string, vars []plcruntime.DebugSnapshotVa
 	if id == "" {
 		return
 	}
-	byName := make(map[string]plcruntime.DebugSnapshotVariable, len(vars))
+	byName := make(map[string]DebugSnapshotVariable, len(vars))
 	for _, variable := range vars {
 		name := strings.TrimSpace(variable.Name)
 		if name == "" {
@@ -192,7 +192,7 @@ func (s *debugSnapshotStore) ReadValue(debugID string, name string) any {
 	return variable.Value
 }
 
-func (s *debugSnapshotStore) Snapshot(debugID string) []plcruntime.DebugSnapshotVariable {
+func (s *debugSnapshotStore) Snapshot(debugID string) []DebugSnapshotVariable {
 	if s == nil {
 		return nil
 	}
@@ -206,7 +206,7 @@ func (s *debugSnapshotStore) Snapshot(debugID string) []plcruntime.DebugSnapshot
 	if entry == nil {
 		return nil
 	}
-	out := make([]plcruntime.DebugSnapshotVariable, 0, len(entry))
+	out := make([]DebugSnapshotVariable, 0, len(entry))
 	for _, variable := range entry {
 		out = append(out, variable)
 	}
@@ -228,7 +228,7 @@ func newRuntimeState(snapshot *sharedMemory, snapshotPeriod time.Duration) *runt
 		snapshot.AttachRuntime(s)
 		snapshot.Set(s.runner.Mem)
 	}
-	plcruntime.SetDebugPauseHooks(func() {
+	SetDebugPauseHooks(func() {
 		s.mu.Unlock()
 	}, func() {
 		s.mu.Lock()
@@ -287,7 +287,7 @@ func (s *runtimeState) Step() {
 }
 
 func (s *runtimeState) Cycles() int64 {
-	if plcruntime.DebugIsPaused() {
+	if DebugIsPaused() {
 		return s.cycles
 	}
 	s.mu.RLock()
@@ -296,11 +296,11 @@ func (s *runtimeState) Cycles() int64 {
 }
 
 func (s *runtimeState) Running() bool {
-	return !plcruntime.DebugIsPaused()
+	return !DebugIsPaused()
 }
 
 func (s *runtimeState) Metrics() runtimeMetrics {
-	if plcruntime.DebugIsPaused() {
+	if DebugIsPaused() {
 		return s.metricsSnapshot()
 	}
 	s.mu.RLock()
@@ -422,7 +422,7 @@ func debugLocationFromID(id string) (block string, sourcePath string, line int, 
 	return block, sourcePath, parsedLine, true
 }
 
-func normalizePausedFrame(frame runtimeFrame, pause plcruntime.DebugPauseState) runtimeFrame {
+func normalizePausedFrame(frame runtimeFrame, pause DebugPauseState) runtimeFrame {
 	block, sourcePath, line, ok := debugLocationFromID(pause.ID)
 	if !ok {
 		return frame
@@ -445,8 +445,8 @@ func normalizePausedFrame(frame runtimeFrame, pause plcruntime.DebugPauseState) 
 	return frame
 }
 
-func currentCallStack(entryFrame runtimeFrame, pause plcruntime.DebugPauseState) []runtimeFrame {
-	stack := plcruntime.GetStack()
+func currentCallStack(entryFrame runtimeFrame, pause DebugPauseState) []runtimeFrame {
+	stack := GetStack()
 	out := make([]runtimeFrame, 0, len(stack)+1)
 	for i := len(stack) - 1; i >= 0; i-- {
 		frame := stack[i]
@@ -479,7 +479,7 @@ func currentCallStack(entryFrame runtimeFrame, pause plcruntime.DebugPauseState)
 	return out
 }
 
-func currentFrame(entryFrame runtimeFrame, pause plcruntime.DebugPauseState) runtimeFrame {
+func currentFrame(entryFrame runtimeFrame, pause DebugPauseState) runtimeFrame {
 	stack := currentCallStack(entryFrame, pause)
 	if len(stack) == 0 {
 		return entryFrame
@@ -488,7 +488,7 @@ func currentFrame(entryFrame runtimeFrame, pause plcruntime.DebugPauseState) run
 }
 
 func runtimeStatePayload(state *runtimeState, entryFrame runtimeFrame) map[string]any {
-	pause := plcruntime.CurrentDebugPauseState()
+	pause := CurrentDebugPauseState()
 	return map[string]any{
 		"cycles":    state.Cycles(),
 		"running":   state.Running(),
@@ -498,7 +498,7 @@ func runtimeStatePayload(state *runtimeState, entryFrame runtimeFrame) map[strin
 	}
 }
 
-func stoppedEventPayload(state *runtimeState, entryFrame runtimeFrame, pause plcruntime.DebugPauseState) map[string]any {
+func stoppedEventPayload(state *runtimeState, entryFrame runtimeFrame, pause DebugPauseState) map[string]any {
 	payload := runtimeStatePayload(state, entryFrame)
 	payload["reason"] = pause.Reason
 	payload["id"] = pause.ID
@@ -662,7 +662,7 @@ func handleRuntimeRequest(req runtimeRequest, state *runtimeState, entryFrame ru
 			resp.Error = "missing breakpoint id"
 			break
 		}
-		plcruntime.SetBreakpoint(args.ID)
+		SetBreakpoint(args.ID)
 		resp.Result = map[string]any{"ok": true}
 	case "clearBreakpoint":
 		var args struct {
@@ -673,27 +673,23 @@ func handleRuntimeRequest(req runtimeRequest, state *runtimeState, entryFrame ru
 			resp.Error = "missing breakpoint id"
 			break
 		}
-		plcruntime.ClearBreakpoint(args.ID)
+		ClearBreakpoint(args.ID)
 		resp.Result = map[string]any{"ok": true}
 	case "stepNext":
-		plcruntime.StepNext()
+		StepNext()
 		resp.Result = map[string]any{"running": true}
 	case "stepInto":
-		plcruntime.StepInto()
+		StepInto()
 		resp.Result = map[string]any{"running": true}
 	case "stepOut":
-		plcruntime.StepOut()
+		StepOut()
 		resp.Result = map[string]any{"running": true}
 	case "continue":
-		plcruntime.Continue()
+		Continue()
 		resp.Result = map[string]any{"running": true}
 	case "pause":
-		plcruntime.Pause()
-		if pauseState, ok := plcruntime.DebugWaitPaused(2 * time.Second); ok {
-			resp.Result = map[string]any{"requested": true, "paused": true, "id": pauseState.ID, "reason": pauseState.Reason}
-		} else {
-			resp.Result = map[string]any{"requested": true, "paused": false}
-		}
+		Pause()
+		resp.Result = map[string]any{"requested": true}
 	case "getState":
 		resp.Result = runtimeStatePayload(state, entryFrame)
 	case "getDebugSnapshots":
@@ -751,8 +747,8 @@ func runProtocol(symbolMapPath string, opcuaPort int, scanPeriod time.Duration, 
 	debugSnapshots := (*debugSnapshotStore)(nil)
 	if runtimeHasDebugSnapshots {
 		debugSnapshots = newDebugSnapshotStore(symbolData.StatementVariables)
-		plcruntime.SetDebugSnapshotSink(debugSnapshots.Update)
-		defer plcruntime.SetDebugSnapshotSink(nil)
+		SetDebugSnapshotSink(debugSnapshots.Update)
+		defer SetDebugSnapshotSink(nil)
 	}
 
 	opcuaSrv, err := startOPCUAServer(snapshot, tags, debugSnapshots, opcuaPort)
@@ -772,19 +768,19 @@ func runProtocol(symbolMapPath string, opcuaPort int, scanPeriod time.Duration, 
 		ticker := time.NewTicker(20 * time.Millisecond)
 		defer ticker.Stop()
 		wasPaused := false
-		last := plcruntime.DebugPauseState{}
+		last := DebugPauseState{}
 		for {
 			select {
 			case <-done:
 				return
 			case <-ticker.C:
 			}
-			if !(plcruntime.DebugIsPaused()) {
+			if !(DebugIsPaused()) {
 				wasPaused = false
-				last = plcruntime.DebugPauseState{}
+				last = DebugPauseState{}
 				continue
 			}
-			pause := plcruntime.CurrentDebugPauseState()
+			pause := CurrentDebugPauseState()
 			if wasPaused && pause == last {
 				continue
 			}

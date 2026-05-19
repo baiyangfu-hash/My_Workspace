@@ -41,6 +41,7 @@ SysLib 是一个符合 **IEC 61131-3 标准**的 PLC 功能库，专为多平台
 | **counter/** | 3 | ✅ 100% | ✅ 100% | ✅ 100% | 无需修改 |
 | **edge/** | 2 | ✅ 100% | ✅ 100% | ✅ 100% | 无需修改 |
 | **pulse/** | 1 | ✅ 100% | ✅ 100% | ✅ 100% | 待验证 |
+| **actuator/** | 2 | ✅ 100% | ✅ 100% | ✅ 100% | 🆕 新增 |
 
 **图例:**
 - `*` PT/ET 参数需要从 DINT 改为 TIME 类型
@@ -185,6 +186,59 @@ END_FUNCTION
 
 ---
 
+### 5️⃣ Actuator 模块 (`actuator/`) 🆕
+
+#### 包含文件
+- FB_1011_CylinderControl.scl - 通用气缸控制（伸出/收回+超时+传感器冗余）
+- FB_1012_ConveyorMotor.scl - 通用输送电机控制（正转/反转/慢速+安全门+VFD）
+
+#### 设计理念
+Actuator 模块封装了现场设备的基础执行逻辑，以"命令驱动"模式工作：
+- **不自行决策**何时动作（由上层编排器决定）
+- **只负责执行**命令并反馈执行结果（到位/超时/故障）
+- **可跨项目复用**：任何需要气缸或电机控制的工站都可直接使用
+
+#### 使用示例
+
+**气缸控制:**
+```pascal
+VAR
+    fbBlock : FB_1011_CylinderControl;
+    bExtendCmd, bRetractCmd, bDone, bFault : BOOL;
+END_VAR
+
+fbBlock(i_bExtend := bExtendCmd,
+        i_bRetract := bRetractCmd,
+        i_bUpSensor := ...,
+        i_bDownSensor := ...,
+        i_iTimeoutMs := 3000,
+        q_bIsExtended => ...,
+        q_bTimeout => bFault);
+```
+
+**电机控制:**
+```pascal
+VAR
+    fbMotor : FB_1012_ConveyorMotor;
+    bFwd, bSafe, bVfdFault : BOOL;
+END_VAR
+
+fbMotor(i_bFwd := bFwd,
+        i_bSafetyDoorOk := bSafe,
+        i_bVfdFault := bVfdFault,
+        q_bFwd => ...,
+        q_bVfdAlarm => ...);
+```
+
+#### 详细文档
+- [FB_1011 接口文档](actuator/PRD/接口文档_IFC-FB1011-CylinderControl-V7.0.0.md)
+- [FB_1011 详细设计](actuator/PRD/详细设计说明书_DSN-FB1011-CylinderControl-V7.0.0.md)
+- [FB_1012 接口文档](actuator/PRD/接口文档_IFC-FB1012-ConveyorMotor-V7.0.0.md)
+- [FB_1012 详细设计](actuator/PRD/详细设计说明书_DSN-FB1012-ConveyorMotor-V7.0.0.md)
+
+---
+```
+
 ## 🚀 快速开始指南
 
 ### 在 Siemens LSP (VS Code) 中使用
@@ -269,6 +323,7 @@ FC_LogMsg(Enable := TRUE, Level := 3,
 - ✅ Log 函数移除 CONCAT 操作
 - ✅ 添加详细的多平台移植注释
 - ✅ 创建本兼容性指南文档
+- 🆕 V7.0.0: actuator/ 模块新增 (FB_1011 气缸控制 + FB_1012 电机控制)
 
 **影响范围:**
 - 向后不兼容 V1.0.0 (接口类型变更)

@@ -1,0 +1,104 @@
+(* ================================================================= *)
+(*  FB_1011_CylinderControl                                           *)
+(*  通用单气缸执行控制 - 伸出/收回+超时+传感器冗余                    *)
+(*  版本: V7.0.0  日期: 2026-05-18                                    *)
+(*  来源: SysLib/actuator/                                            *)
+(*  规范: 801_DEV-V1.0.5, 810_DEV-V1.0.2                             *)
+(* ================================================================= *)
+
+FUNCTION_BLOCK FB_1011_CylinderControl
+
+VAR_INPUT
+    i_bExtend       : BOOL;     (* 伸出命令 TRUE=推/降 *)
+    i_bRetract      : BOOL;     (* 收回命令 TRUE=拉/升 *)
+    i_bUpSensor     : BOOL;     (* 收回位传感器 *)
+    i_bDownSensor   : BOOL;     (* 伸出位传感器 *)
+    i_iTimeoutMs    : INT;      (* 动作超时时间(ms) 0=关闭 *)
+END_VAR
+
+VAR_OUTPUT
+    q_bSolenoid     : BOOL;     (* 电磁阀输出 TRUE=伸出 *)
+    q_bIsExtended   : BOOL;     (* 已伸出到位 *)
+    q_bIsRetracted  : BOOL;     (* 已收回到位 *)
+    q_bTimeout      : BOOL;     (* 动作超时 *)
+    q_bSensorFault  : BOOL;     (* 传感器冗余故障 *)
+END_VAR
+
+VAR
+    tTimeout        : FB_TONR;  (* 超时定时器 *)
+    bMoving         : BOOL;     (* 正在执行动作中 *)
+END_VAR
+
+(* ==================== 定时器 ==================== *)
+tTimeout(IN := tTimeout.IN, R := tTimeout.R, PT := tTimeout.PT,
+         Q => tTimeout.Q, ET => tTimeout.ET);
+
+(* ==================== 传感器冗余一致性检查 ==================== *)
+IF i_bUpSensor AND i_bDownSensor THEN
+    q_bSensorFault := TRUE;
+ELSE
+    q_bSensorFault := FALSE;
+END_IF;
+
+(* ==================== 命令处理 Extend > Retract ==================== *)
+IF i_bExtend THEN
+    q_bSolenoid := TRUE;
+
+    IF NOT bMoving THEN
+        bMoving := TRUE;
+        IF i_iTimeoutMs > 0 THEN
+            tTimeout.IN := TRUE;
+            tTimeout.R := FALSE;
+            tTimeout.PT := INT_TO_DINT(i_iTimeoutMs);
+        END_IF;
+    END_IF;
+
+    IF i_bDownSensor THEN
+        q_bIsExtended := TRUE;
+        q_bIsRetracted := FALSE;
+        bMoving := FALSE;
+        q_bTimeout := FALSE;
+        tTimeout.IN := FALSE;
+        tTimeout.R := TRUE;
+    END_IF;
+
+    IF tTimeout.Q THEN
+        q_bTimeout := TRUE;
+    END_IF;
+
+ELSIF i_bRetract THEN
+    q_bSolenoid := FALSE;
+
+    IF NOT bMoving THEN
+        bMoving := TRUE;
+        IF i_iTimeoutMs > 0 THEN
+            tTimeout.IN := TRUE;
+            tTimeout.R := FALSE;
+            tTimeout.PT := INT_TO_DINT(i_iTimeoutMs);
+        END_IF;
+    END_IF;
+
+    IF i_bUpSensor THEN
+        q_bIsRetracted := TRUE;
+        q_bIsExtended := FALSE;
+        bMoving := FALSE;
+        q_bTimeout := FALSE;
+        tTimeout.IN := FALSE;
+        tTimeout.R := TRUE;
+    END_IF;
+
+    IF tTimeout.Q THEN
+        q_bTimeout := TRUE;
+    END_IF;
+
+ELSE
+    bMoving := FALSE;
+    q_bTimeout := FALSE;
+    tTimeout.IN := FALSE;
+    tTimeout.R := TRUE;
+
+    q_bIsExtended := i_bDownSensor;
+    q_bIsRetracted := i_bUpSensor;
+END_IF;
+
+END_FUNCTION_BLOCK

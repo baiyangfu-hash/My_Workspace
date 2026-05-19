@@ -21,6 +21,11 @@
 //   5. 完全基于实际FB定义生成, 与OB1调用100%同步
 //
 // 变更记录:
+//   V7.0.0 (2026-05-18): Conveyor子系统V7.0.0重构对齐
+//          - stConveyor结构完全重写: FB_1001容器取消, 适配FB_1002 V7.0.0编排器接口
+//          - 变量命名: 逐层数组加_a前缀(i_a/q_a), 汇总变量用q_b/q_i前缀
+//          - FB实例: fbConveyor4Layer(FB_1001) → 4×fbConveyor_L1~L4(FB_1002)
+//          - 新增汇总字段: q_bRunning(OR), q_bFault(OR), q_iAlarmCode(MIN)
 //   V6.0.0 (2026-05-04): 同步FB_1003 V6.0.0接口重命名
 //          - stPickPlace变量重命名47处, 匹配FB_1003 V6.0.0新接口
 //          - Grip→Clamp/Unclamp语义统一 (夹爪→夹紧/松开)
@@ -149,66 +154,60 @@ VAR
     END_STRUCT;
 
     // =========================================================================
-    // 第三部分: 四层输送机系统信号 (FB_1001_Conveyor4Layer 容器块)
+    // 第三部分: 四层输送机系统信号 (4×FB_1002 展开调用, V7.0.0)
     // =========================================================================
-    // 说明: 四层输送机容器块, 内部实例化4个单层输送机 (FB_1002)
-    //       所有手动操作和传感器都是 ARRAY[1..4] 类型, 对应4个独立层
-    //       接口统计: 34输入(9公共+3工艺+24手动+28传感器-重复) + 30输出
+    // 说明: FB_1001 容器已取消, OB1 展开调用 4 个 FB_1002 实例
+    //       每层共用信号为标量, 逐层信号为 ARRAY[1..4]
+    //       FB_1002 接口: 22输入 + 11输出 = 33 (V7.0.0 编排器架构)
+    //       FB_1002 内部委托: fbBlock(FB_1011) + fbSeparate(FB_1011) + fbMotor(FB_1012)
     // =========================================================================
     stConveyor : STRUCT
-        // === 输入信号 ===
-        // --- 系统控制信号 (9个, 含工艺参数) ---
-        i_bEnable               : BOOL := FALSE;    // 总使能信号
-        i_bAutoMode           : BOOL := FALSE;    // 自动运行模式选择
-        i_bManualMode           : BOOL := FALSE;    // 手动调试模式选择
-        i_bStart               : BOOL := FALSE;    // 自动循环启动按钮
-        i_bStop               : BOOL := FALSE;    // 自动循环停止按钮
-        i_bReset               : BOOL := FALSE;    // 故障复位/初始化按钮
+        // === 共享信号 (6个标量, 4层共用) ===
+        i_bAutoMode              : BOOL := FALSE;    // 自动运行模式
+        i_bManualMode            : BOOL := FALSE;    // 手动调试模式
+        i_bStart                 : BOOL := FALSE;    // 自动循环启动 (上升沿)
+        i_bStop                  : BOOL := FALSE;    // 停止 (电平有效)
 
-        // --- 工艺参数 (3个, REAL/INT类型) ---
-        i_rConveyorSpeed           : REAL := 50.0;     // 输送机速度设定 (Hz 或 m/min)
-        i_iSeparateTime           : INT := 500;       // 分料动作保持时间 (ms)
-        i_iBlockWaitTime        : INT := 200;       // 挡料气缸动作等待时间 (ms)
+        i_iSeparateTimeoutMs     : INT := 5000;      // 分料超时时间 (ms)
+        i_bSafetyDoorOk          : BOOL := TRUE;     // 安全门状态 (TRUE=关闭OK)
+        i_bVfdFault              : BOOL := FALSE;    // 变频器故障
 
-        // --- 手动操作信号 (6类 × 4层 = 24个BOOL, ARRAY[1..4]) ---
-        i_bLx_BlockDown           : ARRAY[1..4] OF BOOL;  // 手动-挡料气缸下降
-        i_bLx_BlockUp           : ARRAY[1..4] OF BOOL;  // 手动-挡料气缸上升
-        i_bLx_SeparatePush           : ARRAY[1..4] OF BOOL;  // 手动-分料气缸伸出
-        i_bLx_SeparateReset           : ARRAY[1..4] OF BOOL;  // 手动-分料气缸复位
-        i_bLx_ConveyorFwd           : ARRAY[1..4] OF BOOL;  // 手动-输送机正转
-        i_bLx_ConveyorRev           : ARRAY[1..4] OF BOOL;  // 手动-输送机反转
+        // === 逐层输入 ARRAY[1..4] (传感器 + 手动操作 + 取料确认, 共14组) ===
+        i_aPreSeparateSensor     : ARRAY[1..4] OF BOOL;  // 分料前接近开关
+        i_aPositionSensor1       : ARRAY[1..4] OF BOOL;  // 到位传感器1
+        i_aPositionSensor2       : ARRAY[1..4] OF BOOL;  // 到位传感器2 (冗余)
+        i_aBlockCylinderUp       : ARRAY[1..4] OF BOOL;  // 阻挡气缸上位
+        i_aBlockCylinderDown     : ARRAY[1..4] OF BOOL;  // 阻挡气缸下位
+        i_aSeparateCylinderUp    : ARRAY[1..4] OF BOOL;  // 分料气缸上位
+        i_aSeparateCylinderDown  : ARRAY[1..4] OF BOOL;  // 分料气缸下位
 
-        // --- 传感器输入 (7类 × 4层 = 28个BOOL, ARRAY[1..4]) ---
-        i_bPreSeparateSensor       : ARRAY[1..4] OF BOOL;  // 分料前来料检测传感器
-        i_bPositionSensor1        : ARRAY[1..4] OF BOOL;  // 位置传感器1 (冗余检测)
-        i_bPositionSensor2        : ARRAY[1..4] OF BOOL;  // 位置传感器2 (冗余检测)
-        i_bBlockCylinderUp       : ARRAY[1..4] OF BOOL;  // 挡料气缸上升(释放)位置反馈
-        i_bBlockCylinderDown       : ARRAY[1..4] OF BOOL;  // 挡料气缸下降(挡料)位置反馈
-        i_bSeparateCylinderUp       : ARRAY[1..4] OF BOOL;  // 分料气缸缩回位置反馈
-        i_bSeparateCylinderDown       : ARRAY[1..4] OF BOOL;  // 分料气缸伸出位置反馈
+        i_aPickupConfirmed       : ARRAY[1..4] OF BOOL;  // 取料机构已取走物料 (←FB_1003)
 
-        // --- 下游反馈信号 (4个BOOL, ARRAY[1..4]) ---
-        i_bFeedComplete         : ARRAY[1..4] OF BOOL;  // 取放料机构已取走该层物料
+        i_aManBlockExtend        : ARRAY[1..4] OF BOOL;  // 手动: 阻挡下降
+        i_aManBlockRetract       : ARRAY[1..4] OF BOOL;  // 手动: 阻挡上升
+        i_aManSeparatePush       : ARRAY[1..4] OF BOOL;  // 手动: 分料推出
+        i_aManConveyorFwd        : ARRAY[1..4] OF BOOL;  // 手动: 输送正转
+        i_aManConveyorRev        : ARRAY[1..4] OF BOOL;  // 手动: 输送反转
+        i_aManConveyorSlow       : ARRAY[1..4] OF BOOL;  // 手动: 输送慢速
 
-        // === 输出信号 (30个) ===
-        // --- 执行器请求输出 (5类 × 4层 = 20个BOOL, ARRAY[1..4]) ---
-        o_bBlockSolenoid         : ARRAY[1..4] OF BOOL;  // TRUE=下降(挡料), FALSE=上升(释放)
-        o_bSeparateSolenoid         : ARRAY[1..4] OF BOOL;  // TRUE=伸出(分料), FALSE=复位
-        o_bConveyorFwd         : ARRAY[1..4] OF BOOL;  // 输送机正转
-        o_bConveyorSlow         : ARRAY[1..4] OF BOOL;  // 输送机慢速 (用于精确定位)
-        o_bConveyorRev         : ARRAY[1..4] OF BOOL;  // 输送机反转 (用于卸料)
+        // === 逐层输出 ARRAY[1..4] (执行器 + HMI显示, 共10组) ===
+        q_aBlockSolenoid         : ARRAY[1..4] OF BOOL;  // 阻挡电磁阀 (TRUE=下降)
+        q_aSeparateSolenoid      : ARRAY[1..4] OF BOOL;  // 分料电磁阀 (TRUE=推出)
+        q_aConveyorFwd           : ARRAY[1..4] OF BOOL;  // 输送带正转
+        q_aConveyorRev           : ARRAY[1..4] OF BOOL;  // 输送带反转
+        q_aConveyorSlow          : ARRAY[1..4] OF BOOL;  // 输送带慢速
 
-        // --- 下游信号输出 (4个BOOL, ARRAY[1..4]) ---
-        o_bFeedComplete           : ARRAY[1..4] OF BOOL;  // 该层送料完成, 等待取料
+        q_aLayerStep             : ARRAY[1..4] OF INT;   // 各层当前步序 0~70 (HMI)
+        q_aLayerAlarmCode        : ARRAY[1..4] OF INT;   // 各层报警码 0=正常 (HMI)
+        q_aLayerRunning          : ARRAY[1..4] OF BOOL;  // 各层运行中 (HMI)
+        q_aLayerFault            : ARRAY[1..4] OF BOOL;  // 各层故障 (HMI)
+        q_aLayerFeedDone         : ARRAY[1..4] OF BOOL;  // 各层放料完成 脉冲 (→FB_1003)
+        q_aLayerSensorFault      : ARRAY[1..4] OF BOOL;  // 各层传感器故障 (→FB_2001)
 
-        // --- 状态/HMI显示输出 (4个) ---
-        o_bRunning             : BOOL := FALSE;        // 任意层当前自动运行中
-        o_bFault               : BOOL := FALSE;        // 本站有故障 (任意报警激活)
-        o_iCurrentState           : INT := 0;             // 当前主状态代码 (0=空闲, 1-8=步骤, 99=故障)
-        o_LxCurrentStep          : ARRAY[1..4] OF INT;   // 各层当前步骤 (0-8)
-
-        // --- 报警输出 (1个) ---
-        o_iAlarmCode       : INT := 0;             // 本站当前有效报警代码 (0=无报警, 1-7=报警类型)
+        // === 汇总变量 (OB1计算后回写) ===
+        q_bRunning               : BOOL := FALSE;    // 4层 OR → HMI "输送机运行中"
+        q_bFault                 : BOOL := FALSE;    // 4层 OR → HMI + 全局互锁
+        q_iAlarmCode             : INT := 0;         // 4层报警码优先级 MIN → HMI + FB_2001
     END_STRUCT;
 
     // =========================================================================
@@ -410,10 +409,14 @@ VAR
     // =========================================================================
     // 第六部分: 功能块实例
     // =========================================================================
-    // 说明: 所有功能块实例必须定义在此处, 以便测试框架能够正确识别
+    // 说明: 所有功能块实例必须定义在此处, 以便测试框架和HMI能够正确识别
+    //       V7.0.0: fbConveyor4Layer (FB_1001) 取消, 改为4×FB_1002 展开实例
     // =========================================================================
     fbExternalDevice      : FB_ExternalDeviceInteraction;
-    fbConveyor4Layer      : FB_1001_Conveyor4Layer_BufferFraming;
+    fbConveyor_L1         : FB_1002_SingleLayerConveyor_BufferFraming;
+    fbConveyor_L2         : FB_1002_SingleLayerConveyor_BufferFraming;
+    fbConveyor_L3         : FB_1002_SingleLayerConveyor_BufferFraming;
+    fbConveyor_L4         : FB_1002_SingleLayerConveyor_BufferFraming;
     fbPickPlace           : FB_1003_PickPlace_BufferFraming;
     fbGlueFeeder          : FB_1004_GlueMachineFeeder_BufferFraming;
     fbCommonAlarm         : FB_2001_CommonAlarm_AllStation;

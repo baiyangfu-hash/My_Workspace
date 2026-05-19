@@ -19,6 +19,10 @@
 //   5. FB_2001_CommonAlarm            - 公共报警管理
 //
 // 变更记录:
+//   V7.0.0 (2026-05-18): Conveyor子系统V7.0.0重构对齐
+//          - 取消FB_1001容器, 展开调用4×FB_1002 (L1~L4)
+//          - 新增汇总逻辑: q_bRunning(4层OR)/q_bFault(4层OR)/q_iAlarmCode(MIN优先级)
+//          - 下游引用更新: PickPlace取q_aLayerFeedDone, FB_2001取q_iAlarmCode
 //   V6.0.1 (2026-05-18): 修复 - 所有GlobalVars成员引用对齐GlobalVars.db实际定义
 //          - stExternal: 匹配FB_ExternalDeviceInteraction实际27输入/16输出引脚
 //          - stConveyor: 匹配FB_1001实际34输入/30输出(含ARRAY[1..4])引脚
@@ -89,51 +93,209 @@ BEGIN
     );
 
     // ============================================================================
-    // 第2部分：四层输送机 (FB_1001容器 → 内部4×FB_1002)
+    // 第2部分：四层输送机 (4×FB_1002 展开调用 V7.0.0)
     // ============================================================================
-    GlobalVars.fbConveyor4Layer(
-        i_bEnable                    := GlobalVars.stConveyor.i_bEnable,
-        i_bAutoMode                  := GlobalVars.stConveyor.i_bAutoMode,
-        i_bManualMode                := GlobalVars.stConveyor.i_bManualMode,
-        i_bStart                     := GlobalVars.stConveyor.i_bStart,
-        i_bStop                      := GlobalVars.stConveyor.i_bStop,
-        i_bReset                     := GlobalVars.stConveyor.i_bReset,
+    (* ===== 第1层 ===== *)
+    GlobalVars.fbConveyor_L1(
+        i_bAutoMode             := GlobalVars.stConveyor.i_bAutoMode,
+        i_bManualMode           := GlobalVars.stConveyor.i_bManualMode,
+        i_bStart                := GlobalVars.stConveyor.i_bStart,
+        i_bStop                 := GlobalVars.stConveyor.i_bStop,
+        i_iLayerIndex           := 1,
+        i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
 
-        i_rConveyorSpeed             := GlobalVars.stConveyor.i_rConveyorSpeed,
-        i_iSeparateTime              := GlobalVars.stConveyor.i_iSeparateTime,
-        i_iBlockWaitTime             := GlobalVars.stConveyor.i_iBlockWaitTime,
+        i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[1],
+        i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[1],
+        i_bPositionSensor2      := GlobalVars.stConveyor.i_aPositionSensor2[1],
+        i_bBlockCylinderUp      := GlobalVars.stConveyor.i_aBlockCylinderUp[1],
+        i_bBlockCylinderDown    := GlobalVars.stConveyor.i_aBlockCylinderDown[1],
+        i_bSeparateCylinderUp   := GlobalVars.stConveyor.i_aSeparateCylinderUp[1],
+        i_bSeparateCylinderDown := GlobalVars.stConveyor.i_aSeparateCylinderDown[1],
 
-        i_bLx_BlockDown              := GlobalVars.stConveyor.i_bLx_BlockDown,
-        i_bLx_BlockUp                := GlobalVars.stConveyor.i_bLx_BlockUp,
-        i_bLx_SeparatePush           := GlobalVars.stConveyor.i_bLx_SeparatePush,
-        i_bLx_SeparateReset          := GlobalVars.stConveyor.i_bLx_SeparateReset,
-        i_bLx_ConveyorFwd            := GlobalVars.stConveyor.i_bLx_ConveyorFwd,
-        i_bLx_ConveyorRev            := GlobalVars.stConveyor.i_bLx_ConveyorRev,
+        i_bSafetyDoorOk         := GlobalVars.stConveyor.i_bSafetyDoorOk,
+        i_bVfdFault             := GlobalVars.stConveyor.i_bVfdFault,
+        i_bPickupConfirmed      := GlobalVars.stConveyor.i_aPickupConfirmed[1],
 
-        i_bPreSeparateSensor         := GlobalVars.stConveyor.i_bPreSeparateSensor,
-        i_bPositionSensor1           := GlobalVars.stConveyor.i_bPositionSensor1,
-        i_bPositionSensor2           := GlobalVars.stConveyor.i_bPositionSensor2,
-        i_bBlockCylinderUp           := GlobalVars.stConveyor.i_bBlockCylinderUp,
-        i_bBlockCylinderDown         := GlobalVars.stConveyor.i_bBlockCylinderDown,
-        i_bSeparateCylinderUp        := GlobalVars.stConveyor.i_bSeparateCylinderUp,
-        i_bSeparateCylinderDown      := GlobalVars.stConveyor.i_bSeparateCylinderDown,
+        i_bManBlockExtend       := GlobalVars.stConveyor.i_aManBlockExtend[1],
+        i_bManBlockRetract      := GlobalVars.stConveyor.i_aManBlockRetract[1],
+        i_bManSeparatePush      := GlobalVars.stConveyor.i_aManSeparatePush[1],
+        i_bManConveyorFwd       := GlobalVars.stConveyor.i_aManConveyorFwd[1],
+        i_bManConveyorRev       := GlobalVars.stConveyor.i_aManConveyorRev[1],
+        i_bManConveyorSlow      := GlobalVars.stConveyor.i_aManConveyorSlow[1],
 
-        i_bFeedComplete              := GlobalVars.stConveyor.i_bFeedComplete,
-
-        o_bBlockSolenoid             => GlobalVars.stConveyor.o_bBlockSolenoid,
-        o_bSeparateSolenoid          => GlobalVars.stConveyor.o_bSeparateSolenoid,
-        o_bConveyorFwd               => GlobalVars.stConveyor.o_bConveyorFwd,
-        o_bConveyorSlow              => GlobalVars.stConveyor.o_bConveyorSlow,
-        o_bConveyorRev               => GlobalVars.stConveyor.o_bConveyorRev,
-
-        o_bFeedComplete              => GlobalVars.stConveyor.o_bFeedComplete,
-
-        o_bRunning                   => GlobalVars.stConveyor.o_bRunning,
-        o_bFault                     => GlobalVars.stConveyor.o_bFault,
-        o_iCurrentState              => GlobalVars.stConveyor.o_iCurrentState,
-        o_LxCurrentStep              => GlobalVars.stConveyor.o_LxCurrentStep,
-        o_iAlarmCode                 => GlobalVars.stConveyor.o_iAlarmCode
+        q_bBlockSolenoid        => GlobalVars.stConveyor.q_aBlockSolenoid[1],
+        q_bSeparateSolenoid     => GlobalVars.stConveyor.q_aSeparateSolenoid[1],
+        q_bConveyorFwd          => GlobalVars.stConveyor.q_aConveyorFwd[1],
+        q_bConveyorRev          => GlobalVars.stConveyor.q_aConveyorRev[1],
+        q_bConveyorSlow         => GlobalVars.stConveyor.q_aConveyorSlow[1],
+        q_iCurrentState         => GlobalVars.stConveyor.q_aLayerStep[1],
+        q_iAlarmCode            => GlobalVars.stConveyor.q_aLayerAlarmCode[1],
+        q_bRunning              => GlobalVars.stConveyor.q_aLayerRunning[1],
+        q_bFault                => GlobalVars.stConveyor.q_aLayerFault[1],
+        q_bLayerFeedDone        => GlobalVars.stConveyor.q_aLayerFeedDone[1],
+        q_bAnySensorFault       => GlobalVars.stConveyor.q_aLayerSensorFault[1]
     );
+
+    (* ===== 第2层 ===== *)
+    GlobalVars.fbConveyor_L2(
+        i_bAutoMode             := GlobalVars.stConveyor.i_bAutoMode,
+        i_bManualMode           := GlobalVars.stConveyor.i_bManualMode,
+        i_bStart                := GlobalVars.stConveyor.i_bStart,
+        i_bStop                 := GlobalVars.stConveyor.i_bStop,
+        i_iLayerIndex           := 2,
+        i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+
+        i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[2],
+        i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[2],
+        i_bPositionSensor2      := GlobalVars.stConveyor.i_aPositionSensor2[2],
+        i_bBlockCylinderUp      := GlobalVars.stConveyor.i_aBlockCylinderUp[2],
+        i_bBlockCylinderDown    := GlobalVars.stConveyor.i_aBlockCylinderDown[2],
+        i_bSeparateCylinderUp   := GlobalVars.stConveyor.i_aSeparateCylinderUp[2],
+        i_bSeparateCylinderDown := GlobalVars.stConveyor.i_aSeparateCylinderDown[2],
+
+        i_bSafetyDoorOk         := GlobalVars.stConveyor.i_bSafetyDoorOk,
+        i_bVfdFault             := GlobalVars.stConveyor.i_bVfdFault,
+        i_bPickupConfirmed      := GlobalVars.stConveyor.i_aPickupConfirmed[2],
+
+        i_bManBlockExtend       := GlobalVars.stConveyor.i_aManBlockExtend[2],
+        i_bManBlockRetract      := GlobalVars.stConveyor.i_aManBlockRetract[2],
+        i_bManSeparatePush      := GlobalVars.stConveyor.i_aManSeparatePush[2],
+        i_bManConveyorFwd       := GlobalVars.stConveyor.i_aManConveyorFwd[2],
+        i_bManConveyorRev       := GlobalVars.stConveyor.i_aManConveyorRev[2],
+        i_bManConveyorSlow      := GlobalVars.stConveyor.i_aManConveyorSlow[2],
+
+        q_bBlockSolenoid        => GlobalVars.stConveyor.q_aBlockSolenoid[2],
+        q_bSeparateSolenoid     => GlobalVars.stConveyor.q_aSeparateSolenoid[2],
+        q_bConveyorFwd          => GlobalVars.stConveyor.q_aConveyorFwd[2],
+        q_bConveyorRev          => GlobalVars.stConveyor.q_aConveyorRev[2],
+        q_bConveyorSlow         => GlobalVars.stConveyor.q_aConveyorSlow[2],
+        q_iCurrentState         => GlobalVars.stConveyor.q_aLayerStep[2],
+        q_iAlarmCode            => GlobalVars.stConveyor.q_aLayerAlarmCode[2],
+        q_bRunning              => GlobalVars.stConveyor.q_aLayerRunning[2],
+        q_bFault                => GlobalVars.stConveyor.q_aLayerFault[2],
+        q_bLayerFeedDone        => GlobalVars.stConveyor.q_aLayerFeedDone[2],
+        q_bAnySensorFault       => GlobalVars.stConveyor.q_aLayerSensorFault[2]
+    );
+
+    (* ===== 第3层 ===== *)
+    GlobalVars.fbConveyor_L3(
+        i_bAutoMode             := GlobalVars.stConveyor.i_bAutoMode,
+        i_bManualMode           := GlobalVars.stConveyor.i_bManualMode,
+        i_bStart                := GlobalVars.stConveyor.i_bStart,
+        i_bStop                 := GlobalVars.stConveyor.i_bStop,
+        i_iLayerIndex           := 3,
+        i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+
+        i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[3],
+        i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[3],
+        i_bPositionSensor2      := GlobalVars.stConveyor.i_aPositionSensor2[3],
+        i_bBlockCylinderUp      := GlobalVars.stConveyor.i_aBlockCylinderUp[3],
+        i_bBlockCylinderDown    := GlobalVars.stConveyor.i_aBlockCylinderDown[3],
+        i_bSeparateCylinderUp   := GlobalVars.stConveyor.i_aSeparateCylinderUp[3],
+        i_bSeparateCylinderDown := GlobalVars.stConveyor.i_aSeparateCylinderDown[3],
+
+        i_bSafetyDoorOk         := GlobalVars.stConveyor.i_bSafetyDoorOk,
+        i_bVfdFault             := GlobalVars.stConveyor.i_bVfdFault,
+        i_bPickupConfirmed      := GlobalVars.stConveyor.i_aPickupConfirmed[3],
+
+        i_bManBlockExtend       := GlobalVars.stConveyor.i_aManBlockExtend[3],
+        i_bManBlockRetract      := GlobalVars.stConveyor.i_aManBlockRetract[3],
+        i_bManSeparatePush      := GlobalVars.stConveyor.i_aManSeparatePush[3],
+        i_bManConveyorFwd       := GlobalVars.stConveyor.i_aManConveyorFwd[3],
+        i_bManConveyorRev       := GlobalVars.stConveyor.i_aManConveyorRev[3],
+        i_bManConveyorSlow      := GlobalVars.stConveyor.i_aManConveyorSlow[3],
+
+        q_bBlockSolenoid        => GlobalVars.stConveyor.q_aBlockSolenoid[3],
+        q_bSeparateSolenoid     => GlobalVars.stConveyor.q_aSeparateSolenoid[3],
+        q_bConveyorFwd          => GlobalVars.stConveyor.q_aConveyorFwd[3],
+        q_bConveyorRev          => GlobalVars.stConveyor.q_aConveyorRev[3],
+        q_bConveyorSlow         => GlobalVars.stConveyor.q_aConveyorSlow[3],
+        q_iCurrentState         => GlobalVars.stConveyor.q_aLayerStep[3],
+        q_iAlarmCode            => GlobalVars.stConveyor.q_aLayerAlarmCode[3],
+        q_bRunning              => GlobalVars.stConveyor.q_aLayerRunning[3],
+        q_bFault                => GlobalVars.stConveyor.q_aLayerFault[3],
+        q_bLayerFeedDone        => GlobalVars.stConveyor.q_aLayerFeedDone[3],
+        q_bAnySensorFault       => GlobalVars.stConveyor.q_aLayerSensorFault[3]
+    );
+
+    (* ===== 第4层 ===== *)
+    GlobalVars.fbConveyor_L4(
+        i_bAutoMode             := GlobalVars.stConveyor.i_bAutoMode,
+        i_bManualMode           := GlobalVars.stConveyor.i_bManualMode,
+        i_bStart                := GlobalVars.stConveyor.i_bStart,
+        i_bStop                 := GlobalVars.stConveyor.i_bStop,
+        i_iLayerIndex           := 4,
+        i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+
+        i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[4],
+        i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[4],
+        i_bPositionSensor2      := GlobalVars.stConveyor.i_aPositionSensor2[4],
+        i_bBlockCylinderUp      := GlobalVars.stConveyor.i_aBlockCylinderUp[4],
+        i_bBlockCylinderDown    := GlobalVars.stConveyor.i_aBlockCylinderDown[4],
+        i_bSeparateCylinderUp   := GlobalVars.stConveyor.i_aSeparateCylinderUp[4],
+        i_bSeparateCylinderDown := GlobalVars.stConveyor.i_aSeparateCylinderDown[4],
+
+        i_bSafetyDoorOk         := GlobalVars.stConveyor.i_bSafetyDoorOk,
+        i_bVfdFault             := GlobalVars.stConveyor.i_bVfdFault,
+        i_bPickupConfirmed      := GlobalVars.stConveyor.i_aPickupConfirmed[4],
+
+        i_bManBlockExtend       := GlobalVars.stConveyor.i_aManBlockExtend[4],
+        i_bManBlockRetract      := GlobalVars.stConveyor.i_aManBlockRetract[4],
+        i_bManSeparatePush      := GlobalVars.stConveyor.i_aManSeparatePush[4],
+        i_bManConveyorFwd       := GlobalVars.stConveyor.i_aManConveyorFwd[4],
+        i_bManConveyorRev       := GlobalVars.stConveyor.i_aManConveyorRev[4],
+        i_bManConveyorSlow      := GlobalVars.stConveyor.i_aManConveyorSlow[4],
+
+        q_bBlockSolenoid        => GlobalVars.stConveyor.q_aBlockSolenoid[4],
+        q_bSeparateSolenoid     => GlobalVars.stConveyor.q_aSeparateSolenoid[4],
+        q_bConveyorFwd          => GlobalVars.stConveyor.q_aConveyorFwd[4],
+        q_bConveyorRev          => GlobalVars.stConveyor.q_aConveyorRev[4],
+        q_bConveyorSlow         => GlobalVars.stConveyor.q_aConveyorSlow[4],
+        q_iCurrentState         => GlobalVars.stConveyor.q_aLayerStep[4],
+        q_iAlarmCode            => GlobalVars.stConveyor.q_aLayerAlarmCode[4],
+        q_bRunning              => GlobalVars.stConveyor.q_aLayerRunning[4],
+        q_bFault                => GlobalVars.stConveyor.q_aLayerFault[4],
+        q_bLayerFeedDone        => GlobalVars.stConveyor.q_aLayerFeedDone[4],
+        q_bAnySensorFault       => GlobalVars.stConveyor.q_aLayerSensorFault[4]
+    );
+
+    (* ===== 汇总 ===== *)
+    GlobalVars.stConveyor.q_bRunning :=
+        GlobalVars.stConveyor.q_aLayerRunning[1] OR
+        GlobalVars.stConveyor.q_aLayerRunning[2] OR
+        GlobalVars.stConveyor.q_aLayerRunning[3] OR
+        GlobalVars.stConveyor.q_aLayerRunning[4];
+
+    GlobalVars.stConveyor.q_bFault :=
+        GlobalVars.stConveyor.q_aLayerFault[1] OR
+        GlobalVars.stConveyor.q_aLayerFault[2] OR
+        GlobalVars.stConveyor.q_aLayerFault[3] OR
+        GlobalVars.stConveyor.q_aLayerFault[4];
+
+    IF GlobalVars.stConveyor.q_aLayerAlarmCode[1] > 0 THEN
+        GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[1];
+    END_IF;
+    IF GlobalVars.stConveyor.q_aLayerAlarmCode[2] > 0 THEN
+        IF GlobalVars.stConveyor.q_iAlarmCode = 0 THEN
+            GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[2];
+        ELSIF GlobalVars.stConveyor.q_aLayerAlarmCode[2] < GlobalVars.stConveyor.q_iAlarmCode THEN
+            GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[2];
+        END_IF;
+    END_IF;
+    IF GlobalVars.stConveyor.q_aLayerAlarmCode[3] > 0 THEN
+        IF GlobalVars.stConveyor.q_iAlarmCode = 0 THEN
+            GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[3];
+        ELSIF GlobalVars.stConveyor.q_aLayerAlarmCode[3] < GlobalVars.stConveyor.q_iAlarmCode THEN
+            GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[3];
+        END_IF;
+    END_IF;
+    IF GlobalVars.stConveyor.q_aLayerAlarmCode[4] > 0 THEN
+        IF GlobalVars.stConveyor.q_iAlarmCode = 0 THEN
+            GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[4];
+        ELSIF GlobalVars.stConveyor.q_aLayerAlarmCode[4] < GlobalVars.stConveyor.q_iAlarmCode THEN
+            GlobalVars.stConveyor.q_iAlarmCode := GlobalVars.stConveyor.q_aLayerAlarmCode[4];
+        END_IF;
+    END_IF;
 
     // ============================================================================
     // 第3部分：取放料机构 (FB_1003 V6.0.0, 6步S20~S25状态机)
@@ -157,7 +319,7 @@ BEGIN
         i_iClampConfirmTime          := GlobalVars.stPickPlace.i_iClampConfirmTime,
         i_iLiftActionTime            := GlobalVars.stPickPlace.i_iLiftActionTime,
 
-        i_bLayerFeedDone             := GlobalVars.stConveyor.o_bFeedComplete,
+        i_bLayerFeedDone             := GlobalVars.stConveyor.q_aLayerFeedDone,
 
         i_bLongEdge1Detect           := GlobalVars.stPickPlace.i_bLongEdge1Detect,
         i_bLongEdge2Detect           := GlobalVars.stPickPlace.i_bLongEdge2Detect,
@@ -239,7 +401,7 @@ BEGIN
     // 第5部分：公共报警管理 (FB_2001 V2.1.0)
     // ============================================================================
     GlobalVars.fbCommonAlarm(
-        i_iConveyorAlarm             := GlobalVars.stConveyor.o_iAlarmCode,
+        i_iConveyorAlarm             := GlobalVars.stConveyor.q_iAlarmCode,
         i_iPickPlaceAlarm            := GlobalVars.stPickPlace.o_iStationAlarmCode,
         i_iFeederAlarm               := GlobalVars.stFeeder.o_iStationAlarmCode,
         i_bReset                     := GlobalVars.stGlobal.i_bReset,

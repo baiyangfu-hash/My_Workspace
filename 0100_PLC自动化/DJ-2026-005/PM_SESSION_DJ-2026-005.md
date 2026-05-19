@@ -13,32 +13,34 @@
 - non_goals: 待补充
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 阶段3完成：全部ST代码重写为V6.0.0，变量100%英文，接口对齐PRD
-- milestone: 阶段3 - ST代码重写 ✅
+- current_focus: Conveyor子系统高内聚低耦合重构 — 阶段4完成(DB1+OB1同步更新)
+- milestone: 阶段4 - Conveyor子系统架构重构 V7.0.0
 - acceptance:
   - ✅ 阶段0：SRC基线
   - ✅ 阶段1：6份核心文档修正
   - ✅ 规范升级：801_DEV-V1.0.3→V1.0.5（英文标识符强制）
-  - ✅ 阶段2：FB级PRD全部重写V6.0.0（FB_1002+FB_1003+FB_1004+FB_2001+FB_External）
-  - ✅ 阶段3：ST代码全部重写（8个源文件全部V6.0.0）
-  - ⬜ 待定：AxisControl独立轴FB（当前FB1003/1004用轴请求接口占位）
+  - ✅ 阶段2：FB级PRD全部重写V6.0.0
+  - ✅ 阶段3：ST代码全部重写V6.0.0
+  - ✅ 阶段4-Conveyor重构: 7份PRD文档 (FB_1002 V7.0.0 + FB_1011 + FB_1012 + ARC)
+  - ✅ 阶段4-Conveyor重构: FB_1002 ST代码 V7.0.0
+  - ✅ 阶段4-Conveyor重构: DB1 GlobalVars.db stConveyor重写 + 4×FB_1002实例
+  - ✅ 阶段4-Conveyor重构: OB1.scl 展开调用 + 汇总逻辑
+  - ✅ 阶段4-Conveyor重构: DB1/OB1 PRD文档同步升级V7.0.0
+  - ⬜ 待定：AxisControl独立轴FB
   - ⬜ 待定：TIA Portal编译验证+VS Code LSP诊断
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 阶段3已完成：8个源文件全部重写为V6.0.0
+  - 阶段4完成 (Conveyor V7.0.0重构: FB_1002.scl + DB1 + OB1 + 7份PRD)
 - next_up:
-  - 建议：TIA Portal导入编译验证
-  - 建议：VS Code LSP语法诊断
-  - 建议：HMI通信变量对齐（GlobalVars→HMI Tags）
-  - 待定：独立AxisControl轴FB实现
+  - 人工审核整体重构结果
+  - 决策: AxisControl独立轴FB是否需要
+  - 决策: TIA Portal编译验证时机
 - open_questions:
-  - 是否需要立即创建独立的AxisControl FB？当前轴抽象接口（q_bXxxReq + q_rTargetPos）是否足够？
-  - FB_1002 的 bPickupConfirmed 是内部VAR变量，如何从FB_1003接入？（需FB级通讯机制）
-  - 是否需要编写 .scltest 测试用例？
+  - 审核后会否需要调整子FB的接口或行为？
+  - 是否需要为 FB_1011/FB_1012 编写 .scltest 测试用例？
 - risks_dependencies:
-  - 现有ST代码与PRD大幅冲突（✅ 阶段3已全部解决）
-  - 新增风险：OB1/DB1大改可能影响HMI通信变量映射（需要TIA Portal验证）
+  - FB_1001 取消后，OB1/DB1 需要一并更新（中等影响范围）
 
 ## 4. Artifacts Index（文档索引）— ST开发核心文档全景
 
@@ -64,8 +66,10 @@
 ### 4.4 L3-FB级接口/设计层（各FB的PRD/，全部V6.0.0，IFC+DSN+CHG+UM）
 - ob1:      02_PLC程序\通用ST程序及变量表\OB1\PRD\ (IFC-V5.0.0 + DSN + CHG) — 待更新到V6.0.0
 - db1:      02_PLC程序\通用ST程序及变量表\DB1\PRD\ (IFC-V3.0.0 258变量5结构 + CHG) — 待更新到V6.0.0
-- fb1001:   02_PLC程序\通用ST程序及变量表\conveyor\PRD\ (IFC-V4.3.0 + DSN + UM + CHG) — 待更新到V6.0.0
-- fb1002:   02_PLC程序\通用ST程序及变量表\conveyor\PRD\ (IFC-V6.0.0 + DSN-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅ 新增
+- fb1001:   02_PLC程序\通用ST程序及变量表\conveyor\PRD\archive_V6.0.0\ (已归档-旧版 FB_1001 取消)
+- fb1002:   02_PLC程序\通用ST程序及变量表\conveyor\PRD\ (IFC-V7.0.0 + DSN-V7.0.0 + ARC-V7.0.0) 🆕 编排器重构
+- fb1011:   01_SharedLibraries\SysLib\actuator\PRD\ (IFC-V7.0.0 + DSN-V7.0.0) 🆕 通用气缸执行器 (SysLib)
+- fb1012:   01_SharedLibraries\SysLib\actuator\PRD\ (IFC-V7.0.0 + DSN-V7.0.0) 🆕 通用电机执行器 (SysLib)
 - fb1003:   02_PLC程序\通用ST程序及变量表\pickplace\PRD\ (IFC-V6.0.0 + DSN-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
 - fb1004:   02_PLC程序\通用ST程序及变量表\feeder\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
 - fb2001:   02_PLC程序\通用ST程序及变量表\common\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
@@ -116,6 +120,7 @@
 
 ## 5. Logs（按事件沉淀）
 - refactor_log:
+  - 2026-05-18 Conveyor子系统高内聚低耦合重构PRD: 取消FB_1001(87接口→0), FB_1002瘦身为编排器(39→33接口), 抽取FB_1011气缸控制(10接口,复用×2)和FB_1012电机控制(11接口), 系统总接口从126降到54(-57%)。FB_1011/FB_1012文档搬迁至01_SharedLibraries/SysLib/actuator/ 作为通用执行器库。9步Step_S状态机逻辑不变。旧6份PRD归档至archive_V6.0.0 | PRD阶段完成,待人工审核
   - 2026-05-18 INT→WORD类型重构: FB_2001报警码(wAlarmCode:WORD) + MES队列(aMesQueue:WORD[10]) + 字面量(ALM_NONE:WORD:=16#0000); FOR/算术/索引变量保留INT(移植性); FB_1002/1003/1004/External原始INT保持(避免跨FB引用断裂); 801规范V1.0.6新增w/dw前缀; DSN/IFC同步更新
   - 2026-05-18 ST code validation: Ran LSP diagnostics on all .scl files; no errors detected.
 - bug_log:

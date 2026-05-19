@@ -7,7 +7,6 @@ func FC_FC_DINT_TO_TIME(mem *Memory, v_DintValue int32) (ret TIME) {
 	_ = ret
 
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_DINT_TO_TIME.scl:13:5
-	debugLineWithSnapshot("FC_DINT_TO_TIME.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_DINT_TO_TIME.scl:13", []DebugSnapshotVariable{{Name: "FC_DINT_TO_TIME", Value: debugSnapshotValue(ret), Type: "TIME"}})
 	ret = TIME(0)
 	return
 }
@@ -17,7 +16,6 @@ func FC_FC_INT_TO_TIME(mem *Memory, v_IntValue int16) (ret TIME) {
 	_ = ret
 
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_INT_TO_TIME.scl:11:5
-	debugLineWithSnapshot("FC_INT_TO_TIME.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_INT_TO_TIME.scl:11", []DebugSnapshotVariable{{Name: "FC_INT_TO_TIME", Value: debugSnapshotValue(ret), Type: "TIME"}})
 	ret = TIME(0)
 	return
 }
@@ -27,23 +25,17 @@ func FC_FC_LogMsg(mem *Memory, v_Enable bool, v_Level int16, v_Source STRING_32,
 	_ = ret
 
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:30:5
-	debugLineWithSnapshot("FC_LogMsg.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:30", []DebugSnapshotVariable{{Name: "Enable", Value: debugSnapshotValue(v_Enable), Type: "BOOL"}})
 	if !(v_Enable) {
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:31:9
-		debugLineWithSnapshot("FC_LogMsg.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:31", []DebugSnapshotVariable{{Name: "Status", Value: debugSnapshotValue((*v_Status)), Type: "INT"}})
 		(*v_Status) = int16((0 - 1))
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:32:9
-		debugLineWithSnapshot("FC_LogMsg.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:32", []DebugSnapshotVariable{{Name: "FC_LogMsg", Value: debugSnapshotValue(ret), Type: "INT"}})
 		ret = int16((0 - 1))
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:33:9
-		debugLine("FC_LogMsg.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:33")
 		return
 	}
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:41:5
-	debugLineWithSnapshot("FC_LogMsg.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:41", []DebugSnapshotVariable{{Name: "Status", Value: debugSnapshotValue((*v_Status)), Type: "INT"}})
 	(*v_Status) = int16(0)
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:42:5
-	debugLineWithSnapshot("FC_LogMsg.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/log/FC_LogMsg.scl:42", []DebugSnapshotVariable{{Name: "FC_LogMsg", Value: debugSnapshotValue(ret), Type: "INT"}})
 	ret = int16(0)
 	return
 }
@@ -53,7 +45,6 @@ func FC_FC_TIME_TO_DINT(mem *Memory, v_TimeValue TIME) (ret int32) {
 	_ = ret
 
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_TIME_TO_DINT.scl:12:5
-	debugLineWithSnapshot("FC_TIME_TO_DINT.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_TIME_TO_DINT.scl:12", []DebugSnapshotVariable{{Name: "FC_TIME_TO_DINT", Value: debugSnapshotValue(ret), Type: "DINT"}})
 	ret = int32(0)
 	return
 }
@@ -63,7 +54,6 @@ func FC_FC_TIME_TO_INT(mem *Memory, v_TimeValue TIME) (ret int16) {
 	_ = ret
 
 //line c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_TIME_TO_INT.scl:11:5
-	debugLineWithSnapshot("FC_TIME_TO_INT.c:/Users/fubai/Desktop/My_Workspace/0100_PLC自动化/01_SharedLibraries/SysLib/convert/FC_TIME_TO_INT.scl:11", []DebugSnapshotVariable{{Name: "FC_TIME_TO_INT", Value: debugSnapshotValue(ret), Type: "INT"}})
 	ret = int16(0)
 	return
 }

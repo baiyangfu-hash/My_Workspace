@@ -97,7 +97,7 @@ const (
 	opcuaDefaultHostName   = "127.0.0.1"
 )
 
-const runtimeHasDebugSnapshotOPC = true
+const runtimeHasDebugSnapshotOPC = false
 
 func opcuaWritableRolePermissions() []ua.RolePermissionType {
 	permissions := ua.PermissionTypeBrowse | ua.PermissionTypeRead | ua.PermissionTypeWrite | ua.PermissionTypeReadHistory

@@ -7,8 +7,8 @@
 | **文档标题** | OB1主程序组织块接口文档 |
 | **适用组件** | OB1 (主程序组织块) |
 | **文档类型** | 接口文档 / Interface Document (IFC) |
-| **文档版本** | V5.0.0 |
-| **编制日期** | 2026-05-04 |
+| **文档版本** | V7.0.0 |
+| **编制日期** | 2026-05-18 |
 | **编制人** | Trae |
 | **审核人** | [待审核] |
 | **遵循规范** | `801_PLC变量命名与功能块命名规范_DEV-V1.0.5` |
@@ -36,7 +36,7 @@ OB1是边框缓存机的**主程序组织块**，负责：
 │  Step 2: HMI数据读取 (M/D→内部)                             │
 │  Step 3: 安全系统判断                                       │
 │  Step 4: 外部设备交互FB调用                                 │
-│  Step 5: 四层输送机FB调用                                   │
+│  Step 5: 四层输送机FB调用 (4×FB_1002 展开 + 汇总)          │
 │  Step 6: 取放料机构FB调用                                   │
 │  Step 7: 打胶机送料FB调用                                   │
 │  Step 8: 公共报警管理FB调用                                 │
@@ -52,7 +52,7 @@ OB1是边框缓存机的**主程序组织块**，负责：
 | 调用顺序 | FB名称 | 功能描述 | 输入来源 | 输出去向 |
 |:-------:|--------|----------|----------|----------|
 | 1 | FB_ExternalDeviceInteraction | 外部设备交互 | GlobalVars.stExternal | GlobalVars.stExternal |
-| 2 | FB_1001_Conveyor4Layer | 四层输送机控制 | GlobalVars.stConveyor | GlobalVars.stConveyor |
+| 2 | FB_1002 ×4 (L1~L4展开) | 四层输送机控制 | GlobalVars.stConveyor (逐层索引) | GlobalVars.stConveyor (逐层索引) |
 | 3 | FB_1003_PickPlace | 取放料机构控制 | GlobalVars.stPickPlace | GlobalVars.stPickPlace |
 | 4 | FB_1004_GlueMachineFeeder | 打胶机送料控制 | GlobalVars.stFeeder | GlobalVars.stFeeder |
 | 5 | FB_2001_CommonAlarm | 公共报警管理 | 各工站报警输出 | GlobalVars.stAlarm |
@@ -105,8 +105,8 @@ M200 (全局互锁) = NOT X16 AND X14 AND X15 AND Y13
 
 | 版本号 | 日期 | 变更内容 |
 |--------|------|----------|
+| V7.0.0 | 2026-05-18 | Conveyor重构: FB_1001取消, 展开调用4×FB_1002, 新增汇总逻辑 |
 | V5.0.0 | 2026-05-04 | 接口变量名100%英文化，与GlobalVars.db V3.0.0同步 |
-| V4.0.0 | 2026-04-24 | 初版创建，实现三工站流水线调度 |
 
 ---
 

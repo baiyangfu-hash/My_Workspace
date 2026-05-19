@@ -1,0 +1,72 @@
+(* ================================================================= *)
+(*  FB_1012_ConveyorMotor                                             *)
+(*  输送电机控制 - 方向仲裁+安全门互锁+VFD故障检测                    *)
+(*  版本: V7.0.0  日期: 2026-05-18                                    *)
+(*  来源: SysLib/actuator/                                            *)
+(*  规范: 801_DEV-V1.0.5, 810_DEV-V1.0.2                             *)
+(* ================================================================= *)
+
+FUNCTION_BLOCK FB_1012_ConveyorMotor
+
+VAR_INPUT
+    i_bFwd          : BOOL;     (* 正转命令 *)
+    i_bRev          : BOOL;     (* 反转命令 *)
+    i_bSlow         : BOOL;     (* 慢速命令 *)
+    i_bSafetyDoorOk : BOOL;     (* 安全门状态 TRUE=关闭OK *)
+    i_bVfdFault     : BOOL;     (* 变频器故障 *)
+    i_rSpeed        : REAL;     (* 速度设定值(mm/s) 透传用 *)
+END_VAR
+
+VAR_OUTPUT
+    q_bFwd          : BOOL;     (* 正转实际输出 *)
+    q_bRev          : BOOL;     (* 反转实际输出 *)
+    q_bSlow         : BOOL;     (* 慢速实际输出 *)
+    q_bRunning      : BOOL;     (* 任一方向运行中 *)
+    q_bVfdAlarm     : BOOL;     (* VFD故障报警 *)
+END_VAR
+
+(* ==================== VFD故障检测 最高优先级 ==================== *)
+IF i_bVfdFault THEN
+    q_bVfdAlarm := TRUE;
+    q_bFwd := FALSE;
+    q_bRev := FALSE;
+    q_bSlow := FALSE;
+    q_bRunning := FALSE;
+    RETURN;
+ELSE
+    q_bVfdAlarm := FALSE;
+END_IF;
+
+(* ==================== 安全门互锁 ==================== *)
+IF NOT i_bSafetyDoorOk THEN
+    q_bFwd := FALSE;
+    q_bRev := FALSE;
+    q_bSlow := FALSE;
+    q_bRunning := FALSE;
+    RETURN;
+END_IF;
+
+(* ==================== 方向命令仲裁 Fwd > Rev > Slow ==================== *)
+IF i_bFwd THEN
+    q_bFwd := TRUE;
+    q_bRev := FALSE;
+    q_bSlow := FALSE;
+    q_bRunning := TRUE;
+ELSIF i_bRev THEN
+    q_bFwd := FALSE;
+    q_bRev := TRUE;
+    q_bSlow := FALSE;
+    q_bRunning := TRUE;
+ELSIF i_bSlow THEN
+    q_bFwd := FALSE;
+    q_bRev := FALSE;
+    q_bSlow := TRUE;
+    q_bRunning := TRUE;
+ELSE
+    q_bFwd := FALSE;
+    q_bRev := FALSE;
+    q_bSlow := FALSE;
+    q_bRunning := FALSE;
+END_IF;
+
+END_FUNCTION_BLOCK
