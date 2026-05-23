@@ -43,6 +43,7 @@ def run_gui():
     from PyQt5.QtGui import QGuiApplication
     from PyQt5.QtWidgets import QApplication
     from src.ui.main_window import MainWindow
+    from src.ui.builders.style_builder import StyleBuilder
 
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
@@ -57,11 +58,22 @@ def run_gui():
     app.setApplicationName(ConfigLoader.get("app_name", "PLC项目管理工具"))
     app.setApplicationVersion(ConfigLoader.get("version", "1.0.0"))
 
+    app.setFont(StyleBuilder._resolve_chinese_font(10))
+
     window = MainWindow()
     window.show()
 
     logger.info("GUI应用启动成功")
-    sys.exit(app.exec_())
+
+    exit_code = app.exec_()
+
+    app.processEvents()
+    app.closeAllWindows()
+
+    import gc
+    gc.collect()
+
+    sys.exit(exit_code)
 
 
 def main():

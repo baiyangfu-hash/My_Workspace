@@ -14,8 +14,9 @@ from PyQt5.QtWidgets import (
     QMenu,
     QMessageBox,
     QAction,
+    QInputDialog,
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 
 from src.utils.logger import setup_logger
 
@@ -29,10 +30,17 @@ class ProjectTreeWidget(QWidget):
     功能:
     - 展示当前打开项目的目录结构
     - 以图标区分不同类型的节点 (文件夹/文档/代码)
-    - 支持双击打开文档
+    - 支持双击打开文档并导航到对应Tab
     - 右键菜单支持新建/删除/重命名等操作
     - 与主窗口TabWidget联动切换内容区
+
+    Signals:
+        navigation_requested(int, dict): 请求导航到指定Tab
+            - int: Tab索引
+            - dict: 上下文数据 (如项目对象)
     """
+
+    navigation_requested = pyqtSignal(int, dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -173,26 +181,52 @@ class ProjectTreeWidget(QWidget):
             child.setData(0, Qt.UserRole, document)
 
     def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int):
-        """处理双击事件"""
+        """处理双击事件 — 根据节点类型导航到对应Tab"""
         data = item.data(0, Qt.UserRole) or {}
         item_type = data.get("type", "")
+        name = data.get("name", item.text(0))
+
+        context = {"project": self._current_project, "item_data": data, "name": name}
 
         if item_type in ("document", "code"):
-            name = data.get("name", item.text(0))
             logger.info(f"双击打开: {name}")
-            # TODO: 联动TabWidget切换到对应编辑器页面
+            self.navigation_requested.emit(2, context)
+        elif item_type == "project":
+            logger.info(f"双击项目节点: {name}")
+            self.navigation_requested.emit(1, context)
+        elif item_type == "folder":
+            self.navigation_requested.emit(1, context)
+        elif item_type == "workflow":
+            self.navigation_requested.emit(1, context)
+        else:
+            logger.debug(f"双击未识别类型节点: {item_type}")
 
     def _on_context_menu(self, position):
-        """显示右键上下文菜单"""
         item = self._tree.itemAt(position)
         if not item:
             return
 
         menu = QMenu(self)
 
+        action_new_folder = QAction("\U0001F4C2 新建文件夹", menu)
+        action_new_folder.triggered.connect(lambda: self._on_new_folder(item))
+        menu.addAction(action_new_folder)
+
         action_new_doc = QAction("\U0001F4DD 新建文档...", menu)
         action_new_doc.triggered.connect(lambda: self._on_new_document(item))
         menu.addAction(action_new_doc)
+
+        menu.addSeparator()
+
+        action_rename = QAction("\u270F\uFE0F 重命名", menu)
+        action_rename.triggered.connect(lambda: self._on_rename(item))
+        menu.addAction(action_rename)
+
+        action_delete = QAction("\U0001F5D1 删除", menu)
+        action_delete.triggered.connect(lambda: self._on_delete(item))
+        menu.addAction(action_delete)
+
+        menu.addSeparator()
 
         action_refresh = QAction("\U0001F504 刷新", menu)
         action_refresh.triggered.connect(lambda: self._refresh_tree(item))
@@ -209,6 +243,47 @@ class ProjectTreeWidget(QWidget):
         menu.addAction(action_collapse)
 
         menu.exec_(self._tree.viewport().mapToGlobal(position))
+
+    def _on_new_folder(self, item: QTreeWidgetItem):
+        name, ok = QInputDialog.getText(
+            self, "新建文件夹", "文件夹名称:"
+        )
+        if ok and name.strip():
+            new_child = QTreeWidgetItem(item)
+            new_child.setText(0, f"\U0001F4C1 {name.strip()}")
+            new_child.setData(0, Qt.UserRole, {"type": "folder", "name": name.strip()})
+            item.setExpanded(True)
+            logger.info(f"新建文件夹: {name.strip()}")
+
+    def _on_rename(self, item: QTreeWidgetItem):
+        data = item.data(0, Qt.UserRole) or {}
+        old_name = data.get("name", item.text(0))
+        new_name, ok = QInputDialog.getText(
+            self, "重命名", "新名称:", text=old_name
+        )
+        if ok and new_name.strip() and new_name.strip() != old_name:
+            data["name"] = new_name.strip()
+            item.setData(0, Qt.UserRole, data)
+            prefix = ""
+            if data.get("type") == "folder":
+                prefix = "\U0001F4C1 "
+            elif data.get("type") == "document":
+                prefix = "\U0001F4DD "
+            item.setText(0, f"{prefix}{new_name.strip()}")
+            logger.info(f"重命名: {old_name} -> {new_name.strip()}")
+
+    def _on_delete(self, item: QTreeWidgetItem):
+        data = item.data(0, Qt.UserRole) or {}
+        name = data.get("name", item.text(0))
+        reply = QMessageBox.question(
+            self, "\u2753 确认删除",
+            f"确定要删除 \"{name}\" 吗？",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            parent = item.parent() or self._tree.invisibleRootItem()
+            parent.removeChild(item)
+            logger.info(f"已删除: {name}")
 
     def _on_new_document(self, item: QTreeWidgetItem):
         """新建文档"""

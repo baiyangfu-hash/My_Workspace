@@ -64,6 +64,7 @@ from PyQt5.QtCore import (
     Qt,
     pyqtSignal,
     QThread,
+    QMutex,
     QTimer,
     QSize,
     QRect,
@@ -75,6 +76,7 @@ from PyQt5.QtGui import (
     QPainter,
     QPen,
     QBrush,
+    QConicalGradient,
     QLinearGradient,
     QRadialGradient,
     QPalette,
@@ -200,6 +202,7 @@ class DiagnosticWorker(QThread):
         self._diagnostic_type = diagnostic_type
         self._check_report = check_report
         self._is_cancelled = False
+        self._mutex = QMutex()
 
     def run(self):
         """线程主函数 - 执行诊断"""
@@ -209,8 +212,11 @@ class DiagnosticWorker(QThread):
 
             # 步骤1: LSP兼容性诊断
             if self._diagnostic_type in ('lsp', 'full'):
+                self._mutex.lock()
                 if self._is_cancelled:
+                    self._mutex.unlock()
                     return
+                self._mutex.unlock()
                 self.progress_updated.emit('正在执行LSP兼容性扫描...')
 
                 checker = LSPCompatibilityChecker(self._project_path)
@@ -221,8 +227,11 @@ class DiagnosticWorker(QThread):
 
             # 步骤2: 项目健康度分析
             if self._diagnostic_type in ('health', 'full'):
+                self._mutex.lock()
                 if self._is_cancelled:
+                    self._mutex.unlock()
                     return
+                self._mutex.unlock()
                 self.progress_updated.emit('正在分析项目健康度...')
 
                 analyzer = ProjectHealthAnalyzer()
@@ -235,7 +244,10 @@ class DiagnosticWorker(QThread):
                 logger.info(f"健康度分析完成: {metrics.overall_score:.1f}分")
 
             # 发出全部完成信号
-            if not self._is_cancelled:
+            self._mutex.lock()
+            cancelled = self._is_cancelled
+            self._mutex.unlock()
+            if not cancelled:
                 self.all_finished.emit(report, metrics)
 
         except Exception as e:
@@ -243,8 +255,10 @@ class DiagnosticWorker(QThread):
             self.error_occurred.emit(str(e))
 
     def cancel(self):
-        """请求取消执行"""
+        """请求取消执行（线程安全）"""
+        self._mutex.lock()
         self._is_cancelled = True
+        self._mutex.unlock()
 
 
 # ============================================================================
@@ -417,6 +431,11 @@ class ScoreRingWidget(QWidget):
             side // 12
         )
         painter.drawText(title_rect, Qt.AlignCenter, '综合健康度得分')
+
+    def cleanup(self):
+        """停止动画定时器"""
+        if hasattr(self, '_animation_timer') and self._animation_timer.isActive():
+            self._animation_timer.stop()
 
 
 # ============================================================================
@@ -618,6 +637,11 @@ class BarChartWidget(QWidget):
             painter.setPen(grade_color)
             painter.drawText(cx - 20, margin_top + chart_height + 42,
                            40, 14, Qt.AlignCenter, f"[{dim['grade']}]")
+
+    def cleanup(self):
+        """停止动画定时器"""
+        if hasattr(self, '_anim_timer') and self._anim_timer.isActive():
+            self._anim_timer.stop()
 
 
 # ============================================================================
@@ -1354,6 +1378,19 @@ class DiagnosticPanel(QWidget):
     def _on_worker_finished(self):
         """工作线程结束的清理"""
         self._worker = None
+
+    def cleanup(self):
+        """清理后台资源，窗口关闭前调用"""
+        if self._worker and self._worker.isRunning():
+            self._worker.cancel()
+            self._worker.finished.disconnect(self._on_worker_finished)
+            self._worker.wait(2000)
+            self._worker = None
+
+        for attr in ('_ring_widget', '_bar_chart_widget'):
+            widget = getattr(self, attr, None)
+            if widget and hasattr(widget, 'cleanup'):
+                widget.cleanup()
 
     def _on_issue_selection_changed(self):
         """问题列表选择变化处理 - 更新底部详情区"""

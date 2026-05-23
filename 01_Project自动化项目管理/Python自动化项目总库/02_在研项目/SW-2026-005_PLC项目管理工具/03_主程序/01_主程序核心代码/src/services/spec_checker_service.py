@@ -58,11 +58,17 @@ class SpecCheckerService:
         # 加载配置（优先使用传入配置，否则从全局配置加载）
         if config is None:
             try:
-                from config import SPEC_CHECK_CONFIG
-                self._config = SPEC_CHECK_CONFIG
-            except ImportError:
-                logger.warning("无法加载全局配置，使用默认值")
-                self._config = self._get_default_config()
+                from src.core.config import ConfigLoader
+                self._config = ConfigLoader.get("spec_check_config", None)
+                if self._config is None:
+                    raise ImportError("No spec_check_config in ConfigLoader")
+            except (ImportError, Exception):
+                try:
+                    from config import SPEC_CHECK_CONFIG
+                    self._config = SPEC_CHECK_CONFIG
+                except ImportError:
+                    logger.warning("无法加载全局配置，使用默认值")
+                    self._config = self._get_default_config()
         else:
             self._config = config
 

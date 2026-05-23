@@ -1,0 +1,44 @@
+(* ================================================================= *)
+(*  ST_ConveyorLayer                                                  *)
+(*  单层输送机完整结构体 - 气缸+电机+传感器+手动+状态                  *)
+(*  版本: V1.0.0  日期: 2026-05-20                                    *)
+(*  来源: SysLib/types/                                               *)
+(*  复用: 多层输送机的每一层 (通过数组实例化)                          *)
+(*  引用: ST_Cylinder, ST_ConveyorMotor, ST_DualSensor                *)
+(*  嵌套深度: astConveyorLayer[i].stBlockCylinder (3层)               *)
+(* ================================================================= *)
+
+TYPE ST_ConveyorLayer :
+STRUCT
+    // === 传感器组 (引用结构体) ===
+    stPositionDetect  : ST_DualSensor;    // 到位检测 (双传感器冗余)
+
+    // === 气缸组 (引用结构体) ===
+    stBlockCylinder   : ST_Cylinder;      // 阻挡气缸
+    stSeparateCyl     : ST_Cylinder;      // 分料气缸
+
+    // === 电机 (引用结构体) ===
+    stMotor           : ST_ConveyorMotor; // 输送电机
+
+    // === 传感器 (散装BOOL, 避免额外嵌套) ===
+    PreSeparateSensor : BOOL := FALSE;    // 分料前接近开关
+
+    // === 取料确认 ===
+    PickupConfirmed   : BOOL := FALSE;    // 取料机构已取走
+
+    // === 手动操作面板 (6 BOOL, 扁平化) ===
+    ManBlockExtend    : BOOL := FALSE;    // 手动: 阻挡下降
+    ManBlockRetract   : BOOL := FALSE;    // 手动: 阻挡上升
+    ManSeparatePush   : BOOL := FALSE;    // 手动: 分料推出
+    ManConveyorFwd    : BOOL := FALSE;    // 手动: 输送正转
+    ManConveyorRev    : BOOL := FALSE;    // 手动: 输送反转
+    ManConveyorSlow   : BOOL := FALSE;    // 手动: 输送慢速
+
+    // === 状态输出 ===
+    Step              : INT := 0;         // 当前步序 (0~70)
+    AlarmCode         : INT := 0;         // 本层报警码
+    Running           : BOOL := FALSE;    // 运行中
+    Fault             : BOOL := FALSE;    // 故障
+    FeedDone          : BOOL := FALSE;    // 放料完成脉冲
+END_STRUCT
+END_TYPE

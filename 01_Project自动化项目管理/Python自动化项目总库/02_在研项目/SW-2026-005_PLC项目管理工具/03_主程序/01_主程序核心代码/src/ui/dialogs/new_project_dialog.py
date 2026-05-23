@@ -42,6 +42,7 @@ from src.core.constants import (
     TEMPLATE_METADATA,
     TEMPLATE_FILES,
 )
+from src.core.settings import SettingsManager
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -49,7 +50,7 @@ logger = setup_logger(__name__)
 # ============================================================
 # 常量定义
 # ============================================================
-DEFAULT_PARENT_DIR = r"d:\BaiduSyncdisk\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\0100_项目" + "\\"
+DEFAULT_PARENT_DIR = str(Path.home() / "Projects")
 
 # 项目编号正则: DJ-YYYY-NNN
 RE_PROJECT_ID = re.compile(r"^DJ-\d{4}-\d{3}$")
@@ -293,7 +294,10 @@ class DirectorySelectPage(StepPage):
         path_row.addWidget(path_label)
 
         self._edit_path = QLineEdit()
-        self._edit_path.setText(DEFAULT_PARENT_DIR)
+        saved_path = SettingsManager.get(
+            "default_project_root", DEFAULT_PARENT_DIR
+        )
+        self._edit_path.setText(saved_path)
         self._edit_path.setMinimumHeight(32)
         self._edit_path.setStyleSheet("""
             QLineEdit {
@@ -544,7 +548,7 @@ class BasicInfoPage(StepPage):
 
         # ---- IO点数估算 ----
         io_group = self._create_form_group("IO点数估算", required=True)
-        io_layout = QVBoxLayout(io_group)
+        io_layout = io_group.layout()
         io_layout.setSpacing(6)
 
         self._io_button_group = QButtonGroup(self)
@@ -725,13 +729,8 @@ class BasicInfoPage(StepPage):
         """
         from datetime import datetime as dt
         year = dt.now().strftime("%Y")
-        
-        # 通过对话框获取已收集的父目录 (优先) 或使用默认值
-        parent_dir_str = None
-        dialog = self.window()
-        if hasattr(dialog, '_project_data') and 'parent_dir' in dialog._project_data:
-            parent_dir_str = dialog._project_data.get('parent_dir', '').strip()
-        
+
+        parent_dir_str = self._edit_path.text().strip() if hasattr(self, '_edit_path') else ""
         if not parent_dir_str:
             parent_dir_str = DEFAULT_PARENT_DIR
         

@@ -51,12 +51,6 @@ class EventBus(QObject):
     variable_check_request = pyqtSignal()    # 无参数, 触发变量检查面板
     fb_doc_generate_request = pyqtSignal(str)# 参数: ST文件路径
 
-    # ===== IO事件 =====
-    io_table_open_request = pyqtSignal()     # 无参数, 打开IO表管理
-
-    # ===== HMI事件 =====
-    hmi_mapper_open_request = pyqtSignal()   # 无参数, 打开映射工具
-
     # ===== 规范事件 =====
     spec_check_request = pyqtSignal(dict)    # 参数: 检查配置dict
 

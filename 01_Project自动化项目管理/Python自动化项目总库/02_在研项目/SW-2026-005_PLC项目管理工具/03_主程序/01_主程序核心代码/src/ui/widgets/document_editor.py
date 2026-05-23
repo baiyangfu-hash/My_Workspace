@@ -267,9 +267,9 @@ class DocumentEditor(QWidget):
             logger.info(f"已打开文件: {path.name}")
 
     def save_file(self) -> bool:
-        """保存当前文件"""
+        """保存当前文件，无路径时弹出另存为对话框"""
         if not self._current_file_path:
-            return False
+            return self.save_file_as()
         try:
             with open(self._current_file_path, "w", encoding="utf-8") as f:
                 f.write(self._editor.toPlainText())
@@ -279,6 +279,38 @@ class DocumentEditor(QWidget):
             return True
         except IOError as e:
             logger.error(f"文件保存失败: {e}")
+            QMessageBox.critical(self, "错误", f"保存失败: {str(e)}")
+            return False
+
+    def save_file_as(self) -> bool:
+        """另存为 - 弹出文件选择对话框"""
+        from PyQt5.QtWidgets import QFileDialog
+        from pathlib import Path
+
+        default_dir = str(self._current_file_path.parent) if self._current_file_path else str(Path.home())
+        default_name = self._current_file_path.name if self._current_file_path else "untitled.md"
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "另存为",
+            str(Path(default_dir) / default_name),
+            "Markdown文件 (*.md);;文本文件 (*.txt);;所有文件 (*)",
+        )
+
+        if not file_path:
+            return False
+
+        try:
+            path = Path(file_path)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(self._editor.toPlainText())
+            self._current_file_path = path
+            self._modified = False
+            self._update_status()
+            logger.info(f"文件已另存为: {path.name}")
+            return True
+        except IOError as e:
+            logger.error(f"文件另存为失败: {e}")
             QMessageBox.critical(self, "错误", f"保存失败: {str(e)}")
             return False
 

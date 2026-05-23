@@ -57,11 +57,17 @@ class DiagnosticService:
         # 加载配置
         if config is None:
             try:
-                from config import DIAGNOSTIC_CONFIG
-                self._config = DIAGNOSTIC_CONFIG
-            except ImportError:
-                logger.warning("无法加载全局诊断配置，使用默认值")
-                self._config = self._get_default_config()
+                from src.core.config import ConfigLoader
+                self._config = ConfigLoader.get("diagnostic_config", None)
+                if self._config is None:
+                    raise ImportError("No diagnostic_config in ConfigLoader")
+            except (ImportError, Exception):
+                try:
+                    from config import DIAGNOSTIC_CONFIG
+                    self._config = DIAGNOSTIC_CONFIG
+                except ImportError:
+                    logger.warning("无法加载全局诊断配置，使用默认值")
+                    self._config = self._get_default_config()
         else:
             self._config = config
 

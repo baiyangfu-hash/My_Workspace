@@ -333,6 +333,7 @@ class SpecCheckPanel(QWidget):
         self._check_worker: Optional[CheckWorker] = None
         self._all_violations: List[Violation] = []
         self._filtered_violations: List[Violation] = []
+        self._current_project_path: Optional[str] = None
         self._init_ui()
         self._connect_signals()
         logger.info("规范检查面板初始化完成")
@@ -947,11 +948,14 @@ class SpecCheckPanel(QWidget):
             project_path: 项目根目录路径
             file_path: 单文件检查路径（可选）
         """
-        # 如果已有检查在进行中，先停止
+        self._current_project_path = project_path
+
         if self._check_worker and self._check_worker.isRunning():
             self._on_stop_check()
-            import time
-            time.sleep(0.3)  # 等待线程停止
+            self._check_worker.finished.connect(
+                lambda: self.start_check(project_path, file_path)
+            )
+            return
 
         # 获取过滤参数
         scope_index = self._scope_combo.currentIndex()
@@ -1512,9 +1516,16 @@ class SpecCheckPanel(QWidget):
 
     def _on_start_check(self):
         """处理开始检查按钮点击事件"""
-        # 此方法通常由外部调用start_check()触发
-        # 这里仅作为备用入口
-        logger.info("开始检查按钮被点击")
+        if self._current_project_path:
+            self.start_check(self._current_project_path)
+        else:
+            from src.core.settings import SettingsManager
+            recent = SettingsManager.get_recent_projects()
+            if recent:
+                self.start_check(recent[0].get("path", ""))
+            else:
+                self._status_label.setText("⚠ 请先打开一个项目再执行检查")
+                logger.warning("未设置项目路径，无法启动检查")
 
     def _on_stop_check(self):
         """处理停止按钮点击事件"""
@@ -1546,3 +1557,11 @@ class SpecCheckPanel(QWidget):
         """公开接口：清空所有数据和UI状态"""
         self._clear_results()
         self._status_label.setText("\u51C6\u5907\u5C31\u7EEA")
+
+    def cleanup(self):
+        """清理工作线程资源，窗口关闭前调用"""
+        if self._check_worker and self._check_worker.isRunning():
+            self._check_worker.cancel()
+            self._check_worker.finished.disconnect()
+            self._check_worker.wait(2000)
+            self._check_worker = None

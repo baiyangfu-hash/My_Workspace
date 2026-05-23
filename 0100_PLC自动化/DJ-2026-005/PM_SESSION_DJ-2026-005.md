@@ -4,7 +4,7 @@
 - project_id: DJ-2026-005
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
-- last_updated: 2026-05-18
+- last_updated: 2026-05-21
 - owners: 待补充
 
 ## 1. Positioning（项目定位）
@@ -13,9 +13,13 @@
 - non_goals: 待补充
 
 ## 2. Current Focus（当前焦点）
-- current_focus: Conveyor子系统高内聚低耦合重构 — 阶段4完成(DB1+OB1同步更新)
-- milestone: 阶段4 - Conveyor子系统架构重构 V7.0.0
+- current_focus: .scltest测试断言注释规范化 — 801编码规范V1.0.7新增§4.3.5
+- milestone: 编码规范增强 - 测试可读性标准
 - acceptance:
+  - ✅ basic_test.scltest 27条ASSERT行全部追加中文注释(来源: GlobalVars.db)
+  - ✅ 801规范V1.0.6→V1.0.7: 新增§4.3.5 .scltest断言注释规范
+  - ✅ 801自检清单新增第12项: ASSERT行尾中文注释检查
+  - ⬜ 推广至0100_PLC自动化下其他项目的新建.scltest文件
   - ✅ 阶段0：SRC基线
   - ✅ 阶段1：6份核心文档修正
   - ✅ 规范升级：801_DEV-V1.0.3→V1.0.5（英文标识符强制）
@@ -119,11 +123,14 @@
 | `02_PLC程序/分料送料.pdf` | 原始PDF（已提取文本到.trae/） | 🔴 |
 
 ## 5. Logs（按事件沉淀）
+- change_log:
+  - 2026-05-21 .scltest断言注释规范: basic_test.scltest全部27条ASSERT行追加//中文后缀注释(来源GlobalVars.db V7.1.1行内注释); 801编码规范升级V1.0.6→V1.0.7新增§4.3.5(强制规则+格式标准+注释来源优先级+自检清单第12项); 适用范围: 0100_PLC自动化下所有现有及未来项目 | 规范增强完成,待推广
 - refactor_log:
   - 2026-05-18 Conveyor子系统高内聚低耦合重构PRD: 取消FB_1001(87接口→0), FB_1002瘦身为编排器(39→33接口), 抽取FB_1011气缸控制(10接口,复用×2)和FB_1012电机控制(11接口), 系统总接口从126降到54(-57%)。FB_1011/FB_1012文档搬迁至01_SharedLibraries/SysLib/actuator/ 作为通用执行器库。9步Step_S状态机逻辑不变。旧6份PRD归档至archive_V6.0.0 | PRD阶段完成,待人工审核
   - 2026-05-18 INT→WORD类型重构: FB_2001报警码(wAlarmCode:WORD) + MES队列(aMesQueue:WORD[10]) + 字面量(ALM_NONE:WORD:=16#0000); FOR/算术/索引变量保留INT(移植性); FB_1002/1003/1004/External原始INT保持(避免跨FB引用断裂); 801规范V1.0.6新增w/dw前缀; DSN/IFC同步更新
   - 2026-05-18 ST code validation: Ran LSP diagnostics on all .scl files; no errors detected.
 - bug_log:
+  - 2026-05-20 TC11自动模式Z轴定位测试失效: o_iCurrentPickLayer(输出)被用作i_iPickLayer(输入)来源(OB1反馈回路), FB_1003每周期用内部iPickLayer(=0)覆盖导致S20→S21转换条件(i_iPickLayer>0)永远FALSE; 同时缺少X1轴使能验证+o_bRunning断言时序错误 | P0 | ✅已修复(V7.1.1架构修复)
   - 2026-05-18 OB1针脚不匹配: GlobalVars.stGlobal中q_iCurrentAlarmCode→q_wCurrentAlarmCode(INT→WORD)和q_aMesQueue(INT→WORD)未同步FB_2001 V6.0.0 WORD类型, 导致OB1编译报错 | P0 | ✅已修复
 - iteration_log:
   - 2026-05-18 阶段3完成：全部8个ST源文件重写为V6.0.0，变量名100%英文，接口100%对齐V6.0.0 PRD文档。清理14个含中文变量名的旧版PRD文件。FB_1002(V1.0.0→V6.0.0, 8步先分料后输送→9步先输送后分料Step_S, o_→q_前缀, 新增STEP_INIT反转初始化/安全门互锁/传感器冗余一致性检查/分料超时报警100~103); FB_1003(V6.0.0, 11步→6步S20~S25, 移除直接伺服控制改用轴抽象请求q_bXxxReq+q_rTargetPos, 4夹爪独立控制, 产品检测在S22步内, 按层选放料L1/L3→D520 L2/L4→D540, 边框检测阻塞); FB_1004(V6.0.0, 6步→4步D760, X2轴请求接口, 打胶机安全区Y47+允许取料Y44); FB_2001(V2.1.0→V6.0.0, 3INT→~25BOOL分类输入, 49类报警码优先级表(系统/安全门/输送/取放/送料/外部), 指示灯(绿/红/黄Y24~Y26)+蜂鸣器Y27+复位灯Y50, MES去重队列10条); FB_External(V5.0.0→V6.0.0, 8路安全门X140~X147+急停X101+HMI STOP X77+总线健康, 简化接口移除冗余Enable/AutoMode/ManualMode); FB_1001(V4.3.0→V6.0.0, 同步FB_1002新接口, i_bEnable/i_bReset→i_bAutoMode/i_bManualMode/i_bStop, 新增安全信号+传感器冗余输出); DB1(V3.0.0→V6.0.0, 全部5个STRUCT同步新FB接口, stGlobal新增~25输入+指示灯/蜂鸣器输出); OB1(V6.0.0, 5个FB调用完全同步新接口)

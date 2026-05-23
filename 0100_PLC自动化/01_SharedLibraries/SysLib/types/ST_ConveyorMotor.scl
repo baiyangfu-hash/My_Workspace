@@ -1,0 +1,32 @@
+(* ================================================================= *)
+(*  ST_ConveyorMotor                                                  *)
+(*  输送电机控制结构体 - 正/反转/慢速+VFD安全互锁                      *)
+(*  版本: V1.0.0  日期: 2026-05-20                                    *)
+(*  来源: SysLib/types/                                               *)
+(*  复用: 变频器驱动的输送带/传送带电机                                *)
+(* ================================================================= *)
+
+TYPE ST_ConveyorMotor :
+STRUCT
+    // === 命令输入 (BOOL) ===
+    FwdCmd          : BOOL := FALSE;   // 正转命令
+    RevCmd          : BOOL := FALSE;   // 反转命令
+    SlowCmd         : BOOL := FALSE;   // 慢速命令
+
+    // === 安全互锁输入 (BOOL) ===
+    SafetyDoorOk    : BOOL := TRUE;    // 安全门OK (TRUE=允许运行)
+    VfdFault        : BOOL := FALSE;   // 变频器故障输入
+
+    // === 参数 (REAL) ===
+    Speed           : REAL := 100.0;   // 速度设定 (%)
+
+    // === 实际输出 (BOOL, 经互锁后) ===
+    FwdOut          : BOOL := FALSE;   // 正转输出
+    RevOut          : BOOL := FALSE;   // 反转输出
+    SlowOut         : BOOL := FALSE;   // 慢速输出
+
+    // === 状态输出 (BOOL) ===
+    Running         : BOOL := FALSE;   // 运行中
+    VfdAlarm        : BOOL := FALSE;   // VFD报警汇总
+END_STRUCT
+END_TYPE

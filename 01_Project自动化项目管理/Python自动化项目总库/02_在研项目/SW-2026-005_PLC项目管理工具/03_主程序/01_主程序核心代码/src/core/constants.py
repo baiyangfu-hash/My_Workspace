@@ -178,11 +178,29 @@ PROJECT_ARTIFACT_TYPE_DESC = {
 class ChangeStatus(Enum):
     """变更单状态"""
     DRAFT = "draft"
+    REVIEW = "review"
+    APPROVED = "approved"
     ANALYZING = "analyzing"
     IN_PROGRESS = "in_progress"
+    IMPLEMENTED = "implemented"
     VERIFYING = "verifying"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
+
+    @classmethod
+    def valid_transitions(cls, current: "ChangeStatus") -> list:
+        transitions = {
+            cls.DRAFT: [cls.REVIEW, cls.CANCELLED],
+            cls.REVIEW: [cls.APPROVED, cls.DRAFT, cls.CANCELLED],
+            cls.APPROVED: [cls.ANALYZING, cls.IN_PROGRESS, cls.CANCELLED],
+            cls.ANALYZING: [cls.IN_PROGRESS, cls.CANCELLED],
+            cls.IN_PROGRESS: [cls.IMPLEMENTED, cls.CANCELLED],
+            cls.IMPLEMENTED: [cls.VERIFYING],
+            cls.VERIFYING: [cls.COMPLETED, cls.IN_PROGRESS],
+            cls.COMPLETED: [],
+            cls.CANCELLED: [],
+        }
+        return transitions.get(current, [])
 
 
 class ChangeCategory(Enum):

@@ -157,26 +157,26 @@ class MenuManager:
         """
         menu = self._menu_bar.addMenu("\u270F\uFE0F 编辑(&E)")
 
-        # 撤销
         undo_action = QAction("\u21A6 撤销", self._parent)
         undo_action.setShortcut("Ctrl+Z")
+        undo_action.setEnabled(False)
         menu.addAction(undo_action)
 
-        # 重做
         redo_action = QAction("\u21A9 重做", self._parent)
         redo_action.setShortcut("Ctrl+Y")
+        redo_action.setEnabled(False)
         menu.addAction(redo_action)
 
         menu.addSeparator()
 
-        # 查找
         find_action = QAction("\U0001F50D 查找", self._parent)
         find_action.setShortcut("Ctrl+F")
+        find_action.triggered.connect(self._on_find)
         menu.addAction(find_action)
 
-        # 替换
         replace_action = QAction("\U0001F502 替换", self._parent)
         replace_action.setShortcut("Ctrl+H")
+        replace_action.triggered.connect(self._on_replace)
         menu.addAction(replace_action)
 
         return menu
@@ -253,12 +253,27 @@ class MenuManager:
         创建视图菜单
 
         菜单项:
+        - 底部面板 (子菜单: 诊断面板/测试运行器)
         - 主题 (子菜单: 浅色/深色)
 
         Returns:
             QMenu: 视图菜单对象
         """
         menu = self._menu_bar.addMenu("\U0001F441 视图(&V)")
+
+        # 底部面板子菜单
+        panels_menu = menu.addMenu("\U0001F4CA 底部面板")
+
+        # 诊断面板
+        diagnostic_action = QAction("\U0001F52C 深度诊断面板", self._parent)
+        diagnostic_action.setCheckable(True)
+        diagnostic_action.setShortcut("Ctrl+D")
+        diagnostic_action.setStatusTip("显示/隐藏深度诊断面板")
+        diagnostic_action.triggered.connect(self._toggle_diagnostic_panel)
+        panels_menu.addAction(diagnostic_action)
+        self._diagnostic_action = diagnostic_action
+
+        menu.addSeparator()
 
         # 主题子菜单
         theme_menu = menu.addMenu("\U0001F3A8 主题")
@@ -276,6 +291,19 @@ class MenuManager:
         theme_menu.addAction(dark_theme_action)
 
         return menu
+
+    def _toggle_diagnostic_panel(self):
+        """切换诊断面板的显示/隐藏状态"""
+        main_window = self._parent
+        if hasattr(main_window, '_diagnostic_dock') and main_window._diagnostic_dock:
+            is_visible = main_window._diagnostic_dock.isVisible()
+            if is_visible:
+                main_window._diagnostic_dock.hide()
+                self._diagnostic_action.setChecked(False)
+            else:
+                main_window._diagnostic_dock.show()
+                main_window._diagnostic_dock.raise_()
+                self._diagnostic_action.setChecked(True)
 
     def _create_help_menu(self) -> QMenu:
         """
@@ -310,10 +338,8 @@ class MenuManager:
                 project_data = dialog.get_project_data()
 
                 if project_path and project_data:
-                    # 通过EventBus广播项目创建事件
                     self._event_bus.project_created.emit(str(project_path))
 
-                    # 更新状态栏
                     project_id = project_data.get("project_id", "")
                     project_name = project_data.get("project_name", "")
                     self._parent.statusBar().showMessage(
@@ -321,7 +347,6 @@ class MenuManager:
                     )
                     logger.info(f"新建项目成功: {project_id}_{project_name} @ {project_path}")
 
-                    # 显示成功提示
                     QMessageBox.information(
                         self._parent,
                         "\u2705 项目创建成功",
@@ -365,16 +390,19 @@ class MenuManager:
             SettingsManager.add_recent_project(
                 project_dir, Path(project_dir).name
             )
-            # 刷新最近项目列表
             self._refresh_recent_projects()
-            # 发射事件
             self._event_bus.project_opened.emit(project_dir)
             logger.info(f"打开项目目录: {project_dir}")
 
     def _on_save(self):
-        """保存当前工作"""
         self._parent.statusBar().showMessage("\U0001F4BE 已保存")
         logger.debug("执行保存操作")
+
+    def _on_find(self):
+        self._parent.statusBar().showMessage("\U0001F50D 查找功能开发中...")
+
+    def _on_replace(self):
+        self._parent.statusBar().showMessage("\U0001F502 替换功能开发中...")
 
     def _on_settings(self):
         """打开系统设置对话框"""
@@ -384,13 +412,11 @@ class MenuManager:
             dialog = SettingsDialog(self._parent)
             result = dialog.exec_()
             if result == dialog.Accepted:
-                # 设置保存后刷新界面
                 self._event_bus.settings_changed.emit()
                 logger.info("系统设置已更新")
 
         except ImportError as e:
             logger.error(f"无法导入设置对话框: {e}")
-            # 回退到内联实现 (兼容性保障)
             self._fallback_settings()
         except Exception as e:
             logger.exception(f"打开设置对话框失败: {e}")
@@ -401,7 +427,7 @@ class MenuManager:
     def _fallback_settings(self):
         """回退的内联设置对话框 (兼容性保障)"""
         from PyQt5.QtWidgets import (
-            QDialog, QVBoxLayout, QFormLayout,
+            QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
             QLineEdit, QComboBox, QCheckBox,
             QSpinBox, QWidget, QPushButton,
         )
@@ -411,22 +437,20 @@ class MenuManager:
         dialog.setMinimumSize(550, 420)
 
         layout = QVBoxLayout(dialog)
-        
-        # 简化的设置表单
+
         form_widget = QWidget()
         form = QFormLayout(form_widget)
-        
+
         setting_default_path = QLineEdit(
             SettingsManager.get("default_project_root", "./Projects") or ""
         )
         setting_auto_save = QCheckBox("自动保存")
         setting_auto_save.setChecked(SettingsManager.get("auto_backup", True))
-        
+
         form.addRow("默认项目路径:", setting_default_path)
         form.addRow("", setting_auto_save)
         layout.addWidget(form_widget)
-        
-        # 按钮
+
         btn_layout = QHBoxLayout()
         ok_btn = QPushButton("保存")
         cancel_btn = QPushButton("取消")
@@ -448,57 +472,41 @@ class MenuManager:
 
     def _on_run_check(self):
         """
-        运行规范检查（改进为真实功能）
+        运行规范检查
 
-        打开规范检查面板并开始检查当前项目
+        打开规范检查面板并开始检查当前项目。
+        优先使用Tab导航（规范检查面板在TabWidget中），
+        如果存在DockWidget则使用DockWidget。
         """
         try:
-            # 获取主窗口的规范检查DockWidget
             main_window = self._parent
+            project_path = self._get_current_project_path()
 
-            if hasattr(main_window, '_spec_check_dock') and \
-               main_window._spec_check_dock:
-                # 显示规范检查面板
+            if getattr(main_window, '_spec_check_dock', None):
                 main_window._spec_check_dock.show()
                 main_window._spec_check_dock.raise_()
+            elif hasattr(main_window, '_navigate_to_tab'):
+                main_window._navigate_to_tab(main_window.TAB_SPEC_CHECK)
 
-                # 尝试获取当前项目路径并启动检查
-                if hasattr(main_window, '_project_tree_widget'):
-                    # 从项目树获取当前选中的项目
-                    current_project = getattr(
-                        main_window._project_tree_widget,
-                        'current_project',
-                        None
-                    )
-                    if current_project and hasattr(current_project, 'path'):
-                        project_path = current_project.path
-                        # 启动检查
-                        if main_window._spec_check_panel:
-                            main_window._spec_check_panel.start_check(
-                                project_path
-                            )
-                            self._parent.statusBar().showMessage(
-                                f"\u2705 \u5F00\u59CB\u89C4\u8303\u68C0\u67E5: "
-                                f"{getattr(current_project, 'name', project_path)}"
-                            )
-                            logger.info(f"F5 规范检查已触发: {project_path}")
-                            return
-
-            # 如果没有项目路径，仅显示面板
-            if hasattr(main_window, '_spec_check_dock'):
-                main_window._spec_check_dock.show()
-                main_window._spec_check_dock.raise_()
+            if project_path and getattr(main_window, '_spec_check_tab_panel', None):
+                if hasattr(main_window._spec_check_tab_panel, 'start_check'):
+                    main_window._spec_check_tab_panel.start_check(project_path)
+                self._parent.statusBar().showMessage(
+                    f"\u2705 \u5F00\u59CB\u89C4\u8303\u68C0\u67E5: {project_path}"
+                )
+                logger.info(f"F5 \u89C4\u8303\u68C0\u67E5\u5DF2\u89E6\u53D1: {project_path}")
+            else:
                 QMessageBox.information(
                     self._parent,
                     "\u2705 \u89C4\u8303\u68C0\u67E5",
                     "\u89C4\u8303\u68C0\u67E5\u9762\u677F\u5DF2\u6253\u5F00\n\n"
-                    "\u8BF7\u5148\u5728\u9879\u76EE\u6811\u4E2D\u9009\u62E9\u4E00\u4E2A\u9879\u76EE\uff0c\n"
+                    "\u8BF7\u5148\u5728\u9879\u76EE\u6811\u4E2D\u9009\u62E9\u4E00\u4E2A\u9879\u76EE\uFF0C\n"
                     "\u7136\u540E\u70B9\u51FB\"\u5F00\u59CB\u68C0\u67E5\"\u6309\u94AE\u3002",
                     QMessageBox.Ok,
                 )
 
         except Exception as e:
-            logger.exception(f"运行规范检查失败: {e}")
+            logger.exception(f"\u8FD0\u884C\u89C4\u8303\u68C0\u67E5\u5931\u8D25: {e}")
             QMessageBox.critical(
                 self._parent,
                 "\u274C \u9519\u8BEF",
@@ -517,18 +525,13 @@ class MenuManager:
 
             if hasattr(main_window, '_diagnostic_dock') and \
                main_window._diagnostic_dock:
-                # 显示诊断面板
                 main_window._diagnostic_dock.show()
                 main_window._diagnostic_dock.raise_()
 
-                # 尝试获取当前项目路径
                 project_path = self._get_current_project_path()
 
                 if project_path and main_window._diagnostic_panel:
-                    # 设置项目路径
                     main_window._diagnostic_panel.set_project_path(project_path)
-
-                    # 自动开始诊断
                     main_window._diagnostic_panel.run_diagnostic('full')
 
                     self._parent.statusBar().showMessage(
@@ -540,7 +543,7 @@ class MenuManager:
                         self._parent,
                         "\U0001F52C \u6DF1\u5EA6\u8BCA\u65AD",
                         "\u8BCA\u65AD\u9762\u677F\u5DF2\u6253\u5F00\n\n"
-                        "\u8BF7\u5148\u9009\u62E9\u4E00\u4E2aPLC\u9879\u76EE\uff0c\n"
+                        "\u8BF7\u5148\u9009\u62E9\u4E00\u4E2aPLC\u9879\u76EE\uFF0C\n"
                         "\u7136\u540E\u70B9\u51FB\"\u5F00\u59CB\u8BCA\u65AD\"\u6309\u94AE\u3002",
                         QMessageBox.Ok,
                     )
@@ -555,54 +558,13 @@ class MenuManager:
             )
 
     def _on_run_tests(self):
-        """
-        运行测试（新增功能 - F7快捷键）
-
-        打开测试运行器面板并准备执行测试用例
-        """
-        try:
-            from pathlib import Path
-
-            main_window = self._parent
-
-            if hasattr(main_window, '_test_runner_dock') and \
-               main_window._test_runner_dock:
-                # 显示测试运行器面板
-                main_window._test_runner_dock.show()
-                main_window._test_runner_dock.raise_()
-
-                # 尝试获取当前项目路径
-                project_path = self._get_current_project_path()
-
-                if project_path and main_window._test_runner_panel:
-                    # 设置项目路径（会自动扫描和加载测试文件）
-                    main_window._test_runner_panel.set_project_path(
-                        Path(project_path)
-                    )
-
-                    self._parent.statusBar().showMessage(
-                        f"\u25B6 \u6D4B\u8BD5\u8FD0\u884C\u5668\u5DF2\u51C6\u5907: "
-                        f"{project_path}"
-                    )
-                    logger.info(f"F7 测试运行器已打开: {project_path}")
-                else:
-                    QMessageBox.information(
-                        self._parent,
-                        "\u25B6 \u8FD0\u884C\u6D4B\u8BD5",
-                        "\u6D4B\u8BD5\u8FD0\u884C\u5668\u9762\u677F\u5DF2\u6253\u5F00\n\n"
-                        "\u8BF7\u5148\u9009\u62E9\u4E00\u4E2aPLC\u9879\u76EE\uff0c\n"
-                        "\u7CFB\u7EDF\u4F1A\u81EA\u52A8\u626B\u63CF.scltest\u6D4B\u8BD5\u6587\u4EF6\u3002",
-                        QMessageBox.Ok,
-                    )
-
-        except Exception as e:
-            logger.exception(f"运行测试失败: {e}")
-            QMessageBox.critical(
-                self._parent,
-                "\u274C \u9519\u8BEF",
-                f"\u6D4B\u8BD5\u8FD0\u884C\u5931\u8D25:\n{str(e)}",
-                QMessageBox.Ok,
-            )
+        from PyQt5.QtWidgets import QMessageBox
+        QMessageBox.information(
+            self._parent,
+            "\u25B6 运行测试",
+            "测试运行器功能正在开发中\n\n将在 V2.1+ 版本提供。",
+            QMessageBox.Ok,
+        )
 
     def _get_current_project_path(self) -> Optional[str]:
         """
@@ -614,11 +576,9 @@ class MenuManager:
         try:
             main_window = self._parent
 
-            # 方法1：从项目树组件获取
             if hasattr(main_window, '_project_tree_widget'):
                 project_tree = main_window._project_tree_widget
 
-                # 尝试多种属性名获取当前项目
                 for attr_name in [
                     'current_project',
                     'selected_project',
@@ -629,7 +589,6 @@ class MenuManager:
                         if project and hasattr(project, 'path'):
                             return project.path
 
-            # 方法2：从最近打开的项目获取
             from src.core.settings import SettingsManager
             recent_projects = SettingsManager.get_recent_projects()
             if recent_projects:
@@ -667,7 +626,6 @@ class MenuManager:
         """切换界面主题"""
         SettingsManager.set("theme", theme_name)
         SettingsManager.save()
-        # 通过EventBus通知主题变更
         self._event_bus.theme_changed.emit(theme_name)
         self._parent.statusBar().showMessage(
             f"\U0001F3A8 主题已切换为: "
@@ -694,10 +652,8 @@ class MenuManager:
         if not self._recent_menu:
             return
 
-        # 清空现有列表
         self._recent_menu.clear()
 
-        # 获取最近项目
         recent_projects = SettingsManager.get_recent_projects()
 
         if not recent_projects:
@@ -706,11 +662,10 @@ class MenuManager:
             self._recent_menu.addAction(no_recent_action)
             return
 
-        # 添加最近项目条目
-        for proj in recent_projects[:10]:  # 最多显示10个
+        for proj in recent_projects[:10]:
             path = proj.get("path", "")
             name = proj.get("name", Path(path).name)
-            
+
             action = QAction(f"{name}", self._parent)
             action.setStatusTip(path)
             action.triggered.connect(lambda checked, p=path: self._open_recent_project(p))
@@ -718,7 +673,6 @@ class MenuManager:
 
         self._recent_menu.addSeparator()
 
-        # 清除历史选项
         clear_action = QAction("清除历史记录", self._parent)
         clear_action.triggered.connect(self._clear_recent_projects)
         self._recent_menu.addAction(clear_action)

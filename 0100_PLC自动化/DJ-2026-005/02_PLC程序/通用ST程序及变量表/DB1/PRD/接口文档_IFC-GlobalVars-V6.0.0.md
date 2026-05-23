@@ -1,14 +1,23 @@
-# 接口文档 - GlobalVars.db (全局变量数据块 V7.0.0)
+# 接口文档 - GlobalVars.db (全局变量数据块 V7.1.0)
 
 ## 文档信息
 | 项目 | 内容 |
 |------|------|
 | **数据块名称** | GlobalVars |
 | **功能描述** | 边框缓存机PLC控制系统全局变量数据交换中心 |
-| **当前版本** | V7.0.0 |
-| **编译日期** | 2026-05-18 |
-| **总变量数** | ~140个 (5个STRUCT结构 + 7个FB实例) |
+| **当前版本** | V7.1.1 |
+| **编译日期** | 2026-05-20 |
+| **总变量数** | ~220+个 (5个STRUCT结构 + astServoAxis[3] + 7个FB实例) |
 | **符合规范** | 801_PLC变量命名与功能块命名规范_DEV-V1.0.5 |
+
+### V7.1.1 变更 (2026-05-20) - TC11 Bug修复
+- 🆕 stPickPlace新增 `i_iPickLayer_Input`: INT (外部指定取料层号1~4, 独立输入)
+- 🔧 OB1接线修复: `i_iPickLayer` 从 `o_iCurrentPickLayer`(输出) 改为 `i_iPickLayer_Input`(独立输入)
+- 📝 断开输出→输入反馈回路, 解决FB_1003内部iPickLayer(=0)覆盖问题
+
+### V7.1.0 变更 (2026-05-20)
+- 🆕 新增 `astServoAxis[1..3]`: ST_ServoAxis V3.0 伺服轴数组 (每轴74字段×3=222字段)
+- 🔄 FB_1003接口变更: VAR_IN_OUT `io_stZAxis`/`io_stX1Axis` 直连轴结构体(删除6个悬空输出)
 
 ---
 
@@ -29,16 +38,33 @@ DATA_BLOCK GlobalVars
 │   ├── 逐层输出(10×ARRAY[1..4]): 执行器5组 + HMI状态5组
 │   └── 汇总(3): q_bRunning(OR)/q_bFault(OR)/q_iAlarmCode(MIN)
 │
-├── stPickPlace : STRUCT (52变量)    ← FB_1003_PickPlace V6.0.0 (6步S20~S25)
-│   ├── 系统控制(4): AutoMode/ManualMode/Start/Stop
-│   ├── 手动操作(6): FrontClamp/RearClamp/FrontClamp2/RearClamp2/LiftUp/LiftDown
-│   ├── 工艺参数(5): PickLayer/ZSpeed/X1Speed/ClampConfirmTime/LiftActionTime
+├── stPickPlace : STRUCT (53变量)    ← FB_1003_PickPlace V7.0.0 (6步S20~S25)
+│   ├── 系统控制(5): AutoMode/ManualMode/Start/Stop/Reset
+│   ├── 手动操作(10): ZJogUp/ZJogDown/X1JogFwd/X1JogRev/FrontClamp/RearClamp/...×2
+│   ├── 工艺参数(7): PickLayer_Input(🆕V7.1.1)/ZSpeed/X1Speed/ClampConfirmTime/LiftActionTime
 │   ├── 上游信号(1×ARRAY[1..4]): LayerFeedDone
 │   ├── 产品检测(4): LongEdge1/2/ShortEdge1/2
 │   ├── 夹爪传感器(8): FrontClampClosed/Opened/RearClampClosed/Opened/...2
 │   ├── 升降传感器(2): LiftHomePos/LiftWorkPoint
 │   ├── 边框/满料检测(4): FrameDetect1/2/FullMaterialDetect1/2
-│   └── 输出(19): FrontClamp/RearClamp/.../ZAxisHomeRequest/X1AxisMoveAbsReq/...
+│   └── 输出(14): FrontClamp/RearClamp/.../CurrentState/AlarmCode/Running (V7.0删除6个轴请求)
+│
+├── astServoAxis: ARRAY[1..3] OF ST_ServoAxis  ← 🆕 V7.1.0 伺服轴数组 (PLCopen MC Part 1)
+│   ├── [1]=Z轴(升降)  → FB_1003.io_stZAxis  (VAR_IN_OUT直连)
+│   ├── [2]=X1轴(横移) → FB_1003.io_stX1Axis (VAR_IN_OUT直连)
+│   ├── [3]=X2轴(送料) → FB_1004后续迭代预留
+│   └── 每轴子结构体(10个):
+│       ├── stPower:  ST_SvPower  (6字段)  Enable/StopMode + Status/Busy/Error/ErrorID
+│       ├── stHome:   ST_SvHome   (8字段)  Execute/HomeMode/Position + Done/Busy/...
+│       ├── stAbs:    ST_SvAbs    (12字段) Execute/Pos/Vel/Acc/Dec/Jerk + Done/...
+│       ├── stJog:    ST_SvJog    (11字段) Forward/Backward/Vel/Acc/Dec/Jerk + Done/...
+│       ├── stStop:   ST_SvStop   (7字段)  Execute/Deceleration/Jerk + Done/...
+│       ├── stHalt:   ST_SvHalt   (7字段)  Execute/Deceleration/Jerk + Done/...
+│       ├── stRel:    ST_SvRel    (12字段) Execute/Dist/Vel/Acc/Dec/Jerk + Done/...
+│       ├── stReset:  ST_SvReset  (5字段)  Execute + Done/Busy/Error/ErrorID
+│       ├── stSensor: ST_Sensor   (5字段)  HomeSensor/FwdLimit/RevLimit/InPosition/ServoAlarm
+│       └── rCurrentPos: REAL (1字段) 当前位置反馈 mm
+│
 │
 ├── stFeeder    : STRUCT (21变量)    ← FB_1004_GlueMachineFeeder V6.0.0 (4步D760)
 │   ├── 系统控制(4): AutoMode/ManualMode/Start/Stop
@@ -203,13 +229,13 @@ END_DATA_BLOCK
 | `i_bLx_LiftUp` | BOOL | FALSE | 手动-升降上升 |
 | `i_bLx_LiftDown` | BOOL | FALSE | 手动-升降下降 |
 
-#### 工艺参数 (5个)
+#### 工艺参数 (7个)
 | 变量名 | 类型 | 初始值 | 说明 | 范围 |
 |--------|------|--------|------|------|
-| `i_iPickLayer` | INT | 0 | 当前取料层号(1~4) | 1~4 |
-| `i_rZSpeed` | REAL | 100.0 | Z轴速度(mm/s) | 10~200 |
-| `i_rX1Speed` | REAL | 150.0 | X1轴速度(mm/s) | 10~300 |
-| `i_iClampConfirmTime` | INT | 800 | 夹紧确认时间(ms) | 100~2000 |
+| `i_iPickLayer_Input` | INT | 0 | **🆕V7.1.1** 外部指定取料层号(1~4), 0=无效 (HMI/上位机设置) | 0~4 |
+| `i_rZAxisSpeed` | REAL | 100.0 | Z轴速度(mm/s) | 10~200 |
+| `i_rX1AxisSpeed` | REAL | 150.0 | X1轴速度(mm/s) | 10~300 |
+| `i_iClampConfirmTime` | INT | 500 | 夹紧确认时间(ms) | 100~2000 |
 | `i_iLiftActionTime` | INT | 3000 | 升降动作超时(ms) | 1000~10000 |
 
 #### 上游信号 (1个)

@@ -123,24 +123,21 @@ class ToolBarManager:
     # ===== 事件处理方法 =====
 
     def _on_new_project(self):
-        """新建项目 - 发射事件到EventBus"""
-        # 通过EventBus广播，由MenuManager或其他监听者处理具体逻辑
-        # 这里直接调用MenuManager的方法以保持一致性
-        from .menu_manager import MenuManager
-        # 查找已存在的MenuManager实例
-        if hasattr(self._parent, '_menu_manager') and self._parent._menu_manager:
-            self._parent._menu_manager._on_new_project()
-        else:
-            # 如果没有MenuManager，则直接发射事件
-            logger.warning("未找到MenuManager实例，直接发射事件")
-            # 可以在这里实现一个简化版本或仅发射信号
+        self._event_bus.project_created.emit("")
 
     def _on_open_project(self):
-        """打开项目 - 发射事件到EventBus"""
-        if hasattr(self._parent, '_menu_manager') and self._parent._menu_manager:
-            self._parent._menu_manager._on_open_project()
-        else:
-            logger.warning("未找到MenuManager实例，直接发射事件")
+        from PyQt5.QtWidgets import QFileDialog
+        from pathlib import Path
+
+        project_dir = QFileDialog.getExistingDirectory(
+            self._parent, "选择项目目录", "./Projects"
+        )
+        if project_dir:
+            from src.core.settings import SettingsManager
+            SettingsManager.add_recent_project(
+                project_dir, Path(project_dir).name
+            )
+            self._event_bus.project_opened.emit(project_dir)
 
     def _on_save(self):
         """保存 - 更新状态栏"""

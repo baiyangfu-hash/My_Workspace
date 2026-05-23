@@ -21,6 +21,15 @@
 //   5. 完全基于实际FB定义生成, 与OB1调用100%同步
 //
 // 变更记录:
+//   V7.1.1 (2026-05-20): 修复TC11 i_iPickLayer输入源问题
+//          - stPickPlace新增 i_iPickLayer_Input: INT (外部指定取料层号1~4)
+//          - 断开 o_iCurrentPickLayer(输出)→i_iPickLayer(输入) 反馈回路
+//          - 接口统计: stPickPlace 输入 55→56 (+1层号输入)
+//   V7.1.0 (2026-05-20): FB_1003 V7.0.0集成ST_ServoAxis V3.0
+//          - 新增 astServoAxis[1..3]: ST_ServoAxis 伺服轴数组(Z/X1/X2)
+//          - stPickPlace: 删除悬空的6个轴请求字段(原V6.0未使用)
+//          - FB_1003接口变更: VAR_IN_OUT io_stZAxis/io_stX1Axis 直连轴结构体
+//          - 轴索引: [1]=Z轴(升降) [2]=X1轴(取放料横移) [3]=X2轴(打胶机送料)
 //   V7.0.0 (2026-05-18): Conveyor子系统V7.0.0重构对齐
 //          - stConveyor结构完全重写: FB_1001容器取消, 适配FB_1002 V7.0.0编排器接口
 //          - 变量命名: 逐层数组加_a前缀(i_a/q_a), 汇总变量用q_b/q_i前缀
@@ -247,7 +256,7 @@ VAR
         i_bLx_RearClamp2        : BOOL := FALSE;    // 手动-后夹爪2夹紧 (第二后夹爪)
         i_bLx_RearUnclamp2        : BOOL := FALSE;    // 手动-后夹爪2松开
 
-        // --- 工艺参数 (6个, REAL/INT类型) ---
+        // --- 工艺参数 (7个, REAL/INT类型) ---
         // 运动速度参数 (4个REAL)
         i_rPickupSpeed           : REAL := 100.0;    // 取料过程Z轴升降速度 (mm/s 或 %)
         i_rPlaceSpeed           : REAL := 80.0;     // 放料过程Z轴升降速度 (mm/s 或 %)
@@ -257,6 +266,9 @@ VAR
         // 动作时间参数 (2个INT)
         i_iClampConfirmTime       : INT := 500;       // 夹爪夹紧确认等待时间 (ms)
         i_iLiftActionTime       : INT := 3000;      // 升降气缸动作超时时间 (ms)
+
+        // 取料层号指定 (1个INT, V7.1.0新增)
+        i_iPickLayer_Input       : INT := 0;         // 外部指定的当前取料层号(1~4), 0=无效 (HMI/上位机设置)
 
         // --- 传感器输入 (26个BOOL) ---
         // 气缸位置传感器 (10个磁性开关)
@@ -407,10 +419,25 @@ VAR
     END_STRUCT;
 
     // =========================================================================
+    // 第五部分B: 伺服轴数组 (ST_ServoAxis V3.0, PLCopen MC Part 1)
+    // =========================================================================
+    // 说明: 3轴伺服控制系统, 按SV功能块分组嵌套结构体
+    //       轴索引: [1]=Z轴(升降) [2]=X1轴(取放料横移) [3]=X2轴(打胶机送料)
+    //       子结构体: stPower(使能)/stHome(回原点)/stAbs(绝对定位)
+    //                 stJog(点动)/stStop(急停)/stHalt(减速暂停)
+    //                 stRel(相对定位)/stReset(错误复位)
+    //                 stSensor(传感器)/rCurrentPos(位置反馈)
+    //       用途: FB_1003通过VAR_IN_OUT直连io_stZAxis/io_stX1Axis
+    //             FB_1004后续迭代可直连io_stX2Axis
+    // =========================================================================
+    astServoAxis : ARRAY[1..3] OF ST_ServoAxis;
+
+    // =========================================================================
     // 第六部分: 功能块实例
     // =========================================================================
     // 说明: 所有功能块实例必须定义在此处, 以便测试框架和HMI能够正确识别
     //       V7.0.0: fbConveyor4Layer (FB_1001) 取消, 改为4×FB_1002 展开实例
+    //       V7.1.0: FB_1003 V7.0.0 新增VAR_IN_OUT轴引用接口
     // =========================================================================
     fbExternalDevice      : FB_ExternalDeviceInteraction;
     fbConveyor_L1         : FB_1002_SingleLayerConveyor_BufferFraming;

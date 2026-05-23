@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List
 
+from src.core.constants import ChangeStatus
+
 
 @dataclass
 class ChangeRequest:
@@ -17,7 +19,7 @@ class ChangeRequest:
     category: str
     title: str
     project_path: str
-    status: str = "draft"
+    status: str = field(default_factory=lambda: ChangeStatus.DRAFT.value)
     description: str = ""
     affected_paths: List[str] = field(default_factory=list)
     created_at: str = field(

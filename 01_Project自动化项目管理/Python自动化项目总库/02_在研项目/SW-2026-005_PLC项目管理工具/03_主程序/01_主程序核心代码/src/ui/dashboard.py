@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QSizePolicy,
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
 
 from src.utils.logger import setup_logger
@@ -36,44 +36,32 @@ class StatCard(QFrame):
         parent=None,
     ):
         super().__init__(parent)
+        self.setProperty("StatCard", True)
         self.setFrameStyle(QFrame.Box | QFrame.Raised)
-        self.setStyleSheet(
-            f"""
-            StatCard {{
-                background-color: #FFFFFF;
-                border: 1px solid #E0E0E0;
-                border-radius: 8px;
-                padding: 12px;
-            }}
-            StatCard:hover {{
-                border-color: {color};
-            }}
-            """
-        )
 
-        layout = QVBoxLayout(self)
+        layout = self.layout() if self.layout() else QVBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(4)
 
-        # 标题行
         title_row = QHBoxLayout()
         icon_label = QLabel(icon)
         icon_label.setStyleSheet(f"font-size: 18pt; color: {color};")
         title_label = QLabel(title)
-        title_label.setStyleSheet(
-            "font-size: 10pt; color: #757575;"
-        )
+        title_label.setStyleSheet("font-size: 10pt; color: #757575;")
         title_row.addWidget(icon_label)
         title_row.addWidget(title_label)
         title_row.addStretch()
         layout.addLayout(title_row)
 
-        # 数值
-        value_label = QLabel(value)
-        value_label.setFont(QFont("Microsoft YaHei", 24, QFont.Bold))
-        value_label.setStyleSheet(f"color: {color};")
-        value_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(value_label)
+        self._value_label = QLabel(value)
+        self._value_label.setAlignment(Qt.AlignCenter)
+        self._value_label.setStyleSheet(
+            f"font-size: 22pt; font-weight: bold; color: {color};"
+        )
+        layout.addWidget(self._value_label)
+
+    def set_value(self, value: str):
+        self._value_label.setText(value)
 
 
 class QuickActionButton(QPushButton):
@@ -83,26 +71,8 @@ class QuickActionButton(QPushButton):
         super().__init__(text, parent)
         self.icon_text = icon
         self.btn_color = color
-        self.setMinimumHeight(48)
+        self.setProperty("QuickAction", True)
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet(
-            f"""
-            QuickActionButton {{
-                background-color: #FFFFFF;
-                color: #424242;
-                border: 1px solid #E0E0E0;
-                border-radius: 6px;
-                font-size: 10pt;
-                text-align: left;
-                padding-left: 12px;
-            }}
-            QuickActionButton:hover {{
-                background-color: {color}15;
-                border-color: {color};
-                color: {color};
-            }}
-            """
-        )
 
 
 class DashboardPage(QWidget):
@@ -114,7 +84,14 @@ class DashboardPage(QWidget):
     - 快捷操作按钮区
     - 最近打开的项目列表
     - 系统状态信息
+
+    Signals:
+        action_triggered(str): 快捷操作被触发
+            - "new_project" / "open_project" / "new_document"
+            - "spec_check" / "variable_check" / "generate_report"
     """
+
+    action_triggered = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -190,18 +167,21 @@ class DashboardPage(QWidget):
         quick_grid.setSpacing(10)
 
         actions = [
-            ("\u002B 新建项目", "#1976D2"),
-            ("\U0001F4C2 打开项目", "#FF5722"),
-            ("\U0001F4DD 新建文档", "#4CAF50"),
-            ("\u2705 规范检查", "#9C27B0"),
-            ("\U0001F9EA 变量检查", "#009688"),
-            ("\U0001F4CB 生成报告", "#FF9800"),
+            ("\u002B 新建项目", "#1976D2", "new_project"),
+            ("\U0001F4C2 打开项目", "#FF5722", "open_project"),
+            ("\U0001F4DD 新建文档", "#4CAF50", "new_document"),
+            ("\u2705 规范检查", "#9C27B0", "spec_check"),
+            ("\U0001F9EA 变量检查", "#009688", "variable_check"),
+            ("\U0001F4CB 生成报告", "#FF9800", "generate_report"),
         ]
 
-        for idx, (text, color) in enumerate(actions):
+        for idx, (text, color, action_id) in enumerate(actions):
             row = idx // 3
             col = idx % 3
             btn = QuickActionButton(text, color=color)
+            btn.clicked.connect(
+                lambda checked, a=action_id: self.action_triggered.emit(a)
+            )
             quick_grid.addWidget(btn, row, col)
 
         main_layout.addLayout(quick_grid)
@@ -223,23 +203,25 @@ class DashboardPage(QWidget):
             "QScrollArea { border: 1px solid #E0E0E0; border-radius: 6px; }"
         )
 
-        recent_content = QWidget()
-        recent_layout = QVBoxLayout(recent_content)
-        recent_layout.setContentsMargins(8, 8, 8, 8)
+        self._recent_content = QWidget()
+        self._recent_layout = QVBoxLayout(self._recent_content)
+        self._recent_layout.setContentsMargins(8, 8, 8, 8)
 
-        empty_label = QLabel(
+        self._recent_empty_label = QLabel(
             "\U0001F4C1 暂无最近打开的项目\n\n"
             "点击上方 \"打开项目\" 或使用 Ctrl+O 快捷键打开一个项目"
         )
-        empty_label.setAlignment(Qt.AlignCenter)
-        empty_label.setStyleSheet(
+        self._recent_empty_label.setAlignment(Qt.AlignCenter)
+        self._recent_empty_label.setStyleSheet(
             "color: #9E9E9E; font-size: 10pt; padding: 20px;"
         )
-        recent_layout.addWidget(empty_label)
-        recent_layout.addStretch()
+        self._recent_layout.addWidget(self._recent_empty_label)
+        self._recent_layout.addStretch()
 
-        recent_scroll.setWidget(recent_content)
+        recent_scroll.setWidget(self._recent_content)
         main_layout.addWidget(recent_scroll)
+
+        self._recent_scroll = recent_scroll
 
         # 底部弹性空间
         main_layout.addStretch()
@@ -352,26 +334,47 @@ class DashboardPage(QWidget):
             logger.error(f"更新健康度指标失败: {e}")
 
     def _update_stat_card_value(self, card: StatCard, value: str):
-        """
-        更新统计卡片的数值
-
-        Args:
-            card: 卡片控件
-            value: 新的数值字符串
-        """
-        label = card.findChild(QLabel)
-        if label and hasattr(label, "setText"):
-            label.setText(value)
+        if card and hasattr(card, 'set_value'):
+            card.set_value(value)
 
     def refresh_statistics(self, total: int, active: int, completed: int, archived: int):
-        """刷新统计数据"""
-        # 通过查找子控件更新数值
         for card, value in [
             (self.card_total, total),
             (self.card_active, active),
             (self.card_completed, completed),
             (self.card_archived, archived),
         ]:
-            label = card.findChild(QLabel)
-            if label and hasattr(label, "setText"):
-                label.setText(str(value))
+            if card and hasattr(card, 'set_value'):
+                card.set_value(str(value))
+
+    def refresh_recent_projects(self, recent_projects: list):
+        """刷新最近项目列表"""
+        while self._recent_layout.count():
+            item = self._recent_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        if not recent_projects:
+            self._recent_empty_label = QLabel(
+                "\U0001F4C1 暂无最近打开的项目\n\n"
+                "点击上方 \"打开项目\" 或使用 Ctrl+O 快捷键打开一个项目"
+            )
+            self._recent_empty_label.setAlignment(Qt.AlignCenter)
+            self._recent_empty_label.setStyleSheet(
+                "color: #9E9E9E; font-size: 10pt; padding: 20px;"
+            )
+            self._recent_layout.addWidget(self._recent_empty_label)
+            self._recent_layout.addStretch()
+            return
+
+        for proj in recent_projects[:10]:
+            name = proj.get("name", "-")
+            path = proj.get("path", "-")
+            label = QLabel(f"  \U0001F4C2 {name}")
+            label.setToolTip(path)
+            label.setStyleSheet(
+                "font-size: 10pt; color: #424242; padding: 4px 8px;"
+            )
+            self._recent_layout.addWidget(label)
+
+        self._recent_layout.addStretch()

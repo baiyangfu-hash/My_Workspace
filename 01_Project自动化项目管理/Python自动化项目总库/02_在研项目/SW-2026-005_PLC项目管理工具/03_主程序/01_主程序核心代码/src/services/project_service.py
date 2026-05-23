@@ -381,11 +381,24 @@ class ProjectService:
         if project_type != ProjectType.DJ_SINGLE_MACHINE:
             return None, f"目录不符合DJ单机项目结构: {project_path}"
 
-        project_file = root / ".plc_project.json"
+        DJ_CANDIDATE_META_FILES = [
+            ".plc_project.json",
+            ".plc.json",
+            "project.json",
+        ]
+
         project: Optional[Project] = None
 
-        if project_file.exists():
-            project = Project.load_from_file(str(project_file))
+        for meta_name in DJ_CANDIDATE_META_FILES:
+            candidate_file = root / meta_name
+            if candidate_file.exists():
+                try:
+                    project = Project.load_from_file(str(candidate_file))
+                    if project:
+                        logger.debug(f"从 {meta_name} 加载项目元数据成功")
+                        break
+                except Exception as e:
+                    logger.warning(f"读取 {meta_name} 失败: {e}, 尝试下一个")
 
         if project is None:
             project = Project(

@@ -3,8 +3,8 @@
 ## 文档标识
 
 - **文档名称**：通用PLC变量命名与功能块命名规范
-- **版本号**：DEV-V1.0.6
-- **最后变更时间**：2026-05-18
+- **版本号**：DEV-V1.0.7
+- **最后变更时间**：2026-05-21
 - **变更人**：Trae
 - **审核人**：人工
 
@@ -12,6 +12,7 @@
 
 | 版本号        | 变更日期       | 变更类型 | 变更内容                                                                 | 变更人  | 审核人 |
 | ---------- | ---------- | ---- | -------------------------------------------------------------------- | ---- | --- |
+| DEV-V1.0.7 | 2026-05-21 | 增强   | 新增§4.3.5 SCL测试文件(.scltest)断言注释规范; 强制ASSERT行尾追加中文变量说明注释, 注释来源为GlobalVars.db行内注释                                     | Trae | 人工  |
 | DEV-V1.0.6 | 2026-05-18 | 增强   | 新增§2.2 WORD/DWORD类型前缀(w/dw); FB_2001报警码类型从INT迁移至WORD, 同步更新自检清单§E.1                                     | Trae | 人工  |
 | DEV-V1.0.5 | 2026-04-25 | 增强   | 新增§7.1.5计数器选型指南(含三菱FX5 COUNTER_FB_M的ST调用完整示例)；新增§7.1.6预处理与条件编译使用说明(5种方式+对比表)         | Trae | 人工  |
 | DEV-V1.0.4 | 2026-04-25 | 增强   | 基于DJ-2026-005项目实践优化§7.1.4定时器命名推荐为tIn/tQ/tR/tPt/tEt简化版(减少50%字符数)                      | Trae | 人工  |
@@ -282,6 +283,48 @@ q_bOutput := bInternalState;
 - 报警管理段 / 故障处理段 / 安全互锁段
 - 状态字计算段 / 输出赋值段 / 参数更新段
 
+#### 4.3.5 SCL测试文件(.scltest)断言注释规范（DEV-V1.0.7 新增）
+
+**目的**：解决测试断言中英文变量名可读性差的问题，使测试用例自文档化。
+
+**强制规则**：每条 `ASSERT` 语句的行尾 **必须** 追加 `// 中文注释`，说明该变量的功能含义。
+
+**注释来源（优先级从高到低）**：
+1. `GlobalVars.db` 变量声明行内注释（权威源，与代码100%同步）
+2. FB接口文档(IFC-*.md) 的"说明"列
+3. 根据变量名英文语义翻译（最后手段）
+
+**格式标准**：
+
+```scl
+(* ✅ 正确: ASSERT + 行尾中文注释 *)
+ASSERT GlobalVars.stExternal.o_bFrameMachine_Ready = TRUE;          // 本机就绪,可接收边框
+ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Action = TRUE;           // 前夹爪夹紧电磁阀
+ASSERT GlobalVars.stGlobal.o_wGlobalAlarmWord = 0;                   // 全局报警字(D400,HMI报警灯)
+ASSERT GlobalVars.stPickPlace.o_iCurrentState = 1;                   // 当前状态机步骤(0~10,99=故障) [S21_UP_TO_PICK]
+
+(* ❌ 错误: 无注释或使用emoji替代 *)
+ASSERT GlobalVars.stExternal.o_bFrameMachine_Ready = TRUE;
+ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Action = TRUE;  // ✅
+```
+
+**注释内容规范**：
+
+| 规则 | 说明 | 示例 |
+|------|------|------|
+| 使用简体中文 | 与项目文档语言一致 | `升降气缸上升电磁阀` |
+| 精简来自DB1 | 复制GlobalVars.db的`//`后文本，可删减IO地址 | DB1: `// 前夹爪夹紧电磁阀 -> Y地址` → 注释: `前夹爪夹紧电磁阀` |
+| 枚举值附加说明 | 状态码/步序号后追加[枚举名] | `[S21_UP_TO_PICK]`, `[S22_CLAMP_AND_DETECT]` |
+| 对齐到统一列(可选) | 多条ASSERT对齐提升可读性 | 推荐对齐到第70列附近 |
+
+**SET语句注释（推荐但非强制）**：输入变量的SET行也可追加注释以提升上下文连贯性。
+
+```scl
+SET GlobalVars.stExternal.i_bEnable := TRUE;                        // 系统使能
+SET GlobalVars.stExternal.i_bAutoMode := TRUE;                      // 自动模式选择
+SET GlobalVars.stPickPlace.i_iPickLayer_Input := 1;                 // 外部指定的当前取料层号(1~4)
+```
+
 ## 5. 实施要求
 
 1. 所有开发人员必须严格遵守本命名规范
@@ -364,8 +407,9 @@ q_bOutput := bInternalState;
 | 9 | 文件头注释是否包含版本号、编制人、变更记录？ | §4.3.2 | □ 通过 / □ 不通过 |
 | 10 | VAR 声明的变量名与代码中使用的名称是否完全一致？ | 通用 | □ 通过 / □ 不通过 |
 | 11 | **是否所有变量名均为纯英文标识符（无中文）？** | 附录D | □ 通过 / □ 不通过 |
+| 12 | **.scltest文件中每条ASSERT行是否有//中文后缀注释？** | §4.3.5 | □ 通过 / □ 不通过 |
 
-**通过标准**：11项全部为"✅ 通过"方可提交代码审查。
+**通过标准**：12项全部为"✅ 通过"方可提交代码审查（.scltest文件仅需检查第12项）。
 
 ### E.2 详细检查流程
 

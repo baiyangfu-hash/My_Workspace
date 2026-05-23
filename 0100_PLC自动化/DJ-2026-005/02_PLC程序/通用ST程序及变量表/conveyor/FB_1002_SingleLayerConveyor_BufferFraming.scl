@@ -25,82 +25,82 @@ FUNCTION_BLOCK FB_1002_SingleLayerConveyor_BufferFraming
 (* ==================== VAR_INPUT ==================== *)
 VAR_INPUT
     (* 模式与控制 *)
-    i_bAutoMode                 : BOOL;     (* 自动运行模式 *)
-    i_bManualMode               : BOOL;     (* 手动调试模式 *)
-    i_bStart                    : BOOL;     (* 自动循环启动 上升沿 *)
-    i_bStop                     : BOOL;     (* 停止 电平有效 *)
+    i_bAutoMode                 : BOOL;     // 自动运行模式
+    i_bManualMode               : BOOL;     // 手动调试模式
+    i_bStart                    : BOOL;     // 自动循环启动 上升沿
+    i_bStop                     : BOOL;     // 停止 电平有效
 
     (* 配置参数 *)
-    i_iLayerIndex               : INT;      (* 层编号 1~4 报警编码用 *)
-    i_iSeparateTimeoutMs        : INT;      (* 分料超时时间(ms) *)
+    i_iLayerIndex               : INT;      // 层编号 1~4 报警编码用
+    i_iSeparateTimeoutMs        : INT;      // 分料超时时间(ms) *)
 
     (* 传感器输入 *)
-    i_bPreSeparateSensor        : BOOL;     (* 分料前接近开关 *)
-    i_bPositionSensor1          : BOOL;     (* 到位传感器1 *)
-    i_bPositionSensor2          : BOOL;     (* 到位传感器2 冗余 *)
-    i_bBlockCylinderUp          : BOOL;     (* 阻挡气缸上位 *)
-    i_bBlockCylinderDown        : BOOL;     (* 阻挡气缸下位 *)
-    i_bSeparateCylinderUp       : BOOL;     (* 分料气缸上位 *)
-    i_bSeparateCylinderDown     : BOOL;     (* 分料气缸下位 *)
+    i_bPreSeparateSensor        : BOOL;     // 分料前接近开关
+    i_bPositionSensor1          : BOOL;     // 到位传感器1
+    i_bPositionSensor2          : BOOL;     // 到位传感器2 冗余
+    i_bBlockCylinderUp          : BOOL;     // 阻挡气缸上位
+    i_bBlockCylinderDown        : BOOL;     // 阻挡气缸下位
+    i_bSeparateCylinderUp       : BOOL;     // 分料气缸上位
+    i_bSeparateCylinderDown     : BOOL;     // 分料气缸下位 *)
 
     (* 安全与外部联锁 *)
-    i_bSafetyDoorOk             : BOOL;     (* 安全门状态 TRUE=关闭OK *)
-    i_bVfdFault                 : BOOL;     (* 变频器故障 *)
-    i_bPickupConfirmed          : BOOL;     (* 取料机构已取走物料 *)
+    i_bSafetyDoorOk             : BOOL;     // 安全门状态 TRUE=关闭OK
+    i_bVfdFault                 : BOOL;     // 变频器故障
+    i_bPickupConfirmed          : BOOL;     // 取料机构已取走物料 *)
 
     (* 手动操作命令 *)
-    i_bManBlockExtend           : BOOL;     (* 手动:阻挡下降 *)
-    i_bManBlockRetract          : BOOL;     (* 手动:阻挡上升 *)
-    i_bManSeparatePush          : BOOL;     (* 手动:分料推出 TRUE=推出 *)
-    i_bManConveyorFwd           : BOOL;     (* 手动:输送正转 *)
-    i_bManConveyorRev           : BOOL;     (* 手动:输送反转 *)
-    i_bManConveyorSlow          : BOOL;     (* 手动:输送慢速 *)
+    i_bManBlockExtend           : BOOL;     // 手动:阻挡下降
+    i_bManBlockRetract          : BOOL;     // 手动:阻挡上升
+    i_bManSeparatePush          : BOOL;     // 手动:分料推出 TRUE=推出
+    i_bManConveyorFwd           : BOOL;     // 手动:输送正转
+    i_bManConveyorRev           : BOOL;     // 手动:输送反转
+    i_bManConveyorSlow          : BOOL;     // 手动:输送慢速 *)
 END_VAR
 
 (* ==================== VAR_OUTPUT ==================== *)
 VAR_OUTPUT
     (* 执行器输出 *)
-    q_bBlockSolenoid            : BOOL;     (* 阻挡电磁阀 TRUE=下降 *)
-    q_bSeparateSolenoid         : BOOL;     (* 分料电磁阀 TRUE=推出 *)
-    q_bConveyorFwd              : BOOL;     (* 输送带正转 *)
-    q_bConveyorRev              : BOOL;     (* 输送带反转 *)
-    q_bConveyorSlow             : BOOL;     (* 输送带慢速 *)
+    q_bBlockSolenoid            : BOOL;     // 阻挡电磁阀 TRUE=下降
+    q_bSeparateSolenoid         : BOOL;     // 分料电磁阀 TRUE=推出
+    q_bConveyorFwd              : BOOL;     // 输送带正转
+    q_bConveyorRev              : BOOL;     // 输送带反转
+    q_bConveyorSlow             : BOOL;     // 输送带慢速 *)
 
     (* 状态与报警 *)
-    q_iCurrentState             : INT;      (* 当前步序 0~70 *)
-    q_iAlarmCode                : INT;      (* 本层报警码 0=正常 *)
-    q_bRunning                  : BOOL;     (* 自动运行中 *)
-    q_bFault                    : BOOL;     (* 本层有故障 *)
-    q_bLayerFeedDone            : BOOL;     (* 本层放料完成 脉冲 *)
-    q_bAnySensorFault           : BOOL;     (* 任一气缸传感器故障 *)
+    q_iCurrentState             : INT;      // 当前步序 0~70 *)
+    q_iAlarmCode                : INT;      // 本层报警码 0=正常 *)
+    q_bRunning                  : BOOL;     // 自动运行中 *)
+    q_bFault                    : BOOL;     // 本层有故障 *)
+    q_bLayerFeedDone            : BOOL;     // 本层放料完成 脉冲 *)
+    q_bAnySensorFault           : BOOL;     // 任一气缸传感器故障 *)
 END_VAR
 
 (* ==================== VAR ==================== *)
 VAR
     (* 子功能块实例 *)
-    fbBlock                     : FB_1011_CylinderControl;  (* 阻挡气缸 *)
-    fbSeparate                  : FB_1011_CylinderControl;  (* 分料气缸 *)
-    fbMotor                     : FB_1012_ConveyorMotor;    (* 输送电机 *)
+    fbBlock                     : FB_1011_CylinderControl;  // 阻挡气缸 
+    fbSeparate                  : FB_1011_CylinderControl;  // 分料气缸 
+    fbMotor                     : FB_1012_ConveyorMotor;    // 输送电机 
 
     (* 状态机变量 *)
-    bStepEntry                  : BOOL;     (* 新步入口标志 *)
-    bRunning                    : BOOL;     (* 运行标志 内部 *)
-    bStartTriggered             : BOOL;     (* 启动上升沿锁存 *)
-    iCurrentState               : INT;      (* 当前步序 内部 *)
-    iAlarmCode                  : INT;      (* 报警码 内部 *)
+    bStepEntry                  : BOOL;     // 新步入口标志 *)
+    bRunning                    : BOOL;     // 运行标志 内部 *)
+    bStartTriggered             : BOOL;     // 启动上升沿锁存 *)
+    iCurrentState               : INT;      // 当前步序 内部 *)
+    iAlarmCode                  : INT;      // 报警码 内部 *)
 END_VAR
 
 (* ==================== VAR_CONSTANT ==================== *)
 VAR CONSTANT
-    STEP_INIT                   : INT := 0;   (* 初始化反转 *)
-    STEP_WAIT_MATERIAL          : INT := 1;   (* 等待来料 *)
-    STEP_BLOCK_DOWN             : INT := 2;   (* 阻挡下降 *)
-    STEP_CONVEYOR_FWD           : INT := 10;  (* 输送正转 *)
-    STEP_POSITION_CHECK_BLOCK_UP : INT := 20; (* 到位检测+阻挡上升 *)
-    STEP_SEPARATE_PUSH          : INT := 30;  (* 分料推出 *)
-    STEP_CONVEYOR_SLOW          : INT := 50;  (* 慢速送出 *)
-    STEP_REQUEST_PICKUP         : INT := 60;  (* 请求取料 *)
-    STEP_SEPARATE_RETURN        : INT := 70;  (* 分料复位 *)
+    STEP_INIT                   : INT := 0;   // 初始化反转 *)
+    STEP_WAIT_MATERIAL          : INT := 1;   // 等待来料 *)
+    STEP_BLOCK_DOWN             : INT := 2;   // 阻挡下降 *)
+    STEP_CONVEYOR_FWD           : INT := 10;  // 输送正转 *)
+    STEP_POSITION_CHECK_BLOCK_UP : INT := 20; // 到位检测+阻挡上升 *)
+    STEP_SEPARATE_PUSH          : INT := 30;  // 分料推出 *)
+    STEP_CONVEYOR_SLOW          : INT := 50;  // 慢速送出 *)
+    STEP_REQUEST_PICKUP         : INT := 60;  // 请求取料 *)
+    STEP_SEPARATE_RETURN        : INT := 70;  // 分料复位 *)
 END_VAR
 
 (* ==================== 子FB: 静态信号连线 ==================== *)

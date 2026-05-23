@@ -1,0 +1,28 @@
+(* ================================================================= *)
+(*  ST_Cylinder                                                       *)
+(*  双线圈气缸控制结构体 - 伸出/收回+超时+传感器冗余                   *)
+(*  版本: V1.0.0  日期: 2026-05-20                                    *)
+(*  来源: SysLib/types/                                               *)
+(*  复用: 阻挡/分料/升降/夹紧/松开等所有气缸场景                       *)
+(* ================================================================= *)
+
+TYPE ST_Cylinder :
+STRUCT
+    // === 命令输入 (BOOL) ===
+    Extend          : BOOL := FALSE;   // 伸出命令 (推/降/夹紧)
+    Retract         : BOOL := FALSE;   // 收回命令 (拉/升/松开)
+
+    // === 传感器反馈 (BOOL) ===
+    ExtendedPos     : BOOL := FALSE;   // 伸出位/下位/夹紧位/工作点
+    RetractedPos    : BOOL := FALSE;   // 收回位/上位/松开位/原点
+
+    // === 参数 (INT) ===
+    TimeoutMs       : INT := 5000;     // 动作超时时间 (ms), 0=关闭
+
+    // === 状态输出 (BOOL) ===
+    IsExtended      : BOOL := FALSE;   // 已伸出到位
+    IsRetracted     : BOOL := FALSE;   // 已收回到位
+    Timeout         : BOOL := FALSE;   // 动作超时报警
+    SensorFault     : BOOL := FALSE;   // 传感器冲突 (上下位同时ON)
+END_STRUCT
+END_TYPE
