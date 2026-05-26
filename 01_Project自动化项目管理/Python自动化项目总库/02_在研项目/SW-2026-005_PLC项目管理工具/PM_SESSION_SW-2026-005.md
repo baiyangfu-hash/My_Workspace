@@ -4,7 +4,7 @@
 - project_id: SW-2026-005
 - project_name: PLC项目管理工具
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-005_PLC项目管理工具
-- last_updated: 2026-05-23 (全方位PM审查: 开发进度+方案目标+问题点+开发计划+实施目标)
+- last_updated: 2026-05-23 (V2.3完成: INT-V3.0.0+ARCH-V3.0.0文档同步+接口对齐)
 - owners: Trae
 
 ## 1. Positioning（项目定位）
@@ -34,20 +34,17 @@
 - ❌ PLC在线连接/下载程序
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 全方位PM审查完成 — 需按V2.3→V2.4→V3.0-RC路线图推进至正式发布
-- milestone: V2.2.0 ✅代码完成 → V2.3.0 📋下一步(文档同步+接口对齐) → V2.4.0(信号修复+代码清理) → V3.0.0-RC(发布候选)
-- acceptance: A1:main.py可启动✅ | A2:ANALYZING状态不再死胡同✅ | A3:变更管理面板可用✅ | A4:CHG/IFC异步生成✅ | A5:33个sync测试全PASS✅ | A6:接口文档与代码100%对齐⏳ | A7:0个断路信号⏳ | A8:0个死代码⏳ | A9:性能基线达标⏳
+- current_focus: V2.3完成 — INT-V3.0.0+ARCH-V3.0.0文档同步+接口对齐已完成，下一步V2.4修复断路信号
+- milestone: V2.3.0 ✅文档同步完成 → V2.4.0 📋下一步(信号修复+代码清理) → V3.0.0-RC(发布候选)
+- acceptance: A1:main.py可启动✅ | A2:ANALYZING状态不再死胡同✅ | A3:变更管理面板可用✅ | A4:CHG/IFC异步生成✅ | A5:33个sync测试全PASS✅ | A6:接口文档与代码100%对齐✅ | A7:0个断路信号⏳ | A8:0个死代码⏳ | A9:性能基线达标⏳
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 全方位PM审查完成，输出V2.3→V2.4→V3.0-RC路线图
-  - 文档与代码严重脱节(22处API不匹配)待V2.3修复
+  - V2.3文档同步完成，INT-V3.0.0+ARCH-V3.0.0已对齐实际代码
 - next_up:
-  - V2.3: 更新INT-V3.0.0+ARCH-V3.0.0(文档同步+接口对齐)
-  - V2.3: 验证SyncEngine.format_version_report_html属性引用
-  - V2.3: 修复test_checker_framework 3个预存失败用例
   - V2.4: 修复3个断路信号(spec_check_request/variable_check_request/HMI映射)
   - V2.4: 清理EventBus死信号+Application死代码+空壳服务
+  - V2.4: 修复test_checker_framework 3个预存失败用例(SpecDocParser)
   - V3.0-RC: SpecDocParser修复+ST词法增强+诊断Markdown代码块+打包exe
 - open_questions:
   - test_checker_framework.py 3个预存失败用例(SpecDocParser解析逻辑)
@@ -66,7 +63,7 @@
 - plan:
   - 01_项目文档/02_规划过程/006_总计划与里程碑_PLAN-V2.0.0.md
 - arch:
-  - 01_项目文档/02_规划过程/007_架构设计文档_ARCH-V2.0.0.md
+  - 01_项目文档/02_规划过程/007_架构设计文档_ARCH-V3.0.0.md (V3.0.0 深度对齐版)
 - des:
   - 01_项目文档/02_规划过程/008_详细设计文档_DES-V2.0.0.md
 - dev:
@@ -96,6 +93,7 @@
   - 2026-05-22 范围重定义: 聚焦项目管理+文档生成+变更管理，HMI/IO/测试运行器降级为占位符 | 影响: 全局 | 已完成
   - 2026-05-22 Phase 3完成: HMI/IO/测试运行器降级为占位符UI + sync GUI集成(规范中心3按钮) + PLCService废弃重定向DiagnosticService + 文档编辑器另存为 | 影响: main_window.py + plc_service.py + document_editor.py + sync_engine.py | 已完成
 - iteration_log:
+  - 2026-05-23 V2.3迭代完成: 文档同步+接口对齐 — 创建ARCH-V3.0.0(修正模块计数/接口描述/EventBus信号)+确认INT-V3.0.0已对齐 | 33个sync测试全PASS | ✅已完成
   - 2026-05-23 V2.2迭代执行: Epic1(P0修复:main.py+ANALYZING+approve校验)→Epic2(变更管理UI:ChangeManagementPanel+审核+CHG/IFC异步)→Epic3(sync测试:33个用例全PASS)→Epic4(技术债:StyleBuilder路径+ChangeRequest枚举+print→logger) | ✅代码完成
   - 2026-05-22 V2.1迭代完成: Epic2(变更管理闭环:SyncResultDialog+回写+审核状态)→Epic1(瘦身823→292行:5Builder+NavigationController)→Epic3(SpecCheck单实例引导页)→Epic4(诊断异步化+右键菜单+设置验证) | 62项UI测试全PASS | ✅已完成
   - 2026-05-22 V2.1迭代启动: Epic2优先(变更管理闭环) → Epic1(瘦身823→<400) → Epic3(SpecCheck单实例/引导页) → Epic4(遗留项) | 基准: main_window 823行, 62项UI测试全PASS | ✅已完成

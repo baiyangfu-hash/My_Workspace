@@ -1,0 +1,13 @@
+click>=8.0
+pyyaml>=6.0
+
+[dev]
+pytest>=7.0
+pytest-cov>=4.0
+pytest-qt>=4.0
+
+[gui]
+PySide6>=6.5
+
+[pack]
+pyinstaller>=6.0

@@ -1,3 +1,13 @@
+---
+spec_id: PROJ-016
+title: "通用项目结构模板"
+version: "V1.0.0"
+domain: pm
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/02_规划阶段/016_通用项目结构模板_PROJ-V1.0.0.md"
+tags: ["项目结构", "模板"]
+---
+
 # 通用项目结构模板
 
 ## 1. 文档基础信息

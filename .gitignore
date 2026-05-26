@@ -23,3 +23,9 @@ Thumbs.db
 **/编译器导出PDF*/
 **/*PDF(*)*/
 0100_PLC自动化/**/image/
+
+gittoken.txt
+*.token
+*.secret
+*.key
+*.pem

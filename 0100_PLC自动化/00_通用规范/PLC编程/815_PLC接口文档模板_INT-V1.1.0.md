@@ -1,3 +1,13 @@
+---
+spec_id: INT-815
+title: "PLC接口文档模板"
+version: "V1.1.0"
+domain: plc
+lifecycle: stable
+canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/815_PLC接口文档模板_INT-V1.1.0.md"
+tags: ["接口", "文档模板", "PLC"]
+---
+
 # PLC接口文档模板
 
 ## 1. 文档基础信息

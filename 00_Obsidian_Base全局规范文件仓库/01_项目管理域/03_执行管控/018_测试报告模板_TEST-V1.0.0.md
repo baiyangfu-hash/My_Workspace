@@ -1,3 +1,13 @@
+---
+spec_id: TEST-018
+title: "测试报告模板"
+version: "V1.0.0"
+domain: pm
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/03_执行管控/018_测试报告模板_TEST-V1.0.0.md"
+tags: ["测试", "报告", "模板"]
+---
+
 # 测试报告模板
 
 ## 1. 文档基础信息

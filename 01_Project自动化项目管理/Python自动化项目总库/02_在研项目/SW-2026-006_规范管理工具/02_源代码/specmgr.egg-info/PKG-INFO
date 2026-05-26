@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: specmgr
+Version: 0.2.0
+Summary: 规范管理体系一站式管理工具（CLI + GUI）
+Requires-Python: >=3.9
+Requires-Dist: click>=8.0
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: pytest-qt>=4.0; extra == "dev"
+Provides-Extra: gui
+Requires-Dist: PySide6>=6.5; extra == "gui"
+Provides-Extra: pack
+Requires-Dist: pyinstaller>=6.0; extra == "pack"

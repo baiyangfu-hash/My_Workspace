@@ -1,3 +1,13 @@
+---
+spec_id: INT-215
+title: "Python接口文档模板"
+version: "V1.0.0"
+domain: python
+lifecycle: stable
+canonical_path: "01_Project自动化项目管理/00_通用规范/Python开发/215_Python接口文档模板_INT-V1.0.0.md"
+tags: ["Python", "接口", "文档模板"]
+---
+
 # Python接口文档模板
 
 ## 1. 文档基础信息

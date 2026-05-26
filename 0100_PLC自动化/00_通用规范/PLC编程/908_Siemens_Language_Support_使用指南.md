@@ -1,3 +1,13 @@
+---
+spec_id: TOOL-908
+title: "Siemens Language Support插件使用指南"
+version: "V1.0.0"
+domain: plc
+lifecycle: stable
+canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/908_Siemens_Language_Support_使用指南.md"
+tags: ["Siemens", "LSP", "工具", "使用指南"]
+---
+
 # Siemens Language Support 插件使用指南
 
 ## 一、插件概述

@@ -1,3 +1,13 @@
+---
+spec_id: TECH-014
+title: "技术方案文档模板"
+version: "V1.0.0"
+domain: pm
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/02_规划阶段/014_技术方案文档模板_TECH-V1.0.0.md"
+tags: ["技术方案", "模板"]
+---
+
 # 技术方案文档模板
 
 ## 1. 文档基础信息

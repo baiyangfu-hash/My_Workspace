@@ -1,3 +1,13 @@
+---
+spec_id: CODE-210
+title: "Python编程规范"
+version: "V1.1.0"
+domain: python
+lifecycle: stable
+canonical_path: "01_Project自动化项目管理/00_通用规范/Python开发/210_Python编程规范_DEV-V1.1.0.md"
+tags: ["Python", "编程", "核心规范"]
+---
+
 # Python编程规范
 
 ## 1. 文档基础信息

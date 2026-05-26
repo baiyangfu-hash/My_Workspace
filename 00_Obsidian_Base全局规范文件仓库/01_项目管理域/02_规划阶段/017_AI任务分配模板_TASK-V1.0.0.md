@@ -1,3 +1,13 @@
+---
+spec_id: TASK-017
+title: "AI任务分配模板"
+version: "V1.0.0"
+domain: pm
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/02_规划阶段/017_AI任务分配模板_TASK-V1.0.0.md"
+tags: ["AI", "任务", "模板"]
+---
+
 # AI任务分配模板
 
 ## 1. 项目信息

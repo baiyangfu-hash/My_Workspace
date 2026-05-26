@@ -1,3 +1,13 @@
+---
+spec_id: CODE-220
+title: "Python项目打包规范"
+version: "V2.2.0"
+domain: python
+lifecycle: stable
+canonical_path: "01_Project自动化项目管理/00_通用规范/Python开发/220_Python项目打包规范_DEV-V2.1.0.md"
+tags: ["Python", "打包", "发布"]
+---
+
 # Python项目打包规范
 
 ## 1. 文档基础信息

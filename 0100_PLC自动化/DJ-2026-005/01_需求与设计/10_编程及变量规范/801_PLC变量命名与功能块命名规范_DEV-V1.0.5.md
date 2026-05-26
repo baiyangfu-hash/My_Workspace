@@ -1,3 +1,21 @@
+---
+spec_id: DEV-801
+title: "PLC变量命名与功能块命名规范"
+version: "V1.0.7"
+domain: plc
+lifecycle: deprecated
+canonical_path: "00_Obsidian_Base全局规范文件仓库/_archive/deprecated/801_PLC变量命名与功能块命名规范_DEV-V1.0.5.md"
+replaced_by: [LSP-905]
+tags: ["命名", "PLC", "变量"]
+project_local_copy: true
+project: "DJ-2026-005"
+note: "项目级副本，已演化至V1.0.7。已被905_SCL编程规范替代，新项目请使用905规范"
+---
+
+> ⚠️ **废弃声明**: 本规范已被 [905_SCL编程规范](../../../../00_通用规范/PLC编程/905_SCL编程规范.md) 替代。
+> - 905规范§3覆盖了本规范的变量命名规则，并升级为小驼峰风格
+> - 本文件保留作为DJ-2026-005项目的历史参考，新项目请使用905规范
+
 # 通用PLC变量命名与功能块命名规范
 
 ## 文档标识

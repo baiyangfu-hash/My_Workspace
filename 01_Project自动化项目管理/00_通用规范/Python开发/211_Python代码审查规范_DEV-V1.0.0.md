@@ -1,3 +1,13 @@
+---
+spec_id: CODE-211
+title: "Python代码审查规范"
+version: "V1.0.0"
+domain: python
+lifecycle: stable
+canonical_path: "01_Project自动化项目管理/00_通用规范/Python开发/211_Python代码审查规范_DEV-V1.0.0.md"
+tags: ["Python", "代码审查"]
+---
+
 # Python代码审查规范
 
 ## 1. 文档基础信息
