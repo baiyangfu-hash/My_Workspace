@@ -22,36 +22,26 @@ class EventBus(QObject):
     使用方式:
         from src.core.event_bus import EventBus
         bus = EventBus.get_instance()
-        bus.project_selected.emit("/path/to/project")
+        bus.project_created.emit("/path/to/project")
 
     信号分类:
-        - 项目事件: 项目创建/打开/选择
-        - 文档事件: 文档打开/保存/新建
-        - PLC/ST事件: ST文件操作/变量检查
-        - IO事件: IO表管理
-        - HMI事件: HMI映射工具
-        - 规范事件: 规范检查请求
+        - 项目事件: 项目创建/打开
+        - 文档事件: 文档打开请求
+        - PLC/ST事件: 变量检查/规范检查
         - 系统事件: 主题切换/设置变更
     """
     _instance = None
     _lock = threading.Lock()
 
     # ===== 项目事件 =====
-    project_selected = pyqtSignal(str)       # 参数: 项目路径
     project_created = pyqtSignal(str)        # 参数: 新建项目路径
     project_opened = pyqtSignal(str)         # 参数: 打开的项目路径
 
     # ===== 文档事件 =====
     document_open_request = pyqtSignal(str)  # 参数: 文档路径, 请求打开文档
-    document_saved = pyqtSignal(str)         # 参数: 文档路径, 保存成功
-    document_created = pyqtSignal(str)       # 参数: 文档路径, 新建成功
 
     # ===== PLC/ST事件 =====
-    st_file_open_request = pyqtSignal(str)   # 参数: ST文件路径
     variable_check_request = pyqtSignal()    # 无参数, 触发变量检查面板
-    fb_doc_generate_request = pyqtSignal(str)# 参数: ST文件路径
-
-    # ===== 规范事件 =====
     spec_check_request = pyqtSignal(dict)    # 参数: 检查配置dict
 
     # ===== 系统事件 =====

@@ -87,3 +87,95 @@ status: active
 - [ ] PM_SESSION 已登记 PRD/REQ/DES/变更/测试/交付的路径
 - [ ] 任一需求变更/bug/重构/迭代/交付后，PM_SESSION 的 Logs 有新增一条记录
 
+## 8. SpecMgr CLI — 规范健康检查与自动修复
+
+SpecMgr（SW-2026-006）提供规范体系的自动化检查与修复能力，工具路径：`01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/02_源代码/`
+
+### 8.1 基本用法
+
+```bash
+# 运行规范健康检查（检测版本漂移、命名不合规、链接失效等8类问题）
+specmgr check -w <工作空间根目录>
+
+# 仅检查特定检查项
+specmgr check -w <工作空间根目录> -c SHC-002 -c SHC-007
+
+# JSON格式输出（适合脚本解析）
+specmgr check -w <工作空间根目录> --format json
+
+# 只显示错误级别
+specmgr check -w <工作空间根目录> --severity error
+```
+
+### 8.2 自动修复
+
+```bash
+# 预览可自动修复的问题（不实际修改文件）
+specmgr check -w <工作空间根目录> --auto-fix --dry-run
+
+# 执行自动修复
+specmgr check -w <工作空间根目录> --auto-fix
+```
+
+### 8.3 可自动修复的问题类型
+
+| 检查ID | 问题类型 | 自动修复行为 |
+|--------|---------|-------------|
+| SHC-002 | 版本漂移（文件名版本 ≠ 注册表版本） | 重命名文件使其与注册表版本一致，同步更新frontmatter和canonical_path |
+| SHC-007 | frontmatter缺失或不完整 | 从注册表数据自动补全spec_id/title/version/lifecycle/canonical_path |
+
+### 8.4 仅检测不可自动修复的问题类型
+
+| 检查ID | 问题类型 | 原因 |
+|--------|---------|------|
+| SHC-001 | 规范文件重复 | 需人工判断保留哪个 |
+| SHC-003 | 引用了已废弃规范 | 需人工确认替代规范 |
+| SHC-004 | 索引链接失效 | 需运行 `specmgr index` 重新生成 |
+| SHC-005 | 规范未在注册表登记 | 需人工填写完整元数据 |
+| SHC-006 | Obsidian/Markdown链接失效 | 需人工确认链接目标 |
+| SHC-008 | 规则文件引用路径无效 | 需人工确认正确路径 |
+
+### 8.5 典型使用场景
+
+**场景1：规范迭代后验证一致性**
+```bash
+# 修改规范文件后，检查是否有版本漂移或命名不合规
+specmgr check -w <workspace>
+# 发现问题后预览修复
+specmgr check -w <workspace> --auto-fix --dry-run
+# 确认后执行修复
+specmgr check -w <workspace> --auto-fix
+```
+
+**场景2：新增规范文件后补全元数据**
+```bash
+# 新建规范文件后，检查frontmatter是否完整
+specmgr check -w <workspace> -c SHC-007
+# 自动补全缺失的frontmatter字段
+specmgr check -w <workspace> --auto-fix -c SHC-007
+```
+
+**场景3：定期规范体系巡检**
+```bash
+# 每周运行一次全量检查，只看错误和警告
+specmgr check -w <workspace> --severity warning
+# 发现问题后针对性修复
+specmgr check -w <workspace> --auto-fix -c SHC-002
+```
+
+### 8.6 其他SpecMgr命令
+
+```bash
+# 自动生成规范索引文件（按域生成README）
+specmgr index -w <工作空间根目录>
+specmgr index -w <工作空间根目录> --domain plc
+
+# 批量添加/更新规范frontmatter
+specmgr frontmatter -w <工作空间根目录> --dry-run
+specmgr frontmatter -w <工作空间根目录>
+
+# 生成规范元数据汇总报告
+specmgr report -w <工作空间根目录>
+specmgr report -w <工作空间根目录> --format json
+```
+

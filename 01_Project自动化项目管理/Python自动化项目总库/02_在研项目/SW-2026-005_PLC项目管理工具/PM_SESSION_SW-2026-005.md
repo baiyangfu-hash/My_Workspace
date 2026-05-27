@@ -4,7 +4,7 @@
 - project_id: SW-2026-005
 - project_name: PLC项目管理工具
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-005_PLC项目管理工具
-- last_updated: 2026-05-23 (V2.3完成: INT-V3.0.0+ARCH-V3.0.0文档同步+接口对齐)
+- last_updated: 2026-05-27 (V2.4 EventBus信号治理+Application死代码清理)
 - owners: Trae
 
 ## 1. Positioning（项目定位）
@@ -34,28 +34,22 @@
 - ❌ PLC在线连接/下载程序
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V2.3完成 — INT-V3.0.0+ARCH-V3.0.0文档同步+接口对齐已完成，下一步V2.4修复断路信号
-- milestone: V2.3.0 ✅文档同步完成 → V2.4.0 📋下一步(信号修复+代码清理) → V3.0.0-RC(发布候选)
-- acceptance: A1:main.py可启动✅ | A2:ANALYZING状态不再死胡同✅ | A3:变更管理面板可用✅ | A4:CHG/IFC异步生成✅ | A5:33个sync测试全PASS✅ | A6:接口文档与代码100%对齐✅ | A7:0个断路信号⏳ | A8:0个死代码⏳ | A9:性能基线达标⏳
+- current_focus: V2.4 EventBus信号治理完成 — 2个断路信号已连接+6个死信号已清理+Application死代码已删除
+- milestone: V2.4.0 ✅信号治理完成 → V2.5.0 📋下一步(SyncEngine属性修复+SpecDocParser) → V3.0.0-RC(发布候选)
+- acceptance: A1:main.py可启动✅ | A2:ANALYZING状态不再死胡同✅ | A3:变更管理面板可用✅ | A4:CHG/IFC异步生成✅ | A5:33个sync测试全PASS✅ | A6:接口文档与代码100%对齐✅ | A7:0个断路信号✅ | A8:0个死代码✅ | A9:性能基线达标⏳
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - V2.3文档同步完成，INT-V3.0.0+ARCH-V3.0.0已对齐实际代码
+  - V2.4 EventBus信号治理完成 (2个断路信号已连接+6个死信号已清理+Application死代码已删除)
 - next_up:
-  - V2.4: 修复3个断路信号(spec_check_request/variable_check_request/HMI映射)
-  - V2.4: 清理EventBus死信号+Application死代码+空壳服务
-  - V2.4: 修复test_checker_framework 3个预存失败用例(SpecDocParser)
+  - V2.5: 修复SyncEngine.format_version_report_html属性引用(is_consistent vs is_synced)
+  - V2.5: 修复test_checker_framework 3个预存失败用例(SpecDocParser)
   - V3.0-RC: SpecDocParser修复+ST词法增强+诊断Markdown代码块+打包exe
 - open_questions:
   - test_checker_framework.py 3个预存失败用例(SpecDocParser解析逻辑)
   - SyncEngine.format_version_report_html 引用不匹配属性(is_consistent vs is_synced)
-  - EventBus 6个定义信号未被连接/使用(project_selected/document_saved/document_created/st_file_open_request/fb_doc_generate_request/spec_check_request)
-  - Application类存在但未被main.py使用(死代码)
-  - HMI工具侧边栏页面错误映射到TAB_SPEC_CHECK
 - risks_dependencies:
   - 新增ChangeManagementPanel需UI自动化测试覆盖
-  - Tab索引变更(TAB_PLC_TOOLS 3→4, TAB_SPEC_CHECK 4→5)需验证导航映射
-  - 接口文档严重滞后可能导致后续开发参照错误API
 
 ## 4. Artifacts Index（文档索引）
 - prd:
@@ -88,6 +82,7 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-05-27 V2.4 EventBus信号治理: 修复2个断路信号(spec_check_request→_show_spec_check_dock, variable_check_request→导航PLC工具Tab+状态栏提示); 清理6个死信号(project_selected/document_saved/document_created/st_file_open_request/fb_doc_generate_request+规范事件分类); 删除Application死代码(app.py); menu_manager移除冗余QMessageBox | 影响: event_bus.py+main_window.py+menu_manager.py+删除app.py | ✅已完成
   - 2026-05-23 全方位PM审查: 输出开发进度+方案目标差距+问题点风险+V2.3→V3.0路线图 | 影响: 项目管理 | ✅已完成
   - 2026-05-23 V2.2变更: P0缺陷修复(main.py启动+ANALYZING死胡同)+变更管理UI面板+CHG/IFC异步生成+sync测试覆盖+技术债清理 | 影响: 8文件修改+4文件新增 | ✅已完成
   - 2026-05-22 范围重定义: 聚焦项目管理+文档生成+变更管理，HMI/IO/测试运行器降级为占位符 | 影响: 全局 | 已完成

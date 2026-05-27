@@ -5,7 +5,7 @@
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
 - last_updated: 2026-05-21
-- owners: 待补充
+- owners: fubai / PLC开发团队
 
 ## 1. Positioning（项目定位）
 - one_liner: 边框缓存机 PLC/HMI 软件工程交付与维护

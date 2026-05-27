@@ -760,8 +760,7 @@
         "使用指南"
       ],
       "replaces": [],
-      "replaced_by": [],
-      "classification_issue": "此文件为工具使用指南，建议未来移至工具链分类"
+      "replaced_by": []
     },
     "PLC-023": {
       "title": "PLC程序设计文档模板",
@@ -812,8 +811,7 @@
         "工具"
       ],
       "replaces": [],
-      "replaced_by": [],
-      "classification_issue": "Git为跨域工具，建议未来移至00_Obsidian_Base/02_跨域通用规范/"
+      "replaced_by": []
     },
     "TOOL-906": {
       "title": "Mermaid图表工作流规范",

@@ -601,18 +601,8 @@ class MenuManager:
             return None
 
     def _on_variable_check(self):
-        """运行变量检查"""
+        """运行变量检查 - 通过EventBus路由到MainWindow处理"""
         self._event_bus.variable_check_request.emit()
-        QMessageBox.information(
-            self._parent,
-            "\U0001F9EA 变量检查",
-            "变量检查功能正在开发中...\n\n"
-            "将支持:\n"
-            "- 全局变量重复检测\n"
-            "- 数据类型一致性检查\n"
-            "- 未使用变量警告\n"
-            "- 命名规范验证",
-        )
 
     def _on_generate_report(self):
         """生成报告"""

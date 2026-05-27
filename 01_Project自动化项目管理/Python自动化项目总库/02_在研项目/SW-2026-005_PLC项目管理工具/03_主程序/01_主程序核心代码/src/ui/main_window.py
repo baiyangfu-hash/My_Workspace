@@ -227,6 +227,8 @@ class MainWindow(QMainWindow):
         self._event_bus.project_created.connect(self._on_project_created)
         self._event_bus.project_opened.connect(self._on_project_opened)
         self._event_bus.document_open_request.connect(self._on_document_open)
+        self._event_bus.spec_check_request.connect(self._on_spec_check_request)
+        self._event_bus.variable_check_request.connect(self._on_variable_check_request)
         self._event_bus.theme_changed.connect(self._on_theme_changed)
         self._event_bus.settings_changed.connect(self._on_settings_changed)
 
@@ -297,6 +299,16 @@ class MainWindow(QMainWindow):
 
     def _on_document_open(self, path: str):
         logger.info(f"收到文档打开请求: {path}")
+
+    def _on_spec_check_request(self, config: dict):
+        self._show_spec_check_dock()
+
+    def _on_variable_check_request(self):
+        if self._nav_ctrl:
+            self._nav_ctrl.navigate_to_tab(self.TAB_PLC_TOOLS)
+        self.statusBar().showMessage(
+            "\U0001F9EA 变量检查功能开发中，请使用规范检查替代", 5000
+        )
 
     def _on_theme_changed(self, theme: str):
         StyleBuilder.apply(self, theme)
