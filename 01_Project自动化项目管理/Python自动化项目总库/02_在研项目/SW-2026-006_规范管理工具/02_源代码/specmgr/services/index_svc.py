@@ -70,10 +70,12 @@ class IndexService:
         specs.sort(key=lambda s: s.get("number", "999"))
         return specs
 
-    def _get_deprecated_specs(self, raw: dict, domain: str) -> list[dict]:
+    def _get_deprecated_specs(self, raw: dict, domain: str, lifecycles: list[str] | None = None) -> list[dict]:
+        if lifecycles is None:
+            lifecycles = ["deprecated", "archived"]
         specs = []
         for spec_id, info in raw.get("specs", {}).items():
-            if info.get("domain") == domain and info.get("lifecycle") in ("deprecated", "archived"):
+            if info.get("domain") == domain and info.get("lifecycle") in lifecycles:
                 entry = dict(info)
                 entry["spec_id"] = spec_id
                 specs.append(entry)
@@ -83,7 +85,8 @@ class IndexService:
     def _generate_pm_index(self, raw: dict) -> str:
         cfg = DOMAIN_CONFIG["pm"]
         specs = self._get_specs_by_domain(raw, "pm")
-        deprecated = self._get_deprecated_specs(raw, "pm")
+        deprecated = self._get_deprecated_specs(raw, "pm", ["deprecated"])
+        archived = self._get_deprecated_specs(raw, "pm", ["archived"])
         now = datetime.now().strftime("%Y-%m-%d")
         lines: list[str] = []
 
@@ -132,26 +135,46 @@ class IndexService:
         lines.append("---")
         lines.append("")
 
+        lines.append("## 已废弃规范（Deprecated）")
+        lines.append("")
+        lines.append("> 以下规范已被替代，仅供历史参考")
+        lines.append("")
         if deprecated:
-            lines.append("## 📦 已废弃规范")
-            lines.append("")
-            lines.append("| 编号 | 文件 | 版本 | 替代规范 |")
-            lines.append("|------|------|------|----------|")
+            lines.append("| spec_id | 标题 | 替代规范 | 废弃日期 |")
+            lines.append("|---------|------|---------|---------|")
             for spec in deprecated:
-                fname = Path(spec["canonical_path"]).name
                 replaced_by = spec.get("replaced_by", [])
                 replaced_str = ", ".join(replaced_by) if isinstance(replaced_by, list) else str(replaced_by)
-                lines.append(f"| {spec['spec_id']} | {fname} | {spec['version']} | {replaced_str or '无'} |")
-            lines.append("")
-            lines.append("---")
-            lines.append("")
+                deprecated_date = spec.get("deprecated_date", "未知")
+                lines.append(f"| {spec['spec_id']} | {spec['title']} | {replaced_str or '无'} | {deprecated_date} |")
+        else:
+            lines.append("暂无")
+        lines.append("")
+
+        lines.append("## 已归档规范（Archived）")
+        lines.append("")
+        lines.append("> 以下规范已从活跃目录移除")
+        lines.append("")
+        if archived:
+            lines.append("| spec_id | 标题 | 归档路径 | 归档日期 |")
+            lines.append("|---------|------|---------|---------|")
+            for spec in archived:
+                canonical_path = spec.get("canonical_path", "")
+                archived_date = spec.get("archived_date", "未知")
+                lines.append(f"| {spec['spec_id']} | {spec['title']} | {canonical_path} | {archived_date} |")
+        else:
+            lines.append("暂无")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
 
         lines.append("## 📊 统计")
         lines.append("")
         lines.append("| 指标 | 数值 |")
         lines.append("|------|------|")
         lines.append(f"| 活跃PM规范 | **{len(specs)}个** |")
-        lines.append(f"| 废弃/归档 | **{len(deprecated)}个** |")
+        lines.append(f"| 已废弃规范 | **{len(deprecated)}个** |")
+        lines.append(f"| 已归档规范 | **{len(archived)}个** |")
         lines.append(f"| 最后更新 | {now} |")
         lines.append("")
         lines.append(f"*索引自动生成: {now} | 注册表版本: {raw.get('version', 'unknown')}*")
@@ -162,7 +185,8 @@ class IndexService:
         cfg = DOMAIN_CONFIG[domain]
         specs = self._get_specs_by_domain(raw, domain)
         cross_domain_specs = self._get_specs_by_domain(raw, "cross-domain") if domain == "plc" else []
-        deprecated = self._get_deprecated_specs(raw, domain)
+        deprecated = self._get_deprecated_specs(raw, domain, ["deprecated"])
+        archived = self._get_deprecated_specs(raw, domain, ["archived"])
         now = datetime.now().strftime("%Y-%m-%d")
         lines: list[str] = []
 
@@ -200,16 +224,36 @@ class IndexService:
                 lines.append(f"| {spec['spec_id']} | {fname} | {spec['version']} | {spec['title']} |")
             lines.append("")
 
+        lines.append("## 已废弃规范（Deprecated）")
+        lines.append("")
+        lines.append("> 以下规范已被替代，仅供历史参考")
+        lines.append("")
         if deprecated:
-            lines.append("## 已废弃规范")
-            lines.append("")
-            lines.append("| 废弃ID | 替代规范 | 说明 |")
-            lines.append("|--------|----------|------|")
+            lines.append("| spec_id | 标题 | 替代规范 | 废弃日期 |")
+            lines.append("|---------|------|---------|---------|")
             for spec in deprecated:
                 replaced_by = spec.get("replaced_by", [])
                 replaced_str = ", ".join(replaced_by) if isinstance(replaced_by, list) else str(replaced_by)
-                lines.append(f"| {spec['spec_id']} | {replaced_str or '无'} | {spec['title']} |")
-            lines.append("")
+                deprecated_date = spec.get("deprecated_date", "未知")
+                lines.append(f"| {spec['spec_id']} | {spec['title']} | {replaced_str or '无'} | {deprecated_date} |")
+        else:
+            lines.append("暂无")
+        lines.append("")
+
+        lines.append("## 已归档规范（Archived）")
+        lines.append("")
+        lines.append("> 以下规范已从活跃目录移除")
+        lines.append("")
+        if archived:
+            lines.append("| spec_id | 标题 | 归档路径 | 归档日期 |")
+            lines.append("|---------|------|---------|---------|")
+            for spec in archived:
+                canonical_path = spec.get("canonical_path", "")
+                archived_date = spec.get("archived_date", "未知")
+                lines.append(f"| {spec['spec_id']} | {spec['title']} | {canonical_path} | {archived_date} |")
+        else:
+            lines.append("暂无")
+        lines.append("")
 
         lines.append("---")
         lines.append("")
