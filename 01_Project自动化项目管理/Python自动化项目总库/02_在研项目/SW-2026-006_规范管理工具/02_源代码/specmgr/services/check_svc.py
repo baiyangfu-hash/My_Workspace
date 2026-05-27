@@ -7,6 +7,7 @@ from specmgr.core.checker_base import CheckResult, HealthChecker, Severity
 from specmgr.core.config import WorkspaceConfig
 from specmgr.core.registry import SpecRegistry
 from specmgr.core.scanner import SpecScanner
+from specmgr.services.fix_svc import FixResult, FixService
 
 
 @dataclass
@@ -16,6 +17,7 @@ class CheckOutput:
     warning_count: int
     info_count: int
     exit_code: int
+    fix_results: list[FixResult] | None = None
 
 
 class CheckService:
@@ -31,6 +33,8 @@ class CheckService:
         self,
         check_ids: list[str] | None = None,
         min_severity: Severity = Severity.INFO,
+        auto_fix: bool = False,
+        dry_run: bool = False,
     ) -> CheckOutput:
         if not self.registry_loaded:
             return CheckOutput(
@@ -61,10 +65,16 @@ class CheckService:
         info_count = sum(1 for r in filtered if r.severity == Severity.INFO)
         exit_code = 1 if error_count else (2 if warning_count else 0)
 
+        fix_results = None
+        if auto_fix and filtered:
+            fix_svc = FixService(self.workspace, self.registry, self.scanner)
+            fix_results = fix_svc.fix_all(filtered, dry_run=dry_run)
+
         return CheckOutput(
             results=filtered,
             error_count=error_count,
             warning_count=warning_count,
             info_count=info_count,
             exit_code=exit_code,
+            fix_results=fix_results,
         )

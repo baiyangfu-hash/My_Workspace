@@ -31,8 +31,18 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 使用 SpecMgr CLI（SW-2026-006）管理全域规范（PM/PLC/Python），工具路径：`01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/02_源代码/`
 
 ```bash
-# 运行规范健康检查（检查重复/版本漂移/废弃引用等）
+# 运行规范健康检查（检查重复/版本漂移/废弃引用等8类问题）
 specmgr check -w <工作空间根目录>
+
+# 预览可自动修复的问题（不实际修改文件）
+specmgr check -w <工作空间根目录> --auto-fix --dry-run
+
+# 执行自动修复（版本漂移重命名、frontmatter补全）
+specmgr check -w <工作空间根目录> --auto-fix
+
+# 仅修复特定问题类型
+specmgr check -w <工作空间根目录> --auto-fix -c SHC-002   # 仅修复版本漂移
+specmgr check -w <工作空间根目录> --auto-fix -c SHC-007   # 仅补全frontmatter
 
 # 自动生成规范索引文件（按域生成README）
 specmgr index -w <工作空间根目录>
@@ -49,9 +59,14 @@ specmgr report -w <工作空间根目录> --format json    # JSON格式
 
 **使用场景**：
 - 新增/修改规范文件后 → 运行 `specmgr check` 验证规范性
+- 发现版本漂移或frontmatter缺失 → 运行 `specmgr check --auto-fix --dry-run` 预览，确认后 `--auto-fix` 修复
 - 规范目录结构变更后 → 运行 `specmgr index` 重新生成索引
 - 规范文件缺少frontmatter → 运行 `specmgr frontmatter` 补全
 - 定期审查规范体系 → 运行 `specmgr report` 生成报告
+
+**可自动修复的问题**：
+- SHC-002 版本漂移：重命名文件使其与注册表版本一致，同步更新frontmatter和canonical_path
+- SHC-007 frontmatter缺失：从注册表数据自动补全spec_id/title/version/lifecycle/canonical_path
 
 ## 技术栈适配
 

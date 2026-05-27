@@ -1,5 +1,5 @@
 ---
-version: V1.0.0
+version: V1.1.0
 domain: 01_项目管理域/00_元规则与治理
 type: PM_WORKFLOW
 status: active
