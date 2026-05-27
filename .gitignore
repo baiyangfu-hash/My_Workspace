@@ -29,3 +29,9 @@ gittoken.txt
 *.secret
 *.key
 *.pem
+
+.trae/paddleocr_inputs/
+.trae/tmp_*
+.trae/pip_install_*
+.trae/paddlex_*
+.trae/paddleocr_mcp_*
