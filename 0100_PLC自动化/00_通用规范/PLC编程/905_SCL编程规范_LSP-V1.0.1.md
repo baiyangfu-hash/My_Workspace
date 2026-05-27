@@ -4,7 +4,7 @@ title: "SCL编程规范"
 version: "V1.0.1"
 domain: plc
 lifecycle: stable
-canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范.md"
+canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.1.md"
 replaces: [DEV-801, DEV-810]
 tags: ["SCL", "编程", "核心规范", "LSP"]
 ---
