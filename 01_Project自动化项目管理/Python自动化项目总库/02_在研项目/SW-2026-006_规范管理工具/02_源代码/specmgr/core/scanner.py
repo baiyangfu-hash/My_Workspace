@@ -8,8 +8,23 @@ import yaml
 
 from .config import WorkspaceConfig, DEFAULT_SPEC_DIRS
 
+_KNOWN_PREFIXES = (
+    "SW", "PM", "PLC", "PY", "CODE", "LSP", "INT", "DEV",
+    "TOOL", "CHK", "OPS", "CHG", "BUG", "TEST", "REQ",
+    "DES", "SUM", "PROJ", "TECH", "TASK", "PRD",
+)
 
-_SPEC_NUMBER_RE = re.compile(r"^(?:SW|PM|PLC|PY|CODE|LSP|INT)-\d{3,4}(?:-\d{3})?")
+_PREFIXES_PATTERN = "|".join(_KNOWN_PREFIXES)
+
+_SPEC_ID_HEAD_RE = re.compile(
+    rf"^(?:{_PREFIXES_PATTERN})-\d{{3,4}}(?:-\d{{3}})?"
+)
+
+_NUM_HEAD_RE = re.compile(r"^(\d{3,4})_")
+
+_PREFIX_VER_SUFFIX_RE = re.compile(
+    rf"_({_PREFIXES_PATTERN})-V"
+)
 
 
 class SpecScanner:
@@ -31,9 +46,25 @@ class SpecScanner:
 
     def _extract_spec_number(self, file_path: Path) -> Optional[str]:
         name = file_path.stem
-        match = _SPEC_NUMBER_RE.match(name)
-        if match:
-            return match.group(0)
+
+        head_match = _SPEC_ID_HEAD_RE.match(name)
+        if head_match:
+            return head_match.group(0)
+
+        num_match = _NUM_HEAD_RE.match(name)
+        prefix_match = _PREFIX_VER_SUFFIX_RE.search(name)
+
+        if num_match and prefix_match:
+            number = num_match.group(1)
+            prefix = prefix_match.group(1)
+            return f"{prefix}-{number}"
+
+        if prefix_match and not num_match:
+            return None
+
+        if num_match and not prefix_match:
+            return None
+
         return None
 
     def scan_all(self) -> dict[str, list[Path]]:

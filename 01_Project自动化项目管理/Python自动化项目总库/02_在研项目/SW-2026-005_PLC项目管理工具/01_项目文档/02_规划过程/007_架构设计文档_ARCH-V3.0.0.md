@@ -3,7 +3,7 @@
 > **项目**: SW-2026-005 PLC项目管理工具
 > **版本**: V3.0.0 | **日期**: 2026-05-23
 > **状态**: 当前运行版本
-> **变更**: V3.0深度对齐 — 修正模块计数、接口描述、EventBus信号、与实际代码完全同步
+> **变更**: V3.0深度对齐 — 修正模块计数、接口描述、EventBus信号、与实际代码完全同步；新增§8 V3.0+架构演进（⚠️未来迭代方向）
 
 ---
 
@@ -706,27 +706,207 @@ RuleRegistry.instance().register(CustomChecker())
 
 ---
 
-## 8. V2.0.0 → V3.0.0 变更记录
+## 8. V3.0+ 架构演进：SCL 语言服务层
 
-| 章节 | 变更内容 |
-|------|---------|
-| 2.1 分层架构图 | Widget 5→7个，Dialog 4→5个，Controller 3→4个，Service 9→11个，Model 8→13个 |
-| 2.2 Controller模式 | 新增NavigationController，更新架构图 |
-| 2.4 模块清单 | 完整更新各目录模块列表 |
-| 3.1.1 SettingsManager | `load(path)` → `initialize(settings_dir)`，新增 `reset_to_defaults()` / `get_all()` |
-| 3.1.2 EventBus | 删除虚构信号(project_closed/check_started/check_completed/diagnostic_started/diagnostic_completed)，新增实际信号，标注连接状态 |
-| 3.2.1 MainWindow | 删除Application类引用，更新方法列表为委托模式 |
-| 3.2.2 DashboardPage | 统计卡片从"FB数/变量数/文档数/测试数"改为"项目总数/进行中/已完成/已归档" |
-| 3.2.3 Widget清单 | 新增ChangeManagementPanel、SpecCheckTabPanel |
-| 3.2.4 Dialog清单 | 新增SyncResultDialog |
-| 3.2.5 Controller清单 | 新增NavigationController |
-| 3.2.6 Builder清单 | **新增章节** — 记录4个Builder |
-| 3.3 业务服务层 | 新增ChangeService、WorkflowService；修正方法名与实际代码一致 |
-| 3.4 数据模型层 | 新增ChangeRequest、CheckResult、ProjectArtifact、WorkflowCheckpoint等5个Model |
-| 5.1 新建项目流程 | 更新为实际调用链 |
-| 5.3 变更管理流程 | **新增章节** — 记录版本检查/CHG/IFC生成流程 |
+> ⚠️ **本章节为未来迭代方向规划，不属于当前工作范围。当前工作焦点为 V2.5 缺陷修复和 V3.0-RC 发布候选。**
+
+> **战略方向**：在现有分层架构中新增"语言服务层"，将 SW-2026-005 从项目管理工具升级为 PLC 开发工具链。
+
+### 8.1 演进后的分层架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    表现层 (Presentation)                    │
+│  MainWindow / Dashboard / Dialogs / Widgets                │
+│  (保持不变，新增 FBDPreview / TagTableEditor)               │
+├─────────────────────────────────────────────────────────────┤
+│                    业务层 (Business)                         │
+│  11个Service + SyncEngine + ChangeService (保持不变)        │
+├─────────────────────────────────────────────────────────────┤
+│              ★ 语言服务层 (Language Service) ★  ← V3.0新增  │
+│                                                             │
+│  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐     │
+│  │ SCL Parser   │  │ Type Checker  │  │ Symbol Index │     │
+│  │ Lexer + AST  │  │ Diagnostics   │  │ Scope Manager│     │
+│  └──────────────┘  └───────────────┘  └──────────────┘     │
+│  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐     │
+│  │ S7DCL Parser │  │ S7RES Parser  │  │ TagTable XML │     │
+│  └──────────────┘  └───────────────┘  └──────────────┘     │
+│  ┌──────────────┐  ┌───────────────┐                        │
+│  │ LibraryResolver│ │ .plc.json    │                        │
+│  │ (.liblink/GUID)│ │ Scope Mgr   │                        │
+│  └──────────────┘  └───────────────┘                        │
+├─────────────────────────────────────────────────────────────┤
+│                    核心层 (Core) — 保持不变                   │
+├─────────────────────────────────────────────────────────────┤
+│                    数据层 (Data) — 保持不变                   │
+├─────────────────────────────────────────────────────────────┤
+│                  基础设施层 (Infrastructure)                   │
+│  parsers/ + checkers/ + diagnostics/ + sync/ + utils/      │
+│  (现有模块保持不变，STParser 逐步迁移到 SCL Parser)          │
+├─────────────────────────────────────────────────────────────┤
+│              ★ LSP 适配层 ★  ← V3.1新增                     │
+│  pygls Server / Document Sync / Completion / Hover /        │
+│  Definition / References / Inlay Hints / Diagnostics        │
+├─────────────────────────────────────────────────────────────┤
+│              ★ TIA Portal 网关 ★  ← V4.0可选                │
+│  C# Openness API / HTTP REST / 项目创建 / 编译下载           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 8.2 语言服务层模块设计
+
+#### 8.2.1 新增目录结构
+
+```
+src/
+├── scl/                                # SCL 语言核心模块
+│   ├── __init__.py
+│   ├── lexer.py                        # 词法分析器
+│   ├── tokens.py                       # Token 类型定义
+│   ├── ast_nodes.py                    # AST 节点定义
+│   ├── parser.py                       # 递归下降语法分析器
+│   ├── visitor.py                      # AST 访问者模式基类
+│   └── formatter.py                    # 代码格式化
+│
+├── checker/                            # 类型检查与语义分析
+│   ├── __init__.py
+│   ├── type_system.py                  # SCL 类型系统
+│   ├── type_checker.py                 # 类型检查器
+│   ├── semantic_analyzer.py            # 语义分析器
+│   ├── scope.py                        # 作用域管理
+│   └── diagnostics.py                  # 诊断消息定义
+│
+├── language_server/                    # LSP 服务器模块
+│   ├── __init__.py
+│   ├── server.py                       # pygls 服务器入口
+│   ├── features/                       # LSP 功能实现
+│   │   ├── completion.py               # textDocument/completion
+│   │   ├── hover.py                    # textDocument/hover
+│   │   ├── definition.py               # textDocument/definition
+│   │   ├── references.py               # textDocument/references
+│   │   ├── diagnostics.py              # textDocument/publishDiagnostics
+│   │   ├── inlay_hints.py              # textDocument/inlayHint
+│   │   └── document_sync.py            # didOpen/didChange/didClose
+│   └── protocol/                       # 自定义协议扩展
+│
+├── project/                            # 扩展：项目管理
+│   ├── plc_config.py                   # .plc.json 解析与作用域
+│   ├── library_resolver.py             # 库引用解析 (.liblink/.libinfo)
+│   ├── s7dcl_parser.py                 # .s7dcl 文件解析
+│   ├── s7res_parser.py                 # .s7res 文件解析
+│   └── tag_table_parser.py             # 标签表 XML 解析
+│
+└── ui/widgets/                         # 扩展：UI 组件
+    ├── fbd_preview.py                  # FBD 功能块预览
+    └── tag_table_editor.py             # 标签表编辑器
+```
+
+#### 8.2.2 核心类设计
+
+**SCL Lexer** — 词法分析器
+```
+class SclLexer:
+    + tokenize(source: str) -> List[Token]
+    + tokenize_line(source: str) -> List[Token]
+    - _scan_token() -> Token
+    - _scan_string() -> Token
+    - _scan_number() -> Token
+    - _scan_identifier() -> Token
+    - _scan_comment() -> Token
+```
+
+**SCL Parser** — 递归下降语法分析器
+```
+class SclParser:
+    + parse(source: str) -> ProgramNode
+    + parse_expression(source: str) -> ExpressionNode
+    - _parse_function_block() -> FunctionBlockNode
+    - _parse_organization_block() -> OrgBlockNode
+    - _parse_data_block() -> DataBlockNode
+    - _parse_var_section() -> VarSectionNode
+    - _parse_statement() -> StatementNode
+    - _parse_if_statement() -> IfNode
+    - _parse_case_statement() -> CaseNode
+    - _parse_for_statement() -> ForNode
+    - _parse_assignment() -> AssignmentNode
+    - _parse_fb_call() -> FBCallNode
+```
+
+**TypeChecker** — 类型检查器
+```
+class TypeChecker:
+    + check(program: ProgramNode) -> List[Diagnostic]
+    + check_expression(expr: ExpressionNode, expected: SclType) -> TypeCheckResult
+    - _resolve_type(type_name: str) -> SclType
+    - _check_assignment(target: ExpressionNode, value: ExpressionNode) -> Diagnostic?
+    - _check_fb_call(call: FBCallNode) -> List[Diagnostic]
+    - _build_symbol_table(program: ProgramNode) -> SymbolTable
+```
+
+**LanguageServer** — LSP 服务器（pygls）
+```
+class SclLanguageServer(LanguageServer):
+    + __init__()
+    - _language_service: LanguageService
+    # LSP 特性注册:
+    - @feature(TEXT_DOCUMENT_COMPLETION)
+    - @feature(TEXT_DOCUMENT_HOVER)
+    - @feature(TEXT_DOCUMENT_DEFINITION)
+    - @feature(TEXT_DOCUMENT_REFERENCES)
+    - @feature(TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS)
+    - @feature(TEXT_DOCUMENT_INLAY_HINT)
+```
+
+### 8.3 与现有模块的集成方式
+
+| 现有模块 | 集成方式 | 说明 |
+|---------|---------|------|
+| **STParser** (正则版) | 保留并存，逐步迁移 | 简单场景(变量提取/命名检查)仍用正则版，复杂场景(类型检查/补全)用新 AST 版 |
+| **STLexer** (QScintilla) | 扩展 Token 类型 | 新增 .s7dcl/.s7res 语法高亮支持 |
+| **SpecCheckerService** | 承载新诊断规则 | TypeChecker 的诊断结果通过 SpecCheckerService 推送到 UI |
+| **DiagnosticService** | 新增第四阶段 | 现有三阶段(规范+LSP+健康度) → 四阶段(+SCL类型检查) |
+| **EventBus** | 新增信号 | `diagnostics_updated(List[Diagnostic])` / `symbol_index_ready()` |
+| **ProjectService** | 扩展 .plc.json 管理 | 新增 plc_config.py 解析 .plc.json 作用域 |
+
+### 8.4 关键设计决策
+
+#### 8.4.1 为什么选择混合模式而非纯 LSP
+
+| 方案 | PyQt5 集成 | VS Code 可用 | 性能 | 复杂度 |
+|------|-----------|-------------|------|--------|
+| 纯 LSP（独立进程） | ❌ 需 IPC | ✅ | 中（IPC 开销） | 低 |
+| 内嵌式（不走 LSP） | ✅ 同进程 | ❌ | 高 | 低 |
+| **混合模式** | ✅ 同进程 API | ✅ pygls | 高（同进程）/中（LSP） | 中 |
+
+**结论**：混合模式兼顾 PyQt5 深度集成和 VS Code 生态兼容。
+
+#### 8.4.2 为什么手写递归下降而非 ANTLR4/Tree-sitter
+
+| 方案 | 依赖 | 代码量 | 可控性 | 增量解析 |
+|------|------|--------|--------|---------|
+| **手写递归下降** | 无 | ~2000行 | ✅ 完全可控 | ✅ 可实现 |
+| ANTLR4 | Java 运行时 | ~500行(语法文件) | ❌ 生成代码难调试 | ❌ 全量重解析 |
+| Tree-sitter | C 编译 | ~800行(语法文件) | ❌ C 依赖 | ✅ 天然增量 |
+
+**结论**：手写解析器零外部依赖，完全可控，Go 插件也是手写。
+
+#### 8.4.3 为什么不实现 SCL 编译器
+
+Go 插件的 SCL→Go 编译器是最复杂模块（★★★★★），但存在根本性语义差异：
+- VAR_IN_OUT 值拷贝导致 FB 内部修改不回写
+- IEC 定时器(TON/TOF/TP)无法映射为通用语言语义
+- 生成的代码只能做有限功能测试，无法替代 TIA Portal 真实编译
+
+**替代路径**：V4.0 通过 C# Openness 网关调用 TIA Portal 原生编译和仿真。
 
 ---
 
-*文档版本: ARCH-V3.0.0 | 最后更新: 2026-05-23*
-*变更记录: V3.0深度对齐 — 修正模块计数、接口描述、EventBus信号、与实际代码完全同步*
+## 9. V2.0.0 → V3.0.0 变更记录
+
+| 章节 | 变更内容 |
+|------|---------|
+| §8 | **新增章节** — V3.0+ 架构演进：SCL 语言服务层，包含演进后分层架构图、模块设计、核心类设计、集成方式、关键设计决策（⚠️未来迭代方向，非当前工作范围） |
+
+*文档版本: ARCH-V3.0.0 | 最后更新: 2026-05-28*
+*变更记录: V3.0+新增§8 SCL语言服务层架构演进规划*

@@ -4,7 +4,7 @@
 - project_id: SW-2026-005
 - project_name: PLC项目管理工具
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-005_PLC项目管理工具
-- last_updated: 2026-05-27 (V2.4 EventBus信号治理+Application死代码清理)
+- last_updated: 2026-05-28 (V3.0+未来迭代方向规划完成)
 - owners: Trae
 
 ## 1. Positioning（项目定位）
@@ -34,34 +34,47 @@
 - ❌ PLC在线连接/下载程序
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V2.4 EventBus信号治理完成 — 2个断路信号已连接+6个死信号已清理+Application死代码已删除
-- milestone: V2.4.0 ✅信号治理完成 → V2.5.0 📋下一步(SyncEngine属性修复+SpecDocParser) → V3.0.0-RC(发布候选)
+- current_focus: V2.5 缺陷修复（SyncEngine属性引用+SpecDocParser测试用例）
+- milestone: V2.5.0 📋当前(SyncEngine属性修复+SpecDocParser) → V3.0-RC(发布候选:打包exe+ST词法增强) → V3.0.0(正式发布)
 - acceptance: A1:main.py可启动✅ | A2:ANALYZING状态不再死胡同✅ | A3:变更管理面板可用✅ | A4:CHG/IFC异步生成✅ | A5:33个sync测试全PASS✅ | A6:接口文档与代码100%对齐✅ | A7:0个断路信号✅ | A8:0个死代码✅ | A9:性能基线达标⏳
+
+### 2.1 未来迭代方向（V3.0+，非当前工作）
+- 📌 SCL语言服务器规划已完成，详见:
+  - PRD §6.5 V3.0+未来展望
+  - ARCH §8 V3.0+架构演进
+  - DEV-PLAN-V3.0.0 Epic5~10开发规划
+- 📌 方向: Python核心语言服务 + C# TIA Portal网关(可选)
+- 📌 路线: V3.0(SCL解析器) → V3.1(LSP服务器) → V3.2(项目作用域) → V4.0(TIA网关)
+- ⚠️ **这是未来迭代方向，不影响当前V2.5/V3.0-RC的工作**
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - V2.4 EventBus信号治理完成 (2个断路信号已连接+6个死信号已清理+Application死代码已删除)
+  - V2.5: SyncEngine.format_version_report_html属性引用修复
+  - V2.5: test_checker_framework 3个预存失败用例(SpecDocParser)
 - next_up:
-  - V2.5: 修复SyncEngine.format_version_report_html属性引用(is_consistent vs is_synced)
-  - V2.5: 修复test_checker_framework 3个预存失败用例(SpecDocParser)
   - V3.0-RC: SpecDocParser修复+ST词法增强+诊断Markdown代码块+打包exe
+  - V3.0.0: 正式发布
 - open_questions:
   - test_checker_framework.py 3个预存失败用例(SpecDocParser解析逻辑)
   - SyncEngine.format_version_report_html 引用不匹配属性(is_consistent vs is_synced)
+  - .s7dcl/.s7res 文件格式需收集样本文件进行逆向分析
 - risks_dependencies:
-  - 新增ChangeManagementPanel需UI自动化测试覆盖
+  - SCL语法解析器覆盖度可能不足(METHOD等边缘语法)
+  - pygls LSP框架长期维护风险(需关注社区动态)
+  - 新增pygls依赖可能与现有PyQt5环境冲突(需隔离测试)
 
 ## 4. Artifacts Index（文档索引）
 - prd:
-  - 00_项目基础信息/001_产品需求文档_PRD-V2.1.0.md
+  - 00_项目基础信息/001_产品需求文档_PRD-V2.1.0.md (含§6.5 V3.0+未来展望)
 - plan:
   - 01_项目文档/02_规划过程/006_总计划与里程碑_PLAN-V2.0.0.md
 - arch:
-  - 01_项目文档/02_规划过程/007_架构设计文档_ARCH-V3.0.0.md (V3.0.0 深度对齐版)
+  - 01_项目文档/02_规划过程/007_架构设计文档_ARCH-V3.0.0.md (V3.0.0 深度对齐版+§8 SCL语言服务层架构演进)
 - des:
   - 01_项目文档/02_规划过程/008_详细设计文档_DES-V2.0.0.md
 - dev:
   - 01_项目文档/02_规划过程/010_代码结构说明_DEV-V2.0.0.md
+  - 01_项目文档/02_规划过程/012_V3.0开发规划_DEV-PLAN-V3.0.0.md (V3.0+ SCL语言服务器Epic5~10)
 - api:
   - 01_项目文档/02_规划过程/009_API接口文档_INT-V3.0.0.md (V3.0.0 深度审查对齐版)
 - src:
@@ -82,6 +95,7 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-05-28 未来迭代方向规划: 完成SCL语言服务器可行性分析(Python核心+C#可选网关)，更新PRD§6.5+ARCH§8+创建DEV-PLAN-V3.0.0作为未来迭代方向文档。⚠️这是未来方向，当前工作仍为V2.5缺陷修复→V3.0-RC发布候选 | 影响: PRD+ARCH+DEV-PLAN+PM_SESSION | ✅已完成
   - 2026-05-27 V2.4 EventBus信号治理: 修复2个断路信号(spec_check_request→_show_spec_check_dock, variable_check_request→导航PLC工具Tab+状态栏提示); 清理6个死信号(project_selected/document_saved/document_created/st_file_open_request/fb_doc_generate_request+规范事件分类); 删除Application死代码(app.py); menu_manager移除冗余QMessageBox | 影响: event_bus.py+main_window.py+menu_manager.py+删除app.py | ✅已完成
   - 2026-05-23 全方位PM审查: 输出开发进度+方案目标差距+问题点风险+V2.3→V3.0路线图 | 影响: 项目管理 | ✅已完成
   - 2026-05-23 V2.2变更: P0缺陷修复(main.py启动+ANALYZING死胡同)+变更管理UI面板+CHG/IFC异步生成+sync测试覆盖+技术债清理 | 影响: 8文件修改+4文件新增 | ✅已完成

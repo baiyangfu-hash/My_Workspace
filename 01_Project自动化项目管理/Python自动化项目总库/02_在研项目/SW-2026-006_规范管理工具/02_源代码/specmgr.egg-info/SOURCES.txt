@@ -1,5 +1,6 @@
 pyproject.toml
 specmgr/__init__.py
+specmgr/__main__.py
 specmgr/cli.py
 specmgr.egg-info/PKG-INFO
 specmgr.egg-info/SOURCES.txt
@@ -19,6 +20,7 @@ specmgr/core/registry.py
 specmgr/core/scanner.py
 specmgr/services/__init__.py
 specmgr/services/check_svc.py
+specmgr/services/fix_svc.py
 specmgr/services/frontmatter_svc.py
 specmgr/services/index_svc.py
 specmgr/services/report_svc.py

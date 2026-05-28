@@ -4,7 +4,7 @@
 - project_id: 0100_PLC
 - project_name: PLC自动化项目库
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化
-- last_updated: 2026-05-20
+- last_updated: 2026-05-27 (FB_1011/FB_1012重构为VAR_IN_OUT结构体参数)
 - owners: PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -24,7 +24,8 @@
   - ✅ Phase 1: ST_ServoAxis V2.0 完成（对齐PLCopen五图标准，25字段四段式）
   - ✅ Phase 1: ST_ServoAxis V3.0 完成（按SV功能块分组嵌套，74字段，10个TYPE，新增Halt/Rel/Reset）
   - ✅ Phase 3: FB_1003 V7.0 集成ST_ServoAxis V3.0 (VAR_IN_OUT直连, 完整Power→ABS→Stop流程)
-  - ⬜ Phase 2: ST_Cylinder 等剩余7个结构体验证/优化
+  - ✅ Phase 2: ST_Cylinder V1.1 + ST_ConveyorMotor V1.1 验证完成(FB_1011/FB_1012改用VAR_IN_OUT结构体参数)
+  - ⬜ Phase 2: ST_DualSensor/ST_ConveyorLayer/ST_ProductSensors/ST_ExternalDevice 仍待验证
   - ⬜ Phase 4: FB_1004 集成astServoAxis[3](X2轴)
 
 ## 3. Status Summary（当前状态摘要）
