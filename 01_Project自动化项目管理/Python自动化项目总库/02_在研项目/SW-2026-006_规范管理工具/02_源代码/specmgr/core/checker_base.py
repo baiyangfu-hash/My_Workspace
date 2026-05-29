@@ -441,6 +441,115 @@ class RulesPathChecker(BaseChecker):
         return None
 
 
+class PMSessionRefChecker(BaseChecker):
+    _PATH_REF_RE = re.compile(r"(\S+/\S+\.\w{2,6})")
+    _MDLINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        workspace = scanner.workspace
+
+        pm_files = list(workspace.rglob("PM_SESSION_*.md"))
+        if not pm_files:
+            return results
+
+        for pm_file in pm_files:
+            try:
+                content = pm_file.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+            base_dir = pm_file.parent
+
+            refs_seen: set[str] = set()
+            for match in self._PATH_REF_RE.finditer(content):
+                ref_path_str = match.group(1)
+                if ref_path_str.startswith(("http:", "https:")):
+                    continue
+                if ref_path_str in refs_seen:
+                    continue
+                refs_seen.add(ref_path_str)
+
+                target = base_dir / ref_path_str
+                if not target.exists():
+                    results.append(
+                        CheckResult(
+                            check_id="SHC-009",
+                            severity=Severity.WARNING,
+                            message=f"PM_SESSION 引用的路径不存在: {ref_path_str}",
+                            details=f"PM文件: {pm_file.relative_to(workspace)}",
+                            fix_suggestion=f"确认 {ref_path_str} 文件是否存在，或更新 PM_SESSION 中的引用",
+                        )
+                    )
+
+            for line_no, line in enumerate(content.splitlines(), 1):
+                for match in self._MDLINK_RE.finditer(line):
+                    link_target = match.group(2)
+                    if link_target.startswith(("http:", "https:", "#")):
+                        continue
+                    target = base_dir / link_target
+                    if not target.exists() and link_target.endswith(".md"):
+                        results.append(
+                            CheckResult(
+                                check_id="SHC-009",
+                                severity=Severity.WARNING,
+                                message=f"PM_SESSION markdown链接目标不存在: {link_target}",
+                                details=f"PM文件: {pm_file.relative_to(workspace)}, 第{line_no}行",
+                                fix_suggestion=f"确认 {link_target} 文件是否存在，或更新链接",
+                            )
+                        )
+
+        return results
+
+
+class SpecCrossRefChecker(BaseChecker):
+    _MDLINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+    _SPEC_ID_RE = re.compile(r"(?:SW|PM|PLC|PY|CODE|LSP|INT)-\d{3,4}(?:-\d{3})?")
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        all_specs = scanner.scan_all()
+
+        for spec_num, paths in all_specs.items():
+            for path in paths:
+                try:
+                    content = path.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    continue
+                base_dir = path.parent
+
+                for line_no, line in enumerate(content.splitlines(), 1):
+                    for match in self._MDLINK_RE.finditer(line):
+                        link_text = match.group(1)
+                        link_target = match.group(2)
+                        if link_target.startswith(("http:", "https:", "#", "./")):
+                            continue
+
+                        if not self._SPEC_ID_RE.search(link_text) and not self._SPEC_ID_RE.search(link_target):
+                            continue
+
+                        target_path = base_dir / link_target
+                        if not target_path.exists():
+                            results.append(
+                                CheckResult(
+                                    check_id="SHC-010",
+                                    severity=Severity.WARNING,
+                                    message=f"规范 {spec_num} 交叉引用目标不存在: {link_target}",
+                                    details=f"文件: {path.relative_to(scanner.workspace)}, 第{line_no}行",
+                                    fix_suggestion=f"确认 {link_target} 文件是否存在，或更新引用为正确的文件名",
+                                )
+                            )
+
+        return results
+
+
 _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-001": DuplicateChecker,
     "SHC-002": VersionMismatchChecker,
@@ -450,6 +559,8 @@ _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-006": ObsidianLinkChecker,
     "SHC-007": FrontmatterChecker,
     "SHC-008": RulesPathChecker,
+    "SHC-009": PMSessionRefChecker,
+    "SHC-010": SpecCrossRefChecker,
 }
 
 

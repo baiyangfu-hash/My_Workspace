@@ -1,3 +1,21 @@
+---
+canonical_path: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/01_需求与设计/01-产品需求文档_PRD-V1.1.0.md
+domain: cross-domain
+lifecycle: stable
+number: '006'
+spec_id: SW-2026-006
+sub_domain: 工具
+tags:
+- 规范管理
+- CLI
+- GUI
+- 工具
+- 跨域
+title: 规范管理工具 (SpecMgr)
+type_prefix: SW
+version: V0.2.0
+---
+
 # 产品需求文档 (PRD)
 
 ## 文档基础信息

@@ -525,8 +525,8 @@
     "LSP-905": {
       "title": "SCL编程规范",
       "number": "905",
-      "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.1.md",
-      "version": "V1.0.1",
+      "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.2.md",
+      "version": "V1.0.2",
       "type_prefix": "LSP",
       "domain": "plc",
       "lifecycle": "stable",
@@ -538,8 +538,8 @@
     "LSP-904": {
       "title": "SCL注释规范",
       "number": "904",
-      "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP-V1.1.0.md",
-      "version": "V1.1.0",
+      "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP-V1.2.0.md",
+      "version": "V1.2.0",
       "type_prefix": "LSP",
       "domain": "plc",
       "lifecycle": "stable",
@@ -771,15 +771,5 @@
       "replaced_by": []
     }
   },
-  "project_copies": [
-    {
-      "spec_id": "DEV-801",
-      "project": "DJ-2026-005",
-      "path": "0100_PLC自动化/DJ-2026-005/01_需求与设计/10_编程及变量规范/801_PLC变量命名与功能块命名规范_DEV-V1.0.5.md",
-      "actual_version": "V1.0.7",
-      "filename_version": "V1.0.5",
-      "drift_detected": true,
-      "note": "文件内容已更新至V1.0.7但文件名仍为V1.0.5，且该规范已被LSP-905替代"
-    }
-  ]
+  "project_copies": []
 }

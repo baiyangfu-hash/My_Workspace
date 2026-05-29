@@ -1,0 +1,27 @@
+(* ================================================================= *)
+(*  ST_HandshakeCh                                                   *)
+(*  通讯握手通道数据区 - 单通道完整读写区(写+读+诊断)                 *)
+(*  版本: V1.1.0  日期: 2026-05-29                                    *)
+(*  来源: SysLib/types/                                              *)
+(* ================================================================= *)
+
+TYPE ST_HandshakeCh :
+STRUCT
+    Write        : ST_HandshakeBits;   // 写区: 本机->对方 16个Bool信号
+    WriteSpeed   : INT := 0;           // 传输速度 m/min
+    WriteQuality : INT := 0;           // 产品质量
+    WriteGrade   : INT := 0;           // 产品等级
+    WriteReserved: INT := 0;           // 预留
+    WriteGlassID : ARRAY[1..30] OF CHAR; // 产品ID ASCII
+
+    Read         : ST_HandshakeBits;   // 读区: 对方->本机 16个Bool信号
+    ReadSpeed    : INT := 0;           // 传输速度
+    ReadQuality  : INT := 0;           // 产品质量
+    ReadGrade    : INT := 0;           // 产品等级
+    ReadReserved : INT := 0;           // 预留
+    ReadGlassID  : ARRAY[1..30] OF CHAR; // 产品ID ASCII
+
+    CommFault    : BOOL := FALSE;      // 通讯故障综合
+    HbTimeout    : BOOL := FALSE;      // 心跳超时
+END_STRUCT
+END_TYPE

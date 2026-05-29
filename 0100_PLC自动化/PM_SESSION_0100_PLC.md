@@ -4,7 +4,7 @@
 - project_id: 0100_PLC
 - project_name: PLC自动化项目库
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化
-- last_updated: 2026-05-27 (FB_1011/FB_1012重构为VAR_IN_OUT结构体参数)
+- last_updated: 2026-05-29 (新增FB_1013九十度转向机构: PRD+SCL完整交付)
 - owners: PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -13,8 +13,8 @@
 - non_goals: 不包含机械设计、电气原理图绘制等非软件范畴
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 变量结构化重构 V8.0 - SysLib/types/ 跨项目结构体库 + DJ-2026-005集成验证
-- milestone: 阶段5 - 变量结构化重构（V8.0.0）
+- current_focus: FB_1013九十度转向机构 V8.0 - 从LD梯形图源程序解析→PRD→SCL完整交付
+- milestone: 阶段5 - 变量结构化重构（V8.0.0）+ SysLib执行器库扩展
 - acceptance:
   - ✅ 决策确认：结构体存放位置 SysLib/types/（必须跨项目复用）
   - ✅ 决策确认：嵌套深度 ≤3层
@@ -25,6 +25,7 @@
   - ✅ Phase 1: ST_ServoAxis V3.0 完成（按SV功能块分组嵌套，74字段，10个TYPE，新增Halt/Rel/Reset）
   - ✅ Phase 3: FB_1003 V7.0 集成ST_ServoAxis V3.0 (VAR_IN_OUT直连, 完整Power→ABS→Stop流程)
   - ✅ Phase 2: ST_Cylinder V1.1 + ST_ConveyorMotor V1.1 验证完成(FB_1011/FB_1012改用VAR_IN_OUT结构体参数)
+  - ✅ **新增: FB_1013 NinetyDegreeTransfer V8.0 从9页LD梯形图解析生成** (13步状态机, 6个VAR_IN_OUT结构体, 14种报警码)
   - ⬜ Phase 2: ST_DualSensor/ST_ConveyorLayer/ST_ProductSensors/ST_ExternalDevice 仍待验证
   - ⬜ Phase 4: FB_1004 集成astServoAxis[3](X2轴)
 
@@ -35,7 +36,7 @@
 | 模块 | 路径 | 版本 | 状态 | 说明 |
 |------|------|------|------|------|
 | **通用规范库** | `00_通用规范/` | V2.0.0 | ✅ 成熟 | 8份规范文档（SCL编程/注释/定时器/错误预防/配置等）|
-| **共享功能库** | `01_SharedLibraries/SysLib/` | V2.0.0 | ✅ 成熟 | IEC 61131-3标准库（定时器/计数器/边沿/执行器等17个FB/FC）|
+| **共享功能库** | `01_SharedLibraries/SysLib/` | V2.0.0 | ✅ 成熟 | IEC 61131-3标准库（定时器/计数器/边沿/执行器等18个FB/FC）|
 | **示例项目** | `DJ-2026-000/` | V1.0.0 | ✅ 完成 | 阀门控制示例（教学用）|
 | **主项目** | `DJ-2026-005/` | V2.0.0 | 🔄 进行中 | 边框缓存机（Conveyor重构阶段4完成）|
 
@@ -49,7 +50,7 @@
 ├── edge/       (2个) FB_R_TRIG, FB_F_TRIG
 ├── log/        (1个) FC_LogMsg
 ├── pulse/      (1个) FB_TaktGenerator
-└── actuator/   (2个) 🆕 FB_1011(气缸), FB_1012(电机)
+└── actuator/   (3个) FB_1011(气缸), FB_1012(电机), 🆕 FB_1013(九十度转向)
 ```
 
 ### 📊 主项目 DJ-2026-005 当前状态
@@ -87,11 +88,11 @@
 ## 4. Artifacts Index（文档索引）
 
 ### 4.1 通用规范库
-- scl-spec: 00_通用规范/PLC编程/905_SCL编程规范.md (⭐核心规范)
-- timer-guide: 00_通用规范/PLC编程/903_定时器使用规范.md
-- comment-rule: 00_通用规范/PLC编程/904_SCL注释规范.md
-- error-prevent: 00_通用规范/PLC编程/906_错误预防规则.md (🟠实战bug总结)
-- project-config: 00_通用规范/PLC编程/907_项目配置规范.md
+- scl-spec: 00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.1.md (⭐核心规范)
+- timer-guide: 00_通用规范/PLC编程/903_定时器使用规范_LSP-V1.0.0.md
+- comment-rule: 00_通用规范/PLC编程/904_SCL注释规范_LSP-V1.2.0.md
+- error-prevent: 00_通用规范/PLC编程/906_错误预防规则_LSP-V1.0.0.md (🟠实战bug总结)
+- project-config: 00_通用规范/PLC编程/907_项目配置规范_LSP-V1.0.0.md
 - doc-template: 00_通用规范/PLC编程/023_PLC程序设计文档模板_PLC-V2.0.0.md
 - ifc-template: 00_通用规范/PLC编程/815_PLC接口文档模板_INT-V1.1.0.md
 - git-guide: 00_通用规范/项目管理/902_Git使用指南.md
@@ -102,6 +103,9 @@
 - actuator-dsn1011: 01_SharedLibraries/SysLib/actuator/PRD/详细设计说明书_DSN-FB1011-CylinderControl-V7.0.0.md
 - actuator-ifc1012: 01_SharedLibraries/SysLib/actuator/PRD/接口文档_IFC-FB1012-ConveyorMotor-V7.0.0.md
 - actuator-dsn1012: 01_SharedLibraries/SysLib/actuator/PRD/详细设计说明书_DSN-FB1012-ConveyorMotor-V7.0.0.md
+- actuator-ifc1013: 01_SharedLibraries/SysLib/actuator/PRD/接口文档_IFC-FB1013-NinetyDegreeTransfer-V7.0.0.md (🆕)
+- actuator-dsn1013: 01_SharedLibraries/SysLib/actuator/PRD/详细设计说明书_DSN-FB1013-NinetyDegreeTransfer-V7.0.0.md (🆕)
+- actuator-scl1013: 01_SharedLibraries/SysLib/actuator/FB_1013_NinetyDegreeTransfer.scl (🆕)
 
 ### 4.3 主项目 DJ-2026-005
 - pm-session: DJ-2026-005/PM_SESSION_DJ-2026-005.md (📋完整项目会话)
@@ -121,7 +125,8 @@
 - 2026-05-20 变量结构化重构提案 V8.0.0: 基于散装变量诊断（161→20顶层变量，-88%），设计8个通用结构体（ST_ServoAxis/ST_Cylinder/ST_DualSensor/ST_ConveyorMotor/ST_ConveyorLayer/ST_ClampGroup/ST_ProductSensors/ST_ExternalDevice），决策：存放SysLib/types/跨项目复用，嵌套≤3层，参考SV_jog结构体（11字段jog控制）；文档输出至 DJ-2026-005/.trae/documents/变量结构化重构方案_V1.0.0.md | 方案待实施
 
 ### change_log:
-- 2026-05-20 初始化项目库PM_SESSION，完成内容总览
+  - 2026-05-29 **Event A 需求新增** FB_1013_NinetyDegreeTransfer V8.0: 从9页LD梯形图(九十度转向1, 154网络)解析→生成IFC接口文档+DSN详细设计说明书(13步状态机S30~S42, 6个VAR_IN_OUT结构体, 14种报警码130~143)→编写完整SCL源程序(约1200行, 12个TON定时器, 手动/自动双模式, PLCopen标准输出), SysLib执行器库从2个扩展到3个 | ✅ 已完成
+  - 2026-05-20 初始化项目库PM_SESSION，完成内容总览
 
 ### iteration_log:
 - 2026-05-18 DJ-2026-005 阶段4完成：Conveyor子系统高内聚低耦合重构（V7.0.0）

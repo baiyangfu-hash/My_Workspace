@@ -23,7 +23,7 @@
 (* ---------------------------------------------------------------- *)
 (*  V6.0.0 (2026-05-18) Trae                                         *)
 (*  - 重写: 11步→6步S20~S25状态机（对齐源程序D160~D165）            *)
-(*  - 重写: 移除直接伺服控制，改用轴抽象请求接口                    *)
+(*  - 重写: 移除直接伺服控制,改用轴抽象请求接口                    *)
 (*  - 重写: o_前缀→q_前缀（801规范）                               *)
 (*  - 新增: 4组夹爪(前/后/前2/后2)独立控制                         *)
 (*  - 新增: 产品检测在S22步内完成(4光电+确认时间)                  *)
@@ -314,7 +314,7 @@ IF i_bAutoMode THEN
                 (* 检测四组夹紧到位 *)
                 IF i_bFrontClampClosed AND i_bRearClampClosed AND
                    i_bFrontClamp2Closed AND i_bRearClamp2Closed THEN
-                    (* 夹紧到位，检测产品 *)
+                    (* 夹紧到位,检测产品 *)
                     IF i_bLongEdge1Detect AND i_bLongEdge2Detect AND
                        i_bShortEdge1Detect AND i_bShortEdge2Detect THEN
                         bStepEntry := TRUE;
@@ -333,7 +333,7 @@ IF i_bAutoMode THEN
                 END_IF;
             END_IF;
 
-        S23_MOVE_TO_PLACE: (* 3 - X1移动到放料位置，按层选 [SV_ABS] *)
+        S23_MOVE_TO_PLACE: (* 3 - X1移动到放料位置,按层选 [SV_ABS] *)
             IF bStepEntry THEN
                 (* V7.0: X1轴限位互锁 (ST_Sensor) *)
                 IF io_stX1Axis.stSensor.FwdLimit OR io_stX1Axis.stSensor.RevLimit THEN

@@ -21,7 +21,7 @@
 (*  - 新增: TONR定时器（tIn/tQ/tR/tPt/tEt简化命名）               *)
 (* ---------------------------------------------------------------- *)
 (*  V1.0.0 (2026-05-04)                                              *)
-(*  - 6步版本，含直接伺服控制（已废弃）                            *)
+(*  - 6步版本,含直接伺服控制（已废弃）                            *)
 (* ================================================================= *)
 
 FUNCTION_BLOCK FB_1004_GlueMachineFeeder_BufferFraming
@@ -184,7 +184,7 @@ IF i_bAutoMode THEN
                 bRunning := FALSE;
             END_IF;
 
-        D760_MOVE_TO_GLUE: (* 2 - X2→放料点D630，与打胶机交互 *)
+        D760_MOVE_TO_GLUE: (* 2 - X2→放料点D630,与打胶机交互 *)
             IF bStepEntry THEN
                 q_rX2AxisTargetPos := rGluePlacePos;
                 q_bX2AxisMoveAbsReq := TRUE;

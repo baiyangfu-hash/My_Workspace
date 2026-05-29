@@ -4,7 +4,7 @@
 - project_id: SW-2026-006
 - project_name: 规范管理工具 (SpecMgr)
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-006_规范管理工具
-- last_updated: 2026-05-26
+- last_updated: 2026-05-28
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -49,6 +49,8 @@
   - 02_源代码/tests/test_checker_base.py
   - 02_源代码/tests/test_services.py
   - 02_源代码/tests/test_cli.py
+- user_guide:
+  - 01_需求与设计/04-使用手册_UG-V0.2.0.md
 - change_mgmt:
   - (无)
 - delivery:
@@ -62,6 +64,7 @@
   - 2026-05-25 文档版本重命名：PRD/DES文件名从V1.0.0重命名为V1.1.0，与内容一致
   - 2026-05-25 SW-2026-006注册到全局spec_registry.json（cross-domain域），CLI在真实workspace验证通过
   - 2026-05-26 需求确认：SpecMgr已支持全域规范管理（PM/PLC/Python），在全局规则project-rule.md中新增SpecMgr CLI使用说明，明确AI助手和开发者应通过CLI管理规范 影响范围:全局规则文档 状态:已完成
+  - 2026-05-28 新增使用手册：创建04-使用手册_UG-V0.2.0.md，涵盖CLI完整使用指南和GUI设计预览 影响范围:文档 状态:已完成
 - iteration_log:
   - 2026-05-24 迭代V0.1.0启动，目标: MVP四命令可用
   - 2026-05-25 里程碑调整: V0.1.0(CLI MVP)→V0.2.0(Service重构)→V0.3.0(GUI MVP)→V0.4.0(GUI完善)→V0.5.0(打包)→V1.0.0(正式)
