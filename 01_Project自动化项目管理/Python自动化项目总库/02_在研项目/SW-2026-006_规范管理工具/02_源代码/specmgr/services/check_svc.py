@@ -26,7 +26,6 @@ class CheckService:
         self.config = WorkspaceConfig(workspace=workspace)
         self.registry = SpecRegistry(workspace)
         self.registry_loaded = self.registry.load()
-        self.scanner = SpecScanner(workspace, self.config)
         self.checker = HealthChecker()
 
     def run(
@@ -35,6 +34,8 @@ class CheckService:
         min_severity: Severity = Severity.INFO,
         auto_fix: bool = False,
         dry_run: bool = False,
+        scope: str = "workspace",
+        project_root: Path | None = None,
     ) -> CheckOutput:
         if not self.registry_loaded:
             return CheckOutput(
@@ -52,12 +53,25 @@ class CheckService:
                 info_count=0,
                 exit_code=1,
             )
+        scanner = SpecScanner(
+            self.workspace,
+            self.config,
+            project_root=project_root if scope == "project" else None,
+        )
+        effective_check_ids = check_ids
+        if scope == "project" and not effective_check_ids:
+            effective_check_ids = ["SHC-009"]
         if check_ids:
             results: list[CheckResult] = []
             for cid in check_ids:
-                results.extend(self.checker.run_by_id(cid, self.registry, self.scanner))
+                results.extend(self.checker.run_by_id(cid, self.registry, scanner))
         else:
-            results = self.checker.run_all(self.registry, self.scanner)
+            if effective_check_ids:
+                results = []
+                for cid in effective_check_ids:
+                    results.extend(self.checker.run_by_id(cid, self.registry, scanner))
+            else:
+                results = self.checker.run_all(self.registry, scanner)
 
         filtered = [r for r in results if r.severity >= min_severity]
         error_count = sum(1 for r in filtered if r.severity == Severity.ERROR)
@@ -67,7 +81,7 @@ class CheckService:
 
         fix_results = None
         if auto_fix and filtered:
-            fix_svc = FixService(self.workspace, self.registry, self.scanner)
+            fix_svc = FixService(self.workspace, self.registry, scanner)
             fix_results = fix_svc.fix_all(filtered, dry_run=dry_run)
 
         return CheckOutput(

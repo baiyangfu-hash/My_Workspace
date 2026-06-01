@@ -1,6 +1,12 @@
 import pytest
 import tkinter as tk
+import os
+import sys
+from pathlib import Path
 from unittest import mock
+
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 @pytest.fixture
 def root():

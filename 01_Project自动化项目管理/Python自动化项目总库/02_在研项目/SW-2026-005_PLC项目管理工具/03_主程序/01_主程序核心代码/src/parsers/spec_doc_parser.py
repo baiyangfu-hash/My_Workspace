@@ -98,7 +98,7 @@ class SpecDocParser:
     # 匹配元数据行: **Key**: Value 或 - Key: Value
     RE_METADATA = re.compile(
         r"(?:^\*{2}|^-)\s*(优先级|严重级别|类别|标签|Priority|Severity|Category|Tags)"
-        r"\*?\s*[:：]\s*(.+)$",
+        r"\*{0,2}\s*[:：]\s*(.+)$",
         re.MULTILINE | re.IGNORECASE,
     )
 

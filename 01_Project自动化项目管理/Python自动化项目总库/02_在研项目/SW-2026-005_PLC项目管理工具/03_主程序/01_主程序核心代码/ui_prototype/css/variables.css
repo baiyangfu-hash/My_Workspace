@@ -1,0 +1,60 @@
+:root {
+  --bg-primary: #1E1E1E;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2D2D30;
+  --bg-sidebar: #1A1A1A;
+  --bg-activity: #151515;
+  --bg-input: #3C3C3C;
+  --bg-hover: #2A2D2E;
+  --bg-active: #37373D;
+  --bg-tab-active: #1E1E1E;
+  --bg-tab-inactive: #2D2D30;
+  --bg-card: #2D2D30;
+  --bg-status: #007ACC;
+
+  --border-primary: #3E3E42;
+  --border-light: #474747;
+  --border-accent: #E86100;
+
+  --text-primary: #CCCCCC;
+  --text-secondary: #999999;
+  --text-muted: #6A6A6A;
+  --text-accent: #E86100;
+  --text-accent-hover: #FF8C00;
+  --text-white: #E0E0E0;
+  --text-link: #4FC1FF;
+
+  --accent: #E86100;
+  --accent-hover: #FF8C00;
+  --accent-dim: #CC7000;
+  --success: #4EC9B0;
+  --warning: #CCA700;
+  --error: #F44747;
+  --info: #4FC1FF;
+
+  --activity-width: 48px;
+  --sidebar-width: 260px;
+  --titlebar-height: 32px;
+  --statusbar-height: 28px;
+  --tab-height: 36px;
+
+  --font-sans: "Microsoft YaHei UI", "Segoe UI", "PingFang SC", sans-serif;
+  --font-mono: "Cascadia Code", "Fira Code", "Consolas", "Courier New", monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-lg: 14px;
+  --font-size-xl: 16px;
+  --font-size-xxl: 20px;
+  --font-size-hero: 28px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-dropdown: 0 4px 12px rgba(0,0,0,0.5);
+}

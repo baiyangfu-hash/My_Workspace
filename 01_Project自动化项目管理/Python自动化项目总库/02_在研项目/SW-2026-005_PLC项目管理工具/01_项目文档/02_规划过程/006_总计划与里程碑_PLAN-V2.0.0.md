@@ -1,178 +1,217 @@
 # 总计划与里程碑 PLAN-V2.0.0
 
 > **项目**: SW-2026-005 PLC项目管理工具  
-> **版本**: V2.0.0 | **日期**: 2026-05-22  
-> **变更**: V2.0深度审查完成 — 13项修复+6项降级+cleanup架构统一  
-> **说明**: 本文档作为"里程碑/版本/Sprint"唯一权威总表，执行进度每日更新记录在 `01_项目文档/03_执行过程/README.md`
+> **版本**: V2.0.0  
+> **日期**: 2026-05-31  
+> **当前主线**: PLC项目库/工作空间支持  
+> **产品形态**: Trae伴生工具
 
 ---
 
 ## 1. 总体目标
 
-- 交付一个可运行的桌面 GUI 工具，覆盖 PLC 项目从创建到交付的核心闭环。
-- 以 **V1.2.0-MVP** 为第一阶段可交付门槛：可安装运行、关键流程可用、具备基本用户手册与测试证据。
+将 `SW-2026-005` 从“单项目管理工具”演进为 **Trae伴生式 PLC 工作空间治理工具**，形成以下能力闭环：
+- 挂载 PLC 工作空间，而不是只打开单个项目目录
+- 识别 DJ 项目、共享库、规范目录等多类子资产
+- 以树状结构浏览整个项目库并进行跨项目治理
+- 在 Trae 中继续完成 PLC 源码与文档主开发，工具侧负责索引、检查、文档与汇总
+
+### 1.1 当前根因
+
+当前代码链路只能识别：
+- 根目录存在 `project.json` / `.plc_project.json` / `.plc.json`
+- 或目录结构满足 DJ 单机项目三标记
+
+因此当用户直接打开 `0100_PLC自动化/` 这类工作空间根目录时，会被误判为“不是项目”。
+
+### 1.2 本轮目标
+
+- 建立 `Workspace / Child Project / Shared Library / Spec Directory` 统一模型
+- 支持工作空间根目录挂载与子项目聚合加载
+- 明确 Trae 与 SW-2026-005 的职责分层
+- 形成一套可直接交给 GLM5.1 开发的规划文档体系
+
+### 1.3 非目标
+
+- 不替代 Trae 作为 PLC 主开发环境
+- 不将工作空间支持扩展为多人协同平台
+- 不在本轮引入 SCL 语言服务器或 TIA 网关等未来能力
 
 ---
 
-## 2. 版本与里程碑
+## 2. 版本主线
 
-### 2.1 里程碑定义
-
-| 里程碑 | 版本目标 | 定义（验收口径） |
-|---|---|---|
-| M1 | V1.0.0-M1 | 应用骨架可启动；核心基础设施（Application/EventBus/Settings）可用 |
-| M2 | V1.0.0-M2 | 项目创建/打开闭环可用；模板可应用 |
-| M3 | V1.0.0-M3 | Checker 框架闭环可用；核心规则可运行并产出报告 |
-| M4 | V1.1.0-M4 | 文档生成闭环可用（模板可渲染/输出）；UI 可触达 |
-| M5 | V1.1.0-M5 | 诊断分析闭环可用（健康度/问题列表/建议）；测试统计可产出 |
-| M6 | V1.2.0-M6 | STEditor 增强与片段库可用；编辑体验与缺依赖降级路径稳定 |
-| MVP | V1.2.0-MVP | 集成测试+打包exe+用户手册；"创建项目→编辑/检查→诊断→生成交付文档"可演示 |
-| M7 | V1.3.0-M7 | **同步自动化 Phase A**：CLI `check`/`full-report` 可运行；版本差距矩阵自动生成 |
-| M8 | V1.3.0-M8 ✅ | **同步自动化 Phase B**：IFC 接口文档从 GlobalVars.db 半自动生成 |
-| M9 | V1.3.0-M9 ✅ | **同步自动化 Phase C**：CHG 变更记录从 .scl changelog / PM_SESSION 半自动生成 |
-| M10 | V1.4.0-M10 ✅ | **同步自动化 Phase D**：全量同步报告（DSN/UM/台帐对齐清单） |
-| M11 | V2.0-R1 | 深度审查: 范围重定义+死代码清理+FB映射统一+sync GUI集成 |
-| M12 | V2.0-R2 | QSS修复+导航映射+样式迁移+侧边栏重构+Controller接口化+cleanup架构 |
-| RC | V2.0.0-RC | 验证测试通过+文档同步+发布准备 |
-
-### 2.2 Sprint 计划表
-
-> Sprint 的"完成/进行中/待开始"状态以执行过程索引为准：[`../03_执行过程/README.md`](../03_执行过程/README.md)
-
-| Sprint | 时间范围 | 目标版本 | 主要交付物 |
+| 阶段 | 目标版本 | 目标说明 | 输出重点 |
 |---|---|---|---|
-| Sprint 1 | 04-15 ~ 04-19 | V1.0.0-M1 | Application/EventBus/SettingsManager |
-| Sprint 2 | 04-22 ~ 04-26 | V1.0.0-M2 | ProjectService/TemplateService/NewProjectDialog |
-| Sprint 3 | 04-29 ~ 05-03 | V1.0.0-M3 | BaseChecker/RuleRegistry/6种Checker |
-| Sprint 4 | 05-06 ~ 05-10 | V1.1.0-M4 | DocumentService/10种模板 |
-| Sprint 5 | 05-13 ~ 05-17 | V1.1.0-M5 | DiagnosticService/HealthAnalyzer |
-| Sprint 6 | 05-20 ~ 05-24 | V1.2.0-M6 | STEditor增强 + 代码片段库 |
-| Sprint 7 | 05-27 ~ 05-30 | V1.2.0-MVP | 集成测试 + 打包exe + 用户手册 |
-| Sprint 8 | 05-21 ~ 05-22 | **V1.3.0-M7** ✅ | **sync/ Phase A**: version_extractor + version_checker + sync_engine + sync_cli + ARCH/DES文档更新 |
-| Sprint 9 | 05-21 | **V1.3.0-M8** ✅ | **sync/ Phase B**: db_parser(解析GlobalVars.db 5 STRUCT/203变量) + ifc_generator(半自动生成IFC文档) + CLI集成 |
-| Sprint 10 | 05-21 | **V1.3.0-M9** ✅ | **sync/ Phase C**: session_parser(解析PM_SESSION change_log) + chg_generator(.scl changelog→CHG文档+PM_SESSION→CHG) + CLI集成 |
-| Sprint 11 | 05-21 | **V1.4.0-M10** ✅ | **sync/ Phase D**: sync_report 全量报告生成 (5段式Markdown: 版本矩阵+DSN+UM+台帐+行动建议) |
-| Sprint 12 | 05-22 | V2.0-R1 | 深度审查+范围重定义+Phase0-3修复(死代码清理/FB映射统一/sync GUI集成/HMI降级) |
-| Sprint 13 | 05-22 | V2.0-R2 | QSS语法修复+导航映射+内联样式迁移+侧边栏重构+Controller模式+cleanup架构+SpecCheck Dock+QLayout修复+退出异常消除 |
+| Phase 0 | 文档重整基线 | 统一规划主线，清理历史/储备混用 | 006~011 文档重构 |
+| Phase 1 | Workspace Core ✅ | 扩展项目类型与识别规则 | `ProjectType` / `detect_project_type()` |
+| Phase 2 | Workspace Load ✅ | 支持工作空间加载与树形展示 | `load_workspace_from_path()` / UI打开分支 |
+| Phase 3 | Companion Flow ✅ | 固化 Trae伴生工作流与跳转边界 | 文档与交互口径统一 |
+| Phase 4 | Library Governance ✅ | 共享库/规范目录识别与治理 | `PLC_LIBRARY` / 全库扫描入口 |
+| Phase 5 | Workspace Governance ✅ | 跨项目检查、聚合报告与汇总视图 | 全库规范检查与统计面板 |
 
 ---
 
-## 3. 当前阶段（Sprint 13 / V2.0-R2 已交付 → RC发布准备）
+## 3. 分阶段实施建议
 
-### 3.1 优先级
+### 3.1 Phase 0: 文档重整基线
 
-| 优先级 | 说明 |
-|---|---|
-| P0 | 影响可运行性/可理解性的缺陷（崩溃、缺依赖无提示、关键流程断链） |
-| P1 | 影响可用性的交互闭环（项目树联动、跳转、主要入口可达） |
-| P2 | 体验增强与扩展能力（片段库、编辑增强、性能优化、sync自动化扩展） |
+目标：
+- 重建 `02_规划过程/` 目录作为唯一权威源
+- 明确主线文档、历史资料、未来储备的边界
 
-### 3.2 Done 标准（Sprint 6）
+Done 标准：
+- `README` 能正确导航到 `006~011`
+- 历史 `011_V2.1开发规划...` 不再作为主线入口
+- `012_V3.0开发规划...` 被显式标注为储备方向
 
-- STEditor 在缺少 QScintilla 时必须可用且提示明确；存在回归用例覆盖。
-- 核心 UI 流程无崩溃：启动→打开项目→查看项目树→进入主要面板。
+### 3.2 Phase 1: Workspace Core ✅已完成
 
-### 3.3 Sprint 8 交付物 ✅ (V1.3.0-M7 已交付)
+目标：
+- 扩展 `ProjectType` 与项目识别规则
+- 支持显式与隐式的工作空间判定
 
-| 交付物 | 路径 | 状态 |
-|--------|------|------|
-| ARCH 架构文档 V1.1.0 | `01_项目文档/02_规划过程/007_架构设计文档_ARCH-V1.1.0.md` | ✅ |
-| DES 详细设计 V1.1.0 | `01_项目文档/02_规划过程/008_详细设计文档_DES-V1.1.0.md` | ✅ |
-| PLAN 总计划 V1.1.0 | `01_项目文档/02_规划过程/006_总计划与里程碑_PLAN-V1.1.0.md` | ✅ |
-| `src/sync/version_extractor.py` | 版本号提取（.scl/.md/.db） | ✅ |
-| `src/sync/version_checker.py` | 版本差距矩阵自动生成 | ✅ |
-| `src/sync/sync_engine.py` | 同步编排引擎 | ✅ |
-| `src/sync/sync_cli.py` | CLI 入口（`check` / `full-report`） | ✅ |
-| 集成测试 | 对 DJ-2026-005 项目运行验证通过 | ✅ |
+建议内容：
+- 新增 `PLC_LIBRARY`
+- 新增 `PLC_WORKSPACE`
+- 识别 `workspace.json`
+- 识别共享库目录 `.plc.json + 分类子目录`
 
-**验收口径**：
-- `python -m src.sync.sync_cli check <project_path>` 在 1 秒内输出版本差距矩阵
-- 退出码 0 = 全部一致，1 = 存在滞后
-- 对实际项目 DJ-2026-005 验证：7 个模块中检测出 3 个滞后
+实际实现：
+- `ProjectType` 新增 `PLC_LIBRARY` / `PLC_WORKSPACE` 枚举值
+- `BusinessLine` 新增 `LIBRARY` 枚举值
+- `detect_project_type()` 实现5级优先级识别链：`workspace.json` → `.plc_project.json` → `.plc.json` + 子目录结构 → DJ三标记 → 兜底未知
 
-### 3.4 Sprint 9 交付物 ✅ (V1.3.0-M8 已交付)
+Done 标准：
+- 能区分 `DJ_SINGLE_MACHINE`、`PLC_LIBRARY`、`PLC_WORKSPACE` ✅
+- 单一 DJ 项目不会被误判为工作空间 ✅
 
-| 交付物 | 路径 | 状态 |
-|--------|------|------|
-| DES 详细设计 V1.2.0 | `01_项目文档/02_规划过程/008_详细设计文档_DES-V1.2.0.md` | ✅ |
-| `src/sync/db_parser.py` | GlobalVars.db 解析 (5 STRUCT, 203 变量) | ✅ |
-| `src/sync/ifc_generator.py` | IFC 文档半自动生成 + 审核清单 | ✅ |
-| CLI `generate-ifc` 集成 | `sync_cli.py` 新增子命令 | ✅ |
-| 集成测试 | DJ-2026-005: pickplace(57in/26out), feeder(16in/13out), conveyor(21in/14out) 全部生成 | ✅ |
+### 3.3 Phase 2: Workspace Load ✅已完成
 
-**验收口径**：
-- `python -m src.sync.sync_cli generate-ifc pickplace <project>` 从 DB 自动生成完整接口表格
-- 输出包含 审核清单（来源列/状态机/地址映射 提示待人工补充）
-- 文件名带 `-GENERATED` 后缀，防止覆盖正式文档
+目标：
+- 从工作空间根目录聚合加载所有子项目
+- 在 UI 中以工作空间模式展示
 
-### 3.5 Sprint 10 交付物 ✅ (V1.3.0-M9 已交付)
+建议内容：
+- 新增 `ProjectService.load_workspace_from_path()`
+- 在 `ProjectController.on_project_opened()` 中增加工作空间分支
+- 工作空间根节点支持子项目树加载
 
-| 交付物 | 路径 | 状态 |
-|--------|------|------|
-| ARCH 架构设计 V1.3.0 | `01_项目文档/02_规划过程/007_架构设计文档_ARCH-V1.3.0.md` | ✅ |
-| DES 详细设计 V1.3.0 | `01_项目文档/02_规划过程/008_详细设计文档_DES-V1.3.0.md` | ✅ |
-| `src/sync/session_parser.py` | PM_SESSION.md 解析 (change_log 3条目) | ✅ |
-| `src/sync/chg_generator.py` | .scl changelog → CHG / PM_SESSION → CHG | ✅ |
-| CLI `generate-chg` 集成 | `sync_cli.py` 新增子命令, --source scl/session | ✅ |
-| 集成测试 | DJ-2026-005: OB1(5条目), PickPlace(2条目) 生成验证 | ✅ |
+实际实现：
+- `ProjectService.load_workspace_from_path()` 实现工作空间根目录聚合加载
+- `ProjectService._open_as_workspace()` 实现工作空间打开分支逻辑
+- `project_tree.load_workspace()` 实现工作空间子项目树形加载与展示
 
-**验收口径**：
-- `python -m src.sync.sync_cli generate-chg ob1 <project>` 从 .scl changelog 提取5条版本变更
-- 支持 `--source session` 从 PM_SESSION change_log 聚合
-- 类型推断 (修复→Bug修复, 重构→重构, 集成→功能)
+Done 标准：
+- 打开 `0100_PLC自动化/` 不再报"未找到项目配置文件" ✅
+- 至少能加载 DJ 项目、共享库项目和 `.plc.json` 子项目 ✅
 
-### 3.6 Sprint 11 交付物 ✅ (V1.4.0-M10 已交付)
+### 3.4 Phase 3: Companion Flow ✅已完成
 
-| 交付物 | 路径 | 状态 |
-|--------|------|------|
-| ARCH 架构设计 V1.4.0 | `01_项目文档/02_规划过程/007_架构设计文档_ARCH-V1.4.0.md` | ✅ |
-| DES 详细设计 V1.4.0 | `01_项目文档/02_规划过程/008_详细设计文档_DES-V1.4.0.md` | ✅ |
-| `src/sync/sync_report.py` | 全量同步报告生成器 (FullSyncReport/SyncReport) | ✅ |
-| CLI `full-report` 增强集成 | `sync_engine.py` run_full_report 改用 SyncReport | ✅ |
-| 集成测试 | DJ-2026-005: 7FB × (DSN+UM) 覆盖矩阵 + 11条行动建议 生成验证 | ✅ |
+目标：
+- 把产品定位从"独立桌面主工具"收敛为"Trae伴生工具"
 
-**验收口径**：
-- `python -m src.sync.sync_cli full-report <project>` 生成五段式 Markdown 报告
-- §1 版本差距矩阵 (复用L0 check) / §2 DSN覆盖度 / §3 UM覆盖度 / §4 变更台帐 / §5 行动建议
-- DSN/UM 匹配支持 FB标识符提取 (含 alias 映射: fb_external→fb3001)
-- 孤本文档标记为 [?]，无对应文档标记为 [MISSING]
+建议内容：
+- 文档中统一声明 Trae 是主开发环境
+- 工具只负责挂载、索引、治理、汇总
+- 避免再新增重型编辑耦合设计
 
-### 3.7 Sprint 12 交付物 (V2.0-R1 已交付)
+实际实现：
+- `companion_service.py` 新增 CompanionService 服务，提供 `can_handle()` / `should_jump_to_ide()` / `jump_to_file()` / `_open_in_trae()` / `_open_with_system()` 方法，封装伴生跳转决策与执行逻辑
+- `constants.py` 更新 DESCRIPTION 为"Trae伴生式PLC工作空间治理工具"，新增 `COMPANION_ROLE` / `COMPANION_PRIMARY_IDE` / `COMPANION_CAPABILITIES` / `COMPANION_NON_CAPABILITIES` / `TRAJUMP_SUPPORTED_EXTENSIONS` 常量，明确伴生角色定位与能力边界
+- `event_bus.py` 新增 `companion_jump_request` 信号，支持伴生跳转事件总线通信
+- `main_window.py` 重构 `_jump_to_source()`，优先尝试 CompanionService 跳转，回退到内部编辑器
+- `project_tree.py` `_on_item_double_clicked()` 为文档/代码节点增加伴生跳转逻辑，新增工作空间节点处理分支
+- `menu_manager.py` Edit 菜单将 undo/redo 替换为"在Trae中打开"（Ctrl+E），新增 `_on_open_in_trae()`，About 对话框更新为显示伴生角色信息
+- `tests/test_companion.py` 编写 21 条测试用例，覆盖 TC-C01~TC-C09，全部通过
 
-| 交付物 | 说明 | 状态 |
-|--------|------|------|
-| 删除7个死代码模块(~1500行) | hmi_service/plc_service/test_management_service/hmi_mapper/io_table/test_runner_panel/variable_checker等 | ✅ |
-| fb_registry.py统一映射 | sync/ 新增 FB标识符→文档类型映射注册表 | ✅ |
-| sync GUI集成(3按钮) | MainWindow 同步面板: 版本检查/CHG生成/IFC生成 | ✅ |
-| HMI/IO/测试运行器降级占位 | 降级为占位符，移除死代码依赖 | ✅ |
+Done 标准：
+- 文档与 README 中不再把产品描述为独立主开发平台 ✅
+- 工作流说明与实际交互路径一致 ✅
 
-### 3.8 Sprint 13 交付物 (V2.0-R2 已交付)
+### 3.5 Phase 4: Library Governance ✅已完成
 
-| 交付物 | 说明 | 状态 |
-|--------|------|------|
-| QSS语法修复(C-05) | 修复QSS解析错误导致的样式失效 | ✅ |
-| 导航映射修复(C-06) | 修复导航跳转映射错误 | ✅ |
-| 内联样式迁移(H-09) | 内联样式迁移到QSS主题系统 | ✅ |
-| StatCard修复(H-10) | 修复统计卡片显示异常 | ✅ |
-| 侧边栏重构(H-11) | 侧边栏布局与交互重构 | ✅ |
-| Controller模式(3个) | ProjectController/SyncController/DashboardController | ✅ |
-| cleanup架构(4组件) | DiagnosticPanel/ScoreRingWidget/BarChartWidget/SpecCheckPanel资源清理 | ✅ |
-| SpecCheck Dock创建 | 规范检查面板迁移为Dock组件 | ✅ |
-| QLayout修复 | 修复布局约束警告 | ✅ |
-| 退出异常消除(sip.delete) | 使用sip.delete替代del消除退出时COM异常 | ✅ |
+目标：
+- 识别共享库和规范目录
+- 为后续全库治理打基础
+
+建议内容：
+- 共享库降级加载策略
+- 规范目录纳入工作空间概览
+- 为 `SysLib` 这类目录建立可浏览入口
+
+实际实现：
+- `library_service.py` 新增 LibraryService 服务，提供 `scan_library()` / `identify_spec_dirs()` / `get_library_summary()` / `_scan_category_dir()` / `_scan_spec_dir()` / `_scan_orphan_files()` / `_infer_artifact_type()` 方法，实现共享库全量扫描与规范目录识别
+- `constants.py` 新增 `LibraryArtifactType` 枚举（FB / FC / DB / UDT / GVL / PROGRAM / SPEC / DOC / TEST），新增 `SPEC_DIR_MARKERS` / `LIBRARY_ST_EXTENSIONS` / `LIBRARY_SPEC_EXTENSIONS` 常量，定义库制品类型与文件扩展名映射
+- `artifact_registry_service.py` 新增 `scan_library_artifacts()` 和 `identify_spec_dirs_in_library()` 方法，将库扫描能力接入制品注册体系
+- `project_service.py` 的 `_create_library_project()` 现在调用 `LibraryService.scan_library()`，将 `library_scan` / `artifact_roots` / `spec_dirs` 附加到 `project.extra`
+- `project_tree.py` 的 `_build_library_nodes()` 增强，支持 summary / category / spec_dirs / orphan_files 展示
+- `tests/test_library_governance.py` 编写 14 条测试用例，覆盖 TC-L01~TC-L09，全部通过
+
+Done 标准：
+- 共享库节点能在工作空间中稳定出现 ✅
+- 规范目录信息可在工作空间概览中展示 ✅
+
+### 3.6 Phase 5: Workspace Governance ✅已完成
+
+目标：
+- 支持跨项目规范检查和聚合视图
+
+建议内容：
+- 工作空间级规范检查入口
+- 聚合统计视图
+- 子项目与共享库的汇总报告输出
+
+实际实现：
+- `workspace_service.py` 新增 WorkspaceService 服务，提供 `generate_report()` / `detect_naming_conflicts()` / `check_workspace()` / `get_workspace_statistics()` / `_count_project_files()` 方法，并定义 `WorkspaceCheckItem` / `NamingConflict` / `WorkspaceReport` 数据类，实现工作空间级跨项目检查、命名冲突检测与聚合报告生成
+- `project_service.py` 新增 `get_workspace_summary()` 和 `generate_workspace_report()` 方法，将工作空间治理能力接入 ProjectService 接口层
+- `project_controller.py` 新增 `check_workspace()` 和 `generate_workspace_report()` 方法，提供工作空间检查与报告生成的 UI 入口
+- `project_tree.py` 工作空间根节点增强，展示聚合统计信息（项目数量、ST文件数、规范文件数、命名冲突数）
+- `tests/test_workspace_governance.py` 编写 11 条测试用例，覆盖 TC-G01~TC-G09，全部通过
+
+Done 标准：
+- 能对工作空间内多个子项目做统一检查 ✅
+- 汇总结果可回溯到具体子项目与目录 ✅
 
 ---
 
-## 4. 文档与索引关系
+## 4. GLM5.1 执行顺序
 
-| 文档 | 用途 |
-|---|---|
-| `00_项目基础信息/000_通用项目立项表_PM-*.md` | 立项范围、资源、约束 |
-| `00_项目基础信息/001_产品需求文档_PRD-*.md` | 需求与验收标准 |
-| `01_项目文档/02_规划过程/007~009` | 架构/详细设计/API 契约 |
-| `01_项目文档/03_执行过程/README.md` | Sprint 进度、已知问题、测试统计（每日更新） |
+1. 阅读 `011_工作空间支持开发规划_DEV-PLAN-V1.0.0.md`
+2. 按 `008_详细设计文档_DES-V2.0.0.md` 实现核心设计
+3. 按 `009_API接口文档_INT-V3.0.0.md` 对齐接口签名与返回语义
+4. 参考 `010_代码结构说明_DEV-V2.0.0.md` 快速定位改动目录
+5. 完成实现后，反向更新 `006~010` 中受影响段落
 
 ---
 
-*文档版本: PLAN-V2.0.0 | 最后更新: 2026-05-22*
-*变更记录: V2.0 深度审查完成 — 13项修复+6项降级+cleanup架构统一*
+## 5. 风险与控制
+
+| 风险 | 等级 | 说明 | 控制措施 |
+|---|---|---|---|
+| 继续沿用单项目心智 | 高 | 实现会退化成补丁式兼容 | 先按 Workspace 模型重写文档与枚举 |
+| 文档继续版本漂移 | 高 | GLM5.1 可能按错误入口开发 | 统一入口索引，只保留主线导航 |
+| UI层承担过多业务逻辑 | 中 | 容易再次形成屎山 | 工作空间逻辑优先沉到 Service 层 |
+| 共享库误判 | 中 | 影响工作空间识别准确性 | 显式 `workspace.json` 优先，隐式规则兜底 |
+| 未来方向混入当前开发 | 中 | 稀释本轮目标 | `012` 降级为储备文档 |
+
+---
+
+## 6. 验收口径
+
+本轮规划文档重整完成后，应满足：
+- 任何开发者从 `02_规划过程/README.md` 进入，都能直接找到当前主线文档
+- 从 `006` 能看清当前为什么做工作空间支持、阶段怎么推进、当前不做什么
+- 文档整体表达与用户目标一致：**Trae 主开发，SW-2026-005 做工作空间治理**
+
+### 已达标阶段
+
+- **Phase 1 验收达标** ✅：`ProjectType.PLC_LIBRARY` / `PLC_WORKSPACE`、`BusinessLine.LIBRARY`、`detect_project_type()` 5级优先级识别链均已实现，能正确区分 DJ 单机项目、共享库与工作空间
+- **Phase 2 验收达标** ✅：`load_workspace_from_path()`、`_open_as_workspace()`、`project_tree.load_workspace()` 均已实现，打开工作空间根目录不再报错，子项目树形加载正常
+- **Phase 3 验收达标** ✅：产品描述已体现伴生定位（"Trae伴生式PLC工作空间治理工具"），能力边界通过 `COMPANION_CAPABILITIES` / `COMPANION_NON_CAPABILITIES` 常量明确界定，跳转逻辑优先 Trae 并保留内部编辑器回退，Edit 菜单不再暗示独立编辑器（undo/redo 已替换为"在Trae中打开"）
+- **Phase 4 验收达标** ✅：LibraryService 全库扫描正确识别分类目录与规范目录，文件计数准确，规范目录标记（SPEC_DIR_MARKERS）被正确识别，孤立文件（orphan files）可被检测，库摘要（library summary）信息完整，14 条测试用例（TC-L01~TC-L09）全部通过
+- **Phase 5 验收达标** ✅：工作空间统计信息完整（项目数量、ST文件数、规范文件数），命名冲突检测正常工作，跨项目检查可识别错误与警告，聚合报告包含所有必需字段（WorkspaceReport/WorkspaceCheckItem/NamingConflict 数据类），ProjectService API（`get_workspace_summary()` / `generate_workspace_report()`）功能正常，11 条测试用例（TC-G01~TC-G09）全部通过
+
+---
+
+*文档版本: PLAN-V2.0.0 | 最后更新: 2026-05-31*

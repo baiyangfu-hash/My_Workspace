@@ -27,16 +27,18 @@ class POUType(Enum):
 
 class VarCategory(Enum):
     """变量类别枚举"""
-    VAR = "VAR"                    # 局部变量
-    VAR_INPUT = "VAR_INPUT"        # 输入变量
-    VAR_OUTPUT = "VAR_OUTPUT"      # 输出变量
-    VAR_IN_OUT = "VAR_IN_OUT"      # 输入输出变量
-    VAR_GLOBAL = "VAR_GLOBAL"      # 全局变量
-    VAR_TEMP = "VAR_TEMP"          # 临时变量 (CODESYS)
-    VAR_STATIC = "VAR_STATIC"      # 静态变量
-    VAR_CONSTANT = "VAR_CONSTANT"  # 常量
-    VAR_EXTERNAL = "VAR_EXTERNAL"  # 外部变量
-    VAR_ACCESS = "VAR_ACCESS"      # 访问变量
+    VAR = "VAR"
+    VAR_INPUT = "VAR_INPUT"
+    VAR_OUTPUT = "VAR_OUTPUT"
+    VAR_IN_OUT = "VAR_IN_OUT"
+    VAR_GLOBAL = "VAR_GLOBAL"
+    VAR_TEMP = "VAR_TEMP"
+    VAR_STATIC = "VAR_STATIC"
+    VAR_CONSTANT = "VAR_CONSTANT"
+    VAR_EXTERNAL = "VAR_EXTERNAL"
+    VAR_ACCESS = "VAR_ACCESS"
+    RETAIN = "RETAIN"
+    PERSISTENT = "PERSISTENT"
 
 
 @dataclass
@@ -56,11 +58,14 @@ class POUInfo:
     """POU (Program Organization Unit) 信息数据类"""
     name: str
     pou_type: POUType
-    return_type: Optional[str] = None       # 仅FUNCTION有返回值
+    return_type: Optional[str] = None
     variables: List[VariableInfo] = field(default_factory=list)
     start_line: int = 0
     end_line: int = 0
     source_file: str = ""
+    version: Optional[str] = None
+    description: str = ""
+    author: str = ""
 
 
 class STParser:
@@ -88,10 +93,21 @@ class STParser:
         re.IGNORECASE,
     )
     RE_VAR_DECLARATION = re.compile(
-        r"(?P<names>[\w\s,]+?)\s*:\s*(?P<type>\w+(?:\s*\([^)]*\))?(?:\s*ARRAY\s+\[.*?\])?(?:\s*OF\s+\w+)?)"
+        r"(?P<names>[\w, \t]+?)\s*:\s*(?P<type>\w+(?:\s*\([^)]*\))?(?:\s*ARRAY\s+\[.*?\])?(?:\s*OF\s+\w+)?)"
         r"(?:\s*:=\s*(?P<init>[^;]*?))?"
         r"\s*(?:\(\*\s*(?P<comment>(?:[^*]|\*(?!))*)\*\))?"
         r"\s*;",
+        re.IGNORECASE,
+    )
+    RE_VERSION = re.compile(r"V(\d+\.\d+\.\d+)")
+    RE_HEADER_META_NAME = re.compile(
+        r"(?:功能块名称|FUNCTION_BLOCK|FUNCTION)\s*[:：]\s*(\w+)",
+        re.IGNORECASE,
+    )
+    RE_HEADER_META_AUTHOR = re.compile(r"作者\s*[:：]\s*(.+)", re.IGNORECASE)
+    RE_HEADER_META_DESC = re.compile(r"描述\s*[:：]\s*(.+)", re.IGNORECASE)
+    RE_RETAIN_PERSISTENT = re.compile(
+        r"VAR(?:_\w+)?\s+(RETAIN|PERSISTENT|NON_RETAIN)",
         re.IGNORECASE,
     )
 
@@ -118,6 +134,7 @@ class STParser:
 
         try:
             self._extract_pous()
+            self._extract_standalone_global_vars()
             logger.info(f"ST解析完成: {len(self._pous)} 个POU, "
                         f"{len(self._global_vars)} 个全局变量")
         except Exception as e:
@@ -128,6 +145,9 @@ class STParser:
     def _extract_pous(self):
         """提取所有POU定义"""
         for match in self.RE_POU_DECLARATION.finditer(self._source_text):
+            if self._is_inside_comment(match.start()):
+                continue
+
             pou_type_str = match.group(1).upper()
             pou_type = POUType(pou_type_str)
             pou_name = match.group("name").strip()
@@ -163,7 +183,6 @@ class STParser:
         text = self._source_text
 
         while pos < len(text) and depth > 0:
-            # 检查是否遇到END_*
             end_match = re.search(
                 r"END_(?:PROGRAM|FUNCTION_BLOCK|FUNCTION|ACTION|METHOD)",
                 text[pos:], re.IGNORECASE,
@@ -175,6 +194,47 @@ class STParser:
                 pos += 1
 
         return min(pos, len(text))
+
+    def _is_inside_comment(self, pos: int) -> bool:
+        """检查给定位置是否在注释内"""
+        text_before = self._source_text[:pos]
+        last_open = text_before.rfind('(*')
+        if last_open != -1:
+            last_close = text_before.rfind('*)')
+            if last_close < last_open:
+                return True
+        last_newline = text_before.rfind('\n')
+        last_line_comment = text_before.rfind('//')
+        if last_line_comment != -1 and last_line_comment > last_newline:
+            return True
+        return False
+
+    def _extract_standalone_global_vars(self):
+        """提取不在任何POU内的VAR_GLOBAL块中的变量"""
+        var_pattern = re.compile(
+            r"(VAR_GLOBAL(?:\s+(?:RETAIN|NON_RETAIN|PERSISTENT))*)\s*(.*?)END_VAR",
+            re.IGNORECASE | re.DOTALL,
+        )
+
+        pou_ranges = []
+        for pou in self._pous:
+            pou_ranges.append((pou.start_line, pou.end_line))
+
+        for var_match in var_pattern.finditer(self._source_text):
+            if self._is_inside_comment(var_match.start()):
+                continue
+
+            start_line = self._source_text[:var_match.start()].count("\n") + 1
+            in_pou = any(s <= start_line <= e for s, e in pou_ranges)
+            if in_pou:
+                continue
+
+            var_content = var_match.group(2)
+            line_offset = start_line
+            vars_in_block = self._parse_var_declarations(
+                var_content, VarCategory.VAR_GLOBAL, "", line_offset
+            )
+            self._global_vars.extend(vars_in_block)
 
     def _extract_variables_from_block(
         self, block_text: str, pou_name: str
@@ -271,6 +331,79 @@ class STParser:
             if pou.name.lower() == name.lower():
                 return pou
         return None
+
+    def extract_version(self) -> Optional[str]:
+        """从文件头注释块中提取版本号 (如 V9.0.0)"""
+        header_text = self._extract_header_block()
+        match = self.RE_VERSION.search(header_text)
+        if match:
+            return f"V{match.group(1)}"
+        match = self.RE_VERSION.search(self._source_text[:2000])
+        if match:
+            return f"V{match.group(1)}"
+        return None
+
+    def extract_metadata(self) -> Dict[str, str]:
+        """从文件头注释中提取FB描述、作者等元信息"""
+        header_text = self._extract_header_block()
+        meta = {}
+        desc_match = self.RE_HEADER_META_DESC.search(header_text)
+        if desc_match:
+            meta["description"] = desc_match.group(1).strip()
+        author_match = self.RE_HEADER_META_AUTHOR.search(header_text)
+        if author_match:
+            meta["author"] = author_match.group(1).strip()
+        version = self.extract_version()
+        if version:
+            meta["version"] = version
+        return meta
+
+    def find_retain_persistent_vars(self) -> List[Dict[str, str]]:
+        """检测所有RETAIN/PERSISTENT属性变量"""
+        results = []
+        for match in self.RE_RETAIN_PERSISTENT.finditer(self._source_text):
+            attr_type = match.group(1).upper()
+            pos = match.start()
+            var_block_start = self._source_text.rfind("VAR", 0, pos)
+            var_block_end = self._source_text.find("END_VAR", pos)
+            if var_block_start == -1 or var_block_end == -1:
+                continue
+            var_block = self._source_text[var_block_start:var_block_end]
+            for decl_match in self.RE_VAR_DECLARATION.finditer(var_block):
+                names_str = decl_match.group("names").strip()
+                data_type = decl_match.group("type") or "UNKNOWN"
+                for name in [n.strip() for n in names_str.split(",")]:
+                    name_upper = name.strip().upper()
+                    if name_upper and name_upper not in (
+                        "VAR", "END_VAR", "RETAIN",
+                        "PERSISTENT", "NON_RETAIN",
+                    ):
+                        results.append({
+                            "name": name.strip(),
+                            "data_type": data_type.strip(),
+                            "attribute": attr_type,
+                        })
+        return results
+
+    def _extract_header_block(self) -> str:
+        """提取文件头注释块文本"""
+        lines = self._source_lines
+        header_lines = []
+        in_header = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith(("(*", "//", "{-")):
+                in_header = True
+            elif in_header:
+                if stripped.endswith(("*)", "-}", "//")):
+                    header_lines.append(stripped)
+                    break
+                if re.match(r"^(FUNCTION_BLOCK|FUNCTION|PROGRAM|TYPE|VAR)\b",
+                            stripped, re.IGNORECASE):
+                    break
+            if in_header:
+                header_lines.append(stripped)
+        return "\n".join(header_lines)
 
     @property
     def pous(self) -> List[POUInfo]:

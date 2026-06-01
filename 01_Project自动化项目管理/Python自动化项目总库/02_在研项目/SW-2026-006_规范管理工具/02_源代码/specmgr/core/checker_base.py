@@ -442,8 +442,31 @@ class RulesPathChecker(BaseChecker):
 
 
 class PMSessionRefChecker(BaseChecker):
-    _PATH_REF_RE = re.compile(r"(\S+/\S+\.\w{2,6})")
+    _PATH_REF_RE = re.compile(r"(?:^|\s)(\S+/\S+\.\w{2,6})(?:\s|$)")
     _MDLINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+    _ARTIFACTS_SECTION_RE = re.compile(
+        r"^##\s*4\.?\s*Artifacts?\s*Index",
+        re.MULTILINE,
+    )
+    _NEXT_SECTION_RE = re.compile(r"^##\s*\d", re.MULTILINE)
+
+    def _extract_artifacts_section(self, content: str) -> str:
+        m = self._ARTIFACTS_SECTION_RE.search(content)
+        if not m:
+            return content
+        start = m.start()
+        rest = content[start + len(m.group(0)):]
+        nm = self._NEXT_SECTION_RE.search(rest)
+        if nm:
+            return content[start : start + len(m.group(0)) + nm.start()]
+        return content[start:]
+
+    def _clean_path_ref(self, ref_path_str: str) -> str:
+        cleaned = ref_path_str.rstrip(".,;:)]}>")
+        paren_idx = cleaned.find("(")
+        if paren_idx > 0:
+            cleaned = cleaned[:paren_idx].rstrip()
+        return cleaned
 
     def check(
         self,
@@ -453,7 +476,7 @@ class PMSessionRefChecker(BaseChecker):
         results: list[CheckResult] = []
         workspace = scanner.workspace
 
-        pm_files = list(workspace.rglob("PM_SESSION_*.md"))
+        pm_files = scanner.iter_pm_session_files()
         if not pm_files:
             return results
 
@@ -464,10 +487,12 @@ class PMSessionRefChecker(BaseChecker):
                 continue
             base_dir = pm_file.parent
 
+            artifacts_content = self._extract_artifacts_section(content)
+
             refs_seen: set[str] = set()
-            for match in self._PATH_REF_RE.finditer(content):
-                ref_path_str = match.group(1)
-                if ref_path_str.startswith(("http:", "https:")):
+            for match in self._PATH_REF_RE.finditer(artifacts_content):
+                ref_path_str = self._clean_path_ref(match.group(1))
+                if not ref_path_str or ref_path_str.startswith(("http:", "https:")):
                     continue
                 if ref_path_str in refs_seen:
                     continue
@@ -485,7 +510,7 @@ class PMSessionRefChecker(BaseChecker):
                         )
                     )
 
-            for line_no, line in enumerate(content.splitlines(), 1):
+            for line_no, line in enumerate(artifacts_content.splitlines(), 1):
                 for match in self._MDLINK_RE.finditer(line):
                     link_target = match.group(2)
                     if link_target.startswith(("http:", "https:", "#")):

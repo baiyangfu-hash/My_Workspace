@@ -2,7 +2,9 @@ import os
 import re
 from pathlib import Path
 
-BASE = Path(r"c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化")
+SCRIPT_DIR = Path(__file__).parent.resolve()
+WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
+BASE = WORKSPACE_ROOT / "0100_PLC自动化"
 
 TARGETS = [
     "01_SharedLibraries/SysLib/actuator/FB_1013_NinetyDegreeTransfer.scl",

@@ -15,9 +15,11 @@ from PyQt5.QtWidgets import (
     QInputDialog,
     QComboBox,
     QGroupBox,
+    QLineEdit,
+    QFrame,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QPalette
 
 from src.core.constants import ChangeCategory, ChangeStatus
 from src.services.change_service import ChangeService
@@ -55,17 +57,27 @@ class ChangeManagementPanel(QWidget):
         ChangeStatus.CANCELLED.value: "已取消",
     }
 
+    BADGE_STYLES = {
+        "draft": ("Draft", "#6B6B6B", "#E0E0E0"),
+        "in-progress": ("In-Progress", "#2196F3", "#E3F2FD"),
+        "approved": ("Approved", "#4CAF50", "#E8F5E9"),
+        "rejected": ("Rejected", "#F44336", "#FFEBEE"),
+    }
+
     COL_ID = 0
     COL_TITLE = 1
-    COL_CATEGORY = 2
+    COL_PROJECT = 2
     COL_STATUS = 3
-    COL_PATH = 4
-    COL_COUNT = 5
+    COL_CREATED_DATE = 4
+    COL_ACTIONS = 5
+    COL_COUNT = 6
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._project_path = None
         self._current_change_id = None
+        self._all_requests = []
+        self._search_text = ""
         self._setup_ui()
 
     def _setup_ui(self):
@@ -73,30 +85,16 @@ class ChangeManagementPanel(QWidget):
         main_layout.setContentsMargins(8, 8, 8, 8)
         main_layout.setSpacing(8)
 
-        toolbar = QHBoxLayout()
-        toolbar.setSpacing(8)
-
-        self._btn_create = QPushButton("  📝 新建变更单")
-        self._btn_create.setProperty("SidebarBtn", True)
-        self._btn_create.setFixedHeight(32)
-        self._btn_create.clicked.connect(self._on_create)
-        toolbar.addWidget(self._btn_create)
-
-        self._btn_refresh = QPushButton("  🔄 刷新列表")
-        self._btn_refresh.setProperty("SidebarBtn", True)
-        self._btn_refresh.setFixedHeight(32)
-        self._btn_refresh.clicked.connect(self.refresh)
-        toolbar.addWidget(self._btn_refresh)
-
-        toolbar.addStretch()
-        main_layout.addLayout(toolbar)
+        toolbar = self._build_toolbar()
+        main_layout.addWidget(toolbar)
 
         splitter = QSplitter(Qt.Vertical)
 
         self._table = QTableWidget(0, self.COL_COUNT)
         self._table.setHorizontalHeaderLabels(
-            ["编号", "标题", "分类", "状态", "路径"]
+            ["编号", "标题", "项目", "状态", "创建日期", "操作"]
         )
+        self._apply_table_style()
         self._table.horizontalHeader().setSectionResizeMode(
             self.COL_ID, QHeaderView.ResizeToContents
         )
@@ -104,18 +102,23 @@ class ChangeManagementPanel(QWidget):
             self.COL_TITLE, QHeaderView.Stretch
         )
         self._table.horizontalHeader().setSectionResizeMode(
-            self.COL_CATEGORY, QHeaderView.ResizeToContents
+            self.COL_PROJECT, QHeaderView.ResizeToContents
         )
         self._table.horizontalHeader().setSectionResizeMode(
-            self.COL_STATUS, QHeaderView.ResizeToContents
+            self.COL_STATUS, QHeaderView.Fixed
+        )
+        self._table.setColumnWidth(self.COL_STATUS, 100)
+        self._table.horizontalHeader().setSectionResizeMode(
+            self.COL_CREATED_DATE, QHeaderView.ResizeToContents
         )
         self._table.horizontalHeader().setSectionResizeMode(
-            self.COL_PATH, QHeaderView.Stretch
+            self.COL_ACTIONS, QHeaderView.Fixed
         )
+        self._table.setColumnWidth(self.COL_ACTIONS, 120)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self._table.setAlternatingRowColors(True)
+        self._table.setAlternatingRowColors(False)
         self._table.verticalHeader().setVisible(False)
         self._table.cellClicked.connect(lambda row, col: self._on_row_selected(row))
         splitter.addWidget(self._table)
@@ -126,35 +129,35 @@ class ChangeManagementPanel(QWidget):
         detail_layout.setSpacing(6)
 
         self._detail_title = QLabel("选择变更单查看详情")
+        self._detail_title.setProperty("panelTitle", True)
         self._detail_title.setFont(QFont("Microsoft YaHei", 11, QFont.Bold))
-        self._detail_title.setStyleSheet("color: #424242; padding: 4px 0;")
         detail_layout.addWidget(self._detail_title)
 
         self._detail_content = QTextEdit()
         self._detail_content.setReadOnly(True)
         self._detail_content.setMaximumHeight(180)
         self._detail_content.setPlaceholderText("变更单内容将在此显示...")
-        self._detail_content.setStyleSheet(
-            "QTextEdit { background-color: #FAFAFA; border: 1px solid #E0E0E0; "
-            "border-radius: 4px; padding: 8px; font-size: 10pt; }"
-        )
         detail_layout.addWidget(self._detail_content)
 
         action_group = QGroupBox("状态操作")
+        action_group.setProperty("IndustrialGroup", True)
         action_layout = QHBoxLayout(action_group)
         action_layout.setSpacing(6)
 
         self._btn_approve = QPushButton("✅ 批准")
+        self._btn_approve.setProperty("SuccessBtn", True)
         self._btn_approve.setFixedHeight(30)
         self._btn_approve.clicked.connect(self._on_approve)
         action_layout.addWidget(self._btn_approve)
 
         self._btn_advance = QPushButton("⏩ 推进")
+        self._btn_advance.setProperty("PrimaryBtn", True)
         self._btn_advance.setFixedHeight(30)
         self._btn_advance.clicked.connect(self._on_advance)
         action_layout.addWidget(self._btn_advance)
 
         self._btn_cancel = QPushButton("❌ 取消")
+        self._btn_cancel.setProperty("DangerBtn", True)
         self._btn_cancel.setFixedHeight(30)
         self._btn_cancel.clicked.connect(self._on_cancel)
         action_layout.addWidget(self._btn_cancel)
@@ -170,43 +173,320 @@ class ChangeManagementPanel(QWidget):
 
         self._update_action_buttons(None)
 
+    def _build_toolbar(self) -> QWidget:
+        toolbar_container = QFrame()
+        toolbar_container.setObjectName("toolbarContainer")
+        toolbar_container.setStyleSheet("""
+            QFrame#toolbarContainer {
+                background-color: #2D2D30;
+                border-radius: 4px;
+                padding: 4px;
+            }
+        """)
+
+        toolbar = QHBoxLayout(toolbar_container)
+        toolbar.setContentsMargins(8, 6, 8, 6)
+        toolbar.setSpacing(8)
+
+        self._btn_create = QPushButton("➕ 新建变更单")
+        self._btn_create.setObjectName("primaryButton")
+        self._btn_create.setStyleSheet("""
+            QPushButton#primaryButton {
+                background-color: #007ACC;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 6px 16px;
+                font-size: 13px;
+                font-weight: bold;
+            }
+            QPushButton#primaryButton:hover {
+                background-color: #1084D8;
+            }
+            QPushButton#primaryButton:pressed {
+                background-color: #005A9E;
+            }
+        """)
+        self._btn_create.setFixedHeight(32)
+        self._btn_create.setCursor(Qt.PointingHandCursor)
+        self._btn_create.clicked.connect(self._on_create)
+        toolbar.addWidget(self._btn_create)
+
+        self._btn_refresh = QPushButton("🔄 刷新列表")
+        self._btn_refresh.setObjectName("secondaryButton")
+        self._btn_refresh.setStyleSheet("""
+            QPushButton#secondaryButton {
+                background-color: #3C3C3C;
+                color: #CCCCCC;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            QPushButton#secondaryButton:hover {
+                background-color: #4A4A4A;
+                color: white;
+            }
+            QPushButton#secondaryButton:pressed {
+                background-color: #333333;
+            }
+        """)
+        self._btn_refresh.setFixedHeight(32)
+        self._btn_refresh.setCursor(Qt.PointingHandCursor)
+        self._btn_refresh.clicked.connect(self.refresh)
+        toolbar.addWidget(self._btn_refresh)
+
+        self._btn_sync_check = QPushButton("🔍 版本同步检查")
+        self._btn_sync_check.setObjectName("secondaryButton")
+        self._btn_sync_check.setStyleSheet("""
+            QPushButton#secondaryButton {
+                background-color: #3C3C3C;
+                color: #CCCCCC;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            QPushButton#secondaryButton:hover {
+                background-color: #4A4A4A;
+                color: white;
+            }
+            QPushButton#secondaryButton:pressed {
+                background-color: #333333;
+            }
+        """)
+        self._btn_sync_check.setFixedHeight(32)
+        self._btn_sync_check.setCursor(Qt.PointingHandCursor)
+        toolbar.addWidget(self._btn_sync_check)
+
+        toolbar.addStretch()
+
+        self._search_input = QLineEdit()
+        self._search_input.setObjectName("searchInput")
+        self._search_input.setPlaceholderText("搜索变更单...")
+        self._search_input.setFixedWidth(200)
+        self._search_input.setFixedHeight(32)
+        self._search_input.setStyleSheet("""
+            QLineEdit#searchInput {
+                background-color: #3C3C3C;
+                color: #CCCCCC;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            QLineEdit#searchInput:focus {
+                border: 1px solid #007ACC;
+            }
+            QLineEdit#searchInput::placeholder {
+                color: #888888;
+            }
+        """)
+        self._search_input.textChanged.connect(self._on_search_text_changed)
+        toolbar.addWidget(self._search_input)
+
+        return toolbar_container
+
+    def _create_status_badge(self, status: str) -> QLabel:
+        badge = QLabel()
+        badge.setText(status)
+
+        badge_key = "draft"
+        if status in ("In-Progress", "进行中", "审核中", "分析中", "实施中"):
+            badge_key = "in-progress"
+        elif status in ("Approved", "已批准", "已完成"):
+            badge_key = "approved"
+        elif status in ("Rejected", "已取消"):
+            badge_key = "rejected"
+
+        display_text, text_color, bg_color = self.BADGE_STYLES.get(badge_key, (status, "#9E9E9E", "#E0E0E0"))
+
+        badge.setText(display_text)
+        badge.setAlignment(Qt.AlignCenter)
+        badge.setProperty("StatusBadge", badge_key)
+        badge.setStyleSheet(f"""
+            QLabel {{
+                background-color: {bg_color};
+                color: {text_color};
+                border-radius: 10px;
+                padding: 3px 12px;
+                font-size: 11px;
+                font-weight: bold;
+            }}
+        """)
+        badge.setFixedHeight(24)
+        return badge
+
+    def _apply_table_style(self):
+        self._table.setStyleSheet("""
+            QTableWidget {
+                gridline-color: #3E3E42;
+                background-color: #252526;
+                alternate-background-color: #2D2D30;
+                color: #CCCCCC;
+                border: 1px solid #3E3E42;
+                border-radius: 4px;
+            }
+
+            QTableWidget::item {
+                padding: 6px;
+                border-bottom: 1px solid #3E3E42;
+            }
+
+            QTableWidget::item:selected {
+                background-color: #094771;
+                color: white;
+            }
+
+            QTableWidget::item:hover {
+                background-color: #2A2D2E;
+            }
+
+            QHeaderView::section {
+                background-color: #2D2D30;
+                color: #CCCCCC;
+                border-bottom: 2px solid #E86100;
+                padding: 8px 6px;
+                font-weight: bold;
+                font-size: 12px;
+                border-right: 1px solid #3E3E42;
+            }
+
+            QTableWidget QTableCornerButton::section {
+                background-color: #2D2D30;
+                border: none;
+            }
+        """)
+
+    def _on_search_text_changed(self, text: str):
+        self._search_text = text.strip().lower()
+        self._apply_filter()
+
+    def _apply_filter(self):
+        if not hasattr(self, '_all_requests'):
+            return
+
+        self._table.setRowCount(0)
+
+        filtered_requests = []
+        if not self._search_text:
+            filtered_requests = self._all_requests
+        else:
+            for req in self._all_requests:
+                if (self._search_text in req.change_id.lower() or
+                    self._search_text in req.title.lower()):
+                    filtered_requests.append(req)
+
+        for row, req in enumerate(filtered_requests):
+            self._populate_row(row, req)
+
+        self._detail_title.setText(f"共 {len(filtered_requests)} 个变更单")
+
+    def _populate_row(self, row: int, req):
+        self._table.insertRow(row)
+
+        id_item = QTableWidgetItem(req.change_id)
+        id_item.setForeground(QColor("#4FC1FF"))
+        font = id_item.font()
+        font.setUnderline(True)
+        id_item.setFont(font)
+        id_item.setData(Qt.UserRole, req.change_id)
+        self._table.setItem(row, self.COL_ID, id_item)
+
+        title_item = QTableWidgetItem(req.title)
+        self._table.setItem(row, self.COL_TITLE, title_item)
+
+        project_name = getattr(req, 'project', '') or ''
+        project_item = QTableWidgetItem(project_name)
+        self._table.setItem(row, self.COL_PROJECT, project_item)
+
+        status_display = self.STATUS_DISPLAY.get(req.status, req.status)
+        badge_label = self._create_status_badge(status_display)
+        self._table.setCellWidget(row, self.COL_STATUS, badge_label)
+
+        created_date = getattr(req, 'created_date', '') or ''
+        date_item = QTableWidgetItem(created_date)
+        self._table.setItem(row, self.COL_CREATED_DATE, date_item)
+
+        actions_widget = QWidget()
+        actions_layout = QHBoxLayout(actions_widget)
+        actions_layout.setContentsMargins(4, 2, 4, 2)
+        actions_layout.setSpacing(4)
+
+        btn_view = QPushButton("查看")
+        btn_view.setObjectName("actionMiniBtn")
+        btn_view.setStyleSheet("""
+            QPushButton#actionMiniBtn {
+                background-color: transparent;
+                color: #4FC1FF;
+                border: 1px solid #4FC1FF;
+                border-radius: 3px;
+                padding: 2px 8px;
+                font-size: 11px;
+            }
+            QPushButton#actionMiniBtn:hover {
+                background-color: #4FC1FF;
+                color: white;
+            }
+        """)
+        btn_view.setFixedHeight(22)
+        btn_view.setCursor(Qt.PointingHandCursor)
+        btn_view.clicked.connect(lambda checked, r=row: self._on_view_detail(r))
+        actions_layout.addWidget(btn_view)
+
+        btn_review = QPushButton("审核")
+        btn_review.setObjectName("actionMiniBtn")
+        btn_review.setStyleSheet("""
+            QPushButton#actionMiniBtn {
+                background-color: transparent;
+                color: #4CAF50;
+                border: 1px solid #4CAF50;
+                border-radius: 3px;
+                padding: 2px 8px;
+                font-size: 11px;
+            }
+            QPushButton#actionMiniBtn:hover {
+                background-color: #4CAF50;
+                color: white;
+            }
+        """)
+        btn_review.setFixedHeight(22)
+        btn_review.setCursor(Qt.PointingHandCursor)
+        btn_review.clicked.connect(lambda checked, r=row: self._on_review(r))
+        actions_layout.addWidget(btn_review)
+
+        actions_layout.addStretch()
+        self._table.setCellWidget(row, self.COL_ACTIONS, actions_widget)
+
+    def _on_view_detail(self, row: int):
+        self._on_row_selected(row)
+
+    def _on_review(self, row: int):
+        self._on_row_selected(row)
+        if self._current_change_id:
+            self._on_approve()
+
     def set_project_path(self, project_path: str):
         self._project_path = project_path
         self.refresh()
 
     def refresh(self):
         self._table.setRowCount(0)
+        self._all_requests = []
+
         if not self._project_path:
             self._detail_title.setText("请先打开项目")
             return
 
         try:
             requests = ChangeService.list_change_requests(self._project_path)
+            self._all_requests = requests
         except Exception as e:
             logger.exception(f"加载变更单列表失败: {e}")
             self._detail_title.setText("加载失败")
             return
 
-        for row, req in enumerate(requests):
-            self._table.insertRow(row)
-            self._table.setItem(row, self.COL_ID, QTableWidgetItem(req.change_id))
-            self._table.setItem(row, self.COL_TITLE, QTableWidgetItem(req.title))
-            self._table.setItem(row, self.COL_CATEGORY, QTableWidgetItem(req.category))
-
-            status_item = QTableWidgetItem(
-                self.STATUS_DISPLAY.get(req.status, req.status)
-            )
-            color = QColor(self.STATUS_COLORS.get(req.status, "#9E9E9E"))
-            status_item.setForeground(color)
-            font = status_item.font()
-            font.setBold(True)
-            status_item.setFont(font)
-            self._table.setItem(row, self.COL_STATUS, status_item)
-
-            path_text = req.affected_paths[0] if req.affected_paths else ""
-            self._table.setItem(row, self.COL_PATH, QTableWidgetItem(path_text))
-
-        self._detail_title.setText(f"共 {len(requests)} 个变更单")
+        self._apply_filter()
 
     def _on_row_selected(self, row: int):
         if row < 0:
@@ -219,15 +499,16 @@ class ChangeManagementPanel(QWidget):
         if not id_item:
             return
 
-        change_id = id_item.text()
+        change_id = id_item.data(Qt.UserRole) or id_item.text()
         self._current_change_id = change_id
         self.change_request_selected.emit(change_id, self._project_path or "")
 
-        status_item = self._table.item(row, self.COL_STATUS)
+        status_cell = self._table.cellWidget(row, self.COL_STATUS)
         current_status = None
-        if status_item:
+        if status_cell and isinstance(status_cell, QLabel):
+            status_text = status_cell.text()
             for val, display in self.STATUS_DISPLAY.items():
-                if display == status_item.text():
+                if display == status_text or val == status_text:
                     current_status = val
                     break
 

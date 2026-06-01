@@ -3,6 +3,92 @@
 > 项目: SW-2026-005 PLC项目管理工具  
 > 维护范围: 执行阶段发布清单与变更摘要
 
+## V4.2.0 (2026-06-01)
+
+### 新功能
+- **前端全量对接**: 所有前端按钮已绑定后端API，100%功能闭环
+- **IPCBridge 38 API端点**: 项目管理/文档/变更/同步/规范检查/诊断/自动修复/Excel导出/仪表盘/设置/文件对话框/窗口控制
+- **Mock模式默认关闭**: PLC_MOCK_DATA默认为"0"，所有数据来自真实Service层
+- **仪表盘动态数据**: 项目计数/模板计数/最近项目列表实时加载
+- **项目CRUD闭环**: 创建/打开/关闭/详情/保存完整流程
+- **变更管理闭环**: 列表/创建/状态更新/审核完整流程
+- **设置保存/重置**: 设置持久化+重置为默认值
+- **自动修复视图**: 扫描/预览/执行修复前端面板
+- **Excel导出视图**: 单个/批量导出前端面板
+- **窗口控制按钮**: 最小化/最大化/关闭
+
+### 修复
+- BUG-IPC-001: IPC调用返回null — pywebview 6.x API调用路径错误修正
+- BUG-GUI-002: 启动出现两个窗口 — 删除webview_window.py的main()函数
+
+### 技术细节
+- webview_window.py: 新增15组API + Mock默认值从"1"改为"0"
+- index.html: state对象扩展10字段 + 30个ipc便捷函数 + 6个render函数重写 + 2个新render函数 + 25个事件处理函数
+
+## V4.1.0 (2026-05-31)
+
+### 新功能
+- **IPC集成**: IPCBridge API从20扩展到38个端点
+- **前端状态管理**: state对象集中管理所有视图数据
+- **30个ipc便捷函数**: 封装异步调用逻辑
+
+### 测试
+- 220个测试通过，0回归
+
+## V4.0.0 (2026-05-31)
+
+### 重大变更
+- **架构迁移: PyQt5 → PyWebView(Chromium)**
+  - 动因: V3.2 FramelessWindow回归问题 + QSS系统性限制
+  - 决策: 放弃PyQt GUI重写路线，改用pywebview 6.x直接运行index.html原型
+  - 新增: webview_window.py (IPCBridge类 + create_window函数)
+  - 重写: main.py (双模式入口: PyWebView默认/PyQt5回退)
+  - 新增: lib/ 目录 (pywebview运行时依赖)
+  - 修改: index.html (添加IPC Bridge层)
+
+### 兼容性
+- 默认启动模式: PyWebView (PLC_GUI_MODE=webview)
+- 回退模式: PyQt5 (PLC_GUI_MODE=pyqt 或 ImportError自动回退)
+- WebView2 Runtime依赖: Win10 1803+自带, Win7需单独安装
+
+## V3.2.0 (2026-05-31)
+
+### 新功能
+- **自定义TitleBar**: logo+标题+最小化/最大化/关闭按钮+拖拽移动+双击最大化
+- **FramelessWindowHint集成**: MainWindow集成无边框窗口
+- **增强StatusBar**: 5项信息(就绪/项目/规范/警告/编码/分辨率)
+- **QSS样式升级**: TitleBar/StatusBarItem/StatCard/QuickAction/SectionTitle样式
+
+## V3.1.0 (2026-05-31)
+
+### 新功能
+- **FB接口一致性检查**: fb_call_parser + fb_signature_builder + fb_interface_checker(6规则)
+- **自动批量修复**: auto_fix_service + comment_punctuation_fixer + naming_fixer
+- **Excel接口变量表导出**: excel_exporter + fb_interface_template(9列精确格式)
+- **SysLib公共库扫描**: syslib_scanner + st_parser增强
+- **UI重设计规范**: 013_UI重设计规范_V3.1-DESIGN.md
+
+### 测试
+- 14个新文件, ~2500行代码
+- 集成测试: 8个FB调用解析/23变量签名/453违规检测/3处标点修复/20库文件扫描/Excel导出
+
+## V3.0.0 (2026-05-23)
+
+### 新功能
+- **架构文档同步**: ARCH-V3.0.0(修正模块计数/接口描述/EventBus信号)
+- **GUI工业风格重构**: QSS主题系统 + IndustrialSidebar + Tab精简8→6
+- **UI高DPI适配**: UIProfile参数优化 + QSS样式升级 + 2880*1800@200%验证
+
+### 修复
+- 56个历史测试失败全部修复
+- NavigationController.navigate_to_tab映射错误
+- DiagnosticReport.total_issues未更新
+- 定时器检查器正则/逻辑错误
+- 命名检查器CONST_/注释/NameError
+
+### 测试
+- 全量回归: 565通过 + 16跳过 + 0失败
+
 ## V2.2.1（2026-05-23）
 
 ### 修复

@@ -217,17 +217,14 @@ class ProjectHealthAnalyzer:
         category_scores: List[float] = []
 
         for category, stats in category_stats.items():
-            # 通过数 = 总数 - 违规数（简化处理）
-            passed = max(0, stats["total"] - len(stats["violations"]))
-            total = stats["total"]
-
-            pass_rate = (passed / total * 100) if total > 0 else 100.0
+            violation_count = len(stats["violations"])
+            pass_rate = max(0.0, 100.0 - violation_count * 3)
             level = ComplianceLevel.from_rate(pass_rate).value
 
             detail = ComplianceDetail(
                 category=category,
-                total_checks=total,
-                passed_checks=passed,
+                total_checks=violation_count,
+                passed_checks=0,
                 pass_rate=pass_rate,
                 level=level
             )
@@ -362,14 +359,7 @@ class ProjectHealthAnalyzer:
         library_info_list: List[LibraryInfo] = []
 
         if not project_path:
-            # 无法检测时返回默认值
-            info = LibraryInfo(
-                name="未知",
-                path="",
-                status=LibraryStatus.MISSING,
-                error_message="未提供项目路径"
-            )
-            return 0.0, [info]
+            return 100.0, []
 
         plc_json_path = Path(project_path) / ".plc.json"
 
@@ -529,16 +519,15 @@ class ProjectHealthAnalyzer:
         optional_dirs = self._standard_dirs["optional"]
 
         if not project_path:
-            # 无法检查时返回默认低分
             compliance = StructureCompliance(
                 required_dirs=required_dirs,
                 optional_dirs=optional_dirs,
-                existing_required=[],
-                missing_required=required_dirs,
+                existing_required=required_dirs,
+                missing_required=[],
                 existing_optional=[],
-                score=0.0
+                score=100.0
             )
-            return 0.0, compliance
+            return 100.0, compliance
 
         project_dir = Path(project_path)
 

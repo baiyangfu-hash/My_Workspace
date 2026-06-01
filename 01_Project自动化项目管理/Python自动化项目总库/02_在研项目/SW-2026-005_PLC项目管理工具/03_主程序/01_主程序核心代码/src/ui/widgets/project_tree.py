@@ -55,9 +55,7 @@ class ProjectTreeWidget(QWidget):
 
         # 标题
         header_label = QLabel("\uD83D\uDCC1 项目浏览器")
-        header_label.setStyleSheet(
-            "font-size: 10pt; font-weight: bold; color: #1976D2;"
-        )
+        header_label.setProperty("treeHeader", True)
         layout.addWidget(header_label)
 
         # 树形控件
@@ -78,9 +76,7 @@ class ProjectTreeWidget(QWidget):
         self._status_label = QLabel(
             "\U0001F5C1 未选择项目"
         )
-        self._status_label.setStyleSheet(
-            "font-size: 9pt; color: #9E9E9E; padding: 4px;"
-        )
+        self._status_label.setProperty("treeStatus", True)
         layout.addWidget(self._status_label)
 
         # 显示默认空状态
@@ -103,7 +99,6 @@ class ProjectTreeWidget(QWidget):
             self._show_empty_state()
             return
 
-        # 创建根节点
         root_item = QTreeWidgetItem(self._tree)
         root_item.setText(0, f"\uD83D\uDCC1 {project.name or '未命名项目'}")
         root_item.setData(0, Qt.UserRole, {"type": "project", "path": getattr(project, 'path', '')})
@@ -113,6 +108,8 @@ class ProjectTreeWidget(QWidget):
         project_type_value = getattr(project_type, "value", project_type)
         if project_type_value == "dj_single_machine":
             self._build_dj_project_nodes(root_item, project)
+        elif project_type_value == "plc_library":
+            self._build_library_nodes(root_item, project)
         else:
             self._build_generic_nodes(root_item)
 
@@ -120,6 +117,74 @@ class ProjectTreeWidget(QWidget):
             f"\U0001F4C1 已加载: {project.name or '未命名'}"
         )
         logger.info(f"项目树已加载: {project.name}")
+
+    def load_workspace(self, workspace_path: str, projects: list):
+        """加载工作空间并显示多个子项目
+
+        Args:
+            workspace_path: 工作空间根目录路径
+            projects: 子项目 Project 对象列表
+        """
+        self._current_project = None
+        self._tree.clear()
+
+        from pathlib import Path as _Path
+        workspace_name = _Path(workspace_path).name
+
+        root_item = QTreeWidgetItem(self._tree)
+        root_item.setText(0, f"\U0001F3E2 工作空间: {workspace_name}")
+        root_item.setData(0, Qt.UserRole, {
+            "type": "workspace",
+            "path": workspace_path,
+        })
+        root_item.setExpanded(True)
+
+        try:
+            from src.services.workspace_service import WorkspaceService
+            stats = WorkspaceService.get_workspace_statistics(workspace_path, projects)
+            if stats:
+                stats_node = QTreeWidgetItem(root_item)
+                stats_node.setText(
+                    0,
+                    f"\U0001F4CA 汇总: {stats['total_projects']}个项目 | "
+                    f"{stats['total_st_files']}个ST | "
+                    f"{stats['total_spec_files']}个规范 | "
+                    f"{stats['naming_conflicts']}个冲突",
+                )
+                stats_node.setData(0, Qt.UserRole, {"type": "workflow"})
+        except Exception:
+            pass
+
+        for project in projects:
+            child_item = QTreeWidgetItem(root_item)
+            project_type = getattr(project, "project_type", "generic")
+            project_type_value = getattr(project_type, "value", project_type)
+
+            if project_type_value == "dj_single_machine":
+                child_item.setText(0, f"\uD83D\uDCC1 {project.name}")
+            elif project_type_value == "plc_library":
+                child_item.setText(0, f"\U0001F4DA {project.name}")
+            else:
+                child_item.setText(0, f"\uD83D\uDCC4 {project.name}")
+
+            child_item.setData(0, Qt.UserRole, {
+                "type": "project",
+                "path": getattr(project, 'path', ''),
+                "project_type": project_type_value,
+            })
+            child_item.setExpanded(False)
+
+            if project_type_value == "dj_single_machine":
+                self._build_dj_project_nodes(child_item, project)
+            elif project_type_value == "plc_library":
+                self._build_library_nodes(child_item, project)
+            else:
+                self._build_generic_nodes(child_item)
+
+        self._status_label.setText(
+            f"\U0001F3E2 工作空间: {workspace_name} ({len(projects)} 个子项目)"
+        )
+        logger.info(f"工作空间树已加载: {workspace_name}, {len(projects)} 个子项目")
 
     def _build_generic_nodes(self, root_item: QTreeWidgetItem):
         """构建通用项目节点"""
@@ -143,6 +208,95 @@ class ProjectTreeWidget(QWidget):
             if node_type == "folder":
                 placeholder = QTreeWidgetItem(child)
                 placeholder.setText(0, "(空)")
+
+    def _build_library_nodes(self, root_item: QTreeWidgetItem, project):
+        """构建共享库项目节点"""
+        desc = getattr(project, "description", "")
+        if desc:
+            desc_node = QTreeWidgetItem(root_item)
+            desc_node.setText(0, f"\U0001F4DD {desc}")
+            desc_node.setData(0, Qt.UserRole, {"type": "workflow"})
+
+        extra = getattr(project, "extra", {})
+        library_scan = extra.get("library_scan", {})
+
+        if library_scan:
+            summary_node = QTreeWidgetItem(root_item)
+            total_st = library_scan.get("total_st_files", 0)
+            total_spec = library_scan.get("total_spec_files", 0)
+            total_cat = library_scan.get("total_artifacts", 0)
+            summary_node.setText(
+                0,
+                f"\U0001F4CA 汇总: {total_cat}个分类 | {total_st}个ST文件 | {total_spec}个规范文件",
+            )
+            summary_node.setData(0, Qt.UserRole, {"type": "workflow"})
+
+        categories = library_scan.get("categories", [])
+        if categories:
+            roots_node = QTreeWidgetItem(root_item)
+            roots_node.setText(0, "\U0001F4C2 库资产分类")
+            roots_node.setExpanded(True)
+
+            for cat in categories:
+                cat_item = QTreeWidgetItem(roots_node)
+                cat_name = cat.get("name", "")
+                file_count = cat.get("file_count", 0)
+                spec_count = cat.get("spec_count", 0)
+                cat_item.setText(
+                    0,
+                    f"\U0001F4E6 {cat_name} ({file_count} ST | {spec_count} 规范)",
+                )
+                cat_item.setData(0, Qt.UserRole, {
+                    "type": "folder",
+                    "path": cat.get("absolute_path", ""),
+                    "name": cat_name,
+                })
+
+        spec_dirs = extra.get("spec_dirs", [])
+        if spec_dirs:
+            spec_node = QTreeWidgetItem(root_item)
+            spec_node.setText(0, "\U0001F4D6 规范目录")
+            spec_node.setExpanded(True)
+
+            for sd in spec_dirs:
+                sd_item = QTreeWidgetItem(spec_node)
+                sd_name = sd.get("name", "")
+                sd_files = sd.get("files", [])
+                sd_item.setText(
+                    0,
+                    f"\U0001F4C4 {sd_name} ({len(sd_files)} 文件)",
+                )
+                sd_item.setData(0, Qt.UserRole, {
+                    "type": "folder",
+                    "path": sd.get("absolute_path", sd.get("path", "")),
+                    "name": sd_name,
+                })
+
+        orphan_files = library_scan.get("orphan_files", [])
+        if orphan_files:
+            orphan_node = QTreeWidgetItem(root_item)
+            orphan_node.setText(0, f"\u26A0\uFE0F 孤立文件 ({len(orphan_files)})")
+            for of in orphan_files:
+                of_item = QTreeWidgetItem(orphan_node)
+                of_item.setText(0, f"\U0001F4C4 {of.get('name', '')}")
+                of_item.setData(0, Qt.UserRole, {
+                    "type": "document",
+                    "path": of.get("path", ""),
+                    "name": of.get("name", ""),
+                })
+
+        if not library_scan:
+            roots_node = QTreeWidgetItem(root_item)
+            roots_node.setText(0, "\U0001F4C2 库资产")
+            roots_node.setExpanded(True)
+
+            for artifact in getattr(project, "artifact_roots", []):
+                child = QTreeWidgetItem(roots_node)
+                child.setText(
+                    0,
+                    f"{artifact.get('artifact_type', 'asset')}: {artifact.get('relative_path', artifact.get('name', ''))}",
+                )
+                child.setData(0, Qt.UserRole, artifact)
 
     def _build_dj_project_nodes(self, root_item: QTreeWidgetItem, project):
         """构建DJ单机项目节点"""
@@ -181,7 +335,7 @@ class ProjectTreeWidget(QWidget):
             child.setData(0, Qt.UserRole, document)
 
     def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int):
-        """处理双击事件 — 根据节点类型导航到对应Tab"""
+        """处理双击事件 — 根据节点类型导航到对应Tab或跳转到Trae"""
         data = item.data(0, Qt.UserRole) or {}
         item_type = data.get("type", "")
         name = data.get("name", item.text(0))
@@ -189,10 +343,21 @@ class ProjectTreeWidget(QWidget):
         context = {"project": self._current_project, "item_data": data, "name": name}
 
         if item_type in ("document", "code"):
+            file_path = data.get("path") or data.get("relative_path", "")
+            if file_path:
+                from src.services.companion_service import CompanionService
+                if CompanionService.should_jump_to_ide(file_path):
+                    success, _ = CompanionService.jump_to_file(file_path)
+                    if success:
+                        logger.info(f"伴生跳转: {file_path}")
+                        return
             logger.info(f"双击打开: {name}")
             self.navigation_requested.emit(2, context)
         elif item_type == "project":
             logger.info(f"双击项目节点: {name}")
+            self.navigation_requested.emit(1, context)
+        elif item_type == "workspace":
+            logger.info(f"双击工作空间节点: {name}")
             self.navigation_requested.emit(1, context)
         elif item_type == "folder":
             self.navigation_requested.emit(1, context)

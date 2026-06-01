@@ -1,19 +1,19 @@
 ---
 spec_id: LSP-905
 title: "SCL编程规范"
-version: "V1.0.1"
+version: "V1.0.2"
 domain: plc
 lifecycle: stable
-canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.1.md"
+canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.2.md"
 replaces: [DEV-801, DEV-810]
 tags: ["SCL", "编程", "核心规范", "LSP"]
 ---
 
 # SCL 编程规范 (Siemens LSP 兼容版)
 
-> 版本：V1.0.1
+> 版本：V1.0.2
 > 状态：已验证
-> 更新日期：2026-05-04
+> 更新日期：2026-05-29
 > 适用环境：Siemens LSP (VS Code)、TIA Portal、CODESYS、GX Works
 
 ---

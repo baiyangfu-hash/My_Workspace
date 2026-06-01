@@ -257,7 +257,7 @@ class TestNavigationControllerIntegration(unittest.TestCase):
         for i in range(6):
             self.tool_box.addItem(QWidget(), f"Page-{i}")
         
-        self.tab_widget.setCurrentIndex(NavigationController.TAB_CHANGE_MGMT)
+        self.nav_ctrl._on_tab_changed(NavigationController.TAB_CHANGE_MGMT)
         
         expected_toolbox_idx = NavigationController.TOOL_CHANGE_MGMT
         actual_toolbox_idx = self.tool_box.currentIndex()
@@ -274,7 +274,7 @@ class TestNavigationControllerIntegration(unittest.TestCase):
         for i in range(6):
             self.tool_box.addItem(QWidget(), f"Page-{i}")
         
-        self.tool_box.setCurrentIndex(NavigationController.TOOL_CHANGE_MGMT)
+        self.nav_ctrl._on_toolbox_changed(NavigationController.TOOL_CHANGE_MGMT)
         
         expected_tab_idx = NavigationController.TAB_CHANGE_MGMT
         actual_tab_idx = self.tab_widget.currentIndex()

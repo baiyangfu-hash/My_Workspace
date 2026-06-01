@@ -38,6 +38,26 @@ class TestCheckService:
         assert output.error_count == 1
         assert output.results[0].check_id == "SHC-000"
 
+    def test_run_project_scope_defaults_to_pmsession_check(self, populated_workspace: Path) -> None:
+        project_root = populated_workspace / "DJ-2026-000"
+        project_root.mkdir(parents=True, exist_ok=True)
+        (project_root / "PM_SESSION_DJ-2026-000.md").write_text(
+            "# PM_SESSION_DJ-2026-000\n\n## 4. Artifacts Index\n- req:\n  - missing.md\n",
+            encoding="utf-8",
+        )
+
+        spec_dir = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域"
+        (spec_dir / "PM-2026-001_项目管理规范_DEV-V1.0.0_copy.md").write_text(
+            "# Duplicate\n",
+            encoding="utf-8",
+        )
+
+        svc = CheckService(populated_workspace)
+        output = svc.run(scope="project", project_root=project_root)
+        assert output.results
+        assert all(r.check_id == "SHC-009" for r in output.results)
+        assert output.exit_code == 2
+
 
 class TestIndexService:
     def test_run_generates_files(self, populated_workspace: Path) -> None:

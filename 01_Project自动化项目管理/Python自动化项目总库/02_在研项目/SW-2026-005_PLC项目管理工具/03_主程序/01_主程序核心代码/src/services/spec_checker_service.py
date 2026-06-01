@@ -320,6 +320,160 @@ class SpecCheckerService:
             from src.models.check_result import CheckResult
             return CheckResult(source_file=file_path)
 
+    # ===== SysLib 扫描方法 =====
+
+    def check_syslib(self, syslib_path: str, rule_ids=None) -> Any:
+        """
+        对SysLib公共库执行规范检查
+
+        扫描SysLib目录下所有.scl文件，使用现有检查器进行规范检查。
+        结果中标记来源为"库文件"以便区分。
+
+        Args:
+            syslib_path: SysLib根目录路径
+            rule_ids: 指定检查的规则ID列表（可选，默认全部启用规则）
+
+        Returns:
+            CheckReport: SysLib库的检查报告对象
+        """
+        from src.models.check_result import CheckReport
+
+        start_time = datetime.now()
+        syslib_dir = Path(syslib_path).resolve()
+
+        if not syslib_dir.exists():
+            logger.error(f"SysLib目录不存在: {syslib_path}")
+            return CheckReport(
+                project_name="SysLib",
+                project_path=str(syslib_dir),
+            )
+
+        logger.info(f"开始SysLib规范检查: {syslib_dir.name}")
+
+        try:
+            from src.scanners.syslib_scanner import SysLibScanner
+
+            scl_files = SysLibScanner.scan_all_scl_files(syslib_path)
+            if not scl_files:
+                logger.warning("SysLib目录中未找到SCL文件")
+                return CheckReport(
+                    project_name="SysLib",
+                    project_path=str(syslib_dir),
+                )
+
+            report = CheckReport(
+                project_name="SysLib",
+                project_path=str(syslib_dir),
+            )
+
+            checkers = self._get_filtered_checkers(rule_ids)
+            file_paths = [f.file_path for f in scl_files]
+
+            concurrency_cfg = self._config.get("concurrency", {})
+            max_workers = concurrency_cfg.get("max_workers", 4)
+            enable_parallel = concurrency_cfg.get("enable_parallel", True)
+
+            if enable_parallel and len(file_paths) > 1:
+                results = self._check_files_parallel(file_paths, max_workers=max_workers)
+            else:
+                results = self._check_files_sequential(file_paths)
+
+            for file_result in results:
+                if file_result:
+                    report.add_result(file_result)
+
+            elapsed = (datetime.now() - start_time).total_seconds()
+            self._stats["total_files_checked"] += len(scl_files)
+
+            logger.info(
+                f"SysLib检查完成 - "
+                f"文件数: {report.total_files_checked}, "
+                f"问题数: {report.total_violations}, "
+                f"耗时: {elapsed:.2f}s"
+            )
+            return report
+
+        except Exception as e:
+            logger.exception(f"SysLib检查过程异常: {e}")
+            return CheckReport(project_name="SysLib", project_path=syslib_path)
+
+    def check_project_with_syslib(
+        self,
+        project_path: str,
+        syslib_path: str,
+        rule_ids=None,
+    ) -> Dict[str, Any]:
+        """
+        联合检查项目和SysLib公共库
+
+        同时对PLC项目文件和SysLib库文件执行规范检查，
+        并检测项目中引用的库FB/FC版本一致性。
+
+        Args:
+            project_path: PLC项目根目录路径
+            syslib_path: SysLib根目录路径
+            rule_ids: 指定检查的规则ID列表（可选）
+
+        Returns:
+            Dict[str, Any]: 包含以下键的字典:
+                - "project_report": 项目检查报告 (CheckReport)
+                - "syslib_report": SysLib检查报告 (CheckReport)
+                - "library_issues": 库引用问题列表 (List[LibraryRefIssue])
+                - "summary": 汇总统计信息
+        """
+        from src.scanners.syslib_scanner import (
+            SysLibScanner,
+            GlobalFBIndex,
+        )
+
+        start_time = datetime.now()
+        logger.info(f"开始联合检查: 项目={project_path}, SysLib={syslib_path}")
+
+        project_report = self.check_project(project_path)
+        syslib_report = self.check_syslib(syslib_path, rule_ids)
+
+        library_issues: List[Any] = []
+        try:
+            syslib_index = SysLibScanner.build_global_fb_index(syslib_path)
+            library_issues = SysLibScanner.find_outdated_references(
+                project_path, syslib_index
+            )
+        except Exception as e:
+            logger.warning(f"库引用检查失败: {e}")
+
+        elapsed = (datetime.now() - start_time).total_seconds()
+
+        result = {
+            "project_report": project_report,
+            "syslib_report": syslib_report,
+            "library_issues": library_issues,
+            "summary": {
+                "project_files": project_report.total_files_checked,
+                "project_violations": project_report.total_violations,
+                "syslib_files": syslib_report.total_files_checked,
+                "syslib_violations": syslib_report.total_violations,
+                "library_ref_issues": len(library_issues),
+                "total_elapsed_seconds": round(elapsed, 2),
+            },
+        }
+
+        logger.info(
+            f"联合检查完成 - "
+            f"项目问题: {project_report.total_violations}, "
+            f"库问题: {syslib_report.total_violations}, "
+            f"引用问题: {len(library_issues)}, "
+            f"耗时: {elapsed:.2f}s"
+        )
+        return result
+
+    def _get_filtered_checkers(self, rule_ids=None) -> List[Any]:
+        """根据rule_ids过滤检查器，为空时返回所有启用的检查器"""
+        all_checkers = self.get_enabled_checkers()
+        if rule_ids is None:
+            return all_checkers
+        rule_set = set(rule_ids) if isinstance(rule_ids, list) else {rule_ids}
+        return [c for c in all_checkers if c.rule_info.rule_id in rule_set]
+
     # ===== 检查器管理方法 =====
 
     def get_enabled_checkers(self) -> List[Any]:

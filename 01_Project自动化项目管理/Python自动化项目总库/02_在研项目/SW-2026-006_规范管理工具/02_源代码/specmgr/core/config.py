@@ -16,6 +16,8 @@ DEFAULT_ARCHIVE_DIR = "00_Obsidian_Base全局规范文件仓库/_archive"
 
 DEFAULT_REGISTRY_PATH = "00_Obsidian_Base全局规范文件仓库/spec_registry.json"
 
+CHECK_SCOPES = ("workspace", "project")
+
 DEFAULT_OUTPUT_PATHS = {
     "pm_index": "01_Project自动化项目管理/00_通用规范/README.md",
     "plc_readme": "0100_PLC自动化/00_通用规范/README.md",

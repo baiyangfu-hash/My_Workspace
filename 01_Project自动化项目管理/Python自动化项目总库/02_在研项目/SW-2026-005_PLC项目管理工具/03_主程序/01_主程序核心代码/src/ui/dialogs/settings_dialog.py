@@ -33,6 +33,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 from src.core.settings import SettingsManager
+from src.ui.ui_scale import current_ui_profile
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -63,9 +64,16 @@ class SettingsDialog(QDialog):
             parent: 父窗口 (QWidget或QMainWindow)
         """
         super().__init__(parent)
+        self._ui_profile = current_ui_profile(parent)
         self.setWindowTitle("\u2699\uFE0F 系统设置")
-        self.setMinimumSize(550, 420)
-        self.resize(600, 450)
+        self.setMinimumSize(
+            self._ui_profile.dialog_min_width,
+            self._ui_profile.dialog_min_height,
+        )
+        self.resize(
+            self._ui_profile.dialog_width,
+            self._ui_profile.dialog_height,
+        )
 
         # 初始化UI
         self._setup_ui()
@@ -74,88 +82,52 @@ class SettingsDialog(QDialog):
 
     def _setup_ui(self):
         """构建对话框UI布局"""
+        profile = self._ui_profile
         # 主布局
         layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        layout.setContentsMargins(
+            profile.spacing_xl,
+            profile.spacing_xl,
+            profile.spacing_xl,
+            profile.spacing_xl,
+        )
+        layout.setSpacing(profile.spacing_lg)
 
         # Tab控件 - 分组显示不同类别设置
         tabs = QTabWidget()
         self._create_general_tab(tabs)
         self._create_editor_tab(tabs)
+        self._create_display_tab(tabs)
         layout.addWidget(tabs)
 
         # 按钮区域
         button_layout = QHBoxLayout()
         button_layout.addStretch()
+        button_layout.setSpacing(profile.spacing_md)
 
         apply_btn = QPushButton("应用")
-        apply_btn.setFixedWidth(70)
+        apply_btn.setFixedWidth(profile.scale_px(88))
         apply_btn.setCursor(Qt.PointingHandCursor)
-        apply_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #1976D2;
-                border: 1px solid #1976D2;
-                border-radius: 4px;
-                padding: 8px 12px;
-                font-size: 10pt;
-            }
-            QPushButton:hover { background-color: #E3F2FD; }
-        """)
+        apply_btn.setProperty("ToolBtn", True)
         apply_btn.clicked.connect(self._on_apply)
 
         reset_btn = QPushButton("重置")
-        reset_btn.setFixedWidth(70)
+        reset_btn.setFixedWidth(profile.scale_px(88))
         reset_btn.setCursor(Qt.PointingHandCursor)
-        reset_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #757575;
-                border: 1px solid #BDBDBD;
-                border-radius: 4px;
-                padding: 8px 12px;
-                font-size: 10pt;
-            }
-            QPushButton:hover { background-color: #F5F5F5; color: #424242; }
-        """)
+        reset_btn.setProperty("ToolBtn", True)
         reset_btn.clicked.connect(self._on_reset)
 
         ok_btn = QPushButton("保存")
-        ok_btn.setFixedWidth(80)
+        ok_btn.setFixedWidth(profile.scale_px(96))
         ok_btn.setCursor(Qt.PointingHandCursor)
-        ok_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #1976D2;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 8px 16px;
-                font-size: 10pt;
-                font-weight: bold;
-            }
-            QPushButton:hover { background-color: #1565C0; }
-            QPushButton:pressed { background-color: #0D47A1; }
-        """)
+        ok_btn.setProperty("PrimaryBtn", True)
         ok_btn.clicked.connect(self._on_save)
 
         # 取消按钮
         cancel_btn = QPushButton("取消")
-        cancel_btn.setFixedWidth(80)
+        cancel_btn.setFixedWidth(profile.scale_px(96))
         cancel_btn.setCursor(Qt.PointingHandCursor)
-        cancel_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #757575;
-                border: 1px solid #BDBDBD;
-                border-radius: 4px;
-                padding: 8px 16px;
-                font-size: 10pt;
-            }
-            QPushButton:hover { 
-                background-color: #F5F5F5; 
-                color: #424242; 
-            }
-        """)
+        cancel_btn.setProperty("ToolBtn", True)
         cancel_btn.clicked.connect(self.reject)
 
         button_layout.addWidget(apply_btn)
@@ -178,7 +150,7 @@ class SettingsDialog(QDialog):
         """
         tab = QWidget()
         form = QFormLayout(tab)
-        form.setSpacing(12)
+        form.setSpacing(self._ui_profile.spacing_lg)
         form.setLabelAlignment(Qt.AlignRight)
 
         # 默认项目路径
@@ -189,7 +161,7 @@ class SettingsDialog(QDialog):
         form.addRow("默认项目路径:", self._setting_default_path)
 
         self._path_status = QLabel("")
-        self._path_status.setStyleSheet("font-size: 8pt; padding: 2px 0;")
+        self._path_status.setProperty("treeStatus", True)
         form.addRow("", self._path_status)
         self._setting_default_path.textChanged.connect(self._validate_path_live)
 
@@ -222,7 +194,7 @@ class SettingsDialog(QDialog):
         """
         tab = QWidget()
         form = QFormLayout(tab)
-        form.setSpacing(12)
+        form.setSpacing(self._ui_profile.spacing_lg)
         form.setLabelAlignment(Qt.AlignRight)
 
         # 编辑器字体
@@ -249,6 +221,42 @@ class SettingsDialog(QDialog):
         form.addRow("制表符宽度:", self._editor_tab_width)
 
         tabs.addTab(tab, "编辑器设置")
+
+    def _create_display_tab(self, tabs: QTabWidget):
+        """创建显示设置标签页。"""
+        tab = QWidget()
+        form = QFormLayout(tab)
+        form.setSpacing(self._ui_profile.spacing_lg)
+        form.setLabelAlignment(Qt.AlignRight)
+
+        self._ui_density = QComboBox()
+        self._ui_density.addItems([
+            "compact",
+            "standard",
+            "comfortable",
+            "target_machine",
+        ])
+        current_density = SettingsManager.get("ui_density", "target_machine")
+        idx = self._ui_density.findText(current_density)
+        if idx >= 0:
+            self._ui_density.setCurrentIndex(idx)
+        form.addRow("界面密度:", self._ui_density)
+
+        self._ui_target_machine_mode = QCheckBox("启用固定目标机优化")
+        self._ui_target_machine_mode.setChecked(
+            SettingsManager.get("ui_target_machine_mode", True)
+        )
+        form.addRow("", self._ui_target_machine_mode)
+
+        hint = QLabel(
+            "说明: 固定目标机优化会优先放大窗口、卡片、Dock 和按钮尺寸，"
+            "适合当前 2880x1800 主显示器。"
+        )
+        hint.setWordWrap(True)
+        hint.setProperty("treeStatus", True)
+        form.addRow("适配说明:", hint)
+
+        tabs.addTab(tab, "显示设置")
 
     def _on_save(self):
         try:
@@ -304,21 +312,25 @@ class SettingsDialog(QDialog):
         if tab_width < 2 or tab_width > 8:
             errors.append("- 制表符宽度必须在 2-8 之间")
 
+        density = self._ui_density.currentText()
+        if density not in {"compact", "standard", "comfortable", "target_machine"}:
+            errors.append("- 界面密度配置无效")
+
         return errors
 
     def _validate_path_live(self, text: str):
         path = text.strip()
         if not path:
             self._path_status.setText("")
-            self._path_status.setStyleSheet("font-size: 8pt; padding: 2px 0;")
+            self._path_status.setProperty("treeStatus", True)
             return
         p = Path(path)
         if p.exists() and p.is_dir():
             self._path_status.setText("\u2705 路径有效")
-            self._path_status.setStyleSheet("color: #4CAF50; font-size: 8pt; padding: 2px 0;")
+            self._path_status.setProperty("treeStatus", "success")
         else:
             self._path_status.setText("\u26A0\uFE0F 路径不存在")
-            self._path_status.setStyleSheet("color: #FF9800; font-size: 8pt; padding: 2px 0;")
+            self._path_status.setProperty("treeStatus", "warning")
 
     def _on_apply(self):
         validation_errors = self._validate_settings()
@@ -350,6 +362,13 @@ class SettingsDialog(QDialog):
         self._editor_tab_width.setValue(
             SettingsManager.get("editor_tab_width", 4)
         )
+        current_density = SettingsManager.get("ui_density", "target_machine")
+        idx = self._ui_density.findText(current_density)
+        if idx >= 0:
+            self._ui_density.setCurrentIndex(idx)
+        self._ui_target_machine_mode.setChecked(
+            SettingsManager.get("ui_target_machine_mode", True)
+        )
         logger.info("设置已重置为当前保存值")
 
     def _save_settings(self):
@@ -376,5 +395,13 @@ class SettingsDialog(QDialog):
         SettingsManager.set(
             "editor_tab_width",
             self._editor_tab_width.value(),
+        )
+        SettingsManager.set(
+            "ui_density",
+            self._ui_density.currentText(),
+        )
+        SettingsManager.set(
+            "ui_target_machine_mode",
+            self._ui_target_machine_mode.isChecked(),
         )
         SettingsManager.save()

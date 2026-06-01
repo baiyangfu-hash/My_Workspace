@@ -1,50 +1,54 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-SW-2026-005 PLC项目管理工具 - 应用入口
-
-基于SW-2026-004模式构建的PLC项目管理GUI应用程序。
-支持项目创建、文档管理、PLC代码编辑、变量检查、HMI映射等功能。
-"""
 import sys
 import os
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent
+LIB_DIR = BASE_DIR / "lib"
+if LIB_DIR.is_dir() and str(LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(LIB_DIR))
 
-def get_base_path() -> Path:
-    """获取基础路径（兼容PyInstaller打包）"""
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).parent
-    else:
-        return Path(__file__).parent
+SRC_DIR = BASE_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+sys.path.insert(0, str(BASE_DIR))
 
-
-def setup_paths():
-    """设置Python路径，确保src模块可被正确导入"""
-    base_path = get_base_path()
-    src_path = base_path / "src"
-    sys.path.insert(0, str(src_path))
-    sys.path.insert(0, str(base_path))
+USE_WEBVIEW = os.environ.get("PLC_GUI_MODE", "webview") == "webview"
 
 
-setup_paths()
+def run_webview():
+    import webview
+    from src.core.config import ConfigLoader
+    ConfigLoader.load()
+    from src.utils.logger import setup_logger
+    logger = setup_logger(__name__)
+    app_name = ConfigLoader.get("app_name", "PLC项目管理工具")
+    version = ConfigLoader.get("version", "1.0.0")
+    title = f"{app_name} V{version}"
+    html_path = str(BASE_DIR / "ui_prototype" / "index.html")
+    logger.info("PyWebView模式启动: %s | HTML: %s", title, html_path)
+    from src.ui.webview_window import create_window
+    window = create_window(html_path=html_path, title=title)
+    webview.start(debug=True)
+    logger.info("PyWebView已退出")
 
-from src.core.config import ConfigLoader
 
-ConfigLoader.load()
-from src.utils.logger import setup_logger
-
-logger = setup_logger(__name__)
-
-
-def run_gui():
-    """启动GUI界面"""
+def run_pyqt():
     from PyQt5.QtCore import QCoreApplication, Qt
     from PyQt5.QtGui import QGuiApplication
     from PyQt5.QtWidgets import QApplication
+    from src.core.config import ConfigLoader
+    ConfigLoader.load()
+    from src.utils.logger import setup_logger
+    logger = setup_logger(__name__)
     from src.ui.main_window import MainWindow
     from src.ui.builders.style_builder import StyleBuilder
-
+    from src.ui.ui_scale import (
+        collect_screen_metrics,
+        current_ui_profile,
+        format_screen_metrics,
+    )
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     try:
@@ -53,38 +57,36 @@ def run_gui():
         )
     except Exception:
         pass
-
     app = QApplication(sys.argv)
     app.setApplicationName(ConfigLoader.get("app_name", "PLC项目管理工具"))
     app.setApplicationVersion(ConfigLoader.get("version", "1.0.0"))
-
-    app.setFont(StyleBuilder._resolve_chinese_font(10))
-
+    from src.ui.builders.style_builder import _preload_system_fonts
+    _preload_system_fonts()
+    screen_metrics = collect_screen_metrics(QGuiApplication.primaryScreen())
+    ui_profile = current_ui_profile(QGuiApplication.primaryScreen())
+    chinese_font = StyleBuilder._resolve_chinese_font(ui_profile.base_font_pt)
+    chinese_font.setStyleStrategy(chinese_font.PreferAntialias | chinese_font.PreferMatch)
+    app.setFont(chinese_font)
     window = MainWindow()
     window.show()
-
-    logger.info("GUI应用启动成功")
-
+    logger.info("PyQt5模式启动 (字体: %s %dpt)", chinese_font.family(), chinese_font.pointSize())
     exit_code = app.exec_()
-
     app.processEvents()
     app.closeAllWindows()
-
     import gc
     gc.collect()
-
     sys.exit(exit_code)
 
 
 def main():
-    """主函数 - 应用程序入口点"""
-    if getattr(sys, "frozen", False):
-        # 打包后的可执行文件直接运行GUI
-        run_gui()
-        return 0
-
-    # 开发环境默认启动GUI模式
-    run_gui()
+    if USE_WEBVIEW:
+        try:
+            run_webview()
+        except ImportError:
+            print("[WARN] pywebview不可用, 回退到PyQt5模式")
+            run_pyqt()
+    else:
+        run_pyqt()
     return 0
 
 

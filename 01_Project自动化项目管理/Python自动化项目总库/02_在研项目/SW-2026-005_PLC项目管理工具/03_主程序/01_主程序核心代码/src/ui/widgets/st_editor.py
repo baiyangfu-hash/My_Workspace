@@ -136,9 +136,7 @@ class STEditor(QWidget):
             "- 关键字自动补全\n"
         )
         info_label.setAlignment(Qt.AlignCenter)
-        info_label.setStyleSheet(
-            "color: #757575; font-size: 10pt; padding: 20px;"
-        )
+        info_label.setProperty("treeStatus", True)
         parent_layout.addWidget(info_label)
 
         editor = QPlainTextEdit()

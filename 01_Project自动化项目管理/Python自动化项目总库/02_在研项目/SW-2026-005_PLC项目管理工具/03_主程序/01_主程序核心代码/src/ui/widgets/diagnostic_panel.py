@@ -110,22 +110,19 @@ logger = setup_logger(__name__)
 # 常量定义
 # ============================================================================
 
-# 诊断类型选项
 DIAGNOSTIC_TYPES = {
     'lsp': 'LSP兼容性',
     'health': '项目健康度',
     'full': '完整诊断',
 }
 
-# 严重级别颜色映射（用于表格行背景）
 SEVERITY_COLORS = {
-    DiagnosticSeverity.ERROR: QColor('#fff1f0'),   # 浅红背景
-    DiagnosticSeverity.WARNING: QColor('#fffbe6'),   # 浅黄背景
-    DiagnosticSeverity.INFO: QColor('#e6f7ff'),      # 浅蓝背景
-    DiagnosticSeverity.HINT: QColor('#f6ffed'),      # 浅绿背景
+    DiagnosticSeverity.ERROR: QColor('#fff1f0'),
+    DiagnosticSeverity.WARNING: QColor('#fffbe6'),
+    DiagnosticSeverity.INFO: QColor('#e6f7ff'),
+    DiagnosticSeverity.HINT: QColor('#f6ffed'),
 }
 
-# 严重级别前景色
 SEVERITY_FG_COLORS = {
     DiagnosticSeverity.ERROR: QColor('#cf1322'),
     DiagnosticSeverity.WARNING: QColor('#d48806'),
@@ -133,7 +130,6 @@ SEVERITY_FG_COLORS = {
     DiagnosticSeverity.HINT: QColor('#52c41a'),
 }
 
-# 严重级别图标文本
 SEVERITY_ICONS = {
     DiagnosticSeverity.ERROR: 'ERROR',
     DiagnosticSeverity.WARNING: 'WARN',
@@ -141,23 +137,20 @@ SEVERITY_ICONS = {
     DiagnosticSeverity.HINT: 'HINT',
 }
 
-# 健康度等级颜色
 GRADE_COLORS = {
-    'A': '#52c41a',   # 绿色 - 优秀
-    'B': '#1890ff',   # 蓝色 - 良好
-    'C': '#faad14',   # 橙色 - 一般
-    'D': '#ff4d4f',   # 红色 - 较差
+    'A': '#52c41a',
+    'B': '#1890ff',
+    'C': '#faad14',
+    'D': '#ff4d4f',
 }
 
-# 维度柱状图颜色
 DIMENSION_COLORS = [
-    '#1890ff',   # 规范符合度 - 蓝
-    '#ff4d4f',   # 问题严重程度 - 红
-    '#faad14',   # 库引用状态 - 橙
-    '#52c41a',   # 结构合规性 - 绿
+    '#1890ff',
+    '#ff4d4f',
+    '#faad14',
+    '#52c41a',
 ]
 
-# 数据角色常量
 ROLE_ISSUE = Qt.UserRole + 10
 ROLE_CALLER = Qt.UserRole + 11
 
@@ -174,12 +167,11 @@ class DiagnosticWorker(QThread):
     避免阻塞UI主线程。通过信号向主线程报告进度和结果。
     """
 
-    # 信号定义
-    progress_updated = pyqtSignal(str)                  # 进度更新消息
-    lsp_finished = pyqtSignal(object)                   # LSP诊断完成 (DiagnosticReport)
-    health_finished = pyqtSignal(object)               # 健康度分析完成 (HealthMetrics)
-    all_finished = pyqtSignal(object, object)           # 全部完成 (report, metrics)
-    error_occurred = pyqtSignal(str)                    # 发生错误
+    progress_updated = pyqtSignal(str)
+    lsp_finished = pyqtSignal(object)
+    health_finished = pyqtSignal(object)
+    all_finished = pyqtSignal(object, object)
+    error_occurred = pyqtSignal(str)
 
     def __init__(
         self,
@@ -210,7 +202,6 @@ class DiagnosticWorker(QThread):
             report = None
             metrics = None
 
-            # 步骤1: LSP兼容性诊断
             if self._diagnostic_type in ('lsp', 'full'):
                 self._mutex.lock()
                 if self._is_cancelled:
@@ -225,7 +216,6 @@ class DiagnosticWorker(QThread):
                 self.lsp_finished.emit(report)
                 logger.info(f"LSP诊断完成: {len(report.issues)} 个问题")
 
-            # 步骤2: 项目健康度分析
             if self._diagnostic_type in ('health', 'full'):
                 self._mutex.lock()
                 if self._is_cancelled:
@@ -243,7 +233,6 @@ class DiagnosticWorker(QThread):
                 self.health_finished.emit(metrics)
                 logger.info(f"健康度分析完成: {metrics.overall_score:.1f}分")
 
-            # 发出全部完成信号
             self._mutex.lock()
             cancelled = self._is_cancelled
             self._mutex.unlock()
@@ -289,14 +278,12 @@ class ScoreRingWidget(QWidget):
         self._grade_label = ''
         self._animated_score = 0.0
 
-        # 设置最小尺寸以确保显示效果
         self.setMinimumSize(200, 200)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # 动画定时器
         self._animation_timer = QTimer(self)
         self._animation_timer.timeout.connect(self._animate_step)
-        self._animation_interval = 20  # 50fps
+        self._animation_interval = 20
 
     def set_score(
         self,
@@ -316,7 +303,6 @@ class ScoreRingWidget(QWidget):
         self._grade = grade or HealthGrade.from_score(score).value
         self._grade_label = grade_label or HealthGrade.from_score(score).label
 
-        # 启动动画
         if not self._animation_timer.isActive():
             self._animation_timer.start(self._animation_interval)
 
@@ -340,7 +326,6 @@ class ScoreRingWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # 计算绘制区域
         side = min(self.width(), self.height())
         margin = 12
         rect = QRect(
@@ -350,12 +335,10 @@ class ScoreRingWidget(QWidget):
             side - 2 * margin
         )
 
-        # 圆环参数
         pen_width = max(14, side // 16)
         outer_radius = min(rect.width(), rect.height()) // 2
         center = QPointF(rect.center())
 
-        # ---- 绘制背景圆环（灰色底） ----
         bg_pen = QPen(QColor('#f0f0f0'))
         bg_pen.setWidth(pen_width)
         bg_pen.setCapStyle(Qt.RoundCap)
@@ -363,21 +346,17 @@ class ScoreRingWidget(QWidget):
         painter.drawEllipse(center, outer_radius - pen_width // 2,
                            outer_radius - pen_width // 2)
 
-        # ---- 绘制进度圆环（渐变色） ----
         if self._animated_score > 0.5:
-            # 根据分数选择颜色
             color = QColor(GRADE_COLORS.get(
                 self._grade,
                 HealthGrade.from_score(self._animated_score).color
             ))
 
-            # 创建渐变
             gradient = QConicalGradient(center, 90)
             gradient.setColorAt(0, color.lighter(120))
             gradient.setColorAt(0.5, color)
             gradient.setColorAt(1, color.darker(110))
 
-            # 计算弧长角度
             span_angle = int((self._animated_score / 100.0) * 360 * 16)
 
             fg_pen = QPen(QBrush(gradient), pen_width)
@@ -385,16 +364,14 @@ class ScoreRingWidget(QWidget):
             painter.setPen(fg_pen)
             painter.drawArc(
                 rect.x(), rect.y(), rect.width(), rect.height(),
-                90 * 16,  # 从顶部开始（12点钟方向）
-                -span_angle  # 顺时针方向为负
+                90 * 16,
+                -span_angle
             )
 
-        # ---- 绘制中心分数文字 ----
         score_text = f'{self._animated_score:.0f}'
         font_score = QFont('Arial', max(32, side // 7), QFont.Bold)
         painter.setFont(font_score)
 
-        # 分数颜色根据等级变化
         text_color = QColor(GRADE_COLORS.get(self._grade, '#333333'))
         painter.setPen(text_color)
 
@@ -406,7 +383,6 @@ class ScoreRingWidget(QWidget):
         )
         painter.drawText(text_rect, Qt.AlignCenter, score_text)
 
-        # ---- 绘制等级标签 ----
         font_grade = QFont('Microsoft YaHei', max(11, side // 18))
         painter.setFont(font_grade)
         painter.setPen(QColor('#666666'))
@@ -420,7 +396,6 @@ class ScoreRingWidget(QWidget):
         )
         painter.drawText(grade_rect, Qt.AlignCenter, grade_text)
 
-        # ---- 绘制底部标题 ----
         font_title = QFont('Microsoft YaHei', 9)
         painter.setFont(font_title)
         painter.setPen(QColor('#999999'))
@@ -482,10 +457,8 @@ class BarChartWidget(QWidget):
             }
             for dim in dimensions[:4]
         ]
-        # 初始化动画进度
         self._bar_animation_progress = [0.0] * len(self._dimensions)
 
-        # 启动简单动画
         QTimer.singleShot(50, self._start_animation)
 
     def _start_animation(self):
@@ -498,8 +471,8 @@ class BarChartWidget(QWidget):
     def _animate_bars(self):
         """柱状图增长动画步进"""
         self._anim_step += 1
-        progress = min(1.0, self._anim_step / 24.0)  # 约600ms完成
-        ease_out = 1 - pow(1 - progress, 3)  # 缓出曲线
+        progress = min(1.0, self._anim_step / 24.0)
+        ease_out = 1 - pow(1 - progress, 3)
 
         for i in range(len(self._bar_animation_progress)):
             target = self._dimensions[i]['score'] if i < len(self._dimensions) else 0
@@ -520,7 +493,6 @@ class BarChartWidget(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
 
         if not self._dimensions:
-            # 无数据时显示提示
             painter.setPen(QColor('#cccccc'))
             font = QFont('Microsoft YaHei', 11)
             painter.setFont(font)
@@ -528,7 +500,6 @@ class BarChartWidget(QWidget):
                            '暂无数据，请先运行诊断')
             return
 
-        # 计算绑定区域
         margin_left = 60
         margin_right = 30
         margin_top = 30
@@ -544,14 +515,12 @@ class BarChartWidget(QWidget):
         bar_spacing = chart_width // (bar_count + 1)
         bar_width = max(28, min(bar_spacing - 16, 70))
 
-        # ---- 绘制Y轴网格线（参考线） ----
         painter.setPen(QColor('#f0f0f0'))
         grid_y_positions = [25, 50, 75, 100]
         for grid_val in grid_y_positions:
             y = margin_top + chart_height - int((grid_val / 100.0) * chart_height)
             painter.drawLine(margin_left, y, self.width() - margin_right, y)
 
-            # Y轴刻度标签
             font_grid = QFont('Arial', 8)
             painter.setFont(font_grid)
             painter.setPen(QColor('#bbbbbb'))
@@ -560,14 +529,12 @@ class BarChartWidget(QWidget):
                 f'{grid_val}'
             )
 
-        # ---- 绘制X轴基线 ----
         painter.setPen(QColor('#dddddd'))
         painter.drawLine(
             margin_left, margin_top + chart_height,
             self.width() - margin_right, margin_top + chart_height
         )
 
-        # ---- 绘制每根柱子 ----
         for i, dim in enumerate(self._dimensions):
             cx = margin_left + bar_spacing * (i + 1)
             bar_height_raw = (
@@ -577,17 +544,14 @@ class BarChartWidget(QWidget):
             )
             bar_height = int((bar_height_raw / 100.0) * chart_height)
 
-            # 柱子X坐标（居中）
             bx = cx - bar_width // 2
             by = margin_top + chart_height - bar_height
 
-            # 创建渐变色填充
             color = QColor(DIMENSION_COLORS[i % len(DIMENSION_COLORS)])
             gradient = QLinearGradient(bx, by + bar_height, bx, by)
             gradient.setColorAt(0, color.lighter(130))
             gradient.setColorAt(1, color)
 
-            # 绘制圆角矩形柱子（使用path模拟圆角）
             from math import pi
             radius = min(5, bar_width // 5)
             from PyQt5.QtGui import QPainterPath
@@ -595,7 +559,6 @@ class BarChartWidget(QWidget):
             path.addRoundedRect(bx, by, bar_width, bar_height, radius, radius)
             painter.fillPath(path, QBrush(gradient))
 
-            # 柱顶分数值
             if bar_height > 15:
                 font_value = QFont('Arial', 9, QFont.Bold)
                 painter.setFont(font_value)
@@ -606,7 +569,6 @@ class BarChartWidget(QWidget):
                     value_text
                 )
 
-            # X轴维度名称（两行显示）
             font_name = QFont('Microsoft YaHei', 8)
             painter.setFont(font_name)
             painter.setPen(QColor('#555555'))
@@ -627,7 +589,6 @@ class BarChartWidget(QWidget):
                 painter.drawText(cx - 40, label_y + 14, 80, 16,
                                Qt.AlignCenter, line2)
 
-            # 等级标签
             font_grade = QFont('Microsoft YaHei', 8)
             painter.setFont(font_grade)
             grade_color = QColor(
@@ -668,11 +629,10 @@ class DiagnosticPanel(QWidget):
         >>> panel.show()
     """
 
-    # ===== 信号定义 =====
-    diagnostic_started = pyqtSignal()                        # 诊断开始
-    diagnostic_finished = pyqtSignal(object)                 # 诊断完成 (DiagnosticReport)
-    health_analysis_finished = pyqtSignal(object)           # 健康度分析完成 (HealthMetrics)
-    source_jump_requested = pyqtSignal(str, int)            # 跳转源码请求 (file, line)
+    diagnostic_started = pyqtSignal()
+    diagnostic_finished = pyqtSignal(object)
+    health_analysis_finished = pyqtSignal(object)
+    source_jump_requested = pyqtSignal(str, int)
 
     def __init__(self, parent=None):
         """
@@ -683,7 +643,6 @@ class DiagnosticPanel(QWidget):
         """
         super().__init__(parent)
 
-        # 核心数据
         self._project_path: Optional[str] = None
         self._report: Optional[DiagnosticReport] = None
         self._metrics: Optional[HealthMetrics] = None
@@ -691,11 +650,9 @@ class DiagnosticPanel(QWidget):
         self._check_report: Optional[CheckReport] = None
         self._is_running = False
 
-        # 分析器实例（延迟初始化）
         self._lsp_checker: Optional[LSPCompatibilityChecker] = None
         self._health_analyzer: Optional[ProjectHealthAnalyzer] = None
 
-        # 初始化UI
         self._init_ui()
 
         logger.info("DiagnosticPanel初始化完成")
@@ -706,18 +663,14 @@ class DiagnosticPanel(QWidget):
 
     def _init_ui(self):
         """初始化用户界面布局"""
-        # 主布局
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(8, 8, 8, 8)
         main_layout.setSpacing(6)
 
-        # 1. 顶部工具栏
         self._init_toolbar(main_layout)
 
-        # 2. 中间Tab容器
         self._init_tab_widget(main_layout)
 
-        # 3. 底部详情区
         self._init_detail_area(main_layout)
 
     def _init_toolbar(self, parent_layout: QVBoxLayout):
@@ -732,79 +685,34 @@ class DiagnosticPanel(QWidget):
         toolbar = QHBoxLayout()
         toolbar.setSpacing(8)
 
-        # 开始诊断按钮（蓝色主操作）
-        self._btn_start = QPushButton('\U0001F52C 开始诊断')
+        self._btn_start = QPushButton('开始诊断')
         self._btn_start.setToolTip('运行选中的诊断类型')
-        self._btn_start.setStyleSheet(
-            'QPushButton {'
-            '  background-color: #1890ff;'
-            '  color: white;'
-            '  border: none;'
-            '  padding: 7px 20px;'
-            '  border-radius: 4px;'
-            '  font-weight: bold;'
-            '  font-size: 11pt;'
-            '}'
-            'QPushButton:hover {'
-            '  background-color: #40a9ff;'
-            '}'
-            'QPushButton:disabled {'
-            '  background-color: #bae7ff;'
-            '  color: #aaa;'
-            '}'
-        )
+        self._btn_start.setProperty("PrimaryBtn", True)
         self._btn_start.clicked.connect(self._on_start_diagnostic)
         toolbar.addWidget(self._btn_start)
 
-        # 诊断类型选择
         type_label = QLabel('诊断类型:')
         toolbar.addWidget(type_label)
 
         self._combo_type = QComboBox()
         self._combo_type.addItems(list(DIAGNOSTIC_TYPES.values()))
-        self._combo_type.setCurrentIndex(2)  # 默认"完整诊断"
+        self._combo_type.setCurrentIndex(2)
         self._combo_type.setMinimumWidth(120)
         self._combo_type.setToolTip('选择要执行的诊断类型')
         toolbar.addWidget(self._combo_type)
 
-        # 分隔符
         toolbar.addSpacing(16)
 
-        # 导出报告按钮
-        self._btn_export = QPushButton('\U0001F4C4 导出报告')
+        self._btn_export = QPushButton('导出报告')
         self._btn_export.setToolTip('将诊断结果导出为Markdown或JSON文件')
         self._btn_export.setEnabled(False)
-        self._btn_export.setStyleSheet(
-            'QPushButton {'
-            '  background-color: white;'
-            '  border: 1px solid #d9d9d9;'
-            '  padding: 6px 16px;'
-            '  border-radius: 4px;'
-            '}'
-            'QPushButton:hover {'
-            '  border-color: #40a9ff;'
-            '  color: #1890ff;'
-            '}'
-            'QPushButton:disabled {'
-            '  color: #ccc;'
-            '  border-color: #eee;'
-            '}'
-        )
         self._btn_export.clicked.connect(self.export_report)
         toolbar.addWidget(self._btn_export)
 
-        # 弹性空间
         toolbar.addStretch()
 
-        # 状态标签
         self._lbl_status = QLabel('\U0001F7E2 就绪')
-        self._lbl_status.setStyleSheet(
-            'font-size: 10pt; '
-            'padding: 4px 14px; '
-            'background-color: #f5f5f5; '
-            'border-radius: 4px; '
-            'border: 1px solid #e8e8e8;'
-        )
+        self._lbl_status.setProperty("treeStatus", True)
         self._lbl_status.setMinimumWidth(160)
         toolbar.addWidget(self._lbl_status)
 
@@ -822,16 +730,12 @@ class DiagnosticPanel(QWidget):
         self._tab_widget = QTabWidget()
         self._tab_widget.setDocumentMode(True)
 
-        # Tab 1: 问题列表
         self._init_issues_tab()
 
-        # Tab 2: 根因分析
         self._init_root_cause_tab()
 
-        # Tab 3: 健康度仪表盘
         self._init_health_dashboard_tab()
 
-        # Tab 4: 调用链视图
         self._init_call_chain_tab()
 
         parent_layout.addWidget(self._tab_widget, stretch=1)
@@ -842,14 +746,12 @@ class DiagnosticPanel(QWidget):
         layout = QVBoxLayout(issues_widget)
         layout.setContentsMargins(6, 6, 6, 6)
 
-        # 表格控件
         self._table_issues = QTableWidget()
         self._table_issues.setColumnCount(6)
         self._table_issues.setHorizontalHeaderLabels([
             '严重级别', '规则ID', '类型', '描述', '文件', '行号'
         ])
 
-        # 配置列宽
         header = self._table_issues.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
@@ -868,7 +770,6 @@ class DiagnosticPanel(QWidget):
             self._on_issue_double_clicked
         )
 
-        # 右键菜单
         self._table_issues.setContextMenuPolicy(Qt.CustomContextMenu)
         self._table_issues.customContextMenuRequested.connect(
             self._show_issue_context_menu
@@ -876,15 +777,14 @@ class DiagnosticPanel(QWidget):
 
         layout.addWidget(self._table_issues)
 
-        # 底部统计栏
         stats_bar = QHBoxLayout()
         self._lbl_issue_count = QLabel('共 0 个问题')
-        self._lbl_issue_count.setStyleSheet('font-size: 9pt; color: #666;')
+        self._lbl_issue_count.setProperty("treeStatus", True)
         stats_bar.addWidget(self._lbl_issue_count)
         stats_bar.addStretch()
         layout.addLayout(stats_bar)
 
-        self._tab_widget.addTab(issues_widget, '\U0001F4CB 问题列表')
+        self._tab_widget.addTab(issues_widget, '问题列表')
 
     def _init_root_cause_tab(self):
         """初始化根因分析Tab（QTextBrowser）"""
@@ -892,7 +792,6 @@ class DiagnosticPanel(QWidget):
         layout = QVBoxLayout(root_cause_widget)
         layout.setContentsMargins(6, 6, 6, 6)
 
-        # Markdown格式报告浏览器
         self._browser_root_cause = QTextBrowser()
         self._browser_root_cause.setOpenExternalLinks(True)
         self._browser_root_cause.setFont(QFont('Consolas', 9))
@@ -901,16 +800,15 @@ class DiagnosticPanel(QWidget):
         )
         layout.addWidget(self._browser_root_cause, stretch=1)
 
-        # 操作按钮栏
         btn_bar = QHBoxLayout()
-        self._btn_copy_report = QPushButton('\U0001F4CB 复制报告')
+        self._btn_copy_report = QPushButton('复制报告')
         self._btn_copy_report.setEnabled(False)
         self._btn_copy_report.clicked.connect(self._copy_root_cause_report)
         btn_bar.addWidget(self._btn_copy_report)
         btn_bar.addStretch()
         layout.addLayout(btn_bar)
 
-        self._tab_widget.addTab(root_cause_widget, '\U0001F50D 根因分析')
+        self._tab_widget.addTab(root_cause_widget, '根因分析')
 
     def _init_health_dashboard_tab(self):
         """
@@ -922,17 +820,14 @@ class DiagnosticPanel(QWidget):
         layout = QVBoxLayout(dashboard_widget)
         layout.setContentsMargins(8, 8, 8, 8)
 
-        # 上半部分：圆环图 + 柱状图（水平排列）
         top_layout = QHBoxLayout()
 
-        # 左侧：圆环分数控件
         ring_group = QGroupBox('综合评分')
         ring_layout = QVBoxLayout(ring_group)
         self._ring_widget = ScoreRingWidget()
         ring_layout.addWidget(self._ring_widget)
         top_layout.addWidget(ring_group, stretch=3)
 
-        # 右侧：柱状图控件
         bar_group = QGroupBox('各维度得分')
         bar_layout = QVBoxLayout(bar_group)
         self._bar_chart_widget = BarChartWidget()
@@ -941,10 +836,8 @@ class DiagnosticPanel(QWidget):
 
         layout.addLayout(top_layout, stretch=4)
 
-        # 下半部分：Top5问题 + 改进建议（水平排列）
         bottom_layout = QHBoxLayout()
 
-        # 左侧：Top5问题列表
         top5_group = QGroupBox('Top 5 高频问题')
         top5_layout = QVBoxLayout(top5_group)
         self._list_top5_issues = QListWidget()
@@ -953,7 +846,6 @@ class DiagnosticPanel(QWidget):
         top5_layout.addWidget(self._list_top5_issues)
         bottom_layout.addWidget(top5_group, stretch=1)
 
-        # 右侧：改进建议列表
         suggestion_group = QGroupBox('改进建议')
         suggestion_layout = QVBoxLayout(suggestion_group)
         self._list_suggestions = QListWidget()
@@ -964,7 +856,7 @@ class DiagnosticPanel(QWidget):
 
         layout.addLayout(bottom_layout, stretch=3)
 
-        self._tab_widget.addTab(dashboard_widget, '\U0001F4CA 健康度仪表盘')
+        self._tab_widget.addTab(dashboard_widget, '健康度仪表盘')
 
     def _init_call_chain_tab(self):
         """
@@ -976,16 +868,12 @@ class DiagnosticPanel(QWidget):
         layout = QVBoxLayout(call_chain_widget)
         layout.setContentsMargins(6, 6, 6, 6)
 
-        # 工具栏
         chain_toolbar = QHBoxLayout()
         self._lbl_chain_info = QLabel('OB -> FB 调用关系树')
-        self._lbl_chain_info.setStyleSheet(
-            'font-weight: bold; font-size: 10pt; color: #444;'
-        )
+        self._lbl_chain_info.setProperty("sectionTitle", True)
         chain_toolbar.addWidget(self._lbl_chain_info)
         chain_toolbar.addStretch()
 
-        # 展开折叠按钮
         self._btn_expand_all = QPushButton('展开全部')
         self._btn_expand_all.setMaximumWidth(70)
         self._btn_expand_all.clicked.connect(
@@ -1002,7 +890,6 @@ class DiagnosticPanel(QWidget):
 
         layout.addLayout(chain_toolbar)
 
-        # 树控件
         self._tree_call_chain = QTreeWidget()
         self._tree_call_chain.setHeaderLabels(['组织块(OB)', '调用的FB/FC'])
         self._tree_call_chain.setColumnWidth(0, 220)
@@ -1013,7 +900,7 @@ class DiagnosticPanel(QWidget):
         )
         layout.addWidget(self._tree_call_chain, stretch=1)
 
-        self._tab_widget.addTab(call_chain_widget, '\U0001F517 调用链视图')
+        self._tab_widget.addTab(call_chain_widget, '调用链视图')
 
     def _init_detail_area(self, parent_layout: QVBoxLayout):
         """
@@ -1027,7 +914,6 @@ class DiagnosticPanel(QWidget):
         detail_group = QGroupBox('问题详情')
         detail_layout = QHBoxLayout(detail_group)
 
-        # 左侧：问题代码片段
         left_panel = QVBoxLayout()
         code_label = QLabel('问题代码片段:')
         left_panel.addWidget(code_label)
@@ -1039,19 +925,10 @@ class DiagnosticPanel(QWidget):
         self._txt_code_snippet.setPlaceholderText(
             '选中一个问题后在此处查看相关代码片段...'
         )
-        self._txt_code_snippet.setStyleSheet(
-            'QTextEdit {'
-            '  background-color: #fafafa;'
-            '  border: 1px solid #e8e8e8;'
-            '  border-radius: 3px;'
-            '  padding: 6px;'
-            '}'
-        )
         left_panel.addWidget(self._txt_code_snippet)
 
         detail_layout.addLayout(left_panel, stretch=2)
 
-        # 右侧：修复步骤
         right_panel = QVBoxLayout()
         fix_label = QLabel('修复步骤:')
         right_panel.addWidget(fix_label)
@@ -1061,9 +938,8 @@ class DiagnosticPanel(QWidget):
         self._list_fix_steps.setAlternatingRowColors(True)
         right_panel.addWidget(self._list_fix_steps)
 
-        # 操作按钮
         fix_btn_layout = QHBoxLayout()
-        self._btn_copy_fix = QPushButton('\U0001F4CB 复制步骤')
+        self._btn_copy_fix = QPushButton('复制步骤')
         self._btn_copy_fix.setMaximumWidth(90)
         self._btn_copy_fix.clicked.connect(self._copy_fix_steps)
         fix_btn_layout.addWidget(self._btn_copy_fix)
@@ -1181,17 +1057,14 @@ class DiagnosticPanel(QWidget):
             QMessageBox.warning(self, '提示', '请先设置项目路径')
             return
 
-        # 更新UI状态
         self._update_ui_for_running(diagnostic_type)
 
-        # 创建并启动工作线程
         self._worker = DiagnosticWorker(
             project_path=self._project_path,
             diagnostic_type=diagnostic_type,
             check_report=self._check_report
         )
 
-        # 连接信号
         self._worker.progress_updated.connect(self._on_progress_update)
         self._worker.lsp_finished.connect(self._on_lsp_finished)
         self._worker.health_finished.connect(self._on_health_finished)
@@ -1199,10 +1072,8 @@ class DiagnosticPanel(QWidget):
         self._worker.error_occurred.connect(self._on_error_occurred)
         self._worker.finished.connect(self._on_worker_finished)
 
-        # 发出信号
         self.diagnostic_started.emit()
 
-        # 启动线程
         logger.info(f"开始{diagnostic_type}诊断: {self._project_path}")
         self._worker.start()
 
@@ -1217,19 +1088,16 @@ class DiagnosticPanel(QWidget):
         """
         self._report = report
 
-        # 更新各Tab
         self._populate_issues_table(report)
         self._populate_root_cause_browser(report)
         self._populate_call_chain_tree(report)
 
-        # 更新统计信息
         self._lbl_issue_count.setText(
             f'共 {report.total_issues} 个问题 '
             f'(Error:{report.error_count} Warn:{report.warning_count} '
             f'Info:{report.info_count} Hint:{report.hint_count})'
         )
 
-        # 启用导出按钮
         self._btn_export.setEnabled(True)
         self._btn_copy_report.setEnabled(True)
 
@@ -1246,21 +1114,17 @@ class DiagnosticPanel(QWidget):
         """
         self._metrics = metrics
 
-        # 更新圆环图
         self._ring_widget.set_score(
             metrics.overall_score,
             metrics.health_grade.value,
             metrics.health_grade.label
         )
 
-        # 更新柱状图
         if metrics.dimensions:
             self._bar_chart_widget.set_dimensions(metrics.dimensions)
 
-        # 更新Top5问题列表
         self._populate_top5_list(metrics)
 
-        # 更新改进建议列表
         self._populate_suggestions_list(metrics.suggestions)
 
         logger.info("健康度仪表盘已更新")
@@ -1278,7 +1142,6 @@ class DiagnosticPanel(QWidget):
             QMessageBox.information(self, '提示', '暂无诊断结果可导出')
             return
 
-        # 选择文件保存路径
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         if format == 'json':
             default_name = f'diagnostic_report_{timestamp}.json'
@@ -1333,7 +1196,7 @@ class DiagnosticPanel(QWidget):
 
     def _on_progress_update(self, message: str):
         """进度更新回调"""
-        self._update_status_label(f'\U0001F3AF {message}')
+        self._update_status_label(f'{message}')
 
     def _on_lsp_finished(self, report: DiagnosticReport):
         """LSP诊断完成的回调"""
@@ -1351,17 +1214,14 @@ class DiagnosticPanel(QWidget):
         metrics: Optional[HealthMetrics]
     ):
         """所有诊断完成的回调"""
-        # 更新UI状态
         self._update_ui_for_completed()
 
-        # 更新各个Tab
         if report:
             self.update_all_tabs(report)
 
         if metrics:
             self.update_health_dashboard(metrics)
 
-        # 更新状态标签
         total_issues = report.total_issues if report else 0
         score_str = f'{metrics.overall_score:.0f}分[{metrics.health_grade.value}]' if metrics else ''
         self._update_status_label(
@@ -1428,19 +1288,19 @@ class DiagnosticPanel(QWidget):
 
         menu = QMenu(self)
 
-        action_view_detail = menu.addAction('\U0001F4DD 查看详情')
+        action_view_detail = menu.addAction('查看详情')
         action_view_detail.triggered.connect(
             lambda: self._on_issue_selection_changed()
         )
 
-        action_jump_source = menu.addAction('\U0001F517 跳转到源码')
+        action_jump_source = menu.addAction('跳转到源码')
         action_jump_source.triggered.connect(
             lambda: self._on_issue_double_clicked(item)
         )
 
         menu.addSeparator()
 
-        action_copy = menu.addAction('\U0001F4CB 复制问题描述')
+        action_copy = menu.addAction('复制问题描述')
         action_copy.triggered.connect(self._copy_selected_issue)
 
         menu.exec_(self._table_issues.viewport().mapToGlobal(position))
@@ -1453,26 +1313,21 @@ class DiagnosticPanel(QWidget):
         """更新UI为运行中状态"""
         self._is_running = True
 
-        # 按钮状态
         self._btn_start.setEnabled(False)
         self._btn_start.setText('\u23F3 诊断中...')
 
-        # 类型选择禁用
         self._combo_type.setEnabled(False)
 
-        # 状态标签
         type_name = DIAGNOSTIC_TYPES.get(diagnostic_type, diagnostic_type)
-        self._update_status_label(f'\U0001F534 正在执行{type_name}诊断...')
+        self._update_status_label(f'正在执行{type_name}诊断...')
 
     def _update_ui_for_completed(self):
         """更新UI为完成状态"""
         self._is_running = False
 
-        # 按钮状态
         self._btn_start.setEnabled(True)
-        self._btn_start.setText('\U0001F52C 开始诊断')
+        self._btn_start.setText('开始诊断')
 
-        # 类型选择恢复
         self._combo_type.setEnabled(True)
 
     def _update_status_label(self, text: str):
@@ -1493,7 +1348,6 @@ class DiagnosticPanel(QWidget):
         self._table_issues.setRowCount(len(report.issues))
 
         for row, issue in enumerate(report.issues):
-            # 严重级别（带颜色编码）
             severity_item = QTableWidgetItem(
                 SEVERITY_ICONS.get(issue.severity, '?')
             )
@@ -1508,17 +1362,14 @@ class DiagnosticPanel(QWidget):
             severity_item.setData(Qt.UserRole, issue)
             self._table_issues.setItem(row, 0, severity_item)
 
-            # 规则ID
             rule_item = QTableWidgetItem(issue.rule_id)
             rule_item.setData(Qt.UserRole, issue)
             self._table_issues.setItem(row, 1, rule_item)
 
-            # 类型
             category_item = QTableWidgetItem(issue.category or '-')
             category_item.setData(Qt.UserRole, issue)
             self._table_issues.setItem(row, 2, category_item)
 
-            # 描述（截断过长文本）
             desc_text = issue.message
             if len(desc_text) > 80:
                 desc_text = desc_text[:77] + '...'
@@ -1527,20 +1378,17 @@ class DiagnosticPanel(QWidget):
             desc_item.setData(Qt.UserRole, issue)
             self._table_issues.setItem(row, 3, desc_item)
 
-            # 文件名
             filename = Path(issue.file_path).name if issue.file_path else '-'
             file_item = QTableWidgetItem(filename)
             file_item.setToolTip(issue.file_path or '')
             file_item.setData(Qt.UserRole, issue)
             self._table_issues.setItem(row, 4, file_item)
 
-            # 行号
             line_num = str(issue.line_number) if issue.line_number > 0 else '-'
             line_item = QTableWidgetItem(line_num)
             line_item.setData(Qt.UserRole, issue)
             self._table_issues.setItem(row, 5, line_item)
 
-            # 行背景色（交替使用严重级别颜色）
             if row % 2 == 0:
                 for col in range(6):
                     table_item = self._table_issues.item(row, col)
@@ -1556,7 +1404,6 @@ class DiagnosticPanel(QWidget):
         """
         markdown_content = report.to_markdown()
 
-        # 将Markdown转换为简单的HTML样式展示
         html_content = self._markdown_to_html(markdown_content)
         self._browser_root_cause.setHtml(html_content)
 
@@ -1573,7 +1420,6 @@ class DiagnosticPanel(QWidget):
         self._tree_call_chain.clear()
 
         if not report.ob_fb_call_chain:
-            # 无调用链数据时显示提示
             empty_item = QTreeWidgetItem(
                 ['未检测到OB->FB调用链', '']
             )
@@ -1582,7 +1428,6 @@ class DiagnosticPanel(QWidget):
             self._tree_call_chain.addTopLevelItem(empty_item)
             return
 
-        # 收集有问题的FB集合
         problem_fbs: set = set()
         for issue in report.issues:
             if issue.category == 'missing_implementation':
@@ -1590,7 +1435,6 @@ class DiagnosticPanel(QWidget):
             elif issue.category == 'stub_misuse':
                 problem_fbs.update(issue.related_symbols)
 
-        # 构建树结构
         for ob_name, fb_list in report.ob_fb_call_chain.items():
             ob_item = QTreeWidgetItem([ob_name, f'({len(fb_list)} 个调用)'])
             ob_item.setData(0, ROLE_CALLER, ob_name)
@@ -1600,7 +1444,6 @@ class DiagnosticPanel(QWidget):
             for fb_name in fb_list:
                 fb_item = QTreeWidgetItem([fb_name, ''])
 
-                # 检查是否有问题
                 has_problem = fb_name in problem_fbs
                 if has_problem:
                     fb_item.setForeground(0, QColor('#cf1322'))
@@ -1615,7 +1458,6 @@ class DiagnosticPanel(QWidget):
             ob_item.setExpanded(True)
             self._tree_call_chain.addTopLevelItem(ob_item)
 
-        # 更新信息标签
         total_obs = len(report.ob_fb_call_chain)
         total_calls = sum(len(v) for v in report.ob_fb_call_chain.values())
         self._lbl_chain_info.setText(
@@ -1644,7 +1486,6 @@ class DiagnosticPanel(QWidget):
             item = QListWidgetItem(f'{rank}. {filename}: {count} 个问题')
             item.setToolTip(file_path)
 
-            # 根据数量设颜色
             if count >= 10:
                 item.setForeground(QColor('#cf1322'))
             elif count >= 5:
@@ -1675,14 +1516,12 @@ class DiagnosticPanel(QWidget):
         priority_icons = {'\uE042': '高', '\u26A0': '中', '\u2139': '低'}
 
         for sug in suggestions:
-            # 优先级图标
             icon_map = {'高': '[高]', '中': '[中]', '低': '[低]'}
             prefix = icon_map.get(sug.priority, '')
 
             item = QListWidgetItem(f'{prefix} {sug.title}')
             item.setToolTip(sug.description)
 
-            # 优先级颜色
             colors = {'高': '#cf1322', '中': '#d48806', '低': '#1890ff'}
             item.setForeground(QColor(colors.get(sug.priority, '#333')))
 
@@ -1695,7 +1534,6 @@ class DiagnosticPanel(QWidget):
         Args:
             issue: 诊断问题对象
         """
-        # 更新代码片段
         if issue.code_snippet:
             snippet_text = f'// 文件: {issue.file_path}\n'
             snippet_text += f'// 行号: {issue.line_number}\n'
@@ -1716,10 +1554,8 @@ class DiagnosticPanel(QWidget):
                 f'文件: {issue.file_path}:{issue.line_number}'
             )
 
-        # 更新修复步骤
         self._list_fix_steps.clear()
         if issue.suggestion:
-            # 将建议按行拆分为多个步骤
             lines = issue.suggestion.strip().split('\n')
             for i, line in enumerate(lines, 1):
                 clean_line = line.strip()
@@ -1801,22 +1637,19 @@ class DiagnosticPanel(QWidget):
         import re
 
         html_lines = []
-        html_lines.append('<html><body style="font-family: Microsoft YaHei, sans-serif; font-size: 10pt; line-height: 1.6;">')
+        html_lines.append('<html><body style="font-family: \'Microsoft YaHei UI\', sans-serif; font-size: 10pt; line-height: 1.6;">')
 
         for line in markdown_text.split('\n'):
             stripped = line.strip()
 
-            # 空行
             if not stripped:
                 html_lines.append('<br>')
                 continue
 
-            # 分隔线
             if stripped.startswith('---'):
                 html_lines.append('<hr style="border:none; border-top:1px solid #e8e8e8; margin:12px 0;">')
                 continue
 
-            # 标题
             if stripped.startswith('####'):
                 text = stripped[4:].strip()
                 html_lines.append(f'<h4 style="color:#333; margin:10px 0 4px 0;">{text}</h4>')
@@ -1830,29 +1663,22 @@ class DiagnosticPanel(QWidget):
                 text = stripped[1:].strip()
                 html_lines.append(f'<h1 style="color:#1890ff; margin:16px 0 10px 0;">{text}</h1>')
 
-            # 表格行
             elif stripped.startswith('|') and stripped.endswith('|'):
                 cells = [c.strip() for c in stripped.split('|')[1:-1]]
                 if all(set(c) <= set('- :') for c in cells):
-                    continue  # 跳过分隔符行
+                    continue
                 html_lines.append('<tr>' +
                     ''.join(f'<td style="padding:4px 8px; border-bottom:1px solid #eee;">{c}</td>'
                              for c in cells) + '</tr>')
 
-            # 列表项
             elif stripped.startswith('- ') or stripped.startswith('* '):
                 text = stripped[2:]
-                # 处理加粗 **text**
                 text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
-                # 处理行内代码 `code`
                 text = re.sub(r'`(.+?)`', r'<code style="background:#f5f5f5;padding:1px 4px;border-radius:2px;font-size:9pt;">\1</code>', text)
                 html_lines.append(f'<div style="margin-left:16px; padding:2px 0;">\u2022 {text}</div>')
 
-            # 普通段落
             else:
-                # 处理加粗
                 text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', stripped)
-                # 处理行内代码
                 text = re.sub(r'`(.+?)`', r'<code style="background:#f5f5f5;padding:1px 4px;border-radius:2px;font-size:9pt;">\1</code>', text)
                 html_lines.append(f'<p style="margin:4px 0;">{text}</p>')
 
@@ -1889,20 +1715,17 @@ class DiagnosticPanel(QWidget):
         """
         sections = []
 
-        # 标题
         sections.append('# PLC项目综合诊断报告')
         sections.append('')
         sections.append(f'**生成时间**: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
         sections.append(f'**项目路径**: `{self._project_path or "未指定"}`')
         sections.append('')
 
-        # LSP诊断部分
         if self._report:
             sections.append('---')
             sections.append(self._report.to_markdown())
             sections.append('')
 
-        # 健康度分析部分
         if self._metrics:
             sections.append('---')
             sections.append('## \U0001F4CA 项目健康度分析')
@@ -1910,7 +1733,6 @@ class DiagnosticPanel(QWidget):
             sections.append(self._metrics.get_summary_text())
             sections.append('')
 
-            # 各维度详情
             sections.append('### \U0001F4CB 各维度得分')
             sections.append('')
             sections.append('| 维度 | 得分 | 权重 | 等级 |')
@@ -1922,9 +1744,8 @@ class DiagnosticPanel(QWidget):
                 )
             sections.append('')
 
-            # 改进建议
             if self._metrics.suggestions:
-                sections.append('### \U0001F4A1 改进建议')
+                sections.append('### 改进建议')
                 sections.append('')
                 for i, sug in enumerate(self._metrics.suggestions, 1):
                     sections.append(
@@ -1933,7 +1754,6 @@ class DiagnosticPanel(QWidget):
                     sections.append(f'   {sug.description}')
                     sections.append('')
 
-        # 尾部
         sections.append('---')
         sections.append('')
         sections.append(
@@ -1950,12 +1770,10 @@ class DiagnosticPanel(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    # 创建面板
     panel = DiagnosticPanel()
     panel.setWindowTitle('PLC项目诊断面板 - DiagnosticPanel')
     panel.resize(1100, 750)
 
-    # 设置项目路径（如果提供了命令行参数）
     if len(sys.argv) > 1:
         panel.set_project_path(sys.argv[1])
 

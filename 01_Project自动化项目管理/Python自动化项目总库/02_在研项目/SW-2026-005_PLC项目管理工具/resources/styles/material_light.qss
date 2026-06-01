@@ -21,8 +21,7 @@
 
 
 /* ===== 全局基础 ===== */
-* {
-    font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+QWidget {
     outline: none;
 }
 
@@ -637,7 +636,7 @@ QPushButton[SidebarBtn="true"] {
     background-color: transparent;
     color: #424242;
     font-size: 9pt;
-    font-family: "Microsoft YaHei UI", "Microsoft YaHei", "SimHei", sans-serif;
+    font-family: "Microsoft YaHei UI", "Segoe UI", sans-serif;
 }
 
 QPushButton[SidebarBtn="true"]:hover {
@@ -650,7 +649,7 @@ QLabel[SidebarHeader="true"] {
     font-weight: bold;
     color: #424242;
     padding: 4px 0;
-    font-family: "Microsoft YaHei UI", "Microsoft YaHei", "SimHei", sans-serif;
+    font-family: "Microsoft YaHei UI", "Segoe UI", sans-serif;
 }
 
 
@@ -683,4 +682,57 @@ QPushButton[QuickAction="true"]:hover {
     background-color: #E3F2FD;
     border-color: #1976D2;
     color: #1976D2;
+}
+
+
+/* ===== Dashboard 专用 ===== */
+QLabel[dashboardTitle="true"] {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #212121;
+}
+
+QLabel[sectionTitle="true"] {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #424242;
+}
+
+QLabel[welcomeText="true"] {
+    font-size: 11pt;
+    color: #757575;
+}
+
+/* StatCard 内部标签 */
+QLabel[statCardTitle="true"] {
+    font-size: 10pt;
+    color: #757575;
+}
+
+QFrame[StatCard="true"] QLabel[valueLabel="true"] {
+    font-size: 22pt;
+    font-weight: bold;
+}
+
+/* 最近项目列表项 */
+QLabel[recentProjectItem="true"] {
+    font-size: 10pt;
+    color: #424242;
+}
+
+/* 面板标题 */
+QLabel[panelTitle="true"] {
+    color: #212121;
+}
+
+/* ProjectTree 标题和状态 */
+QLabel[treeHeader="true"] {
+    font-size: 10pt;
+    font-weight: bold;
+    color: #1976D2;
+}
+
+QLabel[treeStatus="true"] {
+    font-size: 9pt;
+    color: #9E9E9E;
 }

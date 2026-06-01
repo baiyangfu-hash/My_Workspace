@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt5.QtWidgets import QToolBox, QTabWidget
+from PyQt5.QtWidgets import QWidget, QTabWidget
 
 from src.core.settings import SettingsManager
 from src.utils.logger import setup_logger
@@ -23,7 +23,7 @@ class NavigationController:
     TOOL_SPEC = 4
     TOOL_SETTINGS = 5
 
-    TOOLBOX_TO_TAB = {
+    SIDEBAR_TO_TAB = {
         TOOL_PROJECT: TAB_DASHBOARD,
         TOOL_DOCUMENT: TAB_DOCUMENT,
         TOOL_CHANGE_MGMT: TAB_CHANGE_MGMT,
@@ -32,7 +32,7 @@ class NavigationController:
         TOOL_SETTINGS: None,
     }
 
-    TAB_TO_TOOLBOX = {
+    TAB_TO_SIDEBAR = {
         TAB_DASHBOARD: TOOL_PROJECT,
         TAB_PROJECT: TOOL_PROJECT,
         TAB_DOCUMENT: TOOL_DOCUMENT,
@@ -50,39 +50,42 @@ class NavigationController:
         "generate_ifc": "generate_ifc",
     }
 
-    def __init__(self, tool_box: QToolBox, tab_widget: QTabWidget,
+    def __init__(self, sidebar: QWidget, tab_widget: QTabWidget,
                  menu_manager=None, sync_handler: callable = None,
                  project_info_handler: callable = None):
-        self._tool_box = tool_box
+        self._sidebar = sidebar
         self._tab_widget = tab_widget
         self._menu_manager = menu_manager
         self._sync_handler = sync_handler
         self._project_info_handler = project_info_handler
 
     def connect(self):
-        if self._tool_box and self._tab_widget:
-            self._tool_box.currentChanged.connect(self._on_toolbox_changed)
+        if self._sidebar and self._tab_widget:
+            if hasattr(self._sidebar, 'currentChanged'):
+                self._sidebar.currentChanged.connect(self._on_sidebar_changed)
             self._tab_widget.currentChanged.connect(self._on_tab_changed)
 
-    def _on_toolbox_changed(self, toolbox_idx: int):
-        tab_idx = self.TOOLBOX_TO_TAB.get(toolbox_idx)
+    def _on_sidebar_changed(self, sidebar_idx: int):
+        tab_idx = self.SIDEBAR_TO_TAB.get(sidebar_idx)
         if tab_idx is not None and self._tab_widget:
             self._tab_widget.blockSignals(True)
             self._tab_widget.setCurrentIndex(tab_idx)
             self._tab_widget.blockSignals(False)
 
     def _on_tab_changed(self, tab_idx: int):
-        toolbox_idx = self.TAB_TO_TOOLBOX.get(tab_idx)
-        if toolbox_idx is not None and self._tool_box:
-            self._tool_box.blockSignals(True)
-            self._tool_box.setCurrentIndex(toolbox_idx)
-            self._tool_box.blockSignals(False)
+        sidebar_idx = self.TAB_TO_SIDEBAR.get(tab_idx)
+        if sidebar_idx is not None and self._sidebar:
+            if hasattr(self._sidebar, 'setCurrentIndex'):
+                self._sidebar.blockSignals(True)
+                self._sidebar.setCurrentIndex(sidebar_idx)
+                self._sidebar.blockSignals(False)
 
     def navigate_to_tab(self, tab_index: int):
         if self._tab_widget and 0 <= tab_index < self._tab_widget.count():
             self._tab_widget.setCurrentIndex(tab_index)
-        if self._tool_box and 0 <= tab_index < self._tool_box.count():
-            self._tool_box.setCurrentIndex(tab_index)
+        sidebar_idx = self.TAB_TO_SIDEBAR.get(tab_index)
+        if sidebar_idx is not None and self._sidebar and hasattr(self._sidebar, 'setCurrentIndex'):
+            self._sidebar.setCurrentIndex(sidebar_idx)
 
     def on_sidebar_action(self, action_text: str):
         action_key = None

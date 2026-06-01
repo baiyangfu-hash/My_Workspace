@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-DJ单机项目资产注册服务
+项目资产注册服务
 
 扫描项目目录，识别关键资产并忽略不参与治理的目录。
+支持工作空间、共享库、DJ单机项目等多种项目类型的识别。
 """
 from __future__ import annotations
 
@@ -11,6 +12,9 @@ from typing import Dict, List, Optional
 
 from src.core.constants import (
     IGNORED_PROJECT_DIRS,
+    PLC_LIBRARY_CATEGORY_DIRS,
+    SPEC_DIR_MARKERS,
+    WORKSPACE_IGNORED_DIRS,
     ProjectArtifactType,
     ProjectType,
 )
@@ -31,12 +35,222 @@ class ArtifactRegistryService:
 
     @classmethod
     def detect_project_type(cls, project_path: str) -> ProjectType:
-        """根据目录结构判断项目类型"""
+        """根据目录结构判断项目类型
+
+        识别优先级:
+        1. workspace.json 显式标记 -> PLC_WORKSPACE
+        2. DJ 三标记 -> DJ_SINGLE_MACHINE
+        3. .plc.json + 共享库分类子目录 -> PLC_LIBRARY
+        4. >=2 个可识别子项目 -> PLC_WORKSPACE
+        5. 其他 -> GENERIC
+        """
         root = Path(project_path)
+        if not root.exists() or not root.is_dir():
+            return ProjectType.GENERIC
+
+        if (root / "workspace.json").exists():
+            logger.debug(f"识别为 PLC_WORKSPACE (workspace.json): {project_path}")
+            return ProjectType.PLC_WORKSPACE
+
         markers = [root / marker for marker in cls.DJ_ROOT_MARKERS]
         if all(path.exists() for path in markers):
+            logger.debug(f"识别为 DJ_SINGLE_MACHINE (三标记): {project_path}")
             return ProjectType.DJ_SINGLE_MACHINE
+
+        if cls._is_plc_library(root):
+            logger.debug(f"识别为 PLC_LIBRARY (.plc.json+分类目录): {project_path}")
+            return ProjectType.PLC_LIBRARY
+
+        identifiable_count = cls._count_identifiable_subprojects(root)
+        if identifiable_count >= 2:
+            logger.debug(
+                f"识别为 PLC_WORKSPACE ({identifiable_count}个子项目): {project_path}"
+            )
+            return ProjectType.PLC_WORKSPACE
+
         return ProjectType.GENERIC
+
+    @classmethod
+    def _is_plc_library(cls, root: Path) -> bool:
+        """判定是否为PLC共享库目录
+
+        条件: 存在 .plc.json 且包含共享库典型分类子目录
+        """
+        if not (root / ".plc.json").exists():
+            return False
+
+        child_names = set()
+        for child in root.iterdir():
+            if child.is_dir() and child.name.lower() not in WORKSPACE_IGNORED_DIRS:
+                child_names.add(child.name.lower())
+
+        category_overlap = child_names & PLC_LIBRARY_CATEGORY_DIRS
+        return len(category_overlap) > 0
+
+    @classmethod
+    def _count_identifiable_subprojects(cls, root: Path) -> int:
+        """统计工作空间根目录下可识别的子项目数量
+
+        可识别子项目:
+        - DJ 单机项目 (三标记)
+        - 共享库 (.plc.json + 分类目录)
+        - 含 project.json/.plc_project.json/.plc.json 的普通项目
+        """
+        count = 0
+        for child in root.iterdir():
+            if not child.is_dir():
+                continue
+            if child.name in WORKSPACE_IGNORED_DIRS:
+                continue
+
+            if cls._is_dj_project(child):
+                count += 1
+            elif cls._is_plc_library(child):
+                count += 1
+            elif cls._has_project_config(child):
+                count += 1
+
+        return count
+
+    @classmethod
+    def _is_dj_project(cls, path: Path) -> bool:
+        """判定目录是否为DJ单机项目"""
+        markers = [path / marker for marker in cls.DJ_ROOT_MARKERS]
+        return all(m.exists() for m in markers)
+
+    @classmethod
+    def _has_project_config(cls, path: Path) -> bool:
+        """判定目录是否包含项目配置文件"""
+        config_files = {"project.json", ".plc_project.json", ".plc.json"}
+        return any((path / f).exists() for f in config_files)
+
+    @classmethod
+    def scan_workspace_subprojects(cls, workspace_path: str) -> List[Dict[str, str]]:
+        """扫描工作空间根目录下的可识别子项目
+
+        Returns:
+            List[Dict]: 每项包含 path, name, type 三个字段
+        """
+        root = Path(workspace_path)
+        if not root.exists() or not root.is_dir():
+            return []
+
+        subprojects: List[Dict[str, str]] = []
+        for child in root.iterdir():
+            if not child.is_dir():
+                continue
+            if child.name in WORKSPACE_IGNORED_DIRS:
+                continue
+
+            sub_type = cls._classify_subproject(child)
+            if sub_type is not None:
+                subprojects.append({
+                    "path": str(child),
+                    "name": child.name,
+                    "type": sub_type,
+                })
+
+        logger.info(
+            f"工作空间子项目扫描完成: {root.name}, 识别 {len(subprojects)} 个子项目"
+        )
+        return subprojects
+
+    @classmethod
+    def _classify_subproject(cls, path: Path) -> Optional[str]:
+        """对单个子目录进行分类
+
+        Returns:
+            "dj_single_machine" | "plc_library" | "generic" | None
+        """
+        if cls._is_dj_project(path):
+            return ProjectType.DJ_SINGLE_MACHINE.value
+        if cls._is_plc_library(path):
+            return ProjectType.PLC_LIBRARY.value
+        if cls._has_project_config(path):
+            return ProjectType.GENERIC.value
+        return None
+
+    @classmethod
+    def scan_library_artifacts(cls, library_path: str) -> List[Dict]:
+        """扫描共享库的资产目录结构
+
+        Args:
+            library_path: 共享库根目录路径
+
+        Returns:
+            List[Dict]: 每项包含 name, path, type, is_spec_dir 字段
+        """
+        root = Path(library_path)
+        if not root.exists() or not root.is_dir():
+            return []
+
+        artifacts: List[Dict] = []
+        for child in root.iterdir():
+            if not child.is_dir():
+                continue
+            if child.name in IGNORED_PROJECT_DIRS:
+                continue
+
+            dir_name_lower = child.name.lower()
+            is_spec_dir = (
+                dir_name_lower in SPEC_DIR_MARKERS
+                or child.name in SPEC_DIR_MARKERS
+            )
+
+            if is_spec_dir:
+                artifacts.append({
+                    "name": child.name,
+                    "path": str(child),
+                    "type": "spec_dir",
+                    "is_spec_dir": True,
+                })
+            elif dir_name_lower in PLC_LIBRARY_CATEGORY_DIRS:
+                artifacts.append({
+                    "name": child.name,
+                    "path": str(child),
+                    "type": dir_name_lower,
+                    "is_spec_dir": False,
+                })
+            else:
+                artifacts.append({
+                    "name": child.name,
+                    "path": str(child),
+                    "type": "other",
+                    "is_spec_dir": False,
+                })
+
+        return artifacts
+
+    @classmethod
+    def identify_spec_dirs_in_library(cls, library_path: str) -> List[Dict]:
+        """识别共享库中的规范目录
+
+        Args:
+            library_path: 共享库根目录路径
+
+        Returns:
+            List[Dict]: 规范目录列表, 每项含 name, path, relative_path
+        """
+        root = Path(library_path)
+        if not root.exists() or not root.is_dir():
+            return []
+
+        spec_dirs = []
+        for child in root.iterdir():
+            if not child.is_dir():
+                continue
+            if child.name in IGNORED_PROJECT_DIRS:
+                continue
+
+            dir_name_lower = child.name.lower()
+            if dir_name_lower in SPEC_DIR_MARKERS or child.name in SPEC_DIR_MARKERS:
+                spec_dirs.append({
+                    "name": child.name,
+                    "path": str(child),
+                    "relative_path": str(child.relative_to(root)),
+                })
+
+        return spec_dirs
 
     @classmethod
     def scan_project_assets(cls, project_path: str) -> List[ProjectArtifact]:

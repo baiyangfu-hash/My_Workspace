@@ -18,8 +18,7 @@
 
 
 /* ===== 全局基础 ===== */
-* {
-    font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+QWidget {
     outline: none;
 }
 

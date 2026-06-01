@@ -9,6 +9,7 @@ from specmgr.core.checker_base import (
     HealthChecker,
     IndexLinkChecker,
     ObsidianLinkChecker,
+    PMSessionRefChecker,
     RulesPathChecker,
     Severity,
     UnlistedSpecChecker,
@@ -192,6 +193,34 @@ class TestRulesPathChecker:
         shc008 = [r for r in results if r.check_id == "SHC-008"]
         assert len(shc008) >= 1
         assert any(r.severity == Severity.WARNING for r in shc008)
+
+
+class TestPMSessionRefChecker:
+    def test_project_scope_only_scans_project_root(self, populated_workspace: Path) -> None:
+        project_a = populated_workspace / "DJ-2026-000"
+        project_b = populated_workspace / "DJ-2026-001"
+        project_a.mkdir(parents=True, exist_ok=True)
+        project_b.mkdir(parents=True, exist_ok=True)
+
+        (project_a / "PM_SESSION_DJ-2026-000.md").write_text(
+            "# PM_SESSION_DJ-2026-000\n\n## 4. Artifacts Index\n- req:\n  - missing_a.md\n",
+            encoding="utf-8",
+        )
+        (project_b / "PM_SESSION_DJ-2026-001.md").write_text(
+            "# PM_SESSION_DJ-2026-001\n\n## 4. Artifacts Index\n- req:\n  - missing_b.md\n",
+            encoding="utf-8",
+        )
+
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        scanner = SpecScanner(populated_workspace, project_root=project_a)
+        checker = PMSessionRefChecker()
+        results = checker.check(reg, scanner)
+
+        shc009 = [r for r in results if r.check_id == "SHC-009"]
+        assert len(shc009) == 1
+        assert "DJ-2026-000" in shc009[0].details
+        assert "missing_a.md" in shc009[0].message
 
 
 class TestHealthChecker:

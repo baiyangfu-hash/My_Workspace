@@ -284,7 +284,10 @@ class NamingChecker(BaseChecker):
             if not stripped or stripped.startswith("//") or stripped.startswith("(*"):
                 continue
 
-            match = RE_METHOD_DEFINITION.search(line)
+            code_part = re.sub(r'//.*$', '', line)
+            code_part = re.sub(r'\(\*.*?\*\)', '', code_part)
+
+            match = RE_METHOD_DEFINITION.search(code_part)
             if match:
                 method_name = match.group(0).replace("METHOD", "").strip()
 
@@ -333,11 +336,14 @@ class NamingChecker(BaseChecker):
             if not stripped or stripped.startswith("//") or stripped.startswith("(*"):
                 continue
 
+            code_part = re.sub(r'//.*$', '', line)
+            code_part = re.sub(r'\(\*.*?\*\)', '', code_part)
+
             # 跳过METHOD定义行（已由NAMING_001处理）
             if re.match(r"\s*METHOD\s+", stripped, re.IGNORECASE):
                 continue
 
-            match = RE_METHOD_CALL.search(line)
+            match = RE_METHOD_CALL.search(code_part)
             if match:
                 call_match = re.match(r"\b(CALL_\w+)", match.group(0))
                 if call_match:
@@ -554,13 +560,15 @@ class NamingChecker(BaseChecker):
         rule = self._all_rules["NAMING_005"]
 
         # 移除有效前缀后检查剩余部分
+        if var_name.upper().startswith("CONST_"):
+            return None
+
         name_without_prefix = var_name
         for prefix in VALID_PREFIXES:
             if var_name.lower().startswith(prefix.lower()):
                 name_without_prefix = var_name[len(prefix):]
                 break
 
-        # 检查剩余部分是否还有下划线
         if "_" in name_without_prefix:
             return Violation(
                 rule_id=rule.rule_id,
@@ -598,9 +606,9 @@ class NamingChecker(BaseChecker):
 
         # 常量特殊处理: CONST_ 前缀允许全大写
         if var_name.upper().startswith("CONST_"):
-            const_part = var_name[6:]  # 移除 "CONST_"
-            if const_part.isupper() and const_part.isalpha():
-                return None  # 全大写常量是合法的
+            const_part = var_name[6:]
+            if const_part and all(c.isupper() or c == '_' or c.isdigit() for c in const_part) and const_part[0].isupper():
+                return None
 
         # 移除前缀后检查主体部分
         name_to_check = var_name

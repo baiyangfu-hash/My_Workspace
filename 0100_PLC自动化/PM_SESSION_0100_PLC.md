@@ -88,8 +88,8 @@
 ## 4. Artifacts Index（文档索引）
 
 ### 4.1 通用规范库
-- scl-spec: 00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.1.md (⭐核心规范)
-- timer-guide: 00_通用规范/PLC编程/903_定时器使用规范_LSP-V1.0.0.md
+- scl-spec: 00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.2.md (⭐核心规范)
+- timer-guide: 00_通用规范/PLC编程/903_定时器使用规范_LSP-V2.0.0.md
 - comment-rule: 00_通用规范/PLC编程/904_SCL注释规范_LSP-V1.2.0.md
 - error-prevent: 00_通用规范/PLC编程/906_错误预防规则_LSP-V1.0.0.md (🟠实战bug总结)
 - project-config: 00_通用规范/PLC编程/907_项目配置规范_LSP-V1.0.0.md

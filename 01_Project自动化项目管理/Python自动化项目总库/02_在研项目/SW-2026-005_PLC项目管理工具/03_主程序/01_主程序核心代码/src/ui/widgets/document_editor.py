@@ -114,13 +114,9 @@ class DocumentEditor(QWidget):
         # ===== 底部状态栏 =====
         status_bar = QHBoxLayout()
         self._status_label = QLabel("就绪")
-        self._status_label.setStyleSheet(
-            "font-size: 9pt; color: #757575;"
-        )
+        self._status_label.setProperty("treeStatus", True)
         self._line_col_label = QLabel("行 1, 列 1")
-        self._line_col_label.setStyleSheet(
-            "font-size: 9pt; color: #9E9E9E;"
-        )
+        self._line_col_label.setProperty("treeStatus", True)
 
         status_bar.addWidget(self._status_label)
         status_bar.addStretch()
@@ -185,7 +181,7 @@ class DocumentEditor(QWidget):
                 md_text, extensions=["tables", "fenced_code"]
             )
             wrapped_html = f"<body style='padding:16px; "
-            f"font-family:\"Microsoft YaHei\",sans-serif;'>{html_content}</body>"
+            f"font-family:\"Microsoft YaHei UI\",sans-serif;'>{html_content}</body>"
             self._preview.setHtml(wrapped_html)
         except ImportError:
             self._preview.setPlainText(

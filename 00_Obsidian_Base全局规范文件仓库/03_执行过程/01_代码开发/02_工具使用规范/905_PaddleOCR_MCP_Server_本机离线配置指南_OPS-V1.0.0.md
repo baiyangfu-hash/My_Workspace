@@ -1,3 +1,12 @@
+---
+spec_id: OPS-905
+title: PaddleOCR MCP Server本机离线配置指南
+version: "V1.0.0"
+domain: cross-domain
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/03_执行过程/01_代码开发/02_工具使用规范/905_PaddleOCR_MCP_Server_本机离线配置指南_OPS-V1.0.0.md"
+---
+
 # PaddleOCR MCP Server（本机离线）配置指南 - Windows
 
 适用场景：扫描型 PDF（页面是图片/截图），需要 OCR + 版面结构化（PP-StructureV3）。

@@ -14,7 +14,17 @@ from enum import Enum
 APP_NAME = "SW-2026-005 PLC项目管理工具"
 VERSION = "1.0.0-alpha"
 AUTHOR = "Trae AI Assistant"
-DESCRIPTION = "专注于PLC+HMI单机设备项目的标准化管理工具"
+DESCRIPTION = "Trae伴生式PLC工作空间治理工具 - 挂载/索引/检查/汇总"
+
+COMPANION_ROLE = "governance"
+COMPANION_PRIMARY_IDE = "Trae"
+COMPANION_CAPABILITIES = ["mount", "index", "check", "summarize", "export"]
+COMPANION_NON_CAPABILITIES = ["edit_source", "compile", "deploy", "debug_runtime"]
+
+TRAJUMP_SUPPORTED_EXTENSIONS = {
+    ".scl", ".st", ".plc", ".xml", ".json", ".md", ".yaml", ".yml",
+    ".txt", ".csv", ".xlsx", ".xls",
+}
 
 
 # ============================================================
@@ -27,6 +37,7 @@ class BusinessLine(Enum):
     AUTOMATION = "ZD"     # 自动化整线
     UPGRADE = "XT"        # 系统升级
     MAINTENANCE = "WX"    # 维保项目
+    LIBRARY = "LIB"       # 共享库
 
 
 BUSINESS_LINE_DESC = {
@@ -35,6 +46,7 @@ BUSINESS_LINE_DESC = {
     BusinessLine.AUTOMATION: "自动化整线项目",
     BusinessLine.UPGRADE: "系统升级项目",
     BusinessLine.MAINTENANCE: "维保项目",
+    BusinessLine.LIBRARY: "共享库",
 }
 
 
@@ -80,11 +92,15 @@ class ProjectType(Enum):
     """项目类型 - 用于区分管理模型和工作流模板"""
     GENERIC = "generic"
     DJ_SINGLE_MACHINE = "dj_single_machine"
+    PLC_LIBRARY = "plc_library"
+    PLC_WORKSPACE = "plc_workspace"
 
 
 PROJECT_TYPE_DESC = {
     ProjectType.GENERIC: "通用PLC项目",
     ProjectType.DJ_SINGLE_MACHINE: "DJ单机项目",
+    ProjectType.PLC_LIBRARY: "PLC共享库",
+    ProjectType.PLC_WORKSPACE: "PLC工作空间",
 }
 
 
@@ -219,6 +235,77 @@ IGNORED_PROJECT_DIRS = {
     ".plc-out",
     ".git",
     "__pycache__",
+}
+
+WORKSPACE_IGNORED_DIRS = {
+    ".trae",
+    ".git",
+    "__pycache__",
+    "_archive",
+    "node_modules",
+    ".venvs",
+    ".plc-out",
+}
+
+PLC_LIBRARY_CATEGORY_DIRS = {
+    "actuator",
+    "timer",
+    "counter",
+    "edge",
+    "convert",
+    "analog",
+    "motion",
+    "communication",
+    "safety",
+}
+
+
+class LibraryArtifactType(Enum):
+    """共享库资产类型枚举"""
+    FB = "fb"
+    FC = "fc"
+    DB = "db"
+    UDT = "udt"
+    GVL = "gvl"
+    PROGRAM = "program"
+    SPEC = "spec"
+    DOC = "doc"
+    TEST = "test"
+
+
+LIBRARY_ARTIFACT_TYPE_DESC = {
+    LibraryArtifactType.FB: "功能块",
+    LibraryArtifactType.FC: "函数",
+    LibraryArtifactType.DB: "数据块",
+    LibraryArtifactType.UDT: "用户自定义类型",
+    LibraryArtifactType.GVL: "全局变量表",
+    LibraryArtifactType.PROGRAM: "程序",
+    LibraryArtifactType.SPEC: "规范文档",
+    LibraryArtifactType.DOC: "说明文档",
+    LibraryArtifactType.TEST: "测试",
+}
+
+SPEC_DIR_MARKERS = {
+    "00_通用规范",
+    "01_编程规范",
+    "02_设计规范",
+    "00_规范",
+    "spec",
+    "specs",
+    "standards",
+}
+
+LIBRARY_ST_EXTENSIONS = {
+    ".scl",
+    ".st",
+    ".plc",
+}
+
+LIBRARY_SPEC_EXTENSIONS = {
+    ".md",
+    ".yaml",
+    ".yml",
+    ".json",
 }
 
 

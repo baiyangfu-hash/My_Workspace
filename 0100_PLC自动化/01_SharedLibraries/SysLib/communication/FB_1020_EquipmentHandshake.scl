@@ -1,7 +1,7 @@
 (* ================================================================= *)
 (*  FB_1020_EquipmentHandshake                                       *)
 (*  通用设备通讯握手功能块 - 双通道状态机(与传输层无关)               *)
-(*  版本: V1.2.0  日期: 2026-05-29                                    *)
+(*  版本: V2.0.0  日期: 2026-05-30                                    *)
 (*  来源: SysLib/communication/                                      *)
 (*  规范: LSP-905 V1.0.1, LSP-904 V1.2.0, LSP-903 V1.0.0            *)
 (*                                                                    *)
@@ -9,12 +9,22 @@
 (*    - 上游送出握手: RequestOut -> Delay -> MoveBusy -> Complete     *)
 (*    - 下游接收握手: RequestIn -> Delay -> MoveBusy -> Complete      *)
 (*    - 双通道心跳监视 + 超时诊断                                     *)
-(*    - 产品数据锁存透传                                              *)
+(*    - 产品数据锁存透传(上升沿一次性锁存)                            *)
+(*    - 接收侧产品数据输出                                            *)
 (*                                                                    *)
 (*  设计原则:                                                         *)
 (*    - 纯协议逻辑, 不依赖任何具体传输层(Modbus/Profinet/OPC-UA等)     *)
 (*    - 通过 VAR_IN_OUT io_stUpStream/io_stDownStream 与外部交换信号  *)
 (*    - 信号映射由调用方(OB1)负责, 本FB只管时序和状态转换              *)
+(*                                                                    *)
+(*  V2.0.0 变更(Breaking Change):                                    *)
+(*    - ST_ProductData: GlassID 30 INT -> 16 WORD                    *)
+(*    - ST_HandshakeCh: 扁平字段 -> WriteProduct/ReadProduct 嵌入    *)
+(*    - [B1] Disable段不再清除Write.Ready/DsReady/Reserved1-6        *)
+(*    - [B2] 上游COMPLETE态增加Write.Complete回传                    *)
+(*    - [B3] 产品数据改为MoveBusy上升沿一次性锁存                    *)
+(*    - [D1] 新增q_stUpReceivedProduct/q_stDownReceivedProduct输出   *)
+(*    - Disable段精简: 只清除FB管理的信号, 不触碰外部写入字段         *)
 (*                                                                    *)
 (*  协议来源: 各設備交握-5.20.xlsx 交握時序Sheet                      *)
 (* ================================================================= *)
@@ -46,6 +56,9 @@ VAR_OUTPUT
 
     q_iUpState       : INT := 0;        // 上游状态机当前状态
     q_iDownState     : INT := 0;        // 下游状态机当前状态
+
+    q_stUpReceivedProduct   : ST_ProductData; // 从上游接收的产品数据
+    q_stDownReceivedProduct : ST_ProductData; // 从下游接收的产品数据
 END_VAR
 
 VAR_IN_OUT
@@ -54,11 +67,11 @@ VAR_IN_OUT
 END_VAR
 
 VAR
-    (* ===== 状态机 ===== *)
+    // ===== 状态机 =====
     iUpState         : INT := 0;        // 上游状态 0=IDLE 1=REQ_OUT 2=MOVE_BUSY 3=COMPLETE 4=FAULT
     iDownState       : INT := 0;        // 下游状态 0=IDLE 1=REQ_IN 2=MOVE_BUSY 3=COMPLETE 4=FAULT
 
-    (* ===== 定时器 (两阶段调用: 先设IN/PT, 后集中调用) ===== *)
+    // ===== 定时器 (两阶段调用: 先设IN/PT, 后集中调用) =====
     tReqOutDelay     : FB_TON;          // RequestOut -> MoveBusy 延迟
     tReqInDelay      : FB_TON;          // RequestIn -> 响应延迟
     tHbUpTimeout     : FB_TON;          // 上游心跳超时
@@ -67,20 +80,26 @@ VAR
     tCompletePulseUp : FB_TON;          // 上游完成脉冲宽度
     tCompletePulseDs : FB_TON;          // 下游完成脉冲宽度
 
-    (* ===== 边沿检测 (FB_R_TRIG参数名为IN, 非CLK) ===== *)
+    // ===== 边沿检测 (FB_R_TRIG参数名为IN, 非CLK) =====
     rTrigRequestOut  : FB_R_TRIG;       // i_bRequestOut上升沿
     rTrigRequestIn   : FB_R_TRIG;       // Read.RequestIn上升沿
     rTrigUpComplete  : FB_R_TRIG;       // Read.Complete上升沿
     rTrigDsComplete  : FB_R_TRIG;       // Read.DsComplete上升沿
     rTrigTransport   : FB_R_TRIG;       // i_bTransportDone上升沿
+    rTrigMoveBusyUp  : FB_R_TRIG;       // Write.MoveBusy上升沿(产品数据锁存触发)
+    rTrigMoveBusyDs  : FB_R_TRIG;       // Write.DsMoveBusy上升沿(产品数据锁存触发)
 
-    (* ===== 心跳监视辅助 ===== *)
+    // ===== 心跳监视辅助 =====
     bLastUpHbA       : BOOL := FALSE;   // 上周期上游Read.Heartbeat
     bLastUpHbB       : BOOL := FALSE;   // 上周期上游Read.RcvHeartbeat
     bLastDsHbA       : BOOL := FALSE;   // 上周期下游Read.RcvHeartbeat
     bLastDsHbB       : BOOL := FALSE;   // 上周期下游Read.Heartbeat
     bUpHbChanged     : BOOL := FALSE;   // 上游心跳翻转标志
     bDsHbChanged     : BOOL := FALSE;   // 下游心跳翻转标志
+
+    // ===== 产品数据锁存标志 =====
+    bUpDataLatched   : BOOL := FALSE;   // 上游产品数据已锁存
+    bDsDataLatched   : BOOL := FALSE;   // 下游产品数据已锁存
 END_VAR
 
 
@@ -90,39 +109,24 @@ END_VAR
 
 (* ==================== 使能判断 ==================== *)
 IF NOT i_bEnable THEN
-    io_stUpStream.Write.Heartbeat := FALSE;
-    io_stUpStream.Write.RequestOut := FALSE;
-    io_stUpStream.Write.MoveBusy := FALSE;
-    io_stUpStream.Write.Complete := FALSE;
-    io_stUpStream.Write.Ready := FALSE;
-    io_stUpStream.Write.Reserved1 := FALSE;
-    io_stUpStream.Write.Reserved2 := FALSE;
-    io_stUpStream.Write.Reserved3 := FALSE;
+    // [B1] 只清除FB管理的信号, 不触碰外部写入字段(Ready/DsReady/Reserved1-6)
+    io_stUpStream.Write.Heartbeat    := FALSE;
+    io_stUpStream.Write.RequestOut   := FALSE;
+    io_stUpStream.Write.MoveBusy     := FALSE;
+    io_stUpStream.Write.Complete     := FALSE;
     io_stUpStream.Write.RcvHeartbeat := FALSE;
-    io_stUpStream.Write.RequestIn := FALSE;
-    io_stUpStream.Write.DsMoveBusy := FALSE;
-    io_stUpStream.Write.DsComplete := FALSE;
-    io_stUpStream.Write.DsReady := FALSE;
-    io_stUpStream.Write.Reserved4 := FALSE;
-    io_stUpStream.Write.Reserved5 := FALSE;
-    io_stUpStream.Write.Reserved6 := FALSE;
+    io_stUpStream.Write.RequestIn    := FALSE;
+    io_stUpStream.Write.DsMoveBusy   := FALSE;
+    io_stUpStream.Write.DsComplete   := FALSE;
 
-    io_stDownStream.Write.Heartbeat := FALSE;
-    io_stDownStream.Write.RequestOut := FALSE;
-    io_stDownStream.Write.MoveBusy := FALSE;
-    io_stDownStream.Write.Complete := FALSE;
-    io_stDownStream.Write.Ready := FALSE;
-    io_stDownStream.Write.Reserved1 := FALSE;
-    io_stDownStream.Write.Reserved2 := FALSE;
-    io_stDownStream.Write.Reserved3 := FALSE;
+    io_stDownStream.Write.Heartbeat    := FALSE;
+    io_stDownStream.Write.RequestOut   := FALSE;
+    io_stDownStream.Write.MoveBusy     := FALSE;
+    io_stDownStream.Write.Complete     := FALSE;
     io_stDownStream.Write.RcvHeartbeat := FALSE;
-    io_stDownStream.Write.RequestIn := FALSE;
-    io_stDownStream.Write.DsMoveBusy := FALSE;
-    io_stDownStream.Write.DsComplete := FALSE;
-    io_stDownStream.Write.DsReady := FALSE;
-    io_stDownStream.Write.Reserved4 := FALSE;
-    io_stDownStream.Write.Reserved5 := FALSE;
-    io_stDownStream.Write.Reserved6 := FALSE;
+    io_stDownStream.Write.RequestIn    := FALSE;
+    io_stDownStream.Write.DsMoveBusy   := FALSE;
+    io_stDownStream.Write.DsComplete   := FALSE;
 
     q_bUpReady := FALSE;
     q_bDownReady := FALSE;
@@ -135,7 +139,6 @@ IF NOT i_bEnable THEN
     iUpState := 0;
     iDownState := 0;
 
-    (* 非使能时仍需调用定时器以复位内部状态 *)
     tReqOutDelay.IN := FALSE;
     tReqInDelay.IN := FALSE;
     tHbUpTimeout.IN := FALSE;
@@ -160,7 +163,6 @@ io_stDownStream.Write.RcvHeartbeat := tHbToggle.Q;
 
 (* ==================== 心跳超时监视 ==================== *)
 
-(* 上游: 检测对方Heartbeat和RcvHeartbeat是否有任一翻转 *)
 bUpHbChanged := (io_stUpStream.Read.Heartbeat <> bLastUpHbA)
              OR (io_stUpStream.Read.RcvHeartbeat <> bLastUpHbB);
 bLastUpHbA := io_stUpStream.Read.Heartbeat;
@@ -174,7 +176,6 @@ ELSE
 END_IF;
 tHbUpTimeout.PT := i_dHbTimeoutMs;
 
-(* 下游: 同理 *)
 bDsHbChanged := (io_stDownStream.Read.RcvHeartbeat <> bLastDsHbA)
              OR (io_stDownStream.Read.Heartbeat <> bLastDsHbB);
 bLastDsHbA := io_stDownStream.Read.RcvHeartbeat;
@@ -207,12 +208,13 @@ q_bDownReady := io_stDownStream.Read.DsReady
 
 
 (* ==================== 边沿检测 ==================== *)
-(* FB_R_TRIG输入参数名为IN, 直接传原始信号, 内部自动检测上升沿 *)
 rTrigRequestOut(IN := i_bRequestOut, Q => rTrigRequestOut.Q);
 rTrigRequestIn(IN := io_stDownStream.Read.RequestIn, Q => rTrigRequestIn.Q);
 rTrigUpComplete(IN := io_stUpStream.Read.Complete, Q => rTrigUpComplete.Q);
 rTrigDsComplete(IN := io_stDownStream.Read.DsComplete, Q => rTrigDsComplete.Q);
 rTrigTransport(IN := i_bTransportDone, Q => rTrigTransport.Q);
+rTrigMoveBusyUp(IN := io_stUpStream.Write.MoveBusy, Q => rTrigMoveBusyUp.Q);
+rTrigMoveBusyDs(IN := io_stDownStream.Write.DsMoveBusy, Q => rTrigMoveBusyDs.Q);
 
 
 (* ==================== 上游状态机 ==================== *)
@@ -228,6 +230,7 @@ CASE iUpState OF
         io_stUpStream.Write.Complete := FALSE;
         tReqOutDelay.IN := FALSE;
         tCompletePulseUp.IN := FALSE;
+        bUpDataLatched := FALSE;
 
         IF rTrigRequestOut.Q AND q_bUpReady THEN
             iUpState := 1;
@@ -259,16 +262,19 @@ CASE iUpState OF
         END_IF;
 
     2:
-        (* MOVE_BUSY_UP: 搬运中, 锁存产品数据 *)
+        (* MOVE_BUSY_UP: 搬运中, 上升沿锁存产品数据 *)
         io_stUpStream.Write.MoveBusy := TRUE;
         io_stUpStream.Write.RequestOut := FALSE;
 
-        io_stUpStream.WriteGlassID := i_stProductData.GlassID;
-        io_stUpStream.WriteSpeed := i_stProductData.TransferSpeed;
-        io_stUpStream.WriteQuality := i_stProductData.Quality;
-        io_stUpStream.WriteGrade := i_stProductData.Grade;
+        (* [B3] MoveBusy上升沿一次性锁存产品数据 *)
+        IF rTrigMoveBusyUp.Q AND (NOT bUpDataLatched) THEN
+            io_stUpStream.WriteProduct := i_stProductData;
+            bUpDataLatched := TRUE;
+        END_IF;
 
+        (* [D1] 上游Complete时锁存接收到的产品数据 *)
         IF rTrigUpComplete.Q THEN
+            q_stUpReceivedProduct := io_stUpStream.ReadProduct;
             iUpState := 3;
         END_IF;
 
@@ -281,14 +287,16 @@ CASE iUpState OF
         END_IF;
 
     3:
-        (* COMPLETE_UP: 完成脉冲后回IDLE *)
+        (* COMPLETE_UP: [B2] 回传Complete + 完成脉冲后回IDLE *)
         io_stUpStream.Write.MoveBusy := FALSE;
+        io_stUpStream.Write.Complete := TRUE;
         q_bUpComplete := TRUE;
         tCompletePulseUp.IN := TRUE;
         tCompletePulseUp.PT := i_dCompleteMs;
 
         IF tCompletePulseUp.Q THEN
             q_bUpComplete := FALSE;
+            io_stUpStream.Write.Complete := FALSE;
             tCompletePulseUp.IN := FALSE;
             iUpState := 0;
         END_IF;
@@ -323,6 +331,7 @@ CASE iDownState OF
         io_stDownStream.Write.DsComplete := FALSE;
         tReqInDelay.IN := FALSE;
         tCompletePulseDs.IN := FALSE;
+        bDsDataLatched := FALSE;
 
         IF rTrigRequestIn.Q AND i_bAllowDischarge AND q_bDownReady THEN
             iDownState := 1;
@@ -353,15 +362,18 @@ CASE iDownState OF
         END_IF;
 
     2:
-        (* MOVE_BUSY_DS: 搬运中, 锁存产品数据, 等待物理传输完成 *)
+        (* MOVE_BUSY_DS: 搬运中, 上升沿锁存产品数据, 等待物理传输完成 *)
         io_stDownStream.Write.DsMoveBusy := TRUE;
 
-        io_stDownStream.WriteGlassID := i_stProductData.GlassID;
-        io_stDownStream.WriteSpeed := i_stProductData.TransferSpeed;
-        io_stDownStream.WriteQuality := i_stProductData.Quality;
-        io_stDownStream.WriteGrade := i_stProductData.Grade;
+        (* [B3] DsMoveBusy上升沿一次性锁存产品数据 *)
+        IF rTrigMoveBusyDs.Q AND (NOT bDsDataLatched) THEN
+            io_stDownStream.WriteProduct := i_stProductData;
+            bDsDataLatched := TRUE;
+        END_IF;
 
         IF rTrigTransport.Q OR rTrigDsComplete.Q THEN
+            (* [D1] 锁存下游接收到的产品数据 *)
+            q_stDownReceivedProduct := io_stDownStream.ReadProduct;
             iDownState := 3;
         END_IF;
 

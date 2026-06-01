@@ -176,6 +176,7 @@ class DiagnosticReport:
 
     def _update_stats_for_issue(self, issue: DiagnosticIssue) -> None:
         """根据问题更新统计计数"""
+        self.total_issues += 1
         if issue.severity == DiagnosticSeverity.ERROR:
             self.error_count += 1
         elif issue.severity == DiagnosticSeverity.WARNING:

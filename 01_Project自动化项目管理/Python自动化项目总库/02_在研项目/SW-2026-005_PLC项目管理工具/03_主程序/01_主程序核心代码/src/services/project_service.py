@@ -19,6 +19,7 @@ from src.core.constants import (
     TEMPLATE_METADATA,
     PLCBrand,
     HMIBrand,
+    WORKSPACE_IGNORED_DIRS,
 )
 from src.services.template_service import TemplateService
 from src.services.artifact_registry_service import ArtifactRegistryService
@@ -417,6 +418,211 @@ class ProjectService:
         cls._projects[project.project_id] = project
         logger.info(f"DJ项目导入成功: {project.path}")
         return project, None
+
+    @classmethod
+    def load_workspace_from_path(
+        cls, workspace_path: str
+    ) -> Tuple[Optional[List[Project]], Optional[str]]:
+        """从工作空间根目录加载所有可识别子项目
+
+        Args:
+            workspace_path: 工作空间根目录路径
+
+        Returns:
+            Tuple[List[Project] | None, str | None]:
+                成功时返回 (子项目列表, None)
+                失败时返回 (None, 错误信息)
+        """
+        root = Path(workspace_path)
+        if not root.exists() or not root.is_dir():
+            return None, f"工作空间目录不存在: {workspace_path}"
+
+        detected_type = ArtifactRegistryService.detect_project_type(workspace_path)
+        if detected_type not in (ProjectType.PLC_WORKSPACE,):
+            return None, f"目录不是有效的PLC工作空间: {workspace_path}"
+
+        subprojects_info = ArtifactRegistryService.scan_workspace_subprojects(
+            workspace_path
+        )
+
+        if not subprojects_info:
+            return None, "未在工作空间中发现任何可管理的子项目"
+
+        projects: List[Project] = []
+        for info in subprojects_info:
+            sub_path = info["path"]
+            sub_type = info["type"]
+
+            project = cls._load_subproject(sub_path, sub_type)
+            if project is not None:
+                projects.append(project)
+
+        if not projects:
+            return None, "未在工作空间中发现任何可管理的子项目"
+
+        logger.info(
+            f"工作空间加载完成: {root.name}, 成功加载 {len(projects)} 个子项目"
+        )
+        return projects, None
+
+    @classmethod
+    def get_workspace_summary(
+        cls, workspace_path: str
+    ) -> Tuple[Optional[Dict], Optional[str]]:
+        """获取工作空间汇总统计
+
+        Args:
+            workspace_path: 工作空间根目录路径
+
+        Returns:
+            Tuple[Dict | None, str | None]
+        """
+        from src.services.workspace_service import WorkspaceService
+
+        projects, error = cls.load_workspace_from_path(workspace_path)
+        if not projects:
+            return None, error or "无法加载工作空间"
+
+        stats = WorkspaceService.get_workspace_statistics(
+            workspace_path, projects
+        )
+        return stats, None
+
+    @classmethod
+    def generate_workspace_report(
+        cls, workspace_path: str
+    ) -> Tuple[Optional[Any], Optional[str]]:
+        """生成工作空间聚合报告
+
+        Args:
+            workspace_path: 工作空间根目录路径
+
+        Returns:
+            Tuple[WorkspaceReport | None, str | None]
+        """
+        from src.services.workspace_service import WorkspaceService
+
+        projects, error = cls.load_workspace_from_path(workspace_path)
+        if not projects:
+            return None, error or "无法加载工作空间"
+
+        report = WorkspaceService.generate_report(workspace_path, projects)
+        if report is None:
+            return None, "报告生成失败"
+        return report, None
+
+    @classmethod
+    def _load_subproject(
+        cls, sub_path: str, sub_type: str
+    ) -> Optional[Project]:
+        """加载单个子项目
+
+        Args:
+            sub_path: 子项目路径
+            sub_type: 子项目类型 (dj_single_machine/plc_library/generic)
+
+        Returns:
+            Project | None
+        """
+        try:
+            if sub_type == ProjectType.DJ_SINGLE_MACHINE.value:
+                project, error = cls.import_dj_project(sub_path)
+                if project:
+                    project.extra["_workspace_child"] = True
+                    return project
+                logger.warning(f"DJ子项目加载失败: {sub_path}, {error}")
+                return cls._create_fallback_project(sub_path, sub_type)
+
+            if sub_type == ProjectType.PLC_LIBRARY.value:
+                project, error = cls.load_project_from_path(sub_path)
+                if project:
+                    project.project_type = ProjectType.PLC_LIBRARY
+                    project.extra["_workspace_child"] = True
+                    return project
+                return cls._create_library_project(sub_path)
+
+            project, error = cls.load_project_from_path(sub_path)
+            if project:
+                project.extra["_workspace_child"] = True
+                return project
+            return cls._create_fallback_project(sub_path, sub_type)
+
+        except Exception as e:
+            logger.warning(f"子项目加载异常: {sub_path}, {e}")
+            return cls._create_fallback_project(sub_path, sub_type)
+
+    @classmethod
+    def _create_library_project(cls, lib_path: str) -> Project:
+        """构造共享库降级 Project 对象
+
+        当共享库缺少标准元数据文件时，手工构造轻量 Project。
+        同时通过 LibraryService 扫描库资产信息并附加到 extra。
+        """
+        path = Path(lib_path)
+        name = path.name
+        project = Project(
+            name=name,
+            code=name,
+            description=f"PLC共享库: {name}",
+            business_line=BusinessLine.LIBRARY,
+            status=ProjectStatus.ACTIVE,
+            path=str(path),
+            template_id="",
+            project_type=ProjectType.PLC_LIBRARY,
+            workflow_stage=WorkflowStage.DEVELOPMENT,
+        )
+        project.extra["_workspace_child"] = True
+
+        try:
+            from src.services.library_service import LibraryService
+            scan_result = LibraryService.scan_library(lib_path)
+            if scan_result:
+                project.extra["library_scan"] = scan_result.to_dict()
+                project.extra["artifact_roots"] = [
+                    a.to_dict() for a in scan_result.categories
+                ]
+                project.extra["spec_dirs"] = scan_result.spec_dirs
+        except Exception as e:
+            logger.warning(f"共享库资产扫描失败: {lib_path}, {e}")
+
+        cls._projects[project.project_id] = project
+        logger.info(f"共享库降级构造成功: {name}")
+        return project
+
+    @classmethod
+    def _create_fallback_project(
+        cls, sub_path: str, sub_type: str
+    ) -> Optional[Project]:
+        """为加载失败的子项目构造降级 Project
+
+        Args:
+            sub_path: 子项目路径
+            sub_type: 子项目类型
+
+        Returns:
+            Project | None
+        """
+        path = Path(sub_path)
+        name = path.name
+        try:
+            project = Project(
+                name=name,
+                code=name,
+                description=f"工作空间子项目({sub_type}): {name}",
+                business_line=BusinessLine.DEVICE,
+                status=ProjectStatus.ACTIVE,
+                path=str(path),
+                template_id="",
+                project_type=ProjectType(sub_type) if sub_type in [e.value for e in ProjectType] else ProjectType.GENERIC,
+                workflow_stage=WorkflowStage.INITIATION,
+            )
+            project.extra["_workspace_child"] = True
+            cls._projects[project.project_id] = project
+            logger.info(f"子项目降级构造成功: {name}")
+            return project
+        except Exception as e:
+            logger.warning(f"子项目降级构造失败: {sub_path}, {e}")
+            return None
 
     @classmethod
     def _enrich_project_metadata(cls, project: Project) -> None:

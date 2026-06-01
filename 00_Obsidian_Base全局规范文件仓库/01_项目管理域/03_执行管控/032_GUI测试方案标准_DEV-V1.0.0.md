@@ -1,6 +1,9 @@
 ---
+spec_id: DEV-032
 title: GUI测试方案标准
 version: V1.0.0
+domain: pm
+lifecycle: stable
 type: DEV (开发规范)
 status: active
 created: 2026-04-16

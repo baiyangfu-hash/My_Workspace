@@ -1,8 +1,12 @@
 ---
+spec_id: PM-004
+title: PM_WORKFLOW总控Skill使用说明
 version: V1.1.0
-domain: 01_项目管理域/00_元规则与治理
+domain: pm
+lifecycle: stable
 type: PM_WORKFLOW
 status: active
+canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/004_PM_WORKFLOW总控Skill使用说明_PM-V1.0.0.md"
 ---
 
 # PM_WORKFLOW 总控Skill 使用说明（PM_SESSION 驱动）
@@ -27,6 +31,7 @@ status: active
 - 若项目根目录缺少 `PM_SESSION_<项目编号>.md`：自动生成初始化模板
 - 自动挂接已有文档（PRD/REQ/DES/变更/测试/交付等）到 `Artifacts Index`
 - 生成“当前状态摘要”：当前焦点、进行中事项、下一步、未决问题、风险依赖
+- 默认只做项目级最小检查，不把全工作空间巡检作为每轮会话的默认动作
 
 ### 3.2 例行更新（每次活动结束必须做）
 把所有项目活动统一为 5 类事件（每次只处理一种）：
@@ -40,6 +45,8 @@ status: active
 - 生成/更新对应文档产物（PRD/REQ/DES/CHG/TEST/交付）
 - 生成/更新任务拆解（Epic/Feature/Story/Enabler/Test）
 - 回写 PM_SESSION 的当前状态与对应日志（change_log / iteration_log / bug_log / refactor_log / release_log）
+- 默认只验证当前项目 `PM_SESSION` 与直接关联文档引用
+- 只有在用户明确要求或发生规范变更时，才执行全工作空间规范巡检
 
 ## 4. 推荐口令（新对话也适用）
 ### 4.1 进入/初始化项目
@@ -53,6 +60,9 @@ status: active
 - `pm: 报Bug <一句话>；复现=<可选>`
 - `pm: 重构提案 <一句话>`
 - `pm: 交付准备 <版本号> <范围一句话>`
+- `pm: 健康检查 当前项目`
+- `pm: 健康检查 全工作空间`
+- `pm: 规范巡检 <check-id>`
 
 ## 5. 与本仓库模板的映射
 ### 5.1 需求与设计
@@ -91,30 +101,39 @@ status: active
 
 SpecMgr（SW-2026-006）提供规范体系的自动化检查与修复能力，工具路径：`01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/02_源代码/`
 
+### 8.0 使用边界
+
+- 日常 PM 会话：默认只做项目级最小检查，重点验证当前项目 `PM_SESSION` 和直接文档引用
+- 规范治理任务：当用户明确要求全仓巡检，或本轮属于规范变更/版本升级时，再执行全工作空间检查
+- PLC 注释规范扫描：仅在用户明确要求代码规范巡检时执行，不作为 PM 默认动作
+
 ### 8.1 基本用法
 
 ```bash
 # 运行规范健康检查（检测版本漂移、命名不合规、链接失效等8类问题）
-specmgr check -w <工作空间根目录>
+specmgr -w <工作空间根目录> check
 
 # 仅检查特定检查项
-specmgr check -w <工作空间根目录> -c SHC-002 -c SHC-007
+specmgr -w <工作空间根目录> check -c SHC-002 -c SHC-007
+
+# 仅检查当前项目 PM_SESSION 及其直接引用
+specmgr -w <工作空间根目录> check --scope project --project-root <项目根目录>
 
 # JSON格式输出（适合脚本解析）
-specmgr check -w <工作空间根目录> --format json
+specmgr -w <工作空间根目录> check --format json
 
 # 只显示错误级别
-specmgr check -w <工作空间根目录> --severity error
+specmgr -w <工作空间根目录> check --severity error
 ```
 
 ### 8.2 自动修复
 
 ```bash
 # 预览可自动修复的问题（不实际修改文件）
-specmgr check -w <工作空间根目录> --auto-fix --dry-run
+specmgr -w <工作空间根目录> check --auto-fix --dry-run
 
 # 执行自动修复
-specmgr check -w <工作空间根目录> --auto-fix
+specmgr -w <工作空间根目录> check --auto-fix
 ```
 
 ### 8.3 可自动修复的问题类型
@@ -140,42 +159,41 @@ specmgr check -w <工作空间根目录> --auto-fix
 **场景1：规范迭代后验证一致性**
 ```bash
 # 修改规范文件后，检查是否有版本漂移或命名不合规
-specmgr check -w <workspace>
+specmgr -w <workspace> check
 # 发现问题后预览修复
-specmgr check -w <workspace> --auto-fix --dry-run
+specmgr -w <workspace> check --auto-fix --dry-run
 # 确认后执行修复
-specmgr check -w <workspace> --auto-fix
+specmgr -w <workspace> check --auto-fix
 ```
 
 **场景2：新增规范文件后补全元数据**
 ```bash
 # 新建规范文件后，检查frontmatter是否完整
-specmgr check -w <workspace> -c SHC-007
+specmgr -w <workspace> check -c SHC-007
 # 自动补全缺失的frontmatter字段
-specmgr check -w <workspace> --auto-fix -c SHC-007
+specmgr -w <workspace> check --auto-fix -c SHC-007
 ```
 
 **场景3：定期规范体系巡检**
 ```bash
 # 每周运行一次全量检查，只看错误和警告
-specmgr check -w <workspace> --severity warning
+specmgr -w <workspace> check --severity warning
 # 发现问题后针对性修复
-specmgr check -w <workspace> --auto-fix -c SHC-002
+specmgr -w <workspace> check --auto-fix -c SHC-002
 ```
 
 ### 8.6 其他SpecMgr命令
 
 ```bash
 # 自动生成规范索引文件（按域生成README）
-specmgr index -w <工作空间根目录>
-specmgr index -w <工作空间根目录> --domain plc
+specmgr -w <工作空间根目录> index
+specmgr -w <工作空间根目录> index --domain plc
 
 # 批量添加/更新规范frontmatter
-specmgr frontmatter -w <工作空间根目录> --dry-run
-specmgr frontmatter -w <工作空间根目录>
+specmgr -w <工作空间根目录> frontmatter --dry-run
+specmgr -w <工作空间根目录> frontmatter
 
 # 生成规范元数据汇总报告
-specmgr report -w <工作空间根目录>
-specmgr report -w <工作空间根目录> --format json
+specmgr -w <工作空间根目录> report
+specmgr -w <工作空间根目录> report --format json
 ```
-

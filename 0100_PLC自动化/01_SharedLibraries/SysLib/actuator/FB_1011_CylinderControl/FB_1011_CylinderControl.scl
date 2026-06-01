@@ -1,0 +1,167 @@
+(* ============================================================================
+ 功能块名称: FB_1011_CylinderControl
+ 描述: 通用单气缸执行控制 - 伸出/收回+超时+传感器冗余+消抖+极性取反
+ 版本: V9.0.0 (2026-05-30)
+ ============================================================================
+ 来源: SysLib/actuator/
+ 规范: LSP-905-V1.0.2, LSP-904-V1.2.0, LSP-903-V2.1.0
+
+ V9.0.0变更 (Breaking Change):
+   - 重构: 移除VAR_IN_OUT ST_Cylinder, 回归扁平VAR_INPUT/OUTPUT
+   - 动机: 简单执行机构无需结构体封装, 扁平化更利于调试
+   - 命名: 全面对齐LSP-905小驼峰+前缀规范
+   - 新增: 磁环传感器TON消抖 (i_dDebounceMs参数)
+   - 修复: 极性取反完整实现 - 传感器映射+状态输出随极性反转
+   - 影响: 调用方需从io_stCyl.Xxx改为i_bXxx/q_bXxx直接接线
+ ============================================================================ *)
+
+FUNCTION_BLOCK FB_1011_CylinderControl
+
+VAR_INPUT
+    i_bExtend           : BOOL;         // 伸出命令 (推/降/夹紧)
+    i_bRetract          : BOOL;         // 收回命令 (拉/升/松开)
+    i_bExtendedPos      : BOOL;         // 伸出位/下位/夹紧位/工作点
+    i_bRetractedPos     : BOOL;         // 收回位/上位/松开位/原点
+    i_dTimeoutMs        : DINT := 5000;  // 动作超时时间 (扫描周期), 0=关闭
+    i_dDebounceMs       : DINT := 0;     // 传感器消抖时间 (扫描周期), 0=关闭
+    i_iSolenoidType     : INT := 0;     // 电磁阀类型: 0=单线圈两位阀 (预留)
+    i_bExtendPolarity   : BOOL := FALSE;// 线圈极性取反: FALSE=正常, TRUE=取反
+END_VAR
+
+VAR_OUTPUT
+    q_bSolenoid         : BOOL;         // 电磁阀输出 TRUE=伸出
+    q_bIsExtended       : BOOL;         // 已伸出到位
+    q_bIsRetracted      : BOOL;         // 已收回到位
+    q_bTimeout          : BOOL;         // 动作超时报警
+    q_bSensorFault      : BOOL;         // 传感器冲突 (上下位同时ON)
+END_VAR
+
+VAR
+    fb_tDebounceExt     : FB_TON;       // ExtendedPos消抖定时器
+    fb_tDebounceRet     : FB_TON;       // RetractedPos消抖定时器
+    fb_tTimeout         : FB_TONR;      // 超时定时器 (TONR锁存)
+    s_bExtDebounced     : BOOL;         // ExtendedPos消抖后信号
+    s_bRetDebounced     : BOOL;         // RetractedPos消抖后信号
+    s_dExtDebounceEt    : DINT;         // ExtendedPos消抖ET接收
+    s_dRetDebounceEt    : DINT;         // RetractedPos消抖ET接收
+    s_bLogicExtPos      : BOOL;         // 逻辑伸出位 (极性映射后)
+    s_bLogicRetPos      : BOOL;         // 逻辑收回位 (极性映射后)
+    s_bMoving           : BOOL;         // 正在执行动作中
+END_VAR
+(* ==================== 计时器批量使用，监控传感器状态变化 ==================== *)
+fb_tDebounceExt(IN := fb_tDebounceExt.IN, PT := fb_tDebounceExt.PT,
+                 Q => fb_tDebounceExt.Q, ET => fb_tDebounceExt.ET);
+
+fb_tDebounceRet(IN := fb_tDebounceRet.IN, PT := fb_tDebounceRet.PT,
+                 Q => fb_tDebounceRet.Q, ET => fb_tDebounceRet.ET);
+
+fb_tTimeout(IN := fb_tTimeout.IN, R := fb_tTimeout.R, PT := fb_tTimeout.PT,
+             Q => fb_tTimeout.Q, ET => fb_tTimeout.ET);
+
+(* ==================== 传感器消抖 ==================== *)
+IF i_dDebounceMs > 0 THEN
+    fb_tDebounceExt.IN := i_bExtendedPos;
+    fb_tDebounceExt.PT := i_dDebounceMs;
+    
+    
+    s_bExtDebounced := fb_tDebounceExt.Q;
+    s_dExtDebounceEt := fb_tDebounceExt.ET;
+
+    fb_tDebounceRet.IN := i_bRetractedPos;
+    fb_tDebounceRet.PT := i_dDebounceMs;
+    
+    s_bRetDebounced := fb_tDebounceRet.Q;
+    s_dRetDebounceEt := fb_tDebounceRet.ET;
+ELSE
+    s_bExtDebounced := i_bExtendedPos;
+    s_bRetDebounced := i_bRetractedPos;
+END_IF;
+
+(* ==================== 传感器冗余一致性检查 (物理消抖后) ==================== *)
+IF s_bExtDebounced AND s_bRetDebounced THEN
+    q_bSensorFault := TRUE;
+ELSE
+    q_bSensorFault := FALSE;
+END_IF;
+
+(* ==================== 极性映射 ==================== *)
+IF i_bExtendPolarity THEN
+    s_bLogicExtPos := s_bRetDebounced;
+    s_bLogicRetPos := s_bExtDebounced;
+ELSE
+    s_bLogicExtPos := s_bExtDebounced;
+    s_bLogicRetPos := s_bRetDebounced;
+END_IF;
+
+(* ==================== 命令处理: Extend > Retract 优先级 ==================== *)
+
+(* ---- 伸出命令: 线圈得电, 超时计时, 到位检测 ---- *)
+IF i_bExtend THEN
+    q_bSolenoid := NOT i_bExtendPolarity;
+
+    IF NOT s_bMoving THEN
+        s_bMoving := TRUE;
+        IF i_dTimeoutMs > 0 THEN
+            fb_tTimeout.IN := TRUE;
+            fb_tTimeout.R := FALSE;
+            fb_tTimeout.PT := i_dTimeoutMs;
+        END_IF;
+    END_IF;
+
+    (* 到位检测: 逻辑伸出位到达则完成动作 *)
+    IF s_bLogicExtPos THEN
+        q_bIsExtended := TRUE;
+        q_bIsRetracted := FALSE;
+        s_bMoving := FALSE;
+        q_bTimeout := FALSE;
+        fb_tTimeout.IN := FALSE;
+        fb_tTimeout.R := TRUE;
+    END_IF;
+
+    (* 超时检测: TONR触发后锁存报警 *)
+    IF fb_tTimeout.Q THEN
+        q_bTimeout := TRUE;
+    END_IF;
+
+(* ---- 收回命令: 线圈失电 (弹簧复位), 超时计时, 到位检测 ---- *)
+ELSIF i_bRetract THEN
+    q_bSolenoid := i_bExtendPolarity;
+
+    IF NOT s_bMoving THEN
+        s_bMoving := TRUE;
+        IF i_dTimeoutMs > 0 THEN
+            fb_tTimeout.IN := TRUE;
+            fb_tTimeout.R := FALSE;
+            fb_tTimeout.PT := i_dTimeoutMs;
+        END_IF;
+    END_IF;
+
+    (* 到位检测: 逻辑收回位到达则完成动作 *)
+    IF s_bLogicRetPos THEN
+        q_bIsRetracted := TRUE;
+        q_bIsExtended := FALSE;
+        s_bMoving := FALSE;
+        q_bTimeout := FALSE;
+        fb_tTimeout.IN := FALSE;
+        fb_tTimeout.R := TRUE;
+    END_IF;
+
+    (* 超时检测: TONR触发后锁存报警 *)
+    IF fb_tTimeout.Q THEN
+        q_bTimeout := TRUE;
+    END_IF;
+
+(* ---- 无命令: 弹簧复位 (单线圈两位阀安全状态), 直接映射到位 ---- *)
+ELSE
+    q_bSolenoid := i_bExtendPolarity;
+
+    s_bMoving := FALSE;
+    q_bTimeout := FALSE;
+    fb_tTimeout.IN := FALSE;
+    fb_tTimeout.R := TRUE;
+
+    q_bIsExtended := s_bLogicExtPos;
+    q_bIsRetracted := s_bLogicRetPos;
+END_IF;
+
+END_FUNCTION_BLOCK

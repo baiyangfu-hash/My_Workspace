@@ -21,6 +21,7 @@ Usage:
     violations = checker.check(config_content, file_path=".plc.json", context={"project_path": "/path/to/project"})
 """
 import json
+import os
 import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -160,6 +161,14 @@ class ConfigChecker(BaseChecker):
             logger.exception(f"配置检查异常: {e}")
 
         return violations
+
+    def _get_all_library_paths(self, config_data: Dict[str, Any]) -> List[str]:
+        paths = []
+        for field in ["libraries", "libraryDirectories"]:
+            libs = config_data.get(field)
+            if libs and isinstance(libs, list):
+                paths.extend(libs)
+        return paths
 
     def _check_required_fields(
         self,
@@ -336,8 +345,8 @@ class ConfigChecker(BaseChecker):
         """
         violations = []
 
-        libraries = config_data.get("libraries")
-        if not libraries or not isinstance(libraries, list):
+        libraries = self._get_all_library_paths(config_data)
+        if not libraries:
             return violations
 
         for i, lib_path in enumerate(libraries):
@@ -388,35 +397,49 @@ class ConfigChecker(BaseChecker):
         """
         violations = []
 
-        libraries = config_data.get("libraries")
-        if not libraries or not isinstance(libraries, list):
+        libraries = self._get_all_library_paths(config_data)
+        if not libraries:
             return violations
 
-        # 如果没有提供project_path，跳过此检查
         if not project_path:
             logger.debug("未提供project_path，跳过路径有效性验证")
             return violations
 
-        plc_json_dir = Path(file_path).parent if file_path else Path(project_path)
+        plc_json_dir = Path(project_path)
 
         for i, lib_path in enumerate(libraries):
             if lib_path and isinstance(lib_path, str):
                 try:
-                    # 计算绝对路径
-                    # 将正斜杠转换为当前操作系统的路径分隔符
-                    normalized_path = lib_path.replace('/', Path.sep)
+                    normalized_path = lib_path.replace('/', os.sep)
                     absolute_path = (plc_json_dir / normalized_path).resolve()
 
-                    # 检查路径是否存在
                     if not absolute_path.exists():
-                        violations.append(Violation(
-                            rule_id="CONFIG_006",
-                            severity=Severity.WARNING,
-                            message=f"库路径指向不存在的位置: '{lib_path}' (解析为: {absolute_path})",
-                            file_path=file_path,
-                            suggestion=f"请确认路径 '{lib_path}' 是否正确，或目标目录尚未创建",
-                        ))
-                        logger.warning(f"库路径不存在: {lib_path} -> {absolute_path}")
+                        path_parts = Path(normalized_path).parts
+                        meaningful = [p for p in path_parts if p not in ('.', '..')]
+                        found_in_parent = False
+                        if meaningful:
+                            search_name = meaningful[0]
+                            search_dir = plc_json_dir
+                            for _ in range(5):
+                                search_dir = search_dir.parent
+                                if search_dir == search_dir.parent:
+                                    break
+                                candidate = search_dir / search_name
+                                if candidate.exists() and candidate.is_dir():
+                                    found_in_parent = True
+                                    break
+
+                        if not found_in_parent:
+                            violations.append(Violation(
+                                rule_id="CONFIG_006",
+                                severity=Severity.WARNING,
+                                message=f"库路径指向不存在的位置: '{lib_path}' (解析为: {absolute_path})",
+                                file_path=file_path,
+                                suggestion=f"请确认路径 '{lib_path}' 是否正确，或目标目录尚未创建",
+                            ))
+                            logger.warning(f"库路径不存在: {lib_path} -> {absolute_path}")
+                        else:
+                            logger.debug(f"库路径父目录存在，跳过: {lib_path}")
                     elif not absolute_path.is_dir():
                         violations.append(Violation(
                             rule_id="CONFIG_006",
@@ -461,8 +484,8 @@ class ConfigChecker(BaseChecker):
         """
         violations = []
 
-        libraries = config_data.get("libraries")
-        if not libraries or not isinstance(libraries, list):
+        libraries = self._get_all_library_paths(config_data)
+        if not libraries:
             return violations
 
         for i, lib_path in enumerate(libraries):

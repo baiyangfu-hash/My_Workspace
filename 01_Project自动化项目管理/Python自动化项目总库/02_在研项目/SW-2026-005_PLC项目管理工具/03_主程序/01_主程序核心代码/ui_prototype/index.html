@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLC项目管理工具 - UI原型 V3.0</title>
+
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/titlebar.css">
+<link rel="stylesheet" href="css/activity-bar.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/content-area.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/project.css">
+<link rel="stylesheet" href="css/document.css">
+<link rel="stylesheet" href="css/change.css">
+<link rel="stylesheet" href="css/spec-check.css">
+<link rel="stylesheet" href="css/buttons.css">
+<link rel="stylesheet" href="css/statusbar.css">
+<link rel="stylesheet" href="css/bottom-panel.css">
+<link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/placeholder.css">
+<link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<div id="app">
+  <!-- ========== Title Bar ========== -->
+  <div class="titlebar">
+    <div class="titlebar-logo">
+      <span class="icon">⚡</span> PLC项目管理工具 <span style="color:var(--text-muted);font-weight:400;">V3.0</span>
+    </div>
+    <div class="titlebar-spacer"></div>
+    <div class="titlebar-actions">
+      <button class="titlebar-btn" title="最小化" onclick="ipcWindowMinimize()">─</button>
+      <button class="titlebar-btn" title="最大化" onclick="ipcWindowMaximize()">□</button>
+      <button class="titlebar-btn close" title="关闭" onclick="ipcWindowClose()">✕</button>
+    </div>
+  </div>
+
+  <!-- ========== Main Body ========== -->
+  <div class="main-body">
+
+    <!-- Activity Bar -->
+    <div class="activity-bar" id="activityBar">
+      <button class="activity-item active" data-view="dashboard" title="仪表盘 (Ctrl+1)">
+        📊
+      </button>
+      <button class="activity-item" data-view="project" title="项目管理 (Ctrl+2)">
+        📁
+      </button>
+      <button class="activity-item" data-view="document" title="文档管理 (Ctrl+3)">
+        📝
+      </button>
+      <button class="activity-item" data-view="change" title="变更管理 (Ctrl+4)">
+        🔄
+      </button>
+      <button class="activity-item" data-view="plc-tools" title="PLC工具 (Ctrl+5)">
+        ⚡
+      </button>
+      <button class="activity-item" data-view="spec" title="规范中心 (Ctrl+6)">
+        ✅
+      </button>
+      <div class="activity-spacer"></div>
+      <button class="activity-item settings" data-view="settings" title="设置 (Ctrl+,)">
+        ⚙
+      </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header" id="sidebarHeader">
+        <span id="sidebarTitle">项目管理</span>
+        <div class="sidebar-header-actions">
+          <button class="sidebar-header-btn" title="折叠侧边栏" onclick="toggleSidebar()">◀</button>
+        </div>
+      </div>
+      <div class="sidebar-content" id="sidebarContent">
+        <!-- Default: Project sidebar -->
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <div class="tab-bar" id="tabBar">
+        <div class="tab-item active" data-tab="dashboard">
+          📊 仪表盘
+          <span class="tab-close">✕</span>
+        </div>
+      </div>
+      <div class="content-main" id="contentMain">
+        <!-- Default: Dashboard -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Panel -->
+  <div class="bottom-panel open" id="bottomPanel">
+    <div class="bottom-panel-header" onclick="toggleBottomPanel()">
+      <span>▼</span> 输出 / 诊断
+      <div style="flex:1;"></div>
+      <div class="bottom-panel-tabs">
+        <button class="bottom-panel-tab active" onclick="event.stopPropagation();switchBottomTab('output')">输出</button>
+        <button class="bottom-panel-tab" onclick="event.stopPropagation();switchBottomTab('problems')">问题 (3)</button>
+        <button class="bottom-panel-tab" onclick="event.stopPropagation();switchBottomTab('terminal')">终端</button>
+      </div>
+      <button class="sidebar-header-btn" onclick="event.stopPropagation();toggleBottomPanel()" title="关闭面板" style="margin-left:8px;">✕</button>
+    </div>
+    <div class="bottom-panel-body" id="bottomPanelBody">
+      <div class="panel-output">
+<span class="output-info">[06:59:32]</span> 显示器采样: 2880x1800 @ dpr=2.00
+<span class="output-info">[06:59:32]</span> UI缩放配置: scale_factor=1.32, base_font=15pt
+<span class="output-success">[06:59:33]</span> 主窗口初始化完成 (IDE布局)
+<span class="output-success">[06:59:33]</span> 字体: Microsoft YaHei UI 15pt
+<span class="output-success">[06:59:33]</span> GUI应用启动成功
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="statusbar">
+    <span class="statusbar-item" style="color:var(--success);">▶ 就绪</span>
+    <span class="statusbar-spacer"></span>
+    <span class="statusbar-item">📁 DJ-2026-005</span>
+    <span class="statusbar-item">✅ 规范: 6/6</span>
+    <span class="statusbar-item">⚠ 警告: 2</span>
+    <span class="statusbar-item">🔤 UTF-8</span>
+    <span class="statusbar-item">↕ 1440×900</span>
+  </div>
+</div>
+
+<!-- JS: Core (load order matters) -->
+<script src="js/utils.js"></script>
+<script src="js/state.js"></script>
+<script src="js/sidebar-templates.js"></script>
+
+<!-- JS: Views -->
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/project.js"></script>
+<script src="js/views/document.js"></script>
+<script src="js/views/change.js"></script>
+<script src="js/views/spec-check.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/views/auto-fix.js"></script>
+<script src="js/views/excel-export.js"></script>
+<script src="js/views/placeholder.js"></script>
+
+<!-- JS: Navigation & Layout -->
+<script src="js/navigation.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/checkers.js"></script>
+
+<!-- JS: Business Logic & IPC -->
+<script src="js/handlers.js"></script>
+<script src="js/ipc.js"></script>
+<script src="js/init.js"></script>
+
+</body>
+</html>

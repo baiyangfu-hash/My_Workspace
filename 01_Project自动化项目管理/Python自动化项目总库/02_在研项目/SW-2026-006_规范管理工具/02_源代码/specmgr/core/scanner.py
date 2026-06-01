@@ -32,9 +32,11 @@ class SpecScanner:
         self,
         workspace: Path,
         config: WorkspaceConfig | None = None,
+        project_root: Path | None = None,
     ) -> None:
         self.workspace = workspace
         self.config = config or WorkspaceConfig(workspace=workspace)
+        self.project_root = project_root.resolve() if project_root else None
 
     def _spec_dirs(self) -> list[Path]:
         return self.config.full_spec_dirs
@@ -43,6 +45,12 @@ class SpecScanner:
         if not directory.exists():
             return []
         return sorted(directory.rglob("*.md"))
+
+    def iter_pm_session_files(self) -> list[Path]:
+        base_dir = self.project_root or self.workspace
+        if not base_dir.exists():
+            return []
+        return sorted(base_dir.rglob("PM_SESSION_*.md"))
 
     def _extract_spec_number(self, file_path: Path) -> Optional[str]:
         name = file_path.stem

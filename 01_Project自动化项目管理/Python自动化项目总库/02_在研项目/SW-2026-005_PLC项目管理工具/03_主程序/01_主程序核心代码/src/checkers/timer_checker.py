@@ -181,7 +181,7 @@ class TimerChecker(BaseChecker):
 
         # 模式4: 定时器变量赋值/复位 (如: ton_Delay(IN := FALSE);)
         patterns["timer_assignment"] = re.compile(
-            r'(\w+(?:ton_|tof_|tp_)\w*)\s*\(\s*([^)]*)\s*\)',
+            r'((?:ton_|tof_|tp_)\w*)\s*\(\s*([^)]*)\s*\)',
             re.IGNORECASE | re.MULTILINE
         )
 
@@ -277,6 +277,33 @@ class TimerChecker(BaseChecker):
             expected_prefix = self.TIMER_PREFIXES.get(timer_type, "")
 
             # 检查是否使用了正确的前缀
+            if expected_prefix and not var_name.lower().startswith(expected_prefix):
+                violation = Violation(
+                    rule_id=rule_info.rule_id,
+                    severity=rule_info.severity,
+                    message=(
+                        f"定时器变量 '{var_name}' 命名不符合规范: "
+                        f"{timer_type}类型应使用 '{expected_prefix}' 前缀"
+                    ),
+                    file_path=file_path,
+                    line_number=line_num,
+                    column=match.start(1) - source_code.rfind('\n', 0, match.start(1)),
+                    suggestion=(
+                        f"建议将 '{var_name}' 重命名为 "
+                        f"'{expected_prefix}{var_name}'"
+                    ),
+                    code_snippet=match.group(0),
+                )
+                violations.append(violation)
+                logger.debug(f"发现TIMER_001违规: {violation.message}")
+
+        for match in self._patterns["timer_instantiation"].finditer(source_code):
+            var_name = match.group(1).strip()
+            timer_type = match.group(2).upper()
+            line_num = source_code[:match.start()].count('\n') + 1
+
+            expected_prefix = self.TIMER_PREFIXES.get(timer_type, "")
+
             if expected_prefix and not var_name.lower().startswith(expected_prefix):
                 violation = Violation(
                     rule_id=rule_info.rule_id,
@@ -432,6 +459,110 @@ class TimerChecker(BaseChecker):
                 violations.append(violation)
                 logger.debug(f"发现TIMER_003违规: {violation.message}")
 
+        timer_var_names = set()
+        for m in self._patterns["timer_declaration"].finditer(source_code):
+            timer_var_names.add(m.group(1).strip())
+        for m in self._patterns["timer_instantiation"].finditer(source_code):
+            timer_var_names.add(m.group(1).strip())
+
+        for match in self._patterns["timer_assignment"].finditer(source_code):
+            var_name = match.group(1).strip()
+            params_str = match.group(2).strip()
+            line_num = source_code[:match.start()].count('\n') + 1
+
+            start_pos = max(0, match.start() - 30)
+            preceding_text = source_code[start_pos:match.start()]
+            if ':=' in preceding_text:
+                continue
+
+            in_match = re.search(r'IN\s*:=\s*(TRUE|FALSE)', params_str, re.IGNORECASE)
+            is_reset = in_match and in_match.group(1).upper() == 'FALSE'
+
+            has_in = bool(re.search(r'IN\s*:=\s*\S+', params_str, re.IGNORECASE))
+            has_pt = bool(self._patterns["pt_parameter"].search(params_str))
+
+            missing_params = []
+            if not has_in:
+                missing_params.append("IN(输入信号)")
+            if not has_pt and not is_reset:
+                missing_params.append("PT(预设时间)")
+
+            if missing_params:
+                violation = Violation(
+                    rule_id=rule_info.rule_id,
+                    severity=rule_info.severity,
+                    message=(
+                        f"定时器 '{var_name}' 调用缺少必要参数: "
+                        f"{', '.join(missing_params)}"
+                    ),
+                    file_path=file_path,
+                    line_number=line_num,
+                    column=match.start(1) - source_code.rfind('\n', 0, match.start(1)),
+                    suggestion=(
+                        f"请补充必要的参数, 例如: "
+                        f"{var_name}(IN := bCondition, PT := T#5s);"
+                    ),
+                    code_snippet=match.group(0),
+                )
+                violations.append(violation)
+                logger.debug(f"发现TIMER_003违规: {violation.message}")
+
+        general_call_pattern = re.compile(
+            r'(\w+)\s*\(\s*([^)]*)\s*\)',
+            re.IGNORECASE | re.MULTILINE
+        )
+
+        for match in general_call_pattern.finditer(source_code):
+            var_name = match.group(1).strip()
+            params_str = match.group(2).strip()
+            line_num = source_code[:match.start()].count('\n') + 1
+
+            if var_name.upper() in ('TON', 'TOF', 'TP'):
+                continue
+
+            if var_name.lower().startswith(('ton_', 'tof_', 'tp_')):
+                continue
+
+            if var_name not in timer_var_names:
+                continue
+
+            start_pos = max(0, match.start() - 30)
+            preceding_text = source_code[start_pos:match.start()]
+            if ':=' in preceding_text:
+                continue
+
+            in_match = re.search(r'IN\s*:=\s*(TRUE|FALSE)', params_str, re.IGNORECASE)
+            is_reset = in_match and in_match.group(1).upper() == 'FALSE'
+
+            has_in = bool(re.search(r'IN\s*:=\s*\S+', params_str, re.IGNORECASE))
+            has_pt = bool(self._patterns["pt_parameter"].search(params_str))
+
+            missing_params = []
+            if not has_in:
+                missing_params.append("IN(输入信号)")
+            if not has_pt and not is_reset:
+                missing_params.append("PT(预设时间)")
+
+            if missing_params:
+                violation = Violation(
+                    rule_id=rule_info.rule_id,
+                    severity=rule_info.severity,
+                    message=(
+                        f"定时器 '{var_name}' 调用缺少必要参数: "
+                        f"{', '.join(missing_params)}"
+                    ),
+                    file_path=file_path,
+                    line_number=line_num,
+                    column=match.start(1) - source_code.rfind('\n', 0, match.start(1)),
+                    suggestion=(
+                        f"请补充必要的参数, 例如: "
+                        f"{var_name}(IN := bCondition, PT := T#5s);"
+                    ),
+                    code_snippet=match.group(0),
+                )
+                violations.append(violation)
+                logger.debug(f"发现TIMER_003违规: {violation.message}")
+
         return violations
 
     def _check_timer_004(
@@ -475,14 +606,25 @@ class TimerChecker(BaseChecker):
                 "invocations": [],
             }
 
-        # 分析所有定时器调用
+        for match in self._patterns["timer_instantiation"].finditer(source_code):
+            var_name = match.group(1).strip()
+            timer_type = match.group(2).upper()
+
+            if var_name not in timer_usages:
+                timer_usages[var_name] = {
+                    "type": timer_type,
+                    "declared_at": source_code[:match.start()].count('\n') + 1,
+                    "has_reset": False,
+                    "in_true_count": 0,
+                    "invocations": [],
+                }
+
         for match in self._patterns["timer_assignment"].finditer(source_code):
             var_name = match.group(1)
             params_str = match.group(2).strip()
             line_num = source_code[:match.start()].count('\n') + 1
 
             if var_name in timer_usages:
-                # 检查是否有IN:=TRUE
                 if re.search(r'IN\s*:=\s*TRUE', params_str, re.IGNORECASE):
                     timer_usages[var_name]["in_true_count"] += 1
                     timer_usages[var_name]["invocations"].append({
@@ -490,11 +632,41 @@ class TimerChecker(BaseChecker):
                         "is_reset": False,
                     })
 
-                # 检查是否有IN:=FALSE（复位）
                 if re.search(r'IN\s*:=\s*FALSE', params_str, re.IGNORECASE):
                     timer_usages[var_name]["has_reset"] = True
                     if timer_usages[var_name]["invocations"]:
                         timer_usages[var_name]["invocations"][-1]["is_reset"] = True
+
+        general_call_pattern = re.compile(
+            r'(\w+)\s*\(\s*([^)]*)\s*\)',
+            re.IGNORECASE | re.MULTILINE
+        )
+
+        for match in general_call_pattern.finditer(source_code):
+            var_name = match.group(1).strip()
+            params_str = match.group(2).strip()
+            line_num = source_code[:match.start()].count('\n') + 1
+
+            if var_name.upper() in ('TON', 'TOF', 'TP'):
+                continue
+
+            if var_name.lower().startswith(('ton_', 'tof_', 'tp_')):
+                continue
+
+            if var_name not in timer_usages:
+                continue
+
+            if re.search(r'IN\s*:=\s*TRUE', params_str, re.IGNORECASE):
+                timer_usages[var_name]["in_true_count"] += 1
+                timer_usages[var_name]["invocations"].append({
+                    "line": line_num,
+                    "is_reset": False,
+                })
+
+            if re.search(r'IN\s*:=\s*FALSE', params_str, re.IGNORECASE):
+                timer_usages[var_name]["has_reset"] = True
+                if timer_usages[var_name]["invocations"]:
+                    timer_usages[var_name]["invocations"][-1]["is_reset"] = True
 
         # 检查每个定时器是否有复位逻辑
         for var_name, usage_info in timer_usages.items():

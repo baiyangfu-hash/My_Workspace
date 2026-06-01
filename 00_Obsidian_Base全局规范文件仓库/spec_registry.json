@@ -15,7 +15,7 @@
     "archived": "已归档，不再维护"
   },
   "specs": {
-    "RULE-001": {
+    "DEV-001": {
       "title": "通用项目名称命名规范",
       "number": "001",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/001_通用项目名称命名规范_DEV-V1.0.2.md",
@@ -26,9 +26,10 @@
       "sub_domain": "00_元规则与治理",
       "tags": ["命名", "元规则", "项目编号"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["RULE-001"]
     },
-    "RULE-002": {
+    "DEV-002": {
       "title": "通用项目工作流命名规范",
       "number": "002",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/002_通用项目工作流命名规范_DEV-V1.0.1.md",
@@ -39,9 +40,10 @@
       "sub_domain": "00_元规则与治理",
       "tags": ["命名", "工作流"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["RULE-002"]
     },
-    "RULE-003": {
+    "DEV-003": {
       "title": "跨资源库命名统一规范",
       "number": "003",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/003_通用跨资源库命名统一规范_DEV-V1.1.0.md",
@@ -52,20 +54,22 @@
       "sub_domain": "00_元规则与治理",
       "tags": ["命名", "跨库", "统一"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["RULE-003"]
     },
-    "RULE-004": {
+    "PM-004": {
       "title": "PM_WORKFLOW总控Skill使用说明",
       "number": "004",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/004_PM_WORKFLOW总控Skill使用说明_PM-V1.0.0.md",
-      "version": "V1.0.0",
+      "version": "V1.1.0",
       "type_prefix": "PM",
       "domain": "pm",
       "lifecycle": "stable",
       "sub_domain": "00_元规则与治理",
       "tags": ["PM_WORKFLOW", "Skill", "总控"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["RULE-004"]
     },
     "PM-000": {
       "title": "通用项目立项表模板",
@@ -551,13 +555,13 @@
     "LSP-903": {
       "title": "定时器使用规范",
       "number": "903",
-      "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP-V1.0.0.md",
-      "version": "V1.0.0",
+      "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP-V2.1.0.md",
+      "version": "V2.1.0",
       "type_prefix": "LSP",
       "domain": "plc",
       "lifecycle": "stable",
       "sub_domain": "PLC编程",
-      "tags": ["定时器", "FB_TON", "LSP"],
+      "tags": ["定时器", "FB_TON", "FB_TONR", "调用约定", "LSP"],
       "replaces": ["LSP-903-OLD"],
       "replaced_by": []
     },
@@ -652,7 +656,20 @@
       "replaces": [],
       "replaced_by": []
     },
-    "CODE-210": {
+    "OPS-905": {
+      "title": "PaddleOCR MCP Server本机离线配置指南",
+      "number": "905",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_执行过程/01_代码开发/02_工具使用规范/905_PaddleOCR_MCP_Server_本机离线配置指南_OPS-V1.0.0.md",
+      "version": "V1.0.0",
+      "type_prefix": "OPS",
+      "domain": "cross-domain",
+      "lifecycle": "stable",
+      "sub_domain": "工具使用规范",
+      "tags": ["PaddleOCR", "MCP", "OCR", "离线配置"],
+      "replaces": [],
+      "replaced_by": []
+    },
+    "DEV-210": {
       "title": "Python编程规范",
       "number": "210",
       "canonical_path": "01_Project自动化项目管理/00_通用规范/Python开发/210_Python编程规范_DEV-V1.1.0.md",
@@ -663,9 +680,10 @@
       "sub_domain": "Python开发",
       "tags": ["Python", "编程", "核心规范"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["CODE-210"]
     },
-    "CODE-211": {
+    "DEV-211": {
       "title": "Python代码审查规范",
       "number": "211",
       "canonical_path": "01_Project自动化项目管理/00_通用规范/Python开发/211_Python代码审查规范_DEV-V1.0.0.md",
@@ -676,7 +694,8 @@
       "sub_domain": "Python开发",
       "tags": ["Python", "代码审查"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["CODE-211"]
     },
     "INT-215": {
       "title": "Python接口文档模板",
@@ -691,7 +710,7 @@
       "replaces": [],
       "replaced_by": []
     },
-    "CODE-220": {
+    "DEV-220": {
       "title": "Python项目打包规范",
       "number": "220",
       "canonical_path": "01_Project自动化项目管理/00_通用规范/Python开发/220_Python项目打包规范_DEV-V2.2.0.md",
@@ -702,7 +721,8 @@
       "sub_domain": "Python开发",
       "tags": ["Python", "打包", "发布"],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": ["CODE-220"]
     },
     "DEV-801": {
       "title": "PLC变量命名与功能块命名规范",

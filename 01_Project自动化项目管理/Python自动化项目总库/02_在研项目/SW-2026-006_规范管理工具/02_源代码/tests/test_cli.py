@@ -47,6 +47,34 @@ class TestCheckCommand:
         result = runner.invoke(cli, ["-w", "/nonexistent/path", "check"])
         assert result.exit_code != 0
 
+    def test_check_project_scope_requires_project_root(self, populated_workspace: Path) -> None:
+        runner = CliRunner()
+        result = runner.invoke(cli, ["-w", str(populated_workspace), "check", "--scope", "project"])
+        assert result.exit_code != 0
+        assert "--project-root" in result.output
+
+    def test_check_project_scope_with_project_root(self, populated_workspace: Path) -> None:
+        project_root = populated_workspace / "DJ-2026-000"
+        project_root.mkdir(parents=True, exist_ok=True)
+        (project_root / "PM_SESSION_DJ-2026-000.md").write_text(
+            "# PM_SESSION_DJ-2026-000\n\n## 4. Artifacts Index\n- req:\n  - missing.md\n",
+            encoding="utf-8",
+        )
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                "-w",
+                str(populated_workspace),
+                "check",
+                "--scope",
+                "project",
+                "--project-root",
+                str(project_root),
+            ],
+        )
+        assert result.exit_code == 2
+
 
 class TestIndexCommand:
     def test_index_with_workspace(self, populated_workspace: Path) -> None:

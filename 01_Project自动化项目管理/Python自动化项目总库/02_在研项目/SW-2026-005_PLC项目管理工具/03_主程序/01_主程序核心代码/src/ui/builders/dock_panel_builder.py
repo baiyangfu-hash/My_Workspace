@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import QDockWidget, QMainWindow
 from PyQt5.QtCore import Qt
 
+from src.ui.ui_scale import current_ui_profile
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -10,7 +11,8 @@ logger = setup_logger(__name__)
 class DockPanelBuilder:
 
     @staticmethod
-    def build(main_window: QMainWindow) -> dict:
+    def build(main_window: QMainWindow, ui_profile=None) -> dict:
+        profile = ui_profile or current_ui_profile(main_window)
         result = {
             "diagnostic_panel": None,
             "diagnostic_dock": None,
@@ -26,8 +28,8 @@ class DockPanelBuilder:
                 "\U0001F52C 深度诊断", main_window
             )
             diagnostic_dock.setWidget(diagnostic_panel)
-            diagnostic_dock.setMinimumHeight(200)
-            diagnostic_dock.setMaximumHeight(400)
+            diagnostic_dock.setMinimumHeight(profile.dock_min_height)
+            diagnostic_dock.setMaximumHeight(profile.dock_max_height)
             diagnostic_dock.setAllowedAreas(
                 Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea
             )
@@ -54,8 +56,8 @@ class DockPanelBuilder:
                 "\u2705 规范检查", main_window
             )
             spec_check_dock.setWidget(spec_check_panel)
-            spec_check_dock.setMinimumHeight(200)
-            spec_check_dock.setMaximumHeight(400)
+            spec_check_dock.setMinimumHeight(profile.dock_min_height)
+            spec_check_dock.setMaximumHeight(profile.dock_max_height)
             spec_check_dock.setAllowedAreas(
                 Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea
             )

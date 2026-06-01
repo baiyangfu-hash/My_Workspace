@@ -44,6 +44,8 @@ class SettingsManager:
         "auto_backup": True,
         "show_startup_dashboard": True,
         "sidebar_width": 220,
+        "ui_density": "target_machine",
+        "ui_target_machine_mode": True,
     }
 
     @classmethod

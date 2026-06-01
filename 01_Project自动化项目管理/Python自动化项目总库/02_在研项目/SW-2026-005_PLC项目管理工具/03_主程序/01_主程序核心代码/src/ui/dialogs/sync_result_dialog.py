@@ -78,29 +78,22 @@ class SyncResultDialog(QDialog):
         layout.setSpacing(12)
 
         file_label = QLabel(f"\U0001F4C4 生成文件:")
-        file_label.setStyleSheet("font-weight: bold; font-size: 10pt;")
+        file_label.setProperty("sectionTitle", True)
         layout.addWidget(file_label)
 
         path_label = QLabel(str(self._file_path))
         path_label.setWordWrap(True)
         path_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        path_label.setStyleSheet(
-            "color: #1976D2; padding: 6px; "
-            "background-color: #E3F2FD; border-radius: 4px; font-size: 9pt;"
-        )
+        path_label.setProperty("valueLabel", True)
         layout.addWidget(path_label)
 
         preview_label = QLabel("\U0001F4D6 内容预览:")
-        preview_label.setStyleSheet("font-weight: bold; font-size: 10pt; margin-top: 4px;")
+        preview_label.setProperty("sectionTitle", True)
         layout.addWidget(preview_label)
 
         self._preview = QTextEdit()
         self._preview.setReadOnly(True)
-        self._preview.setStyleSheet(
-            "font-family: 'Consolas', 'Microsoft YaHei Mono', monospace; "
-            "font-size: 9pt; background-color: #FAFAFA; border: 1px solid #E0E0E0; "
-            "border-radius: 4px; padding: 8px;"
-        )
+
         layout.addWidget(self._preview, stretch=1)
 
         btn_layout = QHBoxLayout()
@@ -109,19 +102,19 @@ class SyncResultDialog(QDialog):
         self._btn_open_dir = QPushButton(" \U0001F4C2 打开所在目录")
         self._btn_open_dir.setFixedHeight(36)
         self._btn_open_dir.setCursor(Qt.PointingHandCursor)
-        self._btn_open_dir.setStyleSheet(self._secondary_btn_style())
+        self._btn_open_dir.setProperty("ToolBtn", True)
         self._btn_open_dir.clicked.connect(self._on_open_dir)
 
         self._btn_writeback = QPushButton(" \U0001F4BE 回写到项目")
         self._btn_writeback.setFixedHeight(36)
         self._btn_writeback.setCursor(Qt.PointingHandCursor)
-        self._btn_writeback.setStyleSheet(self._primary_btn_style())
+        self._btn_writeback.setProperty("PrimaryBtn", True)
         self._btn_writeback.clicked.connect(self._on_writeback)
 
         self._btn_save_only = QPushButton(" 仅保存到输出目录")
         self._btn_save_only.setFixedHeight(36)
         self._btn_save_only.setCursor(Qt.PointingHandCursor)
-        self._btn_save_only.setStyleSheet(self._secondary_btn_style())
+        self._btn_save_only.setProperty("ToolBtn", True)
         self._btn_save_only.clicked.connect(self._on_save_only)
 
         btn_layout.addWidget(self._btn_open_dir)
@@ -129,25 +122,6 @@ class SyncResultDialog(QDialog):
         btn_layout.addStretch()
         btn_layout.addWidget(self._btn_save_only)
         layout.addLayout(btn_layout)
-
-    @staticmethod
-    def _primary_btn_style() -> str:
-        return (
-            "QPushButton { background-color: #1976D2; color: white; "
-            "border: none; border-radius: 4px; padding: 6px 16px; "
-            "font-size: 10pt; font-weight: bold; }"
-            "QPushButton:hover { background-color: #1565C0; }"
-            "QPushButton:pressed { background-color: #0D47A1; }"
-        )
-
-    @staticmethod
-    def _secondary_btn_style() -> str:
-        return (
-            "QPushButton { background-color: transparent; color: #616161; "
-            "border: 1px solid #BDBDBD; border-radius: 4px; padding: 6px 16px; "
-            "font-size: 10pt; }"
-            "QPushButton:hover { background-color: #F5F5F5; color: #424242; }"
-        )
 
     def _load_file_content(self):
         try:

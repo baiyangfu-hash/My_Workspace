@@ -115,13 +115,17 @@ class TemplateService:
     @classmethod
     def _apply_structure(
         cls,
-        structure: Dict,
+        structure,
         base_path: Path,
         variables: Dict[str, str],
     ):
         """递归应用目录结构"""
-        dirs = structure.get("directories", [])
-        files = structure.get("files", [])
+        if isinstance(structure, list):
+            dirs = structure
+            files = []
+        else:
+            dirs = structure.get("directories", [])
+            files = structure.get("files", [])
 
         # 创建子目录
         for dir_info in dirs:

@@ -44,6 +44,9 @@ class EventBus(QObject):
     variable_check_request = pyqtSignal()    # 无参数, 触发变量检查面板
     spec_check_request = pyqtSignal(dict)    # 参数: 检查配置dict
 
+    # ===== 伴生跳转事件 =====
+    companion_jump_request = pyqtSignal(str, int)  # 参数: 文件路径, 行号
+
     # ===== 系统事件 =====
     theme_changed = pyqtSignal(str)          # 参数: 'light' | 'dark'
     settings_changed = pyqtSignal()          # 设置已更改

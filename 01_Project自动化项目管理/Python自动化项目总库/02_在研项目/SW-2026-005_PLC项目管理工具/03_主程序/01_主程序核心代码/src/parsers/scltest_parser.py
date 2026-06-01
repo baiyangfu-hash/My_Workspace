@@ -145,6 +145,9 @@ class SCLTestParser:
 
         # 处理最后一个未关闭的测试用例
         if self._context.current_state == "IN_TEST_CASE":
+            self._context.errors.append(
+                f"警告(第{self._context.line_number}行): 测试用例未正确关闭"
+            )
             self._finalize_current_test_case()
 
         # 构建TestSuite
@@ -431,9 +434,14 @@ class SCLTestParser:
         """
         errors = []
 
-        # 检查TEST_CASE/END_TEST_CASE匹配
-        open_count = len(self.PATTERN_TEST_CASE_START.findall(content))
-        close_count = len(self.PATTERN_END_TEST_CASE.findall(content))
+        open_count = len(re.findall(
+            r'^\s*TEST_CASE\s+"([^"]+)"\s*',
+            content, re.IGNORECASE | re.MULTILINE
+        ))
+        close_count = len(re.findall(
+            r'^\s*END_TEST_CASE\s*;?\s*$',
+            content, re.IGNORECASE | re.MULTILINE
+        ))
 
         if open_count != close_count:
             errors.append(

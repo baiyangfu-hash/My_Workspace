@@ -1,0 +1,36 @@
+.main-body {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+.activity-bar {
+  width: var(--activity-width);
+  background: var(--bg-activity);
+  border-right: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  z-index: 50;
+  flex-shrink: 0;
+}
+.activity-item {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: var(--radius-md);
+  margin-bottom: 2px;
+  position: relative;
+  color: var(--text-muted);
+  font-size: 18px;
+  transition: all var(--transition-fast);
+  border: none; background: transparent;
+}
+.activity-item:hover { color: var(--text-primary); background: var(--bg-hover); }
+.activity-item.active { color: var(--text-accent); }
+.activity-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 2px; background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+.activity-spacer { flex: 1; }
+.activity-item.settings { margin-top: auto; }

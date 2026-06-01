@@ -11,6 +11,7 @@ from .base_parser import BaseParser
 from .autoshop_parser import AutoshopParser
 from .work3_parser import Work3Parser
 from .codesys_parser import CodesysParser
+from .scl_parser import SclParser
 
 
 class ParserFactory:
@@ -26,7 +27,7 @@ class ParserFactory:
         创建解析器实例
         
         参数:
-            plc_format (str): PLC软件格式（autoshop, work3, codesys）
+            plc_format (str): PLC软件格式（autoshop, work3, codesys, scl）
             file_path (str): 变量表文件路径
             
         返回:
@@ -40,6 +41,8 @@ class ParserFactory:
             return Work3Parser(file_path)
         elif plc_format == 'codesys':
             return CodesysParser(file_path)
+        elif plc_format == 'scl':
+            return SclParser(file_path)
         else:
             return None
     
@@ -51,4 +54,4 @@ class ParserFactory:
         返回:
             list: 支持的格式列表
         """
-        return ['autoshop', 'work3', 'codesys']
+        return ['autoshop', 'work3', 'codesys', 'scl']

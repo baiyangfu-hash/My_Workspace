@@ -146,9 +146,9 @@ class MenuManager:
         """
         创建编辑菜单
 
+        伴生模式: 编辑操作委托给Trae IDE, 本工具不提供内嵌编辑器。
         菜单项:
-        - 撤销 (Ctrl+Z)
-        - 重做 (Ctrl+Y)
+        - 在Trae中打开 (Ctrl+E)
         - 查找 (Ctrl+F)
         - 替换 (Ctrl+H)
 
@@ -157,15 +157,11 @@ class MenuManager:
         """
         menu = self._menu_bar.addMenu("\u270F\uFE0F 编辑(&E)")
 
-        undo_action = QAction("\u21A6 撤销", self._parent)
-        undo_action.setShortcut("Ctrl+Z")
-        undo_action.setEnabled(False)
-        menu.addAction(undo_action)
-
-        redo_action = QAction("\u21A9 重做", self._parent)
-        redo_action.setShortcut("Ctrl+Y")
-        redo_action.setEnabled(False)
-        menu.addAction(redo_action)
+        open_in_trae_action = QAction("\U0001F517 在Trae中打开", self._parent)
+        open_in_trae_action.setShortcut("Ctrl+E")
+        open_in_trae_action.setStatusTip("在Trae IDE中打开当前文件")
+        open_in_trae_action.triggered.connect(self._on_open_in_trae)
+        menu.addAction(open_in_trae_action)
 
         menu.addSeparator()
 
@@ -394,6 +390,30 @@ class MenuManager:
             self._event_bus.project_opened.emit(project_dir)
             logger.info(f"打开项目目录: {project_dir}")
 
+    def _on_open_in_trae(self):
+        """在Trae IDE中打开当前项目/文件"""
+        try:
+            from src.services.companion_service import CompanionService
+            project_path = self._get_current_project_path()
+            if project_path:
+                success, error = CompanionService.jump_to_file(project_path)
+                if success:
+                    self._parent.statusBar().showMessage(
+                        f"\U0001F517 已在Trae中打开: {Path(project_path).name}", 5000
+                    )
+                else:
+                    self._parent.statusBar().showMessage(
+                        f"\u26A0\uFE0F Trae打开失败: {error}", 5000
+                    )
+            else:
+                QMessageBox.information(
+                    self._parent,
+                    "\U0001F517 在Trae中打开",
+                    "请先打开一个项目, 然后使用此功能在Trae中打开。",
+                )
+        except Exception as e:
+            logger.exception(f"在Trae中打开失败: {e}")
+
     def _on_save(self):
         self._parent.statusBar().showMessage("\U0001F4BE 已保存")
         logger.debug("执行保存操作")
@@ -431,10 +451,15 @@ class MenuManager:
             QLineEdit, QComboBox, QCheckBox,
             QSpinBox, QWidget, QPushButton,
         )
+        from src.ui.ui_scale import current_ui_profile
 
+        profile = current_ui_profile(self._parent)
         dialog = QDialog(self._parent)
         dialog.setWindowTitle("\u2699\uFE0F 系统设置")
-        dialog.setMinimumSize(550, 420)
+        dialog.setMinimumSize(
+            profile.dialog_min_width,
+            profile.dialog_min_height,
+        )
 
         layout = QVBoxLayout(dialog)
 
@@ -625,14 +650,16 @@ class MenuManager:
 
     def _on_about(self):
         """显示关于对话框"""
+        from src.core.constants import DESCRIPTION, COMPANION_PRIMARY_IDE, COMPANION_ROLE
         QMessageBox.about(
             self._parent,
             f"\u2139\uFE0F 关于 {APP_NAME}",
             f"<h2>{APP_NAME}</h2>"
             f"<p><b>版本:</b> {VERSION}</p>"
-            f"<p>{ConfigLoader.get('description', '')}</p>"
+            f"<p>{DESCRIPTION}</p>"
             f"<hr>"
-            f"<p>技术栈: Python 3.8+ / PyQt5 / SQLite</p>"
+            f"<p><b>角色:</b> {COMPANION_PRIMARY_IDE}伴生式{COMPANION_ROLE}工具</p>"
+            f"<p><b>主开发环境:</b> {COMPANION_PRIMARY_IDE} IDE</p>"
             f"<p>支持PLC: Siemens / Beckhoff / Omron / Codesys</p>"
             f"<p>&copy; 2026 Trae AI</p>",
         )

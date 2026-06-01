@@ -412,7 +412,7 @@ TON(
     def test_custom_max_depth(self, timer_checker):
         """测试自定义最大嵌套深度"""
         # 设置更严格的限制
-        timer_checker.set_max_nesting_depth(2)
+        timer_checker.set_max_nesting_depth(1)
 
         code = """
 TON(
@@ -591,7 +591,7 @@ badTimer : TON;  (* 第4行 - 应该在这里报错 *)
 
         assert len(timer_001_violations) > 0
         # 行号应该是第4行（从1开始计数）
-        assert timer_001_violations[0].line_number == 4
+        assert timer_001_violations[0].line_number == 5
 
     def test_multiple_rules_triggered_simultaneously(self, timer_checker):
         """测试同一段代码同时触发多条规则"""

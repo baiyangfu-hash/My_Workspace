@@ -617,16 +617,17 @@ class TestDataModelSerialization:
         - 包含所有关键字段
         - 可以通过json.dumps序列化
         """
-        from src.models.check_result import CheckResult
+        from src.models.check_result import CheckResult, Violation
+        from src.checkers.base_checker import Severity
 
         result = CheckResult(source_file=str(sample_st_file))
-        result.add_violation(
+        result.add_violation(Violation(
             rule_id="TEST_001",
-            severity=0,  # ERROR
+            severity=Severity.ERROR,
             message="测试违规",
             file_path=str(sample_st_file),
             line_number=10,
-        )
+        ))
 
         data_dict = result.to_dict()
 

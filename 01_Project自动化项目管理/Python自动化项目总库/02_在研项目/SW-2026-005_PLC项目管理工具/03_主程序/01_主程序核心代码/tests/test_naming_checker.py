@@ -845,10 +845,9 @@ BEGIN
     s_bValid := TRUE;      (* CALL_Another() 注释中也不应触发 *)
 END_FUNCTION_BLOCK
 """
-        violations = self.checker.check(comment)
+        violations = self.checker.check(comment_code)
         naming_002 = [v for v in violations if v.rule_id == "NAMING_002"]
-        # 注释中的CALL_可能仍会被简单正则匹配到
-        # 这取决于实现复杂度，这里仅验证不崩溃
+        assert len(naming_002) == 0
 
 
 # ============================================================================

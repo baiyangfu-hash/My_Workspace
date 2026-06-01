@@ -130,15 +130,7 @@ class StepIndicator(QWidget):
             circle = QLabel(f"{i + 1}")
             circle.setFixedSize(28, 28)
             circle.setAlignment(Qt.AlignCenter)
-            circle.setStyleSheet("""
-                QLabel {
-                    background-color: #E0E0E0;
-                    color: #757575;
-                    border-radius: 14px;
-                    font-size: 10pt;
-                    font-weight: bold;
-                }
-            """)
+            circle.setProperty("stepState", "inactive")
             self._step_labels.append(("circle", circle))
             layout.addWidget(circle)
 
@@ -147,19 +139,13 @@ class StepIndicator(QWidget):
                 line = QFrame()
                 line.setFrameShape(QFrame.HLine)
                 line.setFixedHeight(2)
-                line.setStyleSheet("background-color: #E0E0E0;")
+                line.setProperty("stepState", "inactive")
                 self._step_labels.append(("line", line))
                 layout.addWidget(line, 1)
 
             # 步骤标题
             title = QLabel(step_titles[i] if i < len(step_titles) else f"Step {i+1}")
-            title.setStyleSheet("""
-                QLabel {
-                    color: #9E9E9E;
-                    font-size: 9pt;
-                    padding: 0 4px;
-                }
-            """)
+            title.setProperty("stepState", "inactive")
             self._step_labels.append(("title", title))
             layout.addWidget(title)
 
@@ -172,65 +158,31 @@ class StepIndicator(QWidget):
         layout.addStretch()
 
     def set_current_step(self, step: int):
-        """设置当前激活的步骤 (0-based)"""
         self._current_step = step
-
-        active_style_circle = """
-            QLabel {
-                background-color: #1976D2;
-                color: white;
-                border-radius: 14px;
-                font-size: 10pt;
-                font-weight: bold;
-            }
-        """
-        completed_style_circle = """
-            QLabel {
-                background-color: #4CAF50;
-                color: white;
-                border-radius: 14px;
-                font-size: 10pt;
-                font-weight: bold;
-            }
-        """
-        active_style_title = "QLabel { color: #1976D2; font-size: 9pt; font-weight: bold; padding: 0 4px; }"
-        completed_style_title = "QLabel { color: #4CAF50; font-size: 9pt; padding: 0 4px; }"
-        active_style_line = "background-color: #1976D2;"
-        completed_style_line = "background-color: #4CAF50;"
 
         for item_type, widget in self._step_labels:
             if item_type == "circle":
                 idx = self._step_labels.index((item_type, widget)) // 3
                 if idx < step:
-                    widget.setStyleSheet(completed_style_circle)
+                    widget.setProperty("stepState", "completed")
                 elif idx == step:
-                    widget.setStyleSheet(active_style_circle)
+                    widget.setProperty("stepState", "active")
                 else:
-                    widget.setStyleSheet("""
-                        QLabel {
-                            background-color: #E0E0E0;
-                            color: #757575;
-                            border-radius: 14px;
-                            font-size: 10pt;
-                            font-weight: bold;
-                        }
-                    """)
+                    widget.setProperty("stepState", "inactive")
             elif item_type == "title":
                 idx = self._step_labels.index((item_type, widget)) // 3
                 if idx < step:
-                    widget.setStyleSheet(completed_style_title)
+                    widget.setProperty("stepState", "completed")
                 elif idx == step:
-                    widget.setStyleSheet(active_style_title)
+                    widget.setProperty("stepState", "active")
                 else:
-                    widget.setStyleSheet("""
-                        QLabel { color: #9E9E9E; font-size: 9pt; padding: 0 4px; }
-                    """)
+                    widget.setProperty("stepState", "inactive")
             elif item_type == "line":
                 idx = self._step_labels.index((item_type, widget)) // 3
                 if idx < step:
-                    widget.setStyleSheet(completed_style_line)
+                    widget.setProperty("stepState", "completed")
                 else:
-                    widget.setStyleSheet("background-color: #E0E0E0;")
+                    widget.setProperty("stepState", "inactive")
 
 
 class StepPage(QWidget):
@@ -261,14 +213,14 @@ class DirectorySelectPage(StepPage):
 
         # 标题说明
         title = QLabel("选择项目的父级存储目录")
-        title.setStyleSheet("font-size: 12pt; font-weight: bold; color: #212121;")
+        title.setProperty("panelTitle", True)
         layout.addWidget(title)
 
         desc = QLabel(
             "项目将在此目录下创建以 \"项目编号_项目名称\" 命名的子文件夹。\n"
             "请确保所选目录存在且具有写入权限。"
         )
-        desc.setStyleSheet("color: #616161; font-size: 9pt;")
+        desc.setProperty("treeStatus", True)
         desc.setWordWrap(True)
         layout.addWidget(desc)
 
@@ -276,21 +228,14 @@ class DirectorySelectPage(StepPage):
 
         # 目录选择区域
         path_frame = QFrame()
-        path_frame.setStyleSheet("""
-            QFrame {
-                background-color: #F5F5F5;
-                border: 1px solid #E0E0E0;
-                border-radius: 6px;
-                padding: 8px;
-            }
-        """)
+        path_frame.setProperty("IndustrialGroup", True)
         path_layout = QVBoxLayout(path_frame)
         path_layout.setContentsMargins(16, 12, 16, 12)
 
         # 当前路径显示
         path_row = QHBoxLayout()
         path_label = QLabel("目标父目录:")
-        path_label.setStyleSheet("font-weight: bold; color: #424242;")
+        path_label.setProperty("sectionTitle", True)
         path_row.addWidget(path_label)
 
         self._edit_path = QLineEdit()
@@ -299,37 +244,12 @@ class DirectorySelectPage(StepPage):
         )
         self._edit_path.setText(saved_path)
         self._edit_path.setMinimumHeight(32)
-        self._edit_path.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid #BDBDBD;
-                border-radius: 4px;
-                padding: 6px 10px;
-                background-color: white;
-                font-size: 10pt;
-            }
-            QLineEdit:focus { border-color: #1976D2; }
-            QLineEdit:read-only {
-                background-color: #FAFAFA;
-                color: #424242;
-            }
-        """)
         path_row.addWidget(self._edit_path)
 
         self._btn_browse = QPushButton("浏览...")
         self._btn_browse.setFixedHeight(32)
         self._btn_browse.setCursor(Qt.PointingHandCursor)
-        self._btn_browse.setStyleSheet("""
-            QPushButton {
-                background-color: #E3F2FD;
-                color: #1976D2;
-                border: 1px solid #BBDEFB;
-                border-radius: 4px;
-                padding: 0 16px;
-                font-size: 9pt;
-                font-weight: bold;
-            }
-            QPushButton:hover { background-color: #BBDEFB; }
-        """)
+        self._btn_browse.setProperty("ToolBtn", True)
         self._btn_browse.clicked.connect(self._on_browse)
         path_row.addWidget(self._btn_browse)
 
@@ -337,21 +257,18 @@ class DirectorySelectPage(StepPage):
 
         # 路径预览
         preview_label = QLabel("路径预览:")
-        preview_label.setStyleSheet("font-weight: bold; color: #424242; margin-top: 8px;")
+        preview_label.setProperty("sectionTitle", True)
         path_layout.addWidget(preview_label)
 
         self._preview_label = QLabel()
-        self._preview_label.setStyleSheet(
-            "color: #1976D2; font-size: 10pt; "
-            "background-color: white; padding: 8px; border-radius: 4px;"
-        )
+        self._preview_label.setProperty("valueLabel", True)
         self._preview_label.setWordWrap(True)
         self._update_preview()
         path_layout.addWidget(self._preview_label)
 
         # 验证状态
         self._validation_label = QLabel()
-        self._validation_label.setStyleSheet("color: #4CAF50; font-size: 9pt; margin-top: 4px;")
+        self._validation_label.setProperty("treeStatus", "success")
         path_layout.addWidget(self._validation_label)
 
         layout.addWidget(path_frame)
@@ -384,30 +301,29 @@ class DirectorySelectPage(StepPage):
         self._preview_label.setText(full_path)
 
     def _validate_directory(self):
-        """验证目录是否有效"""
         path_str = self._edit_path.text().strip()
         if not path_str:
             self._validation_label.setText("")
-            self._validation_label.setStyleSheet("color: #9E9E9E; font-size: 9pt;")
+            self._validation_label.setProperty("treeStatus", True)
             return
 
         path = Path(path_str)
         if not path.exists():
             self._validation_label.setText("X 目录不存在")
-            self._validation_label.setStyleSheet("color: #F44336; font-size: 9pt; font-weight: bold;")
+            self._validation_label.setProperty("treeStatus", "error")
         elif not path.is_dir():
             self._validation_label.setText("X 路径不是目录")
-            self._validation_label.setStyleSheet("color: #F44336; font-size: 9pt; font-weight: bold;")
+            self._validation_label.setProperty("treeStatus", "error")
         else:
             try:
                 test_file = path / ".write_test"
                 test_file.touch()
                 test_file.unlink()
                 self._validation_label.setText("OK 目录可读写")
-                self._validation_label.setStyleSheet("color: #4CAF50; font-size: 9pt; font-weight: bold;")
+                self._validation_label.setProperty("treeStatus", "success")
             except OSError:
                 self._validation_label.setText("X 目录不可写")
-                self._validation_label.setStyleSheet("color: #F44336; font-size: 9pt; font-weight: bold;")
+                self._validation_label.setProperty("treeStatus", "error")
 
     def validate(self) -> tuple:
         """验证目录选择"""
@@ -457,18 +373,17 @@ class BasicInfoPage(StepPage):
 
         # 标题
         title = QLabel("填写项目基本信息")
-        title.setStyleSheet("font-size: 12pt; font-weight: bold; color: #212121;")
+        title.setProperty("panelTitle", True)
         layout.addWidget(title)
 
         desc = QLabel("请准确填写以下信息，带 * 的字段为必填项。")
-        desc.setStyleSheet("color: #616161; font-size: 9pt;")
+        desc.setProperty("treeStatus", True)
         layout.addWidget(desc)
 
         # 可滚动表单区域
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
 
         form_widget = QWidget()
         form_layout = QVBoxLayout(form_widget)
@@ -479,16 +394,15 @@ class BasicInfoPage(StepPage):
         self._edit_project_id = QLineEdit()
         self._edit_project_id.setPlaceholderText("例如: DJ-2026-006")
         self._edit_project_id.setMinimumHeight(34)
-        self._setup_input_style(self._edit_project_id)
         self._edit_project_id.textChanged.connect(self._on_project_id_changed)
         id_group.layout().addWidget(self._edit_project_id)
 
         self._id_hint = QLabel("格式: DJ-YYYY-NNN (如 DJ-2026-006)")
-        self._id_hint.setStyleSheet("color: #9E9E9E; font-size: 8pt; margin-left: 4px;")
+        self._id_hint.setProperty("treeStatus", True)
         id_group.layout().addWidget(self._id_hint)
 
         self._id_validation = QLabel()
-        self._id_validation.setStyleSheet("font-size: 8pt; margin-left: 4px;")
+        self._id_validation.setProperty("treeStatus", True)
         id_group.layout().addWidget(self._id_validation)
 
         form_layout.addWidget(id_group)
@@ -498,13 +412,11 @@ class BasicInfoPage(StepPage):
         self._edit_project_name = QLineEdit()
         self._edit_project_name.setPlaceholderText("例如: 边框缓存机、打胶机送料机构")
         self._edit_project_name.setMinimumHeight(34)
-        self._setup_input_style(self._edit_project_name)
-        # 项目名称改变时，如果编号为空则自动生成
         self._edit_project_name.textChanged.connect(self._on_project_name_changed)
         name_group.layout().addWidget(self._edit_project_name)
 
         self._name_validation = QLabel()
-        self._name_validation.setStyleSheet("font-size: 8pt; margin-left: 4px;")
+        self._name_validation.setProperty("treeStatus", True)
         name_group.layout().addWidget(self._name_validation)
 
         form_layout.addWidget(name_group)
@@ -518,7 +430,6 @@ class BasicInfoPage(StepPage):
         self._combo_device_type.setMinimumHeight(34)
         for display, value in DEVICE_TYPES:
             self._combo_device_type.addItem(display, value)
-        self._setup_combo_style(self._combo_device_type)
         device_group.layout().addWidget(self._combo_device_type)
         row1_layout.addWidget(device_group)
 
@@ -528,7 +439,6 @@ class BasicInfoPage(StepPage):
         for brand in PLCBrand:
             desc = PLC_BRAND_DESCRIPTIONS.get(brand, brand.value)
             self._combo_plc_brand.addItem(f"{brand.value} ({desc})", brand)
-        self._setup_combo_style(self._combo_plc_brand)
         plc_group.layout().addWidget(self._combo_plc_brand)
         row1_layout.addWidget(plc_group)
 
@@ -542,7 +452,6 @@ class BasicInfoPage(StepPage):
         for brand in HMIBrand:
             desc = HMI_BRAND_DESCRIPTIONS.get(brand, brand.value)
             self._combo_hmi_brand.addItem(f"{brand.value} ({desc})", brand)
-        self._setup_combo_style(self._combo_hmi_brand)
         hmi_group.layout().addWidget(self._combo_hmi_brand)
         form_layout.addWidget(hmi_group)
 
@@ -556,27 +465,6 @@ class BasicInfoPage(StepPage):
             rb_layout = QHBoxLayout()
             rb = QRadioButton(label)
             rb.setCursor(Qt.PointingHandCursor)
-            rb.setStyleSheet("""
-                QRadioButton {
-                    font-size: 10pt;
-                    spacing: 6px;
-                    color: #424242;
-                }
-                QRadioButton::indicator {
-                    width: 16px;
-                    height: 16px;
-                }
-                QRadioButton::indicator:unchecked {
-                    border: 2px solid #BDBDBD;
-                    border-radius: 8px;
-                    background: white;
-                }
-                QRadioButton::indicator:checked {
-                    border: 2px solid #1976D2;
-                    border-radius: 8px;
-                    background: #1976D2;
-                }
-            """)
             self._io_button_group.addButton(rb)
             # 用 objectName 存储 value
             rb.setObjectName(value)
@@ -584,7 +472,7 @@ class BasicInfoPage(StepPage):
                 rb.setChecked(True)
 
             hint = QLabel(description)
-            hint.setStyleSheet("color: #757575; font-size: 8pt;")
+            hint.setProperty("treeStatus", True)
 
             rb_layout.addWidget(rb)
             rb_layout.addWidget(hint)
@@ -598,7 +486,6 @@ class BasicInfoPage(StepPage):
         self._edit_owner = QLineEdit()
         self._edit_owner.setPlaceholderText("可选，项目负责人姓名")
         self._edit_owner.setMinimumHeight(34)
-        self._setup_input_style(self._edit_owner)
         owner_group.layout().addWidget(self._edit_owner)
         form_layout.addWidget(owner_group)
 
@@ -607,16 +494,6 @@ class BasicInfoPage(StepPage):
         self._edit_description = QTextEdit()
         self._edit_description.setPlaceholderText("可选，简要描述项目背景、目标和特殊要求...")
         self._edit_description.setMaximumHeight(80)
-        self._edit_description.setStyleSheet("""
-            QTextEdit {
-                border: 1px solid #E0E0E0;
-                border-radius: 4px;
-                padding: 6px 10px;
-                background-color: white;
-                font-size: 10pt;
-            }
-            QTextEdit:focus { border-color: #1976D2; }
-        """)
         desc_group.layout().addWidget(self._edit_description)
         form_layout.addWidget(desc_group)
 
@@ -639,60 +516,18 @@ class BasicInfoPage(StepPage):
         # 标签行
         hlayout = QHBoxLayout()
         label = QLabel(label_text)
-        label.setStyleSheet("font-weight: bold; color: #424242; font-size: 10pt;")
+        label.setProperty("sectionTitle", True)
         hlayout.addWidget(label)
 
         if required:
             star = QLabel("*")
-            star.setStyleSheet("color: #F44336; font-weight: bold; font-size: 12pt;")
+            star.setProperty("DangerBtn", True)
             hlayout.addWidget(star)
 
         hlayout.addStretch()
         vlayout.addLayout(hlayout)
 
         return frame
-
-    def _setup_input_style(self, edit: QLineEdit):
-        """设置输入框统一样式"""
-        edit.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid #E0E0E0;
-                border-radius: 4px;
-                padding: 6px 10px;
-                background-color: white;
-                font-size: 10pt;
-            }
-            QLineEdit:focus { border-color: #1976D2; }
-        """)
-
-    def _setup_combo_style(self, combo: QComboBox):
-        """设置下拉框统一样式"""
-        combo.setStyleSheet("""
-            QComboBox {
-                border: 1px solid #E0E0E0;
-                border-radius: 4px;
-                padding: 6px 10px;
-                background-color: white;
-                font-size: 10pt;
-            }
-            QComboBox:focus { border-color: #1976D2; }
-            QComboBox::drop-down {
-                border: none;
-                width: 24px;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 6px solid #757575;
-                margin-right: 8px;
-            }
-            QComboBox QAbstractItemView {
-                border: 1px solid #E0E0E0;
-                selection-background-color: #E3F2FD;
-                selection-color: #1976D2;
-            }
-        """)
 
     def _on_project_name_changed(self, text: str):
         """
@@ -755,46 +590,36 @@ class BasicInfoPage(StepPage):
         return f"{prefix}{new_num:03d}"
 
     def _on_project_id_changed(self, text: str):
-        """项目编号输入变化时实时校验"""
         text = text.strip()
         if not text:
             self._id_validation.setText("")
-            self._id_validation.setStyleSheet("font-size: 8pt; margin-left: 4px;")
+            self._id_validation.setProperty("treeStatus", True)
             return
 
         if RE_PROJECT_ID.match(text):
             self._id_validation.setText("OK 格式正确")
-            self._id_validation.setStyleSheet(
-                "font-size: 8pt; margin-left: 4px; color: #4CAF50; font-weight: bold;"
-            )
+            self._id_validation.setProperty("treeStatus", "success")
         else:
             self._id_validation.setText(
                 "X 格式错误，应为 DJ-YYYY-NNN (如 DJ-2026-006)"
             )
-            self._id_validation.setStyleSheet(
-                "font-size: 8pt; margin-left: 4px; color: #F44336;"
-            )
+            self._id_validation.setProperty("treeStatus", "error")
 
     def _validate_project_id(self):
         """失去焦点时验证项目编号"""
         self._on_project_id_changed(self._edit_project_id.text())
 
     def _validate_project_name(self):
-        """失去焦点时验证项目名称"""
         name = self._edit_project_name.text().strip()
         if not name:
             self._name_validation.setText("")
-            self._name_validation.setStyleSheet("font-size: 8pt; margin-left: 4px;")
+            self._name_validation.setProperty("treeStatus", True)
         elif len(name) < 2:
             self._name_validation.setText("X 项目名称至少需要2个字符")
-            self._name_validation.setStyleSheet(
-                "font-size: 8pt; margin-left: 4px; color: #F44336;"
-            )
+            self._name_validation.setProperty("treeStatus", "error")
         else:
             self._name_validation.setText("OK")
-            self._name_validation.setStyleSheet(
-                "font-size: 8pt; margin-left: 4px; color: #4CAF50; font-weight: bold;"
-            )
+            self._name_validation.setProperty("treeStatus", "success")
 
     def _on_io_scale_changed(self, button: QRadioButton):
         """IO规模选择变化"""
@@ -880,15 +705,12 @@ class TemplateSelectPage(StepPage):
 
         # 标题
         title = QLabel("选择项目模板")
-        title.setStyleSheet("font-size: 12pt; font-weight: bold; color: #212121;")
+        title.setProperty("panelTitle", True)
         layout.addWidget(title)
 
         # 推荐提示
         self._recommend_label = QLabel()
-        self._recommend_label.setStyleSheet(
-            "color: #1976D2; font-size: 10pt; font-weight: bold; "
-            "background-color: #E3F2FD; padding: 8px 12px; border-radius: 4px;"
-        )
+        self._recommend_label.setProperty("valueLabel", True)
         self._recommend_label.setWordWrap(True)
         layout.addWidget(self._recommend_label)
 
@@ -932,19 +754,14 @@ class TemplateSelectPage(StepPage):
         header_layout = QHBoxLayout()
 
         icon_label = QLabel("\U0001F4E6" if template_id.endswith("M001") else "\U0001F4CB")
-        icon_label.setStyleSheet("font-size: 24pt;")
         header_layout.addWidget(icon_label)
 
         name_layout = QVBoxLayout()
         name_label = QLabel(details["name"])
-        name_label.setStyleSheet("font-size: 11pt; font-weight: bold; color: #212121;")
+        name_label.setProperty("sectionTitle", True)
         name_layout.addWidget(name_label)
 
         type_tag = QLabel(details["display_name"])
-        type_tag.setStyleSheet(
-            "font-size: 9pt; color: white; background-color: #1976D2; "
-            "padding: 2px 8px; border-radius: 10px;"
-        )
         type_tag.setAlignment(Qt.AlignCenter)
         type_tag.setFixedWidth(60)
         name_layout.addWidget(type_tag)
@@ -955,29 +772,24 @@ class TemplateSelectPage(StepPage):
 
         # 描述
         desc_label = QLabel(details["description"])
-        desc_label.setStyleSheet("color: #616161; font-size: 9pt;")
+        desc_label.setProperty("treeStatus", True)
         desc_label.setWordWrap(True)
         card_layout.addWidget(desc_label)
 
         # 分隔线
         line = QFrame()
         line.setFrameShape(QFrame.HLine)
-        line.setStyleSheet("background-color: #E0E0E0;")
         card_layout.addWidget(line)
 
         # 特性列表
         features_text = "\n".join([f"  • {f}" for f in details["features"]])
         features_label = QLabel(features_text)
-        features_label.setStyleSheet("color: #424242; font-size: 9pt;")
         features_label.setWordWrap(True)
         card_layout.addWidget(features_label)
 
         # 适用场景
         suitable_label = QLabel(f"适用: {details['suitable_for']}")
-        suitable_label.setStyleSheet(
-            "color: #1976D2; font-size: 9pt; font-weight: bold; "
-            "background-color: #E3F2FD; padding: 4px 8px; border-radius: 4px;"
-        )
+        suitable_label.setProperty("valueLabel", True)
         card_layout.addWidget(suitable_label)
 
         card_layout.addStretch()
@@ -997,36 +809,16 @@ class TemplateSelectPage(StepPage):
         self.template_selected.emit(template_id)
 
     def _update_card_styles(self):
-        """更新卡片选中/未选中样式"""
-        # 遍历所有卡片更新样式
         parent = self.parent() or self
         for child in self.findChildren(QFrame):
             if hasattr(child, '_template_id'):
                 tid = child._template_id
                 if tid == self._selected_template:
-                    child.setStyleSheet("""
-                        QFrame {
-                            background-color: #E3F2FD;
-                            border: 2px solid #1976D2;
-                            border-radius: 8px;
-                        }
-                    """)
+                    child.setProperty("cardState", "selected")
                 elif tid == self._recommended_template and tid != self._selected_template:
-                    child.setStyleSheet("""
-                        QFrame {
-                            background-color: #FFF8E1;
-                            border: 2px dashed #FFC107;
-                            border-radius: 8px;
-                        }
-                    """)
+                    child.setProperty("cardState", "recommended")
                 else:
-                    child.setStyleSheet("""
-                        QFrame {
-                            background-color: #FAFAFA;
-                            border: 1px solid #E0E0E0;
-                            border-radius: 8px;
-                        }
-                    """)
+                    child.setProperty("cardState", "default")
                     child.hover_style_set = False
 
     def set_recommended_template(self, template_id: str):
@@ -1076,32 +868,18 @@ class ConfirmPage(StepPage):
 
         # 标题
         title = QLabel("项目创建确认")
-        title.setStyleSheet("font-size: 12pt; font-weight: bold; color: #212121;")
+        title.setProperty("panelTitle", True)
         layout.addWidget(title)
 
         # 信息摘要面板
         self._summary_frame = QFrame()
-        self._summary_frame.setStyleSheet("""
-            QFrame {
-                background-color: #FAFAFA;
-                border: 1px solid #E0E0E0;
-                border-radius: 8px;
-                padding: 4px;
-            }
-        """)
+        self._summary_frame.setProperty("IndustrialGroup", True)
         summary_layout = QVBoxLayout(self._summary_frame)
         summary_layout.setContentsMargins(16, 12, 16, 12)
         summary_layout.setSpacing(6)
 
         self._summary_content = QLabel()
-        self._summary_content.setStyleSheet("""
-            QLabel {
-                font-family: 'Consolas', 'Microsoft YaHei Mono', monospace;
-                font-size: 10pt;
-                color: #424242;
-                line-height: 1.5;
-            }
-        """)
+        self._summary_content.setProperty("valueLabel", True)
         self._summary_content.setWordWrap(True)
         summary_layout.addWidget(self._summary_content)
 
@@ -1115,24 +893,10 @@ class ConfirmPage(StepPage):
         self._progress_bar = QProgressBar()
         self._progress_bar.setVisible(False)
         self._progress_bar.setMinimumHeight(24)
-        self._progress_bar.setStyleSheet("""
-            QProgressBar {
-                border: 1px solid #E0E0E0;
-                border-radius: 4px;
-                background-color: #F5F5F5;
-                text-align: center;
-                font-size: 9pt;
-                color: #1976D2;
-            }
-            QProgressBar::chunk {
-                background-color: #1976D2;
-                border-radius: 3px;
-            }
-        """)
         progress_layout.addWidget(self._progress_bar)
 
         self._status_label = QLabel()
-        self._status_label.setStyleSheet("color: #616161; font-size: 9pt;")
+        self._status_label.setProperty("treeStatus", True)
         self._status_label.setVisible(False)
         progress_layout.addWidget(self._status_label)
 
@@ -1187,11 +951,10 @@ class ConfirmPage(StepPage):
         self._is_creating = is_creating
 
     def set_status(self, message: str, error: bool = False):
-        """设置状态文本"""
         if error:
-            self._status_label.setStyleSheet("color: #F44336; font-size: 9pt; font-weight: bold;")
+            self._status_label.setProperty("treeStatus", "error")
         else:
-            self._status_label.setStyleSheet("color: #616161; font-size: 9pt;")
+            self._status_label.setProperty("treeStatus", True)
         self._status_label.setText(message)
         self._status_label.setVisible(True)
 
@@ -1245,22 +1008,10 @@ class NewProjectDialog(QDialog):
 
         # ===== 顶部步骤指示器 =====
         self._step_indicator = StepIndicator(total_steps=self.TOTAL_STEPS)
-        self._step_indicator.setStyleSheet("""
-            StepIndicator {
-                background-color: #FFFFFF;
-                border-bottom: 1px solid #E0E0E0;
-                padding: 16px 24px;
-            }
-        """)
         main_layout.addWidget(self._step_indicator)
 
         # ===== 中间内容区域 (QStackedWidget) =====
         self._stacked_widget = QStackedWidget()
-        self._stacked_widget.setStyleSheet("""
-            QStackedWidget {
-                background-color: #FFFFFF;
-            }
-        """)
         main_layout.addWidget(self._stacked_widget, 1)
 
         # 创建各步骤页面
@@ -1276,13 +1027,6 @@ class NewProjectDialog(QDialog):
 
         # ===== 底部按钮栏 =====
         bottom_frame = QFrame()
-        bottom_frame.setStyleSheet("""
-            QFrame {
-                background-color: #FAFAFA;
-                border-top: 1px solid #E0E0E0;
-                padding: 8px 16px;
-            }
-        """)
         bottom_layout = QHBoxLayout(bottom_frame)
         bottom_layout.setContentsMargins(16, 10, 16, 10)
 
@@ -1317,68 +1061,10 @@ class NewProjectDialog(QDialog):
         self._btn_create.setVisible(False)
         self._btn_create.setDefault(True)
 
-        # 设置按钮样式
-        btn_nav_style = """
-            QPushButton {
-                background-color: #E0E0E0;
-                color: #424242;
-                border: none;
-                border-radius: 4px;
-                font-size: 10pt;
-                font-weight: bold;
-                padding: 0 20px;
-            }
-            QPushButton:hover { background-color: #BDBDBD; }
-            QPushButton:pressed { background-color: #9E9E9E; }
-            QPushButton:disabled { background-color: #F5F5F5; color: #BDBDBD; }
-        """
-
-        btn_primary_style = """
-            QPushButton {
-                background-color: #1976D2;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                font-size: 10pt;
-                font-weight: bold;
-                padding: 0 24px;
-            }
-            QPushButton:hover { background-color: #1565C0; }
-            QPushButton:pressed { background-color: #0D47A1; }
-            QPushButton:disabled { background-color: #BDBDBD; color: #757575; }
-        """
-
-        btn_create_style = """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                font-size: 10pt;
-                font-weight: bold;
-                padding: 0 24px;
-            }
-            QPushButton:hover { background-color: #43A047; }
-            QPushButton:pressed { background-color: #388E3C; }
-            QPushButton:disabled { background-color: #BDBDBD; color: #757575; }
-        """
-
-        btn_cancel_style = """
-            QPushButton {
-                background-color: transparent;
-                color: #757575;
-                border: 1px solid #BDBDBD;
-                border-radius: 4px;
-                font-size: 10pt;
-                padding: 0 20px;
-            }
-            QPushButton:hover { background-color: #F5F5F5; color: #424242; }
-        """
-
-        self._btn_prev.setStyleSheet(btn_nav_style)
-        self._btn_next.setStyleSheet(btn_primary_style)
-        self._btn_create.setStyleSheet(btn_create_style)
-        self._btn_cancel.setStyleSheet(btn_cancel_style)
+        self._btn_prev.setProperty("ToolBtn", True)
+        self._btn_next.setProperty("PrimaryBtn", True)
+        self._btn_create.setProperty("SuccessBtn", True)
+        self._btn_cancel.setProperty("ToolBtn", True)
 
         bottom_layout.addWidget(self._btn_prev)
         bottom_layout.addWidget(self._btn_cancel)

@@ -97,7 +97,7 @@ class VariableParser:
 
         # 简化的GVL变量声明正则
         var_decl_re = re.compile(
-            r"^\s*(?P<names>[\w,\s]+?)\s*:\s*"
+            r"^\s*(?P<names>[\w, \t]+?)\s*(?:AT\s+%[IQM][XBWDL]?\w*(?:\.\d+)?)?\s*:\s*"
             r"(?P<type>\w+(?:\s*\([^)]*\))?(?:\s*\{.*?\})?)"
             r"(?:\s*:=\s*(?P<init>[^;]*?))?"
             r"\s*(?:\(\*\s*(?P<comment>[^*]*(?:\*(?!)[^*]*)*)\*\))?\s*;",
@@ -110,10 +110,12 @@ class VariableParser:
             if not line or line.startswith("(*") or line.startswith("//"):
                 continue
             # 跳过关键字行
-            if any(kw in line.upper() for kw in [
+            skip_keywords = [
                 "VAR_GLOBAL", "END_VAR", "VAR", "END_VAR",
                 "PROGRAM", "FUNCTION_BLOCK", "FUNCTION",
-            ]):
+            ]
+            line_upper_stripped = line.upper().strip()
+            if any(line_upper_stripped.startswith(kw) or line_upper_stripped == kw for kw in skip_keywords):
                 continue
 
             match = var_decl_re.match(line)
@@ -193,8 +195,10 @@ class VariableParser:
 
             for prefix in sorted(expected_prefixes, key=len, reverse=True):
                 if name.startswith(prefix):
-                    matched_prefix = prefix
-                    break
+                    rest = name[len(prefix):]
+                    if not rest or rest[0].isupper() or rest[0] == '_':
+                        matched_prefix = prefix
+                        break
 
             if matched_prefix is None:
                 violations.append({

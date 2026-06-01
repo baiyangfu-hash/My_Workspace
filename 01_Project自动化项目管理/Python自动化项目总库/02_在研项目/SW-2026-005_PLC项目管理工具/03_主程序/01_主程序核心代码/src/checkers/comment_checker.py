@@ -75,7 +75,7 @@ STANDARD_COMMENT_FORMAT = re.compile(
 # 简单行注释格式（用于检测一致性）
 # 正则表达式：匹配以破折号开头的分隔线
 LINE_COMMENT_FORMAT = re.compile(
-    r'^\s*\(\*\s*-+\s*'    # 以破折号开头的分隔线
+    r'^\s*\(\*\s*[=\-*+~#]+\s*'
 )
 
 
@@ -235,8 +235,8 @@ class CommentChecker(BaseChecker):
                     i += 1
                     continue
 
-                # 检测字符串开始
-                if line[i] in ("'", '"'):
+                # 检测字符串开始（仅在注释外部）
+                if comment_stack == 0 and line[i] in ("'", '"'):
                     in_string = True
                     string_char = line[i]
                     i += 1
@@ -559,28 +559,35 @@ class CommentChecker(BaseChecker):
             #   (group 1): 标签内容（方括号内的文字）
             tag_match = re.search(r'\(\*\s*\[(\w+)\]', stripped)
             if tag_match:
-                tag = tag_match.group(1).upper()
+                tag = tag_match.group(1)
                 tag_patterns[tag] += 1
                 comment_formats.append(f"[{tag}]")
 
             # 匹配分隔线样式
-            sep_match = LINE_COMMENT_FORMAT.match(stripped)
-            if sep_match:
-                # 提取分隔线字符
-                sep_chars = re.sub(r'[()\*\s]', '', stripped)
-                if sep_chars:
-                    main_char = sep_chars[0]
+            content_match = re.match(
+                r'^\s*\(\*\s*(.*?)\s*\*\)\s*$', stripped
+            )
+            if content_match:
+                content = content_match.group(1)
+                if re.match(r'^[=\-+~#*]{3,}$', content):
+                    main_char = content[0]
                     separator_styles[main_char] += 1
                     comment_formats.append(f"sep-{main_char}")
 
         # 检查标签大小写一致性
         if len(tag_patterns) > 1:
-            # 检查是否有大小写混用
-            case_variations = set()
+            case_styles = set()
             for tag in tag_patterns.keys():
-                case_variations.add(tag.lower())
+                if tag.isupper():
+                    case_styles.add('upper')
+                elif tag.islower():
+                    case_styles.add('lower')
+                elif tag[0].isupper():
+                    case_styles.add('title')
+                else:
+                    case_styles.add('mixed')
 
-            if len(case_variations) < len(tag_patterns):
+            if len(case_styles) > 1:
                 violations.append(Violation(
                     rule_id="COMMENT_004",
                     severity=Severity.WARNING,
