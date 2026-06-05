@@ -64,15 +64,22 @@ class ProjParser:
 
     def _extract_project_id(self, file_path: str) -> str:
         """从文件路径或内容提取项目编号"""
-        # 从目录路径提取（父目录名通常是项目编号）
-        parent_dir = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
-        if re.match(r"[A-Z]+-\d{4}-\d{3}", parent_dir):
-            return parent_dir
-        # 从文件名提取
+        # 从文件名提取（如 003_DJ-2026-005_项目立项表_PROJ-V3.0.0.md）
         basename = os.path.basename(file_path)
         match = re.search(r"([A-Z]+-\d{4}-\d{3})", basename)
         if match:
             return match.group(1)
+        # 从各级父目录名提取（如 SW-2026-005_PLC项目管理工具）
+        path = file_path
+        for _ in range(5):  # 最多向上5级
+            dir_name = os.path.basename(path)
+            match = re.search(r"([A-Z]+-\d{4}-\d{3})", dir_name)
+            if match:
+                return match.group(1)
+            parent = os.path.dirname(path)
+            if parent == path:
+                break
+            path = parent
         return ""
 
     def _split_sections(self, content: str) -> dict[str, str]:

@@ -23,7 +23,7 @@ const DetailModule = {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state__icon">&#9888;</div>
-          <div class="empty-state__text">加载失败: ${err.message || "未知错误"}</div>
+          <div class="empty-state__text">加载失败: ${escapeHtml(err.message || "未知错误")}</div>
         </div>`;
     }
   },
@@ -36,12 +36,12 @@ const DetailModule = {
       <div class="breadcrumb">
         <a href="#/dashboard">总览</a>
         <span class="sep">/</span>
-        <span class="current">${project.project_id}</span>
+        <span class="current">${escapeHtml(project.project_id)}</span>
       </div>
 
       <!-- 页面头部 -->
       <div class="page-header">
-        <h1><span class="code">${project.project_id}</span>${project.name}</h1>
+        <h1><span class="code">${escapeHtml(project.project_id)}</span>${escapeHtml(project.name)}</h1>
         <div>${statusBadge(project.phase === "developing" ? "implementing" : project.phase === "commissioning" ? "under_review" : "closed")}</div>
       </div>
 
@@ -103,7 +103,7 @@ const DetailModule = {
       <div class="card mt-24">
         <div class="card__header">
           <div class="card__title">变更单</div>
-          <span class="text-muted" style="font-size:12px;">共 ${changes.length} 条</span>
+          <span class="text-muted" style="font-size:12px;">共 ${escapeHtml(changes.length)} 条</span>
         </div>
         ${this._renderChangeTable(changes)}
       </div>`;
@@ -120,7 +120,7 @@ const DetailModule = {
   },
 
   _infoRow(label, value) {
-    return `<div class="info-row"><span class="info-row__label">${label}</span><span class="info-row__value">${value || "待补充"}</span></div>`;
+    return `<div class="info-row"><span class="info-row__label">${escapeHtml(label)}</span><span class="info-row__value">${escapeHtml(value || "待补充")}</span></div>`;
   },
 
   _renderRisks(risks) {
@@ -129,7 +129,7 @@ const DetailModule = {
     }
     return `<table class="data-table">
       <thead><tr><th>风险项</th><th>等级</th><th>应对措施</th></tr></thead>
-      <tbody>${risks.map((r) => `<tr><td>${r.risk_item || "待补充"}</td><td>${r.level || "待补充"}</td><td>${r.measure || "待补充"}</td></tr>`).join("")}</tbody>
+      <tbody>${risks.map((r) => `<tr><td>${escapeHtml(r.risk_item || "待补充")}</td><td>${escapeHtml(r.level || "待补充")}</td><td>${escapeHtml(r.measure || "待补充")}</td></tr>`).join("")}</tbody>
     </table>`;
   },
 
@@ -139,13 +139,13 @@ const DetailModule = {
     }
     return `<table class="data-table">
       <thead><tr><th>变更编号</th><th>领域</th><th>性质</th><th>状态</th><th>申请人</th><th>申请日期</th></tr></thead>
-      <tbody>${changes.map((c) => `<tr class="clickable change-row" data-change-number="${c.change_number}">
-        <td class="text-accent">${c.change_number}</td>
-        <td>${DOMAIN_LABELS[c.domain] || c.domain}</td>
-        <td>${NATURE_LABELS[c.business_nature] || c.business_nature}</td>
+      <tbody>${changes.map((c) => `<tr class="clickable change-row" data-change-number="${escapeHtml(c.change_number)}">
+        <td class="text-accent">${escapeHtml(c.change_number)}</td>
+        <td>${escapeHtml(DOMAIN_LABELS[c.domain] || c.domain)}</td>
+        <td>${escapeHtml(NATURE_LABELS[c.business_nature] || c.business_nature)}</td>
         <td>${statusBadge(c.status)}</td>
-        <td>${c.applicant || "待补充"}</td>
-        <td>${formatDate(c.apply_date)}</td>
+        <td>${escapeHtml(c.applicant || "待补充")}</td>
+        <td>${escapeHtml(formatDate(c.apply_date))}</td>
       </tr>`).join("")}</tbody>
     </table>`;
   },

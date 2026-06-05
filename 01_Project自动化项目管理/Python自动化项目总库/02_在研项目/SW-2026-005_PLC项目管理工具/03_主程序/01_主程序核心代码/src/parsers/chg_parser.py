@@ -425,11 +425,26 @@ class ChgParser:
         return self._has_table_data_rows(text)
 
     def _extract_verification_conclusion(self, text: str) -> str:
-        """提取 §10.2 验证结论"""
+        """提取 §10.2 验证结论
+
+        匹配两种格式：
+        1. 原始模板格式（含 ☑）: | 验证结论 | ☑全部通过 □不通过 |
+        2. _update_verification_conclusion 写入格式: | **验证结论** | 全部通过 |
+        """
+        # 格式1: 原始模板含 ☑ 标记
         match = re.search(r"10\.2.*?\|.*结论.*?\|.*?☑.*?(\S+?)(?:\s*,|□|\|)", text, re.DOTALL)
         if match:
             return match.group(1).strip()
-        # 简单匹配：查找 ☑ 标记
+        # 格式2: _update_verification_conclusion 写入的 **验证结论** | 值 | 格式
+        match = re.search(
+            r"\|[^|\n]*\*+\s*验证结论\s*\*+\s*\|\s*([^|\n]+)\s*\|",
+            text,
+        )
+        if match:
+            conclusion = match.group(1).strip()
+            if conclusion:
+                return conclusion
+        # 兜底: 查找 ☑ 标记
         if "☑通过" in text or "☑ 全部通过" in text:
             return "全部通过"
         return ""

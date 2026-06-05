@@ -170,6 +170,7 @@ class ChangeManagementService:
         new_status: str,
         approver: str = "",
         comment: str = "",
+        verification_conclusion: str = "全部通过",
     ) -> ChangeRequest | None:
         """状态流转
 
@@ -180,7 +181,10 @@ class ChangeManagementService:
             log.warning("状态流转: 变更单文件未找到 %s", change_number)
             return None
 
-        log.info("状态流转: %s → %s, 审批人=%s", change_number, new_status, approver)
+        log.info(
+            "状态流转: %s → %s, 审批人=%s, 验证结论=%s",
+            change_number, new_status, approver, verification_conclusion,
+        )
 
         # 读取当前内容，获取当前状态
         from src.utils.file_utils import read_file
@@ -197,6 +201,20 @@ class ChangeManagementService:
             log.error("状态流转校验失败: %s", e)
             raise
 
+        today = datetime.date.today().isoformat()
+
+        # implementing → completed: 先写 §10 验证记录再门禁
+        # （其他流转门禁检查已有内容，只有 completed 需要先写入再检查）
+        if new_status == "completed":
+            verify_row = (
+                f"| 1 | 实施完成验证 | 所有变更项已实施 | 通过 | 通过 "
+                f"| ☑{verification_conclusion} | {approver} | {today} |\n"
+            )
+            content = self._append_to_verification_table(content, verify_row)
+            content = self._update_verification_conclusion(content, verification_conclusion)
+            write_file(file_path, content)
+            current_cr = self._parser.parse(file_path)
+
         # 门禁校验：变更单内容必须满足流转前置条件
         self._check_transition_guards(current_cr, new_status, approver, comment)
 
@@ -204,19 +222,13 @@ class ChangeManagementService:
         content = self._update_status_field(content, new_status)
 
         # 2. 更新相关章节记录
-        today = datetime.date.today().isoformat()
         if new_status in ("approved", "conditionally_approved", "rejected"):
-            # 在审批流程表格中追加一行
             approval_row = f"| **{new_status.upper()}** | {approver} | {comment or '同意'} | {today} | {approver} |\n"
             content = self._append_to_approval_table(content, approval_row)
         elif new_status == "implementing":
-            # 在 §9 实施记录中追加一行
             impl_row = f"| {today} | {approver} | 实施中 | 开始实施 | 进行中 | |\n"
             content = self._append_to_implementation_table(content, impl_row)
-        elif new_status == "completed":
-            # 在 §10 验证中追加一行
-            verify_row = f"| 1 | 实施完成验证 | 所有变更项已实施 | 通过 | 通过 | ☑通过 | {approver} | {today} |\n"
-            content = self._append_to_verification_table(content, verify_row)
+        # completed: §10 已在门禁前写入
 
         write_file(file_path, content)
 
@@ -351,6 +363,28 @@ class ChangeManagementService:
             return content[:match.end()] + f"| 变更状态 | {new_status} |\n" + content[match.end():]
         # 兜底：在 §3.4 末尾追加
         return content + f"\n| 变更状态 | {new_status} |\n"
+
+    def _update_verification_conclusion(self, content: str, conclusion: str) -> str:
+        """更新 §10.2 验证结论为指定值"""
+        import re
+        lines = content.splitlines()
+        in_section_10_2 = False
+        result = []
+        for line in lines:
+            if line.startswith("### §10.2"):
+                in_section_10_2 = True
+                result.append(line)
+                continue
+            if in_section_10_2 and line.startswith("### "):
+                in_section_10_2 = False
+            if in_section_10_2 and "**验证结论**" in line:
+                line = re.sub(
+                    r"\| \*\*验证结论\*\* \|.*",
+                    f"| **验证结论** | {conclusion} |",
+                    line,
+                )
+            result.append(line)
+        return "\n".join(result)
 
     def _check_transition_guards(
         self,

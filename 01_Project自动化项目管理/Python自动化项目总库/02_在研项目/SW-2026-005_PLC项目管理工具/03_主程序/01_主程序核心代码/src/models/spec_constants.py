@@ -95,6 +95,27 @@ STATUS_FLOW: dict[str, set[str]] = {
 # 所有合法状态
 ALL_STATUSES: set[str] = set(STATUS_FLOW.keys())
 
+# 状态中文标签（供前端渲染）
+STATUS_LABELS: dict[str, str] = {
+    "draft": "草稿",
+    "submitted": "已提交",
+    "under_review": "审核中",
+    "approved": "已批准",
+    "conditionally_approved": "有条件批准",
+    "rejected": "已驳回",
+    "implementing": "实施中",
+    "completed": "已完成",
+    "closed": "已关闭",
+}
+
+# 阶段中文标签（供前端渲染）
+PHASE_LABELS: dict[str, str] = {
+    "developing": "开发中",
+    "commissioning": "调试中",
+    "production": "生产中",
+    "archived": "已归档",
+}
+
 # §3 必须包含的子章节
 REQUIRED_SUBSECTIONS: set[str] = {"3.0", "3.1", "3.2", "3.3", "3.4"}
 

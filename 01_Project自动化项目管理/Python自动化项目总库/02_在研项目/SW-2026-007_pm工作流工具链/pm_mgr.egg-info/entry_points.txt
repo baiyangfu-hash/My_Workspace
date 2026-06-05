@@ -1,0 +1,2 @@
+[console_scripts]
+pm-mgr = pm_mgr.cli:cli

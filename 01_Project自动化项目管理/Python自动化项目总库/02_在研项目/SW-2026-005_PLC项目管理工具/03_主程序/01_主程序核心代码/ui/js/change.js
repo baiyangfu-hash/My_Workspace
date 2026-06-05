@@ -53,7 +53,7 @@ const ChangeModule = {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state__icon">&#9888;</div>
-          <div class="empty-state__text">加载失败: ${err.message || "未知错误"}</div>
+          <div class="empty-state__text">加载失败: ${escapeHtml(err.message || "未知错误")}</div>
         </div>`;
     }
   },
@@ -69,7 +69,7 @@ const ChangeModule = {
       <div class="filter-bar">
         <select class="form-select" id="filter-project">
           <option value="">全部项目</option>
-          ${projects.map((p) => `<option value="${p.project_id}" ${p.project_id === selectedPid ? "selected" : ""}>${p.project_id} - ${p.name}</option>`).join("")}
+          ${projects.map((p) => `<option value="${escapeHtml(p.project_id)}" ${p.project_id === selectedPid ? "selected" : ""}>${escapeHtml(p.project_id)} - ${escapeHtml(p.name)}</option>`).join("")}
         </select>
         <select class="form-select" id="filter-status">
           <option value="">全部状态</option>
@@ -148,15 +148,15 @@ const ChangeModule = {
     }
     return `<table class="data-table">
       <thead><tr><th>变更编号</th><th>项目</th><th>领域</th><th>性质</th><th>状态</th><th>申请人</th><th>申请日期</th><th>摘要</th></tr></thead>
-      <tbody>${changes.map((c) => `<tr class="clickable change-row" data-change-number="${c.change_number}">
-        <td class="text-accent">${c.change_number}</td>
-        <td>${c.project_id}</td>
-        <td>${DOMAIN_LABELS[c.domain] || c.domain}</td>
-        <td>${NATURE_LABELS[c.business_nature] || c.business_nature}</td>
+      <tbody>${changes.map((c) => `<tr class="clickable change-row" data-change-number="${escapeHtml(c.change_number)}">
+        <td class="text-accent">${escapeHtml(c.change_number)}</td>
+        <td>${escapeHtml(c.project_id)}</td>
+        <td>${escapeHtml(DOMAIN_LABELS[c.domain] || c.domain)}</td>
+        <td>${escapeHtml(NATURE_LABELS[c.business_nature] || c.business_nature)}</td>
         <td>${statusBadge(c.status)}</td>
-        <td>${c.applicant || "待补充"}</td>
-        <td>${formatDate(c.apply_date)}</td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.title || ""}</td>
+        <td>${escapeHtml(c.applicant || "待补充")}</td>
+        <td>${escapeHtml(formatDate(c.apply_date))}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(c.title || "")}</td>
       </tr>`).join("")}</tbody>
     </table>`;
   },
@@ -217,7 +217,7 @@ const ChangeModule = {
             <label class="form-label">项目 <span class="required">*</span></label>
             <select class="form-select" id="wiz-project">
               <option value="">请选择项目</option>
-              ${this._projects.map((p) => `<option value="${p.project_id}" ${d.project_id === p.project_id ? "selected" : ""}>${p.project_id} - ${p.name}</option>`).join("")}
+              ${this._projects.map((p) => `<option value="${escapeHtml(p.project_id)}" ${d.project_id === p.project_id ? "selected" : ""}>${escapeHtml(p.project_id)} - ${escapeHtml(p.name)}</option>`).join("")}
             </select>
           </div>`;
 
@@ -252,26 +252,26 @@ const ChangeModule = {
         return `
           <div class="form-group">
             <label class="form-label">申请人 <span class="required">*</span></label>
-            <input class="form-input" id="wiz-applicant" value="${d.applicant || ""}" placeholder="请输入申请人姓名">
+            <input class="form-input" id="wiz-applicant" value="${escapeHtml(d.applicant || "")}" placeholder="请输入申请人姓名">
           </div>
           <div class="form-group">
             <label class="form-label">变更背景 <span class="required">*</span></label>
-            <textarea class="form-textarea" id="wiz-background" placeholder="描述变更背景">${d.background || ""}</textarea>
+            <textarea class="form-textarea" id="wiz-background" placeholder="描述变更背景">${escapeHtml(d.background || "")}</textarea>
           </div>
           <div class="form-group">
             <label class="form-label">变更必要性 <span class="required">*</span></label>
-            <textarea class="form-textarea" id="wiz-necessity" placeholder="说明变更的必要性">${d.necessity || ""}</textarea>
+            <textarea class="form-textarea" id="wiz-necessity" placeholder="说明变更的必要性">${escapeHtml(d.necessity || "")}</textarea>
           </div>`;
 
       case 3: // 补充信息
         return `
           <div class="form-group">
             <label class="form-label">参考依据</label>
-            <input class="form-input" id="wiz-references" value="${d.references || ""}" placeholder="可选，如规范编号、需求文档等">
+            <input class="form-input" id="wiz-references" value="${escapeHtml(d.references || "")}" placeholder="可选，如规范编号、需求文档等">
           </div>
           <div class="form-group">
             <label class="form-label">预计实施日期</label>
-            <input class="form-input" id="wiz-planned-date" type="date" value="${d.planned_date || ""}">
+            <input class="form-input" id="wiz-planned-date" type="date" value="${escapeHtml(d.planned_date || "")}">
           </div>
           <div class="form-group">
             <label class="form-label">紧急程度</label>
@@ -283,19 +283,19 @@ const ChangeModule = {
       case 4: // 确认提交
         return `
           <div style="font-size:14px;line-height:2;">
-            <p><strong>项目:</strong> ${d.project_id || "未选择"}</p>
-            <p><strong>技术领域:</strong> ${DOMAIN_LABELS[d.domain] || d.domain || "未选择"}</p>
-            <p><strong>业务性质:</strong> ${NATURE_LABELS[d.business_nature] || d.business_nature || "未选择"}</p>
+            <p><strong>项目:</strong> ${escapeHtml(d.project_id || "未选择")}</p>
+            <p><strong>技术领域:</strong> ${escapeHtml(DOMAIN_LABELS[d.domain] || d.domain || "未选择")}</p>
+            <p><strong>业务性质:</strong> ${escapeHtml(NATURE_LABELS[d.business_nature] || d.business_nature || "未选择")}</p>
             <p><strong>影响范围:</strong> ${(d.impact_scope || []).map((s) => {
               const map = { LOCAL: "局部变更", MODULE: "模块级变更", SYSTEM: "系统级变更", CROSS: "跨系统变更", SAFE: "安全相关变更" };
-              return map[s] || s;
+              return escapeHtml(map[s] || s);
             }).join(", ") || "未选择"}</p>
-            <p><strong>申请人:</strong> ${d.applicant || "未填写"}</p>
-            <p><strong>变更背景:</strong> ${d.background || "未填写"}</p>
-            <p><strong>变更必要性:</strong> ${d.necessity || "未填写"}</p>
-            <p><strong>参考依据:</strong> ${d.references || "无"}</p>
-            <p><strong>预计实施日期:</strong> ${d.planned_date || "未指定"}</p>
-            <p><strong>紧急程度:</strong> ${URGENCY_LABELS[d.urgency || "normal"]}</p>
+            <p><strong>申请人:</strong> ${escapeHtml(d.applicant || "未填写")}</p>
+            <p><strong>变更背景:</strong> ${escapeHtml(d.background || "未填写")}</p>
+            <p><strong>变更必要性:</strong> ${escapeHtml(d.necessity || "未填写")}</p>
+            <p><strong>参考依据:</strong> ${escapeHtml(d.references || "无")}</p>
+            <p><strong>预计实施日期:</strong> ${escapeHtml(d.planned_date || "未指定")}</p>
+            <p><strong>紧急程度:</strong> ${escapeHtml(URGENCY_LABELS[d.urgency || "normal"])}</p>
           </div>`;
 
       default:
@@ -396,7 +396,7 @@ const ChangeModule = {
         showModal({
           icon: "&#9888;",
           title: "规范校验失败",
-          body: `<p>创建变更单不符合 CHG-040 规范：</p><p><strong>${err.message}</strong></p>`,
+          body: `<p>创建变更单不符合 CHG-040 规范：</p><p><strong>${escapeHtml(err.message)}</strong></p>`,
           buttons: [{ label: "关闭", class: "btn-secondary", onClick: closeModal }],
         });
       } else {
@@ -415,7 +415,7 @@ const ChangeModule = {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state__icon">&#9888;</div>
-          <div class="empty-state__text">加载失败: ${err.message || "未知错误"}</div>
+          <div class="empty-state__text">加载失败: ${escapeHtml(err.message || "未知错误")}</div>
         </div>`;
     }
   },
@@ -428,12 +428,12 @@ const ChangeModule = {
       <div class="breadcrumb">
         <a href="#/change">变更管理</a>
         <span class="sep">/</span>
-        <span class="current">${cr.change_number}</span>
+        <span class="current">${escapeHtml(cr.change_number)}</span>
       </div>
 
       <!-- 页面头部 -->
       <div class="page-header">
-        <h1><span class="code">${cr.change_number}</span>变更单详情</h1>
+        <h1><span class="code">${escapeHtml(cr.change_number)}</span>变更单详情</h1>
         <div>${statusBadge(cr.status)}</div>
       </div>
 
@@ -464,9 +464,9 @@ const ChangeModule = {
       <div class="card mt-16">
         <div class="card__title">变更原因</div>
         <div style="font-size:13px;line-height:1.8;color:var(--text-secondary);padding:8px 0;">
-          <p><strong>变更背景:</strong> ${cr.background || "待补充"}</p>
-          <p><strong>变更必要性:</strong> ${cr.necessity || "待补充"}</p>
-          ${cr.references ? `<p><strong>参考依据:</strong> ${cr.references}</p>` : ""}
+          <p><strong>变更背景:</strong> ${escapeHtml(cr.background || "待补充")}</p>
+          <p><strong>变更必要性:</strong> ${escapeHtml(cr.necessity || "待补充")}</p>
+          ${cr.references ? `<p><strong>参考依据:</strong> ${escapeHtml(cr.references)}</p>` : ""}
         </div>
       </div>
 
@@ -514,23 +514,26 @@ const ChangeModule = {
 
     // 需要审批人的流转
     const needsApprover = ["approved", "conditionally_approved", "rejected"];
+    // 需要验证结论的流转
+    const needsVerification = ["completed"];
 
     let html = '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
     allowed.forEach((t) => {
       const needApprover = needsApprover.includes(t.target);
-      html += `<button class="btn-primary btn-sm btn-transition" data-target-status="${t.target}" data-needs-approver="${needApprover}">${t.label}</button>`;
+      const needVerify = needsVerification.includes(t.target);
+      html += `<button class="btn-primary btn-sm btn-transition" data-target-status="${t.target}" data-needs-approver="${needApprover}" data-needs-verify="${needVerify}">${t.label}</button>`;
     });
     html += "</div>";
 
     // 审批人/备注输入区（初始隐藏）
     html += `
       <div id="transition-form" style="display:none;margin-top:16px;padding:16px;background:var(--bg-input);border-radius:var(--radius-sm);">
-        <div class="form-group">
-          <label class="form-label">审批人 <span class="required">*</span></label>
-          <input class="form-input" id="transition-approver" placeholder="请输入审批人姓名">
+        <div id="approver-group" class="form-group">
+          <label class="form-label">审批人/实施人 <span class="required">*</span></label>
+          <input class="form-input" id="transition-approver" placeholder="请输入姓名">
         </div>
         <div class="form-group">
-          <label class="form-label">备注</label>
+          <label class="form-label" id="transition-comment-label">备注</label>
           <textarea class="form-textarea" id="transition-comment" placeholder="可选，如附条件、驳回原因等"></textarea>
         </div>
         <div style="display:flex;gap:10px;">
@@ -544,15 +547,23 @@ const ChangeModule = {
 
   _onTransition(container, changeNumber, targetStatus, currentStatus) {
     const needsApprover = ["approved", "conditionally_approved", "rejected"].includes(targetStatus);
+    const needsVerification = targetStatus === "completed";
     const formEl = container.querySelector("#transition-form");
 
     if (needsApprover) {
       // 显示审批人/备注表单
       formEl.style.display = "block";
+      // 隐藏验证相关字段
+      const verifyGroup = container.querySelector("#verify-group");
+      if (verifyGroup) verifyGroup.style.display = "none";
+      const approverGroup = container.querySelector("#approver-group");
+      if (approverGroup) approverGroup.style.display = "block";
+      const commentLabel = container.querySelector("#transition-comment-label");
+      if (commentLabel) commentLabel.textContent = "备注";
+
       const confirmBtn = container.querySelector("#btn-confirm-transition");
       const cancelBtn = container.querySelector("#btn-cancel-transition");
 
-      // 移除旧事件（防止重复绑定）
       const newConfirm = confirmBtn.cloneNode(true);
       const newCancel = cancelBtn.cloneNode(true);
       confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
@@ -566,6 +577,57 @@ const ChangeModule = {
           return;
         }
         await this._doTransition(container, changeNumber, targetStatus, { approver, comment });
+      });
+      newCancel.addEventListener("click", () => {
+        formEl.style.display = "none";
+      });
+    } else if (needsVerification) {
+      // implementing → completed: 显示验证结论表单
+      formEl.style.display = "block";
+      const approverGroup = container.querySelector("#approver-group");
+      if (approverGroup) approverGroup.style.display = "block";
+
+      // 显示/注入验证结论字段
+      let verifyGroup = container.querySelector("#verify-group");
+      if (!verifyGroup) {
+        verifyGroup = document.createElement("div");
+        verifyGroup.id = "verify-group";
+        verifyGroup.className = "form-group";
+        verifyGroup.innerHTML = `
+          <label class="form-label">验证结论 <span class="required">*</span></label>
+          <select class="form-input" id="transition-verification">
+            <option value="全部通过">全部通过</option>
+            <option value="不通过">不通过</option>
+          </select>
+        `;
+        const commentGroup = container.querySelector("#transition-comment").parentNode;
+        commentGroup.parentNode.insertBefore(verifyGroup, commentGroup);
+      }
+      verifyGroup.style.display = "block";
+      const commentLabel = container.querySelector("#transition-comment-label") || container.querySelector("#transition-comment").previousElementSibling;
+      if (commentLabel) commentLabel.textContent = "验证说明";
+
+      const confirmBtn = container.querySelector("#btn-confirm-transition");
+      const cancelBtn = container.querySelector("#btn-cancel-transition");
+
+      const newConfirm = confirmBtn.cloneNode(true);
+      const newCancel = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+      newConfirm.addEventListener("click", async () => {
+        const approver = container.querySelector("#transition-approver").value.trim();
+        if (!approver) {
+          showToast("请填写实施人", "warning");
+          return;
+        }
+        const verification = container.querySelector("#transition-verification").value;
+        const comment = container.querySelector("#transition-comment").value.trim();
+        await this._doTransition(container, changeNumber, targetStatus, {
+          approver,
+          comment: comment || "实施完成，验证通过",
+          verification_conclusion: verification,
+        });
       });
       newCancel.addEventListener("click", () => {
         formEl.style.display = "none";
@@ -589,9 +651,9 @@ const ChangeModule = {
           icon: "&#9888;",
           title: "门禁条件未满足",
           body: `
-            <p>变更单 <strong>${changeNumber}</strong> 不满足 <strong>${STATUS_LABELS[targetStatus] || targetStatus}</strong> 的门禁条件：</p>
+            <p>变更单 <strong>${escapeHtml(changeNumber)}</strong> 不满足 <strong>${escapeHtml(STATUS_LABELS[targetStatus] || targetStatus)}</strong> 的门禁条件：</p>
             <ul class="guard-violations">
-              ${err.message.split("\n").filter((l) => l.trim().startsWith("-")).map((l) => `<li>${l.trim().replace(/^-\s*/, "")}</li>`).join("")}
+              ${escapeHtml(err.message).split("\n").filter((l) => l.trim().startsWith("-")).map((l) => `<li>${l.trim().replace(/^-\s*/, "")}</li>`).join("")}
             </ul>
             <p class="guard-hint">请编辑变更单文件补充以上内容后重试。</p>`,
           buttons: [{ label: "关闭", class: "btn-secondary", onClick: closeModal }],
@@ -600,7 +662,7 @@ const ChangeModule = {
         showModal({
           icon: "&#9888;",
           title: "状态流转不合法",
-          body: `<p>${err.message}</p>`,
+          body: `<p>${escapeHtml(err.message)}</p>`,
           buttons: [{ label: "关闭", class: "btn-secondary", onClick: closeModal }],
         });
       } else {
@@ -610,6 +672,6 @@ const ChangeModule = {
   },
 
   _infoRow(label, value) {
-    return `<div class="info-row"><span class="info-row__label">${label}</span><span class="info-row__value">${value || "待补充"}</span></div>`;
+    return `<div class="info-row"><span class="info-row__label">${escapeHtml(label)}</span><span class="info-row__value">${escapeHtml(value || "待补充")}</span></div>`;
   },
 };

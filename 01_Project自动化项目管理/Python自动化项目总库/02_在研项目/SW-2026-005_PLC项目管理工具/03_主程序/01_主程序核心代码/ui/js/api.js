@@ -34,7 +34,14 @@ const Api = {
     if (!api || typeof api[method] !== "function") {
       throw { type: "InternalError", message: `API 方法 ${method} 不可用` };
     }
-    const result = await api[method](...args);
+    // 超时保护：防止 Bridge 调用卡死导致前端永久转圈
+    const TIMEOUT_MS = 15000;
+    const result = await Promise.race([
+      api[method](...args),
+      new Promise((_, reject) =>
+        setTimeout(() => reject({ type: "TimeoutError", message: `调用 ${method} 超时(${TIMEOUT_MS / 1000}s)` }), TIMEOUT_MS)
+      ),
+    ]);
     // Bridge 返回 {error, message} 表示业务错误
     if (result && result.error) {
       throw { type: result.error, message: result.message };
@@ -68,5 +75,21 @@ const Api = {
   },
   transitionStatus(changeNumber, newStatus, kwargs) {
     return this._call("transition_status", changeNumber, newStatus, kwargs);
+  },
+
+  // ---- 规范常量 ----
+  getSpecConstants() {
+    return this._call("get_spec_constants");
+  },
+
+  // ---- 工作空间管理 ----
+  getWorkspaceInfo() {
+    return this._call("get_workspace_info");
+  },
+  setWorkspace(path) {
+    return this._call("set_workspace", path);
+  },
+  selectWorkspace() {
+    return this._call("select_workspace");
   },
 };

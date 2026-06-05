@@ -1,10 +1,15 @@
-"""CLI 入口：Service 层命令行验证"""
+"""CLI 入口：Service 层命令行验证
+
+环境变量:
+    PLC_WORKSPACE_ROOT  工作空间根目录（默认 0100_PLC自动化）
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
 import logging
+import os
 import sys
 from dataclasses import asdict
 
@@ -14,7 +19,8 @@ from src.utils.logger import get_logger
 
 log = get_logger("cli")
 
-WORKSPACE_ROOT = r"C:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化"
+_WORKSPACE_DEFAULT = r"C:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化"
+WORKSPACE_ROOT = os.environ.get("PLC_WORKSPACE_ROOT", _WORKSPACE_DEFAULT)
 
 
 def cmd_projects(args: argparse.Namespace) -> None:

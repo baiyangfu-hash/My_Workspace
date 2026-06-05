@@ -2,9 +2,23 @@
  * SPA 核心：路由管理 + 导航渲染 + 页面切换 + 全局组件
  */
 
+/* ========== 安全工具 ========== */
+
+/** HTML 实体转义 — 防止 XSS，所有动态数据插入 innerHTML 前必须调用 */
+function escapeHtml(str) {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /* ========== 全局状态 ========== */
 let currentModule = null;
 let currentRoute = "";
+let workspaceRoot = "";  // 当前工作空间路径
 
 const contentEl = document.getElementById("content");
 const toastContainer = document.getElementById("toast-container");
@@ -155,68 +169,102 @@ modalOverlay.addEventListener("click", (e) => {
 /* ========== 全局事件 ========== */
 
 // 刷新按钮
-document.getElementById("btn-refresh").addEventListener("click", async () => {
-  try {
-    await Api.refreshCache();
-    showToast("缓存已刷新", "success");
-    // 重新渲染当前页面
-    if (currentModule && typeof currentModule.render === "function") {
-      currentModule.render(contentEl, "");
+const btnRefresh = document.getElementById("btn-refresh");
+if (btnRefresh) {
+  btnRefresh.addEventListener("click", async () => {
+    try {
+      await Api.refreshCache();
+      showToast("缓存已刷新", "success");
+      // 走完整路由流程重新渲染（避免绕过 navigate 导致渲染异常）
+      navigate(location.hash.slice(1) || "/");
+    } catch (err) {
+      showToast("刷新失败: " + (err.message || "未知错误"), "error");
     }
-  } catch (err) {
-    showToast("刷新失败: " + (err.message || "未知错误"), "error");
+  });
+}
+
+// 工作空间选择按钮
+const btnWorkspace = document.getElementById("btn-workspace");
+if (btnWorkspace) {
+  btnWorkspace.addEventListener("click", async () => {
+    try {
+      const result = await Api.selectWorkspace();
+      if (result && result.status === "ok") {
+        workspaceRoot = result.workspace_root;
+        updateWorkspaceDisplay();
+        showToast("工作空间已切换: " + workspaceRoot, "success");
+        navigate("#/dashboard");
+      }
+      // status === "cancelled" 时不做任何事
+    } catch (err) {
+      showToast("选择工作空间失败: " + (err.message || "未知错误"), "error");
+    }
+  });
+}
+
+/** 更新导航栏工作空间显示 */
+function updateWorkspaceDisplay() {
+  const el = document.getElementById("workspace-label");
+  if (el) {
+    if (workspaceRoot) {
+      // 只显示最后两级目录
+      const parts = workspaceRoot.replace(/\\/g, "/").split("/");
+      const short = parts.slice(-2).join("/");
+      el.textContent = short;
+      el.title = workspaceRoot;
+    } else {
+      el.textContent = "未选择";
+      el.title = "点击选择工作空间";
+    }
   }
-});
+}
 
 /* ========== 工具函数 ========== */
 
-/** 状态显示名映射 */
-const STATUS_LABELS = {
-  draft: "草稿",
-  submitted: "已提交",
-  under_review: "审核中",
-  approved: "已批准",
-  conditionally_approved: "有条件批准",
-  rejected: "已驳回",
-  implementing: "实施中",
-  completed: "已完成",
-  closed: "已关闭",
+/** 状态显示名映射（默认值，运行时从 Bridge get_spec_constants 同步） */
+let STATUS_LABELS = {
+  draft: "草稿", submitted: "已提交", under_review: "审核中",
+  approved: "已批准", conditionally_approved: "有条件批准",
+  rejected: "已驳回", implementing: "实施中", completed: "已完成", closed: "已关闭",
 };
 
-/** 领域显示名映射 */
-const DOMAIN_LABELS = {
-  ELEC: "电气设计",
-  MECH: "机械结构",
-  PLC: "PLC程序",
-  HMI: "HMI程序",
-  SCPT: "Python脚本",
-  DOCU: "工程文档",
-  SAFE: "安全功能",
+/** 领域显示名映射（默认值，运行时从 Bridge 同步） */
+let DOMAIN_LABELS = {
+  ELEC: "电气设计", MECH: "机械结构", PLC: "PLC程序",
+  HMI: "HMI程序", SCPT: "Python脚本", DOCU: "工程文档", SAFE: "安全功能",
 };
 
-/** 业务性质显示名映射 */
-const NATURE_LABELS = {
-  REQ: "需求变更",
-  DEF: "缺陷修复",
-  OPT: "优化改进",
-  CFG: "配置调整",
-  EMRG: "紧急变更",
+/** 业务性质显示名映射（默认值，运行时从 Bridge 同步） */
+let NATURE_LABELS = {
+  REQ: "需求变更", DEF: "缺陷修复", OPT: "优化改进", CFG: "配置调整", EMRG: "紧急变更",
 };
 
-/** 紧急程度显示名映射 */
-const URGENCY_LABELS = {
-  normal: "一般",
-  urgent: "紧急",
-  critical: "非常紧急",
+/** 紧急程度显示名映射（默认值，运行时从 Bridge 同步） */
+let URGENCY_LABELS = {
+  normal: "一般", urgent: "紧急", critical: "非常紧急",
 };
 
-/** 阶段显示名映射 */
-const PHASE_LABELS = {
-  developing: "开发中",
-  commissioning: "调试中",
-  production: "生产中",
-  archived: "已归档",
+/** 阶段显示名映射（默认值，运行时从 Bridge 同步） */
+let PHASE_LABELS = {
+  developing: "开发中", commissioning: "调试中", production: "生产中", archived: "已归档",
 };
+
+/** 从 Bridge API 同步规范常量（消除前后端枚举重复维护） */
+async function initSpecConstants() {
+  try {
+    const constants = await Api.getSpecConstants();
+    if (constants) {
+      if (constants.status_labels) STATUS_LABELS = constants.status_labels;
+      if (constants.domains) DOMAIN_LABELS = constants.domains;
+      if (constants.business_natures) NATURE_LABELS = constants.business_natures;
+      if (constants.urgency_levels) URGENCY_LABELS = constants.urgency_levels;
+      if (constants.phase_labels) PHASE_LABELS = constants.phase_labels;
+    }
+  } catch (err) {
+    // Bridge 不可用时使用默认值，不阻塞页面加载
+    console.warn("规范常量同步失败，使用默认值:", err.message);
+  }
+}
 
 /** 生成状态徽章 HTML */
 function statusBadge(status) {
@@ -231,6 +279,29 @@ function formatDate(dateStr) {
 }
 
 /** 启动应用 */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // 先从 Bridge 同步规范常量，再初始化路由（确保渲染时使用最新标签）
+  await initSpecConstants();
+
+  // 检查工作空间是否已设置
+  try {
+    const info = await Api.getWorkspaceInfo();
+    if (info && info.is_set) {
+      workspaceRoot = info.workspace_root;
+      updateWorkspaceDisplay();
+    } else {
+      // 未设置工作空间，显示提示
+      contentEl.innerHTML = `
+        <div class="empty-state" style="margin-top:120px;">
+          <div class="empty-state__icon" style="font-size:48px;">&#128193;</div>
+          <div class="empty-state__text" style="font-size:18px;margin-top:16px;">请选择工作空间目录</div>
+          <div style="margin-top:16px;color:var(--text-muted);">点击左上角 <strong>选择目录</strong> 按钮，或设置环境变量 <code>PLC_WORKSPACE_ROOT</code></div>
+        </div>`;
+      return;
+    }
+  } catch (err) {
+    console.warn("工作空间检查失败:", err.message);
+  }
+
   initRouter();
 });

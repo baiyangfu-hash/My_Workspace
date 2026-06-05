@@ -12,7 +12,16 @@ from typing import Any
 
 import webview
 
-from src.models.spec_constants import SpecViolationError, TransitionGuardError
+from src.models.spec_constants import (
+    SpecViolationError,
+    TransitionGuardError,
+    DOMAINS,
+    BUSINESS_NATURES,
+    IMPACT_SCOPES,
+    URGENCY_LEVELS,
+    STATUS_LABELS,
+    PHASE_LABELS,
+)
 from src.services.change_management_service import ChangeManagementService
 from src.services.project_overview_service import ProjectOverviewService
 
@@ -32,11 +41,60 @@ class WebViewBridge:
         self._overview_svc = ProjectOverviewService(workspace_root)
         self._change_svc = ChangeManagementService(workspace_root)
         self._window: webview.Window | None = None
-        log.info("WebViewBridge 初始化完成, workspace_root=%s", workspace_root)
+        self._workspace_root = workspace_root
+        log.info("WebViewBridge 初始化完成, workspace_root=%s", workspace_root or "(待选择)")
 
     def set_window(self, window: webview.Window) -> None:
         """设置 PyWebView 窗口引用（用于回调）"""
         self._window = window
+
+    # ── 工作空间管理 API ──────────────────────────────────────
+
+    def get_workspace_info(self) -> dict:
+        """获取当前工作空间信息
+
+        Returns:
+            dict: {"workspace_root": str, "is_set": bool}
+        """
+        return {
+            "workspace_root": self._workspace_root,
+            "is_set": bool(self._workspace_root),
+        }
+
+    def set_workspace(self, path: str) -> dict:
+        """设置工作空间根目录并刷新服务
+
+        Args:
+            path: 工作空间根目录绝对路径
+
+        Returns:
+            dict: {"status": "ok", "workspace_root": str}
+        """
+        import os
+        if not os.path.isdir(path):
+            return {"error": "ValueError", "message": f"目录不存在: {path}"}
+        self._workspace_root = os.path.abspath(path)
+        self._overview_svc = ProjectOverviewService(self._workspace_root)
+        self._change_svc = ChangeManagementService(self._workspace_root)
+        self._overview_svc.refresh()  # 清空旧缓存
+        log.info("工作空间已切换: %s", self._workspace_root)
+        return {"status": "ok", "workspace_root": self._workspace_root}
+
+    def select_workspace(self) -> dict:
+        """弹出文件夹选择对话框，让用户选择工作空间
+
+        Returns:
+            dict: {"status": "ok", "workspace_root": str} 或 {"status": "cancelled"}
+        """
+        if self._window is None:
+            return {"error": "InternalError", "message": "窗口未初始化"}
+        result = self._window.create_file_dialog(
+            webview.FOLDER_DIALOG,
+            directory="",
+        )
+        if result and len(result) > 0:
+            return self.set_workspace(result[0])
+        return {"status": "cancelled"}
 
     # ── 项目总览 API ──────────────────────────────────────────
 
@@ -106,6 +164,28 @@ class WebViewBridge:
         except Exception as e:
             log.exception("refresh_cache 失败")
             return self._error_result(e)
+
+    def get_spec_constants(self) -> dict:
+        """返回规范常量（供前端渲染使用，消除前后端枚举重复维护）
+
+        Returns:
+            dict: {
+                "domains": {code: label},
+                "business_natures": {code: label},
+                "impact_scopes": {code: label},
+                "urgency_levels": {code: label},
+                "status_labels": {code: label},
+                "phase_labels": {code: label},
+            }
+        """
+        return {
+            "domains": DOMAINS,
+            "business_natures": BUSINESS_NATURES,
+            "impact_scopes": IMPACT_SCOPES,
+            "urgency_levels": URGENCY_LEVELS,
+            "status_labels": STATUS_LABELS,
+            "phase_labels": PHASE_LABELS,
+        }
 
     # ── 变更管理 API ──────────────────────────────────────────
 
@@ -217,6 +297,7 @@ class WebViewBridge:
                 new_status=new_status,
                 approver=kwargs.get("approver", ""),
                 comment=kwargs.get("comment", ""),
+                verification_conclusion=kwargs.get("verification_conclusion", "全部通过"),
             )
             if cr is None:
                 return {"error": "NotFoundError", "message": f"变更单 {change_number} 不存在"}
