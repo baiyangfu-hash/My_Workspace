@@ -1,78 +1,60 @@
-# -*- coding: utf-8 -*-
-"""
-日志工具模块
+"""全局日志配置
 
-提供统一的日志记录器配置和管理。
-支持控制台输出和文件输出双通道，
-自动创建日志目录和按日期轮转。
+用法:
+    from src.utils.logger import get_logger
+    log = get_logger(__name__)
+
+    log.debug("详细信息")
+    log.info("关键流程节点")
+    log.warning("异常分支")
+    log.error("错误")
+
+日志级别由环境变量 PLC_MGR_LOG_LEVEL 控制:
+    DEBUG / INFO / WARNING / ERROR
+默认 INFO，CLI 模式下输出到 stderr，UI 模式下输出到 logs/ 目录。
 """
+
+from __future__ import annotations
+
 import logging
+import os
 import sys
-from pathlib import Path
-from typing import Optional
 
-from src.core.config import ConfigLoader
+_LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+_DATE_FORMAT = "%H:%M:%S"
+
+_initialized = False
 
 
-def setup_logger(
-    name: Optional[str] = None,
-    log_level: Optional[int] = None,
-) -> logging.Logger:
-    """
-    配置并返回日志记录器
+def _ensure_initialized() -> None:
+    """首次调用时配置根 logger"""
+    global _initialized
+    if _initialized:
+        return
+    _initialized = True
 
-    Args:
-        name: 日志记录器名称，为None时使用调用者模块名
-        log_level: 日志级别，为None时根据配置自动确定
+    level_name = os.environ.get("PLC_MGR_LOG_LEVEL", "INFO").upper()
+    level = getattr(logging, level_name, logging.INFO)
 
-    Returns:
-        logging.Logger: 配置好的日志记录器实例
-    """
-    logger = logging.getLogger(name or __name__)
+    root = logging.getLogger("src")
+    root.setLevel(level)
 
-    # 避免重复添加处理器
-    if logger.handlers:
-        return logger
-
-    # 确定日志级别
-    if log_level is None:
-        debug_mode = ConfigLoader.get("debug_mode", False)
-        log_level = logging.DEBUG if debug_mode else logging.INFO
-
-    logger.setLevel(log_level)
-
-    # 格式化器
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # 控制台处理器
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(log_level)
-    logger.addHandler(console_handler)
-
-    # 文件处理器
-    try:
-        log_dir = (
-            Path(__file__).parent.parent.parent / "logs"
-        )
-        log_dir.mkdir(parents=True, exist_ok=True)
-        log_file = log_dir / "plc_project_manager.log"
-
-        file_handler = logging.FileHandler(
-            log_file, encoding="utf-8", mode="a"
-        )
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)  # 文件始终记录DEBUG级别
-        logger.addHandler(file_handler)
-    except OSError as e:
-        logger.warning(f"无法创建日志文件: {e}")
-
-    return logger
+    # 避免重复添加 handler
+    if not root.handlers:
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(level)
+        handler.setFormatter(logging.Formatter(_LOG_FORMAT, _DATE_FORMAT))
+        root.addHandler(handler)
 
 
 def get_logger(name: str) -> logging.Logger:
-    """获取指定名称的日志记录器的快捷方法"""
-    return setup_logger(name)
+    """获取 logger 实例
+
+    Args:
+        name: 通常传 __name__，如 src.services.project_overview_service
+    """
+    _ensure_initialized()
+    # 确保 logger 名以 src. 开头，受根 logger 管理
+    if not name.startswith("src"):
+        name = f"src.{name}"
+    return logging.getLogger(name)

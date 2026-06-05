@@ -1,151 +1,71 @@
-# -*- coding: utf-8 -*-
-"""
-路径解析模块
+"""路径解析（工作空间约定）"""
 
-提供可扩展的路径规范化与解析能力。
-采用策略模式支持多种路径处理方式：
-- RelativePathStrategy: 基于基准路径的相对路径转换
-- 预留: EnvVarPathStrategy, HomePathStrategy 等
+from __future__ import annotations
 
-设计原则:
-- 高内聚: 所有路径处理逻辑集中在此模块
-- 低耦合: 通过策略接口与外部解耦
-- 可扩展: 新增策略只需实现基类
-"""
-from abc import ABC, abstractmethod
-from pathlib import Path
-from typing import Optional
-
-from src.utils.logger import setup_logger
-
-logger = setup_logger(__name__)
+import os
+import re
 
 
-class PathStrategy(ABC):
-    """路径处理策略基类（抽象接口）"""
+def find_proj_file(project_path: str) -> str | None:
+    """在项目目录下查找立项表文件
 
-    @abstractmethod
-    def normalize(self, raw_path: str, base_path: Optional[Path] = None) -> str:
-        """
-        规范化路径用于存储
-
-        Args:
-            raw_path: 原始路径
-            base_path: 基准参考路径
-
-        Returns:
-            规范化后的存储路径
-        """
-        pass
-
-    @abstractmethod
-    def resolve(self, stored_path: str, base_path: Optional[Path] = None) -> str:
-        """
-        解析存储路径为可用路径
-
-        Args:
-            stored_path: 存储的路径
-            base_path: 基准参考路径
-
-        Returns:
-            解析后的绝对/可用路径
-        """
-        pass
-
-
-class RelativePathStrategy(PathStrategy):
+    查找路径: 00_项目管理/01_立项与需求/*_PROJ-*.md
     """
-    相对路径策略
+    search_dir = os.path.join(project_path, "00_项目管理", "01_立项与需求")
+    if not os.path.isdir(search_dir):
+        return None
+    for name in os.listdir(search_dir):
+        if re.search(r"_PROJ-.*\.md$", name, re.IGNORECASE):
+            return os.path.join(search_dir, name)
+    return None
 
-    将绝对路径转换为相对于基准路径的相对路径进行存储，
-    读取时自动还原为绝对路径。
 
-    适用场景:
-    - 项目整体迁移后保持路径有效
-    - 配置文件需要跨环境共享
+def scan_change_files(project_path: str) -> list[str]:
+    """扫描变更单文件
+
+    查找路径: 00_项目管理/04_变更管理/01_变更单/CHG-*/CHG-*.md
     """
-
-    def normalize(self, raw_path: str, base_path: Optional[Path] = None) -> str:
-        if not base_path or not raw_path:
-            return raw_path
-
-        path_obj = Path(raw_path)
-
-        if path_obj.is_absolute():
-            try:
-                relative = path_obj.relative_to(base_path)
-                logger.debug(f"路径规范化: {raw_path} -> {relative}")
-                return str(relative)
-            except ValueError:
-                logger.warning(f"无法计算相对路径，保持原值: {raw_path}")
-
-        return raw_path
-
-    def resolve(self, stored_path: str, base_path: Optional[Path] = None) -> str:
-        if not base_path or not stored_path:
-            return stored_path
-
-        path_obj = Path(stored_path)
-
-        if not path_obj.is_absolute():
-            resolved = (base_path / path_obj).resolve()
-
-            if resolved.exists():
-                logger.debug(f"路径解析: {stored_path} -> {resolved}")
-                return str(resolved)
-
-            logger.warning(f"解析路径不存在，返回原始值: {stored_path}")
-
-        return stored_path
+    base_dir = os.path.join(project_path, "00_项目管理", "04_变更管理", "01_变更单")
+    if not os.path.isdir(base_dir):
+        return []
+    results: list[str] = []
+    for domain_dir in sorted(os.listdir(base_dir)):
+        domain_path = os.path.join(base_dir, domain_dir)
+        if not os.path.isdir(domain_path):
+            continue
+        for name in sorted(os.listdir(domain_path)):
+            if name.startswith("CHG-") and name.endswith(".md"):
+                results.append(os.path.join(domain_path, name))
+    return results
 
 
-class PathResolver:
+def find_ledger_file(project_path: str) -> str | None:
+    """查找版本变更台帐文件
+
+    查找路径: 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md
     """
-    路径解析器（门面类）
+    ledger_path = os.path.join(
+        project_path, "00_项目管理", "04_变更管理", "04_变更记录", "01_版本变更台帐.md"
+    )
+    if os.path.isfile(ledger_path):
+        return ledger_path
+    return None
 
-    统一入口，封装策略选择和调用逻辑。
-    对外提供简洁的API，内部委托给具体策略。
 
-    Usage:
-        resolver = PathResolver(RelativePathStrategy())
-        normalized = resolver.normalize("/abs/path", base_path=Path("."))
-        resolved = resolver.resolve("../rel/path", base_path=Path("."))
+def get_project_id_from_path(project_path: str) -> str:
+    """从项目目录路径提取项目编号
+
+    例: C:\\...\\0100_PLC自动化\\DJ-2026-005\\ → DJ-2026-005
     """
-
-    def __init__(self, strategy: PathStrategy = None):
-        self._strategy = strategy or RelativePathStrategy()
-
-    @property
-    def strategy(self) -> PathStrategy:
-        return self._strategy
-
-    @strategy.setter
-    def strategy(self, value: PathStrategy):
-        if not isinstance(value, PathStrategy):
-            raise TypeError("策略必须是 PathStrategy 的子类实例")
-        self._strategy = value
-
-    def normalize(self, raw_path: str, base_path: Optional[Path] = None) -> str:
-        """规范化路径（委托给当前策略）"""
-        return self._strategy.normalize(raw_path, base_path)
-
-    def resolve(self, stored_path: str, base_path: Optional[Path] = None) -> str:
-        """解析路径（委托给当前策略）"""
-        return self._strategy.resolve(stored_path, base_path)
+    return os.path.basename(project_path)
 
 
-_default_resolver: Optional[PathResolver] = None
+def extract_domain_from_change_number(change_number: str) -> str:
+    """从变更编号提取领域
 
-
-def get_default_resolver() -> PathResolver:
-    """获取默认路径解析器（懒加载单例）"""
-    global _default_resolver
-    if _default_resolver is None:
-        _default_resolver = PathResolver(RelativePathStrategy())
-    return _default_resolver
-
-
-def reset_default_resolver():
-    """重置默认解析器（主要用于测试）"""
-    global _default_resolver
-    _default_resolver = None
+    例: CHG-DOCU-2026-001 → DOCU
+    """
+    parts = change_number.split("-")
+    if len(parts) >= 2:
+        return parts[1]
+    return ""

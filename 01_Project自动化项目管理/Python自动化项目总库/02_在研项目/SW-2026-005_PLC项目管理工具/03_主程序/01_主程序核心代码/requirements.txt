@@ -1,29 +1,3 @@
-# SW-2026-005 PLC项目管理工具 - Python依赖清单
-#
-# 安装命令: pip install -r requirements.txt
-#
-# 核心依赖
-PyQt5>=5.15.0
-PyQt5-sip>=12.8.0
-QScintilla>=2.13.0
-
-# Markdown处理
-Markdown>=3.4.0
-
-# Excel读写 (IO分配表导入导出)
-openpyxl>=3.0.0
-
-# 日志系统
-loguru>=0.7.0
-
-# URL/标识符生成
-python-slugify>=6.0.0
-
-# 数据校验 (可选)
-pydantic>=1.10.0; python_version < "3.9"
-pydantic>=2.0.0; python_version >= "3.9"
-
-# 测试依赖 (开发时使用)
-pytest>=7.0.0
-pytest-cov>=4.0.0
-pytest-qt>=4.2.0
+# PLC项目管理工具 V9.0.0 运行时依赖
+# Phase 1a: 仅标准库，无第三方依赖
+# Phase 1b: 添加 pywebview>=5.0

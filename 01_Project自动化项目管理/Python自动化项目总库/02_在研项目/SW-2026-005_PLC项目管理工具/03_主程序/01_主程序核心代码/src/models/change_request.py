@@ -1,44 +1,64 @@
-# -*- coding: utf-8 -*-
-"""
-变更请求数据模型
+"""变更单数据模型 - 来源：CHG-*.md"""
 
-作为变更管理服务的轻量级领域对象，描述单张变更单的核心字段。
-"""
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Dict, List
-
-from src.core.constants import ChangeStatus
 
 
 @dataclass
 class ChangeRequest:
-    """变更请求"""
+    """变更单数据模型 - 来源：CHG-*.md"""
 
-    change_id: str
-    category: str
-    title: str
-    project_path: str
-    status: str = field(default_factory=lambda: ChangeStatus.DRAFT.value)
-    description: str = ""
-    affected_paths: List[str] = field(default_factory=list)
-    created_at: str = field(
-        default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
-    updated_at: str = field(
-        default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
+    # §3.0 编号与项目
+    change_number: str = ""
+    project_id: str = ""
+    project_name: str = ""
 
-    def to_dict(self) -> Dict[str, object]:
-        """转换为字典"""
-        return {
-            "change_id": self.change_id,
-            "category": self.category,
-            "title": self.title,
-            "project_path": self.project_path,
-            "status": self.status,
-            "description": self.description,
-            "affected_paths": list(self.affected_paths),
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-        }
+    # §3.1 技术领域
+    domain: str = ""
+
+    # §3.2 业务性质
+    business_nature: str = ""
+
+    # §3.3 影响范围
+    impact_scope: list[str] = field(default_factory=list)
+
+    # §3.4 申请信息
+    applicant: str = "待补充"
+    apply_date: str = "待补充"
+    planned_date: str = "待补充"
+    urgency: str = "normal"
+
+    # §4 变更原因
+    background: str = "待补充"
+    necessity: str = "待补充"
+    references: str = "待补充"
+
+    # 状态（从审批流程推断）
+    status: str = "draft"
+
+    # 章节内容（门禁校验用，记录各章节是否有实质内容）
+    has_section_4: bool = False      # §4 变更原因
+    has_section_7: bool = False      # §7 实施计划
+    has_section_8_approval: bool = False  # §8.1 至少一条审批记录
+    has_section_9: bool = False      # §9 实施记录
+    has_section_10_verify: bool = False   # §10.1 至少一条验证项
+    section_10_conclusion: str = ""  # §10.2 验证结论
+
+    # 元数据
+    file_path: str = ""
+    file_mtime: float = 0.0
+
+
+@dataclass
+class ChangeSummary:
+    """变更单列表项 - 轻量级"""
+    change_number: str = ""
+    project_id: str = ""
+    domain: str = ""
+    business_nature: str = ""
+    impact_scope: list[str] = field(default_factory=list)
+    status: str = "draft"
+    applicant: str = "待补充"
+    apply_date: str = "待补充"
+    title: str = "待补充"

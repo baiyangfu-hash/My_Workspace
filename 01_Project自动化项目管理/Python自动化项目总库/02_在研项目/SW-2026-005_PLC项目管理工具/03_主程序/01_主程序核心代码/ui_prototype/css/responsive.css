@@ -1,8 +1,0 @@
-@media (min-width: 1600px) {
-  .stats-grid { grid-template-columns: repeat(4, 1fr); }
-  .section-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 1200px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .section-grid { grid-template-columns: 1fr; }
-}

@@ -1,94 +1,46 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import sys
+"""PLC 项目管理工具 — 主入口
+
+启动 PyWebView 窗口，加载 Bridge 验证页面。
+"""
+
+from __future__ import annotations
+
+import logging
 import os
-from pathlib import Path
+import sys
 
-BASE_DIR = Path(__file__).resolve().parent
-LIB_DIR = BASE_DIR / "lib"
-if LIB_DIR.is_dir() and str(LIB_DIR) not in sys.path:
-    sys.path.insert(0, str(LIB_DIR))
+import webview
 
-SRC_DIR = BASE_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-sys.path.insert(0, str(BASE_DIR))
+from src.bridge.webview_bridge import WebViewBridge
+from src.utils.logger import get_logger
 
-USE_WEBVIEW = os.environ.get("PLC_GUI_MODE", "webview") == "webview"
+# 工作空间根目录（0100_PLC自动化）
+WORKSPACE_ROOT = r"C:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化"
 
-
-def run_webview():
-    import webview
-    from src.core.config import ConfigLoader
-    ConfigLoader.load()
-    from src.utils.logger import setup_logger
-    logger = setup_logger(__name__)
-    app_name = ConfigLoader.get("app_name", "PLC项目管理工具")
-    version = ConfigLoader.get("version", "1.0.0")
-    title = f"{app_name} V{version}"
-    html_path = str(BASE_DIR / "ui_prototype" / "index.html")
-    logger.info("PyWebView模式启动: %s | HTML: %s", title, html_path)
-    from src.ui.webview_window import create_window
-    window = create_window(html_path=html_path, title=title)
-    webview.start(debug=True)
-    logger.info("PyWebView已退出")
+# UI 资源目录
+UI_DIR = os.path.join(os.path.dirname(__file__), "ui")
 
 
-def run_pyqt():
-    from PyQt5.QtCore import QCoreApplication, Qt
-    from PyQt5.QtGui import QGuiApplication
-    from PyQt5.QtWidgets import QApplication
-    from src.core.config import ConfigLoader
-    ConfigLoader.load()
-    from src.utils.logger import setup_logger
-    logger = setup_logger(__name__)
-    from src.ui.main_window import MainWindow
-    from src.ui.builders.style_builder import StyleBuilder
-    from src.ui.ui_scale import (
-        collect_screen_metrics,
-        current_ui_profile,
-        format_screen_metrics,
+def main() -> None:
+    log = get_logger(__name__)
+    log.info("PLC 项目管理工具启动")
+
+    bridge = WebViewBridge(WORKSPACE_ROOT)
+    html_path = os.path.join(UI_DIR, "index.html")
+
+    window = webview.create_window(
+        title="PLC 项目管理工具",
+        url=html_path,
+        js_api=bridge,
+        width=1280,
+        height=860,
+        min_size=(960, 640),
     )
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    try:
-        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(
-            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-        )
-    except Exception:
-        pass
-    app = QApplication(sys.argv)
-    app.setApplicationName(ConfigLoader.get("app_name", "PLC项目管理工具"))
-    app.setApplicationVersion(ConfigLoader.get("version", "1.0.0"))
-    from src.ui.builders.style_builder import _preload_system_fonts
-    _preload_system_fonts()
-    screen_metrics = collect_screen_metrics(QGuiApplication.primaryScreen())
-    ui_profile = current_ui_profile(QGuiApplication.primaryScreen())
-    chinese_font = StyleBuilder._resolve_chinese_font(ui_profile.base_font_pt)
-    chinese_font.setStyleStrategy(chinese_font.PreferAntialias | chinese_font.PreferMatch)
-    app.setFont(chinese_font)
-    window = MainWindow()
-    window.show()
-    logger.info("PyQt5模式启动 (字体: %s %dpt)", chinese_font.family(), chinese_font.pointSize())
-    exit_code = app.exec_()
-    app.processEvents()
-    app.closeAllWindows()
-    import gc
-    gc.collect()
-    sys.exit(exit_code)
+    bridge.set_window(window)
 
-
-def main():
-    if USE_WEBVIEW:
-        try:
-            run_webview()
-        except ImportError:
-            print("[WARN] pywebview不可用, 回退到PyQt5模式")
-            run_pyqt()
-    else:
-        run_pyqt()
-    return 0
+    log.info("加载页面: %s", html_path)
+    webview.start(debug=True)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

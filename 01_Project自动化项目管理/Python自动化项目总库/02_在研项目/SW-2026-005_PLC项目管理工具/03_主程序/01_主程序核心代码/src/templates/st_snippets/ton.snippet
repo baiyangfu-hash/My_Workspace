@@ -1,9 +1,0 @@
-# ST代码片段: TON延时定时器
-# 触发关键字: ton
-
-(* TON (On-Delay Timer) 通电延时定时器 *)
-{{ton_name}}(IN := {{enable_signal}}, PT := T#{{time_value}}S);
-
-IF {{ton_name}}.Q THEN
-    (* 延时时间到达后执行 *)
-END_IF;
