@@ -10,23 +10,23 @@
 
 | 规范ID | 文件名 | 版本 | 说明 | 优先级 |
 |--------|--------|------|------|--------|
-| PLC-023 | 023_PLC程序设计文档模板_PLC-V2.0.0.md | V2.0.0 | PLC程序设计文档模板 | 🟡配套 |
-| INT-815 | 815_PLC接口文档模板_INT-V1.1.0.md | V1.1.0 | PLC接口文档模板 | 🟡配套 |
-| LSP-903 | 903_定时器使用规范_LSP-V2.1.0.md | V2.1.0 | 定时器使用规范 | 🟡配套 |
-| LSP-904 | 904_SCL注释规范_LSP-V1.2.0.md | V1.2.0 | SCL注释规范 | 🟡配套 |
-| LSP-905 | 905_SCL编程规范_LSP-V1.0.2.md | V1.0.2 | SCL编程规范 | 🔴必读 |
-| LSP-906 | 906_错误预防规则_LSP-V1.0.0.md | V1.0.0 | PLC编程错误预防规则 | 🟡配套 |
-| LSP-907 | 907_项目配置规范_LSP-V1.0.0.md | V1.0.0 | PLC项目配置规范 | 🔴必读 |
-| TOOL-908 | 908_Siemens_Language_Support_使用指南_TOOL-V1.0.0.md | V1.0.0 | Siemens Language Support插件使用指南 | 🟡配套 |
+| PLC-023 | 023_PLC程序设计文档模板_PLC.md | V2.0.0 | PLC程序设计文档模板 | 🟡配套 |
+| INT-815 | 815_PLC接口文档模板_INT.md | V1.1.0 | PLC接口文档模板 | 🟡配套 |
+| LSP-903 | 903_定时器使用规范_LSP.md | V2.1.0 | 定时器使用规范 | 🟡配套 |
+| LSP-904 | 904_SCL注释规范_LSP.md | V1.2.0 | SCL注释规范 | 🟡配套 |
+| LSP-905 | 905_SCL编程规范_LSP.md | V1.0.2 | SCL编程规范 | 🔴必读 |
+| LSP-906 | 906_错误预防规则_LSP.md | V1.0.0 | PLC编程错误预防规则 | 🟡配套 |
+| LSP-907 | 907_项目配置规范_LSP.md | V1.0.0 | PLC项目配置规范 | 🔴必读 |
+| TOOL-908 | 908_Siemens_Language_Support_使用指南_TOOL.md | V1.0.0 | Siemens Language Support插件使用指南 | 🟡配套 |
 
 ## 跨域工具规范 (`项目管理/`)
 
 | 规范ID | 文件名 | 版本 | 说明 |
 |--------|--------|------|------|
-| SW-2026-006 | 01-产品需求文档_PRD-V1.1.0.md | V0.2.0 | 规范管理工具 (SpecMgr) |
+| SW-2026-006 | 01-产品需求文档_PRD.md | V0.2.0 | 规范管理工具 (SpecMgr) |
 | TOOL-902 | 902_Git使用指南.md | V1.0.0 | Git使用指南 |
-| OPS-905 | 905_PaddleOCR_MCP_Server_本机离线配置指南_OPS-V1.0.0.md | V1.0.0 | PaddleOCR MCP Server本机离线配置指南 |
-| TOOL-906 | 906_Mermaid图表工作流规范_TOOL-V2.0.0.md | V2.0.0 | Mermaid图表工作流规范 |
+| OPS-905 | 905_PaddleOCR_MCP_Server_本机离线配置指南_OPS.md | V1.0.0 | PaddleOCR MCP Server本机离线配置指南 |
+| TOOL-906 | 906_Mermaid图表工作流规范_TOOL.md | V2.0.0 | Mermaid图表工作流规范 |
 
 ## 已废弃规范（Deprecated）
 

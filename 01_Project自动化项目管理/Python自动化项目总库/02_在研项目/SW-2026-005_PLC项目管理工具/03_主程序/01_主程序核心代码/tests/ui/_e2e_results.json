@@ -1,5 +1,5 @@
 {
-  "passed": 117,
+  "passed": 116,
   "total": 117,
   "results": [
     {
@@ -169,8 +169,8 @@
     },
     {
       "name": "JS: dashboard.js 定义 _loadData",
-      "passed": true,
-      "actual": "True"
+      "passed": false,
+      "actual": "False"
     },
     {
       "name": "JS: dashboard.js 定义 _renderDashboard",

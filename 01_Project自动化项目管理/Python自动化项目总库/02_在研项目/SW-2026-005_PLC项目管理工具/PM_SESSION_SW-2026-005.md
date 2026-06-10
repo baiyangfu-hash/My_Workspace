@@ -4,7 +4,7 @@
 - project_id: SW-2026-005
 - project_name: PLC项目管理工具
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-005_PLC项目管理工具
-- last_updated: 2026-06-05 (安全审查+工作空间选择+多级扫描)
+- last_updated: 2026-06-06 (需求对齐: PRD V8.0.0→V8.1.0 + AC-01.6筛选功能实现 + pywebview 6.x兼容性修复)
 - owners: 电气工程师(用户) + Trae AI(开发)
 
 ## 1. Positioning（项目定位）
@@ -14,7 +14,7 @@
 - key_principle: 数据来自项目文档，文档更新则总览自动更新；规范是基准，工具不迁就非规范格式
 
 ## 2. Current Focus（当前焦点）
-- current_focus: Phase 3 稳定化 — 安全审查修复 + 工作空间选择功能已完成，待 GUI 冒烟验证
+- current_focus: Phase 3 稳定化 — 需求对齐完成(PRD V8.1.0)，AC-01.6筛选已实现，待F3打包+SEC-02路径遍历修复
 - milestone: Phase 3 — 稳定化与交付
 - acceptance: E2E冒烟通过 + UI边界态检查通过 + PyInstaller打包exe可运行
 
@@ -36,13 +36,13 @@
 
 ## 4. Artifacts Index（文档索引）
 - prd:
-  - 00_项目基础信息/001_产品需求文档_PRD-V8.0.0.md
+  - 00_项目基础信息/001_产品需求文档_PRD.md
 - req:
   - (已归档至 01_项目文档/02_规划过程/_archive/)
 - des:
-  - 01_项目文档/02_规划过程/008_技术设计文档_DES-V1.4.0.md
+  - 01_项目文档/02_规划过程/008_技术设计文档_DES.md
 - api:
-  - 01_项目文档/02_规划过程/009_接口定义文档_API-V1.0.0.md (新建，Service+Bridge+CLI+数据模型+错误序列化)
+  - 01_项目文档/02_规划过程/009_接口定义文档_API.md (新建，Service+Bridge+CLI+数据模型+错误序列化)
 - ui_prototype:
   - 01_项目文档/02_规划过程/ui_prototype_dashboard.html (已更新V8.0.0)
   - 01_项目文档/02_规划过程/ui_prototype_change_center.html
@@ -59,7 +59,7 @@
 - reference_project:
   - 0100_PLC自动化/DJ-2026-005/ (参考实例：立项表+变更单+台帐)
 - project_init:
-  - 00_项目基础信息/000_通用项目立项表_PM-V1.1.0.md
+  - 00_项目基础信息/000_通用项目立项表_PM.md
 - archived:
   - 01_项目文档/02_规划过程/_archive/ (ARCH-V8.0.0, REQ-ALIGN-V9.0.0, PRD-V6.1.0等)
   - 01_项目文档/03_执行过程/_archive/ (DIAG-V9.0.0, RELEASE_NOTES等)
@@ -125,7 +125,7 @@
     - 新建 main.py: PyWebView 窗口启动 + Bridge 注入 + debug 模式
     - 新建 ui/bridge_test.html: 12个测试按钮覆盖8个API + 错误场景
     - 新建 tests/test_webview_bridge.py: 23个测试(项目总览6+查询5+创建4+流转3+错误序列化4+查询1)
-    - 新建 009_接口定义文档_API-V1.0.0.md: Service+Bridge+CLI+数据模型+错误序列化
+    - 新建 009_接口定义文档_API.md: Service+Bridge+CLI+数据模型+错误序列化
     - 全部61个测试通过(38旧+23新)
     - PyWebView 窗口正常启动，Bridge 连接成功
   - 2026-06-05 Phase 2 UI页面实现完成
@@ -231,6 +231,16 @@
   - risks: _PROJ_FILE_PATTERNS中"立项表*.md"模式可能误匹配非立项表文件; _scan_change_dir递归无深度限制理论上可扫描很深但实际CHG目录结构有限
 
 ## 7. Verification Log
+- 2026-06-06 (需求对齐 + AC-01.6筛选功能)
+  - verified: PRD V8.0.0→V8.1.0更新完成(4处偏差修正); AC-01.6按开发阶段筛选项目已实现(dashboard.js新增filter-bar); 61/61 pytest回归测试通过
+  - not_verified: GUI筛选交互真实渲染; PyInstaller打包
+  - method: PRD差距分析+用户对齐, dashboard.js代码修改, pytest全量回归(61项)
+  - blocker: 无
+- 2026-06-06 (pywebview 6.x 完整兼容性修复验证 — 3个bug)
+  - verified: .venv(pywebview 6.2.1)环境GUI启动成功, 无FOLDER_DIALOG弃用警告, Dashboard数据推送成功(1个项目), 无环境变量启动→选择工作空间→Dashboard刷新正常, 61/61 pytest回归测试通过
+  - not_verified: PyInstaller打包
+  - method: .venv环境GUI冒烟测试(有/无环境变量两种场景), pytest全量回归(61项)
+  - blocker: 无
 - 2026-06-05 (Phase 3 F1+F2 测试搭建)
   - verified: 117/117 无GUI静态结构, 61/61 pytest, Mock Bridge 8 API契约, 门禁逻辑Mock
   - not_verified: GUI真实渲染(19条DOM), PyInstaller打包, 空态/错态/加载态真实DOM
@@ -301,6 +311,13 @@
   - next_focus: 用户桌面环境验证GUI正常显示项目卡片 → 路径遍历漏洞(#2)修复 → SysLib立项表补建
   - watchouts: SW-2026-001立项表格式不规范(缺§3/§4/§6)导致解析为空值; 总览页待处理变更数显示为0(详情页精确); 前端超时15s需确认是否足够
   - read_first: path_resolver.py (多目录约定), proj_parser.py (_extract_project_id逐级向上), project_overview_service.py (_scan_dir+_fill_change_stats_light)
+
+## 8. Handoff Notes
+- 2026-06-06 | from=pm-workflow
+  - current_state: Phase 3稳定化完成，178测试通过，路径遍历漏洞(#2)待修复
+  - next_focus: 修复路径遍历漏洞，准备V1.0.0发布
+  - watchouts: GUI冒烟测试需桌面环境; 路径遍历漏洞(#2)需优先修复
+  - read_first: PM_SESSION_SW-2026-005.md
 
 ## 9. Next Actions
 - [P0] 用户桌面环境验证GUI正常显示项目卡片 | precondition=Windows桌面+WebView2 Runtime | done_when=Dashboard总览页正常显示项目卡片(PLC和Python项目均可发现)

@@ -32,7 +32,7 @@ class TestDuplicateChecker:
 
     def test_with_duplicates(self, populated_workspace: Path) -> None:
         spec_dir = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域"
-        dup_file = spec_dir / "PM-2026-001_项目管理规范_DEV-V1.0.0_copy.md"
+        dup_file = spec_dir / "PM-2026-001_项目管理规范_DEV_copy.md"
         dup_file.write_text("# Duplicate\n", encoding="utf-8")
         reg = SpecRegistry(populated_workspace)
         reg.load()
@@ -55,7 +55,7 @@ class TestVersionMismatchChecker:
         assert len(shc002) == 0
 
     def test_mismatched_versions(self, populated_workspace: Path) -> None:
-        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV-V1.0.0.md"
+        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV.md"
         spec_path.write_text("# PM Spec\n\n版本: V9.9.9\n", encoding="utf-8")
         reg = SpecRegistry(populated_workspace)
         reg.load()
@@ -77,7 +77,7 @@ class TestFrontmatterChecker:
         assert all(r.severity == Severity.INFO for r in shc007)
 
     def test_missing_frontmatter(self, populated_workspace: Path) -> None:
-        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV-V1.0.0.md"
+        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV.md"
         spec_path.write_text("# PM Spec without frontmatter\n\n版本: V1.0.0\n", encoding="utf-8")
         reg = SpecRegistry(populated_workspace)
         reg.load()
@@ -101,7 +101,7 @@ class TestUnlistedSpecChecker:
 
     def test_unlisted_spec(self, populated_workspace: Path) -> None:
         spec_dir = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域"
-        unlisted = spec_dir / "PM-9999-001_未注册规范_DEV-V1.0.0.md"
+        unlisted = spec_dir / "PM-9999-001_未注册规范_DEV.md"
         unlisted.write_text("# Unlisted\n", encoding="utf-8")
         reg = SpecRegistry(populated_workspace)
         reg.load()
@@ -156,7 +156,7 @@ class TestObsidianLinkChecker:
         assert len(shc006) == 0
 
     def test_broken_wikilink(self, populated_workspace: Path) -> None:
-        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV-V1.0.0.md"
+        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV.md"
         spec_path.write_text(
             "---\nspec_id: PM-2026-001\n---\n\n# Title\n\nSee [[PM-9999-888_nonexistent]]\n",
             encoding="utf-8",

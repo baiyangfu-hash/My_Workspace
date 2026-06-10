@@ -76,7 +76,11 @@ class VersionMismatchChecker(BaseChecker):
             if not spec_info:
                 continue
             for path in paths:
-                file_version = scanner.extract_version(path)
+                fm = scanner.extract_frontmatter(path)
+                if fm and isinstance(fm, dict):
+                    file_version = fm.get("version")
+                else:
+                    file_version = scanner.extract_version(path)
                 if file_version and spec_info.version:
                     norm_file = self._normalize_version(file_version)
                     norm_reg = self._normalize_version(spec_info.version)
@@ -87,7 +91,7 @@ class VersionMismatchChecker(BaseChecker):
                                 severity=Severity.WARNING,
                                 message=f"规范 {spec_num} 版本不一致",
                                 details=f"注册表版本: {spec_info.version}, 文件版本: {file_version}, 文件: {path}",
-                                fix_suggestion="更新注册表中的版本号或更新文件内容使其一致",
+                                fix_suggestion="更新注册表中的版本号或更新文件frontmatter中的version字段使其一致",
                             )
                         )
         return results

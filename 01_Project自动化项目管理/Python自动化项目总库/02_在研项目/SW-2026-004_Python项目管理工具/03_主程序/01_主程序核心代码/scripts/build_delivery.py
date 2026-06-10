@@ -219,7 +219,7 @@ def step2_update_delivery(args):
     # 显式构建期望的文件名列表 (version 已含 V 前缀)
     expected_docs = [
         f"{args.version}_更新说明.md",
-        f"01_交付清单_DEL-{args.version}.md",
+        f"01_交付清单_DEL.md",
     ]
     doc_count = 0
     

@@ -10,10 +10,10 @@
 
 | 规范ID | 文件名 | 版本 | 说明 | 优先级 |
 |--------|--------|------|------|--------|
-| CODE-210 | 210_Python编程规范_DEV-V1.1.0.md | V1.1.0 | Python编程规范 | 🔴必读 |
-| CODE-211 | 211_Python代码审查规范_DEV-V1.0.0.md | V1.0.0 | Python代码审查规范 | 🟡配套 |
-| INT-215 | 215_Python接口文档模板_INT-V1.0.0.md | V1.0.0 | Python接口文档模板 | 🟡配套 |
-| CODE-220 | 220_Python项目打包规范_DEV-V2.2.0.md | V2.2.0 | Python项目打包规范 | 🟡配套 |
+| CODE-210 | 210_Python编程规范_DEV.md | V1.1.0 | Python编程规范 | 🔴必读 |
+| CODE-211 | 211_Python代码审查规范_DEV.md | V1.0.0 | Python代码审查规范 | 🟡配套 |
+| INT-215 | 215_Python接口文档模板_INT.md | V1.0.0 | Python接口文档模板 | 🟡配套 |
+| CODE-220 | 220_Python项目打包规范_DEV.md | V2.2.0 | Python项目打包规范 | 🟡配套 |
 
 ## 已废弃规范（Deprecated）
 

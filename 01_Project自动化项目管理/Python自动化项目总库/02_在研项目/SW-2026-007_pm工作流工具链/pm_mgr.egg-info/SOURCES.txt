@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 pm_mgr/__init__.py
 pm_mgr/__main__.py

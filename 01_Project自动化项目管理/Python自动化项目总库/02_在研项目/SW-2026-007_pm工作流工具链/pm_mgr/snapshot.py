@@ -9,8 +9,16 @@ from pathlib import Path
 
 
 SPEC_IDS = {
-    "software": ["PROJ-016", "PRD-001", "DEV-031", "DEV-032"],
-    "plc": ["PROJ-016", "REQ-020", "LSP-905"],
+    "software": [
+        "PROJ-016", "PRD-001", "DEV-031", "DEV-032",
+        "DEV-210", "DEV-211", "DEV-220", "INT-215",
+        "DEV-004", "CHG-040", "CHG-041", "PM-042",
+    ],
+    "plc": [
+        "PROJ-016", "REQ-020", "LSP-905", "LSP-904", "LSP-903",
+        "LSP-906", "LSP-907", "INT-815", "PLC-023",
+        "DEV-004", "CHG-040", "CHG-041", "PM-042",
+    ],
 }
 
 
@@ -28,7 +36,11 @@ def read_spec_versions(workspace_root: str | Path) -> dict[str, str]:
 
     versions = {}
     specs = registry.get("specs", {})
-    for spec_id in ["PROJ-016", "PRD-001", "DEV-031", "DEV-032", "REQ-020", "LSP-905"]:
+    # 动态读取所有 SPEC_IDS 中的 spec_id
+    all_spec_ids = set()
+    for ids in SPEC_IDS.values():
+        all_spec_ids.update(ids)
+    for spec_id in all_spec_ids:
         if spec_id in specs:
             versions[spec_id] = specs[spec_id].get("version", "未知")
 
@@ -67,6 +79,20 @@ def fill_snapshot_in_content(content: str, project_type: str, workspace_root: st
             "DEV-032": "GUI测试方案标准",
             "REQ-020": "通用需求分析文档模板",
             "LSP-905": "SCL编程规范",
+            "DEV-210": "Python编程规范",
+            "DEV-211": "Python代码审查规范",
+            "DEV-220": "Python项目打包规范",
+            "INT-215": "Python接口文档模板",
+            "DEV-004": "通用项目文档版本管理与变更核心规范",
+            "CHG-040": "通用变更单模板",
+            "CHG-041": "通用版本变更台帐模板",
+            "PM-042": "通用变更管理流程规范",
+            "LSP-904": "SCL注释规范",
+            "LSP-903": "定时器使用规范",
+            "LSP-906": "PLC编程错误预防规则",
+            "LSP-907": "PLC项目配置规范",
+            "INT-815": "PLC接口文档模板",
+            "PLC-023": "PLC程序设计文档模板",
         }
         lines = [
             "",

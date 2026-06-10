@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -81,40 +80,54 @@ class FixService:
 
         target_version = registry_version if registry_version.startswith("V") else f"V{registry_version}"
 
-        old_stem = file_path.stem
-        new_stem = re.sub(
-            r"-V[\d.]+$",
-            f"-V{target_version.lstrip('V')}",
-            old_stem,
-        )
-        if new_stem == old_stem:
-            new_stem = f"{old_stem}_DEV-V{target_version.lstrip('V')}"
-
-        new_path = file_path.with_name(f"{new_stem}{file_path.suffix}")
-
         if dry_run:
             return FixResult(
                 check_id=result.check_id,
                 applied=False,
-                message=f"[预览] 重命名: {file_path.name} → {new_path.name}",
+                message=f"[预览] 更新frontmatter版本: {file_version} → {target_version}",
             )
 
         try:
-            shutil.move(str(file_path), str(new_path))
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except (OSError, UnicodeDecodeError) as e:
+            return FixResult(check_id=result.check_id, applied=False, message=f"读取文件失败: {e}")
+
+        import yaml
+        if content.startswith("---"):
+            end = content.find("---", 3)
+            if end != -1:
+                fm_text = content[3:end].strip()
+                try:
+                    existing = yaml.safe_load(fm_text) or {}
+                except yaml.YAMLError:
+                    return FixResult(check_id=result.check_id, applied=False, message="frontmatter YAML解析失败")
+                existing["version"] = target_version
+                new_fm = yaml.dump(existing, allow_unicode=True, default_flow_style=False).strip()
+                remaining = content[end + 3:].lstrip("\n")
+                new_content = f"---\n{new_fm}\n---\n{remaining}"
+            else:
+                return FixResult(check_id=result.check_id, applied=False, message="frontmatter格式异常，缺少结束标记")
+        else:
+            new_fm_dict = {
+                "spec_id": spec_info.spec_id or spec_num,
+                "title": spec_info.title or file_path.stem,
+                "version": target_version,
+                "lifecycle": spec_info.lifecycle or "stable",
+            }
+            new_fm = yaml.dump(new_fm_dict, allow_unicode=True, default_flow_style=False).strip()
+            new_content = f"---\n{new_fm}\n---\n{content}"
+
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(new_content)
         except OSError as e:
-            return FixResult(check_id=result.check_id, applied=False, message=f"重命名失败: {e}")
-
-        if spec_info.canonical_path:
-            old_name = file_path.name
-            new_name = new_path.name
-            spec_info.canonical_path = spec_info.canonical_path.replace(old_name, new_name)
-
-        self._update_frontmatter_path(new_path, spec_info.canonical_path)
+            return FixResult(check_id=result.check_id, applied=False, message=f"写入文件失败: {e}")
 
         return FixResult(
             check_id=result.check_id,
             applied=True,
-            message=f"重命名: {file_path.name} → {new_path.name}",
+            message=f"更新frontmatter版本: {file_version} → {target_version}",
         )
 
     def _fix_shc_007(self, result: CheckResult, dry_run: bool) -> FixResult:

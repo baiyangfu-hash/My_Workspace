@@ -219,8 +219,8 @@ def generate(project_path: str, domain: ChangeDomain) -> str:
 
 | 文档 | 用途 |
 |------|------|
-| [PRD-V6.1.0.md](../00_项目基础信息/001_产品需求文档_PRD-V6.1.0.md) | 完整需求定义 |
-| [014_DEV-PLAN-V6.1.0.md](./014_V6.1实施计划_DEV-PLAN-V6.1.0.md) | 详细 58 个 Task 分解 |
+| [PRD-V6.1.0.md](../00_项目基础信息/001_产品需求文档_PRD.md) | 完整需求定义 |
+| [014_DEV-PLAN-V6.1.0.md](./014_V6.1实施计划_DEV-PLAN.md) | 详细 58 个 Task 分解 |
 | [PM_SESSION_SW-2026-005.md](../PM_SESSION_SW-2026-005.md) | 项目状态跟踪 |
 | PM-042 通用变更管理流程规范 V2.1.0 | 12 种状态定义 |
 | CHG-040 通用变更单模板 V2.0.0 | 50+ 字段数据模型 |

@@ -1,14 +1,109 @@
 """路径解析（工作空间约定）
 
 支持两套目录约定：
-  - PLC 项目：00_项目管理/01_立项与需求/*_PROJ-*.md
-  - 通用项目：00_项目基础信息/*立项表*.md 或 00_项目基础信息/*_PM-*.md
+  - PLC 项目：00_项目管理/01_立项与需求/*_PROJ.md
+  - 通用项目：00_项目基础信息/*立项表*.md 或 00_项目基础信息/*_PM.md
 """
 
 from __future__ import annotations
 
 import os
 import re
+
+# ── 安全校验 ──────────────────────────────────────────────
+
+# project_id 允许的字符：字母、数字、连字符、下划线
+_PROJECT_ID_PATTERN = re.compile(r"^[A-Za-z0-9_\-]+$")
+
+# change_number 允许的格式：CHG-{DOMAIN}-{YYYY}-{XXX}
+_CHANGE_NUMBER_PATTERN = re.compile(r"^CHG-[A-Z]+-\d{4}-\d{3}$")
+
+
+class PathTraversalError(ValueError):
+    """路径遍历攻击检测异常"""
+    pass
+
+
+def validate_project_id(project_id: str) -> str:
+    """校验 project_id 防止路径遍历
+
+    规则:
+      - 非空
+      - 仅允许字母、数字、连字符、下划线
+      - 不允许包含路径分隔符或 .. 等遍历字符
+
+    Args:
+        project_id: 项目编号，如 DJ-2026-005
+
+    Returns:
+        校验通过的 project_id
+
+    Raises:
+        PathTraversalError: 检测到路径遍历攻击
+    """
+    if not project_id:
+        raise PathTraversalError("项目编号不能为空")
+    if not _PROJECT_ID_PATTERN.match(project_id):
+        raise PathTraversalError(
+            f"项目编号包含非法字符: '{project_id}'，"
+            "仅允许字母、数字、连字符、下划线"
+        )
+    if ".." in project_id or "/" in project_id or "\\" in project_id:
+        raise PathTraversalError(
+            f"项目编号包含路径遍历字符: '{project_id}'"
+        )
+    return project_id
+
+
+def validate_change_number(change_number: str) -> str:
+    """校验 change_number 防止路径遍历
+
+    规则:
+      - 必须匹配 CHG-{DOMAIN}-{YYYY}-{XXX} 格式
+      - DOMAIN 仅允许大写字母
+
+    Args:
+        change_number: 变更编号，如 CHG-DOCU-2026-001
+
+    Returns:
+        校验通过的 change_number
+
+    Raises:
+        PathTraversalError: 检测到路径遍历攻击或格式不合法
+    """
+    if not change_number:
+        raise PathTraversalError("变更编号不能为空")
+    if not _CHANGE_NUMBER_PATTERN.match(change_number):
+        raise PathTraversalError(
+            f"变更编号格式不合法: '{change_number}'，"
+            "应为 CHG-{{DOMAIN}}-{{YYYY}}-{{XXX}} 格式"
+        )
+    return change_number
+
+
+def validate_path_within_workspace(path: str, workspace_root: str) -> str:
+    """校验路径在工作空间范围内，防止路径遍历
+
+    Args:
+        path: 待校验的绝对路径
+        workspace_root: 工作空间根目录绝对路径
+
+    Returns:
+        校验通过的规范化路径
+
+    Raises:
+        PathTraversalError: 路径超出工作空间范围
+    """
+    real_workspace = os.path.realpath(workspace_root)
+    real_path = os.path.realpath(path)
+    if not real_path.startswith(real_workspace + os.sep) and real_path != real_workspace:
+        raise PathTraversalError(
+            f"路径超出工作空间范围: '{path}' 不在 '{workspace_root}' 内"
+        )
+    return real_path
+
+
+# ── 目录约定 ──────────────────────────────────────────────
 
 # 立项表搜索路径（按优先级排列，命中即停）
 _PROJ_SEARCH_PATHS = [
@@ -22,9 +117,9 @@ _PROJ_SEARCH_PATHS = [
 
 # 立项表文件名匹配模式（按优先级排列）
 _PROJ_FILE_PATTERNS = [
-    re.compile(r"_PROJ-.*\.md$", re.IGNORECASE),
+    re.compile(r"_PROJ\.md$", re.IGNORECASE),
     re.compile(r"立项表.*\.md$", re.IGNORECASE),
-    re.compile(r"_PM-.*\.md$", re.IGNORECASE),
+    re.compile(r"_PM\.md$", re.IGNORECASE),
 ]
 
 # 变更单搜索路径（按优先级排列）
@@ -70,7 +165,7 @@ def scan_change_files(project_path: str) -> list[str]:
     return results
 
 
-def _scan_change_dir(base_dir: str, results: list[str]) -> None:
+def _scan_change_dir(base_dir: str, results: list[str], depth: int = 0, max_depth: int = 3) -> None:
     """递归扫描变更单目录，查找 CHG-*.md 文件"""
     try:
         entries = sorted(os.listdir(base_dir))
@@ -80,7 +175,8 @@ def _scan_change_dir(base_dir: str, results: list[str]) -> None:
         full_path = os.path.join(base_dir, name)
         if os.path.isdir(full_path):
             # 递归进入子目录（如 CHG-DOCU/、CHG-PLC/ 等）
-            _scan_change_dir(full_path, results)
+            if depth < max_depth:
+                _scan_change_dir(full_path, results, depth + 1, max_depth)
         elif name.startswith("CHG-") and name.endswith(".md"):
             results.append(full_path)
 

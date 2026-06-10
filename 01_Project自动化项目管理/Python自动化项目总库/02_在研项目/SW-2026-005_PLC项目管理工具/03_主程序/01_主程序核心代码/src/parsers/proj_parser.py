@@ -64,7 +64,7 @@ class ProjParser:
 
     def _extract_project_id(self, file_path: str) -> str:
         """从文件路径或内容提取项目编号"""
-        # 从文件名提取（如 003_DJ-2026-005_项目立项表_PROJ-V3.0.0.md）
+        # 从文件名提取（如 003_DJ-2026-005_项目立项表_PROJ.md）
         basename = os.path.basename(file_path)
         match = re.search(r"([A-Z]+-\d{4}-\d{3})", basename)
         if match:

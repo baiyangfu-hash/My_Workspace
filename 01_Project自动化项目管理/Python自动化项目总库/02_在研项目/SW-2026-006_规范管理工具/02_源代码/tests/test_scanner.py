@@ -30,7 +30,7 @@ class TestSpecScannerScanAll:
 class TestSpecScannerExtractVersion:
     def test_extract_version_chinese(self, populated_workspace: Path) -> None:
         scanner = SpecScanner(populated_workspace)
-        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV-V1.0.0.md"
+        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV.md"
         version = scanner.extract_version(spec_path)
         assert version is not None
         assert "1.0.0" in version
@@ -47,7 +47,7 @@ class TestSpecScannerExtractVersion:
 class TestSpecScannerExtractFrontmatter:
     def test_extract_existing_frontmatter(self, populated_workspace: Path) -> None:
         scanner = SpecScanner(populated_workspace)
-        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV-V1.0.0.md"
+        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV.md"
         fm = scanner.extract_frontmatter(spec_path)
         assert fm is not None
         assert isinstance(fm, dict)
@@ -78,7 +78,7 @@ class TestSpecScannerFindDuplicates:
 
     def test_with_duplicates(self, populated_workspace: Path) -> None:
         spec_dir = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域"
-        dup_file = spec_dir / "PM-2026-001_项目管理规范_DEV-V1.0.0_copy.md"
+        dup_file = spec_dir / "PM-2026-001_项目管理规范_DEV_copy.md"
         dup_file.write_text("# Duplicate\n", encoding="utf-8")
         scanner = SpecScanner(populated_workspace)
         dups = scanner.find_duplicates()

@@ -36,11 +36,11 @@
 
 ## 4. Artifacts Index（文档索引）
 - prd:
-  - 01_需求与设计/01-产品需求文档_PRD-V1.1.0.md
+  - 01_需求与设计/01-产品需求文档_PRD.md
 - req:
   - (待创建)
 - des:
-  - 01_需求与设计/02-技术方案文档_DES-V1.1.0.md
+  - 01_需求与设计/02-技术方案文档_DES.md
 - test:
   - 01_需求与设计/03-测试报告_V0.2.0.md
   - 02_源代码/tests/conftest.py
@@ -50,7 +50,7 @@
   - 02_源代码/tests/test_services.py
   - 02_源代码/tests/test_cli.py
 - user_guide:
-  - 01_需求与设计/04-使用手册_UG-V0.2.0.md
+  - 01_需求与设计/04-使用手册_UG.md
 - change_mgmt:
   - (无)
 - delivery:
@@ -88,3 +88,49 @@
   - 2026-05-25 spec ID正则统一：扩展支持CODE/LSP/INT前缀和短格式 状态:完成
 - release_log:
   - 2026-05-25 V0.2.0 范围:Service层重构+审查问题修复+77项单元测试 状态:完成 ✅
+
+## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
+
+> 以下版本号在项目初始化时从 `spec_registry.json` 读取并填入。
+> 本区块作为基线，后续 `specmgr check` 对比当前规范版本与快照，检测版本漂移。
+
+| spec_id | 版本 | 记录日期 | 说明 |
+|---------|------|---------|------|
+| PROJ-016 | V1.0.0 | 2026-06-06 | 通用项目结构模板 |
+| PRD-001 | V1.0.0 | 2026-06-06 | 产品需求文档模板 |
+| DEV-031 | V1.0.0 | 2026-06-06 | 通用测试规范 |
+| DEV-032 | V1.0.0 | 2026-06-06 | GUI测试方案标准 |
+| DEV-210 | V1.1.0 | 2026-06-06 | Python编程规范 |
+| DEV-211 | V1.0.0 | 2026-06-06 | Python代码审查规范 |
+| DEV-220 | V2.2.0 | 2026-06-06 | Python项目打包规范 |
+| INT-215 | V1.0.0 | 2026-06-06 | Python接口文档模板 |
+| DEV-004 | V1.1.1 | 2026-06-06 | 通用项目文档版本管理与变更核心规范 |
+| CHG-040 | V2.0.0 | 2026-06-06 | 通用变更单模板 |
+| CHG-041 | V2.1.0 | 2026-06-06 | 通用版本变更台帐模板 |
+| PM-042 | V2.1.0 | 2026-06-06 | 通用变更管理流程规范 |
+
+## 6. Implementation Log
+- 2026-05-25 | skill=fullstack-engineer | mode=全栈开发
+  - goal: V0.2.0 Service层重构 + 审查问题修复 + 77项单元测试
+  - changed_files: specmgr/下全部文件
+  - impact: CLI 4命令(check/index/frontmatter/report)在真实workspace验证通过
+  - risks: HealthChecker.run_all()中8个Checker独立调用scan_all()存在性能瓶颈
+
+## 7. Verification Log
+- 2026-05-25
+  - verified: 77项单元测试全部通过, CLI 4命令在真实workspace运行正常
+  - not_verified: GUI(PySide6)功能, PyInstaller打包
+  - method: pytest + CLI手动验证
+  - blocker: 无
+
+## 8. Handoff Notes
+- 2026-05-28 | from=pm-workflow
+  - current_state: V0.2.0已验证可用，已注册到全局规范仓库
+  - next_focus: V0.3.0 GUI MVP（PySide6基本框架+仪表盘+检查页）
+  - watchouts: PySide6打包后体积可能超过100MB; HealthChecker性能瓶颈待优化
+  - read_first: PM_SESSION_SW-2026-006.md, 01_需求与设计/04-使用手册_UG.md
+
+## 9. Next Actions
+- [P1] V0.3.0 GUI MVP | precondition=PySide6环境就绪 | done_when=基本框架+仪表盘+检查页可用
+- [P2] HealthChecker性能优化 | precondition=无 | done_when=run_all()不再重复扫描
+- [P3] V0.5.0 PyInstaller打包 | precondition=GUI MVP完成 | done_when=exe可独立运行

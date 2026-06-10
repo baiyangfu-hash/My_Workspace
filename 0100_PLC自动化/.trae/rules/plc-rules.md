@@ -14,14 +14,14 @@ alwaysApply: true
 
 | 优先级 | 规范ID | 文件 | 说明 |
 |--------|--------|------|------|
-| 🔴必读 | LSP-905 | 905_SCL编程规范_LSP-V1.0.2.md | 主规范: 命名/语法/METHOD/代码结构/跳转语句 |
-| 🔴必读 | LSP-907 | 907_项目配置规范_LSP-V1.0.0.md | .plc.json配置 + 目录结构 |
-| 🟡配套 | LSP-904 | 904_SCL注释规范_LSP-V1.1.0.md | 注释格式/嵌套禁令/标点规则 |
-| 🟡配套 | LSP-903 | 903_定时器使用规范_LSP-V1.0.0.md | FB_TON使用规则, PT/ET为DINT非TIME |
-| 🟠重要 | LSP-906 | 906_错误预防规则_LSP-V1.0.0.md | 实战bug总结检查清单 |
-| 🟢参考 | PLC-023 | 023_PLC程序设计文档模板_PLC-V2.0.0.md | 程序设计文档标准模板 |
-| 🟢参考 | INT-815 | 815_PLC接口文档模板_INT-V1.1.0.md | FB/FC接口文档标准格式 |
-| 🟢参考 | TOOL-908 | 908_Siemens_Language_Support_使用指南_TOOL-V1.0.0.md | LSP插件使用指南 |
+| 🔴必读 | LSP-905 | 905_SCL编程规范_LSP.md | 主规范: 命名/语法/METHOD/代码结构/跳转语句 |
+| 🔴必读 | LSP-907 | 907_项目配置规范_LSP.md | .plc.json配置 + 目录结构 |
+| 🟡配套 | LSP-904 | 904_SCL注释规范_LSP.md | 注释格式/嵌套禁令/标点规则 |
+| 🟡配套 | LSP-903 | 903_定时器使用规范_LSP.md | FB_TON使用规则, PT/ET为DINT非TIME |
+| 🟠重要 | LSP-906 | 906_错误预防规则_LSP.md | 实战bug总结检查清单 |
+| 🟢参考 | PLC-023 | 023_PLC程序设计文档模板_PLC.md | 程序设计文档标准模板 |
+| 🟢参考 | INT-815 | 815_PLC接口文档模板_INT.md | FB/FC接口文档标准格式 |
+| 🟢参考 | TOOL-908 | 908_Siemens_Language_Support_使用指南_TOOL.md | LSP插件使用指南 |
 
 ### 已废弃规范（禁止使用）
 

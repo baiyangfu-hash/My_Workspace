@@ -323,7 +323,7 @@ def create_project(..., template_level="recommended"):
 
 ### 参考文档
 
-- [043_通用变更管理目录结构说明_PM-V2.1.0.md](../../00_Obsidian_Base全局规范文件仓库/02_规划过程/02_项目管理计划/)
+- [043_通用变更管理目录结构说明_PM.md](../../00_Obsidian_Base全局规范文件仓库/02_规划过程/02_项目管理计划/)
 - DJ项目实际结构: `d:\BaiduSyncdisk\My_Workspace\项目文件夹\DJ-2026-014_三段式玻璃输送线控制系统\`
 
 ---

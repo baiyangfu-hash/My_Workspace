@@ -69,10 +69,16 @@ class SecuritySettings(BaseSettings):
         """验证密钥强度"""
         if len(v) < 16:
             raise ValueError("API_SECRET_KEY长度必须至少16位")
-        if v == "dev-secret-key-must-be-changed":
+        insecure_keys = {
+            "dev-secret-key-must-be-changed",
+            "CHANGE_ME_generate_with_python_secrets_token_urlsafe",
+            "pm-dev-secret-key-change-in-production-2024",
+        }
+        if v in insecure_keys:
             import warnings
             warnings.warn(
-                "正在使用默认API密钥，请在生产环境中修改！",
+                "正在使用不安全的API密钥，请在生产环境中修改！"
+                "生成随机密钥: python -c \"import secrets; print(secrets.token_urlsafe(32))\"",
                 RuntimeWarning
             )
         return v

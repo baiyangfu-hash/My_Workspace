@@ -584,13 +584,13 @@ DEFAULT_TEMPLATES = [
                 "content": "# {project_name}\n\n- **编号**: {project_code}\n- **模板**: TPL-UPPER-STD-001 (上位机/数据系统)\n- **负责人**: {manager}\n- **日期**: {create_date}\n\n{description}\n\n## 快速开始\n```bash\npip install -r requirements.txt\npython main.py\n```\n"
             },
             {
-                "path": "00_项目基础信息/0-项目立项表_PROJ-V1.0.0.md",
+                "path": "00_项目基础信息/0-项目立项表_PROJ.md",
                 "type": "document",
                 "spec_id": "SPEC-DOC-INIT-001",
                 "content": "# {project_name} 项目立项表\n\n| 项目 | 内容 |\n|------|------|\n| 编号 | {project_code} |\n| 名称 | {project_name} |\n| 业务线 | 软件开发(SW) |\n| 负责人 | {manager} |\n| 日期 | {create_date} |\n| 使用模板 | {template_id} ({template_name}) |\n\n## 技术栈\n- 语言: Python 3.x\n- 框架: \n- 数据库: \n- 部署: \n\n## 核心目标\n{description}\n"
             },
             {
-                "path": "01_项目文档/1-需求分析文档_REQ-V1.0.0.md",
+                "path": "01_项目文档/1-需求分析文档_REQ.md",
                 "type": "document",
                 "spec_id": "SPEC-DOC-REQ-001",
                 "content": "# {project_name} 需求分析\n\n## 功能需求\n### API接口\n### 数据处理\n### 可视化\n\n## 非功能需求\n### 性能\n### 安全\n### 兼容性\n"

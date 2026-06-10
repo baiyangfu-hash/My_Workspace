@@ -32,22 +32,33 @@ class ProjectOverviewService:
         self._parser = ProjParser()
         self._chg_parser = ChgParser()
         self._cache: dict[str, tuple[float, ProjectInfo]] = {}
+        self._projects_cache: list[ProjectInfo] | None = None  # 项目列表缓存
+        self._projects_cache_mtime: float = 0.0  # 缓存时间戳
 
-    def get_workspace_projects(self) -> list[ProjectInfo]:
+    def get_workspace_projects(self, use_cache: bool = True) -> list[ProjectInfo]:
         """获取工作空间下所有项目概览信息
 
-        扫描工作空间根目录下的子目录（最多1层直接子目录 + 1层嵌套），
-        每个含立项表的目录视为一个项目。
-        变更统计仅计数文件数，不解析内容（保证响应速度）。
+        Args:
+            use_cache: 是否使用缓存（默认True，Bridge API调用时用；False用于强制刷新）
         """
-        projects: list[ProjectInfo] = []
+        # 使用缓存直接返回（瞬时）
+        if use_cache and self._projects_cache is not None:
+            log.debug("项目列表缓存命中, %d个项目", len(self._projects_cache))
+            return self._projects_cache
+
         if not os.path.isdir(self.workspace_root):
             log.warning("工作空间目录不存在: %s", self.workspace_root)
-            return projects
+            return []
 
         log.info("扫描工作空间: %s", self.workspace_root)
+        projects: list[ProjectInfo] = []
         self._scan_dir(self.workspace_root, projects, depth=0, max_depth=1)
         log.info("扫描完成，共 %d 个项目", len(projects))
+
+        # 写入缓存
+        import time
+        self._projects_cache = projects
+        self._projects_cache_mtime = time.time()
         return projects
 
     def get_project_detail(self, project_id: str) -> ProjectInfo | None:
@@ -91,8 +102,9 @@ class ProjectOverviewService:
             project_id: 指定项目则只刷新该项目，None 则刷新全部
         """
         if project_id is None:
-            log.info("刷新全部缓存, 清除 %d 条", len(self._cache))
+            log.info("刷新全部缓存, 清除 %d 条项目缓存 + 项目列表缓存", len(self._cache))
             self._cache.clear()
+            self.invalidate_projects_cache()
             return
 
         # 找到该项目的立项表并清除缓存
@@ -104,6 +116,11 @@ class ProjectOverviewService:
                 log.info("刷新项目缓存: %s", project_id)
             else:
                 log.debug("刷新项目缓存: %s, 无缓存条目", project_id)
+
+    def invalidate_projects_cache(self) -> None:
+        """使项目列表缓存失效"""
+        self._projects_cache = None
+        self._projects_cache_mtime = 0.0
 
     # ---- 内部方法 ----
 

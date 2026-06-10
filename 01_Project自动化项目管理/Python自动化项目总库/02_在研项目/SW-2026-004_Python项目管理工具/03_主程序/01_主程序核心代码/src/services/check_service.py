@@ -187,16 +187,16 @@ class CheckService:
             project_path = Path(project.path)
             
             # 定义文件命名规范
-            # 1. 文档文件：数字-中文名称_类型-V版本号.扩展名 (如: 0-项目立项表_PROJ-V1.0.0.md)
+            # 1. 文档文件：数字-中文名称_类型前缀.扩展名 (如: 0-项目立项表_PROJ.md)
             # 2. Python文件：小写字母+下划线 (如: main.py, utils.py)
             # 3. 配置文件：全小写或标准名称 (如: .gitignore, requirements.txt)
             # 4. 不允许的字符：空格、特殊符号（除-_./）
             
             naming_rules = {
                 "文档文件": {
-                    "pattern": r'^\d+-[\u4e00-\u9fa5a-zA-Z]+_[A-Z]+-V[\d.]+\.(md|txt|docx?|pdf)$',
+                    "pattern": r'^\d+-[\u4e00-\u9fa5a-zA-Z]+_[A-Z]+\.(md|txt|docx?|pdf)$',
                     "directories": ["00_项目基础信息", "01_项目文档", "02_需求设计", "07_交付文档", "08_项目总结"],
-                    "description": "格式应为: 数字-名称_类型-V版本号.扩展名"
+                    "description": "格式应为: 数字-名称_类型前缀.扩展名"
                 },
                 "Python源码": {
                     "pattern": r'^[a-z][a-z0-9_]*\.py$',
@@ -281,7 +281,7 @@ class CheckService:
                         result.add_item(
                             level="warning",
                             rule="文件命名-文档规范",
-                            message=f"文档命名不规范: {filename}，建议格式: 数字-名称_类型-V版本号.扩展名",
+                            message=f"文档命名不规范: {filename}，建议格式: 数字-名称_类型前缀.扩展名",
                             path=relative_path
                         )
                     else:

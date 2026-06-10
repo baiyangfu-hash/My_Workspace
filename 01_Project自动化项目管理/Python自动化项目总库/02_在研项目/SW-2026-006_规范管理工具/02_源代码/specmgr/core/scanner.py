@@ -22,8 +22,8 @@ _SPEC_ID_HEAD_RE = re.compile(
 
 _NUM_HEAD_RE = re.compile(r"^(\d{3,4})_")
 
-_PREFIX_VER_SUFFIX_RE = re.compile(
-    rf"_({_PREFIXES_PATTERN})-V"
+_PREFIX_SUFFIX_RE = re.compile(
+    rf"_({_PREFIXES_PATTERN})$"
 )
 
 
@@ -60,7 +60,7 @@ class SpecScanner:
             return head_match.group(0)
 
         num_match = _NUM_HEAD_RE.match(name)
-        prefix_match = _PREFIX_VER_SUFFIX_RE.search(name)
+        prefix_match = _PREFIX_SUFFIX_RE.search(name)
 
         if num_match and prefix_match:
             number = num_match.group(1)

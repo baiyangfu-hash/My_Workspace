@@ -59,12 +59,62 @@ class SpecManager:
         return (config_dir / relative_path).resolve()
     
     def _extract_version_from_filename(self, filename: str) -> str:
-        """从文件名中提取版本号"""
-        # 匹配版本号格式：V1.0.0 或 v1.0.0
+        """
+        从文件名中提取版本号（兼容旧格式）
+
+        新格式文件名不含版本号，优先从文件内容/frontmatter提取。
+        此方法仅作为兼容旧格式（如 _PROJ-V1.0.0.md）的后备方案。
+        """
+        # 匹配版本号格式：V1.0.0 或 v1.0.0（兼容旧文件名格式）
         pattern = r'[Vv](\d+\.\d+\.\d+)'
         match = re.search(pattern, filename)
         if match:
             return f"V{match.group(1)}"
+        return ""
+
+    def _extract_version_from_content(self, file_path: Path) -> str:
+        """
+        从文件内容的frontmatter中提取版本号
+
+        支持以下frontmatter格式:
+        - version: V1.0.0
+        - version: 1.0.0
+        - 文档版本: V1.0.0
+        """
+        if not file_path.exists():
+            return ""
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # 尝试从YAML frontmatter提取
+            frontmatter_match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+            if frontmatter_match:
+                frontmatter = frontmatter_match.group(1)
+                # 匹配 version: V1.0.0 或 version: 1.0.0
+                version_match = re.search(r'version:\s*[Vv]?(\d+\.\d+\.\d+)', frontmatter)
+                if version_match:
+                    return f"V{version_match.group(1)}"
+
+            # 尝试从文档内容中匹配 "文档版本" 行
+            version_line_match = re.search(r'文档版本[：:]\s*[Vv]?(\d+\.\d+\.\d+)', content)
+            if version_line_match:
+                return f"V{version_line_match.group(1)}"
+
+            # 尝试从 "**版本**: V1.0.0" 格式提取
+            bold_version_match = re.search(r'\*\*版本\*\*[：:]\s*[Vv]?(\d+\.\d+\.\d+)', content)
+            if bold_version_match:
+                return f"V{bold_version_match.group(1)}"
+
+            # 尝试从 "| 版本 | V1.0.0 |" 表格格式提取
+            table_version_match = re.search(r'\|\s*版本\s*\|\s*[Vv]?(\d+\.\d+\.\d+)\s*\|', content)
+            if table_version_match:
+                return f"V{table_version_match.group(1)}"
+
+        except Exception:
+            pass
+
         return ""
     
     def _parse_version(self, version_str: str) -> Tuple[int, int, int]:
@@ -112,28 +162,32 @@ class SpecManager:
     def _find_latest_spec_file(self, spec_dir: Path, spec_name: str) -> Optional[Path]:
         """
         在目录中查找最新的规范文件
-        
+
         Args:
             spec_dir: 规范所在目录
             spec_name: 规范名称（不含版本号）
-        
+
         Returns:
             最新规范文件路径，如果没有找到则返回None
         """
         if not spec_dir.exists():
             return None
-        
+
         # 查找匹配的文件
         pattern = f"{spec_name}*.md"
         matching_files = list(spec_dir.glob(pattern))
-        
+
         if not matching_files:
             return None
-        
+
         # 按版本号排序，返回最新的
+        # 优先从文件内容提取版本号，兼容旧格式从文件名提取
         def get_version(file_path):
-            return self._parse_version(self._extract_version_from_filename(file_path.name))
-        
+            version = self._extract_version_from_content(file_path)
+            if not version:
+                version = self._extract_version_from_filename(file_path.name)
+            return self._parse_version(version)
+
         return max(matching_files, key=get_version)
     
     def check_updates(self) -> Dict:
@@ -163,14 +217,17 @@ class SpecManager:
             
             # 从文件名中提取规范名称（不含版本号）
             filename = full_path.name
-            # 移除版本号部分，获取基础名称
+            # 移除版本号部分，获取基础名称（兼容旧格式，新格式无需移除）
             base_name = re.sub(r'[_-][Vv]\d+\.\d+\.\d+.*$', '', filename)
-            
+
             # 查找最新的规范文件
             latest_file = self._find_latest_spec_file(spec_dir, base_name)
-            
+
             if latest_file:
-                latest_version = self._extract_version_from_filename(latest_file.name)
+                # 优先从文件内容提取版本号，兼容旧格式从文件名提取
+                latest_version = self._extract_version_from_content(latest_file)
+                if not latest_version:
+                    latest_version = self._extract_version_from_filename(latest_file.name)
                 
                 # 更新配置中的最新版本
                 spec_info["最新版本"] = latest_version
@@ -329,6 +386,7 @@ class SpecManager:
         spec_path = self.base_path / spec_info.get("规范路径", "")
         spec_dir = spec_path.parent
         filename = spec_path.name
+        # 移除版本号部分，获取基础名称（兼容旧格式，新格式无需移除）
         base_name = re.sub(r'[_-][Vv]\d+\.\d+\.\d+.*$', '', filename)
         latest_file = self._find_latest_spec_file(spec_dir, base_name)
         

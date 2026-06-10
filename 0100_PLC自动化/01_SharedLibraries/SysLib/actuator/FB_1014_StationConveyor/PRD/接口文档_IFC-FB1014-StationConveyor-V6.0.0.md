@@ -799,7 +799,7 @@ yMotorSlow := fbConveyorMotor.q_bSlowOut;        // 慢速输出->物理IO
 | FB_1011 IFC | ../FB_1011_CylinderControl/PRD/接口文档_IFC-FB1011-CylinderControl-V9.0.0.md                            |
 | FB_1012 IFC | ../FB_1012_ConveyorMotor/PRD/接口文档_IFC-FB1012-ConveyorMotor-V9.0.0.md                                |
 | FB_TON      | ../../timer/FB_TON.scl                                                                                 |
-| LSP-905     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.2.md                         |
-| LSP-904     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP-V1.2.0.md                         |
-| LSP-903     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP-V1.0.0.md                       |
-| LSP-906     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/906_错误预防规则_LSP-V1.0.0.md                         |
+| LSP-905     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md                         |
+| LSP-904     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP.md                         |
+| LSP-903     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP.md                       |
+| LSP-906     | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/906_错误预防规则_LSP.md                         |

@@ -388,7 +388,7 @@ class ChangeService:
     
     @staticmethod
     def _generate_change_content(change: Change, project) -> str:
-        """V2.1.0: 生成变更单内容 (符合 040_通用变更单模板_CHG-V2.0.0)"""
+        """V2.1.0: 生成变更单内容 (符合 040_通用变更单模板_CHG)"""
         from src.core.constants import ChangeStatus
         status_names = {
             ChangeStatus.DRAFT: "草稿", ChangeStatus.PENDING: "待审批",
@@ -596,7 +596,7 @@ class ChangeService:
     
     @staticmethod
     def _generate_ledger_content(project, changes: List[Change]) -> str:
-        """V2.1.0: 生成变更台帐内容 (符合 041_通用版本变更台帐模板_CHG-V2.1.0 引用模式)"""
+        """V2.1.0: 生成变更台帐内容 (符合 041_通用版本变更台帐模板_CHG 引用模式)"""
         from src.core.constants import ChangeStatus, Domain, Nature, Scope
         status_icons = {
             ChangeStatus.DRAFT: "📝", ChangeStatus.PENDING: "⏳",
@@ -744,9 +744,9 @@ class ChangeService:
 
 | 规范文件 | 版本 | 用途 |
 |----------|:----:|:-----|
-| [043_通用变更管理目录结构说明](../../00_Obsidian_Base全局规范文件仓库/04_监控和控制/01_变更管理/03_变更管理规范/043_通用变更管理目录结构说明_PM-V2.1.0.md) | V2.1.0 | 目录结构与职责定义 |
-| [040_通用变更单模板](../../00_Obsidian_Base全局规范文件仓库/04_监控和控制/01_变更管理/02_变更单模板/040_通用变更单模板_CHG-V2.0.0.md) | V2.0.0 | 变更单模板格式 |
-| [042_通用变更管理流程规范](../../00_Obsidian_Base全局规范文件仓库/04_监控和控制/01_变更管理/03_变更管理规范/042_通用变更管理流程规范_PM-V2.0.0.md) | V2.0.0 | 流程与审批规范 |
+| [043_通用变更管理目录结构说明](../../00_Obsidian_Base全局规范文件仓库/04_监控和控制/01_变更管理/03_变更管理规范/043_通用变更管理目录结构说明_PM.md) | V2.1.0 | 目录结构与职责定义 |
+| [040_通用变更单模板](../../00_Obsidian_Base全局规范文件仓库/04_监控和控制/01_变更管理/02_变更单模板/040_通用变更单模板_CHG.md) | V2.0.0 | 变更单模板格式 |
+| [042_通用变更管理流程规范](../../00_Obsidian_Base全局规范文件仓库/04_监控和控制/01_变更管理/03_变更管理规范/042_通用变更管理流程规范_PM.md) | V2.0.0 | 流程与审批规范 |
 
 ---
 

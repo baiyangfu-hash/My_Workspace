@@ -406,6 +406,6 @@ q_bSolenoid       ──────┐                     │  (伸出=FALSE, 
 | IFC | 接口文档_IFC-FB1011-CylinderControl-V9.0.0.md |
 | 电机控制 IFC | ../../../actuator/FB_1012_ConveyorMotor/PRD/接口文档_IFC-FB1012-ConveyorMotor-V7.0.0.md |
 | 编排器 DSN | ../../../conveyor/PRD/详细设计说明书_DSN-FB1002-SingleLayerConveyor-V7.0.0.md |
-| 规范 LSP-905 | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP-V1.0.2.md |
-| 规范 LSP-904 | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP-V1.1.0.md |
-| 规范 LSP-903 | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP-V2.1.0.md |
+| 规范 LSP-905 | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md |
+| 规范 LSP-904 | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP.md |
+| 规范 LSP-903 | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP.md |

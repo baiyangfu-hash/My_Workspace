@@ -90,10 +90,11 @@ class IndexService:
         now = datetime.now().strftime("%Y-%m-%d")
         lines: list[str] = []
 
-        lines.append(f"# {cfg['title']} V3.2.0")
+        registry_version = raw.get("version", "unknown")
+        lines.append(f"# {cfg['title']} {registry_version}")
         lines.append("")
         lines.append(f"> {AUTO_GENERATED_HEADER}")
-        lines.append(f"> **版本**: V3.2.0 (自动生成)")
+        lines.append(f"> **版本**: {registry_version} (自动生成)")
         lines.append(f"> **生成日期**: {now}")
         lines.append(f"> **权威来源**: 各技术栈规范目录为最终权威基准")
         lines.append(f"> **注册表**: spec_registry.json")

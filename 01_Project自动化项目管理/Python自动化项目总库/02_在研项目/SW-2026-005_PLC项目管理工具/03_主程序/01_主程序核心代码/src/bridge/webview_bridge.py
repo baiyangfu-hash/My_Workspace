@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from typing import Any
 
 import webview
@@ -24,6 +26,12 @@ from src.models.spec_constants import (
 )
 from src.services.change_management_service import ChangeManagementService
 from src.services.project_overview_service import ProjectOverviewService
+from src.utils.path_resolver import (
+    PathTraversalError,
+    validate_change_number,
+    validate_path_within_workspace,
+    validate_project_id,
+)
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +50,20 @@ class WebViewBridge:
         self._change_svc = ChangeManagementService(workspace_root)
         self._window: webview.Window | None = None
         self._workspace_root = workspace_root
+        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="bridge_bg")
         log.info("WebViewBridge 初始化完成, workspace_root=%s", workspace_root or "(待选择)")
+
+    def _run_in_thread(self, fn, *args, timeout=30):
+        """在后台线程执行耗时操作，带超时保护"""
+        try:
+            future = self._executor.submit(fn, *args)
+            return future.result(timeout=timeout)
+        except FuturesTimeoutError:
+            log.error("后台线程操作超时(%ds): %s", timeout, fn.__name__)
+            return {"error": "TimeoutError", "message": f"操作超时({timeout}s)"}
+        except Exception as e:
+            log.exception("后台线程操作失败: %s", fn.__name__)
+            return self._error_result(e)
 
     def set_window(self, window: webview.Window) -> None:
         """设置 PyWebView 窗口引用（用于回调）"""
@@ -73,11 +94,21 @@ class WebViewBridge:
         import os
         if not os.path.isdir(path):
             return {"error": "ValueError", "message": f"目录不存在: {path}"}
-        self._workspace_root = os.path.abspath(path)
+        abs_path = os.path.abspath(path)
+        # 安全校验：不允许将工作空间设为系统关键目录
+        try:
+            validate_path_within_workspace(abs_path, abs_path)  # 自身校验通过
+        except PathTraversalError:
+            return {"error": "ValueError", "message": f"路径不合法: {path}"}
+        self._workspace_root = abs_path
         self._overview_svc = ProjectOverviewService(self._workspace_root)
         self._change_svc = ChangeManagementService(self._workspace_root)
         self._overview_svc.refresh()  # 清空旧缓存
+        # 切换工作空间后立即预热新缓存
+        self._overview_svc.get_workspace_projects(use_cache=False)
         log.info("工作空间已切换: %s", self._workspace_root)
+        # 推送 Dashboard 数据到前端（解决无环境变量启动时选择工作空间后页面空白）
+        self.push_dashboard_data()
         return {"status": "ok", "workspace_root": self._workspace_root}
 
     def select_workspace(self) -> dict:
@@ -89,28 +120,65 @@ class WebViewBridge:
         if self._window is None:
             return {"error": "InternalError", "message": "窗口未初始化"}
         result = self._window.create_file_dialog(
-            webview.FOLDER_DIALOG,
+            webview.FileDialog.FOLDER,
             directory="",
         )
         if result and len(result) > 0:
             return self.set_workspace(result[0])
         return {"status": "cancelled"}
 
+    def preload_cache(self) -> None:
+        """预热项目列表缓存（在 webview.start() 前调用）"""
+        log.info("开始预热项目列表缓存...")
+        self._overview_svc.get_workspace_projects(use_cache=False)  # 强制扫描+写入缓存
+        log.info("项目列表缓存预热完成")
+
+    # ── Python → JS 数据推送 API ──────────────────────────────
+
+    def push_dashboard_data(self) -> None:
+        """通过 evaluate_js 将项目列表数据主动推送到前端 Dashboard
+
+        解决 PyWebView Windows WebView2 expose 同步 IPC 死锁问题：
+        前端不再 await api.get_workspace_projects()，
+        改由 Python 端通过 window.evaluate_js() 将数据注入到前端。
+        """
+        if self._window is None:
+            log.warning("push_dashboard_data: 窗口未初始化，跳过推送")
+            return
+
+        try:
+            projects = self._overview_svc.get_workspace_projects(use_cache=True)
+            data = [dataclasses.asdict(p) for p in projects] if projects else []
+            import json
+            json_str = json.dumps(data, ensure_ascii=False)
+            # 优先调用回调（如果 DashboardModule 已注册），同时写入全局变量兜底
+            js_code = (
+                f"window.__dashboardData = {json_str}; "
+                f"if (typeof window.__onDashboardData === 'function') {{"
+                f"  window.__onDashboardData(window.__dashboardData);"
+                f"}}"
+            )
+            self._window.evaluate_js(js_code)
+            log.info("push_dashboard_data: 已推送 %d 个项目到前端", len(data))
+        except Exception as e:
+            log.exception("push_dashboard_data 推送失败")
+
     # ── 项目总览 API ──────────────────────────────────────────
 
     def get_workspace_projects(self) -> list[dict]:
-        """获取工作空间下所有项目概览
+        """获取工作空间下所有项目概览（读缓存，瞬时返回）
 
-        Returns:
-            list[dict]: 项目信息列表，每个元素为 ProjectInfo 的 dict 序列化
+        主要数据流为 push 模式（push_to_dashboard → evaluate_js），
+        本方法作为降级路径保留，供前端主动拉取或其他场景使用。
         """
-        log.info("API: get_workspace_projects")
+        log.debug("API: get_workspace_projects (读缓存)")
         try:
-            projects = self._overview_svc.get_workspace_projects()
-            return [dataclasses.asdict(p) for p in projects]
+            # use_cache=True → 直接读缓存，瞬时返回
+            projects = self._overview_svc.get_workspace_projects(use_cache=True)
+            return [dataclasses.asdict(p) for p in projects] if projects else []
         except Exception as e:
-            log.exception("get_workspace_projects 失败")
-            return self._error_result(e)
+            log.exception("get_workspace_projects 异常")
+            return [self._error_result(e)]
 
     def get_project_detail(self, project_id: str) -> dict | None:
         """获取项目详情
@@ -123,6 +191,7 @@ class WebViewBridge:
         """
         log.info("API: get_project_detail(%s)", project_id)
         try:
+            validate_project_id(project_id)
             info = self._overview_svc.get_project_detail(project_id)
             if info is None:
                 return None
@@ -142,6 +211,7 @@ class WebViewBridge:
         """
         log.info("API: get_project_changes(%s)", project_id)
         try:
+            validate_project_id(project_id)
             changes = self._overview_svc.get_project_changes(project_id)
             return [dataclasses.asdict(c) for c in changes]
         except Exception as e:
@@ -159,6 +229,8 @@ class WebViewBridge:
         """
         log.info("API: refresh_cache(%s)", project_id)
         try:
+            if project_id is not None:
+                validate_project_id(project_id)
             self._overview_svc.refresh(project_id)
             return {"status": "ok"}
         except Exception as e:
@@ -210,6 +282,7 @@ class WebViewBridge:
         """
         log.info("API: create_change_request(%s, ...)", project_id)
         try:
+            validate_project_id(project_id)
             cr = self._change_svc.create_change_request(
                 project_id=project_id,
                 domain=fields.get("domain", ""),
@@ -241,6 +314,7 @@ class WebViewBridge:
         """
         log.info("API: list_change_requests(%s, %s)", project_id, filters)
         try:
+            validate_project_id(project_id)
             filters = filters or {}
             changes = self._change_svc.list_change_requests(
                 project_id=project_id,
@@ -263,6 +337,7 @@ class WebViewBridge:
         """
         log.info("API: get_change_request(%s)", change_number)
         try:
+            validate_change_number(change_number)
             cr = self._change_svc.get_change_request(change_number)
             if cr is None:
                 return None
@@ -291,6 +366,7 @@ class WebViewBridge:
         """
         log.info("API: transition_status(%s, %s)", change_number, new_status)
         try:
+            validate_change_number(change_number)
             kwargs = kwargs or {}
             cr = self._change_svc.transition_status(
                 change_number=change_number,
@@ -318,6 +394,8 @@ class WebViewBridge:
             return {"error": "SpecViolationError", "message": str(exc)}
         elif isinstance(exc, TransitionGuardError):
             return {"error": "TransitionGuardError", "message": str(exc)}
+        elif isinstance(exc, PathTraversalError):
+            return {"error": "PathTraversalError", "message": str(exc)}
         elif isinstance(exc, ValueError):
             return {"error": "ValueError", "message": str(exc)}
         else:

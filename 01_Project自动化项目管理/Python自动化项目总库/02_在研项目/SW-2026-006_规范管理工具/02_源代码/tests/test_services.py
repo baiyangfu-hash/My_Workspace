@@ -47,7 +47,7 @@ class TestCheckService:
         )
 
         spec_dir = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域"
-        (spec_dir / "PM-2026-001_项目管理规范_DEV-V1.0.0_copy.md").write_text(
+        (spec_dir / "PM-2026-001_项目管理规范_DEV_copy.md").write_text(
             "# Duplicate\n",
             encoding="utf-8",
         )
@@ -94,7 +94,7 @@ class TestFrontmatterService:
         assert len(items) == 0
 
     def test_apply_dry_run_no_modification(self, populated_workspace: Path) -> None:
-        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV-V1.0.0.md"
+        spec_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域" / "PM-2026-001_项目管理规范_DEV.md"
         original_content = spec_path.read_text(encoding="utf-8")
         svc = FrontmatterService(populated_workspace)
         items = svc.preview()

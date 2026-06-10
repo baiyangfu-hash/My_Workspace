@@ -28,7 +28,7 @@ DEFAULT_OUTPUT_PATHS = {
 DOMAIN_CONFIG = {
     "pm": {
         "title": "全局规范索引",
-        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引_V2.0.0.md",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
         "sub_domains": {
             "00_元规则与治理": "元规则与治理",
             "01_启动阶段": "启动阶段",

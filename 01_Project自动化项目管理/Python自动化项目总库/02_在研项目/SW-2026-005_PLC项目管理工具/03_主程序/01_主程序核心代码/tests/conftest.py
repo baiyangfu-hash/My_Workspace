@@ -14,7 +14,7 @@ PROJECT_ID = "DJ-2026-005"
 PROJECT_PATH = os.path.join(WORKSPACE_ROOT, PROJECT_ID)
 PROJ_FILE = os.path.join(
     PROJECT_PATH, "00_项目管理", "01_立项与需求",
-    "003_DJ-2026-005_项目立项表_PROJ-V3.0.0.md",
+    "003_DJ-2026-005_项目立项表_PROJ.md",
 )
 CHG_FILE_001 = os.path.join(
     PROJECT_PATH, "00_项目管理", "04_变更管理", "01_变更单",

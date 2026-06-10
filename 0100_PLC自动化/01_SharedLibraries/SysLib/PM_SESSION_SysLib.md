@@ -108,3 +108,50 @@
   - 2026-05-30 FB1020 V2.0.0架构重构(Breaking Change): ST_ProductData GlassID 30 INT->16 WORD; ST_HandshakeCh 扁平字段->WriteProduct/ReadProduct嵌入消除冗余; [B1]Disable段不清除Ready/DsReady/Reserved; [B2]上游COMPLETE态增加Write.Complete回传; [B3]产品数据改为MoveBusy上升沿一次性锁存(bUpDataLatched/bDsDataLatched); [D1]新增q_stUpReceivedProduct/q_stDownReceivedProduct输出; DSN+IFC同步V2.0.0 范围:FB_1020+DSN+IFC+ST_ProductData+ST_HandshakeCh 完成
   - 2026-05-29 FB1020 V1.1.0通用化重构: 剥离Modbus依赖→纯协议逻辑, 新增i_bTransportDone/i_dReqDelayMs/i_dHbToggleMs/i_dHbTimeoutMs/i_dCompleteMs可配置参数, 新增q_iUpState/q_iDownState诊断输出, DSN+IFC同步V1.1.0, Types去除Modbus地址注释 范围:FB_1020+DSN+IFC+3个Types 完成
   - 2026-05-29 FB1013 VAR_OUTPUT精简: 70→25个(-45), M0-M10删除, 报警合并WORD, NV合并BYTE, 位置合并INT, IFC/DSN同步升V9.0.0 范围:FB_1013_NinetyDegreeTransfer.scl+IFC+DSN 完成
+
+## 6. Implementation Log
+- 2026-05-15 | skill=plc-electrical-engineer | mode=迭代推进
+  - goal: 创建PM_SESSION，完成共享函数库SysLib的FB集合
+  - changed_files: PM_SESSION_SysLib.md, timer/, edge/, counter/, pulse/, convert/, log/, types/, actuator/
+  - impact: 共享库具备PM_SESSION驱动能力
+  - risks: FB_1014_StationConveyor仍在开发中
+
+## 7. Verification Log
+- 2026-05-15
+  - verified: PM_SESSION已创建，基础FB集合已实现
+  - not_verified: FB_1014完整功能测试
+  - method: 文件存在性检查
+  - blocker: 无
+
+## 8. Handoff Notes
+- 2026-05-15 | from=plc-electrical-engineer
+  - current_state: SysLib基础FB集合完成，含timer/edge/counter/pulse/convert/log/types/actuator
+  - next_focus: FB_1014_StationConveyor完善，communication模块扩展
+  - watchouts: FB_1014仍在开发; types/目录需与905规范对齐
+  - read_first: PM_SESSION_SysLib.md, README.md
+
+## 9. Next Actions
+- [P1] FB_1014_StationConveyor功能完善 | precondition=需求确认 | done_when=FB_1014完整功能测试通过
+- [P2] communication模块扩展 | precondition=FB_1020需求确认 | done_when=FB_1020接口文档和实现完成
+- [P3] types/目录与905规范对齐 | precondition=905规范确认 | done_when=所有ST_类型命名符合规范
+
+## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
+
+> 以下版本号在项目初始化时从 `spec_registry.json` 读取并填入。
+> 本区块作为基线，后续 `specmgr check` 对比当前规范版本与快照，检测版本漂移。
+
+| spec_id | 版本 | 记录日期 | 说明 |
+|---------|------|---------|------|
+| PROJ-016 | V1.0.0 | 2026-06-06 | 通用项目结构模板 |
+| REQ-020 | V1.1.0 | 2026-06-06 | 通用需求分析文档模板 |
+| LSP-905 | V1.0.2 | 2026-06-06 | SCL编程规范 |
+| LSP-904 | V1.2.0 | 2026-06-06 | SCL注释规范 |
+| LSP-903 | V2.1.0 | 2026-06-06 | 定时器使用规范 |
+| LSP-906 | V1.0.0 | 2026-06-06 | PLC编程错误预防规则 |
+| LSP-907 | V1.0.0 | 2026-06-06 | PLC项目配置规范 |
+| INT-815 | V1.1.0 | 2026-06-06 | PLC接口文档模板 |
+| PLC-023 | V2.0.0 | 2026-06-06 | PLC程序设计文档模板 |
+| DEV-004 | V1.1.1 | 2026-06-06 | 通用项目文档版本管理与变更核心规范 |
+| CHG-040 | V2.0.0 | 2026-06-06 | 通用变更单模板 |
+| CHG-041 | V2.1.0 | 2026-06-06 | 通用版本变更台帐模板 |
+| PM-042 | V2.1.0 | 2026-06-06 | 通用变更管理流程规范 |

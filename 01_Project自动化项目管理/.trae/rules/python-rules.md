@@ -14,10 +14,10 @@ alwaysApply: true
 
 | 优先级 | 规范ID | 文件 | 说明 |
 |--------|--------|------|------|
-| 🔴必读 | CODE-210 | 210_Python编程规范_DEV-V1.1.0.md | 主规范: 命名/代码风格/架构模式 |
-| 🟡配套 | CODE-211 | 211_Python代码审查规范_DEV-V1.0.0.md | Code Review标准清单 |
-| 🟡配套 | CODE-220 | 220_Python项目打包规范_DEV-V2.2.0.md | 打包/发布/依赖管理 |
-| 🟢参考 | INT-215 | 215_Python接口文档模板_INT-V1.0.0.md | 接口文档标准格式 |
+| 🔴必读 | CODE-210 | 210_Python编程规范_DEV.md | 主规范: 命名/代码风格/架构模式 |
+| 🟡配套 | CODE-211 | 211_Python代码审查规范_DEV.md | Code Review标准清单 |
+| 🟡配套 | CODE-220 | 220_Python项目打包规范_DEV.md | 打包/发布/依赖管理 |
+| 🟢参考 | INT-215 | 215_Python接口文档模板_INT.md | 接口文档标准格式 |
 
 ## 关键编码规则
 

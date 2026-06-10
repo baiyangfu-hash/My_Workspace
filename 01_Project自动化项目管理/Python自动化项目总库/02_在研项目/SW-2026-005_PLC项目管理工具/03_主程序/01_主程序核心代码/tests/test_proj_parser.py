@@ -16,7 +16,7 @@ class TestProjParser:
 
     def test_parse_sample(self, sample_proj_content: str, tmp_dir: str) -> None:
         """测试解析样例立项表"""
-        file_path = os.path.join(tmp_dir, "003_TEST-2026-001_项目立项表_PROJ-V1.0.0.md")
+        file_path = os.path.join(tmp_dir, "003_TEST-2026-001_项目立项表_PROJ.md")
         write_file(file_path, sample_proj_content)
 
         parser = ProjParser()

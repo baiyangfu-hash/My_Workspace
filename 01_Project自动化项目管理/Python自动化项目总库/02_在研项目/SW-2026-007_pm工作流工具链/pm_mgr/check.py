@@ -117,4 +117,44 @@ def check_project(project_root: str | Path) -> CheckReport:
                 "PM_SESSION 中缺少 Spec Snapshot 区块"
             ))
 
+    # Check 5: PM_SESSION sections completeness
+    if pm_sessions:
+        content = pm_sessions[0].read_text(encoding="utf-8")
+        required_sections = [
+            ("## 0. Meta", "§0 Meta"),
+            ("## 1. Positioning", "§1 Positioning"),
+            ("## 2. Current Focus", "§2 Current Focus"),
+            ("## 3. Status Summary", "§3 Status Summary"),
+            ("## 4. Artifacts Index", "§4 Artifacts Index"),
+            ("## 5. Logs", "§5 Logs"),
+            ("## 6. Implementation Log", "§6 Implementation Log"),
+            ("## 7. Verification Log", "§7 Verification Log"),
+            ("## 8. Handoff Notes", "§8 Handoff Notes"),
+            ("## 9. Next Actions", "§9 Next Actions"),
+        ]
+        missing_sections = [label for marker, label in required_sections if marker not in content]
+        if missing_sections:
+            report.results.append(CheckResult(
+                "PM_SESSION章节完整性", False,
+                f"缺少: {', '.join(missing_sections)}"
+            ))
+        else:
+            report.results.append(CheckResult(
+                "PM_SESSION章节完整性", True,
+                "§0-§9 全部章节齐全"
+            ))
+
+    # Check 6: .gitignore (security warning)
+    gitignore = root / ".gitignore"
+    if not gitignore.is_file():
+        report.results.append(CheckResult(
+            ".gitignore", False,
+            "缺少 .gitignore 文件（安全红线：防止敏感信息提交）"
+        ))
+    else:
+        report.results.append(CheckResult(
+            ".gitignore", True,
+            ".gitignore 文件存在"
+        ))
+
     return report

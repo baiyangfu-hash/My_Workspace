@@ -281,7 +281,11 @@ function formatDate(dateStr) {
 /** 启动应用 */
 document.addEventListener("DOMContentLoaded", async () => {
   // 先从 Bridge 同步规范常量，再初始化路由（确保渲染时使用最新标签）
-  await initSpecConstants();
+  try {
+    await initSpecConstants();
+  } catch (err) {
+    console.warn("规范常量同步失败，使用默认值:", err.message);
+  }
 
   // 检查工作空间是否已设置
   try {
@@ -290,17 +294,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       workspaceRoot = info.workspace_root;
       updateWorkspaceDisplay();
     } else {
-      // 未设置工作空间，显示提示
+      // 未设置工作空间，显示提示（但必须初始化路由，否则后续选择工作空间后无法导航）
       contentEl.innerHTML = `
         <div class="empty-state" style="margin-top:120px;">
           <div class="empty-state__icon" style="font-size:48px;">&#128193;</div>
           <div class="empty-state__text" style="font-size:18px;margin-top:16px;">请选择工作空间目录</div>
           <div style="margin-top:16px;color:var(--text-muted);">点击左上角 <strong>选择目录</strong> 按钮，或设置环境变量 <code>PLC_WORKSPACE_ROOT</code></div>
         </div>`;
-      return;
     }
   } catch (err) {
     console.warn("工作空间检查失败:", err.message);
+    // Bridge不可用时也继续初始化，让用户可以手动选择工作空间
   }
 
   initRouter();

@@ -55,7 +55,7 @@ SAMPLE_REGISTRY = {
         "PM-2026-001": {
             "title": "项目管理规范",
             "number": "PM-001",
-            "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/PM-2026-001_项目管理规范_DEV-V1.0.0.md",
+            "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/PM-2026-001_项目管理规范_DEV.md",
             "version": "V1.0.0",
             "type_prefix": "PM",
             "domain": "pm",
@@ -68,7 +68,7 @@ SAMPLE_REGISTRY = {
         "PLC-2026-001": {
             "title": "PLC编程规范",
             "number": "PLC-001",
-            "canonical_path": "0100_PLC自动化/00_通用规范/PLC-2026-001_PLC编程规范_DEV-V1.0.0.md",
+            "canonical_path": "0100_PLC自动化/00_通用规范/PLC-2026-001_PLC编程规范_DEV.md",
             "version": "V1.0.0",
             "type_prefix": "PLC",
             "domain": "plc",
@@ -81,7 +81,7 @@ SAMPLE_REGISTRY = {
         "CODE-210": {
             "title": "Python编程规范",
             "number": "CODE-210",
-            "canonical_path": "01_Project自动化项目管理/00_通用规范/CODE-210_Python编程规范_DEV-V1.1.0.md",
+            "canonical_path": "01_Project自动化项目管理/00_通用规范/CODE-210_Python编程规范_DEV.md",
             "version": "V1.1.0",
             "type_prefix": "CODE",
             "domain": "python",
@@ -94,7 +94,7 @@ SAMPLE_REGISTRY = {
         "PM-2026-002": {
             "title": "旧版管理规范",
             "number": "PM-002",
-            "canonical_path": "00_Obsidian_Base全局规范文件仓库/_archive/PM-2026-002_旧版管理规范_DEV-V0.9.0.md",
+            "canonical_path": "00_Obsidian_Base全局规范文件仓库/_archive/PM-2026-002_旧版管理规范_DEV.md",
             "version": "V0.9.0",
             "type_prefix": "PM",
             "domain": "pm",

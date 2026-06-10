@@ -7,6 +7,19 @@ import os
 from pathlib import Path
 
 
+def _rglob_max_depth(root: Path, pattern: str, max_depth: int = 3) -> list[Path]:
+    """rglob with depth limit."""
+    results = []
+    for p in root.rglob(pattern):
+        try:
+            rel = p.relative_to(root)
+        except ValueError:
+            continue
+        if len(rel.parts) <= max_depth:
+            results.append(p)
+    return results
+
+
 def detect_project_type(project_root: str | Path) -> str | None:
     """Detect project type from directory signals.
 
@@ -24,16 +37,16 @@ def detect_project_type(project_root: str | Path) -> str | None:
         raise ValueError(f"Not a directory: {root}")
 
     # Signal 1: .plc.json (search up to 3 levels deep)
-    if list(root.rglob(".plc.json")):
+    if _rglob_max_depth(root, ".plc.json"):
         return "plc"
 
     # Signal 2: pyproject.toml (search up to 3 levels deep)
-    if list(root.rglob("pyproject.toml")):
+    if _rglob_max_depth(root, "pyproject.toml"):
         return "software"
 
     # Signal 3: .scl / .db files (recursive search, limited depth)
-    scl_files = list(root.rglob("*.scl"))
-    db_files = list(root.rglob("*.db"))
+    scl_files = _rglob_max_depth(root, "*.scl")
+    db_files = _rglob_max_depth(root, "*.db")
     if scl_files or db_files:
         return "plc"
 

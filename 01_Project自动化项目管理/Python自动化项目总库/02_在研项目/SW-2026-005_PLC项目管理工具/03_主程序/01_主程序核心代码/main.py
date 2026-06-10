@@ -58,7 +58,29 @@ def main() -> None:
         height=860,
         min_size=(960, 640),
     )
+
     bridge.set_window(window)
+
+    # pywebview 6.x 使用事件绑定替代 create_window 的 loaded 参数
+    def on_loaded():
+        """页面加载完成后推送 Dashboard 数据（evaluate_js 推送模式）"""
+        if initial_workspace:
+            try:
+                bridge.push_dashboard_data()
+                log.info("Dashboard 数据推送完成")
+            except Exception as e:
+                log.warning("首次 Dashboard 数据推送失败: %s", e)
+
+    window.events.loaded += on_loaded
+
+    # 预热项目列表缓存，确保 Dashboard 首次加载时无需等待扫描
+    if initial_workspace:
+        log.info("预热项目列表缓存...")
+        try:
+            bridge.preload_cache()
+            log.info("项目列表缓存预热完成")
+        except Exception as e:
+            log.warning("项目列表缓存预热失败（不影响启动）: %s", e)
 
     log.info("PLC 项目管理工具启动, workspace=%s, debug=%s", initial_workspace or "(待选择)", _DEBUG)
     webview.start(debug=_DEBUG)

@@ -8,17 +8,27 @@ const Api = {
   /** 等待 pywebview.api 就绪 */
   async _ensureReady() {
     if (this._ready) return;
-    await new Promise((resolve) => {
-      if (window.pywebview && window.pywebview.api) {
-        this._ready = true;
-        resolve();
-      } else {
-        window.addEventListener("pywebviewready", () => {
+    const TIMEOUT_MS = 10000; // 10秒超时
+    await Promise.race([
+      new Promise((resolve) => {
+        if (window.pywebview && window.pywebview.api) {
           this._ready = true;
           resolve();
-        });
-      }
-    });
+        } else {
+          window.addEventListener("pywebviewready", () => {
+            this._ready = true;
+            resolve();
+          });
+        }
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject({ type: "TimeoutError", message: `pywebview API就绪超时(${TIMEOUT_MS / 1000}s)` }), TIMEOUT_MS)
+      ),
+    ]);
+    // 超时后仍尝试直接访问 api 对象（某些环境可能已可用但事件未触发）
+    if (!this._ready && window.pywebview && window.pywebview.api) {
+      this._ready = true;
+    }
   },
 
   /**
