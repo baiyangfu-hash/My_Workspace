@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 from pathlib import Path
 
 from src.dao.project_dao import ProjectDAO
-from src.dao.template_dao import TemplateDAO
+from src.services.template_service import TemplateService
 from src.models.project import Project
 from src.core.constants import BusinessLine, ProjectStatus, BUSINESS_LINE_DESC
 from src.core.config import Config
@@ -23,16 +23,16 @@ logger = setup_logger(__name__)
 class ProjectService:
     """项目管理服务类"""
     
-    def __init__(self, project_dao=None, template_dao=None, config=None):
+    def __init__(self, project_dao=None, template_service=None, config=None):
         """初始化项目服务
         
         Args:
             project_dao: 项目数据访问对象
-            template_dao: 模板数据访问对象
+            template_service: 模板服务对象
             config: 配置对象
         """
         self.project_dao = project_dao or ProjectDAO
-        self.template_dao = template_dao or TemplateDAO
+        self.template_service = template_service or TemplateService
         self.config = config or Config
     
     def create_project(
@@ -65,7 +65,7 @@ class ProjectService:
             return None, msg
         
         # 验证模板是否存在
-        template = self.template_dao.get_by_id(template_id)
+        template = self.template_service.get_template(template_id)
         if not template:
             return None, "模板不存在"
         
@@ -175,7 +175,8 @@ class ProjectService:
                     manager=manager,
                     description=description,
                     path=str(project_path),
-                    sequence=sequence
+                    sequence=sequence,
+                    applied_template_version=getattr(template, 'schema_version', None) or '1.0'
                 )
 
                 # 创建项目目录结构（使用新的返回值格式）
@@ -554,7 +555,7 @@ class ProjectService:
             return None, msg
         
         # 验证模板是否存在
-        template = self.template_dao.get_by_id(template_id)
+        template = self.template_service.get_template(template_id)
         if not template:
             return None, "模板不存在"
         
@@ -665,7 +666,7 @@ class ProjectService:
             (项目对象, 错误信息)，更改成功时错误信息为空
         """
         # 验证模板是否存在
-        template = self.template_dao.get_by_id(template_id)
+        template = self.template_service.get_template(template_id)
         if not template:
             return None, "模板不存在"
         

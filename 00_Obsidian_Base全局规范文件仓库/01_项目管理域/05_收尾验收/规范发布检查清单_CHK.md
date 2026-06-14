@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: CHK-SOP
 title: "规范发布检查清单"
 version: "V1.0.0"

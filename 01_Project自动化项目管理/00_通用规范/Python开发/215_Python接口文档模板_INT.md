@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: INT-215
 title: "Python接口文档模板"
 version: "V1.0.0"

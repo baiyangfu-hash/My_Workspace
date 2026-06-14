@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: PLC-023
 title: "PLC程序设计文档模板"
 version: "V2.0.0"

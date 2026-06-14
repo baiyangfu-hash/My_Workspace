@@ -282,7 +282,7 @@ class ProgressManagerWidget(QWidget):
                     start = datetime.fromisoformat(task["start_date"]).date()
                     end = datetime.fromisoformat(task["end_date"]).date()
                     
-                    for i in range(min(date_range, 30)):
+                    for i in range(display_range):
                         current_date = min_date + __import__('datetime').timedelta(days=i)
                         bar = QFrame()
                         bar.setFixedHeight(15)

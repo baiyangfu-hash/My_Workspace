@@ -221,6 +221,17 @@ class ProjectListWidget(QWidget):
         elif action == delete_action:
             self._delete_project(project)
     
+    def get_selected_items(self):
+        """获取当前选中的项目对象列表（供主窗口菜单调用）"""
+        selected_rows = set(item.row() for item in self.table.selectedItems())
+        result = []
+        for row in selected_rows:
+            project_id = self.table.item(row, 0).data(Qt.UserRole)
+            project = next((p for p in self.projects if p.project_id == project_id), None)
+            if project:
+                result.append(project)
+        return result
+
     def _on_project_double_click(self, index):
         """双击项目行"""
         row = index.row()
@@ -308,10 +319,12 @@ class ProjectListWidget(QWidget):
         if dialog.exec_() == QDialog.Accepted:
             success, error = ProjectService.update_project(
                 project.project_id,
-                name=self.edit_name.text().strip(),
-                description=self.edit_description.toPlainText().strip(),
-                manager=self.edit_manager.text().strip(),
-                status=self.edit_status.currentText()
+                {
+                    "name": self.edit_name.text().strip(),
+                    "description": self.edit_description.toPlainText().strip(),
+                    "manager": self.edit_manager.text().strip(),
+                    "status": self.edit_status.currentText()
+                }
             )
             if error:
                 QMessageBox.critical(self, "错误", f"更新失败: {error}")

@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: TECH-014
 title: "技术方案文档模板"
 version: "V1.0.0"

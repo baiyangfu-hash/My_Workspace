@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: TOOL-908
 title: "Siemens Language Support插件使用指南"
 version: "V1.0.0"

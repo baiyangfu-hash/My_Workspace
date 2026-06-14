@@ -2,582 +2,670 @@
 
 ## 1. 文档基础信息
 
-**文档标题**：SW-2026-004 Python项目管理工具架构设计文档
-**文档版本**：ARCH-V1.0.3
-**编制日期**：2026-03-15
-**编制人**：技术负责人
-**审核人**：技术负责人
-**项目编号**：SW-2026-004
-**迭代版本**：V1.0.3
+| 属性 | 内容 |
+|------|------|
+| **文档标题** | SW-2026-004 Python项目管理工具 架构设计文档 |
+| **文档版本** | ARCH V2.8.0 |
+| **编制日期** | 2026-06-14 |
+| **编制人** | 技术负责人 |
+| **项目编号** | SW-2026-004 |
+| **对应产品版本** | V2.8.0 |
 
 ## 2. 版本变更记录
 
-| 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
-|--------|----------|--------|----------|----------|
-| V1.0.0 | 初始版本 | 技术负责人 | 2026-03-12 | 创建架构设计文档 |
-| V1.0.3 | 更新版本号和审核人 | 技术负责人 | 2026-03-15 | 统一版本号为V1.0.3，更新审核人 |
+| 版本号 | 变更内容 | 变更人 | 变更日期 |
+|--------|----------|--------|----------|
+| V1.0.0 | 初始版本 | 技术负责人 | 2026-03-12 |
+| V1.0.3 | 统一版本号，更新审核人 | 技术负责人 | 2026-03-15 |
+| V2.6.0 | 全面重写：基于实际代码结构（24个service、9Tab页签、8蓝图），新增变更管理V2.1.0架构、传播链追踪、分级审批；新增Mermaid架构分层图与模块依赖图；补充dependency-injector容器、pydantic配置、alembic迁移、security/rate_limiter/cache等实际组件 | 技术负责人 | 2026-06-12 |
 
 ## 3. 系统架构概述
 
-### 1.1 架构风格
+### 3.1 架构风格
 
-本系统采用分层架构设计，结合服务导向设计理念，确保系统的可扩展性、可维护性和可测试性。
+本系统采用**经典分层架构**（Layered Architecture），从上到下划分为5个逻辑层，层间通过接口/依赖注入解耦，遵循"上层依赖下层、下层不感知上层"的原则。表现层提供三种等价入口（GUI / API / CLI），共享同一服务层。
 
-### 1.2 核心层次
-
-| 层次 | 职责 | 主要模块 |
-|------|------|----------|
-| 表现层（Presentation Layer） | 负责用户交互和数据展示 | UI（PyQt5）、API（Flask）、CLI（Click） |
-| 服务层（Service Layer） | 实现业务逻辑 | 项目服务、模板服务、插件服务、变更服务等 |
-| 数据访问层（Data Access Layer） | 负责数据持久化和访问 | DAO层、数据库操作 |
-| 数据模型层（Model Layer） | 定义数据结构和关系 | 项目模型、模板模型、插件模型等 |
-| 工具层（Utility Layer） | 提供通用功能和工具 | 日志、配置、文件操作等 |
-
-## 2. 模块划分与依赖关系
-
-### 2.1 模块划分
-
-#### 2.1.1 核心模块
-
-| 模块名称 | 主要职责 | 文件位置 | 依赖模块 |
-|----------|----------|----------|----------|
-| 项目管理模块 | 项目的创建、查询、更新和删除 | src/services/project_service.py | 数据模型层、数据访问层、工具层 |
-| 模板管理模块 | 模板的创建、查询、更新和删除 | src/services/template_service.py | 数据模型层、数据访问层 |
-| 插件管理模块 | 插件的安装、启用、禁用和配置 | src/services/plugin_service.py | 数据模型层、数据访问层 |
-| 变更管理模块 | 变更的创建、审批、执行和跟踪 | src/services/change_service.py | 项目管理模块、数据模型层 |
-| 总库管理模块 | 总库的管理、统计和分析 | src/services/library_service.py | 项目管理模块、变更管理模块 |
-| 规范管理模块 | 规范的创建、查询和应用 | src/services/spec_service.py | 数据模型层、数据访问层 |
-
-#### 2.1.2 支持模块
-
-| 模块名称 | 主要职责 | 文件位置 | 依赖模块 |
-|----------|----------|----------|----------|
-| 配置管理模块 | 系统配置的加载和管理 | src/core/config.py | 工具层 |
-| 数据库模块 | 数据库连接和管理 | src/dao/database.py | 工具层 |
-| 日志模块 | 系统日志的记录和管理 | src/utils/logger.py | 工具层 |
-| 认证模块 | 用户认证和权限管理 | src/api/auth.py | 数据模型层 |
-| 报告模块 | 报告的生成和管理 | src/services/report_service.py | 项目管理模块 |
-| 检查模块 | 规范检查和验证 | src/services/check_service.py | 规范管理模块 |
-
-### 2.2 模块依赖关系图
+### 3.2 架构分层图
 
 ```mermaid
 graph TD
-    subgraph 表现层
-        UI[UI模块 PyQt5]
-        API[API模块 Flask]
-        CLI[CLI模块 Click]
+    subgraph 表现层_Presentation["表现层 (Presentation)"]
+        GUI["GUI<br/>PyQt5 5.15+<br/>9个Tab页签"]
+        API["API<br/>Flask 3.0.2<br/>8个Blueprint + JWT"]
+        CLI["CLI<br/>Click 8.1.7<br/>create-project/check-project/sync-spec等"]
     end
 
-    subgraph 服务层
-        ProjectService[项目服务]
-        TemplateService[模板服务]
-        PluginService[插件服务]
-        ChangeService[变更服务]
-        LibraryService[总库服务]
-        SpecService[规范服务]
-        ReportService[报告服务]
-        CheckService[检查服务]
+    subgraph 服务层_Service["服务层 (Service Layer)"]
+        direction TB
+        PS["project_service"]
+        TS["template_service"]
+        PLS["plugin_service"]
+        CS["change_service"]
+        LS["library_service"]
+        SS["spec_service"]
+        RS["report_service"]
+        CHS["check_service"]
+        DS["defect_service"]
+        PMS["plugin_market_service"]
+        LCS["library_change_service"]
+        BDS["build_deploy_service"]
+        AS["approval_service"]
+        NS["notification_service"]
+        IS["impact_service"]
+        PRS["progress_service"]
+        ES["export_service"]
+        STS["statistics_service"]
+        CAS["change_analytics_service"]
+        LDS["library_dashboard_service"]
+        LDPS["library_dependency_service"]
+        LRS["library_report_service"]
+        LSS["library_spec_service"]
+        LVS["library_version_service"]
     end
 
-    subgraph 数据访问层
-        DAO[数据访问对象]
+    subgraph 数据访问层_DAO["数据访问层 (DAO Layer)"]
+        DB[(database.py<br/>SQLAlchemy 2.0.27<br/>引擎/会话/自动迁移)]
+        DAOs["project_dao / template_dao / plugin_dao<br/>change_dao / library_dao / spec_dao<br/>defect_dao / approval_dao / milestone_dao<br/>task_dao / library_change_dao / etc."]
     end
 
-    subgraph 数据模型层
-        Models[数据模型]
+    subgraph 数据模型层_Model["数据模型层 (Model Layer)"]
+        Models["project / template / plugin<br/>change / spec / library<br/>task / milestone / defect<br/>approval / impact / etc.<br/><br/>SQLAlchemy ORM + Alembic 1.13.1 迁移"]
     end
 
-    subgraph 工具层
-        Config[配置管理]
-        Logger[日志管理]
-        Utils[通用工具]
+    subgraph 工具层_Utility["工具层 (Utility Layer)"]
+        Config["core/config.py<br/>JSON配置加载/保存"]
+        Constants["core/constants.py<br/>枚举定义(BusinessLine/Domain/Nature/Scope等)"]
+        Container["core/container.py<br/>dependency-injector 4.41.0 容器"]
+        Logger["utils/logger.py"]
+        PathUtils["utils/path_utils.py"]
+        Security["utils/security/<br/>bcrypt 4.1.2"]
+        RateLimiter["utils/rate_limiter.py"]
+        Cache["utils/cache.py"]
+        Validators["utils/validators.py"]
     end
 
-    UI --> ProjectService
-    UI --> TemplateService
-    UI --> PluginService
-    UI --> ChangeService
-    UI --> LibraryService
-    UI --> SpecService
+    GUI --> PS
+    GUI --> TS
+    GUI --> PLS
+    GUI --> CS
+    GUI --> LS
+    GUI --> SS
+    GUI --> RS
+    GUI --> CHS
+    GUI --> PMS
 
-    API --> ProjectService
-    API --> TemplateService
-    API --> PluginService
-    API --> ChangeService
-    API --> LibraryService
-    API --> SpecService
+    API --> PS
+    API --> TS
+    API --> PLS
+    API --> CS
+    API --> LS
+    API --> SS
+    API --> DS
+    API --> LDS
 
-    CLI --> ProjectService
-    CLI --> TemplateService
-    CLI --> PluginService
+    CLI --> PS
+    CLI --> CHS
+    CLI --> RS
 
-    ProjectService --> DAO
-    TemplateService --> DAO
-    PluginService --> DAO
-    ChangeService --> DAO
-    LibraryService --> DAO
-    SpecService --> DAO
-    ReportService --> DAO
-    CheckService --> DAO
+    PS --> DB
+    TS --> DB
+    PLS --> DB
+    CS --> DB
+    LS --> DB
+    SS --> DB
+    RS --> DB
+    CHS --> DB
+    DS --> DB
+    PMS --> DB
+    LCS --> DB
+    BDS --> DB
+    AS --> DB
+    PRS --> DB
+    ES --> DB
+    STS --> DB
+    CAS --> DB
 
-    DAO --> Models
+    DB --> Models
 
-    ProjectService --> Logger
-    TemplateService --> Logger
-    PluginService --> Logger
-    ChangeService --> Logger
-    LibraryService --> Logger
-    SpecService --> Logger
-    ReportService --> Logger
-    CheckService --> Logger
-
-    ProjectService --> Config
-    TemplateService --> Config
-    PluginService --> Config
-    ChangeService --> Config
-    LibraryService --> Config
-    SpecService --> Config
-    ReportService --> Config
-    CheckService --> Config
-
-    ChangeService --> ProjectService
-    LibraryService --> ProjectService
-    LibraryService --> ChangeService
-    ReportService --> ProjectService
-    CheckService --> SpecService
+    PS --> Logger
+    TS --> Logger
+    CS --> Config
+    LS --> Config
+    Container --> Config
+    Container --> Security
 ```
 
-## 3. 核心模块详细说明
+### 3.3 核心层次职责
 
-### 3.1 项目管理模块
+| 层次 | 职责 | 关键组件 |
+|------|------|----------|
+| **表现层** | 用户交互与数据展示，支持三种入口等价访问同一服务层 | main.py（入口路由），GUI（9个Tab页签），API（8蓝图+JWT认证），CLI（Click命令组） |
+| **服务层** | 封装全部业务逻辑，24个服务类各司其职，通过静态方法/单例对外暴露 | 项目管理、模板管理、变更管理（V2.1.0）、总库管理、规范管理等 |
+| **数据访问层** | 数据库连接管理、会话管理、CRUD封装、自动迁移 | database.py（单例引擎），15个*_dao.py，SQLAlchemy ORM |
+| **数据模型层** | 定义数据实体结构与ORM映射，Alembic管理版本迁移 | 15+模型类（project/template/plugin/change/spec/library等） |
+| **工具层** | 跨层通用能力：配置、常量、DI容器、日志、安全、限流、缓存、校验 | core/config.py, core/constants.py, core/container.py, utils/* |
 
-#### 3.1.1 功能职责
-- 项目的创建、查询、更新和删除
-- 项目编号的生成和管理
-- 项目状态的管理
-- 项目统计信息的获取
+## 4. 模块划分与依赖关系
 
-#### 3.1.2 核心类和方法
-| 类/方法 | 描述 | 参数 | 返回值 |
-|---------|------|------|--------|
-| `ProjectService.create_project()` | 创建新项目 | business_line, name, template_id, manager, description, custom_path | (project, error) |
-| `ProjectService.get_project()` | 获取项目详情 | project_id | project |
-| `ProjectService.update_project()` | 更新项目信息 | project_id, data | (project, error) |
-| `ProjectService.delete_project()` | 删除项目 | project_id | (success, error) |
-| `ProjectService.list_projects()` | 获取项目列表 | status, business_line, keyword, page, size | (projects, total) |
-| `ProjectService.generate_project_code()` | 生成项目编号 | business_line | (code, error) |
-| `ProjectService.get_statistics()` | 获取项目统计信息 | - | stats |
+### 4.1 服务层模块清单（24个）
 
-#### 3.1.3 数据流程
-1. 接收用户请求（UI/API/CLI）
-2. 验证请求参数
-3. 调用相应的服务方法
-4. 与数据访问层交互
-5. 返回处理结果
+| 序号 | 模块 | 文件 | 职责 |
+|------|------|------|------|
+| 1 | project_service | src/services/project_service.py | 项目CRUD、编号生成、统计、路径管理 |
+| 2 | template_service | src/services/template_service.py | 模板CRUD、内置模板初始化、导入导出 |
+| 3 | plugin_service | src/services/plugin_service.py | 插件安装/卸载/启用/禁用/执行 |
+| 4 | change_service | src/services/change_service.py | 变更全生命周期、V2.1.0二维分类、传播链、分级审批、变更单/台账导出 |
+| 5 | library_service | src/services/library_service.py | 总库管理、分类组织、项目关联 |
+| 6 | spec_service | src/services/spec_service.py | 规范CRUD、规范同步、规范查询 |
+| 7 | report_service | src/services/report_service.py | 报告生成（Markdown/JSON）、检查报告 |
+| 8 | check_service | src/services/check_service.py | 项目规范检查、合规验证 |
+| 9 | defect_service | src/services/defect_service.py | 缺陷管理（创建/跟踪/修复） |
+| 10 | plugin_market_service | src/services/plugin_market_service.py | 插件市场集成 |
+| 11 | library_change_service | src/services/library_change_service.py | 总库级变更记录管理 |
+| 12 | build_deploy_service | src/services/build_deploy_service.py | 构建与部署辅助（PyInstaller打包） |
+| 13 | approval_service | src/services/approval_service.py | 审批流管理（创建审批历史、状态追踪） |
+| 14 | notification_service | src/services/notification_service.py | 变更通知（状态变更推送） |
+| 15 | impact_service | src/services/impact_service.py | 变更影响分析 |
+| 16 | progress_service | src/services/progress_service.py | 项目进度管理 |
+| 17 | export_service | src/services/export_service.py | 数据导出 |
+| 18 | statistics_service | src/services/statistics_service.py | 统计数据分析 |
+| 19 | change_analytics_service | src/services/change_analytics_service.py | 变更分析统计 |
+| 20 | library_dashboard_service | src/services/library_dashboard_service.py | 总库仪表盘数据 |
+| 21 | library_dependency_service | src/services/library_dependency_service.py | 总库间依赖关系管理 |
+| 22 | library_report_service | src/services/library_report_service.py | 总库报告生成 |
+| 23 | library_spec_service | src/services/library_spec_service.py | 总库级规范管理 |
+| 24 | library_version_service | src/services/library_version_service.py | 总库版本管理 |
 
-### 3.2 模板管理模块
+### 4.2 数据访问层模块清单
 
-#### 3.2.1 功能职责
-- 模板的创建、查询、更新和删除
-- 模板的导入和导出
-- 模板结构的验证
-- 内置模板的管理
+| 模块 | 文件 | 对应模型 |
+|------|------|----------|
+| database | src/dao/database.py | 连接引擎/会话/自动迁移（全局单例） |
+| project_dao | src/dao/project_dao.py | Project |
+| template_dao | src/dao/template_dao.py | Template |
+| plugin_dao | src/dao/plugin_dao.py | Plugin |
+| change_dao | src/dao/change_dao.py | Change |
+| library_dao | src/dao/library_dao.py | Library/Category/LibraryProject |
+| spec_dao | src/dao/spec_dao.py | Spec |
+| defect_dao | src/dao/defect_dao.py | Defect |
+| approval_dao | src/dao/approval_dao.py | Approval |
+| milestone_dao | src/dao/milestone_dao.py | Milestone |
+| task_dao | src/dao/task_dao.py | Task |
+| library_change_dao | src/dao/library_change_dao.py | LibraryChange |
+| library_dependency_dao | src/dao/library_dependency_dao.py | LibraryDependency |
+| library_version_dao | src/dao/library_version_dao.py | LibraryVersion |
 
-#### 3.2.2 核心类和方法
-| 类/方法 | 描述 | 参数 | 返回值 |
-|---------|------|------|--------|
-| `TemplateService.create_template()` | 创建自定义模板 | data | (template, error) |
-| `TemplateService.get_template()` | 获取模板详情 | template_id | template |
-| `TemplateService.update_template()` | 更新模板信息 | template_id, data | (template, error) |
-| `TemplateService.delete_template()` | 删除模板 | template_id | (success, error) |
-| `TemplateService.list_templates()` | 获取模板列表 | compiler, scene, is_builtin | templates |
-| `TemplateService.export_template()` | 导出模板 | template_id | (json_data, error) |
-| `TemplateService.import_template()` | 导入模板 | template_json | (template, error) |
-| `TemplateService.validate_template_structure()` | 验证模板结构 | structure | (valid, message) |
+### 4.3 API蓝图清单（8个）
 
-#### 3.2.3 数据流程
-1. 接收用户请求（UI/API/CLI）
-2. 验证请求参数
-3. 调用相应的服务方法
-4. 与数据访问层交互
-5. 返回处理结果
+| 蓝图 | 路由前缀 | 文件 |
+|------|----------|------|
+| projects_bp | /api/v1/projects | src/api/routes/projects.py |
+| templates_bp | /api/v1/templates | src/api/routes/templates.py |
+| plugins_bp | /api/v1/plugins | src/api/routes/plugins.py |
+| specs_bp | /api/v1/specs | src/api/routes/specs.py |
+| libraries_bp | /api/v1/libraries | src/api/routes/libraries.py |
+| library_changes_bp | /api/v1/library-changes | src/api/routes/library_changes.py |
+| library_dashboard_bp | /api/v1/library-dashboard | src/api/routes/library_dashboard.py |
+| defects_bp | /api/v1/defects | src/api/routes/defects.py |
 
-### 3.3 插件管理模块
+认证：Flask蓝图路由通过 `src/api/auth.py` 的 `login()` / `auth_required()` / `role_required()` 装饰器实现JWT认证。
 
-#### 3.3.1 功能职责
-- 插件的安装、启用、禁用和卸载
-- 插件的配置管理
-- 插件的执行和调用
-- 插件市场的集成
+### 4.4 模块依赖关系图
 
-#### 3.3.2 核心类和方法
-| 类/方法 | 描述 | 参数 | 返回值 |
-|---------|------|------|--------|
-| `PluginService.install_plugin()` | 安装插件 | plugin_path | (plugin, error) |
-| `PluginService.get_plugin()` | 获取插件信息 | plugin_id | plugin |
-| `PluginService.enable_plugin()` | 启用插件 | plugin_id | (success, error) |
-| `PluginService.disable_plugin()` | 禁用插件 | plugin_id | (success, error) |
-| `PluginService.uninstall_plugin()` | 卸载插件 | plugin_id | (success, error) |
-| `PluginService.list_plugins()` | 获取插件列表 | status | plugins |
-| `PluginService.configure_plugin()` | 配置插件 | plugin_id, config | (success, error) |
-| `PluginService.execute_plugin()` | 执行插件 | plugin_id, params | (result, error) |
+```mermaid
+graph LR
+    subgraph Entry["入口"]
+        MAIN["main.py<br/>--mode gui|api|cli"]
+    end
 
-#### 3.3.3 数据流程
-1. 接收用户请求（UI/API/CLI）
-2. 验证请求参数
-3. 调用相应的服务方法
-4. 与数据访问层交互
-5. 执行插件逻辑
-6. 返回处理结果
+    subgraph UI["GUI Tab页签 (9个)"]
+        T1["项目管理<br/>ProjectListWidget"]
+        T2["模板管理<br/>TemplateManagerWidget"]
+        T3["插件管理<br/>PluginManagerWidget"]
+        T4["规范中心<br/>SpecCenterWidget"]
+        T5["变更管理<br/>ChangeManagerWidget"]
+        T6["进度管理<br/>ProgressManagerWidget"]
+        T7["报告中心<br/>ReportCenterWidget"]
+        T8["插件配置<br/>PluginConfigWidget"]
+        T9["总库管理<br/>LibraryManagerWidget"]
+    end
 
-### 3.4 变更管理模块
+    subgraph API_R["API Blueprints (8个)"]
+        B1["/api/v1/projects"]
+        B2["/api/v1/templates"]
+        B3["/api/v1/plugins"]
+        B4["/api/v1/specs"]
+        B5["/api/v1/libraries"]
+        B6["/api/v1/library-changes"]
+        B7["/api/v1/library-dashboard"]
+        B8["/api/v1/defects"]
+    end
 
-#### 3.4.1 功能职责
-- 变更的创建、查询、更新和删除
-- 变更的审批流程管理
-- 变更的执行和跟踪
-- 变更的影响分析
+    subgraph Core_Services["核心服务 (服务层)"]
+        S1["project_service"]
+        S2["change_service<br/>(V2.1.0核心)"]
+        S3["template_service"]
+        S4["library_service"]
+        S5["spec_service"]
+    end
 
-#### 3.4.2 核心类和方法
-| 类/方法 | 描述 | 参数 | 返回值 |
-|---------|------|------|--------|
-| `ChangeService.create_change()` | 创建变更 | project_id, title, description, change_type | (change, error) |
-| `ChangeService.get_change()` | 获取变更详情 | change_id | change |
-| `ChangeService.update_change()` | 更新变更信息 | change_id, data | (change, error) |
-| `ChangeService.delete_change()` | 删除变更 | change_id | (success, error) |
-| `ChangeService.list_changes()` | 获取变更列表 | project_id, status, change_type, page, size | (changes, total) |
-| `ChangeService.approve_change()` | 审批变更 | change_id, approved_by, comment | (success, error) |
-| `ChangeService.execute_change()` | 执行变更 | change_id, executed_by | (success, error) |
-| `ChangeService.analyze_impact()` | 分析变更影响 | change_id | (impact, error) |
+    subgraph Supporting["支撑服务"]
+        S6["approval_service"]
+        S7["impact_service"]
+        S8["notification_service"]
+        S9["change_analytics_service"]
+    end
 
-#### 3.4.3 数据流程
-1. 接收用户请求（UI/API/CLI）
-2. 验证请求参数
-3. 调用相应的服务方法
-4. 与数据访问层交互
-5. 执行变更流程
-6. 返回处理结果
+    MAIN --> T1
+    MAIN --> API_R
+    MAIN --> CLI["CLI (Click)"]
 
-### 3.5 总库管理模块
+    T1 --> S1
+    T2 --> S3
+    T3 --> plugin_service["plugin_service"]
+    T4 --> S5
+    T5 --> S2
+    T6 --> progress_service["progress_service"]
+    T7 --> report_service["report_service"]
+    T9 --> S4
 
-#### 3.5.1 功能职责
-- 总库的管理和维护
-- 项目的分类和组织
-- 总库统计信息的获取
-- 总库变更记录的管理
+    B1 --> S1
+    B2 --> S3
+    B4 --> S5
+    B5 --> S4
+    B8 --> defect_service["defect_service"]
 
-#### 3.5.2 核心类和方法
-| 类/方法 | 描述 | 参数 | 返回值 |
-|---------|------|------|--------|
-| `LibraryService.get_library()` | 获取总库信息 | library_id | library |
-| `LibraryService.update_library()` | 更新总库信息 | library_id, data | (library, error) |
-| `LibraryService.add_project_to_library()` | 向总库添加项目 | library_id, project_id, category_id | (success, error) |
-| `LibraryService.remove_project_from_library()` | 从总库移除项目 | library_id, project_id | (success, error) |
-| `LibraryService.get_library_projects()` | 获取总库中的项目 | library_id, category_id, status, keyword, page, size | (projects, total) |
-| `LibraryService.get_library_statistics()` | 获取总库统计信息 | library_id | stats |
-| `LibraryChangeService.create_library_change()` | 创建总库变更 | library_id, change_type, title, description | (change, error) |
-| `LibraryChangeService.list_library_changes()` | 获取总库变更记录 | library_id, change_type, status, page, size | (changes, total) |
+    S2 --> S6
+    S2 --> S7
+    S2 --> S8
+    S2 --> S9
+    S2 --> S1
 
-#### 3.5.3 数据流程
-1. 接收用户请求（UI/API/CLI）
-2. 验证请求参数
-3. 调用相应的服务方法
-4. 与数据访问层交互
-5. 执行总库管理操作
-6. 返回处理结果
+    S1 --> DAO_L["DAO层<br/>(15个*_dao.py)"]
+    S2 --> DAO_L
+    S3 --> DAO_L
+    S4 --> DAO_L
+    S5 --> DAO_L
 
-## 4. 数据模型设计
+    DAO_L --> DB_ENGINE["database.py<br/>(SQLAlchemy引擎)"]
+    DB_ENGINE --> MODELS["models/<br/>(15+模型类)"]
+    MODELS --> SQLITE["SQLite<br/>project_manager.db"]
+```
 
-### 4.1 核心数据模型
+## 5. 核心模块详细说明
 
-#### 4.1.1 项目模型（Project）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 项目唯一标识 |
-| code | String | 项目编号 |
-| name | String | 项目名称 |
-| business_line | String | 业务线代码 |
-| manager | String | 项目负责人 |
-| description | String | 项目描述 |
-| status | String | 项目状态 |
-| created_at | DateTime | 创建时间 |
-| updated_at | DateTime | 更新时间 |
+### 5.1 项目管理模块
 
-#### 4.1.2 模板模型（Template）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 模板唯一标识 |
-| name | String | 模板名称 |
-| compiler | String | 编译器类型 |
-| scene | String | 应用场景 |
-| is_builtin | Boolean | 是否内置模板 |
-| structure | JSON | 模板结构 |
-| created_at | DateTime | 创建时间 |
-| updated_at | DateTime | 更新时间 |
+**文件**: `src/services/project_service.py`, `src/ui/widgets/project_list.py`
 
-#### 4.1.3 插件模型（Plugin）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 插件唯一标识 |
-| name | String | 插件名称 |
-| version | String | 插件版本 |
-| status | String | 插件状态 |
-| description | String | 插件描述 |
-| path | String | 插件路径 |
-| config | JSON | 插件配置 |
-| created_at | DateTime | 创建时间 |
-| updated_at | DateTime | 更新时间 |
+**功能职责**:
+- 项目创建（基于模板生成项目编号 `{业务线}{年份}{序号}` + 完整目录结构）
+- 项目查询（按状态/业务线/关键词分页搜索）
+- 项目更新（名称/负责人/描述/状态变更）
+- 项目删除（硬删除，含目录清除）
+- 项目统计（按状态/业务线/模板维度的统计面板）
+- 跨机项目导入（`import_project_dialog.py`）
 
-#### 4.1.4 变更模型（Change）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 变更唯一标识 |
-| project_id | String | 项目ID |
-| title | String | 变更标题 |
-| description | String | 变更描述 |
-| change_type | String | 变更类型 |
-| status | String | 变更状态 |
-| requested_by | String | 申请人 |
-| approved_by | String | 审批人 |
-| executed_by | String | 执行人 |
-| impact_assessment | JSON | 影响评估 |
-| implementation_plan | JSON | 实施计划 |
-| created_at | DateTime | 创建时间 |
-| updated_at | DateTime | 更新时间 |
+**依赖**: `project_dao`, `template_dao`, `Config`, `logger`, `BusinessLine`枚举
 
-#### 4.1.5 总库模型（Library）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 总库唯一标识 |
-| name | String | 总库名称 |
-| description | String | 总库描述 |
-| root_path | String | 总库根路径 |
-| status | String | 总库状态 |
-| created_at | DateTime | 创建时间 |
-| updated_at | DateTime | 更新时间 |
+### 5.2 模板管理模块
 
-#### 4.1.6 分类模型（Category）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 分类唯一标识 |
-| library_id | String | 所属总库ID |
-| name | String | 分类名称 |
-| description | String | 分类描述 |
-| parent_id | String | 父分类ID |
+**文件**: `src/services/template_service.py`, `src/ui/widgets/template_manager.py`, `src/ui/widgets/template_editor.py`
 
-#### 4.1.7 总库项目关联模型（LibraryProject）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| library_id | String | 总库ID |
-| project_id | String | 项目ID |
-| added_at | DateTime | 添加时间 |
-| category_id | String | 分类ID |
+**功能职责**:
+- 内置模板初始化（5套模板：自动化整线/单机设备PLC+HMI/单机机器人/系统升级改造/上位机数据系统）
+- 自定义模板创建/编辑/删除
+- 模板导入导出（JSON格式）
+- 模板结构验证
+- 模板预览
 
-#### 4.1.8 总库变更模型（LibraryChange）
-| 字段名 | 数据类型 | 描述 |
-|--------|----------|------|
-| id | String | 变更唯一标识 |
-| library_id | String | 总库ID |
-| change_type | String | 变更类型 |
-| status | String | 变更状态 |
-| title | String | 变更标题 |
-| description | String | 变更描述 |
-| requested_by | String | 申请人 |
-| approved_by | String | 审批人 |
-| impact_assessment | JSON | 影响评估 |
-| implementation_plan | JSON | 实施计划 |
-| created_at | DateTime | 创建时间 |
-| updated_at | DateTime | 更新时间 |
+**内置模板**: 定义于 `src/core/constants.py` 的 `DEFAULT_TEMPLATES` 常量，在 `main_window.py` 启动时自动同步到数据库。
 
-### 4.2 数据关系图
+### 5.3 变更管理模块（V2.1.0）⭐
+
+**文件**: `src/services/change_service.py`, `src/models/change.py`, `src/core/constants.py`
+
+这是系统在V2.1.0版本中的核心模块升级，从传统的单维度变更管理升级为**多维工程变更管理体系**。
+
+#### 5.3.1 二维分类体系
+
+| 维度 | 枚举 | 取值 | 含义 |
+|------|------|------|------|
+| **Domain**（技术领域 - WHO） | `Domain` | ELEC, MECH, PLC, HMI, SCPT, DOCU, SAFE | 变更所属专业领域 |
+| **Nature**（业务性质 - WHY） | `Nature` | REQ, DEF, OPT, CFG, EMRG | 变更的驱动因素 |
+| **Scope**（影响范围 - WHERE） | `Scope` | LOCAL, MODULE, SYSTEM, CROSS, SAFE | 变更对系统的影响程度 |
+
+#### 5.3.2 分级审批机制
+
+Scope与审批层级自动映射（`SCOPE_APPROVAL_MAP`）：
+
+| Scope | 审批层级 | 是否需要复审人 |
+|-------|----------|:--------------:|
+| LOCAL | 项目经理 (PROJECT_MANAGER) | 否 |
+| MODULE | 项目负责人 (LEAD) | 否 |
+| SYSTEM | 技术总监 (TECH_DIRECTOR) | ⚠️ 是 |
+| CROSS | 高层管理 (EXECUTIVE) | ⚠️ 是 |
+| SAFE | 安全负责人 (SAFETY_OFFICER) | ⚠️ 是 |
+
+#### 5.3.3 传播链追踪
+
+对于 `SYSTEM` / `CROSS` / `SAFE` 级别的变更，系统支持：
+- **传播链注册**：记录变更可能波及的关联领域和变更单ID
+- **关联变更单**：通过 `related_changes` JSON字段记录受影响变更的ID列表
+- **领域传播建议**：`suggest_related_domains()` 方法根据当前domain+scope自动推荐可能受影响的领域
+- **台账传播链矩阵**：变更台账自动生成跨域影响追踪章节
+
+#### 5.3.4 引用模式台账
+
+变更管理体系采用**引用模式**：
+- 每条变更记录在台账(`_版本变更台帐.md`)中仅保留摘要信息 + 超链接
+- 详细内容存放在独立变更单文件 `01_变更单/CHG-{DOMAIN}/{CHG_ID}.md`
+- 台账包含4D统计矩阵（领域×性质×范围×状态）
+- 自动导出符合 `040_通用变更单模板_CHG.md` 规范的Markdown文件
+
+#### 5.3.5 变更状态机
+
+```
+DRAFT → PENDING → APPROVED → IMPLEMENTING → COMPLETED
+  ↓        ↓          ↓
+  └────────┴──── REJECTED
+  (任意非终态) → CANCELLED
+```
+
+每个状态变更触发通知（`NotificationService`）和审批历史记录（`ApprovalService`）。
+
+### 5.4 总库管理模块
+
+**文件**: `src/services/library_service.py`, `library_change_service.py`, `library_dashboard_service.py`, `library_dependency_service.py`, `library_report_service.py`, `library_spec_service.py`, `library_version_service.py`, `src/ui/widgets/library_manager.py`
+
+**功能职责**:
+- 默认总库初始化（启动时自动创建）
+- 项目入库/出库管理
+- 分类层级管理
+- 总库级变更记录
+- 跨库依赖追踪
+- 总库仪表盘统计
+- 总库版本管理
+
+**子服务（7个）**：`library_service`, `library_change_service`, `library_dashboard_service`, `library_dependency_service`, `library_report_service`, `library_spec_service`, `library_version_service`
+
+### 5.5 规范管理模块
+
+**文件**: `src/services/spec_service.py`, `src/core/spec_manager.py`, `src/ui/widgets/spec_center.py`, `src/gui/spec_sync_dialog.py`
+
+**功能职责**:
+- 规范清单管理（全局规范注册表引用）
+- 规范更新检查（`check_spec` CLI命令）
+- 规范同步（`sync_spec`，支持自动同步修订更新和手动手动同步）
+- 规范信息查询（`spec_info` CLI命令）
+- 规范版本漂移检测
+
+### 5.6 插件系统
+
+**文件**: `src/services/plugin_service.py`, `src/services/plugin_market_service.py`, `src/ui/widgets/plugin_manager.py`, `src/ui/widgets/plugin_config.py`, `src/ui/widgets/plugin_market.py`, `src/plugins/`
+
+**内置插件**:
+| 插件 | 路径 | 功能 |
+|------|------|------|
+| PLC变量表解析器 | `src/plugins/plc_variable_parser/` | 解析Autoshop/CodeSys/Work3变量表，支持GUI编辑和导出 |
+| 代码检查器 | `src/plugins/code_check/` | 代码规范检查 |
+| 文档生成器 | `src/plugins/document_generator/` | 自动文档生成 |
+
+**插件管理功能**: 安装/卸载、启用/禁用、配置、执行、市场集成
+
+## 6. 数据模型设计
+
+### 6.1 核心实体关系
 
 ```mermaid
 erDiagram
-    PROJECT ||--o{ CHANGE : has
-    LIBRARY ||--o{ CATEGORY : contains
-    LIBRARY ||--o{ LIBRARY_PROJECT : includes
-    LIBRARY ||--o{ LIBRARY_CHANGE : has
-    LIBRARY_PROJECT }o--|| PROJECT : references
-    CATEGORY }o--|| CATEGORY : parent
+    PROJECT ||--o{ CHANGE : "has"
+    PROJECT }o--|| TEMPLATE : "uses"
+    LIBRARY ||--o{ CATEGORY : "contains"
+    LIBRARY ||--o{ LIBRARY_PROJECT : "includes"
+    LIBRARY_PROJECT }o--|| PROJECT : "references"
+    LIBRARY ||--o{ LIBRARY_CHANGE : "has"
+    LIBRARY ||--o{ LIBRARY_DEPENDENCY : "depends_on"
+    PROJECT ||--o{ TASK : "has"
+    PROJECT ||--o{ MILESTONE : "has"
+    PROJECT ||--o{ DEFECT : "has"
+    CHANGE ||--o{ APPROVAL : "records"
+    CHANGE }o--o{ CHANGE : "related_to"
+    SPEC ||--o{ SPEC : "version_of"
 ```
 
-## 5. 数据流设计
+### 6.2 主要数据模型摘要
 
-### 5.1 主要数据流程
+| 模型 | 表名 | 核心字段 |
+|------|------|----------|
+| **Project** | projects | project_id, code, name, business_line(Enum), template_id, manager, status(Enum), path, sequence, document_specs(JSON) |
+| **Template** | templates | template_id, name, version, compiler, scene, description, structure(JSON), templates(JSON), is_builtin, business_lines(JSON) |
+| **Plugin** | plugins | plugin_id, name, version, status(Enum), description, path, config(JSON), enabled |
+| **Change** (V2.1.0) | changes | change_id, project_id(FK), title, domain(Enum), nature(Enum), scope(Enum), priority, reason, content_before, content_after, related_changes(JSON), propagation_chain, approval_level, reviewer, status(Enum), proposer, approver, implementer |
+| **Spec** | specs | spec_id, name, version, category, status, file_path, parent_spec_id |
+| **Library** | libraries | library_id, name, description, root_path, status |
+| **Defect** | defects | defect_id, project_id(FK), title, severity, status, assigned_to |
+| **Task** | tasks | task_id, project_id(FK), title, status, assigned_to, due_date |
+| **Milestone** | milestones | milestone_id, project_id(FK), name, target_date, status |
+| **Approval** | approvals | approval_id, change_id(FK), approver, action, comment, created_at |
 
-#### 5.1.1 项目创建流程
-1. 用户通过UI/API/CLI发起项目创建请求
-2. 项目服务验证请求参数
-3. 项目服务生成项目编号
-4. 项目服务创建项目记录
-5. 项目服务返回创建结果
+### 6.3 数据持久化
 
-#### 5.1.2 变更管理流程
-1. 用户通过UI/API发起变更创建请求
-2. 变更服务验证请求参数
-3. 变更服务创建变更记录
-4. 审批人审批变更
-5. 执行人执行变更
-6. 变更服务更新变更状态
-7. 变更服务返回变更结果
+- **主数据库**: SQLite (`data/project_manager.db`)，通过 `database_config.json` 配置
+- **ORM框架**: SQLAlchemy 2.0.27（声明式映射）
+- **迁移工具**: Alembic 1.13.1（`alembic/versions/initial_schema.py` + 自动迁移机制）
+- **自动迁移**: `Database._auto_migrate_tables()` 在启动时检测模型与数据库结构的差异，自动添加缺失列
+- **JSON修复**: `Database._fix_json_columns_data()` 修复旧数据库中JSON字段的NULL/空字符串问题
 
-#### 5.1.3 插件管理流程
-1. 用户通过UI/API发起插件安装请求
-2. 插件服务验证插件文件
-3. 插件服务安装插件
-4. 插件服务启用插件
-5. 用户配置插件
-6. 用户执行插件
-7. 插件服务返回执行结果
+## 7. 数据流设计
 
-### 5.2 数据流向图
+### 7.1 入口路由流程
+
+```
+用户 → main.py
+  ├── --mode gui (默认) → run_gui() → MainWindow(QMainWindow) → 9个Tab页签
+  ├── --mode api        → run_api()  → Flask create_app() → 8个Blueprint
+  └── --mode cli / 直接子命令 → run_cli() → Click命令组
+```
+
+当PyInstaller打包后 (`frozen=True`)，默认强制启动GUI模式。
+
+### 7.2 项目创建完整数据流
 
 ```mermaid
-graph TD
-    User[用户] --> UI[UI模块]
-    User --> API[API模块]
-    User --> CLI[CLI模块]
+sequenceDiagram
+    actor User
+    participant GUI as GUI (ProjectListWidget)
+    participant Dialog as NewProjectDialog
+    participant PS as ProjectService
+    participant TS as TemplateService
+    participant DAO as ProjectDAO
+    participant DB as Database(SQLite)
 
-    UI --> ServiceLayer[服务层]
-    API --> ServiceLayer
-    CLI --> ServiceLayer
-
-    ServiceLayer --> DAO[数据访问层]
-    DAO --> Database[数据库]
-
-    ServiceLayer --> Utils[工具层]
-    ServiceLayer --> Plugins[插件系统]
-
-    ServiceLayer --> Response[响应结果]
-    Response --> UI
-    Response --> API
-    Response --> CLI
+    User->>GUI: 点击"新建项目"
+    GUI->>Dialog: 打开新建对话框
+    User->>Dialog: 填写业务线/名称/模板/负责人
+    Dialog->>PS: create_project(business_line, name, template_id, ...)
+    PS->>PS: 生成项目编号 (业务线+年份+序号)
+    PS->>TS: get_template(template_id)
+    TS-->>PS: 返回模板结构
+    PS->>PS: 创建项目目录结构
+    PS->>DAO: create(project)
+    DAO->>DB: INSERT INTO projects
+    DB-->>DAO: 确认
+    DAO-->>PS: 返回Project对象
+    PS-->>Dialog: (project, error)
+    Dialog-->>GUI: 刷新项目列表
+    GUI-->>User: 显示新项目
 ```
 
-## 6. 技术选型
+### 7.3 变更管理全生命周期流程
 
-### 6.1 核心技术栈
+```mermaid
+sequenceDiagram
+    actor User
+    participant CM as ChangeManagerWidget
+    participant CS as ChangeService
+    participant IS as ImpactService
+    participant AS as ApprovalService
+    participant NS as NotificationService
+    participant DAO as ChangeDAO
 
-| 技术 | 版本 | 用途 | 依赖关系 |
+    User->>CM: 创建变更单
+    CM->>CS: create_change(project_id, title, type, ...)
+    CS->>DAO: INSERT (status=DRAFT)
+    CS->>CS: export_change() 导出变更单.md
+    CS-->>CM: 返回Change对象
+
+    User->>CM: 提交审批
+    CM->>CS: submit_change(change_id)
+    CS->>IS: analyze_impact(change_id)
+    IS-->>CS: 影响分析结果
+    CS->>DAO: UPDATE status=PENDING
+    CS->>NS: notify_change_status(PENDING)
+
+    User->>CM: 审批通过
+    CM->>CS: approve_change(change_id, approver)
+    CS->>AS: create_approval_history(approve)
+    CS->>DAO: UPDATE status=APPROVED, approver
+    CS->>NS: notify_change_status(APPROVED)
+
+    User->>CM: 开始实施
+    CM->>CS: start_implement(change_id, implementer)
+    CS->>DAO: UPDATE status=IMPLEMENTING
+
+    User->>CM: 完成
+    CM->>CS: complete_change(change_id)
+    CS->>DAO: UPDATE status=COMPLETED
+    CS->>NS: notify_change_status(COMPLETED)
+```
+
+## 8. 技术选型
+
+### 8.1 核心技术栈
+
+| 技术 | 版本 | 用途 | 选型理由 |
 |------|------|------|----------|
-| Python | 3.14 | 核心编程语言 | - |
-| Flask | 3.1.2 | Web API框架 | Python |
-| PyQt5 | 5.15.10 | GUI框架 | Python |
-| SQLite | 3.45.0 | 内置数据库 | - |
-| SQLAlchemy | 2.0.23 | ORM框架 | Python |
-| Click | 8.1.7 | CLI工具 | Python |
-| PyGit2 | 1.14.1 | Git操作 | Python |
-| NetworkX | 3.2.1 | 依赖关系图分析 | Python |
-| Jinja2 | 3.1.2 | 模板引擎 | Python |
-| Markdown | 3.5.1 | 文档生成 | Python |
+| **Python** | 3.14 | 核心编程语言 | 生态丰富，跨平台 |
+| **PyQt5** | 5.15.10 | 桌面GUI框架 | 成熟稳定，Qt5组件丰富，支持复杂表格/树形控件 |
+| **Flask** | 3.0.2 | Web API框架 | 轻量灵活，蓝图机制支持模块化路由 |
+| **Click** | 8.1.7 | CLI命令行框架 | 装饰器式命令定义，与Flask风格统一 |
+| **SQLAlchemy** | 2.0.27 | ORM框架 | 声明式映射，支持Enum/JSON等高级类型，2.0语法现代化 |
+| **Alembic** | 1.13.1 | 数据库迁移 | 与SQLAlchemy深度集成，支持autogenerate |
+| **pydantic** | 2.6.3 | 配置模型与数据校验 | 类型安全，与settings配合 |
+| **pydantic-settings** | 2.2.1 | 环境变量/配置管理 | pydantic生态，.env加载 |
+| **dependency-injector** | 4.41.0 | 依赖注入容器 | 解耦服务依赖，便于测试和扩展 |
+| **bcrypt** | 4.1.2 | 密码哈希 | 安全可靠，抗暴力破解 |
+| **networkx** | 3.2.1 | 依赖关系图分析 | 总库间依赖图计算 |
+| **markdown** | 3.5.2 | 文档生成 | 变更单/台账/报告Markdown输出 |
+| **requests** | 2.31.0 | HTTP客户端 | 插件市场/API客户端 |
+| **pytest** | 8.0.1 | 测试框架 | Python标准测试工具 |
+| **pytest-cov** | 4.1.0 | 代码覆盖率 | CI/CD集成 |
+| **pyinstaller** | 6.4.0 | 打包为可执行文件 | 单文件分发 |
+| **python-dotenv** | 1.0.1 | 环境变量加载 | .env文件解析 |
+| **python-dateutil** | 2.8.2 | 日期处理 | 灵活的日期解析 |
 
-### 6.2 第三方库依赖
+### 8.2 代码质量工具
 
-| 库名称 | 版本 | 用途 | 所属模块 |
-|--------|------|------|----------|
-| Flask-CORS | 4.0.0 | 跨域支持 | API模块 |
-| PyQt5-Qt5 | 5.15.10 | Qt5核心库 | UI模块 |
-| PyQt5-sip | 12.13.0 | SIP绑定 | UI模块 |
-| GitPython | 3.1.43 | Git操作 | 总库模块 |
-| python-dotenv | 1.0.0 | 环境变量管理 | 配置模块 |
-| colorlog | 6.8.2 | 彩色日志 | 日志模块 |
-| requests | 2.31.0 | HTTP客户端 | 插件模块 |
-| pyyaml | 6.0.1 | YAML解析 | 配置模块 |
+| 工具 | 版本 | 用途 |
+|------|------|------|
+| mypy | 1.9.0 | 静态类型检查 |
+| flake8 | 7.0.0 | 代码风格检查 |
+| black | 24.2.0 | 代码自动格式化 |
 
-## 7. 部署与集成
+## 9. 部署方式
 
-### 7.1 部署方式
+### 9.1 开发环境部署
 
-#### 7.1.1 安装包部署
-- 生成可执行文件
-- 提供安装向导
-- 自动配置环境
+```bash
+pip install -r requirements.txt
+python main.py                    # GUI模式（默认）
+python main.py --mode api        # API模式
+python main.py create-project ... # CLI模式
+```
 
-#### 7.1.2 源码部署
-- 克隆代码仓库
-- 安装依赖包
-- 配置环境变量
-- 运行主程序
+### 9.2 生产环境部署（PyInstaller打包）
 
-### 7.2 集成方式
+```bash
+pyinstaller --onefile --windowed main.py
+```
 
-#### 7.2.1 API集成
-- 提供RESTful API
-- 支持API Key认证
-- 提供Swagger文档
+打包后双击运行，默认启动GUI。`build_delivery.py` 和 `build_delivery.bat`/`build_delivery.ps1` 提供自动化打包脚本。
 
-#### 7.2.2 插件集成
-- 支持插件安装和卸载
-- 提供插件API
-- 支持插件配置
+### 9.3 配置文件
 
-## 8. 性能与安全
+| 配置文件 | 路径 | 内容 |
+|----------|------|------|
+| app_config.json | config/ | 应用名、版本、路径、语言、主题、备份设置 |
+| database_config.json | config/ | 数据库类型、路径、日志、自动迁移开关 |
+| api_config.json | config/ | Secret Key、Token过期时间、CORS开关 |
+| spec_version_config.json | config/ | 规范版本映射与同步配置 |
 
-### 8.1 性能优化
+### 9.4 不做的事项
 
-#### 8.1.1 数据库优化
-- 使用索引
-- 优化查询
-- 批量操作
+- ✗ 不做在线协作（单机工具定位）
+- ✗ 不做云部署（无服务器端支持，API仅本地使用）
+- ✗ 不做CI/CD流水线（本地开发/打包，无自动化发布管道）
 
-#### 8.1.2 缓存策略
-- 内存缓存
-- 文件缓存
-- 数据库缓存
+## 10. 性能与安全
 
-#### 8.1.3 并发处理
-- 多线程
-- 异步处理
-- 并行计算
+### 10.1 性能措施
 
-### 8.2 安全措施
+| 措施 | 实现 | 说明 |
+|------|------|------|
+| 数据库连接池 | SQLAlchemy pool_size=5, max_overflow=10 | 复用连接，减少开销 |
+| 内存缓存 | utils/cache.py | 热点数据缓存 |
+| 请求限流 | utils/rate_limiter.py | API接口限流保护 |
+| 批量操作 | DAO层分页查询（page/size参数） | 避免大数据集一次性加载 |
+| SQLite优化 | WAL模式，单线程连接复用 | 适合单机场景 |
 
-#### 8.2.1 认证与授权
-- API Key认证
-- 角色权限控制
-- 操作审计
+### 10.2 安全措施
 
-#### 8.2.2 输入验证
-- 参数验证
-- 数据过滤
-- 防注入攻击
+| 措施 | 实现 | 说明 |
+|------|------|------|
+| 密码安全 | bcrypt 4.1.2 哈希 | 用户密码不可逆存储 |
+| API认证 | JWT Token + auth_required装饰器 | 无状态认证，支持过期 |
+| 角色授权 | role_required装饰器 | 基于角色的访问控制 |
+| 输入校验 | pydantic 2.6.3 + utils/validators.py | 参数类型与范围校验 |
+| 请求ID追踪 | Flask before_request生成request_id | 全链路日志追踪 |
+| 统一错误处理 | Flask errorhandler 400/401/403/404/500 | 标准API错误响应 |
+| 安全工具 | utils/security/ (SecurityUtils) | 加密/解密/哈希工具集 |
+| 敏感信息保护 | .env文件（模板为.env.example） | 不入版本库 |
 
-#### 8.2.3 数据安全
-- 敏感数据加密
-- 备份与恢复
-- 访问控制
+## 11. 扩展性设计
 
-## 9. 扩展性设计
+### 11.1 插件系统
 
-### 9.1 模块扩展
+- 插件目录: `src/plugins/`，标准结构为 `{plugin_name}/plugin.json` + `__init__.py`
+- 插件注册: `PluginService.load_plugins()` 扫描插件目录
+- 插件元数据: `core/plugin_metadata.py` 定义标准接口
+- GUI集成: `plugin_config.py` 和 `plugin_market.py` 提供管理和市场入口
+- 内置3个标准插件（PLC变量解析器/代码检查/文档生成器）
 
-- 插件系统：支持第三方插件
-- 服务层：可扩展新服务
-- 数据模型：可添加新模型
+### 11.2 依赖注入
 
-### 9.2 API扩展
+- 容器: `core/container.py` 基于 `dependency-injector` 的声明式容器
+- 配置: `core/settings.py` 基于 `pydantic-settings` 的类型安全配置
+- 扩展方式: 在Container中注册新的 Provider（Singleton/Factory）
 
-- 版本控制：支持API版本管理
-- 路由扩展：可添加新路由
-- 中间件：可添加新中间件
+### 11.3 模块扩展
 
-### 9.3 功能扩展
+- **新增服务**: 在 `src/services/` 添加新文件，服务层自动可用
+- **新增DAO**: 在 `src/dao/` 添加新文件，与模型一对一对应
+- **新增模型**: 在 `src/models/` 添加新文件，启动时 `Base.metadata.create_all` 自动建表
+- **新增API蓝图**: 在 `src/api/routes/` 添加新文件，在 `app.py` 中注册
+- **新增GUI Tab**: 在 `src/ui/widgets/` 添加新Widget，在 `main_window.py` 中注册Tab
 
-- 总库管理：可扩展新功能
-- 变更管理：可扩展新流程
-- 规范管理：可扩展新规范
+### 11.4 数据库迁移
 
-## 10. 结论
-
-本架构设计文档详细描述了SW-2026-004 Python项目管理工具的系统架构、模块划分、依赖关系、数据模型和技术选型。系统采用分层架构设计，确保了系统的可扩展性、可维护性和可测试性。
-
-通过清晰的模块划分和依赖关系管理，系统实现了功能的模块化和组件化，便于后续的功能扩展和维护。数据模型设计合理，满足了系统的业务需求。技术选型适当，使用了成熟的技术栈和第三方库，确保了系统的稳定性和性能。
-
-该架构设计为系统的开发和维护提供了清晰的指导，为后续的功能扩展和性能优化奠定了基础。
+- Alembic版本文件: `alembic/versions/`
+- 自动迁移: `database.py` 的 `_auto_migrate_tables()` 检测缺失列自动添加
+- 手动升级: `Database.upgrade_database("head")`
+- JSON修复: `_fix_json_columns_data()` 处理旧数据兼容
 
 ---
 
-**文档版本**：V1.0.0
-**编写日期**：2026-03-10
-**编写人员**：系统
+**文档版本**: ARCH V2.8.0  
+**编制日期**: 2026-06-14  
+**编制人**: 技术负责人  
+**审核人**: 待审核

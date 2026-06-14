@@ -47,8 +47,12 @@ class PluginService:
         if getattr(sys, 'frozen', False):
             base_path = Path(sys._MEIPASS)
             resolved_path = base_path / plugin_path
-        else:
+        elif plugin_path.is_absolute():
             resolved_path = plugin_path
+        else:
+            # 相对路径基于程序根目录解析
+            base_path = Path(__file__).resolve().parent.parent.parent
+            resolved_path = base_path / plugin_path
 
         if not resolved_path.exists():
             raise RuntimeError(f"插件路径不存在: {resolved_path}")

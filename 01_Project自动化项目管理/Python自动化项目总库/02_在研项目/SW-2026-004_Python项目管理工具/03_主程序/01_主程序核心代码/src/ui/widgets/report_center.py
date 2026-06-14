@@ -185,6 +185,34 @@ class ReportCenterWidget(QWidget):
             elif report_type == "统计报告":
                 content = StatisticsService.export_statistics_report(format_key)
             
+            elif report_type == "进度报告":
+                if not project_id:
+                    QMessageBox.warning(self, "提示", "请选择项目")
+                    return
+                
+                output_path, error = ExportService.export_progress_report(
+                    project_id, format_key
+                )
+                if output_path:
+                    with open(output_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                else:
+                    content = f"生成进度报告失败: {error}"
+            
+            elif report_type == "变更报告":
+                if not project_id:
+                    QMessageBox.warning(self, "提示", "请选择项目")
+                    return
+                
+                output_path, error = ExportService.export_change_report(
+                    project_id, format_key
+                )
+                if output_path:
+                    with open(output_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                else:
+                    content = f"生成变更报告失败: {error}"
+            
             else:
                 content = "暂不支持该报告类型"
             
@@ -236,6 +264,24 @@ class ReportCenterWidget(QWidget):
             elif report_type == "统计报告":
                 output_path, error = ExportService.export_statistics_report(
                     format_key, file_path
+                )
+            
+            elif report_type == "进度报告":
+                if not project_id:
+                    QMessageBox.warning(self, "提示", "请选择项目")
+                    return
+                
+                output_path, error = ExportService.export_progress_report(
+                    project_id, format_key, file_path
+                )
+            
+            elif report_type == "变更报告":
+                if not project_id:
+                    QMessageBox.warning(self, "提示", "请选择项目")
+                    return
+                
+                output_path, error = ExportService.export_change_report(
+                    project_id, format_key, file_path
                 )
             
             else:

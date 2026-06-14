@@ -9,6 +9,7 @@ from typing import Optional, Dict, Any
 
 from src.models.project import Project
 from .check_service import CheckResult
+from .template_service import TemplateService
 from src.utils.file_utils import write_file, write_json
 from src.utils.logger import setup_logger
 from src.core.constants import BUSINESS_LINE_DESC
@@ -108,8 +109,7 @@ class ReportService:
         """生成项目报告"""
         try:
             # 获取项目模板信息以生成更完整的报告
-            template_service = __import__('src.services.template_service', fromlist=['TemplateService']).TemplateService
-            template = template_service.get_template(project.template_id)
+            template = TemplateService.get_template(project.template_id)
             
             report_data = {
                 "report_id": f"RPT-PROJECT-{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -184,8 +184,7 @@ class ReportService:
                 return None, f"项目路径不存在: {project.path}"
             
             # 获取模板信息
-            template_service = __import__('src.services.template_service', fromlist=['TemplateService']).TemplateService
-            template = template_service.get_template(project.template_id)
+            template = TemplateService.get_template(project.template_id)
             
             # 根据类型生成不同报告
             if type_key == "overview_md":

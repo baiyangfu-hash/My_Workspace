@@ -25,10 +25,11 @@ class Project(BaseModel):
     path = Column(String(500), nullable=False, comment="项目本地路径")
     sequence = Column(Integer, nullable=False, comment="当年序号")
     document_specs = Column(SafeJSON, default=lambda: {}, comment="文档规范追踪 {file_path: {spec_id, spec_version, updated_at}}")
+    applied_template_version = Column(String(20), comment="创建时应用的模板版本")
     
     # 关系
     # 修复P2-#21: 添加overlaps参数解决relationship冲突警告
-    libraries = relationship("Library", backref="project", secondary="library_projects", overlaps="libraries,project")
+    libraries = relationship("Library", backref="project", secondary="library_projects", overlaps="projects")
     
     @hybrid_property
     def full_name(self) -> str:

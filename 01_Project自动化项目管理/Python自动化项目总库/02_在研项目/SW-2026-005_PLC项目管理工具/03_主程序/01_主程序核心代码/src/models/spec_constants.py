@@ -80,13 +80,21 @@ APPROVAL_CONCLUSIONS: set[str] = {
 }
 
 # 变更单状态流转（合法状态及允许的下一状态）
+# 对齐 PM-042 §5.2 状态机：
+#   draft → submitted → under_review → approved → implementing → pending_acceptance → accepting
+#                                                                               ↓ 验证通过
+#                                                                            completed → closed
+#                                                                               ↓ 验证不通过(返工)
+#                                                                            implementing
 STATUS_FLOW: dict[str, set[str]] = {
     "draft": {"submitted"},
     "submitted": {"under_review", "draft"},
     "under_review": {"approved", "conditionally_approved", "rejected", "submitted"},
     "approved": {"implementing"},
     "conditionally_approved": {"implementing"},
-    "implementing": {"completed", "approved"},
+    "implementing": {"pending_acceptance", "approved"},       # 实施完成→待验收；或退回已批准
+    "pending_acceptance": {"accepting"},                     # 开始验收
+    "accepting": {"completed", "implementing"},              # 验证通过→完成；验证不通过→返工重做
     "completed": {"closed"},
     "rejected": {"draft"},
     "closed": set(),  # 终态
@@ -104,6 +112,8 @@ STATUS_LABELS: dict[str, str] = {
     "conditionally_approved": "有条件批准",
     "rejected": "已驳回",
     "implementing": "实施中",
+    "pending_acceptance": "待验收",
+    "accepting": "验收中",
     "completed": "已完成",
     "closed": "已关闭",
 }

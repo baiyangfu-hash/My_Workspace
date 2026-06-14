@@ -427,26 +427,40 @@ class ChgParser:
     def _extract_verification_conclusion(self, text: str) -> str:
         """提取 §10.2 验证结论
 
-        匹配两种格式：
-        1. 原始模板格式（含 ☑）: | 验证结论 | ☑全部通过 □不通过 |
-        2. _update_verification_conclusion 写入格式: | **验证结论** | 全部通过 |
+        匹配三种格式（按优先级）：
+        1. _update_verification_conclusion 写入格式: | **验证结论** | 全部通过 |
+        2. 原始模板格式: 在 §10.2 区域内的 | 结论 | ☑全部通过 □ ... |
+        3. 原始模板格式: 在 §10.2 区域内的 | 结论 | □ 全部通过,可关闭 ... |
         """
-        # 格式1: 原始模板含 ☑ 标记
-        match = re.search(r"10\.2.*?\|.*结论.*?\|.*?☑.*?(\S+?)(?:\s*,|□|\|)", text, re.DOTALL)
-        if match:
-            return match.group(1).strip()
-        # 格式2: _update_verification_conclusion 写入的 **验证结论** | 值 | 格式
+        # 优先提取 §10.2 区域文本（避免 §10.1 的 ☑ 干扰）
+        sec_10_2_match = re.search(r"###\s*§?\s*10\.2\b(.*?)(?:###\s|##\s11\b|\Z)", text, re.DOTALL)
+        section_text = sec_10_2_match.group(1) if sec_10_2_match else text
+
+        # 格式1: _update_verification_conclusion 写入的 **验证结论** | 值 | 格式（精确匹配）
         match = re.search(
             r"\|[^|\n]*\*+\s*验证结论\s*\*+\s*\|\s*([^|\n]+)\s*\|",
-            text,
+            section_text,
         )
         if match:
             conclusion = match.group(1).strip()
             if conclusion:
                 return conclusion
-        # 兜底: 查找 ☑ 标记
-        if "☑通过" in text or "☑ 全部通过" in text:
+
+        # 格式2: 原始模板含 ☑ 标记（仅在 §10.2 区域内）
+        match = re.search(r"\|[^|\n]*结论[^|\n]*\|[^|\n]*☑\s*(\S+?)(?:\s*[,，□\|\n]|$)", section_text)
+        if match:
+            return match.group(1).strip()
+
+        # 格式3: 原始模板中 □ 选中（在结论行中匹配 "□ 全部通过" 模式）
+        # 这里匹配的是模板中 □ 被替换为 ☑ 的情况已在格式2处理
+        # 兜底：如果结论行明确写了"全部通过"，提取它
+        conclusion_match = re.search(
+            r"\|[^|\n]*结论[^|\n]*\|\s*[^|\n]*全部通过[^|\n]*\s*\|",
+            section_text,
+        )
+        if conclusion_match:
             return "全部通过"
+
         return ""
 
     def _validate_spec_compliance(self, cr: ChangeRequest, sections: dict[str, str]) -> list[str]:

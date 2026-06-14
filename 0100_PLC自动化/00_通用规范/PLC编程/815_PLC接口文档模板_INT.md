@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: INT-815
 title: "PLC接口文档模板"
 version: "V1.1.0"

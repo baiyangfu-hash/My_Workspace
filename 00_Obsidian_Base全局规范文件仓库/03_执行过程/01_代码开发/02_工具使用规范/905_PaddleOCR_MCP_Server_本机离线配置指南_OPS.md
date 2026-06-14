@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: OPS-905
 title: PaddleOCR MCP Server本机离线配置指南
 version: "V1.0.0"

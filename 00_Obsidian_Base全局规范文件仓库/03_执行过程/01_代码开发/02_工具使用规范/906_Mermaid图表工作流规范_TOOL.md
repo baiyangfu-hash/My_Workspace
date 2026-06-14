@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: TOOL-906
 title: "Mermaid图表工作流规范"
 version: "V2.0.0"

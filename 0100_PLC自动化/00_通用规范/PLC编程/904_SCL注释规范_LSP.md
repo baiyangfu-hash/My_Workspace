@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: LSP-904
 title: "SCL注释规范"
 version: "V1.2.0"

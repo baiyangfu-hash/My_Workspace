@@ -37,10 +37,19 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
 
 ### Step 0：进入项目并读取 PM_SESSION
 
-1. 运行 `pm-mgr -w "<工作空间根>" detect <项目目录>` 检测项目类型
-2. 查找 `PM_SESSION_<项目编号>.md`，若不存在则 `pm-mgr init`（新项目）或 `pm-mgr retrofit`（已有项目）
-3. 输出 8-12 行状态摘要：项目定位、当前焦点、里程碑、进行中/下一步、未决问题、风险
-4. 做轻量健康检查：`pm-mgr -w "<工作空间根>" check <项目根>`
+1. **激活虚拟环境**（必须最先执行）：
+   ```powershell
+   # 从工作空间根目录查找 .venv
+   & "<工作空间根>\.venv\Scripts\Activate.ps1"
+   # 验证激活成功
+   python --version; pip --version
+   ```
+   若激活失败，**立即报告用户**，说明 venv 缺失及影响（pm-mgr/specmgr 不可用），不要跳过继续。
+
+2. 运行 `pm-mgr -w "<工作空间根>" detect <项目目录>` 检测项目类型
+3. 查找 `PM_SESSION_<项目编号>.md`，若不存在则 `pm-mgr init`（新项目）或 `pm-mgr retrofit`（已有项目）
+4. 输出 8-12 行状态摘要：项目定位、当前焦点、里程碑、进行中/下一步、未决问题、风险
+5. 做轻量健康检查：`pm-mgr -w "<工作空间根>" check <项目根>`
 
 ### Step 1：判定本轮模式（必须用 AskUserQuestion 呈现选项）
 

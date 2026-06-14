@@ -22,7 +22,7 @@ class Library(BaseModel):
     
     # 关系
     # 修复P2-#21: 添加overlaps参数解决relationship冲突警告
-    projects = relationship("Project", backref="library", secondary="library_projects", overlaps="projects,library")
+    projects = relationship("Project", backref="library", secondary="library_projects", overlaps="libraries")
     categories = relationship("Category", back_populates="library", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:

@@ -225,7 +225,9 @@ function updateWorkspaceDisplay() {
 let STATUS_LABELS = {
   draft: "草稿", submitted: "已提交", under_review: "审核中",
   approved: "已批准", conditionally_approved: "有条件批准",
-  rejected: "已驳回", implementing: "实施中", completed: "已完成", closed: "已关闭",
+  rejected: "已驳回", implementing: "实施中",
+  pending_acceptance: "待验收", accepting: "验收中",
+  completed: "已完成", closed: "已关闭",
 };
 
 /** 领域显示名映射（默认值，运行时从 Bridge 同步） */

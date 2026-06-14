@@ -4,7 +4,7 @@
 """
 import os
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from src.models.project import Project
 from src.utils.path_utils import normalize_path
@@ -353,9 +353,210 @@ class CheckService:
     
     @staticmethod
     def _check_code_style(project: Project, result: CheckResult):
-        """检查代码风格"""
-        # TODO: 实现PEP8检查等逻辑
-        pass
+        """检查代码风格 - 支持SCL(PLC)和Python"""
+        import re
+        
+        try:
+            project_path = Path(project.path)
+            code_files_checked = 0
+            style_issues = 0
+            
+            # SCL文件扩展名
+            scl_extensions = {'.scl', '.st', '.awl', '.scl.txt'}
+            # Python文件扩展名
+            py_extensions = {'.py'}
+            
+            # ---- SCL代码规范检查（基于LSP-905规范） ----
+            
+            # SCL命名规范（905规范：变量名使用snake_case，FUNCTION_BLOCK使用CamelCase）
+            scl_var_pattern = re.compile(
+                r'^\s*(\w+)\s*:\s*(BOOL|INT|DINT|REAL|STRING|TIME|ARRAY|STRUCT)',
+                re.IGNORECASE
+            )
+            scl_fb_pattern = re.compile(
+                r'FUNCTION_BLOCK\s+(\w+)',
+                re.IGNORECASE
+            )
+            # 变量声明区顺序：VAR → VAR_INPUT → VAR_OUTPUT → VAR_IN_OUT → VAR
+            var_section_order = ['VAR', 'VAR_INPUT', 'VAR_OUTPUT', 'VAR_IN_OUT']
+            
+            for file_path in project_path.rglob("*"):
+                if not file_path.is_file():
+                    continue
+                
+                ext = file_path.suffix.lower()
+                if ext not in scl_extensions and ext not in py_extensions:
+                    continue
+                
+                relative_path = str(file_path.relative_to(project_path))
+                
+                try:
+                    content = file_path.read_text(encoding='utf-8', errors='ignore')
+                except Exception:
+                    continue
+                
+                lines = content.split('\n')
+                
+                # ---- SCL 检查 ----
+                if ext in scl_extensions:
+                    code_files_checked += 1
+                    fb_name = None
+                    seen_var_sections = []
+                    
+                    for i, line in enumerate(lines, 1):
+                        stripped = line.strip()
+                        
+                        # 检查 FUNCTION_BLOCK 命名（CamelCase）
+                        fb_match = scl_fb_pattern.match(stripped)
+                        if fb_match:
+                            fb_name = fb_match.group(1)
+                            if '_' in fb_name:
+                                result.add_item(
+                                    level="warning",
+                                    rule="代码风格-SCL命名",
+                                    message=f"FUNCTION_BLOCK名称 '{fb_name}' 包含下划线，"
+                                            f"建议使用CamelCase（如 'FbMotorControl'）",
+                                    path=relative_path,
+                                    line=i
+                                )
+                                style_issues += 1
+                            elif not fb_name[0].isupper():
+                                result.add_item(
+                                    level="warning",
+                                    rule="代码风格-SCL命名",
+                                    message=f"FUNCTION_BLOCK名称 '{fb_name}' 首字母应大写",
+                                    path=relative_path,
+                                    line=i
+                                )
+                                style_issues += 1
+                            continue
+                        
+                        # 检查变量声明区顺序
+                        for vs in var_section_order:
+                            if stripped.upper().startswith(vs) and (
+                                stripped.upper() == vs or stripped.upper().startswith(vs + ' ')
+                            ):
+                                seen_var_sections.append(vs)
+                        
+                        # 检查变量命名（snake_case）
+                        var_match = scl_var_pattern.match(stripped)
+                        if var_match:
+                            var_name = var_match.group(1)
+                            # 跳过常量（全大写）
+                            if var_name.isupper():
+                                continue
+                            # 检查是否使用 camelCase
+                            if any(c.isupper() for c in var_name[1:]) and '_' not in var_name:
+                                result.add_item(
+                                    level="warning",
+                                    rule="代码风格-SCL变量命名",
+                                    message=f"变量 '{var_name}' 使用camelCase，"
+                                            f"建议改为snake_case（如 '{re.sub(r'(?<!^)(?=[A-Z])', '_', var_name).lower()}'）",
+                                    path=relative_path,
+                                    line=i
+                                )
+                                style_issues += 1
+                    
+                    # 变量声明区顺序检查
+                    if len(seen_var_sections) > 1:
+                        first_positions = {}
+                        for vs in seen_var_sections:
+                            for j, l in enumerate(lines):
+                                if l.strip().upper().startswith(vs):
+                                    first_positions[vs] = j
+                                    break
+                        expected_order = [v for v in var_section_order if v in first_positions]
+                        actual_order = sorted(first_positions, key=lambda k: first_positions[k])
+                        if actual_order != expected_order:
+                            result.add_item(
+                                level="warning",
+                                rule="代码风格-SCL声明顺序",
+                                message=f"变量声明区顺序建议为: {' > '.join(var_section_order)}，"
+                                        f"当前顺序: {' > '.join(actual_order)}",
+                                path=relative_path
+                            )
+                            style_issues += 1
+                    
+                    # 汇总
+                    if fb_name and style_issues == 0:
+                        result.add_item(
+                            level="pass",
+                            rule="代码风格-SCL",
+                            message=f"FUNCTION_BLOCK '{fb_name}' 代码风格检查通过",
+                            path=relative_path
+                        )
+                
+                # ---- Python 检查 ----
+                elif ext in py_extensions:
+                    code_files_checked += 1
+                    # 跳过 __init__.py 和特殊文件
+                    if file_path.name == '__init__.py':
+                        result.add_item(
+                            level="pass",
+                            rule="代码风格-Python",
+                            message=f"Python包初始化文件: {relative_path}",
+                            path=relative_path
+                        )
+                        continue
+                    
+                    # 简单检查：类名是否CamelCase，函数名是否snake_case
+                    class_pattern = re.compile(r'^\s*class\s+([a-z_]\w*)', re.IGNORECASE)
+                    func_pattern = re.compile(r'^\s*def\s+([A-Z]\w*)')
+                    
+                    for i, line in enumerate(lines, 1):
+                        cm = class_pattern.match(line)
+                        if cm:
+                            cls_name = cm.group(1)
+                            if not cls_name[0].isupper() or '_' in cls_name:
+                                result.add_item(
+                                    level="warning",
+                                    rule="代码风格-Python类命名",
+                                    message=f"类名 '{cls_name}' 应使用CamelCase",
+                                    path=relative_path,
+                                    line=i
+                                )
+                                style_issues += 1
+                        
+                        fm = func_pattern.match(line)
+                        if fm:
+                            func_name = fm.group(1)
+                            if func_name[0].isupper():
+                                result.add_item(
+                                    level="warning",
+                                    rule="代码风格-Python函数命名",
+                                    message=f"函数名 '{func_name}' 应使用snake_case",
+                                    path=relative_path,
+                                    line=i
+                                )
+                                style_issues += 1
+            
+            # 汇总
+            if code_files_checked == 0:
+                result.add_item(
+                    level="warning",
+                    rule="代码风格",
+                    message="未发现可检查的代码文件（.scl/.st/.py）"
+                )
+            elif style_issues == 0:
+                result.add_item(
+                    level="pass",
+                    rule="代码风格-总体",
+                    message=f"共检查{code_files_checked}个代码文件，代码风格均符合规范"
+                )
+            else:
+                result.add_item(
+                    level="warning",
+                    rule="代码风格-总体",
+                    message=f"共检查{code_files_checked}个代码文件，发现{style_issues}个风格问题"
+                )
+                
+        except Exception as e:
+            logger.exception(f"代码风格检查失败: {e}")
+            result.add_item(
+                level="error",
+                rule="代码风格检查",
+                message=f"代码风格检查异常: {str(e)}"
+            )
     
     @staticmethod
     def _check_documentation(project: Project, result: CheckResult):

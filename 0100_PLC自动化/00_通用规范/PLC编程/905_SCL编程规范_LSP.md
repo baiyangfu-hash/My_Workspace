@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: LSP-905
 title: "SCL编程规范"
 version: "V1.0.2"

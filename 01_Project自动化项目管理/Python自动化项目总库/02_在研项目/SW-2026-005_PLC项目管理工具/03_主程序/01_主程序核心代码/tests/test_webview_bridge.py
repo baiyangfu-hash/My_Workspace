@@ -173,12 +173,12 @@ class TestWebViewBridgeTransition(unittest.TestCase):
         self.assertEqual(result["error"], "SpecViolationError")
 
     def test_transition_guard_fail(self):
-        """门禁条件不满足应返回 TransitionGuardError"""
-        # 尝试把 002 (submitted) 直接转到 completed
+        """非法状态流转应返回 SpecViolationError"""
+        # draft 不能直接到 completed（合法路径: draft→submitted→approved→implementing→completed）
         result = self.bridge.transition_status(
-            "CHG-DOCU-2026-002", "completed", {}
+            "CHG-PLC-2026-003", "completed", {}
         )
-        # submitted 不能直接到 completed，先被 SpecViolationError 拦截
+        # 非法流转被 SpecViolationError 拦截
         self.assertIn("error", result)
         self.assertIn(result["error"], ["SpecViolationError", "TransitionGuardError"])
 

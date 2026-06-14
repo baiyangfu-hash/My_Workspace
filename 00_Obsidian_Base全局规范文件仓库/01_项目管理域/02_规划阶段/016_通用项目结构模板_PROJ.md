@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: PROJ-016
 title: "通用项目结构模板"
 version: "V1.0.0"

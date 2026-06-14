@@ -159,7 +159,7 @@ class ChangeManagerWidget(QWidget):
         self.change_table = QTableWidget()
         self.change_table.setColumnCount(9)
         self.change_table.setHorizontalHeaderLabels([
-            "序号", "→ 变更单", "领域", "性质", "范围", "标题", "优先级", "状态", "日期"
+            "序号", "变更单号", "领域", "性质", "范围", "标题", "优先级", "状态", "日期"
         ])
         self.change_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.change_table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -343,8 +343,8 @@ class ChangeManagerWidget(QWidget):
             # 序号
             self.change_table.setItem(row, 0, QTableWidgetItem(str(row + 1)))
 
-            # → 变更单 (带超链接样式)
-            link_item = QTableWidgetItem(f"→ {change.change_id}")
+            # 变更单号 (纯ID，显示带前缀样式)
+            link_item = QTableWidgetItem(change.change_id)
             link_item.setForeground(QColor("#2196F3"))
             link_item.setToolTip(f"点击查看详情: {change.change_id}")
             self.change_table.setItem(row, 1, link_item)
@@ -790,13 +790,13 @@ class ChangeManagerWidget(QWidget):
 
 
 class NewChangeDialog(QDialog):
-    """新建变更对话框"""
+    """新建变更对话框 (V2.1.0 - 支持领域/性质/范围分类)"""
     
     def __init__(self, project_id: str, parent=None):
         super().__init__(parent)
         self.project_id = project_id
         self.setWindowTitle("新建变更单")
-        self.setMinimumSize(500, 400)
+        self.setMinimumSize(550, 500)
         self._init_ui()
     
     def _init_ui(self):
@@ -809,9 +809,29 @@ class NewChangeDialog(QDialog):
         self.title_input.setPlaceholderText("请输入变更标题")
         form.addRow("标题*:", self.title_input)
         
+        # V2.1.0: 技术领域
+        self.domain_combo = QComboBox()
+        for domain in Domain:
+            self.domain_combo.addItem(DOMAIN_NAMES.get(domain, domain.value), domain)
+        form.addRow("技术领域*:", self.domain_combo)
+        
+        # V2.1.0: 业务性质
+        self.nature_combo = QComboBox()
+        for nature in Nature:
+            self.nature_combo.addItem(NATURE_NAMES.get(nature, nature.value), nature)
+        form.addRow("业务性质*:", self.nature_combo)
+        
+        # V2.1.0: 影响范围
+        self.scope_combo = QComboBox()
+        for scope in Scope:
+            self.scope_combo.addItem(SCOPE_NAMES.get(scope, scope.value), scope)
+        form.addRow("影响范围*:", self.scope_combo)
+        
+        # V1.x兼容: 变更类型 (自动从domain映射)
         self.type_combo = QComboBox()
         self.type_combo.addItems(CHANGE_TYPES)
-        form.addRow("类型*:", self.type_combo)
+        self.type_combo.setCurrentIndex(0)
+        form.addRow("变更类型:", self.type_combo)
         
         self.proposer_input = QLineEdit()
         self.proposer_input.setPlaceholderText("请输入提出人")
@@ -829,7 +849,7 @@ class NewChangeDialog(QDialog):
         self.reason_input.setPlaceholderText("请输入变更原因")
         layout.addWidget(self.reason_input)
         
-        layout.addWidget(QLabel("影响范围:"))
+        layout.addWidget(QLabel("影响范围描述:"))
         self.impact_input = QTextEdit()
         self.impact_input.setPlaceholderText("请输入影响范围")
         layout.addWidget(self.impact_input)
@@ -853,6 +873,9 @@ class NewChangeDialog(QDialog):
             QMessageBox.warning(self, "提示", "请输入变更标题")
             return
         
+        domain = self.domain_combo.currentData()
+        nature = self.nature_combo.currentData()
+        scope = self.scope_combo.currentData()
         change_type = self.type_combo.currentText()
         
         change, error = ChangeService.create_change(
@@ -862,7 +885,10 @@ class NewChangeDialog(QDialog):
             description=self.description_input.toPlainText(),
             reason=self.reason_input.toPlainText(),
             impact=self.impact_input.toPlainText(),
-            proposer=self.proposer_input.text().strip()
+            proposer=self.proposer_input.text().strip(),
+            domain=domain,
+            nature=nature,
+            scope=scope
         )
         
         if change:

@@ -1,4 +1,4 @@
-﻿---
+---
 canonical_path: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/01_需求与设计/01-产品需求文档_PRD.md
 domain: cross-domain
 lifecycle: stable

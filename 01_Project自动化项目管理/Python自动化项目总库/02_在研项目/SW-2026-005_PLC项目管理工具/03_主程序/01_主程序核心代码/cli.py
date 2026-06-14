@@ -140,6 +140,7 @@ def cmd_transition(args: argparse.Namespace) -> None:
         new_status=args.status,
         approver=getattr(args, "approver", ""),
         comment=getattr(args, "comment", ""),
+        verification_conclusion=getattr(args, "verification_conclusion", "全部通过"),
     )
     if cr is None:
         print(f"变更单不存在: {args.change_number}")
@@ -214,6 +215,9 @@ def main() -> None:
     sub.add_argument("--status", required=True, help="新状态")
     sub.add_argument("--approver", default="", help="审批人")
     sub.add_argument("--comment", default="", help="审批意见")
+    sub.add_argument("--verification-conclusion", default="全部通过",
+                     choices=["全部通过", "部分不通过", "需补充验证"],
+                     help="验证结论（仅 completed 状态有效）")
     sub.set_defaults(func=cmd_transition)
 
     # refresh

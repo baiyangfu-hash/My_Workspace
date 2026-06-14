@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: OPS-SOP
 title: "规范版本管理操作SOP"
 version: "V1.0.0"

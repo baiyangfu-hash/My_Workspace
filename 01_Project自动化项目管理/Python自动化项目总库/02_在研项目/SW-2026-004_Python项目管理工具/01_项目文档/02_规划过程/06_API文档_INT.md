@@ -3,112 +3,199 @@
 ## 1. 文档基础信息
 
 **文档标题**：SW-2026-004 Python项目管理工具API文档
-**文档版本**：INT-V1.0.3
-**编制日期**：2026-03-15
+**文档版本**：INT V2.8.0
+**编制日期**：2026-06-14
 **编制人**：技术负责人
 **审核人**：技术负责人
 **项目编号**：SW-2026-004
-**迭代版本**：V1.0.3
+**迭代版本**：V2.8.0
 
 ## 2. 版本变更记录
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
 |--------|----------|--------|----------|----------|
-| V1.0.0 | 初始版本 | 技术负责人 | 2026-03-12 | 创建API文档 |
-| V1.0.3 | 更新版本号和审核人 | 技术负责人 | 2026-03-15 | 统一版本号为V1.0.3，更新审核人 |
+| INT V1.0.0 | 初始版本 | 技术负责人 | 2026-03-12 | 创建API文档 |
+| INT V1.0.3 | 更新版本号和审核人 | 技术负责人 | 2026-03-15 | 统一版本号为V1.0.3 |
+| INT V2.7.0 | 版本号同步更新 | 技术负责人 | 2026-06-14 | 版本号对齐V2.7.0；健康检查版本号更新 |
+| INT V2.6.0 | 重构为实际API路由 | 技术负责人 | 2026-06-12 | 基于 src/api/app.py 实际路由重写；认证方式更新为JWT；新增defects/libraries/library-changes/library-dashboard Blueprint端点；统一响应格式增加request_id字段 |
 
 ## 3. 接口概述
 
 ### 3.1 文档目的
 
-本文档旨在描述SW-2026-004 Python项目管理工具的API接口，包括接口功能、请求参数、响应格式等，为开发人员提供接口使用指南。
+本文档描述SW-2026-004 Python项目管理工具的REST API接口，包括接口功能、请求参数、响应格式，供前端开发和第三方集成使用。
 
 ### 3.2 接口分类
 
-Python项目管理工具的API接口分为以下几类：
-- **项目管理API**：管理项目的创建、查询、更新和删除
-- **模板管理API**：管理项目模板的创建、查询、更新和删除
-- **插件管理API**：管理插件的安装、启用、禁用和配置
-- **规范管理API**：管理项目规范的创建、查询和应用
-- **总库管理API**：管理项目总库的查询和统计
-- **变更管理API**：管理项目变更的创建、审批和执行
+| 分类 | 说明 | Blueprint |
+|------|------|-----------|
+| 认证 | 用户登录与JWT令牌管理 | 内置路由 |
+| 公共 | 健康检查 | 内置路由 |
+| 项目管理 | 项目CRUD、规范检查、报告生成 | `/api/v1/projects` |
+| 模板管理 | 模板CRUD、导入导出、结构校验 | `/api/v1/templates` |
+| 插件管理 | 插件安装/启用/禁用/卸载/配置/执行 | `/api/v1/plugins` |
+| 规范管理 | 规范CRUD、内容查询 | `/api/v1/specs` |
+| 总库管理 | 总库CRUD、项目管理、目录扫描、统计 | `/api/v1/libraries` |
+| 总库变更 | 变更CRUD、审批/驳回、统计 | `/api/v1/library-changes` |
+| 总库仪表盘 | 总览、趋势、健康度、报告生成 | `/api/v1/library-dashboard` |
+| 缺陷管理 | 缺陷CRUD、状态变更、分配/解决、统计 | `/api/v1/defects` |
 
 ### 3.3 技术选型
 
-| 接口类型 | 技术框架 | 说明 |
-|----------|----------|------|
-| REST API | Flask ≥2.3.0 | 轻量级Web框架 |
-| 认证方式 | API Key | 基于请求头的认证机制 |
-| 数据格式 | JSON | 统一的请求和响应格式 |
+| 项目 | 说明 |
+|------|------|
+| 框架 | Flask ≥2.3.0 |
+| 认证 | JWT (Bearer Token)，HS256算法 |
+| 数据格式 | JSON |
+| 跨域 | Flask-CORS |
 
 ## 4. 接口基础信息
 
 ### 4.1 基础URL
 
 ```
-http://localhost:5000/api
+http://localhost:5000/api/v1
 ```
 
-### 2.2 认证方式
+> 主机和端口可通过 `config/api_config.json` 中的 `api.host` / `api.port` 配置。
 
-API接口采用API Key认证，需要在请求头中添加：
+### 4.2 认证方式
+
+API采用JWT Bearer Token认证。除 `/api/v1/login` 和 `/api/v1/health` 外，受保护端点需在请求头中携带Token：
 
 ```
-X-API-Key: your-api-key
+Authorization: Bearer <token>
 ```
 
-### 2.3 通用响应格式
+Token获取方式：调用 `/api/v1/login`，请求体 `{"username": "<用户名>", "password": "<密码>"}`，成功返回 `token` 字段。
 
-#### 成功响应
+Token有效时长由 `settings.security.api_token_expire_hours` 配置（默认24小时）。
+
+### 4.3 统一响应格式
+
+**成功响应**（所有端点）：
 
 ```json
 {
   "code": 200,
-  "message": "成功",
-  "data": {
-    // 响应数据
-  },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "message": "操作描述",
+  "data": { "具体数据" },
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-#### 失败响应
+**失败响应**（错误码 ≥ 400）：
 
 ```json
 {
   "code": 400,
-  "message": "错误信息",
-  "timestamp": "2026-03-10T12:00:00Z"
+  "message": "错误描述",
+  "data": null,
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 2.4 错误码
+### 4.4 错误码
 
-| 错误码 | 描述 |
-|--------|------|
-| 200 | 成功 |
-| 201 | 创建成功 |
-| 400 | 请求参数错误 |
-| 401 | 未认证 |
-| 403 | 无权限 |
-| 404 | 资源不存在 |
-| 500 | 服务器内部错误 |
+| 错误码 | HTTP状态 | 说明 |
+|--------|----------|------|
+| 200 | 200 | 操作成功（GET/PUT/DELETE） |
+| 201 | 201 | 创建成功（POST） |
+| 400 | 400 | 请求参数错误 / 缺少必填字段 |
+| 401 | 401 | 未认证（Token缺失/过期/无效） |
+| 403 | 403 | 权限不足（角色不满足 `role_required`） |
+| 404 | 404 | 资源不存在 |
+| 500 | 500 | 服务器内部错误 |
 
-## 3. 项目管理API
+## 5. 认证接口
 
-### 3.1 创建项目
+### 5.1 用户登录
 
-**接口URL**：`/api/projects`
+**接口URL**：`/api/v1/login`
 
 **请求方法**：POST
 
-**功能描述**：创建新项目
+**认证**：无需认证
 
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| business_line | string | 是 | 业务线代码 |
+| username | string | 是 | 用户名 |
+| password | string | 是 | 密码 |
+
+**请求示例**：
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+**成功响应**（200）：
+```json
+{
+  "code": 200,
+  "message": "登录成功",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "user": {
+      "username": "admin",
+      "role": "admin"
+    }
+  },
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
+}
+```
+
+**失败响应**（401）：
+```json
+{
+  "code": 401,
+  "message": "用户名或密码错误",
+  "data": null,
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
+}
+```
+
+## 6. 公共接口
+
+### 6.1 健康检查
+
+**接口URL**：`/api/v1/health`
+
+**请求方法**：GET
+
+**认证**：无需认证
+
+**响应示例**：
+```json
+{
+  "status": "ok",
+  "version": "2.6.0",
+  "timestamp": "2026-06-12T10:00:00.000000"
+}
+```
+
+## 7. 项目管理API — `/api/v1/projects`
+
+### 7.1 创建项目
+
+**接口URL**：`/api/v1/projects`
+
+**请求方法**：POST
+
+**认证**：需要（Bearer Token）
+
+**请求体**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| business_line | string | 是 | 业务线代码（如 DJ/ZD/XT） |
 | name | string | 是 | 项目名称 |
 | template_id | string | 是 | 模板ID |
 | manager | string | 否 | 项目负责人 |
@@ -116,19 +203,17 @@ X-API-Key: your-api-key
 | path | string | 否 | 自定义项目路径 |
 
 **请求示例**：
-
 ```json
 {
-  "business_line": "ZD",
-  "name": "测试项目",
-  "template_id": "TPL-001",
+  "business_line": "DJ",
+  "name": "某生产线PLC项目",
+  "template_id": "TPL-SINGLE-PLC-001",
   "manager": "张三",
-  "description": "测试项目描述"
+  "description": "某生产线PLC控制系统"
 }
 ```
 
-**响应示例**：
-
+**成功响应**（201）：
 ```json
 {
   "code": 201,
@@ -136,40 +221,40 @@ X-API-Key: your-api-key
   "data": {
     "project": {
       "id": "PROJ-001",
-      "code": "ZD-2026-001",
-      "name": "测试项目",
-      "business_line": "ZD",
+      "code": "DJ-2026-001",
+      "name": "某生产线PLC项目",
+      "business_line": "DJ",
       "manager": "张三",
-      "description": "测试项目描述",
+      "description": "某生产线PLC控制系统",
       "status": "active",
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:00:00Z"
+      "created_at": "2026-06-12T10:00:00Z",
+      "updated_at": "2026-06-12T10:00:00Z"
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.2 获取项目列表
+### 7.2 获取项目列表
 
-**接口URL**：`/api/projects`
+**接口URL**：`/api/v1/projects`
 
 **请求方法**：GET
 
-**功能描述**：获取项目列表
+**认证**：需要
 
-**请求参数**：
+**查询参数**：
 
 | 参数名 | 类型 | 必填 | 描述 | 默认值 |
 |--------|------|------|------|--------|
-| status | string | 否 | 项目状态 | 无 |
-| business_line | string | 否 | 业务线代码 | 无 |
-| keyword | string | 否 | 搜索关键词 | 无 |
+| status | string | 否 | 项目状态过滤 | - |
+| business_line | string | 否 | 业务线过滤 | - |
+| keyword | string | 否 | 搜索关键词 | - |
 | page | int | 否 | 页码 | 1 |
 | size | int | 否 | 每页数量 | 20 |
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
@@ -178,12 +263,12 @@ X-API-Key: your-api-key
     "projects": [
       {
         "id": "PROJ-001",
-        "code": "ZD-2026-001",
-        "name": "测试项目",
-        "business_line": "ZD",
+        "code": "DJ-2026-001",
+        "name": "某生产线PLC项目",
+        "business_line": "DJ",
         "manager": "张三",
         "status": "active",
-        "created_at": "2026-03-10T12:00:00Z"
+        "created_at": "2026-06-12T10:00:00Z"
       }
     ],
     "pagination": {
@@ -193,17 +278,18 @@ X-API-Key: your-api-key
       "pages": 1
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.3 获取项目详情
+### 7.3 获取项目详情
 
-**接口URL**：`/api/projects/{project_id}`
+**接口URL**：`/api/v1/projects/{project_id}`
 
 **请求方法**：GET
 
-**功能描述**：获取项目详情
+**认证**：需要
 
 **路径参数**：
 
@@ -212,7 +298,6 @@ X-API-Key: your-api-key
 | project_id | string | 是 | 项目ID |
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
@@ -220,28 +305,29 @@ X-API-Key: your-api-key
   "data": {
     "project": {
       "id": "PROJ-001",
-      "code": "ZD-2026-001",
-      "name": "测试项目",
-      "business_line": "ZD",
+      "code": "DJ-2026-001",
+      "name": "某生产线PLC项目",
+      "business_line": "DJ",
       "manager": "张三",
-      "description": "测试项目描述",
+      "description": "某生产线PLC控制系统",
       "status": "active",
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:00:00Z",
+      "created_at": "2026-06-12T10:00:00Z",
+      "updated_at": "2026-06-12T10:00:00Z",
       "statistics": {}
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.4 更新项目信息
+### 7.4 更新项目信息
 
-**接口URL**：`/api/projects/{project_id}`
+**接口URL**：`/api/v1/projects/{project_id}`
 
 **请求方法**：PUT
 
-**功能描述**：更新项目信息
+**认证**：需要
 
 **路径参数**：
 
@@ -249,7 +335,7 @@ X-API-Key: your-api-key
 |--------|------|------|------|
 | project_id | string | 是 | 项目ID |
 
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
@@ -259,17 +345,15 @@ X-API-Key: your-api-key
 | status | string | 否 | 项目状态 |
 
 **请求示例**：
-
 ```json
 {
   "name": "更新后的项目名称",
   "manager": "李四",
-  "description": "更新后的项目描述"
+  "description": "更新后的描述"
 }
 ```
 
-**响应示例**：
-
+**成功响应**（200）：
 ```json
 {
   "code": 200,
@@ -277,27 +361,28 @@ X-API-Key: your-api-key
   "data": {
     "project": {
       "id": "PROJ-001",
-      "code": "ZD-2026-001",
+      "code": "DJ-2026-001",
       "name": "更新后的项目名称",
-      "business_line": "ZD",
+      "business_line": "DJ",
       "manager": "李四",
-      "description": "更新后的项目描述",
+      "description": "更新后的描述",
       "status": "active",
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:30:00Z"
+      "created_at": "2026-06-12T10:00:00Z",
+      "updated_at": "2026-06-12T10:30:00Z"
     }
   },
-  "timestamp": "2026-03-10T12:30:00Z"
+  "timestamp": "2026-06-12T10:30:00.000000",
+  "request_id": "req-20260612-d4e5f6"
 }
 ```
 
-### 3.5 删除项目
+### 7.5 删除项目
 
-**接口URL**：`/api/projects/{project_id}`
+**接口URL**：`/api/v1/projects/{project_id}`
 
 **请求方法**：DELETE
 
-**功能描述**：删除项目（软删除）
+**认证**：需要
 
 **路径参数**：
 
@@ -305,50 +390,50 @@ X-API-Key: your-api-key
 |--------|------|------|------|
 | project_id | string | 是 | 项目ID |
 
-**响应示例**：
-
+**成功响应**（200）：
 ```json
 {
   "code": 200,
   "message": "删除成功",
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.6 生成项目编号
+### 7.6 生成项目编号
 
-**接口URL**：`/api/projects/generate-code`
+**接口URL**：`/api/v1/projects/generate-code`
 
 **请求方法**：GET
 
-**功能描述**：生成项目编号
+**认证**：需要
 
-**请求参数**：
+**查询参数**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | business_line | string | 是 | 业务线代码 |
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
   "message": "生成成功",
   "data": {
-    "project_code": "ZD-2026-001"
+    "project_code": "DJ-2026-001"
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.7 执行项目规范检查
+### 7.7 执行项目规范检查
 
-**接口URL**：`/api/projects/{project_id}/check`
+**接口URL**：`/api/v1/projects/{project_id}/check`
 
 **请求方法**：POST
 
-**功能描述**：执行项目规范检查
+**认证**：需要
 
 **路径参数**：
 
@@ -356,22 +441,20 @@ X-API-Key: your-api-key
 |--------|------|------|------|
 | project_id | string | 是 | 项目ID |
 
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| check_types | array | 否 | 检查类型列表 |
+| check_types | array | 否 | 检查类型列表，如 `["structure", "naming", "code"]` |
 
 **请求示例**：
-
 ```json
 {
   "check_types": ["structure", "naming", "code"]
 }
 ```
 
-**响应示例**：
-
+**成功响应**（200）：
 ```json
 {
   "code": 200,
@@ -383,19 +466,20 @@ X-API-Key: your-api-key
       "failed": 2,
       "details": []
     },
-    "report_path": "path/to/report.md"
+    "report_path": "data/reports/check_report_20260612.md"
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.8 生成项目报告
+### 7.8 生成项目报告
 
-**接口URL**：`/api/projects/{project_id}/report`
+**接口URL**：`/api/v1/projects/{project_id}/report`
 
 **请求方法**：POST
 
-**功能描述**：生成项目报告
+**认证**：需要
 
 **路径参数**：
 
@@ -403,29 +487,28 @@ X-API-Key: your-api-key
 |--------|------|------|------|
 | project_id | string | 是 | 项目ID |
 
-**响应示例**：
-
+**成功响应**（200）：
 ```json
 {
   "code": 200,
   "message": "报告生成成功",
   "data": {
-    "report_path": "path/to/project_report.md"
+    "report_path": "data/reports/project_report_20260612.md"
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 3.9 获取项目统计信息
+### 7.9 获取项目统计信息
 
-**接口URL**：`/api/projects/statistics`
+**接口URL**：`/api/v1/projects/statistics`
 
 **请求方法**：GET
 
-**功能描述**：获取项目统计信息
+**认证**：需要
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
@@ -435,26 +518,23 @@ X-API-Key: your-api-key
     "active_projects": 8,
     "completed_projects": 2,
     "projects_by_business": {
-      "ZD": 5,
-      "DJ": 3,
+      "DJ": 5,
+      "ZD": 3,
       "XT": 2
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-## 4. 模板管理API
+## 8. 模板管理API — `/api/v1/templates`
 
-### 4.1 获取模板列表
+### 8.1 获取模板列表
 
-**接口URL**：`/api/templates`
+**URL**：`GET /api/v1/templates`
 
-**请求方法**：GET
-
-**功能描述**：获取模板列表
-
-**请求参数**：
+**查询参数**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
@@ -463,7 +543,6 @@ X-API-Key: your-api-key
 | is_builtin | boolean | 否 | 是否内置模板 |
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
@@ -471,335 +550,179 @@ X-API-Key: your-api-key
   "data": {
     "templates": [
       {
-        "id": "TPL-001",
-        "name": "标准模板",
+        "id": "TPL-SINGLE-PLC-001",
+        "name": "单机PLC项目模板",
         "compiler": "Work3",
-        "scene": "general",
+        "scene": "plc",
         "is_builtin": true,
-        "created_at": "2026-03-10T12:00:00Z"
+        "created_at": "2026-06-12T10:00:00Z"
       }
     ],
     "total": 1
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 4.2 获取模板详情
+### 8.2 获取模板详情
 
-**接口URL**：`/api/templates/{template_id}`
-
-**请求方法**：GET
-
-**功能描述**：获取模板详情
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| template_id | string | 是 | 模板ID |
+**URL**：`GET /api/v1/templates/{template_id}`
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
   "message": "查询成功",
   "data": {
     "template": {
-      "id": "TPL-001",
-      "name": "标准模板",
+      "id": "TPL-SINGLE-PLC-001",
+      "name": "单机PLC项目模板",
       "compiler": "Work3",
-      "scene": "general",
+      "scene": "plc",
       "is_builtin": true,
       "structure": {},
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:00:00Z"
+      "created_at": "2026-06-12T10:00:00Z",
+      "updated_at": "2026-06-12T10:00:00Z"
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 4.3 创建自定义模板
+### 8.3 创建自定义模板
 
-**接口URL**：`/api/templates`
+**URL**：`POST /api/v1/templates`
 
-**请求方法**：POST
-
-**功能描述**：创建自定义模板
-
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | name | string | 是 | 模板名称 |
 | compiler | string | 是 | 编译器类型 |
 | scene | string | 是 | 应用场景 |
-| structure | object | 是 | 模板结构 |
+| structure | object | 是 | 模板目录结构 |
 
 **请求示例**：
-
 ```json
 {
-  "name": "自定义模板",
+  "name": "自定义PLC模板",
   "compiler": "Work3",
-  "scene": "general",
+  "scene": "plc",
   "structure": {
     "folders": [
-      {
-        "name": "程序",
-        "subfolders": []
-      }
+      { "name": "02_PLC程序", "subfolders": [] },
+      { "name": "03_HMI设计", "subfolders": [] }
     ]
   }
 }
 ```
 
-**响应示例**：
-
+**成功响应**（201）：
 ```json
 {
   "code": 201,
   "message": "模板创建成功",
   "data": {
     "template": {
-      "id": "TPL-002",
-      "name": "自定义模板",
+      "id": "TPL-CUSTOM-001",
+      "name": "自定义PLC模板",
       "compiler": "Work3",
-      "scene": "general",
+      "scene": "plc",
       "is_builtin": false,
       "structure": {},
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:00:00Z"
+      "created_at": "2026-06-12T10:00:00Z"
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 4.4 更新模板信息
+### 8.4 更新模板信息
 
-**接口URL**：`/api/templates/{template_id}`
+**URL**：`PUT /api/v1/templates/{template_id}`
 
-**请求方法**：PUT
-
-**功能描述**：更新模板信息
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| template_id | string | 是 | 模板ID |
-
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | name | string | 否 | 模板名称 |
 | structure | object | 否 | 模板结构 |
 
-**请求示例**：
+### 8.5 删除模板
 
-```json
-{
-  "name": "更新后的模板名称",
-  "structure": {
-    "folders": [
-      {
-        "name": "程序",
-        "subfolders": [
-          {
-            "name": "功能块"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+**URL**：`DELETE /api/v1/templates/{template_id}`
+
+> 内置模板（is_builtin=true）不可删除。
+
+### 8.6 导出模板
+
+**URL**：`GET /api/v1/templates/{template_id}/export`
 
 **响应示例**：
-
-```json
-{
-  "code": 200,
-  "message": "更新成功",
-  "data": {
-    "template": {
-      "id": "TPL-002",
-      "name": "更新后的模板名称",
-      "compiler": "Work3",
-      "scene": "general",
-      "is_builtin": false,
-      "structure": {},
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:30:00Z"
-    }
-  },
-  "timestamp": "2026-03-10T12:30:00Z"
-}
-```
-
-### 4.5 删除模板
-
-**接口URL**：`/api/templates/{template_id}`
-
-**请求方法**：DELETE
-
-**功能描述**：删除模板
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| template_id | string | 是 | 模板ID |
-
-**响应示例**：
-
-```json
-{
-  "code": 200,
-  "message": "删除成功",
-  "timestamp": "2026-03-10T12:00:00Z"
-}
-```
-
-### 4.6 导出模板
-
-**接口URL**：`/api/templates/{template_id}/export`
-
-**请求方法**：GET
-
-**功能描述**：导出模板
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| template_id | string | 是 | 模板ID |
-
-**响应示例**：
-
 ```json
 {
   "code": 200,
   "message": "导出成功",
   "data": {
     "template_json": {
-      "name": "标准模板",
+      "name": "单机PLC项目模板",
       "compiler": "Work3",
-      "scene": "general",
+      "scene": "plc",
       "structure": {}
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 4.7 导入模板
+### 8.7 导入模板
 
-**接口URL**：`/api/templates/import`
+**URL**：`POST /api/v1/templates/import`
 
-**请求方法**：POST
-
-**功能描述**：导入模板
-
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | template_json | object | 是 | 模板JSON数据 |
 
-**请求示例**：
+### 8.8 验证模板结构
 
-```json
-{
-  "template_json": {
-    "name": "导入模板",
-    "compiler": "Work3",
-    "scene": "general",
-    "structure": {}
-  }
-}
-```
+**URL**：`POST /api/v1/templates/validate`
 
-**响应示例**：
-
-```json
-{
-  "code": 201,
-  "message": "导入成功",
-  "data": {
-    "template": {
-      "id": "TPL-003",
-      "name": "导入模板",
-      "compiler": "Work3",
-      "scene": "general",
-      "is_builtin": false,
-      "structure": {},
-      "created_at": "2026-03-10T12:00:00Z",
-      "updated_at": "2026-03-10T12:00:00Z"
-    }
-  },
-  "timestamp": "2026-03-10T12:00:00Z"
-}
-```
-
-### 4.8 验证模板结构
-
-**接口URL**：`/api/templates/validate`
-
-**请求方法**：POST
-
-**功能描述**：验证模板结构
-
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | structure | object | 是 | 模板结构 |
 
-**请求示例**：
-
-```json
-{
-  "structure": {
-    "folders": [
-      {
-        "name": "程序",
-        "subfolders": []
-      }
-    ]
-  }
-}
-```
-
 **响应示例**：
-
 ```json
 {
   "code": 200,
   "message": "模板结构验证通过",
-  "data": {
-    "valid": true
-  },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "data": { "valid": true },
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-## 5. 插件管理API
+## 9. 插件管理API — `/api/v1/plugins`
 
-### 5.1 获取插件列表
+### 9.1 获取插件列表
 
-**接口URL**：`/api/plugins`
+**URL**：`GET /api/v1/plugins`
 
-**请求方法**：GET
+**查询参数**：
 
-**功能描述**：获取插件列表
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| status | string | 否 | 插件状态过滤 |
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
@@ -813,36 +736,25 @@ X-API-Key: your-api-key
         "status": "enabled",
         "description": "解析PLC变量表文件"
       }
-    ]
+    ],
+    "total": 1
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 5.2 安装插件
+### 9.2 安装插件
 
-**接口URL**：`/api/plugins`
+**URL**：`POST /api/v1/plugins/install`
 
-**请求方法**：POST
-
-**功能描述**：安装插件
-
-**请求参数**：
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | plugin_path | string | 是 | 插件文件路径 |
 
-**请求示例**：
-
-```json
-{
-  "plugin_path": "path/to/plugin.zip"
-}
-```
-
-**响应示例**：
-
+**成功响应**（201）：
 ```json
 {
   "code": 201,
@@ -852,139 +764,73 @@ X-API-Key: your-api-key
       "id": "PLUGIN-002",
       "name": "新插件",
       "version": "1.0.0",
-      "status": "disabled",
-      "description": "新插件描述"
+      "status": "disabled"
     }
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 5.3 启用插件
+### 9.3 获取插件详情
 
-**接口URL**：`/api/plugins/{plugin_id}/enable`
+**URL**：`GET /api/v1/plugins/{plugin_id}`
 
-**请求方法**：POST
+### 9.4 启用插件
 
-**功能描述**：启用插件
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| plugin_id | string | 是 | 插件ID |
+**URL**：`PUT /api/v1/plugins/{plugin_id}/enable`
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
-  "message": "插件启用成功",
-  "timestamp": "2026-03-10T12:00:00Z"
+  "message": "插件已启用",
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 5.4 禁用插件
+### 9.5 禁用插件
 
-**接口URL**：`/api/plugins/{plugin_id}/disable`
+**URL**：`PUT /api/v1/plugins/{plugin_id}/disable`
 
-**请求方法**：POST
+### 9.6 卸载插件
 
-**功能描述**：禁用插件
+**URL**：`DELETE /api/v1/plugins/{plugin_id}/uninstall`
 
-**路径参数**：
+> 内置插件不可卸载。
+
+### 9.7 执行插件功能
+
+**URL**：`POST /api/v1/plugins/{plugin_id}/execute`
+
+**请求体**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| plugin_id | string | 是 | 插件ID |
+| action | string | 是 | 执行动作 |
+| params | object | 否 | 执行参数 |
 
-**响应示例**：
+### 9.8 更新插件配置
 
-```json
-{
-  "code": 200,
-  "message": "插件禁用成功",
-  "timestamp": "2026-03-10T12:00:00Z"
-}
-```
+**URL**：`PUT /api/v1/plugins/{plugin_id}/config`
 
-### 5.5 卸载插件
+**请求体**：任意配置JSON对象。
 
-**接口URL**：`/api/plugins/{plugin_id}`
+## 10. 规范管理API — `/api/v1/specs`
 
-**请求方法**：DELETE
+### 10.1 获取规范列表
 
-**功能描述**：卸载插件
+**URL**：`GET /api/v1/specs`
 
-**路径参数**：
+**查询参数**：
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| plugin_id | string | 是 | 插件ID |
+| category | string | 否 | 规范分类 |
+| keyword | string | 否 | 搜索关键词 |
 
 **响应示例**：
-
-```json
-{
-  "code": 200,
-  "message": "插件卸载成功",
-  "timestamp": "2026-03-10T12:00:00Z"
-}
-```
-
-### 5.6 配置插件
-
-**接口URL**：`/api/plugins/{plugin_id}/config`
-
-**请求方法**：PUT
-
-**功能描述**：配置插件
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| plugin_id | string | 是 | 插件ID |
-
-**请求参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| config | object | 是 | 插件配置 |
-
-**请求示例**：
-
-```json
-{
-  "config": {
-    "param1": "value1",
-    "param2": "value2"
-  }
-}
-```
-
-**响应示例**：
-
-```json
-{
-  "code": 200,
-  "message": "插件配置成功",
-  "timestamp": "2026-03-10T12:00:00Z"
-}
-```
-
-## 6. 规范管理API
-
-### 6.1 获取规范列表
-
-**接口URL**：`/api/specs`
-
-**请求方法**：GET
-
-**功能描述**：获取规范列表
-
-**响应示例**：
-
 ```json
 {
   "code": 200,
@@ -993,92 +839,103 @@ X-API-Key: your-api-key
     "specs": [
       {
         "id": "SPEC-001",
-        "name": "命名规范",
-        "type": "naming",
-        "description": "项目命名规范"
+        "name": "905_SCL编程规范",
+        "type": "plc",
+        "description": "SCL编程风格与命名规范",
+        "version": "V1.0.0"
       }
-    ]
+    ],
+    "total": 1
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-### 6.2 获取规范详情
+### 10.2 获取规范详情
 
-**接口URL**：`/api/specs/{spec_id}`
+**URL**：`GET /api/v1/specs/{spec_id}`
 
-**请求方法**：GET
+### 10.3 获取规范内容
 
-**功能描述**：获取规范详情
-
-**路径参数**：
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| spec_id | string | 是 | 规范ID |
+**URL**：`GET /api/v1/specs/{spec_id}/content`
 
 **响应示例**：
-
 ```json
 {
   "code": 200,
   "message": "查询成功",
   "data": {
-    "spec": {
-      "id": "SPEC-001",
-      "name": "命名规范",
-      "type": "naming",
-      "description": "项目命名规范",
-      "content": "命名规范内容"
-    }
+    "content": "# 905 SCL编程规范\n\n..."
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-## 7. 总库管理API
+### 10.4 创建新规范
 
-### 7.1 获取总库统计信息
+**URL**：`POST /api/v1/specs`
 
-**接口URL**：`/api/library-dashboard`
+**成功响应**（201）。
 
-**请求方法**：GET
+## 11. 总库管理API — `/api/v1/libraries`
 
-**功能描述**：获取总库统计信息
+### 11.1 获取总库列表
+
+**URL**：`GET /api/v1/libraries`
+
+### 11.2 创建总库
+
+**URL**：`POST /api/v1/libraries`
+
+### 11.3 获取总库详情
+
+**URL**：`GET /api/v1/libraries/{library_id}`
+
+### 11.4 更新总库
+
+**URL**：`PUT /api/v1/libraries/{library_id}`
+
+### 11.5 删除总库
+
+**URL**：`DELETE /api/v1/libraries/{library_id}`
+
+### 11.6 获取总库下项目列表
+
+**URL**：`GET /api/v1/libraries/{library_id}/projects`
+
+### 11.7 向总库添加项目
+
+**URL**：`POST /api/v1/libraries/{library_id}/projects`
+
+### 11.8 从总库移除项目
+
+**URL**：`DELETE /api/v1/libraries/{library_id}/projects/{project_id}`
+
+### 11.9 获取总库目录分类
+
+**URL**：`GET /api/v1/libraries/{library_id}/categories`
+
+### 11.10 创建总库目录分类
+
+**URL**：`POST /api/v1/libraries/{library_id}/categories`
+
+### 11.11 扫描总库目录
+
+**URL**：`POST /api/v1/libraries/{library_id}/scan`
+
+### 11.12 总库统计
+
+**URL**：`GET /api/v1/libraries/{library_id}/statistics`
+
+## 12. 总库变更API — `/api/v1/library-changes`
+
+### 12.1 获取变更列表
+
+**URL**：`GET /api/v1/library-changes`
 
 **响应示例**：
-
-```json
-{
-  "code": 200,
-  "message": "查询成功",
-  "data": {
-    "total_projects": 100,
-    "projects_by_status": {
-      "active": 80,
-      "completed": 20
-    },
-    "projects_by_business": {
-      "ZD": 40,
-      "DJ": 30,
-      "XT": 20,
-      "WX": 10
-    }
-  },
-  "timestamp": "2026-03-10T12:00:00Z"
-}
-```
-
-### 7.2 获取总库变更记录
-
-**接口URL**：`/api/library-changes`
-
-**请求方法**：GET
-
-**功能描述**：获取总库变更记录
-
-**响应示例**：
-
 ```json
 {
   "code": 200,
@@ -1087,67 +944,288 @@ X-API-Key: your-api-key
     "changes": [
       {
         "id": "CHANGE-001",
-        "project_code": "ZD-2026-001",
+        "project_code": "DJ-2026-001",
         "type": "create",
         "description": "创建项目",
-        "created_at": "2026-03-10T12:00:00Z"
+        "status": "pending",
+        "created_at": "2026-06-12T10:00:00Z"
       }
     ]
   },
-  "timestamp": "2026-03-10T12:00:00Z"
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
 }
 ```
 
-## 8. 接口扩展性
+### 12.2 创建变更
 
-### 8.1 添加新接口
+**URL**：`POST /api/v1/library-changes`
 
-按照现有接口风格添加新接口，遵循以下原则：
-- 使用RESTful设计风格
-- 统一的响应格式
-- 明确的参数验证
-- 详细的错误处理
+### 12.3 获取变更详情
 
-### 8.2 版本控制
+**URL**：`GET /api/v1/library-changes/{change_id}`
 
-API接口支持版本控制，如：
+### 12.4 更新变更
 
+**URL**：`PUT /api/v1/library-changes/{change_id}`
+
+### 12.5 删除变更
+
+**URL**：`DELETE /api/v1/library-changes/{change_id}`
+
+### 12.6 审批变更
+
+**URL**：`POST /api/v1/library-changes/{change_id}/approve`
+
+**响应示例**：
+```json
+{
+  "code": 200,
+  "message": "变更已审批",
+  "timestamp": "2026-06-12T10:00:00.000000",
+  "request_id": "req-20260612-a1b2c3"
+}
 ```
-http://localhost:5000/api/v1/projects
+
+### 12.7 驳回变更
+
+**URL**：`POST /api/v1/library-changes/{change_id}/reject`
+
+### 12.8 变更统计
+
+**URL**：`GET /api/v1/library-changes/statistics`
+
+## 13. 总库仪表盘API — `/api/v1/library-dashboard`
+
+### 13.1 仪表盘概览
+
+**URL**：`GET /api/v1/library-dashboard/{library_id}/overview`
+
+### 13.2 趋势数据
+
+**URL**：`GET /api/v1/library-dashboard/{library_id}/trends`
+
+### 13.3 健康度检查
+
+**URL**：`GET /api/v1/library-dashboard/{library_id}/health`
+
+### 13.4 生成概览报告
+
+**URL**：`POST /api/v1/library-dashboard/{library_id}/reports/overview`
+
+### 13.5 生成统计报告
+
+**URL**：`POST /api/v1/library-dashboard/{library_id}/reports/statistics`
+
+### 13.6 生成趋势报告
+
+**URL**：`POST /api/v1/library-dashboard/{library_id}/reports/trend`
+
+## 14. 缺陷管理API — `/api/v1/defects`
+
+### 14.1 获取缺陷列表
+
+**URL**：`GET /api/v1/defects`
+
+**查询参数**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| status | string | 否 | 缺陷状态 |
+| priority | string | 否 | 优先级 |
+| severity | string | 否 | 严重程度 |
+| project_id | int | 否 | 关联项目ID |
+| library_id | int | 否 | 关联总库ID |
+| reporter | string | 否 | 报告人 |
+| assignee | string | 否 | 责任人 |
+| keyword | string | 否 | 搜索关键词 |
+
+### 14.2 创建缺陷
+
+**URL**：`POST /api/v1/defects`
+
+**请求体**（必填）：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| title | string | 是 | 缺陷标题 |
+| description | string | 是 | 缺陷描述 |
+| reporter | string | 是 | 报告人 |
+
+**成功响应**（201）。
+
+### 14.3 获取缺陷详情
+
+**URL**：`GET /api/v1/defects/{defect_id}`
+
+> 注意：defect_id 为整数类型。
+
+### 14.4 更新缺陷
+
+**URL**：`PUT /api/v1/defects/{defect_id}`
+
+### 14.5 删除缺陷
+
+**URL**：`DELETE /api/v1/defects/{defect_id}`
+
+### 14.6 变更缺陷状态
+
+**URL**：`PATCH /api/v1/defects/{defect_id}/status`
+
+**请求体**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| status | string | 是 | 新状态 |
+
+### 14.7 分配缺陷
+
+**URL**：`PATCH /api/v1/defects/{defect_id}/assign`
+
+**请求体**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| assignee | string | 是 | 责任人 |
+
+### 14.8 解决缺陷
+
+**URL**：`PATCH /api/v1/defects/{defect_id}/resolve`
+
+**请求体**：
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| resolution | string | 是 | 解决方案 |
+| fix_version | string | 是 | 修复版本 |
+
+### 14.9 缺陷统计
+
+**URL**：`GET /api/v1/defects/statistics`
+
+### 14.10 按项目查询缺陷
+
+**URL**：`GET /api/v1/defects/project/{project_id}`
+
+### 14.11 按总库查询缺陷
+
+**URL**：`GET /api/v1/defects/library/{library_id}`
+
+### 14.12 搜索缺陷
+
+**URL**：`GET /api/v1/defects/search?keyword={keyword}`
+
+## 15. 接口扩展指南
+
+### 15.1 添加新端点
+
+1. 在 `src/api/routes/` 下创建新Blueprint模块
+2. 在 `src/api/routes/__init__.py` 中注册Blueprint
+3. 在 `src/api/app.py` 中调用 `app.register_blueprint`
+4. 需要认证的端点使用 `@auth_required` 装饰器
+5. 需要角色控制的端点叠加 `@role_required(["admin"])`
+
+### 15.2 认证装饰器使用
+
+```python
+from src.api.auth import auth_required, role_required
+
+@bp.route("/sensitive", methods=["GET"])
+@auth_required
+def sensitive_route():
+    # g.username, g.user_role 可用
+    pass
+
+@bp.route("/admin-only", methods=["POST"])
+@auth_required
+@role_required(["admin"])
+def admin_route():
+    pass
 ```
 
-### 8.3 性能优化
+### 15.3 性能建议
 
-- **缓存**：对频繁访问的数据进行缓存
-- **异步处理**：对耗时操作采用异步处理
-- **分页**：对列表接口使用分页机制
+- 列表接口使用分页机制
+- 频繁访问的数据考虑缓存
+- 耗时操作采用异步处理
 
-## 9. 附录
+## 16. 附录
 
-### 9.1 参考资料
+### 16.1 API路由速查表
 
-- [Flask官方文档](https://flask.palletsprojects.com/en/2.0.x/)
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/v1/login` | 用户登录 |
+| GET | `/api/v1/health` | 健康检查 |
+| GET/POST | `/api/v1/projects` | 项目列表/创建 |
+| GET/PUT/DELETE | `/api/v1/projects/{id}` | 项目详情/更新/删除 |
+| GET | `/api/v1/projects/generate-code` | 生成项目编号 |
+| POST | `/api/v1/projects/{id}/check` | 规范检查 |
+| POST | `/api/v1/projects/{id}/report` | 生成报告 |
+| GET | `/api/v1/projects/statistics` | 项目统计 |
+| GET/POST | `/api/v1/templates` | 模板列表/创建 |
+| GET/PUT/DELETE | `/api/v1/templates/{id}` | 模板详情/更新/删除 |
+| GET | `/api/v1/templates/{id}/export` | 导出模板 |
+| POST | `/api/v1/templates/import` | 导入模板 |
+| POST | `/api/v1/templates/validate` | 验证模板结构 |
+| GET | `/api/v1/plugins` | 插件列表 |
+| POST | `/api/v1/plugins/install` | 安装插件 |
+| GET | `/api/v1/plugins/{id}` | 插件详情 |
+| PUT | `/api/v1/plugins/{id}/enable` | 启用插件 |
+| PUT | `/api/v1/plugins/{id}/disable` | 禁用插件 |
+| DELETE | `/api/v1/plugins/{id}/uninstall` | 卸载插件 |
+| POST | `/api/v1/plugins/{id}/execute` | 执行插件 |
+| PUT | `/api/v1/plugins/{id}/config` | 更新插件配置 |
+| GET/POST | `/api/v1/specs` | 规范列表/创建 |
+| GET | `/api/v1/specs/{id}` | 规范详情 |
+| GET | `/api/v1/specs/{id}/content` | 规范内容 |
+| GET/POST | `/api/v1/libraries` | 总库列表/创建 |
+| GET/PUT/DELETE | `/api/v1/libraries/{id}` | 总库详情/更新/删除 |
+| GET/POST | `/api/v1/libraries/{id}/projects` | 总库项目列表/添加 |
+| DELETE | `/api/v1/libraries/{id}/projects/{pid}` | 从总库移除项目 |
+| GET/POST | `/api/v1/libraries/{id}/categories` | 目录分类 |
+| POST | `/api/v1/libraries/{id}/scan` | 扫描目录 |
+| GET | `/api/v1/libraries/{id}/statistics` | 总库统计 |
+| GET/POST | `/api/v1/library-changes` | 变更列表/创建 |
+| GET/PUT/DELETE | `/api/v1/library-changes/{id}` | 变更详情/更新/删除 |
+| POST | `/api/v1/library-changes/{id}/approve` | 审批变更 |
+| POST | `/api/v1/library-changes/{id}/reject` | 驳回变更 |
+| GET | `/api/v1/library-changes/statistics` | 变更统计 |
+| GET | `/api/v1/library-dashboard/{id}/overview` | 仪表盘概览 |
+| GET | `/api/v1/library-dashboard/{id}/trends` | 趋势数据 |
+| GET | `/api/v1/library-dashboard/{id}/health` | 健康度 |
+| POST | `/api/v1/library-dashboard/{id}/reports/overview` | 生成概览报告 |
+| POST | `/api/v1/library-dashboard/{id}/reports/statistics` | 生成统计报告 |
+| POST | `/api/v1/library-dashboard/{id}/reports/trend` | 生成趋势报告 |
+| GET/POST | `/api/v1/defects` | 缺陷列表/创建 |
+| GET/PUT/DELETE | `/api/v1/defects/{id}` | 缺陷详情/更新/删除 |
+| PATCH | `/api/v1/defects/{id}/status` | 变更缺陷状态 |
+| PATCH | `/api/v1/defects/{id}/assign` | 分配缺陷 |
+| PATCH | `/api/v1/defects/{id}/resolve` | 解决缺陷 |
+| GET | `/api/v1/defects/statistics` | 缺陷统计 |
+| GET | `/api/v1/defects/project/{pid}` | 按项目查询缺陷 |
+| GET | `/api/v1/defects/library/{lid}` | 按总库查询缺陷 |
+| GET | `/api/v1/defects/search` | 搜索缺陷 |
+
+### 16.2 参考资料
+
+- [Flask官方文档](https://flask.palletsprojects.com/)
+- [JWT认证标准](https://jwt.io/)
 - [RESTful API设计指南](https://restfulapi.net/)
-- [Python官方文档](https://docs.python.org/zh-cn/3/)
 
-### 9.2 术语表
+### 16.3 术语表
 
 | 术语 | 解释 |
 |------|------|
-| API | 应用程序接口(Application Programming Interface) |
-| REST | 表述性状态转移(Representational State Transfer) |
-| JSON | JavaScript对象表示法(JavaScript Object Notation) |
-| HTTP | 超文本传输协议(Hypertext Transfer Protocol) |
-| PLC | 可编程逻辑控制器(Programmable Logic Controller) |
-
-### 9.3 接口变更记录
-
-| 版本 | 变更日期 | 变更内容 | 变更人 |
-|------|----------|----------|--------|
-| V1.0.0 | 2026-03-10 | 创建API文档 | 系统 |
+| API | 应用程序接口 (Application Programming Interface) |
+| REST | 表述性状态转移 (Representational State Transfer) |
+| JSON | JavaScript对象表示法 (JavaScript Object Notation) |
+| JWT | JSON Web Token |
+| Blueprint | Flask模块化路由组织方式 |
+| PLC | 可编程逻辑控制器 (Programmable Logic Controller) |
 
 ---
 
-**文档版本**：V1.0.0
-**编写日期**：2026-03-10
-**编写人员**：系统
+**文档版本**：INT V2.8.0
+**编写日期**：2026-06-14
+**编写人员**：技术负责人

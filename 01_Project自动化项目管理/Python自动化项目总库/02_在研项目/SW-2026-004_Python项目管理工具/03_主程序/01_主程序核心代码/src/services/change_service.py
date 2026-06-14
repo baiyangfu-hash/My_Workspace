@@ -35,7 +35,10 @@ class ChangeService:
         reason: str = "",
         impact: str = "",
         proposer: str = "",
-        attachment: list = None
+        attachment: list = None,
+        domain: Domain = None,
+        nature: Nature = None,
+        scope: Scope = None
     ) -> tuple[Optional[Change], str]:
         """创建变更单"""
         try:
@@ -48,14 +51,28 @@ class ChangeService:
             if not type:
                 return None, "变更类型不能为空"
             
-            # 生成变更单ID
-            change_id = f"CHG-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
+            # V2.1.0: 优先使用domain/nature/scope，否则从type迁移
+            if domain is None or nature is None or scope is None:
+                migrated_domain, migrated_nature = Change.migrate_from_v1(type)
+                domain = domain or migrated_domain
+                nature = nature or migrated_nature
+                scope = scope or Scope.LOCAL
+            
+            # 生成变更单ID (V2.1.0格式)
+            change_id = f"CHG-{domain.value}-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
+            
+            # 自动匹配审批层级
+            approval_level = SCOPE_APPROVAL_MAP.get(scope)
             
             change = Change(
                 change_id=change_id,
                 project_id=project_id,
                 title=title.strip(),
                 type=type,
+                domain=domain,
+                nature=nature,
+                scope=scope,
+                approval_level=approval_level.value if approval_level else None,
                 description=description,
                 reason=reason,
                 impact=impact,
@@ -398,6 +415,13 @@ class ChangeService:
         }
         d = change.to_v2_dict()
         now = datetime.now().strftime('%Y-%m-%d')
+        proposer = d.get('proposer') or '[编制人姓名]'
+        reviewer = d.get('reviewer') or '[审核人姓名]'
+        implementer = d.get('implementer') or '-'
+        impl_date = d.get('implemented_at', '')[:10] if d.get('implemented_at') else now
+        impl_status = status_names.get(change.status, '进行中')
+        impl_row = f"{impl_date} | {implementer} | 执行变更 | {impl_status} | -"
+        related_changes_str = ', '.join(d.get('related_changes', []))
 
         # §6.2 技术领域影响 (7行checklist)
         all_domains = [Domain.ELEC, Domain.MECH, Domain.PLC, Domain.HMI,
@@ -441,7 +465,7 @@ class ChangeService:
 **文档标题**：{d['domain_name']}变更单 - {d['title']}
 **文档版本**：CHG-V2.0.0
 **编制日期**：{now}
-**编制人**：{d['proposer'] or '[编制人姓名]'}
+**编制人**：{proposer}
 **变更单编号**：{d['change_id']}
 **关联原始记录**：FB-V2-xxx (如有)
 
@@ -517,7 +541,7 @@ class ChangeService:
 
 ### 6.3 变更传播链
 {(f"```{d['propagation_chain']}```" if d['propagation_chain'] else '> 无传播链 (LOCAL/MODULE级无需填写)')}
-{f"\n**关联变更单**: {', '.join(d['related_changes']) if d['related_changes'] > 0 else '无'}" if d['related_changes'] else ''}
+{(chr(10) + f"**关联变更单**: {related_changes_str if d.get('related_changes') else '无'}") if d.get('related_changes') else ''}
 
 ## 7. 实施计划
 
@@ -533,7 +557,7 @@ class ChangeService:
 
 | 实施日期 | 实施人 | 任务 | 结果 | 备注 |
 |:-------:|:------:|:----:|:----:|:----:|
-| {(f"{d['implemented_at'][:10] if d.get('implemented_at') else now} | {d['implementer'] or '-'} | 执行变更 | {status_names.get(change.status, '进行中')} | -") if change.status in [ChangeStatus.IMPLEMENTING, ChangeStatus.COMPLETED] else '| (暂无记录) |'}
+| {(impl_row) if change.status in [ChangeStatus.IMPLEMENTING, ChangeStatus.COMPLETED] else '| (暂无记录) |'}
 
 ## 10. 验证结论
 
@@ -542,7 +566,7 @@ class ChangeService:
 - [ ] 变更达到预期效果
 - [ ] 未引入新的问题/回归缺陷
 - [ ] 相关文档已同步更新
-{(f"- [ ] 关联变更单验证: {', '.join(d['related_changes'])}" if d['related_changes'] else '')}
+{(f"- [ ] 关联变更单验证: {related_changes_str}" if d.get('related_changes') else '')}
 
 ### 10.2 最终结论
 **验证状态**: {status_names.get(change.status, '待验证')}
@@ -553,8 +577,8 @@ class ChangeService:
 
 **文档版本**: CHG-V2.0.0
 **编制日期**: {now}
-**编制人**: {d['proposer'] or '[编制人姓名]'}
-**审核人**: {d['reviewer'] or '[审核人姓名]'}"""
+**编制人**: {proposer}
+**审核人**: {reviewer}"""
     
     @staticmethod
     def generate_ledger(project_id: str, output_path: str = None) -> tuple[Optional[str], str]:

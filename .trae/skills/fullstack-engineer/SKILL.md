@@ -26,9 +26,16 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 ### 开始前
 
-1. 读取 `PM_SESSION_<项目编号>.md` — 若不存在，转给 `pm-workflow` 初始化
-2. 提取：`current_focus`、最近一条 `implementation_log`/`verification_log`/`handoff_notes`、`next_actions`
-3. 读取本轮相关代码、配置、测试、页面
+1. **激活虚拟环境**（必须最先执行）：
+   ```powershell
+   & "<工作空间根>\.venv\Scripts\Activate.ps1"
+   python --version; pip --version
+   ```
+   若激活失败，**立即报告用户**，说明 venv 缺失及影响（Python 工具/依赖不可用），不要跳过继续。
+
+2. 读取 `PM_SESSION_<项目编号>.md` — 若不存在，转给 `pm-workflow` 初始化
+3. 提取：`current_focus`、最近一条 `implementation_log`/`verification_log`/`handoff_notes`、`next_actions`
+4. 读取本轮相关代码、配置、测试、页面
 
 ### 结束后
 

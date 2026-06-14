@@ -107,8 +107,8 @@ class PluginConfigWidget(QWidget):
         self.config_tabs.addTab(self.general_tab, "常规")
         
         self.params_tab = QWidget()
-        self.params_layout = QVBoxLayout(self.params_tab)
-        self.params_layout.addWidget(QLabel("此插件无自定义配置参数"))
+        self.params_layout = QFormLayout(self.params_tab)
+        self.params_layout.addRow(QLabel("此插件无自定义配置参数"))
         self.config_tabs.addTab(self.params_tab, "参数")
         
         right_layout.addWidget(self.config_group)
@@ -201,17 +201,16 @@ class PluginConfigWidget(QWidget):
     
     def _load_custom_params(self, params: dict):
         """加载自定义参数"""
-        for i in reversed(range(self.params_layout.count())):
-            self.params_layout.itemAt(i).widget().setParent(None)
+        while self.params_layout.rowCount() > 0:
+            self.params_layout.removeRow(0)
         
         if not params:
-            self.params_layout.addWidget(QLabel("此插件无自定义配置参数"))
+            self.params_layout.addRow(QLabel("此插件无自定义配置参数"))
             return
         
         for key, value in params.items():
-            label = QLabel(f"{key}:")
-            value_label = QLabel(str(value))
-            self.params_layout.addRow(label, value_label)
+            value_edit = QLineEdit(str(value))
+            self.params_layout.addRow(f"{key}:", value_edit)
     
     def _on_enabled_changed(self, state: int):
         """启用状态变更"""
@@ -219,9 +218,15 @@ class PluginConfigWidget(QWidget):
             return
         
         if state == Qt.Checked:
-            PluginService.enable_plugin(self.current_plugin.plugin_id)
+            success, error = PluginService.enable_plugin(self.current_plugin.plugin_id)
         else:
-            PluginService.disable_plugin(self.current_plugin.plugin_id)
+            success, error = PluginService.disable_plugin(self.current_plugin.plugin_id)
+        
+        if not success:
+            self.enabled_check.blockSignals(True)
+            self.enabled_check.setChecked(not (state == Qt.Checked))
+            self.enabled_check.blockSignals(False)
+            QMessageBox.warning(self, "失败", error)
     
     def _on_save_config(self):
         """保存配置"""
@@ -233,8 +238,15 @@ class PluginConfigWidget(QWidget):
             "priority": self.priority_spin.value()
         }
         
-        self.config_changed.emit(self.current_plugin.plugin_id, config)
-        QMessageBox.information(self, "成功", "配置已保存")
+        success, error = PluginService.update_plugin_config(
+            self.current_plugin.plugin_id, config
+        )
+        
+        if success:
+            self.config_changed.emit(self.current_plugin.plugin_id, config)
+            QMessageBox.information(self, "成功", "配置已保存")
+        else:
+            QMessageBox.warning(self, "失败", f"保存配置失败: {error}")
     
     def _on_reset_config(self):
         """重置配置"""

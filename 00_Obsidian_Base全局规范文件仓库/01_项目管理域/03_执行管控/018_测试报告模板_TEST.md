@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: TEST-018
 title: "测试报告模板"
 version: "V1.0.0"

@@ -88,6 +88,164 @@ class ExportService:
             return None, f"导出失败: {str(e)}"
     
     @staticmethod
+    def export_progress_report(project_id: str, format: str = "markdown",
+                                output_path: str = None) -> tuple[Optional[str], str]:
+        """导出进度报告"""
+        try:
+            project = ProjectService.get_project(project_id)
+            if not project:
+                return None, "项目不存在"
+
+            from src.services.report_service import ReportService
+            result_path, error = ReportService.generate_report(project, "progress_md", output_path)
+            if error:
+                return None, error
+
+            return result_path, ""
+
+        except Exception as e:
+            logger.exception(f"导出进度报告失败: {e}")
+            return None, f"导出失败: {str(e)}"
+
+    @staticmethod
+    def export_change_report(project_id: str, format: str = "markdown",
+                              output_path: str = None) -> tuple[Optional[str], str]:
+        """导出变更报告"""
+        try:
+            project = ProjectService.get_project(project_id)
+            if not project:
+                return None, "项目不存在"
+
+            from src.services.change_service import ChangeService
+            from src.utils.file_utils import write_file
+            from pathlib import Path
+
+            stats = ChangeService.get_statistics(project_id)
+            changes, _ = ChangeService.list_changes(project_id, size=100)
+
+            if format == "markdown":
+                ext = ".md"
+            elif format == "html":
+                ext = ".html"
+            else:
+                ext = ".txt"
+
+            if not output_path:
+                output_dir = Path(project.path) / "19_交付物"
+                output_dir.mkdir(parents=True, exist_ok=True)
+                output_path = str(output_dir / f"变更报告_{project.code}_{datetime.now().strftime('%Y%m%d')}{ext}")
+
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+            if format == "markdown":
+                content = ExportService._generate_change_md(project, stats, changes)
+            elif format == "html":
+                content = ExportService._generate_change_html(project, stats, changes)
+            else:
+                content = ExportService._generate_change_text(project, stats, changes)
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            logger.info(f"变更报告导出成功: {output_path}")
+            return output_path, ""
+
+        except Exception as e:
+            logger.exception(f"导出变更报告失败: {e}")
+            return None, f"导出失败: {str(e)}"
+
+    @staticmethod
+    def _generate_change_md(project, stats: dict, changes: list) -> str:
+        """生成Markdown格式变更报告"""
+        status_names = {
+            "draft": "草稿", "pending": "待审批", "approved": "已批准",
+            "rejected": "已拒绝", "implementing": "实施中",
+            "completed": "已完成", "cancelled": "已取消"
+        }
+        md = f"""# {project.name} - 变更报告
+
+**项目编号**: {project.code}
+**生成时间**: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+---
+
+## 一、变更统计概览
+
+| 指标 | 数量 |
+|------|------|
+| 变更单总数 | {stats.get('total', 0)} |
+| 草稿 | {stats.get('draft', 0)} |
+| 待审批 | {stats.get('pending', 0)} |
+| 已批准 | {stats.get('approved', 0)} |
+| 实施中 | {stats.get('implementing', 0)} |
+| 已完成 | {stats.get('completed', 0)} |
+
+---
+
+## 二、变更明细
+
+| 编号 | 标题 | 状态 | 创建时间 |
+|------|------|------|----------|
+"""
+        for ch in changes[:50]:
+            status = status_names.get(ch.status.value if hasattr(ch.status, 'value') else str(ch.status),
+                                       str(ch.status))
+            created = ch.created_at.strftime('%Y-%m-%d') if ch.created_at else '-'
+            md += f"| {ch.change_id} | {ch.title} | {status} | {created} |\n"
+
+        md += f"""
+---
+
+*报告由Python项目管理工具自动生成*
+"""
+        return md
+
+    @staticmethod
+    def _generate_change_html(project, stats: dict, changes: list) -> str:
+        """生成HTML格式变更报告"""
+        status_names = {
+            "draft": "草稿", "pending": "待审批", "approved": "已批准",
+            "rejected": "已拒绝", "implementing": "实施中",
+            "completed": "已完成", "cancelled": "已取消"
+        }
+        rows = ""
+        for ch in changes[:50]:
+            status = status_names.get(ch.status.value if hasattr(ch.status, 'value') else str(ch.status),
+                                       str(ch.status))
+            created = ch.created_at.strftime('%Y-%m-%d') if ch.created_at else '-'
+            rows += f"<tr><td>{ch.change_id}</td><td>{ch.title}</td><td>{status}</td><td>{created}</td></tr>\n"
+
+        return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>{project.name} 变更报告</title>
+<style>body{{font-family:'Microsoft YaHei',Arial,sans-serif;margin:20px}}table{{border-collapse:collapse;width:100%}}th,td{{border:1px solid #ddd;padding:8px;text-align:left}}th{{background-color:#FF9800;color:#fff}}</style>
+</head><body><h1>{project.name} - 变更报告</h1>
+<p>项目编号: {project.code} | 生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+<h2>变更统计</h2><table><tr><th>指标</th><th>数量</th></tr>
+<tr><td>变更单总数</td><td>{stats.get('total', 0)}</td></tr>
+<tr><td>已完成</td><td>{stats.get('completed', 0)}</td></tr></table>
+<h2>变更明细</h2><table><tr><th>编号</th><th>标题</th><th>状态</th><th>创建时间</th></tr>{rows}</table>
+</body></html>"""
+
+    @staticmethod
+    def _generate_change_text(project, stats: dict, changes: list) -> str:
+        """生成纯文本格式变更报告"""
+        lines = [
+            f"{project.name} - 变更报告",
+            "=" * 50,
+            f"项目编号: {project.code}",
+            f"生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            "",
+            "变更统计:",
+            f"  变更单总数: {stats.get('total', 0)}",
+            f"  已完成: {stats.get('completed', 0)}",
+            "",
+            "变更明细:",
+        ]
+        for ch in changes[:50]:
+            lines.append(f"  {ch.change_id} | {ch.title}")
+        return "\n".join(lines)
+
+    @staticmethod
     def _generate_project_md(project, stats: dict) -> str:
         """生成Markdown格式项目报告"""
         return f"""# {project.name} 项目报告

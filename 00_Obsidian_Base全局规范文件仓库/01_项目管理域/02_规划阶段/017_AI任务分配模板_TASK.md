@@ -1,4 +1,4 @@
-﻿---
+---
 spec_id: TASK-017
 title: "AI任务分配模板"
 version: "V1.0.0"
