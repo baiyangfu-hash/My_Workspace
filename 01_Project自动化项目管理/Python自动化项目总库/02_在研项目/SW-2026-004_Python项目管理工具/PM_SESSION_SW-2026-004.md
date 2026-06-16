@@ -4,7 +4,7 @@
 - project_id: SW-2026-004
 - project_name: Python项目管理工具
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-004_Python项目管理工具
-- last_updated: 2026-06-14
+- last_updated: 2026-06-16
 - current_version: V2.8.0
 - owners: 技术团队
 
@@ -229,3 +229,5 @@
 - ~~[P1] FIX-05 常量文件拆分~~ | ✅ 已修复 | 拆为3个子模块+re-export入口
 - [P2] GUI端到端验证 | precondition=无 | done_when=9个页签全部可操作
 - [P3] V3.0路线图规划 | precondition=PM确认 | done_when=V3.0需求清单确定
+- [P4] 4.5 build/package脚本归位 | source=SYS-2026-001 Phase 4 | priority=低 | done_when=脚本移至项目标准目录
+- [P4] 4.9 .trae/documents活跃文档审查 | source=SYS-2026-001 Phase 4 | priority=低 | done_when=活跃文档清单确认，过期文档归档
