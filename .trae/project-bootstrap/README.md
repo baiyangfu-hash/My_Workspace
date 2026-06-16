@@ -6,6 +6,7 @@ This directory stores reusable continuity assets for new projects.
 
 - `software`
 - `plc`
+- `sys`
 
 Each type provides:
 
@@ -22,7 +23,7 @@ Each type provides:
 Use the workspace bootstrap script:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .trae/bin/bootstrap-project-continuity.ps1 -ProjectRoot "<project-root>" -ProjectId "<project-id>" -ProjectName "<project-name>" -ProjectType <software|plc>
+powershell -ExecutionPolicy Bypass -File .trae/bin/bootstrap-project-continuity.ps1 -ProjectRoot "<project-root>" -ProjectId "<project-id>" -ProjectName "<project-name>" -ProjectType <software|plc|sys>
 ```
 
 The bootstrap script will:
@@ -36,4 +37,5 @@ The bootstrap script will:
 
 - `software` is based on the structure used by `SW-2026-005_PLC项目管理工具`
 - `plc` is based on the structure used by `DJ-2026-005`
+- `sys` is for system-level governance projects (cross-domain, workspace-wide)
 - Review the generated PM_SESSION content after bootstrap and fill the placeholders before active development starts

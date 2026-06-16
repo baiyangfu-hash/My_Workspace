@@ -1,4 +1,4 @@
-﻿param(
+param(
     [Parameter(Mandatory = $true)]
     [string]$ProjectRoot,
 
@@ -9,7 +9,7 @@
     [string]$ProjectName,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("software", "plc")]
+    [ValidateSet("software", "plc", "sys")]
     [string]$ProjectType,
 
     [string]$Owners = "Pending",
@@ -58,8 +58,10 @@ function Fill-SpecSnapshot {
 
         $specIds = if ($Type -eq "software") {
             @("PROJ-016", "PRD-001", "DEV-031", "DEV-032")
-        } else {
+        } elseif ($Type -eq "plc") {
             @("PROJ-016", "REQ-020", "LSP-905")
+        } else {
+            @("DEV-001", "DEV-002", "DEV-003", "PM-004", "PROJ-016")
         }
 
         $result = $PmSessionContent
@@ -164,9 +166,14 @@ $script:PLC_DIRS = @(
     "export"
 )
 
+$script:SYS_DIRS = @(
+    "00_项目基础信息",
+    "01_项目文档"
+)
+
 function New-ProjectStructure {
     param([string]$Type)
-    $dirs = if ($Type -eq "software") { $script:SW_DIRS } else { $script:PLC_DIRS }
+    $dirs = if ($Type -eq "software") { $script:SW_DIRS } elseif ($Type -eq "plc") { $script:PLC_DIRS } else { $script:SYS_DIRS }
     foreach ($d in $dirs) {
         Ensure-Directory -PathValue (Join-Path $resolvedProjectRoot $d)
     }
@@ -203,6 +210,16 @@ function New-SkeletonFiles {
 ```
 '@
 
+    $sysTree = @'
+```
+├── 00_项目基础信息/     # 项目章程、基本信息
+├── 01_项目文档/         # 方案、路线图、风险、准入规则
+├── .github/hooks/       # 协作自动化
+├── .trae/handoffs/      # 会话交接草稿
+└── PM_SESSION_*.md      # 项目状态单一真源
+```
+'@
+
     $swSpecs = @'
 - `PROJ-016` 通用项目结构模板
 - `PRD-001` 产品需求文档模板
@@ -216,9 +233,17 @@ function New-SkeletonFiles {
 - PLC编程规范（参考 `0100_PLC自动化/00_通用规范/`）
 '@
 
-    $typeLabel = if ($Type -eq 'software') { '软件/产品化项目' } else { 'PLC/电气交付项目' }
-    $treeBlock = if ($Type -eq 'software') { $swTree } else { $plcTree }
-    $specBlock = if ($Type -eq 'software') { $swSpecs } else { $plcSpecs }
+    $sysSpecs = @'
+- `DEV-001` 通用项目名称命名规范
+- `DEV-002` 通用项目工作流命名规范
+- `DEV-003` 跨资源库命名统一规范
+- `PM-004` PM_WORKFLOW总控Skill使用说明
+- `PROJ-016` 通用项目结构模板
+'@
+
+    $typeLabel = if ($Type -eq 'software') { '软件/产品化项目' } elseif ($Type -eq 'plc') { 'PLC/电气交付项目' } else { '系统级治理项目' }
+    $treeBlock = if ($Type -eq 'software') { $swTree } elseif ($Type -eq 'plc') { $plcTree } else { $sysTree }
+    $specBlock = if ($Type -eq 'software') { $swSpecs } elseif ($Type -eq 'plc') { $plcSpecs } else { $sysSpecs }
 
     $readmeLines = @(
         "# $ProjectName",
@@ -242,6 +267,8 @@ function New-SkeletonFiles {
     )
     $readmeContent = $readmeLines -join "`n"
     Set-Content -Path (Join-Path $resolvedProjectRoot "README.md") -Value $readmeContent -Encoding UTF8
+
+    Set-Content -Path (Join-Path $resolvedProjectRoot ".gitignore") -Value ".venv/`n__pycache__/`n.pytest_cache/`n.DS_Store`n" -Encoding UTF8
 
     if ($Type -eq "software") {
         $pyprojectDir = Join-Path $resolvedProjectRoot "03_主程序\01_主程序核心代码"
@@ -286,7 +313,7 @@ function New-SkeletonFiles {
                 }
             }
         }
-    } else {
+    } elseif ($Type -eq "plc") {
         $plcDir = Join-Path $resolvedProjectRoot "02_PLC程序\通用ST程序及变量表"
         $plcConfigLines = @(
             "{",
@@ -334,6 +361,24 @@ function New-SkeletonFiles {
                 }
             }
         }
+    } else {
+        $charterPath = Join-Path $resolvedProjectRoot "00_项目基础信息\01_项目章程_PM.md"
+        $charterLines = @(
+            "# $ProjectName 项目章程",
+            "",
+            "| 字段 | 内容 |",
+            "|------|------|",
+            "| 项目编号 | $ProjectId |",
+            "| 项目名称 | $ProjectName |",
+            "| 启动日期 | $today |",
+            "| 负责人 | $Owners |",
+            "",
+            "## 项目简介",
+            "",
+            $OneLiner
+        )
+        $charterContent = $charterLines -join "`n"
+        Set-Content -Path $charterPath -Value $charterContent -Encoding UTF8
     }
 }
 
