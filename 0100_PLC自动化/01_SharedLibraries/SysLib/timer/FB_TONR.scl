@@ -5,11 +5,11 @@ FUNCTION_BLOCK FB_TONR
 VAR_INPUT
     IN  : BOOL;
     R   : BOOL;   // 复位输入
-    PT  : DINT;   // 预设时间(扫描周期)
+    PT  : DINT;   // 预设时间(ms)
 END_VAR
 VAR_OUTPUT
     Q   : BOOL;
-    ET  : DINT;   // 已用时间(扫描周期)
+    ET  : DINT;   // 已用时间(ms)
 END_VAR
 VAR
     Counter   : DINT := 0;

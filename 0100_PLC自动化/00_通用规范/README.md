@@ -19,14 +19,17 @@
 | LSP-907 | 907_项目配置规范_LSP.md | V1.0.0 | PLC项目配置规范 | 🔴必读 |
 | TOOL-908 | 908_Siemens_Language_Support_使用指南_TOOL.md | V1.0.0 | Siemens Language Support插件使用指南 | 🟡配套 |
 
-## 跨域工具规范 (`项目管理/`)
+## 跨域工具规范
+
+> 以下跨域工具规范已迁移至全局规范仓库 `00_Obsidian_Base全局规范文件仓库/03_执行过程/01_代码开发/02_工具使用规范/`
 
 | 规范ID | 文件名 | 版本 | 说明 |
 |--------|--------|------|------|
 | SW-2026-006 | 01-产品需求文档_PRD.md | V0.2.0 | 规范管理工具 (SpecMgr) |
-| TOOL-902 | 902_Git使用指南.md | V1.0.0 | Git使用指南 |
 | OPS-905 | 905_PaddleOCR_MCP_Server_本机离线配置指南_OPS.md | V1.0.0 | PaddleOCR MCP Server本机离线配置指南 |
 | TOOL-906 | 906_Mermaid图表工作流规范_TOOL.md | V2.0.0 | Mermaid图表工作流规范 |
+
+> **注意**: TOOL-902 (Git使用指南) 已迁移至全局规范仓库，原PLC域文件已删除
 
 ## 已废弃规范（Deprecated）
 

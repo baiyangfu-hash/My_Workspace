@@ -1,0 +1,49 @@
+(* ================================================================= *)
+(*  ST_Cylinder                                                       *)
+(*  FB_1011_CylinderControl 专用结构体 - 双位置电磁阀通用控制          *)
+(*  版本: V2.1.0  日期: 2026-06-16                                    *)
+(*  来源: SysLib/actuator/FB_1011_CylinderControl/                    *)
+(*  复用: 气缸/真空阀/夹具等所有双位置执行机构                         *)
+(*  规范: LSP-905 (结构体字段无i_/o_/q_前缀)                         *)
+(*                                                                    *)
+(*  映射说明(通用双位置阀):                                           *)
+(*    Extend     → 动点命令(得电动作)  : 伸出/真空/夹紧/下降          *)
+(*    Retract    → 原点命令(失电复位)  : 收回/破真空/松开/上升        *)
+(*    ExtendedPos → 动点到位传感器      : 伸出位/真空压力OK           *)
+(*    RetractedPos→ 原点到位传感器      : 收回位/大气压力            *)
+(*                                                                    *)
+(*  V2.1.0变更:                                                       *)
+(*    - 更新: 注释通用化, 不限于气缸场景, 支持真空阀/夹具等            *)
+(*  V2.0.0变更(重要):                                                 *)
+(*    - 新增: DebounceMs参数, 支持传感器消抖(FB_1011 V9.0.0)          *)
+(*    - 修正: TimeoutMs类型INT→DINT, 符合LSP-903定时器规范            *)
+(*    - 新增: Solenoid字段, 包含电磁阀输出(方便状态保存)              *)
+(*    - 对齐: FB_1011_CylinderControl V9.0.0完整字段集                *)
+(* ================================================================= *)
+
+TYPE ST_Cylinder :
+STRUCT
+    // === 命令输入 (BOOL) ===
+    Extend          : BOOL := FALSE;   // 动点命令(得电动作:伸出/真空/夹紧/下降)
+    Retract         : BOOL := FALSE;   // 原点命令(失电复位:收回/破真空/松开/上升)
+
+    // === 传感器反馈 (BOOL) ===
+    ExtendedPos     : BOOL := FALSE;   // 动点到位传感器(伸出位/真空压力OK)
+    RetractedPos    : BOOL := FALSE;   // 原点到位传感器(收回位/大气压力)
+
+    // === 参数 ===
+    TimeoutMs       : DINT := 5000;    // 动作超时时间 (ms), 0=关闭 (LSP-903: DINT)
+    DebounceMs      : DINT := 0;       // 传感器消抖时间 (ms), 0=关闭 (FB_1011 V9.0.0新增)
+    SolenoidType    : INT := 0;        // 电磁阀类型: 0=单线圈两位阀(默认), 1=双线圈两位阀, 2=3位4通中封阀, 3=3位4通中泄阀
+    ExtendPolarity  : BOOL := FALSE;   // 线圈极性取反: FALSE=正常(TRUE=动点), TRUE=取反(FALSE=动点)
+
+    // === 电磁阀输出 (仅单线圈两位阀用, 双线圈预留扩展) ===
+    Solenoid        : BOOL := FALSE;   // 电磁阀输出 (单线圈用: TRUE=动点)
+
+    // === 状态输出 (BOOL) ===
+    IsExtended      : BOOL := FALSE;   // 已到动点 (极性映射后)
+    IsRetracted     : BOOL := FALSE;   // 已到原点 (极性映射后)
+    Timeout         : BOOL := FALSE;   // 动作超时报警
+    SensorFault     : BOOL := FALSE;   // 传感器冲突 (两点同时ON, 消抖后)
+END_STRUCT
+END_TYPE

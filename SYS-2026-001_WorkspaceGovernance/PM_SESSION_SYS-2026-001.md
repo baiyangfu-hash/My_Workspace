@@ -14,17 +14,16 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: P2 节奏固化 — 执行自身遗留事项+建立周期治理节奏
-- milestone: P2 节奏固化（进行中）
-- acceptance: 周期动作机制建立+遗留事项执行+变更准入验证
+- current_focus: P2 节奏固化已完成 — 4项执行事项全部完成，周期动作机制已建立
+- milestone: P2 节奏固化 ✅ 完成
+- acceptance: 原子性提交+规范归属调整+准入验证+pm-mgr评估
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - P2 节奏固化：执行自身遗留事项+建立周期治理节奏
+  - P2 节奏固化已完成，进入持续运营阶段
 - next_up:
-  - P2.1 Git原子性提交（7次提交锁定Phase 1-3变更）
-  - P2.2 PLC域规范分类归属调整（TOOL-902/908）
-  - P2.3 变更准入规则执行验证
+  - 持续执行周期动作（每周更新PM_SESSION、每月检查根目录）
+  - 监控跨项目遗留事项执行进展（SW-2026-006/SW-2026-004）
 - open_questions:
   - 项目简称是否长期保持英文 `WorkspaceGovernance`
   - 是否需要后续补充 hooks/handoffs
@@ -67,6 +66,7 @@
   - P0 启动: 统一工作区治理入口和职责边界
   - P1 计划收编: 4份历史计划映射+执行状态评估+遗留事项登记+跨项目移交 ✅
   - P2 节奏固化: 进行中
+- 2026-06-16 P2节奏固化完成：P2.1-P2.4全部完成
 - bug_log:
   - 2026-06-15 识别到错误使用 `SW-` 立项的语义风险，已改为 `SYS-`
 - refactor_log:
@@ -132,10 +132,10 @@
 ## 9. Next Actions
 - [P0] ✅ 完成历史长期计划映射 | done_when=4份长期计划已登记到路线图+风险台账
 - [P1] ✅ 将Phase 4遗留事项移交至对应项目 | done_when=SW-2026-006（6项）和SW-2026-004（2项）的PM_SESSION中已登记对应遗留任务
-- [P2] P2.1 Git原子性提交 | priority=中 | done_when=7次原子性提交完成
-- [P2] P2.2 PLC域规范分类归属调整 | priority=低 | done_when=TOOL-902/908分类归属已调整
-- [P2] P2.3 变更准入规则执行验证 | priority=中 | done_when=验证05_变更准入规则在实际变更中被遵守
-- [P2] P2.4 pm-mgr扩展支持SYS类型评估 | priority=低 | done_when=评估结论明确
+- [P2] ✅ P2.1 Git原子性提交 | 6次原子性提交完成
+- [P2] ✅ P2.2 PLC域规范分类归属调整 | TOOL-902已迁移至全局规范仓库
+- [P2] ✅ P2.3 变更准入规则执行验证 | 本次会话8项变更均符合准入规则
+- [P2] ✅ P2.4 pm-mgr扩展支持SYS类型评估 | pm-mgr已支持SYS类型，无需额外开发
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
 

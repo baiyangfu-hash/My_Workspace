@@ -4,7 +4,7 @@
 - project_id: SysLib
 - project_name: PLC共享函数库 (Shared Libraries for PLC)
 - project_root: 0100_PLC自动化\01_SharedLibraries\SysLib
-- last_updated: 2026-05-31 (LSP-903 V2.1.0 规范修订: 定时器无条件顶格调用 + FB1011定时器批量调用区重构)
+- last_updated: 2026-06-16 (FB1011 V9.1.0 通用化更新: PM_SESSION_FB1011 + ST_Cylinder移至FB目录 + 注释通用化 + 发现多个严重问题)
 - owners: Trae
 
 ## 1. Positioning（项目定位）
@@ -13,34 +13,41 @@
 - non_goals: 不处理项目级业务逻辑，不包含HMI/SCADA层代码
 
 ## 2. Current Focus（当前焦点）
-- current_focus: LSP-903 V2.1.0 规范修订完成: 定时器批量无条件调用模式; FB1011定时器重构完成(3个timer集中到顶部调用区); FB1014/FB1020已符合无需修改; 预防规则: 所有timer的()调用必须无条件顶格
-- milestone: V9.0.0 (FB1011+FB1012扁平化) / V4.3.0 (FB1014修复完成) / V2.0.0 (FB1020)
-- acceptance: FB1011/FB1012 V9.0.0接口扁平化+代码规范合规, 全部文档与代码一致, FB1014调用点同步更新
+- current_focus: FB1011 检查发现多个严重问题！定时器调用和单位混乱、消抖/超时逻辑问题、上电状态不明确等，必须修复后才能实际使用
+- milestone: V9.1.0 (FB1011通用化+问题修复) / V9.0.0 (FB1011+FB1012扁平化) / V4.3.0 (FB1014修复完成) / V2.0.0 (FB1020)
+- acceptance: 修复FB1011发现的所有问题，确认功能正常，人工复核后再考虑使用
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - LSP-903 V2.1.0规范修订+FB1011定时器批量调用区重构完成: 3个timer集中到顶部无条件调用, FB1014/FB1020已符合 (2026-05-31)
+  - ⚠️ FB1011 检查发现多个严重问题：定时器单位混乱、调用方式错误、消抖/超时逻辑问题、上电状态不明确 (2026-06-16)
+  - FB1011 V9.1.0 通用化更新: PM_SESSION_FB1011 创建，ST_Cylinder 从 types/ 移至 FB_1011_CylinderControl/ 目录，SCL 主文件注释通用化（动点/原点/得电/失电） (2026-06-16)
+  - LSP-903 V2.1.0规范修订+FB1011定时器批量调用区重构完成: 3个timer集中到顶部无条件调用，FB1014/FB1020已符合 (2026-05-31)
   - FB1011 V9.0.0 代码-PRD同步完成: fb_tTimeout移到命令处理后(对齐DSN)+4份PRD类型同步DINT (2026-05-31)
   - FB1020 EquipmentHandshake V2.0.0 架构重构+LSP-904修复完成 (2026-05-30)
 - next_up:
+  - [P0] 🔴 优先修复 FB1011 发现的所有问题
+  - FB_1014 同步更新 ST_Cylinder 引用路径（从 types/ 改为 actuator/FB_1011_CylinderControl/）
   - FB1014同步更新3个FB_1011实例调用(io_stCyl=>扁平参数) + FB_1012调用点同步更新
   - FB1014在实际项目中集成验证(OB1接线+IO映射)
   - FB1020在实际项目中集成验证(OB1接线+通讯层映射, 需适配V2.0.0接口变更)
   - SCL自动化Lint脚本开发(LINT-001~007)
 - open_questions:
+  - 定时器单位应该用什么？扫描周期 vs 毫秒？需要统一！
   - FB1014的3个FB_1011实例调用需从io_stCyl改为扁平参数, 是否同步修改FB_1014?
-  - 定时器PT参数单位: 保持"扫描周期"还是改为"毫秒"(需修改FB_TON)?
-  - OB1侧的信号映射代码需要编写(io_stUpStream/io_stDownStream <-> 通讯层, V2.0.0字段路径变更)
+  - 是否需要把 FB1011 预留扩展（双线圈/3位阀）?
+  - OB1侧的信号映射代码需要编写(io_stUpStream/io_stDownStream <-> 通讯层, V2.0.0字段路径变化)
   - GlassID WORD类型在通讯传输中的字节序处理(大端/小端)
 - risks_dependencies:
+  - ⚠️ FB1011 当前代码不能直接上机使用！必须先修复发现的问题！
+  - V9.1.0: FB_1014 需同步更新 ST_Cylinder 引用路径
   - V9.0.0 Breaking Change: FB_1011移除ST_Cylinder VAR_IN_OUT, FB_1014的3个实例调用需同步更新
   - V9.0.0 Breaking Change: FB_1012移除ST_ConveyorMotor VAR_IN_OUT, FB_1014的FB_1012实例调用需同步更新
   - V4.3.0 Breaking Change: 状态号3~7变为4~8, 外部依赖q_iState的逻辑需更新
   - V2.0.0 Breaking Change: ST_HandshakeCh结构体布局变化, 通讯双方需同步更新
   - ⚠️ D6/D7复发风险: AI编码时易跳过"读源文件确认接口"和"逐条对照规范"步骤, 需在plc-rules.md中强化前置检查规则
 - spec_compliance:
-  - last_check: 2026-05-31
-  - result: 通过 - FB1011 V9.0.0 TON调用约定修复(先赋值再调用模式), LSP-904注释合规修复(变量//+分支(* *)+文件头合并), 定时器合规(LSP-903)
+  - last_check: 2026-06-16
+  - result: ⚠️ 发现多个规范问题，需修复后再验证
 
 ## 4. Artifacts Index（文档索引）
 - prd:
@@ -110,6 +117,11 @@
   - 2026-05-29 FB1013 VAR_OUTPUT精简: 70→25个(-45), M0-M10删除, 报警合并WORD, NV合并BYTE, 位置合并INT, IFC/DSN同步升V9.0.0 范围:FB_1013_NinetyDegreeTransfer.scl+IFC+DSN 完成
 
 ## 6. Implementation Log
+- 2026-06-16 | skill=pm-workflow/plc-electrical-engineer | mode=通用化更新
+  - goal: 为FB_1011_CylinderControl创建PM_SESSION，ST_Cylinder从types/移至FB目录，注释通用化支持多场景
+  - changed_files: PM_SESSION_SysLib.md, actuator/FB_1011_CylinderControl/PM_SESSION_FB1011.md, actuator/FB_1011_CylinderControl/ST_Cylinder.scl, actuator/FB_1011_CylinderControl/FB_1011_CylinderControl.scl
+  - impact: FB_1011已具备PM_SESSION能力，ST_Cylinder与FB代码保持一致，通用化支持多场景
+  - risks: FB_1014需同步更新ST_Cylinder引用路径
 - 2026-05-15 | skill=plc-electrical-engineer | mode=迭代推进
   - goal: 创建PM_SESSION，完成共享函数库SysLib的FB集合
   - changed_files: PM_SESSION_SysLib.md, timer/, edge/, counter/, pulse/, convert/, log/, types/, actuator/
@@ -117,6 +129,11 @@
   - risks: FB_1014_StationConveyor仍在开发中
 
 ## 7. Verification Log
+- 2026-06-16
+  - verified: PM_SESSION_FB1011已创建，ST_Cylinder已移至FB目录，SCL注释已通用化，SysLib PM_SESSION已更新
+  - not_verified: FB_1014引用路径同步，实际项目集成测试
+  - method: 文件存在性检查，注释内容检查
+  - blocker: 待FB_1014引用路径同步
 - 2026-05-15
   - verified: PM_SESSION已创建，基础FB集合已实现
   - not_verified: FB_1014完整功能测试
@@ -124,6 +141,11 @@
   - blocker: 无
 
 ## 8. Handoff Notes
+- 2026-06-16 | from=pm-workflow/plc-electrical-engineer
+  - current_state: FB_1011已具备PM_SESSION能力，ST_Cylinder已通用化并移至FB目录，SysLib PM_SESSION已同步更新
+  - next_focus: FB_1014同步更新ST_Cylinder引用路径，验证通用化场景
+  - watchouts: 通用化场景需现场验证，多电磁阀类型预留
+  - read_first: PM_SESSION_FB1011.md, PM_SESSION_SysLib.md, ST_Cylinder.scl, FB_1011_CylinderControl.scl
 - 2026-05-15 | from=plc-electrical-engineer
   - current_state: SysLib基础FB集合完成，含timer/edge/counter/pulse/convert/log/types/actuator
   - next_focus: FB_1014_StationConveyor完善，communication模块扩展
@@ -131,9 +153,12 @@
   - read_first: PM_SESSION_SysLib.md, README.md
 
 ## 9. Next Actions
-- [P1] FB_1014_StationConveyor功能完善 | precondition=需求确认 | done_when=FB_1014完整功能测试通过
-- [P2] communication模块扩展 | precondition=FB_1020需求确认 | done_when=FB_1020接口文档和实现完成
-- [P3] types/目录与905规范对齐 | precondition=905规范确认 | done_when=所有ST_类型命名符合规范
+- [P1] FB_1014同步更新ST_Cylinder引用路径 | precondition=确认FB_1014引用位置 | done_when=FB_1014中ST_Cylinder引用路径正确
+- [P2] FB_1014同步更新3个FB_1011实例调用(io_stCyl=>扁平参数) | precondition=确认FB_1014调用方式 | done_when=FB_1014调用FB_1011使用扁平参数
+- [P3] 通用化场景测试（气缸/真空阀/夹具）验证 | precondition=实际项目集成 | done_when=多场景测试通过
+- [P4] 文档V9.1.0更新对齐 | precondition=PRD/IFC/DSN/TECH文档版本 | done_when=所有FB_1011文档版本同步
+- [P5] communication模块扩展 | precondition=FB_1020需求确认 | done_when=FB_1020接口文档和实现完成
+- [P6] types/目录与905规范对齐 | precondition=905规范确认 | done_when=所有ST_类型命名符合规范
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
 
