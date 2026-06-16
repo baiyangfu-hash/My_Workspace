@@ -4,7 +4,7 @@
 - project_id: SW-2026-006
 - project_name: 规范管理工具 (SpecMgr)
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-006_规范管理工具
-- last_updated: 2026-05-28
+- last_updated: 2026-06-16
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -134,3 +134,9 @@
 - [P1] V0.3.0 GUI MVP | precondition=PySide6环境就绪 | done_when=基本框架+仪表盘+检查页可用
 - [P2] HealthChecker性能优化 | precondition=无 | done_when=run_all()不再重复扫描
 - [P3] V0.5.0 PyInstaller打包 | precondition=GUI MVP完成 | done_when=exe可独立运行
+- [P4] 4.2 SpecMgr索引服务增强（废弃规范展示） | source=SYS-2026-001 Phase 4 | priority=中 | done_when=索引输出包含废弃规范标记
+- [P4] 4.3 SpecMgr diagnose子命令 | source=SYS-2026-001 Phase 4 | priority=低 | done_when=diagnose子命令可用
+- [P4] 4.4 SpecMgr fix子命令 | source=SYS-2026-001 Phase 4 | priority=低 | done_when=fix子命令可用
+- [P4] 4.6 规范元数据汇总报告重新生成 | source=SYS-2026-001 Phase 4 | priority=中 | done_when=报告与当前spec_registry一致
+- [P4] 4.7 索引文件重新生成 | source=SYS-2026-001 Phase 4 | priority=中 | done_when=索引文件与当前规范目录一致
+- [P4] 4.8 SpecMgr check验证 | source=SYS-2026-001 Phase 4 | priority=中 | done_when=check命令在workspace上通过
