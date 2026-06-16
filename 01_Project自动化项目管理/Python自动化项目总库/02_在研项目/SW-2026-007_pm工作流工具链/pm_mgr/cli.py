@@ -21,7 +21,7 @@ def cli(ctx: click.Context, workspace: str | None) -> None:
 
 @cli.command()
 @click.argument("project_dir", type=click.Path())
-@click.option("--type", "-t", "project_type", type=click.Choice(["software", "plc"]), required=True, help="项目类型")
+@click.option("--type", "-t", "project_type", type=click.Choice(["software", "plc", "sys"]), required=True, help="项目类型")
 @click.option("--id", "-i", "project_id", required=True, help="项目编号 (如 SW-2026-001)")
 @click.option("--name", "-n", "project_name", required=True, help="项目名称")
 @click.option("--owner", "-o", default="Pending", help="项目负责人")
@@ -98,7 +98,7 @@ def retrofit(ctx: click.Context, project_dir: str, force: bool) -> None:
 @cli.command()
 @click.argument("project_dir", type=click.Path(exists=True))
 def detect(project_dir: str) -> None:
-    """检测项目类型 (software / plc / unknown)。"""
+    """检测项目类型 (software / plc / sys / unknown)。"""
     try:
         from .detect import detect_project_type
         result = detect_project_type(project_dir)

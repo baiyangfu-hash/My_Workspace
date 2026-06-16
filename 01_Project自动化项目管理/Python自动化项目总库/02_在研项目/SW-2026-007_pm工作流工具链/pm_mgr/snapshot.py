@@ -19,6 +19,9 @@ SPEC_IDS = {
         "LSP-906", "LSP-907", "INT-815", "PLC-023",
         "DEV-004", "CHG-040", "CHG-041", "PM-042",
     ],
+    "sys": [
+        "DEV-001", "DEV-002", "DEV-003", "PM-004", "PROJ-016",
+    ],
 }
 
 
@@ -50,7 +53,7 @@ def read_spec_versions(workspace_root: str | Path) -> dict[str, str]:
 def fill_snapshot_in_content(content: str, project_type: str, workspace_root: str | Path) -> str:
     """Fill Spec Snapshot table in PM_SESSION content with actual versions.
 
-    If the section exists but has placeholder versions, fill them.
+    If the section exists, refresh version and record date for known spec rows.
     If the section does not exist, append it at the end.
 
     Returns modified content string.
@@ -60,25 +63,31 @@ def fill_snapshot_in_content(content: str, project_type: str, workspace_root: st
     today = date.today().isoformat()
 
     if has_spec_snapshot(content):
-        # Section exists: replace "(待填充)" placeholders
         result = content
+
         for spec_id in spec_ids:
             version = versions.get(spec_id, "未知")
-            result = re.sub(
-                rf"\| {re.escape(spec_id)} \| \(待填充\) \|",
-                f"| {spec_id} | {version} |",
-                result
-            )
+            row_pattern = rf"(?m)^\|\s*{re.escape(spec_id)}\s*\|\s*[^|]*\|\s*[^|]*\|\s*"
+            replacement = f"| {spec_id} | {version} | {today} | "
+            if re.search(row_pattern, result):
+                result = re.sub(row_pattern, replacement, result)
+            else:
+                pass
+
         return result
     else:
         # Section missing: append at the end
         spec_descs = {
+            "DEV-001": "通用项目名称命名规范",
+            "DEV-002": "通用项目工作流命名规范",
+            "DEV-003": "跨资源库命名统一规范",
             "PROJ-016": "通用项目结构模板",
             "PRD-001": "产品需求文档模板",
             "DEV-031": "通用测试规范",
             "DEV-032": "GUI测试方案标准",
             "REQ-020": "通用需求分析文档模板",
             "LSP-905": "SCL编程规范",
+            "PM-004": "PM_WORKFLOW总控Skill使用说明",
             "DEV-210": "Python编程规范",
             "DEV-211": "Python代码审查规范",
             "DEV-220": "Python项目打包规范",

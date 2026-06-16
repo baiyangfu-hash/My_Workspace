@@ -53,6 +53,11 @@ PLC_DIRS = [
     "export",
 ]
 
+SYS_DIRS = [
+    "00_项目基础信息",
+    "01_项目文档",
+]
+
 # Template mapping: source_name -> destination_path
 SW_TEMPLATES = {
     "00_立项表.md": "00_项目基础信息/立项表.md",
@@ -70,6 +75,8 @@ PLC_TEMPLATES = {
     "04_调试计划.md": "04_现场调试/调试计划.md",
     "05_问题跟踪.md": "05_测试与验证/问题跟踪.md",
 }
+
+SYS_TEMPLATES: dict[str, str] = {}
 
 
 def ensure_dir(path: Path) -> None:
@@ -160,7 +167,14 @@ def init_project(
         created.append(str(handoffs_dir))
 
     # 4. Create directory structure
-    dirs = SW_DIRS if project_type == "software" else PLC_DIRS
+    if project_type == "software":
+        dirs = SW_DIRS
+    elif project_type == "plc":
+        dirs = PLC_DIRS
+    elif project_type == "sys":
+        dirs = SYS_DIRS
+    else:
+        raise ValueError(f"Unsupported project_type: {project_type}")
     for d in dirs:
         dir_path = root / d
         if not dir_path.exists():
@@ -171,7 +185,14 @@ def init_project(
     created.extend(_gen_skeleton_files(root, project_type, project_id, project_name, owner, one_liner, today, tokens, force, ws_root))
 
     # 6. Copy document templates
-    templates_map = SW_TEMPLATES if project_type == "software" else PLC_TEMPLATES
+    if project_type == "software":
+        templates_map = SW_TEMPLATES
+    elif project_type == "plc":
+        templates_map = PLC_TEMPLATES
+    elif project_type == "sys":
+        templates_map = SYS_TEMPLATES
+    else:
+        raise ValueError(f"Unsupported project_type: {project_type}")
     templates_src = template_root / "templates"
     for src_name, dst_rel in templates_map.items():
         src_path = templates_src / src_name
@@ -209,10 +230,19 @@ def _gen_skeleton_files(
         _write_readme(readme_path, project_type, project_id, project_name, owner, one_liner, today, versions)
         created.append(str(readme_path))
 
+    gitignore_path = root / ".gitignore"
+    if not gitignore_path.exists() or force:
+        gitignore_path.write_text(".venv/\n__pycache__/\n.pytest_cache/\n.DS_Store\n", encoding="utf-8")
+        created.append(str(gitignore_path))
+
     if project_type == "software":
         created.extend(_gen_software_skeleton(root, project_id, one_liner, force))
-    else:
+    elif project_type == "plc":
         created.extend(_gen_plc_skeleton(root, project_id, project_name, owner, one_liner, today, force))
+    elif project_type == "sys":
+        created.extend(_gen_sys_skeleton(root, project_id, project_name, owner, one_liner, today, force))
+    else:
+        raise ValueError(f"Unsupported project_type: {project_type}")
 
     return created
 
@@ -228,9 +258,8 @@ def _write_readme(
     spec_versions: dict[str, str],
 ) -> None:
     """Write README.md skeleton."""
-    type_label = "软件/产品化项目" if project_type == "software" else "PLC/电气交付项目"
-
     if project_type == "software":
+        type_label = "软件/产品化项目"
         tree = """```
 ├── 00_项目基础信息/     # 立项表、项目章程
 ├── 01_项目文档/         # PRD、DES、API、测试文档
@@ -240,7 +269,8 @@ def _write_readme(
 └── PM_SESSION_*.md      # 项目状态单一真源
 ```"""
         specs = f"- `PROJ-016` 通用项目结构模板 (V{spec_versions.get('PROJ-016', '?')})\n- `PRD-001` 产品需求文档模板 (V{spec_versions.get('PRD-001', '?')})\n- `DEV-031` 通用测试规范 (V{spec_versions.get('DEV-031', '?')})\n- `DEV-032` GUI测试方案标准 (V{spec_versions.get('DEV-032', '?')})"
-    else:
+    elif project_type == "plc":
+        type_label = "PLC/电气交付项目"
         tree = """```
 ├── 00_项目管理/         # 立项、需求、变更管理
 ├── 01_需求与设计/       # 需求规格、方案设计
@@ -253,6 +283,24 @@ def _write_readme(
 └── PM_SESSION_*.md      # 项目状态单一真源
 ```"""
         specs = f"- `PROJ-016` 通用项目结构模板 (V{spec_versions.get('PROJ-016', '?')})\n- `REQ-020` 通用需求分析文档模板 (V{spec_versions.get('REQ-020', '?')})\n- PLC编程规范 (参考 `0100_PLC自动化/00_通用规范/`)"
+    elif project_type == "sys":
+        type_label = "系统级治理项目"
+        tree = """```
+├── 00_项目基础信息/     # 项目章程、基本信息
+├── 01_项目文档/         # 方案、路线图、风险、准入规则
+├── .github/hooks/       # 协作自动化
+├── .trae/handoffs/      # 会话交接草稿
+└── PM_SESSION_*.md      # 项目状态单一真源
+```"""
+        specs = (
+            f"- `DEV-001` 通用项目名称命名规范 (V{spec_versions.get('DEV-001', '?')})\n"
+            f"- `DEV-002` 通用项目工作流命名规范 (V{spec_versions.get('DEV-002', '?')})\n"
+            f"- `DEV-003` 跨资源库命名统一规范 (V{spec_versions.get('DEV-003', '?')})\n"
+            f"- `PM-004` PM_WORKFLOW总控Skill使用说明 (V{spec_versions.get('PM-004', '?')})\n"
+            f"- `PROJ-016` 通用项目结构模板 (V{spec_versions.get('PROJ-016', '?')})"
+        )
+    else:
+        raise ValueError(f"Unsupported project_type: {project_type}")
 
     content = f"""# {project_name}
 
@@ -347,4 +395,27 @@ def _gen_plc_skeleton(root: Path, project_id: str, project_name: str, owner: str
         ledger_path.write_text(content, encoding="utf-8")
         created.append(str(ledger_path))
 
+    return created
+
+
+def _gen_sys_skeleton(root: Path, project_id: str, project_name: str, owner: str, one_liner: str, today: str, force: bool) -> list[str]:
+    created: list[str] = []
+    charter_path = root / "00_项目基础信息" / "01_项目章程_PM.md"
+    if not charter_path.exists() or force:
+        content = f"""# {project_name} 项目章程
+
+| 字段 | 内容 |
+|------|------|
+| 项目编号 | {project_id} |
+| 项目名称 | {project_name} |
+| 启动日期 | {today} |
+| 负责人 | {owner} |
+
+## 项目简介
+
+{one_liner}
+"""
+        ensure_dir(charter_path.parent)
+        charter_path.write_text(content, encoding="utf-8")
+        created.append(str(charter_path))
     return created

@@ -30,11 +30,14 @@ def detect_project_type(project_root: str | Path) -> str | None:
     4. main.py / package.json -> software
     5. PM_SESSION context
 
-    Returns 'software', 'plc', or None if undetermined.
+    Returns 'software', 'plc', 'sys', or None if undetermined.
     """
     root = Path(project_root).resolve()
     if not root.is_dir():
         raise ValueError(f"Not a directory: {root}")
+
+    if root.name.startswith("SYS-"):
+        return "sys"
 
     # Signal 1: .plc.json (search up to 3 levels deep)
     if _rglob_max_depth(root, ".plc.json"):
@@ -57,6 +60,8 @@ def detect_project_type(project_root: str | Path) -> str | None:
     # Signal 5: PM_SESSION context
     for f in root.glob("PM_SESSION*.md"):
         content = f.read_text(encoding="utf-8")
+        if "project_id: SYS-" in content:
+            return "sys"
         # Heuristic: if project_root path contains PLC automation keywords
         if "0100_PLC" in content or ".plc.json" in content:
             return "plc"
