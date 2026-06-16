@@ -1,14 +1,22 @@
 (* ================================================================= *)
 (*  功能块名称：FB_1002_SingleLayerConveyor_BufferFraming              *)
 (*  功能描述：单层输送机编排器 - 9步状态机+手动模式分发（纯调度）    *)
-(*  版本号：V8.0.0                                                    *)
-(*  创建日期：2026-05-18                                              *)
+(*  版本号：V9.0.0                                                    *)
+(*  创建日期：2026-06-16                                              *)
 (*  编制人：Trae                                                      *)
 (*  审核人：人工                                                      *)
 (*                                                                     *)
 (*  遵循规范：                                                         *)
-(*    - 801_PLC变量命名与功能块命名规范_DEV-V1.0.5                    *)
-(*    - 810_PLC编程规范_DEV-V1.0.2                                    *)
+(*    - LSP-905-V1.0.2 SCL编程规范                                    *)
+(*    - LSP-904-V1.2.0 SCL注释规范                                    *)
+(*    - LSP-903-V2.1.0 定时器使用规范                                *)
+(*                                                                     *)
+(*  V9.0.0变更 (2026-06-16, Breaking Change):                         *)
+(*    - 适配: FB_1011/FB_1012 V9.0.0 扁平化接口变更                   *)
+(*    - 移除: VAR_IN_OUT 结构体参数, 改为独立参数调用                 *)
+(*    - 新增: i_dSeparateTimeoutMs DINT 类型超时参数                  *)
+(*    - 新增: i_dDebounceMs DINT 类型消抖参数                         *)
+(*    - 修复: 类型不匹配问题 (INT -> DINT)                            *)
 (*                                                                     *)
 (*  V8.0.0变更 (2026-05-27):                                          *)
 (*    - 重构: FB_1011/FB_1012 改用 VAR_IN_OUT 结构体参数             *)
@@ -39,7 +47,9 @@ VAR_INPUT
 
     (* 配置参数 *)
     i_iLayerIndex               : INT;      // 层编号 1~4 报警编码用
-    i_iSeparateTimeoutMs        : INT;      // 分料超时时间(ms)
+    i_iSeparateTimeoutMs        : INT;      // 分料超时时间(ms), 兼容旧接口
+    i_dSeparateTimeoutMs        : DINT := 5000;  // 分料超时时间(ms), DINT类型
+    i_dDebounceMs               : DINT := 0;  // 传感器消抖时间(ms), 0=关闭
 
     (* 传感器输入 *)
     i_bPreSeparateSensor        : BOOL;     // 分料前接近开关
@@ -51,7 +61,7 @@ VAR_INPUT
     i_bSeparateCylinderDown     : BOOL;     // 分料气缸下位
 
     (* 安全与外部联锁 *)
-    i_bSafetyDoorOk             : BOOL;     // 安全门状态 TRUE=关闭OK
+    i_bSafetyDoorOk             : BOOL;     // 安全门状态 TRUE=关闭OK (FB_1012不处理)
     i_bVfdFault                 : BOOL;     // 变频器故障
     i_bPickupConfirmed          : BOOL;     // 取料机构已取走物料
 
@@ -89,10 +99,26 @@ VAR
     fbSeparate                  : FB_1011_CylinderControl;  // 分料气缸
     fbMotor                     : FB_1012_ConveyorMotor;    // 输送电机
 
-    (* 结构体实例 (VAR_IN_OUT连接) *)
-    stBlockCyl                  : ST_Cylinder;              // 阻挡气缸结构体
-    stSeparateCyl               : ST_Cylinder;              // 分料气缸结构体
-    stConveyorMotor             : ST_ConveyorMotor;         // 输送电机结构体
+    (* 内部命令变量 *)
+    bBlockExtend                : BOOL;     // 阻挡气缸伸出命令
+    bBlockRetract               : BOOL;     // 阻挡气缸收回命令
+    bSeparateExtend             : BOOL;     // 分料气缸伸出命令
+    bSeparateRetract            : BOOL;     // 分料气缸收回命令
+    bMotorFwd                   : BOOL;     // 电机正转命令
+    bMotorRev                   : BOOL;     // 电机反转命令
+    bMotorSlow                  : BOOL;     // 电机慢速命令
+
+    (* 内部状态变量 *)
+    bBlockIsExtended            : BOOL;     // 阻挡气缸已伸出
+    bBlockIsRetracted           : BOOL;     // 阻挡气缸已收回
+    bBlockTimeout               : BOOL;     // 阻挡气缸超时
+    bBlockSensorFault           : BOOL;     // 阻挡气缸传感器故障
+    bSeparateIsExtended         : BOOL;     // 分料气缸已伸出
+    bSeparateIsRetracted        : BOOL;     // 分料气缸已收回
+    bSeparateTimeout            : BOOL;     // 分料气缸超时
+    bSeparateSensorFault        : BOOL;     // 分料气缸传感器故障
+    bMotorRunning               : BOOL;     // 电机运行中
+    bMotorVfdAlarm              : BOOL;     // 电机VFD报警
 
     (* 状态机变量 *)
     bStepEntry                  : BOOL;     // 新步入口标志
@@ -100,6 +126,7 @@ VAR
     bStartTriggered             : BOOL;     // 启动上升沿锁存
     iCurrentState               : INT;      // 当前步序 内部
     iAlarmCode                  : INT;      // 报警码 内部
+    dSeparateTimeoutMs          : DINT;     // 实际使用的超时时间 DINT
 END_VAR
 
 (* ==================== VAR_CONSTANT ==================== *)
@@ -115,25 +142,24 @@ VAR CONSTANT
     STEP_SEPARATE_RETURN        : INT := 70;  // 分料复位
 END_VAR
 
-(* ==================== 结构体: 静态传感器/安全信号连线 ==================== *)
-stBlockCyl.ExtendedPos := i_bBlockCylinderDown;
-stBlockCyl.RetractedPos := i_bBlockCylinderUp;
-
-stSeparateCyl.ExtendedPos := i_bSeparateCylinderDown;
-stSeparateCyl.RetractedPos := i_bSeparateCylinderUp;
-
-stConveyorMotor.SafetyDoorOk := i_bSafetyDoorOk;
-stConveyorMotor.VfdFault := i_bVfdFault;
+(* ==================== 超时参数转换: 兼容旧接口 ==================== *)
+IF i_dSeparateTimeoutMs > 0 THEN
+    dSeparateTimeoutMs := i_dSeparateTimeoutMs;
+ELSIF i_iSeparateTimeoutMs > 0 THEN
+    dSeparateTimeoutMs := DINT#(i_iSeparateTimeoutMs);
+ELSE
+    dSeparateTimeoutMs := DINT#5000;
+END_IF;
 
 (* ==================== 模式使能检查 ==================== *)
 IF NOT i_bAutoMode AND NOT i_bManualMode THEN
-    stBlockCyl.Extend := FALSE;
-    stBlockCyl.Retract := FALSE;
-    stSeparateCyl.Extend := FALSE;
-    stSeparateCyl.Retract := FALSE;
-    stConveyorMotor.FwdCmd := FALSE;
-    stConveyorMotor.RevCmd := FALSE;
-    stConveyorMotor.SlowCmd := FALSE;
+    bBlockExtend := FALSE;
+    bBlockRetract := FALSE;
+    bSeparateExtend := FALSE;
+    bSeparateRetract := FALSE;
+    bMotorFwd := FALSE;
+    bMotorRev := FALSE;
+    bMotorSlow := FALSE;
 
     q_bLayerFeedDone := FALSE;
     q_iAlarmCode := 0;
@@ -147,15 +173,53 @@ IF NOT i_bAutoMode AND NOT i_bManualMode THEN
     bStepEntry := TRUE;
     iAlarmCode := 0;
 
-    fbBlock(io_stCyl := stBlockCyl);
-    fbSeparate(io_stCyl := stSeparateCyl);
-    fbMotor(io_stMotor := stConveyorMotor);
+    (* 调用子FB *)
+    fbBlock(
+        i_bExtend := FALSE,
+        i_bRetract := FALSE,
+        i_bExtendedPos := i_bBlockCylinderDown,
+        i_bRetractedPos := i_bBlockCylinderUp,
+        i_dTimeoutMs := dSeparateTimeoutMs,
+        i_dDebounceMs := i_dDebounceMs,
+        i_iSolenoidType := INT#0,
+        i_bExtendPolarity := FALSE,
+        q_bSolenoid => q_bBlockSolenoid,
+        q_bIsExtended => bBlockIsExtended,
+        q_bIsRetracted => bBlockIsRetracted,
+        q_bTimeout => bBlockTimeout,
+        q_bSensorFault => bBlockSensorFault
+    );
 
-    q_bBlockSolenoid := fbBlock.q_bSolenoid;
-    q_bSeparateSolenoid := fbSeparate.q_bSolenoid;
-    q_bConveyorFwd := stConveyorMotor.FwdOut;
-    q_bConveyorRev := stConveyorMotor.RevOut;
-    q_bConveyorSlow := stConveyorMotor.SlowOut;
+    fbSeparate(
+        i_bExtend := FALSE,
+        i_bRetract := FALSE,
+        i_bExtendedPos := i_bSeparateCylinderDown,
+        i_bRetractedPos := i_bSeparateCylinderUp,
+        i_dTimeoutMs := dSeparateTimeoutMs,
+        i_dDebounceMs := i_dDebounceMs,
+        i_iSolenoidType := INT#0,
+        i_bExtendPolarity := FALSE,
+        q_bSolenoid => q_bSeparateSolenoid,
+        q_bIsExtended => bSeparateIsExtended,
+        q_bIsRetracted => bSeparateIsRetracted,
+        q_bTimeout => bSeparateTimeout,
+        q_bSensorFault => bSeparateSensorFault
+    );
+
+    fbMotor(
+        i_bFwdCmd := FALSE,
+        i_bRevCmd := FALSE,
+        i_bSlowCmd := FALSE,
+        i_bVfdFault := i_bVfdFault,
+        i_iCtrlMode := INT#0,
+        i_rSpeed := REAL#100.0,
+        q_bFwdOut => q_bConveyorFwd,
+        q_bRevOut => q_bConveyorRev,
+        q_bSlowOut => q_bConveyorSlow,
+        q_bRunning => bMotorRunning,
+        q_bVfdAlarm => bMotorVfdAlarm
+    );
+
     RETURN;
 END_IF;
 
@@ -165,13 +229,13 @@ IF i_bStop AND bRunning THEN
     bRunning := FALSE;
     bStepEntry := TRUE;
 
-    stBlockCyl.Extend := FALSE;
-    stBlockCyl.Retract := TRUE;
-    stSeparateCyl.Extend := FALSE;
-    stSeparateCyl.Retract := TRUE;
-    stConveyorMotor.FwdCmd := FALSE;
-    stConveyorMotor.RevCmd := FALSE;
-    stConveyorMotor.SlowCmd := FALSE;
+    bBlockExtend := FALSE;
+    bBlockRetract := TRUE;
+    bSeparateExtend := FALSE;
+    bSeparateRetract := TRUE;
+    bMotorFwd := FALSE;
+    bMotorRev := FALSE;
+    bMotorSlow := FALSE;
 
     q_bLayerFeedDone := FALSE;
 END_IF;
@@ -181,9 +245,9 @@ IF i_bAutoMode THEN
 
     (* VFD故障互锁 *)
     IF i_bVfdFault THEN
-        stConveyorMotor.FwdCmd := FALSE;
-        stConveyorMotor.RevCmd := FALSE;
-        stConveyorMotor.SlowCmd := FALSE;
+        bMotorFwd := FALSE;
+        bMotorRev := FALSE;
+        bMotorSlow := FALSE;
         iAlarmCode := 100 + i_iLayerIndex;
     END_IF;
 
@@ -198,19 +262,19 @@ IF i_bAutoMode THEN
 
         STEP_INIT:
             IF bStepEntry THEN
-                stBlockCyl.Extend := FALSE;
-                stBlockCyl.Retract := TRUE;
-                stSeparateCyl.Extend := FALSE;
-                stSeparateCyl.Retract := TRUE;
-                stConveyorMotor.FwdCmd := FALSE;
-                stConveyorMotor.SlowCmd := FALSE;
-                stConveyorMotor.RevCmd := TRUE;
+                bBlockExtend := FALSE;
+                bBlockRetract := TRUE;
+                bSeparateExtend := FALSE;
+                bSeparateRetract := TRUE;
+                bMotorFwd := FALSE;
+                bMotorSlow := FALSE;
+                bMotorRev := TRUE;
                 q_bLayerFeedDone := FALSE;
                 bStepEntry := FALSE;
             END_IF;
 
-            IF stBlockCyl.IsRetracted THEN
-                stConveyorMotor.RevCmd := FALSE;
+            IF bBlockIsRetracted THEN
+                bMotorRev := FALSE;
                 bStepEntry := TRUE;
                 iCurrentState := STEP_WAIT_MATERIAL;
             END_IF;
@@ -227,65 +291,64 @@ IF i_bAutoMode THEN
 
         STEP_BLOCK_DOWN:
             IF bStepEntry THEN
-                stBlockCyl.Extend := TRUE;
-                stBlockCyl.Retract := FALSE;
+                bBlockExtend := TRUE;
+                bBlockRetract := FALSE;
                 bStepEntry := FALSE;
             END_IF;
 
-            IF stBlockCyl.IsExtended THEN
+            IF bBlockIsExtended THEN
                 bStepEntry := TRUE;
                 iCurrentState := STEP_CONVEYOR_FWD;
             END_IF;
 
         STEP_CONVEYOR_FWD:
             IF bStepEntry THEN
-                stConveyorMotor.FwdCmd := TRUE;
+                bMotorFwd := TRUE;
                 bStepEntry := FALSE;
             END_IF;
 
             IF i_bPositionSensor1 AND i_bPositionSensor2 THEN
-                stConveyorMotor.FwdCmd := FALSE;
+                bMotorFwd := FALSE;
                 bStepEntry := TRUE;
                 iCurrentState := STEP_POSITION_CHECK_BLOCK_UP;
             END_IF;
 
         STEP_POSITION_CHECK_BLOCK_UP:
             IF bStepEntry THEN
-                stBlockCyl.Extend := FALSE;
-                stBlockCyl.Retract := TRUE;
+                bBlockExtend := FALSE;
+                bBlockRetract := TRUE;
                 bStepEntry := FALSE;
             END_IF;
 
-            IF stBlockCyl.IsRetracted THEN
+            IF bBlockIsRetracted THEN
                 bStepEntry := TRUE;
                 iCurrentState := STEP_SEPARATE_PUSH;
             END_IF;
 
         STEP_SEPARATE_PUSH:
             IF bStepEntry THEN
-                stSeparateCyl.Extend := TRUE;
-                stSeparateCyl.Retract := FALSE;
-                stSeparateCyl.TimeoutMs := i_iSeparateTimeoutMs;
+                bSeparateExtend := TRUE;
+                bSeparateRetract := FALSE;
                 bStepEntry := FALSE;
             END_IF;
 
-            IF stSeparateCyl.Timeout THEN
+            IF bSeparateTimeout THEN
                 iAlarmCode := 130 + i_iLayerIndex;
             END_IF;
 
-            IF stSeparateCyl.IsExtended THEN
+            IF bSeparateIsExtended THEN
                 bStepEntry := TRUE;
                 iCurrentState := STEP_CONVEYOR_SLOW;
             END_IF;
 
         STEP_CONVEYOR_SLOW:
             IF bStepEntry THEN
-                stConveyorMotor.SlowCmd := TRUE;
+                bMotorSlow := TRUE;
                 bStepEntry := FALSE;
             END_IF;
 
             IF i_bPositionSensor1 AND i_bPositionSensor2 THEN
-                stConveyorMotor.SlowCmd := FALSE;
+                bMotorSlow := FALSE;
                 bStepEntry := TRUE;
                 iCurrentState := STEP_REQUEST_PICKUP;
             END_IF;
@@ -303,17 +366,16 @@ IF i_bAutoMode THEN
 
         STEP_SEPARATE_RETURN:
             IF bStepEntry THEN
-                stSeparateCyl.Extend := FALSE;
-                stSeparateCyl.Retract := TRUE;
-                stSeparateCyl.TimeoutMs := i_iSeparateTimeoutMs;
+                bSeparateExtend := FALSE;
+                bSeparateRetract := TRUE;
                 bStepEntry := FALSE;
             END_IF;
 
-            IF stSeparateCyl.Timeout THEN
+            IF bSeparateTimeout THEN
                 iAlarmCode := 130 + i_iLayerIndex;
             END_IF;
 
-            IF stSeparateCyl.IsRetracted THEN
+            IF bSeparateIsRetracted THEN
                 q_bLayerFeedDone := TRUE;
                 bStepEntry := TRUE;
                 iCurrentState := STEP_INIT;
@@ -333,59 +395,94 @@ ELSIF i_bManualMode THEN
     bStepEntry := TRUE;
     q_bLayerFeedDone := FALSE;
 
-    stBlockCyl.Extend := i_bManBlockExtend;
-    stBlockCyl.Retract := i_bManBlockRetract AND NOT i_bManBlockExtend;
+    bBlockExtend := i_bManBlockExtend;
+    bBlockRetract := i_bManBlockRetract AND NOT i_bManBlockExtend;
 
-    stSeparateCyl.Extend := i_bManSeparatePush;
-    stSeparateCyl.Retract := NOT i_bManSeparatePush;
+    bSeparateExtend := i_bManSeparatePush;
+    bSeparateRetract := NOT i_bManSeparatePush;
 
-    stConveyorMotor.FwdCmd := i_bManConveyorFwd;
-    stConveyorMotor.RevCmd := i_bManConveyorRev;
-    stConveyorMotor.SlowCmd := i_bManConveyorSlow;
+    bMotorFwd := i_bManConveyorFwd;
+    bMotorRev := i_bManConveyorRev;
+    bMotorSlow := i_bManConveyorSlow;
 
 END_IF;
 
 (* ==================== 调用子FB ==================== *)
-fbBlock(io_stCyl := stBlockCyl);
-fbSeparate(io_stCyl := stSeparateCyl);
-fbMotor(io_stMotor := stConveyorMotor);
+fbBlock(
+    i_bExtend := bBlockExtend,
+    i_bRetract := bBlockRetract,
+    i_bExtendedPos := i_bBlockCylinderDown,
+    i_bRetractedPos := i_bBlockCylinderUp,
+    i_dTimeoutMs := dSeparateTimeoutMs,
+    i_dDebounceMs := i_dDebounceMs,
+    i_iSolenoidType := INT#0,
+    i_bExtendPolarity := FALSE,
+    q_bSolenoid => q_bBlockSolenoid,
+    q_bIsExtended => bBlockIsExtended,
+    q_bIsRetracted => bBlockIsRetracted,
+    q_bTimeout => bBlockTimeout,
+    q_bSensorFault => bBlockSensorFault
+);
 
-(* ==================== 执行器输出收集 ==================== *)
-q_bBlockSolenoid := fbBlock.q_bSolenoid;
-q_bSeparateSolenoid := fbSeparate.q_bSolenoid;
-q_bConveyorFwd := stConveyorMotor.FwdOut;
-q_bConveyorRev := stConveyorMotor.RevOut;
-q_bConveyorSlow := stConveyorMotor.SlowOut;
+fbSeparate(
+    i_bExtend := bSeparateExtend,
+    i_bRetract := bSeparateRetract,
+    i_bExtendedPos := i_bSeparateCylinderDown,
+    i_bRetractedPos := i_bSeparateCylinderUp,
+    i_dTimeoutMs := dSeparateTimeoutMs,
+    i_dDebounceMs := i_dDebounceMs,
+    i_iSolenoidType := INT#0,
+    i_bExtendPolarity := FALSE,
+    q_bSolenoid => q_bSeparateSolenoid,
+    q_bIsExtended => bSeparateIsExtended,
+    q_bIsRetracted => bSeparateIsRetracted,
+    q_bTimeout => bSeparateTimeout,
+    q_bSensorFault => bSeparateSensorFault
+);
+
+fbMotor(
+    i_bFwdCmd := bMotorFwd,
+    i_bRevCmd := bMotorRev,
+    i_bSlowCmd := bMotorSlow,
+    i_bVfdFault := i_bVfdFault,
+    i_iCtrlMode := INT#0,
+    i_rSpeed := REAL#100.0,
+    q_bFwdOut => q_bConveyorFwd,
+    q_bRevOut => q_bConveyorRev,
+    q_bSlowOut => q_bConveyorSlow,
+    q_bRunning => bMotorRunning,
+    q_bVfdAlarm => bMotorVfdAlarm
+);
 
 (* ==================== 报警编码 自包含 ==================== *)
 iAlarmCode := 0;
 
-IF stConveyorMotor.VfdAlarm THEN
+IF bMotorVfdAlarm THEN
     iAlarmCode := 100 + i_iLayerIndex;
 END_IF;
 
-IF stBlockCyl.Timeout THEN
+IF bBlockTimeout THEN
     iAlarmCode := 110 + i_iLayerIndex;
 END_IF;
 
-IF stBlockCyl.SensorFault THEN
+IF bBlockSensorFault THEN
     IF iAlarmCode = 0 THEN
         iAlarmCode := 120 + i_iLayerIndex;
     END_IF;
 END_IF;
 
-IF stSeparateCyl.Timeout THEN
+IF bSeparateTimeout THEN
     iAlarmCode := 130 + i_iLayerIndex;
 END_IF;
 
-IF stSeparateCyl.SensorFault THEN
+IF bSeparateSensorFault THEN
     IF iAlarmCode = 0 THEN
         iAlarmCode := 140 + i_iLayerIndex;
     END_IF;
 END_IF;
 
 q_iAlarmCode := iAlarmCode;
-q_bAnySensorFault := stBlockCyl.SensorFault OR stSeparateCyl.SensorFault;
+q_bAnySensorFault := bBlockSensorFault OR bSeparateSensorFault;
 q_bFault := (iAlarmCode > 0);
 
 (* ==================== 状态输出 ==================== *)

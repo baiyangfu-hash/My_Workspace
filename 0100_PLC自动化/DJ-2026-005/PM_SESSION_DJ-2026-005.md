@@ -4,7 +4,7 @@
 - project_id: DJ-2026-005
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
-- last_updated: 2026-06-05
+- last_updated: 2026-06-16
 - owners: fubai / PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -145,6 +145,17 @@
   - 2026-05-17 程序文档梳理：补齐导出PNG索引；重命名ARC/DSN/FLOW文件并统一到V2.0.0；同步修正交叉引用
 
 ## 6. Implementation Log
+- 2026-06-16 | skill=plc-electrical-engineer | mode=规范检查+验证模式
+  - goal: 验证 FB_1002 V9.0.0 接口修复是否符合 LSP-905/LSP-904 规范，确认测试文件兼容性
+  - changed_files:
+    - PM_SESSION_DJ-2026-005.md
+  - artifacts:
+    - 02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl (V9.0.0)
+    - 02_PLC程序/通用ST程序及变量表/OB1/OB1.scl
+    - 02_PLC程序/通用ST程序及变量表/DB1/GlobalVars.db
+  - impact: 代码已通过静态规范审查，接口完全兼容，现有测试文件不受影响
+  - risks: TIA Portal 编译验证和现场验证仍未完成
+
 - 2026-06-05 | skill=plc-electrical-engineer | mode=规范检查模式
   - goal: 建立可持续交接机制，并将当前 PLC 项目状态固化到 PM_SESSION 执行附录
   - changed_files:
@@ -157,6 +168,48 @@
   - risks: TIA Portal 编译验证、现场验证和安全相关人工复核仍未完成
 
 ## 7. Verification Log
+- 2026-06-16 | 规范审查与兼容性验证
+  - verified:
+    - FB_1002 V9.0.0 代码符合 LSP-905 SCL 编程规范
+    - FB_1002 V9.0.0 注释符合 LSP-904 注释规范
+    - 变量命名使用小驼峰风格，前缀正确
+    - 无中文变量名，使用英文标点
+    - 无嵌套注释，无 GOTO 语法
+    - FB_1011/FB_1012 调用参数与 V9.0.0 完全匹配
+    - GlobalVars.db 新增字段与 OB1 调用同步
+    - 向后兼容性：保留 i_iSeparateTimeoutMs 旧接口
+    - basic_test.scltest 测试文件与代码变更兼容
+  - not_verified:
+    - TIA Portal 编译验证本次修复
+    - VS Code LSP 实时诊断
+    - 现场设备动作与安全逻辑人工复核
+    - 状态机逻辑完整回归验证 (需 TIA Portal 或 LSP 测试)
+  - method:
+    - 代码静态审查与规范对比
+    - 确认子 FB 调用参数完整正确
+    - 检查类型一致性 (INT→DINT 转换逻辑)
+    - 测试文件兼容性分析
+  - blocker:
+    - 缺少 TIA Portal 编译环境与现场设备验证
+
+- 2026-06-16 | 接口修复验证
+  - verified:
+    - FB_1002 接口完全适配 SysLib FB_1011/FB_1012 V9.0.0 扁平化接口
+    - 内部命令变量与状态变量完整映射
+    - 向后兼容性：保留了 i_iSeparateTimeoutMs 旧接口
+    - GlobalVars.db 新增字段与 OB1 调用同步
+  - not_verified:
+    - TIA Portal 编译验证本次修复
+    - VS Code LSP 诊断
+    - 现场设备动作与安全逻辑人工复核
+    - 状态机逻辑完整回归验证
+  - method:
+    - 代码静态审查与接口对比
+    - 确认子 FB 调用参数完整正确
+    - 检查类型一致性 (INT→DINT 转换逻辑)
+  - blocker:
+    - 缺少编译环境与现场设备验证结果
+
 - 2026-06-05
   - verified:
     - 当前 PM_SESSION 已覆盖需求/规范/程序文档/源代码/测试与交付索引
@@ -174,23 +227,29 @@
     - 缺少现场与编译环境的最新验证结果
 
 ## 8. Handoff Notes
-- 2026-06-05 | from=plc-electrical-engineer
-  - current_state: Conveyor 重构主干已完成，当前进入人工审核与验证决策阶段
-  - next_focus: 决策 AxisControl 独立轴 FB 是否需要，并安排 TIA Portal 编译验证与安全相关人工复核
+- 2026-06-16 | from=plc-electrical-engineer
+  - current_state: FB_1002 V9.0.0 接口修复已完成，通过静态规范审查，接口完全兼容，现有测试文件不受影响
+  - next_focus: TIA Portal 编译验证 + 人工审核 + 现场验证
   - watchouts:
-    - 文档一致性不等于可上机，安全门/急停/联锁逻辑必须人工确认
-    - FB_1001 已取消后的接口影响范围需继续关注 OB1/DB1 与下游文档
+    - 本次为 Breaking Change，必须人工复核后才能上机
+    - 重点检查：状态机逻辑未改变，仅改变了与子 FB 的调用方式
+    - 安全门信号在 FB_1012 V9.0.0 中已取消处理，需确认外层互锁完整性
+    - basic_test.scltest 不涉及输送机测试，建议新增 FB_1002 专用测试用例
   - read_first:
     - PM_SESSION_DJ-2026-005.md
+    - 02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl (V9.0.0)
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl.scl (V9.0.0)
+    - 01_SharedLibraries/SysLib/actuator/FB_1012_ConveyorMotor.scl (V9.0.0)
     - 02_PLC程序/通用ST程序及变量表/OB1/OB1.scl
     - 02_PLC程序/通用ST程序及变量表/DB1/GlobalVars.db
-    - 02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl
-    - 05_测试与验证/程序导出一致性检查报告_DJ-2026-005_V2.0.0.md
+    - 02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest
 
 ## 9. Next Actions
-- [P1] 人工审核 Conveyor 重构结果 | precondition=可访问最新源码与相关 PRD 文档 | done_when=确认接口、行为和状态机无重大偏差
-- [P2] 规划 TIA Portal 编译验证与 LSP 诊断 | precondition=确认使用的工程版本与编译环境 | done_when=形成可执行验证清单并记录结果
-- [P3] 复核安全相关逻辑与现场验证项 | precondition=可访问规范与设备关键动作说明 | done_when=列出全部需人工确认的联锁/急停/报警检查点
+- [P0] TIA Portal 编译验证本次修复 | precondition=项目工程文件可访问 | done_when=无编译错误，警告清单记录并评估
+- [P1] 人工审核状态机逻辑与接口变更 | precondition=可访问最新源码 | done_when=确认状态机行为未改变，所有参数映射正确
+- [P2] 复核安全互锁完整性 | precondition=可访问安全相关规范与文档 | done_when=确认安全门/急停等联锁逻辑在外层完整覆盖
+- [P3] 更新相关 PRD 文档 (如需要) | precondition=人工审核完成 | done_when=决定是否需要更新接口文档与详细设计文档
+- [P4] 新增 FB_1002 专用 .scltest 测试用例 | precondition=人工审核完成 | done_when=测试覆盖新接口参数 i_dSeparateTimeoutMs 和 i_dDebounceMs
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
 

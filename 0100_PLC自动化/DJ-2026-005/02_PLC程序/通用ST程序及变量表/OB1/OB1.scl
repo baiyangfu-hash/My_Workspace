@@ -114,6 +114,8 @@ GlobalVars.fbConveyor_L1(
     i_bStop                 := GlobalVars.stConveyor.i_bStop,
     i_iLayerIndex           := 1,
     i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+    i_dSeparateTimeoutMs    := GlobalVars.stConveyor.i_dSeparateTimeoutMs,
+    i_dDebounceMs           := GlobalVars.stConveyor.i_dDebounceMs,
 
     i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[1],
     i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[1],
@@ -155,6 +157,8 @@ GlobalVars.fbConveyor_L2(
     i_bStop                 := GlobalVars.stConveyor.i_bStop,
     i_iLayerIndex           := 2,
     i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+    i_dSeparateTimeoutMs    := GlobalVars.stConveyor.i_dSeparateTimeoutMs,
+    i_dDebounceMs           := GlobalVars.stConveyor.i_dDebounceMs,
 
     i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[2],
     i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[2],
@@ -196,6 +200,8 @@ GlobalVars.fbConveyor_L3(
     i_bStop                 := GlobalVars.stConveyor.i_bStop,
     i_iLayerIndex           := 3,
     i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+    i_dSeparateTimeoutMs    := GlobalVars.stConveyor.i_dSeparateTimeoutMs,
+    i_dDebounceMs           := GlobalVars.stConveyor.i_dDebounceMs,
 
     i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[3],
     i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[3],
@@ -237,6 +243,8 @@ GlobalVars.fbConveyor_L4(
     i_bStop                 := GlobalVars.stConveyor.i_bStop,
     i_iLayerIndex           := 4,
     i_iSeparateTimeoutMs    := GlobalVars.stConveyor.i_iSeparateTimeoutMs,
+    i_dSeparateTimeoutMs    := GlobalVars.stConveyor.i_dSeparateTimeoutMs,
+    i_dDebounceMs           := GlobalVars.stConveyor.i_dDebounceMs,
 
     i_bPreSeparateSensor    := GlobalVars.stConveyor.i_aPreSeparateSensor[4],
     i_bPositionSensor1      := GlobalVars.stConveyor.i_aPositionSensor1[4],

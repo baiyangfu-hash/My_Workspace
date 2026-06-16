@@ -177,7 +177,9 @@ VAR
         i_bStart                 : BOOL := FALSE;    // 自动循环启动 (上升沿)
         i_bStop                  : BOOL := FALSE;    // 停止 (电平有效)
 
-        i_iSeparateTimeoutMs     : INT := 5000;      // 分料超时时间 (ms)
+        i_iSeparateTimeoutMs     : INT := 5000;      // 分料超时时间 (ms) - 旧版兼容
+        i_dSeparateTimeoutMs     : DINT := 5000;     // 分料超时时间 (ms) - V9.0.0新版
+        i_dDebounceMs            : DINT := 0;        // 传感器消抖时间 (ms) - V9.0.0新增
         i_bSafetyDoorOk          : BOOL := TRUE;     // 安全门状态 (TRUE=关闭OK)
         i_bVfdFault              : BOOL := FALSE;    // 变频器故障
 
