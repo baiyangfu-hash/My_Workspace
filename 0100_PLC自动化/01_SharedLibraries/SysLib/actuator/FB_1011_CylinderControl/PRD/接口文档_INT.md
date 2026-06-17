@@ -20,7 +20,7 @@ tags: ["气缸控制", "执行器", "PLC功能块", "接口", "电磁阀"]
 | **编制人**   | Trae                                                                                     |
 | **审核人**   | 人工                                                                                     |
 | **遵循规范** | LSP-905-V1.0.2, LSP-904-V1.1.0, LSP-903-V2.1.0                                          |
-| **变更记录** | V10.0.0: Breaking Change-新增双线圈两位阀支持(i_iSolenoidType=1); q_bSolenoid→q_aSolenoid[0..1] ARRAY输出; 新增i_bRetractPolarity参数; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈A/B互锁+无命令保持位+ELSE安全态 |
+| **变更记录** | V10.0.0: Breaking Change-新增双线圈两位阀支持(i_iSolenoidType=1); q_bSolenoid→q_aSolenoid[0..7] ARRAY输出; 新增i_bRetractPolarity参数; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈A/B互锁+无命令保持位+ELSE安全态 |
 | **变更记录** | V9.2.0: P0定时器修复-三段式+顶部无条件批量调用; 消抖关闭时设IN=FALSE让TON自然复位; 超时检测移入命令分支内加s_bMoving防误报; 移除尾部独立fb_tTimeout()调用 |
 
 ## 0.1 电磁阀类型定义
@@ -28,9 +28,9 @@ tags: ["气缸控制", "执行器", "PLC功能块", "接口", "电磁阀"]
 | SolenoidType值 | 电磁阀类型     | 线圈数量 | 输出信号                              | 默认行为         | 当前支持       |
 | -------------- | -------------- | -------- | ------------------------------------- | ---------------- | -------------- |
 | **0**          | **单线圈两位阀** | 1个      | q_aSolenoid[0]                        | 弹簧复位(收回)   | 支持(默认)     |
-| **1**          | **双线圈两位阀** | 2个      | q_aSolenoid[0..1]                     | 保持最后位置(失电保持位) | 支持     |
-| 2              | 3位4通中封阀   | 2个      | q_aSolenoid[0..1]                     | 保持位置(中封)   | 预留扩展       |
-| 3              | 3位4通中泄阀   | 2个      | q_aSolenoid[0..1]                     | 泄压回油(中泄)   | 预留扩展       |
+| **1**          | **双线圈两位阀** | 2个      | q_aSolenoid[0..7]                     | 保持最后位置(失电保持位) | 支持     |
+| 2              | 3位4通中封阀   | 2个      | q_aSolenoid[0..7]                     | 保持位置(中封)   | 预留扩展       |
+| 3              | 3位4通中泄阀   | 2个      | q_aSolenoid[0..7]                     | 泄压回油(中泄)   | 预留扩展       |
 
 > **双线圈两位阀说明**: SolenoidType=1为双作用气缸配置, 使用两个电磁线圈分别控制伸出(A线圈, q_aSolenoid[0])和收回(B线圈, q_aSolenoid[1]). 失电时气缸保持当前位置(非弹簧复位), A/B线圈互斥(任意时刻最多一个ON), 无命令时两个线圈均OFF(保持位). 需配合i_bRetractPolarity参数控制B线圈极性.
 
@@ -120,7 +120,7 @@ tags: ["气缸控制", "执行器", "PLC功能块", "接口", "电磁阀"]
 
 | 名称            | 类型                | 默认值      | 有效值域         | 说明                            | 去向           |
 | --------------- | ------------------- | ----------- | ---------------- | ------------------------------- | -------------- |
-| q_aSolenoid     | ARRAY[0..1] OF BOOL | [FALSE,FALSE] | TRUE/FALSE    | 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0], [1]始终FALSE; 双线圈[0]/[1]互斥 | OB1->IO映射 |
+| q_aSolenoid     | ARRAY[0..7] OF BOOL | [FALSE,FALSE] | TRUE/FALSE    | 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0], [1]始终FALSE; 双线圈[0]/[1]互斥 | OB1->IO映射 |
 | q_bIsExtended   | BOOL                | FALSE       | TRUE/FALSE       | 已伸出到位 (极性映射后)         | 编排器         |
 | q_bIsRetracted  | BOOL                | FALSE       | TRUE/FALSE       | 已收回到位 (极性映射后)         | 编排器         |
 | q_bTimeout      | BOOL                | FALSE       | TRUE/FALSE       | 动作超时 (伸出或收回未在时间内到位) | 编排器->报警 |
@@ -149,7 +149,7 @@ tags: ["气缸控制", "执行器", "PLC功能块", "接口", "电磁阀"]
 物理传感器       TON消抖           传感器故障检测       极性映射            命令处理(CASE)
 i_bExtendedPos ─→ fb_tDebounceExt ─→ s_bExtDebounced ─┬─→ SensorFault  ─→ s_bLogicExtPos ─→ CASE i_iSolenoidType
 i_bRetractedPos ─→ fb_tDebounceRet ─→ s_bRetDebounced ─┤                  ─→ s_bLogicRetPos ─→   0: 单线圈 → q_aSolenoid[0]
-                                                         │                                       1: 双线圈 → q_aSolenoid[0..1]互锁
+                                                         │                                       1: 双线圈 → q_aSolenoid[0..7]互锁
 i_dDebounceMs ──→ PT参数(0=直通)                        └─→ i_bExtendPolarity                   ELSE: 安全态(全OFF)
                                                               FALSE: 正常映射
                                                               TRUE:  互换映射
@@ -363,7 +363,7 @@ END_IF;
 
 | 变更项 | V9.x (旧) | V10.0.0 (新) | 迁移操作 |
 | ------ | --------- | ------------ | -------- |
-| 电磁阀输出 | q_bSolenoid : BOOL | q_aSolenoid : ARRAY[0..1] OF BOOL | `q_bSolenoid` → `q_aSolenoid[0]` |
+| 电磁阀输出 | q_bSolenoid : BOOL | q_aSolenoid : ARRAY[0..7] OF BOOL | `q_bSolenoid` → `q_aSolenoid[0]` |
 | 单线圈[1]输出 | 不存在 | q_aSolenoid[1] 始终 FALSE | 无需处理, 忽略即可 |
 | 新增输入参数 | 不存在 | i_bRetractPolarity : BOOL := FALSE | 单线圈模式忽略, 无需修改; 双线圈模式按需配置 |
 | 命令处理结构 | IF/ELSIF | CASE i_iSolenoidType | 行为等价, 无需修改调用方 |
@@ -396,10 +396,10 @@ fbLift.q_aSolenoid[1] => %Q0.3;  // B线圈-收回方向
 
 | 文档        | 路径                                                                                                  |
 | ----------- | ----------------------------------------------------------------------------------------------------- |
-| REQ         | 需求分析文档_REQ-FB1011-CylinderControl-V8.1.0.md                                                     |
-| TECH        | 技术方案文档_TECH-FB1011-CylinderControl-V8.1.0.md                                                    |
-| DSN         | 详细设计说明书_DSN-FB1011-CylinderControl-V7.1.0.md                                                   |
-| IFC(V9.0.0) | 接口文档_IFC-FB1011-CylinderControl-V9.0.0.md                                                         |
+| REQ         | 需求分析文档_REQ.md                                                                                     |
+| TEC         | 技术方案文档_TEC.md                                                                                    |
+| DSN         | 详细设计说明书_DSN.md                                                                                   |
+| INT(V10.0.0) | 接口文档_INT.md                                                                                         |
 | FB_TON      | ../../timer/FB_TON.scl                                                                                |
 | FB_TONR     | ../../timer/FB_TONR.scl                                                                               |
 | 规范        | ../../../../../0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md                        |

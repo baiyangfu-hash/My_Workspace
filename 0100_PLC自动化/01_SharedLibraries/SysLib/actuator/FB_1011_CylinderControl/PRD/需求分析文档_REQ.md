@@ -23,7 +23,7 @@ tags: ["气缸控制", "执行器", "PLC功能块", "电磁阀", "单线圈两�
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
 |--------|----------|--------|----------|----------|
-| V10.0.0 | Breaking Change: 新增双线圈两位阀支持; 输出q_bSolenoid→q_aSolenoid[0..1] ARRAY; 新增i_bRetractPolarity参数; 命令处理改CASE分支; 双线圈A/B互锁+保持位+安全态兜底 | Trae | 2026-06-17 | 新增i_iSolenoidType=1双线圈两位阀(双作用,失电保持位); 输出从q_bSolenoid(BOOL)改为q_aSolenoid[0..1](ARRAY[0..1] OF BOOL), [0]=线圈A(动点方向), [1]=线圈B(原点方向); 新增i_bRetractPolarity参数独立控制线圈B极性; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈逻辑: A/B互锁, 无命令保持位(非弹簧复位), ELSE分支全OFF; CASE ELSE非法类型安全态兜底 |
+| V10.0.0 | Breaking Change: 新增双线圈两位阀支持; 输出q_bSolenoid→q_aSolenoid[0..7] ARRAY; 新增i_bRetractPolarity参数; 命令处理改CASE分支; 双线圈A/B互锁+保持位+安全态兜底 | Trae | 2026-06-17 | 新增i_iSolenoidType=1双线圈两位阀(双作用,失电保持位); 输出从q_bSolenoid(BOOL)改为q_aSolenoid[0..7](ARRAY[0..7] OF BOOL), [0]=线圈A(动点方向), [1]=线圈B(原点方向); 新增i_bRetractPolarity参数独立控制线圈B极性; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈逻辑: A/B互锁, 无命令保持位(非弹簧复位), ELSE分支全OFF; CASE ELSE非法类型安全态兜底 |
 | V9.2.0 | P0定时器修复: 定时器调用对齐LSP-903 V2.1.0三段式; 消抖关闭时设IN=FALSE让TON自然复位; 超时检测移入命令分支内加s_bMoving防误报; 移除尾部独立fb_tTimeout()调用 | Trae | 2026-06-17 | 定时器调用从条件内联改为三段式+顶部无条件批量调用; 消抖关闭时不再跳过定时器调用而是设IN=FALSE让TON自然复位Q=FALSE/ET=0; 超时检测从尾部独立检测移入Extend/Retract命令分支内加s_bMoving条件防误报; 移除尾部独立fb_tTimeout()调用统一到顶部批量调用区 |
 | V9.0.0 | 移除ST_Cylinder结构体，回归扁平接口；新增传感器消抖；极性取反完整实现 | Trae | 2026-05-30 | 移除VAR_IN_OUT ST_Cylinder，改为8个VAR_INPUT+5个VAR_OUTPUT扁平接口；变量命名对齐LSP-905(i_/q_前缀)；新增FR-011传感器TON消抖；FR-010升级为极性取反完整实现(电磁阀+传感器映射+状态输出均反转)；规范引用从801/810更新为LSP-905/904/903 |
 | V8.1.0 | 明确电磁阀类型定义，增加通用性设计 | Trae | 2026-05-30 | 新增SolenoidType和ExtendPolarity参数，明确当前为单线圈两位阀，预留双线圈/3位阀扩展 |
@@ -85,7 +85,7 @@ V8.0.0引入VAR_IN_OUT ST_Cylinder结构体封装，但经实践验证，简单�
 | SolenoidType值 | 电磁阀类型 | 线圈数量 | 阀位数 | 输出信号 | 默认行为（无命令时） | 当前V10.0.0支持 |
 |-----------|---------|---------|-------|---------|------------------|---------------|
 | **0** | **单线圈两位阀** | 1个 | 2位 | q_aSolenoid[0] | 弹簧复位（收回） | ✅ **支持（默认）** |
-| **1** | **双线圈两位阀** | 2个 | 2位 | q_aSolenoid[0..1] | 保持最后位置 | ✅ **支持（V10.0.0新增）** |
+| **1** | **双线圈两位阀** | 2个 | 2位 | q_aSolenoid[0..7] | 保持最后位置 | ✅ **支持（V10.0.0新增）** |
 | 2 | 3位4通中封阀 | 2个 | 3位 | 2个BOOL | 保持位置（中封） | ⚠️ 预留扩展 |
 | 3 | 3位4通中泄阀 | 2个 | 3位 | 2个BOOL | 泄压回油（中泄） | ⚠️ 预留扩展 |
 
@@ -102,7 +102,7 @@ V8.0.0引入VAR_IN_OUT ST_Cylinder结构体封装，但经实践验证，简单�
 
 #### 4.2.2 双线圈两位阀（i_iSolenoidType=1，V10.0.0新增）
 - 线圈：2个（线圈A=动点方向，线圈B=原点方向）
-- 输出：q_aSolenoid[0..1]
+- 输出：q_aSolenoid[0..7]
   - [0]=线圈A(动点方向)，[1]=线圈B(原点方向)
   - A/B互锁：任意时刻最多一个ON，禁止同时ON
 - 伸出命令：q_aSolenoid[0]=TRUE, q_aSolenoid[1]=FALSE
@@ -151,8 +151,8 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为极性取反完整实现：**电
 
 | 需求编号 | 需求描述 | 优先级 | 备注 |
 |---------|----------|--------|------|
-| FR-001 | 接收伸出命令，驱动电磁阀伸出 | P0 | 核心功能; V10.0.0: 接口9入5出, 输出q_aSolenoid[0..1] |
-| FR-002 | 接收收回命令，驱动电磁阀收回 | P0 | 核心功能; V10.0.0: 接口9入5出, 输出q_aSolenoid[0..1] |
+| FR-001 | 接收伸出命令，驱动电磁阀伸出 | P0 | 核心功能; V10.0.0: 接口9入5出, 输出q_aSolenoid[0..7] |
+| FR-002 | 接收收回命令，驱动电磁阀收回 | P0 | 核心功能; V10.0.0: 接口9入5出, 输出q_aSolenoid[0..7] |
 | FR-003 | 检测伸出位传感器，反馈到位状态 | P0 | 核心功能 |
 | FR-004 | 检测收回位传感器，反馈到位状态 | P0 | 核心功能 |
 | FR-005 | 传感器冗余一致性检查（上下位同时ON检测） | P1 | 诊断功能 |
@@ -189,7 +189,7 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为极性取反完整实现：**电
 | DR-005 | ExtendPolarity布尔取反参数 | P1 | 线圈极性调整 |
 | DR-006 | 传感器消抖时间参数i_dDebounceMs | P1 | V9.0.0新增 |
 | DR-007 | 双线圈原点方向极性取反参数i_bRetractPolarity | P1 | V10.0.0新增; 独立控制线圈B极性 |
-| DR-008 | 电磁阀ARRAY输出q_aSolenoid[0..1] | P0 | V10.0.0变更; 替代原q_bSolenoid(BOOL); [0]=线圈A(动点方向), [1]=线圈B(原点方向) |
+| DR-008 | 电磁阀ARRAY输出q_aSolenoid[0..7] | P0 | V10.0.0变更; 替代原q_bSolenoid(BOOL); [0]=线圈A(动点方向), [1]=线圈B(原点方向) |
 
 ## 6. 详细需求分析
 
@@ -217,7 +217,7 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为极性取反完整实现：**电
 
 | 变量名 | 类型 | 说明 |
 |--------|------|------|
-| q_aSolenoid | ARRAY[0..1] OF BOOL | 电磁阀输出; [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0], [1]始终FALSE |
+| q_aSolenoid | ARRAY[0..7] OF BOOL | 电磁阀输出; [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0], [1]始终FALSE |
 | q_bIsExtended | BOOL | 伸出到位状态 |
 | q_bIsRetracted | BOOL | 收回到位状态 |
 | q_bTimeout | BOOL | 超时报警 |
@@ -266,7 +266,7 @@ V9.2.0更新：超时检测从尾部独立检测移入Extend/Retract命令分支
 
 V10.0.0代码中使用CASE i_iSolenoidType分支处理不同电磁阀类型：
 - i_iSolenoidType=0：单线圈两位阀（弹簧复位，q_aSolenoid[0]输出，[1]始终FALSE）
-- i_iSolenoidType=1：双线圈两位阀（双作用，失电保持位，q_aSolenoid[0..1]互锁输出）
+- i_iSolenoidType=1：双线圈两位阀（双作用，失电保持位，q_aSolenoid[0..7]互锁输出）
 - i_iSolenoidType=2/3：3位阀（预留，需后续代码实现）
 - CASE ELSE：非法类型安全态兜底，q_aSolenoid[0]=FALSE, q_aSolenoid[1]=FALSE
 
@@ -371,7 +371,7 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为完整极性取反，V10.0.0扩�
 
 | 接口编号 | 接口名称 | 功能描述 | 输入参数 | 输出参数 | 详细说明 | 优先级 |
 |---------|---------|---------|---------|---------|---------|--------|
-| II-001 | FB_1011_CylinderControl | 气缸控制功能块 | 9个VAR_INPUT | 5个VAR_OUTPUT | 扁平接口; V10.0.0: 9入(新增i_bRetractPolarity), 输出q_aSolenoid[0..1]替代q_bSolenoid | P0 |
+| II-001 | FB_1011_CylinderControl | 气缸控制功能块 | 9个VAR_INPUT | 5个VAR_OUTPUT | 扁平接口; V10.0.0: 9入(新增i_bRetractPolarity), 输出q_aSolenoid[0..7]替代q_bSolenoid | P0 |
 
 ### 7.2 外部接口
 
@@ -502,7 +502,7 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为完整极性取反，V10.0.0扩�
 | RA-003 | 传感器类型差异 | 不同气缸传感器类型不同（NPN/PNP） | 低 | 中 | OB1处理传感器类型，本FB仅接收BOOL信号 |
 | RA-004 | 电磁阀选型变更 | 项目中实际使用非默认电磁阀类型 | 中 | 中 | 提供参数配置，支持取反和类型选择 |
 | RA-005 | 消抖延时影响响应 | 消抖引入延时，可能影响快速动作场景 | 低 | 低 | i_dDebounceMs=0可关闭消抖，默认关闭 |
-| RA-006 | Breaking Change接口迁移风险 | V10.0.0输出从q_bSolenoid(BOOL)改为q_aSolenoid[0..1](ARRAY)，所有调用方需迁移；新增i_bRetractPolarity参数 | 高 | 高 | 1.提供迁移指南：q_bSolenoid→q_aSolenoid[0]; 2.单线圈模式[1]始终FALSE，行为等价; 3.逐步迁移，旧代码仅需改输出变量名 |
+| RA-006 | Breaking Change接口迁移风险 | V10.0.0输出从q_bSolenoid(BOOL)改为q_aSolenoid[0..7](ARRAY)，所有调用方需迁移；新增i_bRetractPolarity参数 | 高 | 高 | 1.提供迁移指南：q_bSolenoid→q_aSolenoid[0]; 2.单线圈模式[1]始终FALSE，行为等价; 3.逐步迁移，旧代码仅需改输出变量名 |
 
 ## 13. 验收计划
 
@@ -532,7 +532,7 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为完整极性取反，V10.0.0扩�
 ### V10.0.0 版本详细变更
 
 1. **新增双线圈两位阀支持**：i_iSolenoidType=1时启用双线圈两位阀（双作用，失电保持位），电磁阀类型对照表更新
-2. **输出接口Breaking Change**：q_bSolenoid(BOOL) → q_aSolenoid[0..1](ARRAY[0..1] OF BOOL)，[0]=线圈A(动点方向)，[1]=线圈B(原点方向)；单线圈只用[0]，[1]始终FALSE
+2. **输出接口Breaking Change**：q_bSolenoid(BOOL) → q_aSolenoid[0..7](ARRAY[0..7] OF BOOL)，[0]=线圈A(动点方向)，[1]=线圈B(原点方向)；单线圈只用[0]，[1]始终FALSE
 3. **新增i_bRetractPolarity参数**：VAR_INPUT从8个增至9个，独立控制双线圈线圈B极性
 4. **命令处理重构**：从IF/ELSIF改为CASE i_iSolenoidType分支，0=单线圈逻辑，1=双线圈逻辑
 5. **双线圈A/B互锁**：任意时刻q_aSolenoid[0]和q_aSolenoid[1]最多一个ON，禁止同时ON
@@ -540,9 +540,9 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为完整极性取反，V10.0.0扩�
 7. **CASE ELSE安全态兜底**：非法i_iSolenoidType值时q_aSolenoid全OFF，防止未定义行为
 8. **新增FR-013**：双线圈两位阀控制（A/B互锁、保持位、CASE分支）
 9. **新增FR-014**：双线圈极性取反（i_bRetractPolarity独立控制线圈B极性）
-10. **更新FR-001/FR-002**：接口从8入5出变为9入5出，输出从q_bSolenoid变为q_aSolenoid[0..1]
+10. **更新FR-001/FR-002**：接口从8入5出变为9入5出，输出从q_bSolenoid变为q_aSolenoid[0..7]
 11. **新增DR-007**：i_bRetractPolarity参数
-12. **新增DR-008**：q_aSolenoid[0..1]数组输出
+12. **新增DR-008**：q_aSolenoid[0..7]数组输出
 13. **更新NFR-006**：双线圈已实现，仅3位阀预留
 14. **新增AC-016**：双线圈互锁验收
 15. **新增AC-017**：双线圈保持位验收
@@ -601,9 +601,9 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为完整极性取反，V10.0.0扩�
 
 | 资料名称 | 版本 | 来源 |
 |----------|------|------|
-| 接口文档_IFC-FB1011-CylinderControl-V10.0.0.md | V10.0.0 | 本目录 |
-| 详细设计说明书_DSN-FB1011-CylinderControl-V10.0.0.md | V10.0.0 | 本目录 |
-| 技术方案文档_TECH-FB1011-CylinderControl-V10.0.0.md | V10.0.0 | 本目录 |
+| 接口文档_INT.md | V10.0.0 | 本目录 |
+| 详细设计说明书_DSN.md | V10.0.0 | 本目录 |
+| 技术方案文档_TEC.md | V10.0.0 | 本目录 |
 | LSP-905_PLC变量命名与功能块命名规范_V1.0.2.md | V1.0.2 | 0100_PLC自动化/00_通用规范/PLC编程/ |
 | LSP-904_SCL注释规范_V1.1.0.md | V1.1.0 | 0100_PLC自动化/00_通用规范/PLC编程/ |
 | LSP-903_SCL编程规范_V2.1.0.md | V2.1.0 | 0100_PLC自动化/00_通用规范/PLC编程/ |

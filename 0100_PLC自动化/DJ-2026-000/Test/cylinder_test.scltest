@@ -1,0 +1,175 @@
+// ============================================================================
+// cylinder_test.scltest - FB_1011_CylinderControl 功能测试
+// ============================================================================
+// 被测对象: SysLib/actuator/FB_1011_CylinderControl V10.0.0
+// 测试实例: GlobalVars.CylinderSingle (单线圈), GlobalVars.CylinderDual (双线圈)
+//
+// 测试覆盖:
+//   test1 - 单线圈伸出到位
+//   test2 - 单线圈收回到位
+//   test3 - 单线圈超时检测
+//   test4 - 传感器冲突检测
+//   test5 - 双线圈伸出
+//   test6 - 双线圈收回
+//   test7 - 极性取反
+// ============================================================================
+
+// ============================================================================
+// test1: 单线圈伸出到位
+// 预期: i_bExtend=TRUE + i_bExtendedPos=TRUE → q_aSolenoid[0]=TRUE, q_bIsExtended=TRUE
+// ============================================================================
+TEST_CASE "test1_single_extend"
+    // 初始化: 单线圈模式, 无消抖, 短超时
+    SET GlobalVars.cyl_iSolenoidType := 0;
+    SET GlobalVars.cyl_dDebounceMs := 0;
+    SET GlobalVars.cyl_dTimeoutMs := 100;
+    SET GlobalVars.cyl_bExtendPolarity := FALSE;
+    SET GlobalVars.cyl_bRetractPolarity := FALSE;
+
+    // 发出伸出命令 + 到位信号
+    SET GlobalVars.cyl_bExtend := TRUE;
+    SET GlobalVars.cyl_bRetract := FALSE;
+    SET GlobalVars.cyl_bExtendedPos := TRUE;
+    SET GlobalVars.cyl_bRetractedPos := FALSE;
+
+    WAIT_CYCLES 2;
+
+    // 断言: 线圈A得电, 已到动点
+    ASSERT GlobalVars.cyl_aSolenoid[0] = TRUE;
+    ASSERT GlobalVars.cyl_bIsExtended = TRUE;
+    ASSERT GlobalVars.cyl_bIsRetracted = FALSE;
+    ASSERT GlobalVars.cyl_bTimeout = FALSE;
+END_TEST_CASE
+
+// ============================================================================
+// test2: 单线圈收回到位
+// 预期: i_bRetract=TRUE + i_bRetractedPos=TRUE → q_aSolenoid[0]=FALSE, q_bIsRetracted=TRUE
+// ============================================================================
+TEST_CASE "test2_single_retract"
+    SET GlobalVars.cyl_iSolenoidType := 0;
+    SET GlobalVars.cyl_dDebounceMs := 0;
+    SET GlobalVars.cyl_dTimeoutMs := 100;
+    SET GlobalVars.cyl_bExtendPolarity := FALSE;
+
+    SET GlobalVars.cyl_bExtend := FALSE;
+    SET GlobalVars.cyl_bRetract := TRUE;
+    SET GlobalVars.cyl_bExtendedPos := FALSE;
+    SET GlobalVars.cyl_bRetractedPos := TRUE;
+
+    WAIT_CYCLES 2;
+
+    // 断言: 线圈A失电(弹簧复位), 已到原点
+    ASSERT GlobalVars.cyl_aSolenoid[0] = FALSE;
+    ASSERT GlobalVars.cyl_bIsRetracted = TRUE;
+    ASSERT GlobalVars.cyl_bIsExtended = FALSE;
+    ASSERT GlobalVars.cyl_bTimeout = FALSE;
+END_TEST_CASE
+
+// ============================================================================
+// test3: 单线圈超时检测
+// 预期: i_bExtend=TRUE + 不给到位 + 超时 → q_bTimeout=TRUE
+// ============================================================================
+TEST_CASE "test3_single_timeout"
+    SET GlobalVars.cyl_iSolenoidType := 0;
+    SET GlobalVars.cyl_dDebounceMs := 0;
+    SET GlobalVars.cyl_dTimeoutMs := 10;  // 短超时(10ms)
+
+    SET GlobalVars.cyl_bExtend := TRUE;
+    SET GlobalVars.cyl_bRetract := FALSE;
+    SET GlobalVars.cyl_bExtendedPos := FALSE;  // 不给到位
+    SET GlobalVars.cyl_bRetractedPos := FALSE;
+
+    // 等待超时(10ms = 约10个周期, 留余量等20个)
+    WAIT_CYCLES 20;
+
+    // 断言: 超时报警触发
+    ASSERT GlobalVars.cyl_bTimeout = TRUE;
+    ASSERT GlobalVars.cyl_bIsExtended = FALSE;
+END_TEST_CASE
+
+// ============================================================================
+// test4: 传感器冲突检测
+// 预期: 两点同时ON → q_bSensorFault=TRUE
+// ============================================================================
+TEST_CASE "test4_sensor_fault"
+    SET GlobalVars.cyl_iSolenoidType := 0;
+    SET GlobalVars.cyl_dDebounceMs := 0;
+
+    SET GlobalVars.cyl_bExtendedPos := TRUE;
+    SET GlobalVars.cyl_bRetractedPos := TRUE;  // 两点同时ON
+
+    WAIT_CYCLES 2;
+
+    // 断言: 传感器冲突
+    ASSERT GlobalVars.cyl_bSensorFault = TRUE;
+END_TEST_CASE
+
+// ============================================================================
+// test5: 双线圈伸出
+// 预期: i_iSolenoidType=1 + i_bExtend=TRUE → q_aSolenoid[0]=TRUE, q_aSolenoid[1]=FALSE
+// ============================================================================
+TEST_CASE "test5_dual_extend"
+    SET GlobalVars.cyl_iSolenoidType := 1;  // 双线圈模式
+    SET GlobalVars.cyl_dDebounceMs := 0;
+    SET GlobalVars.cyl_dTimeoutMs := 100;
+    SET GlobalVars.cyl_bExtendPolarity := FALSE;
+    SET GlobalVars.cyl_bRetractPolarity := FALSE;
+
+    SET GlobalVars.cyl_bExtend := TRUE;
+    SET GlobalVars.cyl_bRetract := FALSE;
+    SET GlobalVars.cyl_bExtendedPos := TRUE;
+    SET GlobalVars.cyl_bRetractedPos := FALSE;
+
+    WAIT_CYCLES 2;
+
+    // 断言: 线圈A得电, 线圈B失电(互锁)
+    ASSERT GlobalVars.cyl_aSolenoid[0] = TRUE;
+    ASSERT GlobalVars.cyl_aSolenoid[1] = FALSE;
+    ASSERT GlobalVars.cyl_bIsExtended = TRUE;
+END_TEST_CASE
+
+// ============================================================================
+// test6: 双线圈收回
+// 预期: i_iSolenoidType=1 + i_bRetract=TRUE → q_aSolenoid[1]=TRUE, q_aSolenoid[0]=FALSE
+// ============================================================================
+TEST_CASE "test6_dual_retract"
+    SET GlobalVars.cyl_iSolenoidType := 1;
+    SET GlobalVars.cyl_dDebounceMs := 0;
+    SET GlobalVars.cyl_dTimeoutMs := 100;
+    SET GlobalVars.cyl_bExtendPolarity := FALSE;
+    SET GlobalVars.cyl_bRetractPolarity := FALSE;
+
+    SET GlobalVars.cyl_bExtend := FALSE;
+    SET GlobalVars.cyl_bRetract := TRUE;
+    SET GlobalVars.cyl_bExtendedPos := FALSE;
+    SET GlobalVars.cyl_bRetractedPos := TRUE;
+
+    WAIT_CYCLES 2;
+
+    // 断言: 线圈B得电, 线圈A失电(互锁)
+    ASSERT GlobalVars.cyl_aSolenoid[1] = TRUE;
+    ASSERT GlobalVars.cyl_aSolenoid[0] = FALSE;
+    ASSERT GlobalVars.cyl_bIsRetracted = TRUE;
+END_TEST_CASE
+
+// ============================================================================
+// test7: 极性取反(单线圈伸出方向)
+// 预期: i_bExtendPolarity=TRUE + i_bExtend=TRUE → q_aSolenoid[0]=FALSE
+// ============================================================================
+TEST_CASE "test7_polarity_invert"
+    SET GlobalVars.cyl_iSolenoidType := 0;
+    SET GlobalVars.cyl_dDebounceMs := 0;
+    SET GlobalVars.cyl_dTimeoutMs := 100;
+    SET GlobalVars.cyl_bExtendPolarity := TRUE;  // 极性取反
+
+    SET GlobalVars.cyl_bExtend := TRUE;
+    SET GlobalVars.cyl_bRetract := FALSE;
+    SET GlobalVars.cyl_bExtendedPos := FALSE;
+    SET GlobalVars.cyl_bRetractedPos := TRUE;   // 原点到位(极性映射后=动点)
+
+    WAIT_CYCLES 2;
+
+    // 断言: 极性取反后线圈A失电
+    ASSERT GlobalVars.cyl_aSolenoid[0] = FALSE;
+    ASSERT GlobalVars.cyl_aSolenoid[1] = FALSE;
+END_TEST_CASE

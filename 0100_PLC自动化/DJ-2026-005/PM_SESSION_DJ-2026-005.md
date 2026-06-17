@@ -4,7 +4,7 @@
 - project_id: DJ-2026-005
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
-- last_updated: 2026-06-16
+- last_updated: 2026-06-17
 - owners: fubai / PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -145,6 +145,52 @@
   - 2026-05-17 程序文档梳理：补齐导出PNG索引；重命名ARC/DSN/FLOW文件并统一到V2.0.0；同步修正交叉引用
 
 ## 6. Implementation Log
+- 2026-06-17 | skill=plc-electrical-engineer | mode=Bug分析(测试文件错误诊断)
+  - goal: 分析 basic_test.scltest "一堆错误" 的根因并给出修复方案
+  - changed_files: 无(本次为分析,未修改代码)
+  - artifacts:
+    - 02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest (237行, 11个TC)
+    - 02_PLC程序/通用ST程序及变量表/external/FB_ExternalDeviceInteraction.scl
+    - 02_PLC程序/通用ST程序及变量表/pickplace/FB_1003_PickPlace_BufferFraming.scl
+    - 02_PLC程序/通用ST程序及变量表/OB1/OB1.scl
+    - 02_PLC程序/通用ST程序及变量表/DB1/GlobalVars.db
+  - impact: |
+      诊断出15个问题, 分3类:
+        状态污染(B1-B8, P0×4): TC之间共享GlobalVars无RESET, TC02/TC03污染TC04, TC06污染TC08
+        测试框架限制(B9-B12, P0×3): TC11 VAR_IN_OUT值拷贝导致轴状态不回写, ASSERT o_bRunning=FALSE与FB逻辑矛盾
+        注释不一致(B13-B15, P1×3): 文件头"10个TC"实际11个, 版本号V7.0.1 vs V7.1.1
+      推荐方案A(最小修复): 每个TC开头加RESET段 + TC11轴使能逻辑修正 + 注释修正
+  - risks: |
+      1. 测试框架是否支持SETUP/TEARDOWN未知, 方案B风险高
+      2. TC11修复后需实际运行验证FB_1003状态机是否真能推进到S21
+      3. 未确认LSP测试框架对VAR_IN_OUT值拷贝的处理细节
+  - decision: 用户选择"分析和方案", 本轮不修复, 待用户确认方案后执行
+
+- 2026-06-17 | skill=pm-workflow | mode=变更影响分析(Breaking Change)
+  - goal: 分析 SysLib FB_1011 V9.0.0→V10.0.0 Breaking Change 对 DJ-2026-005 项目的影响范围
+  - changed_files:
+    - PM_SESSION_DJ-2026-005.md (仅追加本日志+§8/§9)
+  - artifacts:
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl.scl (V10.0.0, q_bSolenoid→q_aSolenoid[0..7])
+    - 02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl (V9.0.0, 4处调用旧接口q_bSolenoid)
+    - 02_PLC程序/通用ST程序及变量表/OB1/OB1.scl (4处实例化FB_1002, 条件性影响)
+    - 02_PLC程序/通用ST程序及变量表/DB1/GlobalVars.db (stConveyor.q_aBlockSolenoid ARRAY[1..4], 输送机维度, 无影响)
+  - impact: |
+      影响层级:
+        L1直接: FB_1002 L186/L202/L420/L436 使用旧接口 q_bSolenoid, 编译失败(P0)
+        L1决策: FB_1002 对外输出 q_bBlockSolenoid/q_bSeparateSolenoid:BOOL 需决策是否改ARRAY(P1)
+        L2间接: OB1 4处实例化, 若FB_1002对外保持BOOL则无影响(P2条件性)
+        L3存储: DB1 ARRAY[1..4]是输送机维度, 与FB_1011 ARRAY[0..7]线圈维度语义不同, 无影响(P3)
+        L4文档: FB_1002 IFC/DSN + OB1 DSN 需同步(P1)
+      修复方案对比:
+        方案A(FB_1002对内改对外BOOL): 4处 q_bSolenoid=>q_bBlockSolenoid 改 q_aSolenoid[0]=>q_bBlockSolenoid, OB1/DB1无影响, 推荐度⭐⭐⭐
+        方案B(FB_1002对外也改ARRAY): 全链路ARRAY, 但DB1维度语义混淆, 推荐度⭐
+  - risks: |
+      1. 当前项目处于不可编译状态(FB_1002调用旧接口), 需尽快修复
+      2. 修复方案未决策, 阻塞后续TIA编译验证
+      3. FB_1011 V10.0.0 双线圈模式(i_iSolenoidType=1)本项目未使用, 无需考虑
+  - decision: 用户选择"先分析不决策+记录变更单待办", 本轮不修复, 待后续决策
+
 - 2026-06-16 | skill=plc-electrical-engineer | mode=规范检查+验证模式
   - goal: 验证 FB_1002 V9.0.0 接口修复是否符合 LSP-905/LSP-904 规范，确认测试文件兼容性
   - changed_files:
@@ -168,6 +214,31 @@
   - risks: TIA Portal 编译验证、现场验证和安全相关人工复核仍未完成
 
 ## 7. Verification Log
+- 2026-06-17 | 测试文件修复静态审查 (basic_test.scltest V7.1.1)
+  - verified:
+    - 文件头注释: 版本号 V7.0.1→V7.1.1, TC数量 10→11, 新增 V7.1.1 变更说明段
+    - 状态污染修复: TC01-TC11 共 11 个测试用例均在开头添加 RESET 段
+      - TC04 RESET 清除 TC02(EStop)+TC03(Fault) 副作用 (关键修复点)
+      - TC08 RESET 清除 TC06(FrontClamp)+TC07(Lift_Up) 副作用 (关键修复点)
+      - TC11 RESET 清除 TC10(全站手动模式) 副作用
+    - TC11 轴使能逻辑修复: stPower.Status 从 FALSE 改为 TRUE (Z轴+X1轴)
+      - 解决 FB_1003 卡在 S20 使能等待的问题 (VAR_IN_OUT 值拷贝限制)
+    - TC11 断言矛盾修复: o_bRunning 从 FALSE 改为 TRUE (与自动运行状态一致)
+    - TC11 状态机推进断言: S20→S21 (o_iCurrentState=1) → S22 (o_iCurrentState=2)
+    - TC11 VAR_IN_OUT 限制说明注释完整, 轴输出字段不可断言的原因已记录
+    - RESET 段均使用 WAIT_CYCLES 2+ 确保状态稳定后再执行测试逻辑
+  - not_verified:
+    - .scltest 实际运行结果 (本环境无 TIA Portal / LSP 测试运行器)
+    - FB_1003 状态机在真实 PLC 上的运行行为
+    - VAR_IN_OUT 值拷贝行为在 LSP 测试框架中的实际表现
+  - method:
+    - 逐行静态审查 TC01-TC11 的 RESET 段覆盖范围
+    - 核对 TC11 轴使能/断言/状态转换逻辑与 FB_1003 V7.0.0 源码一致性
+    - 检查文件头注释与实际 TC 数量/版本号一致性
+  - blocker:
+    - 缺少 TIA Portal 编译环境与 .scltest 测试执行环境
+    - 需在 TIA Portal 中导入测试文件并运行, 确认 11 个 TC 全部 PASS
+
 - 2026-06-16 | 规范审查与兼容性验证
   - verified:
     - FB_1002 V9.0.0 代码符合 LSP-905 SCL 编程规范
@@ -227,6 +298,26 @@
     - 缺少现场与编译环境的最新验证结果
 
 ## 8. Handoff Notes
+- 2026-06-17 | from=pm-workflow | reason=SysLib FB_1011 V10.0.0 Breaking Change 影响分析完成, 待决策修复方案
+  - current_state: |
+      FB_1011 V10.0.0 已升级(q_bSolenoid→q_aSolenoid[0..7]), DJ-2026-005 项目 FB_1002 V9.0.0 调用方4处使用旧接口, 当前不可编译。
+      影响分析已完成, 修复方案A(推荐)/方案B已列出, 用户选择"先分析不决策", 待后续开CHG-PLC变更单处理。
+  - next_focus: |
+      1. 决策 FB_1002 对外接口策略(方案A保持BOOL vs 方案B改ARRAY)
+      2. 开 CHG-PLC-2026-006 变更单, 修复 FB_1002 调用方代码
+      3. 同步 FB_1002 IFC/DSN 文档, 评估 OB1 DSN 是否需同步
+  - watchouts:
+    - 当前项目处于不可编译状态, 修复前不要尝试TIA编译验证
+    - DB1 的 ARRAY[1..4] 是输送机维度, 不要与 FB_1011 的 ARRAY[0..7] 线圈维度混淆
+    - FB_1011 V10.0.0 新增的 i_bRetractPolarity 参数有默认值FALSE, 调用方可不显式传入
+    - FB_1011 V10.0.0 双线圈模式(i_iSolenoidType=1)本项目未使用, 无需考虑
+  - read_first:
+    - PM_SESSION_DJ-2026-005.md §6 (2026-06-17 影响分析记录)
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl.scl (V10.0.0)
+    - 02_PLC程序/通用ST程序及变量表/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl (L186,L202,L420,L436)
+    - 02_PLC程序/通用ST程序及变量表/OB1/OB1.scl (L139-140,L182-183,L225-226,L268-269)
+    - 02_PLC程序/通用ST程序及变量表/DB1/GlobalVars.db (L205-206)
+
 - 2026-06-16 | from=plc-electrical-engineer
   - current_state: FB_1002 V9.0.0 接口修复已完成，通过静态规范审查，接口完全兼容，现有测试文件不受影响
   - next_focus: TIA Portal 编译验证 + 人工审核 + 现场验证
@@ -245,7 +336,12 @@
     - 02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest
 
 ## 9. Next Actions
-- [P0] TIA Portal 编译验证本次修复 | precondition=项目工程文件可访问 | done_when=无编译错误，警告清单记录并评估
+- [P0] 决策 FB_1002 对外接口策略(方案A保持BOOL vs 方案B改ARRAY) | precondition=已读§6 2026-06-17影响分析 | done_when=用户明确选定方案, 记录到§8
+- [P0] 开 CHG-PLC-2026-006 变更单: 适配 FB_1011 V10.0.0 Breaking Change | precondition=方案决策完成 | done_when=变更单归档到 00_项目管理/04_变更管理/01_变更单/CHG-PLC/
+- [P0] 修复 FB_1002 调用方代码: 4处 q_bSolenoid=>q_bBlockSolenoid/q_bSeparateSolenoid 改为新接口 | precondition=CHG-PLC-2026-006已开 | done_when=FB_1002编译通过, 调用方使用q_aSolenoid[0]或q_aSolenoid
+- [P1] 同步 FB_1002 IFC/DSN 文档到新版本 | precondition=FB_1002代码修复完成 | done_when=IFC/DSN frontmatter version+1, 接口描述与代码一致
+- [P1] 评估 OB1 DSN 文档是否需同步 | precondition=FB_1002对外接口决策完成 | done_when=若方案A则标注无影响, 若方案B则同步OB1 DSN
+- [P0] TIA Portal 编译验证本次修复 | precondition=项目工程文件可访问, FB_1002已修复 | done_when=无编译错误，警告清单记录并评估
 - [P1] 人工审核状态机逻辑与接口变更 | precondition=可访问最新源码 | done_when=确认状态机行为未改变，所有参数映射正确
 - [P2] 复核安全互锁完整性 | precondition=可访问安全相关规范与文档 | done_when=确认安全门/急停等联锁逻辑在外层完整覆盖
 - [P3] 更新相关 PRD 文档 (如需要) | precondition=人工审核完成 | done_when=决定是否需要更新接口文档与详细设计文档

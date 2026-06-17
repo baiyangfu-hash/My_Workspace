@@ -1,8 +1,8 @@
 // ============================================================================
-// basic_test.scltest - OB1主程序集成测试 (V7.0.1)
+// basic_test.scltest - OB1主程序集成测试 (V7.1.1)
 // ============================================================================
 // 功能说明：
-//   包含 10 个测试用例，覆盖 OB1 调用的 5 个 FB：
+//   包含 11 个测试用例，覆盖 OB1 调用的 5 个 FB：
 //
 //   TC01 - 外部设备: 自动模式+使能 → 组框机就绪
 //   TC02 - 外部设备: 组框机急停 → 紧急停止联锁
@@ -14,6 +14,13 @@
 //   TC08 - 取放料: 无操作 → Release=TRUE (NOT-Action逻辑)
 //   TC09 - 公共报警: 复位 → 所有输出清零
 //   TC10 - 公共报警: 全站手动 → 无报警激活
+//   TC11 - 取放料: 自动模式 Z轴绝对定位 (S20→S21→S22)
+//
+// V7.1.1变更说明 (测试文件修复):
+//   - 修复: TC间状态污染, 每个TC开头加RESET段清除前序TC副作用
+//   - 修复: TC11轴使能逻辑, stPower.Status=TRUE让FB跳过S20使能等待
+//   - 修复: TC11矛盾断言, o_bRunning=TRUE(自动运行中)
+//   - 修复: 文件头注释 10→11个TC, 版本V7.0.1→V7.1.1
 //
 // V7.0.0变更说明 (FB_1003):
 //   - 新增 VAR_IN_OUT io_stZAxis/io_stX1Axis (ST_ServoAxis V3.0)
@@ -54,6 +61,12 @@ TEST_CASE "TC02_External_EStop"
     // FB逻辑: IF FrameMachine_EStop THEN EmergencyStop := TRUE
     // ============================================================================
 
+    // RESET: 清除TC01副作用
+    SET GlobalVars.stExternal.i_bEnable := FALSE;
+    SET GlobalVars.stExternal.i_bAutoMode := FALSE;
+    SET GlobalVars.stExternal.i_bAnyAlarmActive := FALSE;
+    WAIT_CYCLES 2;
+
     SET GlobalVars.stExternal.i_bFrameMachine_EStop := TRUE;
     WAIT_CYCLES 3;
     ASSERT GlobalVars.stExternal.o_bFrameMachine_EmergencyStop = TRUE;   // 组框机急停/安全错误时强制本机停止
@@ -65,6 +78,10 @@ TEST_CASE "TC03_External_Alarm"
     // ============================================================================
     // FB逻辑: IF GlueMachine_Fault THEN AlarmCode := 300
     // ============================================================================
+
+    // RESET: 清除TC02副作用
+    SET GlobalVars.stExternal.i_bFrameMachine_EStop := FALSE;
+    WAIT_CYCLES 2;
 
     SET GlobalVars.stExternal.i_bGlueMachine_Fault := TRUE;
     WAIT_CYCLES 3;
@@ -78,7 +95,11 @@ TEST_CASE "TC04_External_Safety"
     // FB逻辑: 所有设备EStop和Fault都为FALSE时 SafetyConditionMet := TRUE
     // ============================================================================
 
+    // RESET: 清除TC02(EStop)+TC03(Fault)副作用 — 关键修复
+    SET GlobalVars.stExternal.i_bFrameMachine_EStop := FALSE;
+    SET GlobalVars.stExternal.i_bGlueMachine_Fault := FALSE;
     WAIT_CYCLES 3;
+
     ASSERT GlobalVars.stExternal.o_bSystemSafetyConditionMet = TRUE;        // 系统安全条件满足
 END_TEST_CASE
 
@@ -88,6 +109,11 @@ TEST_CASE "TC05_External_DoorOpen"
     // ============================================================================
     // FB逻辑: IF DoorOpenRequest THEN Pause:=TRUE AND DoorOpen:=TRUE
     // ============================================================================
+
+    // RESET: 确保干净初始态
+    SET GlobalVars.stExternal.i_bEnable := TRUE;
+    SET GlobalVars.stExternal.i_bAutoMode := TRUE;
+    WAIT_CYCLES 2;
 
     SET GlobalVars.stExternal.i_bDoorOpenRequest := TRUE;
     WAIT_CYCLES 3;
@@ -103,6 +129,15 @@ TEST_CASE "TC06_PickPlace_Clamp"
     // OB1后处理:  o_bFrontClamp_Release := NOT o_bFrontClamp_Action
     // ============================================================================
 
+    // RESET: 清除TC05副作用(stExternal) + 初始化stPickPlace
+    SET GlobalVars.stExternal.i_bDoorOpenRequest := FALSE;
+    SET GlobalVars.stExternal.i_bEnable := FALSE;
+    SET GlobalVars.stExternal.i_bAutoMode := FALSE;
+    SET GlobalVars.stPickPlace.i_bAutoMode := FALSE;
+    SET GlobalVars.stPickPlace.i_bLx_FrontClamp := FALSE;
+    SET GlobalVars.stPickPlace.i_bLx_Lift_Up := FALSE;
+    WAIT_CYCLES 2;
+
     SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
     SET GlobalVars.stPickPlace.i_bLx_FrontClamp := TRUE;
     WAIT_CYCLES 3;
@@ -116,6 +151,10 @@ TEST_CASE "TC07_PickPlace_LiftUp"
     // ============================================================================
     // FB_1003手动: IF LiftUp AND NOT LiftDown THEN q_bLiftUp:=TRUE
     // ============================================================================
+
+    // RESET: 清除TC06副作用(FrontClamp)
+    SET GlobalVars.stPickPlace.i_bLx_FrontClamp := FALSE;
+    WAIT_CYCLES 2;
 
     SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
     SET GlobalVars.stPickPlace.i_bLx_Lift_Up := TRUE;
@@ -132,6 +171,11 @@ TEST_CASE "TC08_PickPlace_Unclamp"
     // OB1后处理:   o_bFrontClamp_Release := NOT FALSE = TRUE
     // ============================================================================
 
+    // RESET: 清除TC06(FrontClamp)+TC07(Lift_Up)副作用 — 关键修复
+    SET GlobalVars.stPickPlace.i_bLx_FrontClamp := FALSE;
+    SET GlobalVars.stPickPlace.i_bLx_Lift_Up := FALSE;
+    WAIT_CYCLES 2;
+
     SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
     WAIT_CYCLES 3;
     ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Action = FALSE;            // 前夹爪夹紧电磁阀
@@ -146,6 +190,10 @@ TEST_CASE "TC09_CommonAlarm_Reset"
     // ============================================================================
     // FB_2001: IF i_bReset THEN 清零所有输出 + RETURN
     // ============================================================================
+
+    // RESET: 清除TC08副作用(stPickPlace手动模式)
+    SET GlobalVars.stPickPlace.i_bManualMode := FALSE;
+    WAIT_CYCLES 2;
 
     SET GlobalVars.stGlobal.i_bReset := TRUE;
     WAIT_CYCLES 3;
@@ -162,10 +210,16 @@ TEST_CASE "TC10_CommonAlarm_NoAlarm"
     // 所有FB在手动模式输出报警码=0 → FB_2001汇总无报警
     // ============================================================================
 
+    // RESET: 清除TC09副作用(Reset信号) + 确保干净初始态
+    SET GlobalVars.stGlobal.i_bReset := FALSE;
+    SET GlobalVars.stConveyor.i_bManualMode := FALSE;
+    SET GlobalVars.stPickPlace.i_bManualMode := FALSE;
+    SET GlobalVars.stFeeder.i_bManualMode := FALSE;
+    WAIT_CYCLES 2;
+
     SET GlobalVars.stConveyor.i_bManualMode := TRUE;
     SET GlobalVars.stPickPlace.i_bManualMode := TRUE;
     SET GlobalVars.stFeeder.i_bManualMode := TRUE;
-    SET GlobalVars.stGlobal.i_bReset := FALSE;
     WAIT_CYCLES 5;
     ASSERT GlobalVars.stGlobal.o_bAnyAlarmActive = FALSE;                   // 全局报警激活标志(M200,所有工站停止)
     ASSERT GlobalVars.stGlobal.o_bConveyorAlarmActive = FALSE;               // 输送机站有报警标志
@@ -189,6 +243,11 @@ TEST_CASE "TC11_PickPlace_Auto_ZAxis_Move"
     // V7.1.1 修复: i_iPickLayer 接线从 o_iCurrentPickLayer(输出)
     //             改为 i_iPickLayer_Input(独立输入), 断开反馈回路
     //
+    // V7.1.1 测试修复:
+    //   - stPower.Status := TRUE (原FALSE导致FB卡在S20使能等待)
+    //   - o_bRunning断言改为TRUE (自动运行中应为TRUE, 原FALSE矛盾)
+    //   - 新增RESET段清除TC10副作用
+    //
     // ⚠️ VAR_IN_OUT 限制说明 (LSP测试框架):
     //   io_stZAxis/io_stX1Axis 是 VAR_IN_OUT 参数, LSP采用值拷贝传递。
     //   FB内部对 io_stZAxis.stPower.Enable / io_stZAxis.stAbs.Execute 等的写入
@@ -197,9 +256,17 @@ TEST_CASE "TC11_PickPlace_Auto_ZAxis_Move"
     //        轴操作是否成功需通过 FB 自身输出(o_iCurrentState等)间接验证。
     // ============================================================================
 
+    // RESET: 清除TC10副作用(全站手动模式) + 初始化stPickPlace
+    SET GlobalVars.stConveyor.i_bManualMode := FALSE;
+    SET GlobalVars.stFeeder.i_bManualMode := FALSE;
+    SET GlobalVars.stPickPlace.i_bManualMode := FALSE;
+    SET GlobalVars.stPickPlace.i_bLx_FrontClamp := FALSE;
+    SET GlobalVars.stPickPlace.i_bLx_Lift_Up := FALSE;
+    SET GlobalVars.stGlobal.i_bReset := FALSE;
+    WAIT_CYCLES 2;
+
     // --- 前置条件: 自动模式 + 层号有效 (使用独立输入变量) ---
     SET GlobalVars.stPickPlace.i_bAutoMode := TRUE;
-    SET GlobalVars.stPickPlace.i_bManualMode := FALSE;
     SET GlobalVars.stPickPlace.i_bStart := TRUE;
     SET GlobalVars.stPickPlace.i_iPickLayer_Input := 1;       // V7.1.1: 独立输入, 不被FB覆盖
 
@@ -207,9 +274,11 @@ TEST_CASE "TC11_PickPlace_Auto_ZAxis_Move"
     SET GlobalVars.stPickPlace.i_rZAxisSpeed := 100.0;
     SET GlobalVars.stPickPlace.i_rX1AxisSpeed := 150.0;
 
-    // --- 模拟 Z/X1 轴初始状态 (ST_ServoAxis V3.0) [仅输入方向有效] ---
-    SET GlobalVars.astServoAxis[1].stPower.Status := FALSE;     // Z轴未使能
-    SET GlobalVars.astServoAxis[2].stPower.Status := FALSE;     // X1轴未使能
+    // --- 模拟 Z/X1 轴已使能状态 (ST_ServoAxis V3.0) [V7.1.1修复: Status=TRUE] ---
+    // 修复说明: 原Status=FALSE导致FB S20等待使能完成, 值拷贝下Enable写不回GlobalVars, FB卡死
+    //          改为Status=TRUE模拟轴已使能, 让FB跳过S20使能等待直接进入S21
+    SET GlobalVars.astServoAxis[1].stPower.Status := TRUE;      // Z轴已使能 (V7.1.1修复)
+    SET GlobalVars.astServoAxis[2].stPower.Status := TRUE;      // X1轴已使能 (V7.1.1修复)
     SET GlobalVars.astServoAxis[1].stSensor.ServoAlarm := FALSE;
     SET GlobalVars.astServoAxis[2].stSensor.ServoAlarm := FALSE;
     SET GlobalVars.astServoAxis[1].stSensor.FwdLimit := FALSE;
@@ -220,9 +289,9 @@ TEST_CASE "TC11_PickPlace_Auto_ZAxis_Move"
 
     // --- 验证 S20 → S21 转换 [通过FB自身输出间接验证] ---
     // 注: astServoAxis[*] 输出字段不可断言(VAR_IN_OUT值拷贝, 修改不回写)
-    //     以下状态转换成功 = 间接证明 S20 中轴使能 + S21 中定位命令均已执行
+    //     以下状态转换成功 = 间接证明 S20 中轴使能检查通过 + S21 中定位命令已执行
     ASSERT GlobalVars.stPickPlace.o_iCurrentState = 1;                      // 当前状态机步骤(0~10,99=故障) [S21_UP_TO_PICK]
-    ASSERT GlobalVars.stPickPlace.o_bRunning = FALSE;                         // 本站当前自动运行中
+    ASSERT GlobalVars.stPickPlace.o_bRunning = TRUE;                          // 本站当前自动运行中 (V7.1.1修复: 原FALSE矛盾)
 
     // --- 模拟 Z 轴定位完成 (PLCopen MC_MoveAbsolute.Done) [输入方向SET有效] ---
     SET GlobalVars.astServoAxis[1].stAbs.Done := TRUE;

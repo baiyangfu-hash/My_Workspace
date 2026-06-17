@@ -244,6 +244,7 @@ IF i_bAutoMode THEN
 
             IF bStartTriggered AND i_iPickLayer > 0 AND i_iPickLayer <= 4 THEN
                 iPickLayer := i_iPickLayer;
+                bRunning := TRUE;
                 bStepEntry := TRUE;
                 iCurrentState := S21_UP_TO_PICK;
             END_IF;

@@ -23,7 +23,7 @@ tags: ["气缸控制", "执行器", "PLC功能块", "技术方案", "电磁阀"]
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
 |--------|----------|--------|----------|----------|
-| V10.0.0 | Breaking Change: 新增双线圈两位阀支持(i_iSolenoidType=1); 输出q_bSolenoid→q_aSolenoid[0..1] ARRAY输出; 新增i_bRetractPolarity参数; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈A/B互锁+无命令保持位+ELSE安全态 | Trae | 2026-06-17 | 输出接口从q_bSolenoid(BOOL)改为q_aSolenoid[0..1](ARRAY OF BOOL)，单线圈只用[0]([1]始终FALSE)，双线圈[0]=线圈A(动点方向)/[1]=线圈B(原点方向)互斥输出；新增i_bRetractPolarity控制双线圈原点方向极性取反；命令处理重构为CASE i_iSolenoidType分支(0=单线圈/1=双线圈/ELSE=安全态)；双线圈无命令时保持位(非弹簧复位)，ELSE分支全OFF |
+| V10.0.0 | Breaking Change: 新增双线圈两位阀支持(i_iSolenoidType=1); 输出q_bSolenoid→q_aSolenoid[0..7] ARRAY输出; 新增i_bRetractPolarity参数; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈A/B互锁+无命令保持位+ELSE安全态 | Trae | 2026-06-17 | 输出接口从q_bSolenoid(BOOL)改为q_aSolenoid[0..7](ARRAY OF BOOL)，单线圈只用[0]([1]始终FALSE)，双线圈[0]=线圈A(动点方向)/[1]=线圈B(原点方向)互斥输出；新增i_bRetractPolarity控制双线圈原点方向极性取反；命令处理重构为CASE i_iSolenoidType分支(0=单线圈/1=双线圈/ELSE=安全态)；双线圈无命令时保持位(非弹簧复位)，ELSE分支全OFF |
 | V9.2.0 | P0定时器修复: 定时器调用对齐LSP-903 V2.1.0三段式; 消抖关闭时设IN=FALSE让TON自然复位; 超时检测移入命令分支内加s_bMoving防误报 | Trae | 2026-06-17 | 定时器从条件内联调用改为顶部无条件批量调用; 消抖关闭时设IN=FALSE让TON自然复位Q=FALSE/ET=0; 超时检测从尾部独立检测移入Extend/Retract命令分支内，加s_bMoving条件防误报; 移除尾部独立fb_tTimeout()调用 |
 | V9.0.0 | 移除VAR_IN_OUT ST_Cylinder，回归扁平接口；新增传感器TON消抖；完善极性取反映射层；变量命名对齐LSP-905 | Trae | 2026-05-30 | 移除ST_Cylinder结构体依赖，采用i_/q_/s_/fb_前缀命名，新增消抖和极性映射流水线 |
 | V8.1.0 | 明确电磁阀类型定义，增加通用性设计 | Trae | 2026-05-30 | 新增SolenoidType和ExtendPolarity参数说明，明确当前为单线圈两位阀，预留双线圈/3位阀扩展 |
@@ -75,9 +75,9 @@ V8.x采用VAR_IN_OUT ST_Cylinder结构体封装接口，但对于简单执行机
 | SolenoidType值 | 电磁阀类型 | 线圈数量 | 阀位数 | 输出信号 | 默认行为（无命令时） | 当前V10.0.0支持 |
 |-----------|---------|---------|-------|---------|------------------|---------------|
 | **0** | **单线圈两位阀** | 1个 | 2位 | q_aSolenoid[0] | 弹簧复位（收回） | ✅ **支持（默认）** |
-| **1** | **双线圈两位阀** | 2个 | 2位 | q_aSolenoid[0..1] | 保持最后位置 | ✅ **支持** |
-| 2 | 3位4通中封阀 | 2个 | 3位 | q_aSolenoid[0..1] | 保持位置（中封） | ⚠️ 预留扩展 |
-| 3 | 3位4通中泄阀 | 2个 | 3位 | q_aSolenoid[0..1] | 泄压回油（中泄） | ⚠️ 预留扩展 |
+| **1** | **双线圈两位阀** | 2个 | 2位 | q_aSolenoid[0..7] | 保持最后位置 | ✅ **支持** |
+| 2 | 3位4通中封阀 | 2个 | 3位 | q_aSolenoid[0..7] | 保持位置（中封） | ⚠️ 预留扩展 |
+| 3 | 3位4通中泄阀 | 2个 | 3位 | q_aSolenoid[0..7] | 泄压回油（中泄） | ⚠️ 预留扩展 |
 
 ### 4.2 单线圈两位阀（i_iSolenoidType=0，默认）
 
@@ -114,7 +114,7 @@ V8.x采用VAR_IN_OUT ST_Cylinder结构体封装接口，但对于简单执行机
 
 **FB_1011 V10.0.0 新增：双线圈两位阀**
 - 线圈：2个（线圈A=动点方向，线圈B=原点方向）
-- 输出：q_aSolenoid[0..1] (ARRAY OF BOOL)
+- 输出：q_aSolenoid[0..7] (ARRAY OF BOOL)
   - [0] = 线圈A（动点方向，伸出方向）
   - [1] = 线圈B（原点方向，收回方向）
 - 互锁规则：[0]和[1]任意时刻最多一个ON，禁止同时ON
@@ -281,7 +281,7 @@ V10.0.0采用明确的6级信号处理流水线，每级职责单一：
 | ② TON消抖 | 原始信号, i_dDebounceMs | s_bExtDebounced, s_bRetDebounced | FB_TON × 2 |
 | ③ 传感器故障检测 | s_bExtDebounced, s_bRetDebounced | q_bSensorFault | 组合逻辑 |
 | ④ 极性映射 | s_bExtDebounced, s_bRetDebounced, i_bExtendPolarity | s_bLogicExtPos, s_bLogicRetPos | 条件互换 |
-| ⑤ CASE命令处理 | i_bExtend, i_bRetract, s_bLogicExtPos, s_bLogicRetPos, i_iSolenoidType, i_bExtendPolarity, i_bRetractPolarity | q_aSolenoid[0..1], q_bIsExtended, q_bIsRetracted, q_bTimeout | CASE i_iSolenoidType分支: 0=单线圈, 1=双线圈, ELSE=安全态 |
+| ⑤ CASE命令处理 | i_bExtend, i_bRetract, s_bLogicExtPos, s_bLogicRetPos, i_iSolenoidType, i_bExtendPolarity, i_bRetractPolarity | q_aSolenoid[0..7], q_bIsExtended, q_bIsRetracted, q_bTimeout | CASE i_iSolenoidType分支: 0=单线圈, 1=双线圈, ELSE=安全态 |
 
 ### 6.4 模块划分
 
@@ -316,7 +316,7 @@ V10.0.0采用明确的6级信号处理流水线，每级职责单一：
 ┌──────────────────────────────────────────────────────────────┐
 │  VAR_OUTPUT (5个)                                            │
 ├──────────────────────────────────────────────────────────────┤
-│  q_aSolenoid[0..1] (ARRAY) ←─── 电磁阀输出逻辑               │
+│  q_aSolenoid[0..7] (ARRAY) ←─── 电磁阀输出逻辑               │
 │    [0]=线圈A(动点方向)                                       │
 │    [1]=线圈B(原点方向)                                       │
 │  q_bIsExtended (BOOL)     ←─── 状态更新模块                   │
@@ -338,10 +338,10 @@ SysLib/
 │   ├── FB_1011_CylinderControl/
 │   │   ├── FB_1011_CylinderControl.scl
 │   │   └── PRD/
-│   │       ├── 需求分析文档_REQ-FB1011-CylinderControl-V9.0.0.md
-│   │       ├── 技术方案文档_TECH-FB1011-CylinderControl-V9.2.0.md
-│   │       ├── 接口文档_IFC-FB1011-CylinderControl-V9.0.0.md
-│   │       └── 详细设计说明书_DSN-FB1011-CylinderControl-V9.0.0.md
+│   │       ├── 需求分析文档_REQ.md
+│   │       ├── 技术方案文档_TEC.md
+│   │       ├── 接口文档_INT.md
+│   │       └── 详细设计说明书_DSN.md
 │   ├── FB_1012_ConveyorMotor/
 │   ├── FB_1013_NinetyDegreeTransfer/
 │   └── FB_1014_StationConveyor/
@@ -373,7 +373,7 @@ VAR_INPUT
 END_VAR
 
 VAR_OUTPUT
-    q_aSolenoid    : ARRAY[0..1] OF BOOL := [FALSE, FALSE];  // 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向)
+    q_aSolenoid    : ARRAY[0..7] OF BOOL := [FALSE, FALSE];  // 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向)
     q_bIsExtended  : BOOL := FALSE;  // 已伸出到位
     q_bIsRetracted : BOOL := FALSE;  // 已收回到位
     q_bTimeout     : BOOL := FALSE;  // 动作超时报警
@@ -646,7 +646,7 @@ END_CASE;
 
 | 接口名称 | 协议 | 方向 | 数据格式 | 频率 | 说明 |
 |---------|------|------|---------|------|------|
-| OB1 IO映射 | 硬件IO | 双向 | BOOL, ARRAY[0..1] OF BOOL | 每扫描周期 | 物理传感器输入，电磁阀ARRAY输出 |
+| OB1 IO映射 | 硬件IO | 双向 | BOOL, ARRAY[0..7] OF BOOL | 每扫描周期 | 物理传感器输入，电磁阀ARRAY输出 |
 | 上级编排器 | 内部调用 | 双向 | 扁平变量 | 每扫描周期 | 如FB_1002 |
 | 报警管理 | 内部调用 | 输出 | BOOL, BOOL | 每扫描周期 | q_bTimeout和q_bSensorFault信号 |
 
@@ -683,7 +683,7 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 
 | 变量名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| q_aSolenoid | ARRAY[0..1] OF BOOL | [FALSE,FALSE] | 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0]([1]始终FALSE), 双线圈[0]/[1]互斥 |
+| q_aSolenoid | ARRAY[0..7] OF BOOL | [FALSE,FALSE] | 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0]([1]始终FALSE), 双线圈[0]/[1]互斥 |
 | q_bIsExtended | BOOL | FALSE | 已伸出到位 |
 | q_bIsRetracted | BOOL | FALSE | 已收回到位 |
 | q_bTimeout | BOOL | FALSE | 动作超时报警 |
@@ -771,7 +771,7 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 | 电磁阀选型变更 | 中 | 中 | 中 | 提供参数配置，支持取反和类型选择 | Trae |
 | 消抖时间设置不当 | 中 | 中 | 中 | 默认0=关闭，文档明确推荐值范围 | Trae |
 | 极性映射逻辑复杂 | 低 | 中 | 低 | 极性映射层独立，可单独测试验证 | Trae |
-| Breaking Change迁移风险 | 高 | 高 | 高 | q_bSolenoid→q_aSolenoid[0..1]接口变更，所有调用方需修改OB1映射；提供迁移指南，单线圈映射: q_bSolenoid → q_aSolenoid[0] | Trae |
+| Breaking Change迁移风险 | 高 | 高 | 高 | q_bSolenoid→q_aSolenoid[0..7]接口变更，所有调用方需修改OB1映射；提供迁移指南，单线圈映射: q_bSolenoid → q_aSolenoid[0] | Trae |
 | 双线圈极性语义风险 | 中 | 高 | 高 | i_bRetractPolarity仅在双线圈生效，单线圈下忽略；文档明确说明适用范围，防止误用 | Trae |
 
 ### 12.2 依赖风险
@@ -854,9 +854,9 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 
 | 资料名称 | 版本 | 来源 |
 |----------|------|------|
-| 需求分析文档_REQ-FB1011-CylinderControl-V9.0.0.md | V9.0.0 | 本目录 |
-| 接口文档_IFC-FB1011-CylinderControl-V9.0.0.md | V9.0.0 | 本目录 |
-| 详细设计说明书_DSN-FB1011-CylinderControl-V9.0.0.md | V9.0.0 | 本目录 |
+| 需求分析文档_REQ.md | V10.0.0 | 本目录 |
+| 接口文档_INT.md | V10.0.0 | 本目录 |
+| 详细设计说明书_DSN.md | V10.0.0 | 本目录 |
 | LSP-905_PLC变量命名规范_V1.0.2.md | V1.0.2 | 0100_PLC自动化/00_通用规范/PLC编程/ |
 | LSP-904_SCL注释规范_V1.1.0.md | V1.1.0 | 0100_PLC自动化/00_通用规范/PLC编程/ |
 | 903_定时器使用规范_LSP.md | V2.1.0 | 0100_PLC自动化/00_通用规范/PLC编程/ |

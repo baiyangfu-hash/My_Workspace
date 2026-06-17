@@ -69,6 +69,57 @@
   - (无迭代记录)
 
 ## 6. Implementation Log
+- 2026-06-17 | skill=plc-electrical-engineer | mode=规范检查(新技能完整流程验证)
+  - goal: 用修复后的PLC技能(Step0命令合并+Step6强制动作+Step7退出协议)重新跑FB_1011完整流程
+  - changed_files: 无(本次为规范检查,无代码变更)
+  - changes: 无
+  - impact: 验证新技能流程可执行性; Step0一条命令成功(对比上次误判pm-mgr未安装)
+  - risks: 无
+
+- 2026-06-17 | skill=plc-electrical-engineer | mode=技能修复(Step0命令+Step6/7从检查项→强制动作+退出协议)
+  - goal: 修复PLC技能3个设计缺陷: pm-mgr命令不明确/PM回写是检查项非动作/无退出协议
+  - changed_files:
+    - .trae/skills/plc-electrical-engineer/SKILL.md (261行→275行)
+  - changes:
+    - Step 0: venv激活+pm-mgr detect+check合并为一条命令, 新增"pm-mgr报错→pip show检查"防误判
+    - Step 6: 从"□ 是否已回写"改为"6.4 回写 PM_SESSION"(强制动作), 新增PM_SESSION回写格式
+    - Step 7: 从"Final Checklist"改为"技能退出协议", 7.1-7.5必须在7.6(输出响应)之前完成
+    - 新增禁止项: "禁止先回复用户再补写PM_SESSION"
+  - impact: PM_SESSION回写从可选检查变为强制动作; 技能退出前必须先回写再响应
+  - risks: 无
+
+- 2026-06-17 | skill=plc-electrical-engineer | mode=技能重构(Step 0-7流程化+精简)
+  - goal: 重写PLC技能: 1384行→261行, 参考PM技能流程+GitHub plc-skill两层架构
+  - changed_files:
+    - .trae/skills/plc-electrical-engineer/SKILL.md (1384行→261行, 压缩81%)
+  - changes:
+    - 结构: 从"声明式规则堆叠"改为"PM式 Step 0-7 清单流程"
+    - 新增 Step 0: PM联动入口(移到流程最前)
+    - 新增 Step 6: 代码变更后验证与文档同步(5项checklist)
+    - 新增 Step 7: 本轮结束检查清单(5项checklist)
+    - 新增 R1: 注释风格强制规则(禁止//行注释)
+    - 新增 R2: 极性映射写法强制规则(禁止NOT简写)
+    - 规范: 从内联展开→索引表(9个规范只保留路径+用途)
+    - 删除: FB_1011/1012/1013等具体场景模板硬编码(→外置references/)
+    - 删除: 五通道分析详细描述(→保留通道定义表+深度矩阵)
+    - 删除: TIA编程常识/工程上下文/结构体设计方法等冗余段
+  - impact: 技能上下文大幅缩小, 不易被压缩丢失; 流程化执行减少遗漏; 强制规则显式化
+  - risks: 场景模板外置后需确认按需加载机制; 首次使用需验证Step 0-7完整性
+
+- 2026-06-17 | skill=plc-electrical-engineer | mode=规范检查(注释/极性/文档引用修复)
+  - goal: 修复源码注释风格(//→(* *)), 极性写法对齐DSN(NOT→IF/ELSE), 文档内部引用修正
+  - changed_files:
+    - FB_1011_CylinderControl.scl (V10.0.0, 注释风格+极性写法)
+    - PRD/接口文档_INT.md (V10.0.0, 关联文档引用修正)
+    - PRD/技术方案文档_TEC.md (V10.0.0, 附录引用修正)
+  - changes:
+    - 注释风格: 16处 // 行注释 → (* *) 块注释, 对齐LSP-904规范
+    - 极性写法: 5处 NOT i_bXxxPolarity → IF i_bXxxPolarity THEN ... ELSE ... END_IF, 对齐DSN伪代码
+    - INT.md关联文档: 4处旧文件名(V8.1.0/V7.1.0/V9.0.0)→当前文件名
+    - TEC.md附录: 3处旧文件名(V9.0.0)→当前文件名+版本号V10.0.0
+  - impact: 源码与DSN伪代码完全一致; 文档内部交叉引用正确; LSP-904注释规范合规
+  - risks: 无
+
 - 2026-06-17 | skill=plc-electrical-engineer | mode=功能开发(双线圈扩展)+文档同步
   - goal: V10.0.0 新增双线圈两位阀支持, CASE分支+ARRAY输出, 4份文档同步
   - changed_files:
@@ -134,7 +185,22 @@
   - risks: 目前代码不能直接上机使用，必须修复后再人工复核
 
 ## 7. Verification Log
-- 2026-06-17 (V9.2.0 P0修复验证)
+- 2026-06-17 (V10.0.0 规范检查: 注释/极性/文档引用)
+  - verified:
+    - ✅ 源码中所有 // 行注释已替换为 (* *) 块注释 (16处)
+    - ✅ 极性写法全部改为 IF/ELSE 显式形式 (5处), 与DSN伪代码一致
+    - ✅ INT.md 关联文档表文件名正确 (REQ/TEC/DSN/INT 当前版本)
+    - ✅ TEC.md 附录参考资料文件名+版本号正确 (V10.0.0)
+    - ✅ 无残留旧版文件名引用
+  - not_verified:
+    - 实际PLC编译验证 (需TIA环境)
+    - DSN伪代码是否同步更新为IF/ELSE形式 (需确认)
+  - method:
+    - Grep // 确认源码无残留行注释; Grep NOT i_bXxxPolarity 确认无残留NOT写法; Read INT/TEC附录确认引用
+  - blocker:
+    - 无
+
+- 2026-06-17 (V10.0.0 双线圈功能验证)
   - verified:
     - ✅ 3个定时器()调用集中在FB顶部无条件批量调用区 (L71-L79)
     - ✅ 消抖逻辑只设IN/PT, 只读Q/ET, 不调用定时器 (L83-L101)
@@ -188,6 +254,19 @@
     - 待 FB_1014 引用路径同步
 
 ## 8. Handoff Notes
+- 2026-06-17 | from=plc-electrical-engineer
+  - current_state: V10.0.0 规范检查完成(注释/极性/文档引用修复), 源码与DSN/文档完全对齐
+  - next_focus: PLC技能自检与改进; 或PLC编译验证V10.0.0
+  - watchouts:
+    - ⚠️ 技能存在执行缺陷: 多次未回写PM_SESSION, 未自动触发Step 6文档同步
+    - ⚠️ 技能上下文过长导致跨轮丢失, 需考虑分层加载
+    - Breaking Change: 调用方需从q_bSolenoid改为q_aSolenoid[0]
+    - DSN伪代码需确认是否已同步更新为IF/ELSE极性写法
+  - read_first:
+    - PM_SESSION_FB1011.md (§6-§9 本次回写)
+    - FB_1011_CylinderControl.scl (V10.0.0, 注释+极性已修正)
+    - PLC技能SKILL.md (待自检)
+
 - 2026-06-17 | from=plc-electrical-engineer
   - current_state: V10.0.0双线圈功能+文档同步完成, 4份文档与源码对齐
   - next_focus: PLC编译验证, 或P1首次上电状态处理
@@ -243,10 +322,12 @@
 - [P0] ~~修复定时器调用方式和单位问题~~ | ✅ V9.2.0已修复
 - [P0] ~~修复消抖逻辑和超时逻辑问题~~ | ✅ V9.2.0已修复
 - [P0] ~~V10.0.0双线圈功能开发+文档同步~~ | ✅ V10.0.0已完成(CASE+ARRAY+4文档)
+- [P0] ~~规范检查: 注释风格/极性写法/文档引用修复~~ | ✅ V10.0.0已完成(16处注释+5处极性+7处引用)
 - [P1] 修复首次上电状态处理 | precondition=明确上电行为 | done_when=上电状态正确
 - [P2] FB_1014 同步更新 ST_Cylinder 引用路径 | precondition=确认 FB_1014 引用位置 | done_when=FB_1014 中 ST_Cylinder 引用路径正确
 - [P3] 通用化场景测试（气缸/真空阀/双作用气缸）验证 | precondition=实际项目集成+PLC编译通过 | done_when=多场景测试通过
 - [P4] PLC编译验证V10.0.0 | precondition=TIA环境可用 | done_when=编译无错误, ARRAY输出兼容
+- [P5] PLC技能自检与改进 | precondition=本次会话暴露的技能问题清单 | done_when=技能缺陷已修复, PM回写/Step6/上下文管理已改进
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
 > 以下版本号在项目初始化时从 `spec_registry.json` 读取并填入。

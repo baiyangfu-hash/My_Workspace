@@ -96,7 +96,7 @@ IF i_dDebounceMs > 0 THEN
     s_bRetDebounced := fb_tDebounceRet.Q;
     s_dRetDebounceEt := fb_tDebounceRet.ET;
 ELSE
-    // 消抖关闭: 设IN=FALSE让TON自然复位Q=FALSE/ET=0, 信号直通
+    (* 消抖关闭: 设IN=FALSE让TON自然复位Q=FALSE/ET=0, 信号直通 *)
     fb_tDebounceExt.IN := FALSE;
     fb_tDebounceRet.IN := FALSE;
 
@@ -121,7 +121,7 @@ ELSE
 END_IF;
 
 (* ==================== 命令处理: CASE按电磁阀类型分支 ==================== *)
-// 预留元素清零 ([2..7]始终FALSE, 仅供调用方扩展使用)
+    (* 预留元素清零 ([2..7]始终FALSE, 仅供调用方扩展使用) *)
 q_aSolenoid[2] := FALSE; q_aSolenoid[3] := FALSE;
 q_aSolenoid[4] := FALSE; q_aSolenoid[5] := FALSE;
 q_aSolenoid[6] := FALSE; q_aSolenoid[7] := FALSE;
@@ -130,7 +130,12 @@ CASE i_iSolenoidType OF
 
     0:  (* ---- 单线圈两位阀: 弹簧复位, 失电→原点 ---- *)
         IF i_bExtend THEN
-            q_aSolenoid[0] := NOT i_bExtendPolarity;
+            (* 极性映射: 线圈A输出 *)
+            IF i_bExtendPolarity THEN
+                q_aSolenoid[0] := FALSE;
+            ELSE
+                q_aSolenoid[0] := TRUE;
+            END_IF;
             q_aSolenoid[1] := FALSE;
 
             IF NOT s_bMoving THEN
@@ -142,7 +147,7 @@ CASE i_iSolenoidType OF
                 END_IF;
             END_IF;
 
-            // 到位检测: 逻辑伸出位到达则完成动作
+            (* 到位检测: 逻辑伸出位到达则完成动作 *)
             IF s_bLogicExtPos THEN
                 q_bIsExtended := TRUE;
                 q_bIsRetracted := FALSE;
@@ -152,13 +157,18 @@ CASE i_iSolenoidType OF
                 fb_tTimeout.R := TRUE;
             END_IF;
 
-            // 超时检测: 未到位且超时到达则锁存报警
+            (* 超时检测: 未到位且超时到达则锁存报警 *)
             IF fb_tTimeout.Q AND s_bMoving THEN
                 q_bTimeout := TRUE;
             END_IF;
 
         ELSIF i_bRetract THEN
-            q_aSolenoid[0] := i_bExtendPolarity;
+            (* 极性映射: 线圈A输出(收回方向) *)
+            IF i_bExtendPolarity THEN
+                q_aSolenoid[0] := TRUE;
+            ELSE
+                q_aSolenoid[0] := FALSE;
+            END_IF;
             q_aSolenoid[1] := FALSE;
 
             IF NOT s_bMoving THEN
@@ -170,7 +180,7 @@ CASE i_iSolenoidType OF
                 END_IF;
             END_IF;
 
-            // 到位检测: 逻辑收回位到达则完成动作
+            (* 到位检测: 逻辑收回位到达则完成动作 *)
             IF s_bLogicRetPos THEN
                 q_bIsRetracted := TRUE;
                 q_bIsExtended := FALSE;
@@ -180,14 +190,19 @@ CASE i_iSolenoidType OF
                 fb_tTimeout.R := TRUE;
             END_IF;
 
-            // 超时检测
+            (* 超时检测 *)
             IF fb_tTimeout.Q AND s_bMoving THEN
                 q_bTimeout := TRUE;
             END_IF;
 
         ELSE
-            // 无命令: 弹簧复位 (单线圈安全状态), 直接映射到位
-            q_aSolenoid[0] := i_bExtendPolarity;
+            (* 无命令: 弹簧复位 (单线圈安全状态), 直接映射到位 *)
+            (* 极性映射: 无命令时弹簧复位态 *)
+            IF i_bExtendPolarity THEN
+                q_aSolenoid[0] := TRUE;
+            ELSE
+                q_aSolenoid[0] := FALSE;
+            END_IF;
             q_aSolenoid[1] := FALSE;
 
             s_bMoving := FALSE;
@@ -201,8 +216,13 @@ CASE i_iSolenoidType OF
 
     1:  (* ---- 双线圈两位阀: 双作用, 失电→保持位 ---- *)
         IF i_bExtend THEN
-            // 线圈A得电(动点方向), 线圈B失电 (互锁: A/B不同时ON)
-            q_aSolenoid[0] := NOT i_bExtendPolarity;
+            (* 线圈A得电(动点方向), 线圈B失电 (互锁: A/B不同时ON) *)
+            (* 极性映射: 线圈A输出 *)
+            IF i_bExtendPolarity THEN
+                q_aSolenoid[0] := FALSE;
+            ELSE
+                q_aSolenoid[0] := TRUE;
+            END_IF;
             q_aSolenoid[1] := FALSE;
 
             IF NOT s_bMoving THEN
@@ -214,7 +234,7 @@ CASE i_iSolenoidType OF
                 END_IF;
             END_IF;
 
-            // 到位检测: 逻辑伸出位到达则完成动作
+            (* 到位检测: 逻辑伸出位到达则完成动作 *)
             IF s_bLogicExtPos THEN
                 q_bIsExtended := TRUE;
                 q_bIsRetracted := FALSE;
@@ -224,15 +244,20 @@ CASE i_iSolenoidType OF
                 fb_tTimeout.R := TRUE;
             END_IF;
 
-            // 超时检测
+            (* 超时检测 *)
             IF fb_tTimeout.Q AND s_bMoving THEN
                 q_bTimeout := TRUE;
             END_IF;
 
         ELSIF i_bRetract THEN
-            // 线圈B得电(原点方向), 线圈A失电 (互锁: A/B不同时ON)
+            (* 线圈B得电(原点方向), 线圈A失电 (互锁: A/B不同时ON) *)
+            (* 极性映射: 线圈B输出 *)
+            IF i_bRetractPolarity THEN
+                q_aSolenoid[1] := FALSE;
+            ELSE
+                q_aSolenoid[1] := TRUE;
+            END_IF;
             q_aSolenoid[0] := FALSE;
-            q_aSolenoid[1] := NOT i_bRetractPolarity;
 
             IF NOT s_bMoving THEN
                 s_bMoving := TRUE;
@@ -243,7 +268,7 @@ CASE i_iSolenoidType OF
                 END_IF;
             END_IF;
 
-            // 到位检测: 逻辑收回位到达则完成动作
+            (* 到位检测: 逻辑收回位到达则完成动作 *)
             IF s_bLogicRetPos THEN
                 q_bIsRetracted := TRUE;
                 q_bIsExtended := FALSE;
@@ -253,13 +278,13 @@ CASE i_iSolenoidType OF
                 fb_tTimeout.R := TRUE;
             END_IF;
 
-            // 超时检测
+            (* 超时检测 *)
             IF fb_tTimeout.Q AND s_bMoving THEN
                 q_bTimeout := TRUE;
             END_IF;
 
         ELSE
-            // 无命令: 保持当前位 (双线圈安全状态)
+            (* 无命令: 保持当前位 (双线圈安全状态) *)
             q_aSolenoid[0] := FALSE;
             q_aSolenoid[1] := FALSE;
 
@@ -273,7 +298,7 @@ CASE i_iSolenoidType OF
         END_IF;
 
 ELSE
-    // 非法类型: 安全态 - 所有输出OFF
+    (* 非法类型: 安全态 - 所有输出OFF *)
     q_aSolenoid[0] := FALSE;
     q_aSolenoid[1] := FALSE;
 
