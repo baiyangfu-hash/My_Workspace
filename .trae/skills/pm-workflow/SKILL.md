@@ -100,12 +100,34 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
 
 不允许只改代码不留交接摘要；不允许新建独立状态文件替代 PM_SESSION。
 
-## 与其他技能的边界
+## 与其他技能的边界与跨技能切换（强制）
 
 - 本技能负责：需求、PRD、线框方案、任务拆解、迭代变更推进、发布交付
 - 软件实现与联调 → `fullstack-engineer`
 - PLC 编码与电气文档 → `plc-electrical-engineer`
 - 安装外部技能 → `find-skills`
+
+**跨技能切换规则（强制）**：
+当 PM 流程推进到需要其他技能执行的阶段时，**必须立即调用目标技能**，不要询问用户是否切换：
+
+| PM 阶段完成 | 下一步属于 | 必须调用 |
+|-------------|-----------|---------|
+| 需求澄清完成，进入技术方案 | PLC 域 | `Skill: plc-electrical-engineer` |
+| 需求澄清完成，进入技术方案 | 软件域 | `Skill: fullstack-engineer` |
+| PRD/拆解完成，进入编码 | PLC 域 | `Skill: plc-electrical-engineer` |
+| PRD/拆解完成，进入编码 | 软件域 | `Skill: fullstack-engineer` |
+| 变更/Bug 分析完成，进入修复 | PLC 域 | `Skill: plc-electrical-engineer` |
+| 变更/Bug 分析完成，进入修复 | 软件域 | `Skill: fullstack-engineer` |
+
+判断域的规则：
+- 项目类型为 `plc` → 默认切换到 `plc-electrical-engineer`
+- 项目类型为 `software` → 默认切换到 `fullstack-engineer`
+- 跨域项目 → 根据当前任务性质判断
+
+切换前必须：
+1. 同步回写 PM_SESSION（Step 4）
+2. 在 §8 Handoff Notes 中记录切换原因和目标技能
+3. 调用 `Skill: <目标技能名>`
 
 ## 成功标准
 
