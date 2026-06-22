@@ -197,21 +197,23 @@
 - blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
 
 ## 8. Handoff Notes
-- current_state: V2.0.1-A/C 已完成。site 模块 GBK 编码崩溃已修复；042/016 规范与代码 19 项冲突全部修复（状态机 12 状态、门禁逻辑、推断路径、Python 项目路径支持、审批环节中文化）；cli/__main__.py 模块级 stdout 替换改为函数化延迟执行，pytest capture 兼容；778 测试通过。
-- next_focus: V2.0.1 剩余（B: plc check 文档实质化、D: PLC 规范矛盾代码修复 41 片段、E: spec_registry 同步）
+- current_state: V0.2.2 PLC 模块修复与模板重构已完成（6 阶段全部交付）。C-1~C-6（6 项 Critical）+ H-1~H-10（10 项 Major）全部修复；PlcService 作为 CLI/UI 层统一入口；3 套 PLC 模板（plc-shared-library/plc-test-suite/plc-standard-project）+ core/constants.py 模板映射；SubstanceChecker 字数/章节/占位符检查语义修正；PlcChecker libraries 深度校验；retrofit 对 PLC 项目自动补全标志文件；CLI 测试 4→19 + 端到端测试 3 + 模板测试 5。INT V2.0.2 + DSN V2.0.2 + CHANGELOG V0.2.2 文档已同步。
+- next_focus: V2.0.1 剩余（D: PLC 规范矛盾代码修复 41 片段、E: spec_registry 同步）+ 既有预存问题（list_view mypy/test_project_list flaky）
 - watchouts:
   - 旧 auto_pm/gui/（pywebview）保留，阶段F才清理，勿提前删除
-  - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB
+  - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB；PLC 相关操作必须通过 PlcService（不直接访问 PlcChecker/PlcRepairer/SubstanceChecker）
   - tests/ui/test_project_list.py（未跟踪）含 isVisible() 误用，随机顺序下 flaky，非本次引入；后续应改用 isVisibleTo(parent)
   - list_view.py 既有 Qt 枚举简写(Qt.AlignTop 等)导致 mypy 报错，为预存问题；project_card.py 已改用限定形式(Qt.MouseButton.LeftButton)
   - ProjectCard 变更数"活跃"标记规则: count>0 即显示"活跃"，无变更状态细分（仅有计数）
   - archived 状态无法从审批章节推断，必须依赖 §3.4 变更状态字段显式读取
   - Python 项目路径采用优先匹配已有目录策略，新项目创建默认使用 PLC 约定路径
   - cli/__main__.py 的 _fix_windows_encoding() 仅在 __main__ 直接执行时调用，被 import 时不触发（避免与 pytest capture 冲突）
-- read_first: PM_SESSION §6 实施日志(2026-06-22 条目), auto_pm/change/change_service.py, auto_pm/change/parser.py, auto_pm/change/path_resolver.py, auto_pm/cli/__main__.py
+  - V0.2.2 模板映射：STACK_TEMPLATE_MAP["plc"]="plc-standard-project"（原 plc-standard 已重命名）；--mode 仅 --stack=plc 时有效，默认 standard-project
+  - SubstanceChecker 字数阈值：中文 ≥ 800 字符 或 英文 ≥ 1000 词，任一达标即 PASS（非"且"关系）
+  - 占位符密度分级：> 70% FAIL，30-70% WARN，≤ 30% PASS（基于占位符出现次数/非空行数）
+- read_first: PM_SESSION §6 实施日志(2026-06-23 V0.2.2 条目), auto_pm/plc/service.py, auto_pm/plc/substance_checker.py, auto_pm/plc/checker.py, auto_pm/core/constants.py, auto_pm/cli/plc/__init__.py
 
 ## 9. Next Actions
-- [precondition: 无] done_when: V2.0.1-B plc check 增加文档实质化检查
 - [precondition: 无] done_when: V2.0.1-D 906/905/023 PLC 规范矛盾代码修复（41个代码片段）
 - [precondition: 无] done_when: V2.0.1-E spec_registry.json 同步
 - [precondition: 无] done_when: 修复 list_view.py 既有 mypy 错误（Qt.AlignTop/AlignCenter 等改限定形式）+ ruff-format 合规
