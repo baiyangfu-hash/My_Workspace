@@ -35,3 +35,8 @@ gittoken.txt
 .trae/pip_install_*
 .trae/paddlex_*
 .trae/paddleocr_mcp_*
+
+# 大文件：交付物打包和构建产物（超过 GitHub 100MB 限制）
+06_交付物打包/*.zip
+03_*/01_*/dist/*.exe
+03_*/01_*/build/**/*.pkg
