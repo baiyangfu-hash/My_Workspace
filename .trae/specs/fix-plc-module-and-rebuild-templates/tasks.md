@@ -100,15 +100,15 @@
 
 ## 阶段 4: P2 — 检查器与修复器增强
 
-- [ ] Task 4.1: retrofit 增强（H-8）
-  - [ ] 修改 `auto_pm/cli/project.py:336-343` 的 retrofit 命令
-  - [ ] 对 PLC 项目，retrofit 应调用 PlcRepairer 补全 .plc.json/PM_SESSION/PRD
-- [ ] Task 4.2: libraries 路径深度校验（H-10）
-  - [ ] 修改 `auto_pm/plc/checker.py:165` 的 libraries 校验
-  - [ ] 检查 SysLib/timer/FB_TON.scl 等关键文件存在性
-- [ ] Task 4.3: 修复 PlcRepairer 访问 checker 私有方法（H-4）
-  - [ ] 将 `_resolve_project_id` 提升为公共方法或独立函数
-  - [ ] 修改 `repairer.py:66` 使用公共 API
+- [x] Task 4.1: retrofit 增强（H-8）
+  - [x] 修改 `auto_pm/cli/project.py:336-343` 的 retrofit 命令
+  - [x] 对 PLC 项目，retrofit 应调用 PlcService.repair() 补全 .plc.json/PM_SESSION/PRD
+- [x] Task 4.2: libraries 路径深度校验（H-10）
+  - [x] 修改 `auto_pm/plc/checker.py:165` 的 libraries 校验
+  - [x] 检查 SysLib/timer/FB_TON.scl 等关键文件存在性
+- [x] Task 4.3: 修复 PlcRepairer 访问 checker 私有方法（H-4）
+  - [x] 将 `_resolve_project_id` 提升为公共方法 `resolve_project_id`
+  - [x] 修改 `repairer.py:66` 使用公共 API
 
 ## 阶段 5: P2 — 测试补全
 

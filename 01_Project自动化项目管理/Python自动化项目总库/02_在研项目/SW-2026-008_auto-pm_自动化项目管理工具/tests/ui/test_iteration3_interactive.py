@@ -85,6 +85,9 @@ def _create_mixed_project(workspace: Path) -> Path:
     # .plc.json（有效 + libraries 指向存在的目录）→ pass
     lib_dir = project_dir / "lib"
     lib_dir.mkdir()
+    # 创建关键文件使 libraries 深度校验通过（H-10）
+    (lib_dir / "timer").mkdir()
+    (lib_dir / "timer" / "FB_TON.scl").write_text("// FB_TON", encoding="utf-8")
     (project_dir / ".plc.json").write_text(
         json.dumps(
             {

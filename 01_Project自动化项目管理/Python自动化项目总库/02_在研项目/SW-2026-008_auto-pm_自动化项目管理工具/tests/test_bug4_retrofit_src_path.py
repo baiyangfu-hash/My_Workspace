@@ -147,4 +147,5 @@ class TestRetrofitSkipExisting:
             ["-w", str(workspace), "project", "retrofit", project_id],
         )
         assert result.exit_code == 0
-        assert "无需补全" in result.output
+        # H-8: .copier-answers.yml 已存在时跳过该步骤（继续补全 PLC 标志文件）
+        assert "跳过" in result.output

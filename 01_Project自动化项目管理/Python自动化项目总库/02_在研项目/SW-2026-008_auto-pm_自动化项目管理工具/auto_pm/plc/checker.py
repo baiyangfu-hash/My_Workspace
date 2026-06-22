@@ -20,6 +20,15 @@ from auto_pm.plc.models import (
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
+# SysLib 关键文件清单（相对路径），用于 libraries 路径深度校验
+_KEY_FILES = [
+    "timer/FB_TON.scl",
+    "counter/FB_CTD.scl",
+    "counter/FB_CTU.scl",
+    "edge/FB_R_TRIG.scl",
+    "edge/FB_F_TRIG.scl",
+]
+
 
 class PlcChecker:
     """PLC 项目结构检查器（LSP-907）"""
@@ -94,7 +103,7 @@ class PlcChecker:
             return "syslib_fb"
         return "standard"
 
-    def _resolve_project_id(self, project_path: str) -> str:
+    def resolve_project_id(self, project_path: str) -> str:
         """从目录名解析项目编号
 
         支持多种命名模式：
@@ -162,18 +171,37 @@ class PlcChecker:
                 abs_lib = os.path.normpath(
                     os.path.join(os.path.dirname(plc_json_path), lib_path)
                 )
-                if os.path.isdir(abs_lib):
-                    result.add(f".plc.json libraries[{lib_path}]", "pass", "库路径有效")
-                else:
+                if not os.path.isdir(abs_lib):
                     result.add(
                         f".plc.json libraries[{lib_path}]",
                         "warn",
                         f"库路径不存在: {abs_lib}",
                     )
+                    continue
+
+                # 检查关键文件（深度校验）
+                found_keys = [
+                    key_file
+                    for key_file in _KEY_FILES
+                    if os.path.isfile(os.path.join(abs_lib, key_file))
+                ]
+
+                if found_keys:
+                    result.add(
+                        f".plc.json libraries[{lib_path}]",
+                        "pass",
+                        f"库路径有效，关键文件 {len(found_keys)}/{len(_KEY_FILES)}",
+                    )
+                else:
+                    result.add(
+                        f".plc.json libraries[{lib_path}]",
+                        "warn",
+                        f"库路径存在但关键文件缺失（期望: timer/counter/edge 等）",
+                    )
 
     def _check_pm_session(self, project_path: str, result: CheckResult) -> None:
         """检查 PM_SESSION"""
-        project_id = self._resolve_project_id(project_path)
+        project_id = self.resolve_project_id(project_path)
 
         pm_session = os.path.join(project_path, f"PM_SESSION_{project_id}.md")
         if os.path.isfile(pm_session):

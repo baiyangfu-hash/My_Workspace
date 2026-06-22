@@ -52,10 +52,10 @@
 - [x] 3 套模板生成的文档不触发实质化 WARN（C-5 已修复）
 
 ## 阶段 4: P2 — 检查器与修复器增强
-- [ ] retrofit 命令对 PLC 项目调用 PlcRepairer 补全标志文件（H-8）
-- [ ] libraries 路径校验检查 SysLib/timer/FB_TON.scl 等关键文件（H-10）
-- [ ] PlcRepairer 不再访问 checker 私有方法 _resolve_project_id（H-4）
-- [ ] _resolve_project_id 已提升为公共方法或独立函数（H-4）
+- [x] retrofit 命令对 PLC 项目调用 PlcService.repair() 补全标志文件（H-8）
+- [x] libraries 路径校验检查 SysLib/timer/FB_TON.scl 等关键文件（H-10）
+- [x] PlcRepairer 不再访问 checker 私有方法 _resolve_project_id（H-4）
+- [x] _resolve_project_id 已提升为公共方法 resolve_project_id（H-4）
 
 ## 阶段 5: P2 — 测试补全
 - [ ] plc init 命令测试已添加（C-6）

@@ -322,7 +322,7 @@ def cmd_delete(ctx: click.Context, project_id: str, confirm: bool) -> None:
 @click.argument("project_id")
 @click.pass_context
 def cmd_retrofit(ctx: click.Context, project_id: str) -> None:
-    """为已有项目补全 .copier-answers.yml 元数据文件"""
+    """为已有项目补全元数据文件（.copier-answers.yml 及 PLC 标志文件）"""
     app_ctx: AppContext = ctx.obj
     svc = ProjectService(app_ctx.workspace_root)
     proj = svc.get_project(project_id)
@@ -331,31 +331,45 @@ def cmd_retrofit(ctx: click.Context, project_id: str) -> None:
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
-    # Check if .copier-answers.yml already exists
+    # 1. 补全 .copier-answers.yml
     copier_answers_path = os.path.join(proj.path, ".copier-answers.yml")
     if os.path.isfile(copier_answers_path):
-        console.print("[yellow]项目已有 .copier-answers.yml，无需补全[/yellow]")
-        return
+        console.print("[yellow]项目已有 .copier-answers.yml，跳过[/yellow]")
+    else:
+        # Generate .copier-answers.yml content
+        # M3-Iter7: 统一从 core.constants 读取模板名映射
+        template_name = get_template_name(proj.stack)
+        content = {
+            "_commit": "HEAD",
+            "_src_path": f"templates/{template_name}",
+            "project_id": proj.project_id,
+            "project_name": proj.name,
+            "description": proj.description,
+            "version": proj.version,
+        }
+        try:
+            with open(copier_answers_path, "w", encoding="utf-8") as f:
+                yaml_dump(content, f, default_flow_style=False, allow_unicode=True)
+            console.print(f"[green].copier-answers.yml 已创建: {copier_answers_path}[/green]")
+        except Exception as e:
+            console.print(f"[red]创建 .copier-answers.yml 失败: {e}[/red]")
+            ctx.exit(1)
 
-    # Generate .copier-answers.yml content
-    # M3-Iter7: 统一从 core.constants 读取模板名映射
-    template_name = get_template_name(proj.stack)
-    content = {
-        "_commit": "HEAD",
-        "_src_path": f"templates/{template_name}",
-        "project_id": proj.project_id,
-        "project_name": proj.name,
-        "description": proj.description,
-        "version": proj.version,
-    }
+    # 2. 对 PLC 项目，补全标志文件（.plc.json/PM_SESSION/PRD）
+    # H-8: 使用 PlcService 层而非直接调用 PlcRepairer（遵循 Phase 1 的 C-3 修复原则）
+    if proj.stack == "plc":
+        try:
+            from auto_pm.plc.service import PlcService
 
-    try:
-        with open(copier_answers_path, "w", encoding="utf-8") as f:
-            yaml_dump(content, f, default_flow_style=False, allow_unicode=True)
-        console.print(f"[green].copier-answers.yml 已创建: {copier_answers_path}[/green]")
-    except Exception as e:
-        console.print(f"[red]创建失败: {e}[/red]")
-        ctx.exit(1)
+            plc_svc = PlcService(app_ctx.workspace_root)
+            repair_result = plc_svc.repair(proj.path, dry_run=False)
+            console.print(
+                f"[green]PLC 标志文件补全完成: "
+                f"fixed={repair_result.fixed_count}, "
+                f"skipped={repair_result.skipped_count}[/green]"
+            )
+        except Exception as e:
+            console.print(f"[red]PLC 标志文件补全失败: {e}[/red]")
 
 
 _PROJECTS_SUBDIR = WORKSPACE_PROJECTS_SUBDIR  # M3-Iter6: 从 core.paths 读取

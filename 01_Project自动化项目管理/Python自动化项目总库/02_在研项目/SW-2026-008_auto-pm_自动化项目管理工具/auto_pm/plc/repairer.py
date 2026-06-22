@@ -63,7 +63,7 @@ class PlcRepairer:
         # 1. 修复前检查
         result.before_check = self._checker.check_project(project_path)
 
-        project_id = self._checker._resolve_project_id(project_path)
+        project_id = self._checker.resolve_project_id(project_path)
         project_name = os.path.basename(project_path)
 
         # 2. 遍历检查项，对 FAIL 项执行修复
