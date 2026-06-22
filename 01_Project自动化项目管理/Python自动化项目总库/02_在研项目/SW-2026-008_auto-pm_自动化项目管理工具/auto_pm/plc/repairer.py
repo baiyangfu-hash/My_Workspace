@@ -253,7 +253,7 @@ class PlcRepairer:
 
         if not os.path.isfile(plc_json_path):
             # 创建最小 .plc.json
-            content = self._minimal_plc_json(project_id, project_name)
+            content = self._minimal_plc_json(project_id, project_name, plc_json_path)
             if not dry_run:
                 with open(plc_json_path, "w", encoding="utf-8") as f:
                     f.write(content)
@@ -498,14 +498,42 @@ class PlcRepairer:
     # ── 最小模板 ──────────────────────────────────────────
 
     @staticmethod
-    def _minimal_plc_json(project_id: str, project_name: str) -> str:
-        """生成最小 .plc.json 内容"""
+    def _minimal_plc_json(project_id: str, project_name: str, plc_json_path: str = "") -> str:
+        """生成最小 .plc.json 内容
+
+        Args:
+            project_id: 项目ID
+            project_name: 项目名称
+            plc_json_path: .plc.json 文件所在路径，用于动态计算 libraries 相对路径。
+                          空字符串时默认使用根级项目路径（../01_SharedLibraries/SysLib）。
+        """
+        # 动态计算 libraries 路径
+        if not plc_json_path:
+            # 默认：根级项目（.plc.json 在项目根目录）
+            libraries_path = "../01_SharedLibraries/SysLib"
+        else:
+            # 根据 .plc.json 所在目录深度计算相对路径
+            # 检测是否为嵌套项目（02_PLC程序/02_PLC程序/ 下）
+            plc_json_dir = os.path.dirname(plc_json_path)
+            # 统计路径中 02_PLC程序 出现的次数来判断嵌套深度
+            depth = plc_json_dir.count("02_PLC程序")
+            if depth >= 2:
+                # 嵌套项目：02_PLC程序/02_PLC程序/.plc.json
+                # 需要回退 3 级到项目根，再进入 01_SharedLibraries/SysLib
+                libraries_path = "../../../01_SharedLibraries/SysLib"
+            elif depth == 1:
+                # 单层：02_PLC程序/.plc.json
+                libraries_path = "../../01_SharedLibraries/SysLib"
+            else:
+                # 根级：.plc.json 在项目根
+                libraries_path = "../01_SharedLibraries/SysLib"
+
         return json.dumps(
             {
                 "name": project_id,
                 "description": project_name,
                 "version": "V1.0.0",
-                "libraries": ["../../../01_SharedLibraries/SysLib"],
+                "libraries": [libraries_path],
             },
             indent=2,
             ensure_ascii=False,

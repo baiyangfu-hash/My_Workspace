@@ -147,6 +147,12 @@ def cmd_list(
     default=None,
     help="指定业务线（默认从项目编号前缀推断，不一致时警告）",
 )
+@click.option(
+    "--mode",
+    type=click.Choice(["shared-library", "test-suite", "standard-project"]),
+    default="standard-project",
+    help="PLC 项目模式（仅 --stack=plc 时有效）",
+)
 @click.option("--dry-run", is_flag=True, help="仅预览，不实际创建")
 @click.pass_context
 def cmd_create(
@@ -156,6 +162,7 @@ def cmd_create(
     project_name: str,
     description: str,
     business_line: str | None,
+    mode: str,
     dry_run: bool,
 ) -> None:
     """创建新项目（调用 Copier 模板生成骨架）"""
@@ -169,8 +176,8 @@ def cmd_create(
                 f"[yellow]提示: 指定业务线 {business_line} 与项目编号前缀 {inferred} 不一致[/yellow]"
             )
 
-    # 根据技术栈选择模板（M3-Iter7: 统一从 core.constants 读取）
-    template_name = get_template_name(stack)
+    # 根据技术栈选择模板（M3-Iter7: 统一从 core.constants 读取；H-2: 支持 mode 参数）
+    template_name = get_template_name(stack, mode if stack == "plc" else "")
 
     # 目标路径
     project_dir = f"{project_id}_{project_name}"

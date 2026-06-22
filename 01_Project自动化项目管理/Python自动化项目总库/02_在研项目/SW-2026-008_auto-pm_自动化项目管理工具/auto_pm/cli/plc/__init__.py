@@ -20,9 +20,8 @@ from rich.table import Table
 from auto_pm.app_context import AppContext
 from auto_pm.core.project_service import ProjectService
 from auto_pm.core.template_service import TemplateService
-from auto_pm.plc.checker import PlcChecker
 from auto_pm.plc.models import CheckResult
-from auto_pm.plc.repairer import PlcRepairer
+from auto_pm.plc.service import PlcService
 
 console = Console()
 
@@ -37,11 +36,20 @@ def plc_group(ctx: click.Context) -> None:
 @click.argument("project_id")
 @click.option("--name", "project_name", required=True, help="项目名称")
 @click.option("--desc", "description", default="", help="项目描述")
+@click.option(
+    "--mode",
+    type=click.Choice(["shared-library", "test-suite", "standard-project"]),
+    default="standard-project",
+    help="PLC 项目模式（默认 standard-project）",
+)
 @click.pass_context
 def cmd_init(
-    ctx: click.Context, project_id: str, project_name: str, description: str
+    ctx: click.Context, project_id: str, project_name: str, description: str, mode: str
 ) -> None:
-    """创建 PLC 项目骨架（调用 Copier plc-standard 模板）"""
+    """创建 PLC 项目骨架（调用 Copier 模板）
+
+    也可使用: project create --stack plc --mode <MODE>
+    """
     app_ctx: AppContext = ctx.obj
 
     project_dir = f"{project_id}_{project_name}"
@@ -50,6 +58,9 @@ def cmd_init(
     if os.path.exists(dest_path):
         console.print(f"[red]错误: 目标路径已存在: {dest_path}[/red]")
         ctx.exit(1)
+
+    from auto_pm.core.constants import get_template_name
+    template_name = get_template_name("plc", mode)
 
     tpl_svc = TemplateService(app_ctx.templates_dir)
     data = {
@@ -60,10 +71,12 @@ def cmd_init(
     }
 
     try:
-        tpl_svc.copy_template("plc-standard", dest_path, data)
+        tpl_svc.copy_template(template_name, dest_path, data)
         console.print(f"[green]PLC 项目创建成功: {dest_path}[/green]")
+        console.print(f"[dim]模式: {mode} | 模板: {template_name}[/dim]")
     except FileNotFoundError as e:
         console.print(f"[red]错误: 模板不存在 - {e}[/red]")
+        console.print(f"[yellow]提示: 模板 {template_name} 可能尚未创建，请检查 templates/ 目录[/yellow]")
         ctx.exit(1)
     except Exception as e:
         console.print(f"[red]创建失败: {e}[/red]")
@@ -74,16 +87,23 @@ def cmd_init(
 @click.argument("project_id", required=False)
 @click.option("--all", "check_all", is_flag=True, help="检查工作空间所有项目")
 @click.option("--json", "output_json", is_flag=True, help="以JSON格式输出结果")
+@click.option("--substance", is_flag=True, help="执行文档实质化检查（V2.0.1-B）")
+@click.option("--fix", is_flag=True, help="检查后自动修复非破坏性问题")
 @click.pass_context
 def cmd_check(
-    ctx: click.Context, project_id: str | None, check_all: bool, output_json: bool
+    ctx: click.Context,
+    project_id: str | None,
+    check_all: bool,
+    output_json: bool,
+    substance: bool,
+    fix: bool,
 ) -> None:
     """检查项目结构是否符合 LSP-907 规范"""
     app_ctx: AppContext = ctx.obj
-    checker = PlcChecker(app_ctx.workspace_root)
+    svc = PlcService(app_ctx.workspace_root)
 
     if check_all:
-        results = checker.check_workspace()
+        results = svc.check_workspace()
         if not results:
             if output_json:
                 print(json.dumps([], ensure_ascii=False, indent=2))
@@ -107,7 +127,11 @@ def cmd_check(
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
-    result = checker.check_project(proj.path)
+    if substance:
+        result = svc.check_substance(proj.path)
+    else:
+        result = svc.check(proj.path, fix=fix)
+
     if output_json:
         print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))
     else:
@@ -131,8 +155,8 @@ def cmd_repair(
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
-    repairer = PlcRepairer(app_ctx.workspace_root)
-    result = repairer.repair_project(
+    svc = PlcService(app_ctx.workspace_root)
+    result = svc.repair(
         proj.path, dry_run=dry_run, rename_confirm=rename_confirm
     )
 
@@ -155,8 +179,8 @@ def cmd_standardize(
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
-    repairer = PlcRepairer(app_ctx.workspace_root)
-    result = repairer.standardize_docs(proj.path, apply=apply)
+    svc = PlcService(app_ctx.workspace_root)
+    result = svc.standardize(proj.path, dry_run=not apply)
 
     if not result.plans:
         console.print("[green]无需标准化：所有文档命名已符合规范[/green]")

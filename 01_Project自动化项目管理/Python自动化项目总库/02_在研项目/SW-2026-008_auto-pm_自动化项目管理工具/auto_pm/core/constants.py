@@ -14,25 +14,57 @@ from typing import Final
 
 # ── 技术栈 → 模板名映射 ───────────────────────────────────
 
-#: 技术栈到 Copier 模板名的映射
+#: 技术栈到 Copier 模板名的映射（默认模板）
 STACK_TEMPLATE_MAP: Final[dict[str, str]] = {
-    "plc": "plc-standard",
+    "plc": "plc-standard-project",
     "python": "python-tool",
 }
+
+#: PLC 项目模式到模板名的映射
+PLC_MODE_TEMPLATE_MAP: Final[dict[str, str]] = {
+    "shared-library": "plc-shared-library",
+    "test-suite": "plc-test-suite",
+    "standard-project": "plc-standard-project",
+}
+
+#: PLC 项目模式选项列表（用于 CLI 和 UI）
+PLC_MODE_OPTIONS: Final[list[tuple[str, str]]] = [
+    ("shared-library", "公共库"),
+    ("test-suite", "公共库验证"),
+    ("standard-project", "标准单机项目"),
+]
+
+#: 默认 PLC 项目模式
+DEFAULT_PLC_MODE: Final[str] = "standard-project"
 
 #: 默认模板名（技术栈未知时使用）
 DEFAULT_TEMPLATE_NAME: Final[str] = "unknown"
 
 
-def get_template_name(stack: str) -> str:
+def get_plc_template_name(mode: str = DEFAULT_PLC_MODE) -> str:
+    """根据 PLC 项目模式获取模板名
+
+    Args:
+        mode: PLC 项目模式 (shared-library/test-suite/standard-project)
+
+    Returns:
+        模板名，未知模式返回标准项目模板
+    """
+    return PLC_MODE_TEMPLATE_MAP.get(mode, PLC_MODE_TEMPLATE_MAP[DEFAULT_PLC_MODE])
+
+
+def get_template_name(stack: str, mode: str = "") -> str:
     """根据技术栈获取模板名
 
     Args:
         stack: 技术栈标识 (plc/python/unknown)
+        mode: PLC 项目模式（仅 stack=="plc" 时有效）
 
     Returns:
         模板名，未知技术栈返回 DEFAULT_TEMPLATE_NAME
     """
+    if stack == "plc" and mode:
+        return get_plc_template_name(mode)
     return STACK_TEMPLATE_MAP.get(stack, DEFAULT_TEMPLATE_NAME)
 
 
