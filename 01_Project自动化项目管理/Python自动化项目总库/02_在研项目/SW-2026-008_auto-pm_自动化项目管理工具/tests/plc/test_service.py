@@ -80,8 +80,8 @@ class TestPlcServiceCheck:
         svc = PlcService(str(tmp_path))
         result = svc.check(str(project_dir), fix=True)
 
-        # 修复后应创建标准目录
-        assert (project_dir / "02_PLC程序" / "通用ST程序及变量表").is_dir() or True
+        # 修复后应创建标准目录（STD_DIRS 已更新为 12 个，检查其中一个即可）
+        assert (project_dir / "00_项目管理").is_dir()
 
 
 class TestPlcServiceRepair:
@@ -104,7 +104,7 @@ class TestPlcServiceRepair:
 
         assert result.project_path == str(project_dir)
         # dry_run 模式下不应创建目录
-        assert not (project_dir / "02_PLC程序").exists() or True
+        assert not (project_dir / "00_项目管理").exists()
 
 
 class TestPlcServiceStandardize:

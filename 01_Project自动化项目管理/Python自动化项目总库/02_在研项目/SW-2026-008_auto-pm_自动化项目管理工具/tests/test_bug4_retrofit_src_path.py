@@ -1,9 +1,9 @@
 """Bug-4 回归测试: retrofit 命令 _src_path 推断错误
 
 问题: retrofit 命令对 python 项目写入 ``templates/python-standard``，
-      实际模板是 ``python-tool``；plc 项目应为 ``plc-standard``。
+      实际模板是 ``python-tool``；plc 项目应为 ``plc-standard-project``。
 修复: 使用与 cmd_create/GuiApi.STACK_TEMPLATE_MAP 一致的映射:
-      plc → plc-standard, python → python-tool。
+      plc → plc-standard-project, python → python-tool。
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ class TestRetrofitPlcSrcPath:
     """retrofit 对 PLC 项目的 _src_path 推断"""
 
     def test_retrofit_plc_writes_plc_standard(self, tmp_path: Path) -> None:
-        """PLC 项目 retrofit 应写入 templates/plc-standard"""
+        """PLC 项目 retrofit 应写入 templates/plc-standard-project"""
         workspace = tmp_path
         project_id = "DJ-2026-001"
         _make_plc_project(workspace, project_id, "测试项目")
@@ -54,7 +54,7 @@ class TestRetrofitPlcSrcPath:
         answers_path = workspace / f"{project_id}_测试项目" / ".copier-answers.yml"
         assert answers_path.exists()
         answers = yaml.safe_load(answers_path.read_text(encoding="utf-8"))
-        assert answers["_src_path"] == "templates/plc-standard"
+        assert answers["_src_path"] == "templates/plc-standard-project"
 
 
 class TestRetrofitPythonSrcPath:

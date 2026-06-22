@@ -58,17 +58,17 @@
 - [x] _resolve_project_id 已提升为公共方法 resolve_project_id（H-4）
 
 ## 阶段 5: P2 — 测试补全
-- [ ] plc init 命令测试已添加（C-6）
-- [ ] plc repair 命令测试已添加（C-6）
-- [ ] plc standardize 命令测试已添加（C-6）
-- [ ] plc check --substance 测试已添加
-- [ ] plc check --fix 测试已添加
-- [ ] test_service.py 的 `or True` 无效断言已修复（H-9）
-- [ ] 端到端测试 test_e2e_plc_workflow.py 已创建
-- [ ] 端到端测试覆盖 init → check → repair → check 流程
-- [ ] 端到端测试覆盖 3 种模式（shared-library/test-suite/standard-project）
-- [ ] 模板生成正确性测试已添加
-- [ ] 所有测试通过（pytest 全绿）
+- [x] plc init 命令测试已添加（C-6）
+- [x] plc repair 命令测试已添加（C-6）
+- [x] plc standardize 命令测试已添加（C-6）
+- [x] plc check --substance 测试已添加
+- [x] plc check --fix 测试已添加
+- [x] test_service.py 的 `or True` 无效断言已修复（H-9）
+- [x] 端到端测试 test_e2e_plc_workflow.py 已创建
+- [x] 端到端测试覆盖 init → check → repair → check 流程
+- [x] 端到端测试覆盖 3 种模式（shared-library/test-suite/standard-project）
+- [x] 模板生成正确性测试已添加
+- [x] 所有测试通过（pytest 全绿）
 
 ## 阶段 6: 文档同步
 - [ ] INT 文档已同步 CLI 命令变更

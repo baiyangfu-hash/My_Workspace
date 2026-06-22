@@ -59,9 +59,13 @@ def project_with_nonstandard_prd(tmp_path: Path) -> Path:
     prd_dir.mkdir()
     (prd_dir / "接口文档_IFC-001.md").write_text("# 接口文档\n", encoding="utf-8")
 
-    # 标准目录
-    for d in ["02_PLC程序/通用ST程序及变量表", "03_HMI设计", "04_现场调试", "04_变更管理"]:
-        (project_dir / d).mkdir(parents=True)
+    # 标准目录（LSP-907 §3.1，12 个）
+    for d in [
+        "00_项目管理", "01_需求与设计", "02_PLC程序", "03_HMI设计",
+        "04_现场调试", "04_驱动器与设备", "05_测试与验证", "06_文档与交付",
+        "07_技术支持", "08_备件管理", "09_项目总结", "10_知识库",
+    ]:
+        (project_dir / d).mkdir()
 
     return tmp_path
 
@@ -97,9 +101,13 @@ def complete_project(tmp_path: Path) -> Path:
     for doc in ["需求分析文档_REQ.md", "接口文档_INT.md", "详细设计说明书_DSN.md", "技术方案文档_TEC.md"]:
         (prd_dir / doc).write_text(f"# {doc}\n", encoding="utf-8")
 
-    # 标准目录
-    for d in ["02_PLC程序/通用ST程序及变量表", "03_HMI设计", "04_现场调试", "04_变更管理"]:
-        (project_dir / d).mkdir(parents=True)
+    # 标准目录（LSP-907 §3.1，12 个）
+    for d in [
+        "00_项目管理", "01_需求与设计", "02_PLC程序", "03_HMI设计",
+        "04_现场调试", "04_驱动器与设备", "05_测试与验证", "06_文档与交付",
+        "07_技术支持", "08_备件管理", "09_项目总结", "10_知识库",
+    ]:
+        (project_dir / d).mkdir()
 
     return tmp_path
 

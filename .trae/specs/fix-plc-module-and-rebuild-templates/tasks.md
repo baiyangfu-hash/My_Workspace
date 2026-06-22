@@ -112,22 +112,22 @@
 
 ## 阶段 5: P2 — 测试补全
 
-- [ ] Task 5.1: 补全 PLC CLI 命令测试（C-6）
-  - [ ] 在 `tests/cli/test_plc.py` 添加 `plc init` 命令测试
-  - [ ] 添加 `plc repair` 命令测试
-  - [ ] 添加 `plc standardize` 命令测试
-  - [ ] 添加 `plc check --substance` 和 `plc check --fix` 测试
-- [ ] Task 5.2: 修复 test_service.py 无效断言（H-9）
-  - [ ] 修改 `tests/plc/test_service.py:84,107` 移除 `or True`
-  - [ ] 替换为有效断言
-- [ ] Task 5.3: 添加端到端测试
-  - [ ] 创建 `tests/plc/test_e2e_plc_workflow.py`
-  - [ ] 测试流程：`plc init` → `plc check` → `plc repair` → `plc check`
-  - [ ] 验证 3 种模式（shared-library/test-suite/standard-project）的端到端流程
-- [ ] Task 5.4: 添加模板生成正确性测试
-  - [ ] 验证 3 套模板生成的项目结构能否通过 PlcChecker
-  - [ ] 验证 .plc.json 位置正确
-  - [ ] 验证 libraries 路径有效性
+- [x] Task 5.1: 补全 PLC CLI 命令测试（C-6）
+  - [x] 在 `tests/cli/test_plc.py` 添加 `plc init` 命令测试
+  - [x] 添加 `plc repair` 命令测试
+  - [x] 添加 `plc standardize` 命令测试
+  - [x] 添加 `plc check --substance` 和 `plc check --fix` 测试
+- [x] Task 5.2: 修复 test_service.py 无效断言（H-9）
+  - [x] 修改 `tests/plc/test_service.py:84,107` 移除 `or True`
+  - [x] 替换为有效断言
+- [x] Task 5.3: 添加端到端测试
+  - [x] 创建 `tests/plc/test_e2e_plc_workflow.py`
+  - [x] 测试流程：`plc init` → `plc check` → `plc repair` → `plc check`
+  - [x] 验证 3 种模式（shared-library/test-suite/standard-project）的端到端流程
+- [x] Task 5.4: 添加模板生成正确性测试
+  - [x] 验证 3 套模板生成的项目结构能否通过 PlcChecker
+  - [x] 验证 .plc.json 位置正确
+  - [x] 验证 libraries 路径有效性
 
 ## 阶段 6: 文档同步
 
