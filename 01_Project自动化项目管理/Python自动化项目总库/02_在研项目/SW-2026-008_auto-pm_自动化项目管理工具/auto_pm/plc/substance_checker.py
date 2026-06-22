@@ -14,8 +14,9 @@ from auto_pm.models.plc import CheckResult
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
-# 文档字数阈值（低于此值视为空壳）
-_MIN_WORD_COUNT = 500
+# 文档字数阈值（中文按字符数，英文按词数，任一达标即视为 PASS）
+_MIN_CHINESE_CHARS = 800
+_MIN_ENGLISH_WORDS = 1000
 
 # 最少章节数（## 标题数量）
 _MIN_SECTION_COUNT = 3
@@ -136,23 +137,30 @@ class SubstanceChecker:
             )
             return
 
-        # 2. 字数检查
-        word_count = len(content)
-        if word_count < _MIN_WORD_COUNT:
+        # 2. 字数检查（中文按字符数，英文按词数，任一达标即 PASS）
+        chinese_chars = len(re.findall(r"[\u4e00-\u9fff]", content))
+        english_words = len(re.findall(r"[a-zA-Z]+", content))
+        if chinese_chars >= _MIN_CHINESE_CHARS or english_words >= _MIN_ENGLISH_WORDS:
             result.add(
                 item=f"{doc_type} 字数",
-                status="warn",
-                message=f"字数 {word_count} < 阈值 {_MIN_WORD_COUNT}（疑似空壳）",
+                status="pass",
+                message=(
+                    f"中文字符 {chinese_chars}（阈值 {_MIN_CHINESE_CHARS}），"
+                    f"英文单词 {english_words}（阈值 {_MIN_ENGLISH_WORDS}）"
+                ),
             )
         else:
             result.add(
                 item=f"{doc_type} 字数",
-                status="pass",
-                message=f"字数 {word_count}",
+                status="warn",
+                message=(
+                    f"中文字符 {chinese_chars} < 阈值 {_MIN_CHINESE_CHARS}，"
+                    f"英文单词 {english_words} < 阈值 {_MIN_ENGLISH_WORDS}（疑似空壳）"
+                ),
             )
 
-        # 3. 章节数检查
-        section_count = len(re.findall(r"^##\s+", content, re.MULTILINE))
+        # 3. 章节数检查（## 标题，排除 ### 及以上，允许 ## 后无空格）
+        section_count = len(re.findall(r"^##(?!\s*#)\s*", content, re.MULTILINE))
         if section_count < _MIN_SECTION_COUNT:
             result.add(
                 item=f"{doc_type} 章节数",
@@ -166,20 +174,40 @@ class SubstanceChecker:
                 message=f"章节数 {section_count}",
             )
 
-        # 4. 占位符检查
+        # 4. 占位符检查（按密度判定严重程度）
+        placeholder_count = 0
         placeholder_hits: list[str] = []
+        content_lower = content.lower()
         for keyword in _PLACEHOLDER_KEYWORDS:
-            if keyword.lower() in content.lower():
+            count = content_lower.count(keyword.lower())
+            if count > 0:
+                placeholder_count += count
                 placeholder_hits.append(keyword)
 
-        if placeholder_hits:
+        if placeholder_count == 0:
+            result.add(item=f"{doc_type} 占位符", status="pass", message="")
+        else:
+            # 占位符密度 = 占位符出现次数 / 非空行数
+            non_empty_lines = [line for line in content.split("\n") if line.strip()]
+            line_count = max(len(non_empty_lines), 1)
+            density = placeholder_count / line_count
+            density_pct = round(density * 100, 1)
+
+            if density > 0.7:
+                status = "fail"
+            elif density > 0.3:
+                status = "warn"
+            else:
+                status = "pass"
+
             result.add(
                 item=f"{doc_type} 占位符",
-                status="warn",
-                message=f"发现占位符: {', '.join(placeholder_hits)}",
+                status=status,
+                message=(
+                    f"发现占位符 {placeholder_count} 次，密度 {density_pct}%"
+                    f"（{', '.join(placeholder_hits)}）"
+                ),
             )
-        else:
-            result.add(item=f"{doc_type} 占位符", status="pass", message="")
 
     def _scan(
         self,
