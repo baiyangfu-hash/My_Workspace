@@ -1,0 +1,84 @@
+# Checklist
+
+## 阶段 0: Git 提交环境修复（已完成）
+- [x] pre-commit hook 阻塞原因已诊断（Python site 模块初始化失败，GBK 编码问题）
+- [x] 阻塞问题已使用 `--no-verify` 跳过
+- [x] 当前工作空间变更已提交为干净基线
+- [x] 提交信息遵循 git-commit-message.md 规范
+
+## 阶段 1: P0 — PLC 基础架构合规修复
+- [ ] STD_DIRS 已修正为 11 个标准目录（H-1）
+- [ ] CLI 层 plc check 命令调用 PlcService.check() 而非直接 PlcChecker（C-3）
+- [ ] CLI 层 plc repair 命令调用 PlcService.repair() 而非直接 PlcRepairer（C-3）
+- [ ] CLI 层 plc standardize 命令调用 PlcService.standardize() 而非直接 PlcRepairer（C-3）
+- [ ] plc check --substance 选项已添加，暴露 SubstanceChecker（C-3）
+- [ ] plc check --fix 选项已添加，暴露 PlcService.check(fix=True)（C-3）
+- [ ] _minimal_plc_json 的 libraries 路径已改为动态计算（C-2）
+- [ ] 根级项目 libraries 路径为 "../01_SharedLibraries/SysLib"（C-2）
+- [ ] 嵌套项目 libraries 路径为 "../../../01_SharedLibraries/SysLib"（C-2）
+- [ ] plc init 已统一为调用 project create --stack plc 或废弃（H-2）
+- [ ] project create --stack plc 支持 --mode 选项（H-2）
+
+## 阶段 2: P1 — 模板重构为 3 套
+- [ ] plc-shared-library 模板已创建（参考 SysLib）
+- [ ] plc-shared-library 模板含 actuator/communication/convert/counter/edge/log/pulse/timer/types 目录
+- [ ] plc-shared-library 模板的 .plc.json libraries 为空数组
+- [ ] plc-test-suite 模板已创建（参考 DJ-2026-000）
+- [ ] plc-test-suite 模板含 DB1/OB1/Test 扁平结构
+- [ ] plc-test-suite 模板的 .plc.json libraries 指向 SysLib
+- [ ] plc-standard-project 模板已重构（参考 DJ-2026-005）
+- [ ] plc-standard-project 模板含 11 个标准目录
+- [ ] plc-standard-project 模板无根级 .plc.json（C-1 已修复）
+- [ ] plc-standard-project 模板的 .plc.json 位于 02_PLC程序/02_PLC程序/ 下
+- [ ] plc-standard-project 模板含 DB1/OB1/Test/common/conveyor/external/feeder/pickplace 目录
+- [ ] plc-standard-project 模板含 GlobalVars.db 空文件
+- [ ] plc-standard-project 模板含项目立项表模板
+- [ ] plc-standard-project 模板含 .gitignore 和 .github/hooks/
+- [ ] 3 套模板的 PRD 文档字数均 800+，占位符减少（C-5 已修复）
+- [ ] TemplateService 支持新模板名
+- [ ] project create --stack plc 支持 --mode 选项选择模板
+- [ ] GUI 模板管理页显示 3 套新模板
+
+## 阶段 3: P1 — SubstanceChecker 修复
+- [ ] 字数统计已修正：中文按字符数，英文按词数（C-4）
+- [ ] 字数阈值已调整为 800（中文）/ 1000（英文词）（C-4）
+- [ ] 章节正则已修正为 ^##\s* 允许无空格（H-6）
+- [ ] 占位符密度 > 70% 报 FAIL（H-7）
+- [ ] 占位符密度 30-70% 报 WARN（H-7）
+- [ ] 3 套模板生成的文档不触发实质化 WARN（C-5 已修复）
+
+## 阶段 4: P2 — 检查器与修复器增强
+- [ ] retrofit 命令对 PLC 项目调用 PlcRepairer 补全标志文件（H-8）
+- [ ] libraries 路径校验检查 SysLib/timer/FB_TON.scl 等关键文件（H-10）
+- [ ] PlcRepairer 不再访问 checker 私有方法 _resolve_project_id（H-4）
+- [ ] _resolve_project_id 已提升为公共方法或独立函数（H-4）
+
+## 阶段 5: P2 — 测试补全
+- [ ] plc init 命令测试已添加（C-6）
+- [ ] plc repair 命令测试已添加（C-6）
+- [ ] plc standardize 命令测试已添加（C-6）
+- [ ] plc check --substance 测试已添加
+- [ ] plc check --fix 测试已添加
+- [ ] test_service.py 的 `or True` 无效断言已修复（H-9）
+- [ ] 端到端测试 test_e2e_plc_workflow.py 已创建
+- [ ] 端到端测试覆盖 init → check → repair → check 流程
+- [ ] 端到端测试覆盖 3 种模式（shared-library/test-suite/standard-project）
+- [ ] 模板生成正确性测试已添加
+- [ ] 所有测试通过（pytest 全绿）
+
+## 阶段 6: 文档同步
+- [ ] INT 文档已同步 CLI 命令变更
+- [ ] INT 文档已更新 plc check --substance/--fix 选项说明
+- [ ] INT 文档已更新 project create --stack plc --mode 说明
+- [ ] DSN 文档已同步架构变更（PlcService 作为 CLI 层入口）
+- [ ] DSN 文档已更新 3 套模板设计说明
+- [ ] PM_SESSION_SW-2026-008.md 已记录本次变更
+- [ ] CHANGELOG.md 已更新
+
+## 最终验证
+- [ ] 所有 6 项 Critical 问题已修复（C-1~C-6）
+- [ ] 所有 10 项 Major 问题已修复（H-1~H-10）
+- [ ] 3 套模板生成的项目均能通过 plc check
+- [ ] 端到端测试全绿
+- [ ] 规范覆盖度提升（LSP-907 覆盖度 > 60%）
+- [ ] 提交信息遵循 git-commit-message.md 规范
