@@ -131,17 +131,17 @@
 
 ## 阶段 6: 文档同步
 
-- [ ] Task 6.1: 更新 INT 文档
-  - [ ] 同步 `00_项目基础信息/002_接口文档_INT.md` 的 CLI 命令变更
-  - [ ] 更新 `plc check --substance`/`--fix` 选项说明
-  - [ ] 更新 `project create --stack plc --mode <MODE>` 说明
-- [ ] Task 6.2: 更新 DSN 文档
-  - [ ] 同步 `00_项目基础信息/003_详细设计说明书_DSN.md` 的架构变更
-  - [ ] 更新 PlcService 作为 CLI 层入口的说明
-  - [ ] 更新 3 套模板的设计说明
-- [ ] Task 6.3: 更新 PM_SESSION
-  - [ ] 更新 `PM_SESSION_SW-2026-008.md` 记录本次变更
-  - [ ] 更新 CHANGELOG.md
+- [x] Task 6.1: 更新 INT 文档
+  - [x] 同步 `00_项目基础信息/002_接口文档_INT.md` 的 CLI 命令变更
+  - [x] 更新 `plc check --substance`/`--fix` 选项说明
+  - [x] 更新 `project create --stack plc --mode <MODE>` 说明
+- [x] Task 6.2: 更新 DSN 文档
+  - [x] 同步 `00_项目基础信息/003_详细设计说明书_DSN.md` 的架构变更
+  - [x] 更新 PlcService 作为 CLI 层入口的说明
+  - [x] 更新 3 套模板的设计说明
+- [x] Task 6.3: 更新 PM_SESSION
+  - [x] 更新 `PM_SESSION_SW-2026-008.md` 记录本次变更
+  - [x] 更新 CHANGELOG.md
 
 # Task Dependencies
 

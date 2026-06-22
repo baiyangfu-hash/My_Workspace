@@ -4,7 +4,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-06-22
+- last_updated: 2026-06-23
 - owners: fubai
 
 ## 1. Positioning（项目定位）

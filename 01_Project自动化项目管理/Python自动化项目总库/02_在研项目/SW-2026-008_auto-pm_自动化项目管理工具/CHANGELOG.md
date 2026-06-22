@@ -5,6 +5,49 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.2] - 2026-06-23
+
+### Added - V0.2.2 Phase 3: P1 模板重构（3 套 PLC 模板）
+- templates/plc-shared-library/（新增：公共库模板，对应 `--mode shared-library`，按功能块类型分目录 actuator/communication/convert/counter/edge/log/pulse/timer/types）
+- templates/plc-test-suite/（新增：公共库验证模板，对应 `--mode test-suite`，精简结构 OB1/DB1/FB_/Test）
+- templates/plc-standard-project/（重命名自 plc-standard，扩展目录结构，对应 `--mode standard-project`，含 LSP-907 标准目录 + 程序文档）
+- auto_pm/core/constants.py（新增：集中定义 STACK_TEMPLATE_MAP/PLC_MODE_TEMPLATE_MAP/get_template_name/get_plc_template_name/业务线选项/技术栈选项/项目阶段选项，消除散落常量）
+
+### Added - V0.2.2 Phase 2: P0 架构合规（PlcService 统一入口）
+- auto_pm/plc/service.py（新增：PlcService 类，封装 PlcChecker/PlcRepairer/SubstanceChecker，提供 check/repair/standardize/check_substance/check_workspace 统一入口）
+- CLI/UI 层通过 PlcService 操作 PLC 项目，不再直接访问 PlcChecker/PlcRepairer/SubstanceChecker（C-2/C-3 架构合规修复）
+
+### Added - V0.2.2 Phase 5: P2 检查器增强（CLI 选项）
+- cli/plc/__init__.py: `plc check` 新增 `--substance` 选项（文档实质化检查，V2.0.1-B）
+- cli/plc/__init__.py: `plc check` 新增 `--fix` 选项（检查后自动修复非破坏性问题）
+- cli/plc/__init__.py: `plc init` 新增 `--mode` 选项（shared-library/test-suite/standard-project）
+- cli/project.py: `project create --stack plc` 新增 `--mode` 选项
+
+### Added - V0.2.2 Phase 6: P2 测试补全
+- tests/plc/test_cli.py: CLI 测试从 4 个扩展到 19 个（覆盖 --substance/--fix/--mode 选项 + retrofit PLC 标志文件补全 + 各命令正常/异常路径）（C-6）
+- tests/plc/test_e2e.py: 新增端到端测试 3 个（plc init → check → repair 全流程，覆盖三种 mode）（H-9）
+- tests/plc/test_templates.py: 新增模板测试 5 个（三套模板 copier copy 渲染验证 + 目录结构断言 + .plc.json 配置验证）
+
+### Changed
+- CLI 层 PLC 操作统一通过 PlcService 入口（原直接访问 PlcChecker/PlcRepairer）
+- `project retrofit` 命令增强：对 PLC 项目自动补全 .plc.json/PM_SESSION/PRD 标志文件（通过 PlcService.repair 实现）（H-4/H-10）
+- 模板映射从散落常量集中到 core/constants.py（STACK_TEMPLATE_MAP + PLC_MODE_TEMPLATE_MAP）
+- STACK_TEMPLATE_MAP["plc"] 从 "plc-standard" 改为 "plc-standard-project"（模板重命名）
+- PlcChecker.resolve_project_id 从私有方法 `_resolve_project_id` 提升为公共方法（H-1/H-2）
+- PlcChecker 新增 syslib_fb 项目类型识别（目录名以 FB_ 开头且路径含 SysLib）
+
+### Fixed - V0.2.2 Phase 1: Git 环境修复
+- C-1: .gitignore 未排除 .auto-pm/ 缓存目录，导致 SQLite 缓存文件被误提交
+
+### Fixed - V0.2.2 Phase 4: P1 SubstanceChecker 修复
+- C-4: SubstanceChecker 字数统计语义错误（中英文混合统计，阈值不合理）→ 中文按字符数 ≥ 800，英文按词数 ≥ 1000，任一达标即 PASS
+- H-6: SubstanceChecker 章节正则 `^##\s*` 误匹配 `###` 三级标题 → 改为 `^##(?!\s*#)\s*`（负向前瞻，排除 ### 及以上）
+- H-7: SubstanceChecker 占位符检查仅计数无严重程度分级 → 密度 > 70% FAIL，30-70% WARN，≤ 30% PASS
+
+### Fixed - V0.2.2 Phase 5: P2 检查器增强
+- H-8: PlcChecker libraries 路径仅检查目录存在，未校验关键文件 → 新增深度校验（检查 timer/FB_TON.scl、counter/FB_CTD.scl、counter/FB_CTU.scl 等关键文件）
+- H-1/H-2: PlcRepairer 访问 PlcChecker 私有方法 `_resolve_project_id` → 改为公共方法 `resolve_project_id`
+
 ## [0.2.1] - 2026-06-22
 
 ### Added - V2.0.1-A: 修复 site 模块 GBK 编码崩溃

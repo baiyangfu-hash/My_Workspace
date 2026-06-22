@@ -71,18 +71,18 @@
 - [x] 所有测试通过（pytest 全绿）
 
 ## 阶段 6: 文档同步
-- [ ] INT 文档已同步 CLI 命令变更
-- [ ] INT 文档已更新 plc check --substance/--fix 选项说明
-- [ ] INT 文档已更新 project create --stack plc --mode 说明
-- [ ] DSN 文档已同步架构变更（PlcService 作为 CLI 层入口）
-- [ ] DSN 文档已更新 3 套模板设计说明
-- [ ] PM_SESSION_SW-2026-008.md 已记录本次变更
-- [ ] CHANGELOG.md 已更新
+- [x] INT 文档已同步 CLI 命令变更
+- [x] INT 文档已更新 plc check --substance/--fix 选项说明
+- [x] INT 文档已更新 project create --stack plc --mode 说明
+- [x] DSN 文档已同步架构变更（PlcService 作为 CLI 层入口）
+- [x] DSN 文档已更新 3 套模板设计说明
+- [x] PM_SESSION_SW-2026-008.md 已记录本次变更
+- [x] CHANGELOG.md 已更新
 
 ## 最终验证
-- [ ] 所有 6 项 Critical 问题已修复（C-1~C-6）
-- [ ] 所有 10 项 Major 问题已修复（H-1~H-10）
-- [ ] 3 套模板生成的项目均能通过 plc check
-- [ ] 端到端测试全绿
-- [ ] 规范覆盖度提升（LSP-907 覆盖度 > 60%）
-- [ ] 提交信息遵循 git-commit-message.md 规范
+- [x] 所有 6 项 Critical 问题已修复（C-1~C-6）
+- [x] 所有 10 项 Major 问题已修复（H-1~H-10）
+- [x] 3 套模板生成的项目均能通过 plc check
+- [x] 端到端测试全绿
+- [x] 规范覆盖度提升（LSP-907 覆盖度 > 60%）
+- [x] 提交信息遵循 git-commit-message.md 规范
