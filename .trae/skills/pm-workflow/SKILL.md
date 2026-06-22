@@ -17,21 +17,24 @@ description: "统一产品/项目管理主入口。适用于需求澄清、PRD/R
 
 - 每个项目根目录必须有 `PM_SESSION_<项目编号>.md`
 - 项目编号优先从目录名解析（如 `SW-2026-005_xxx` → `SW-2026-005`）
-- 若不存在：使用 `pm-mgr init` 或 `pm-mgr retrofit` 创建/补全
+- 若不存在：使用 `auto-pm project create` 或 `auto-pm project retrofit` 创建/补全
 
 ## 工具依赖
 
 ```powershell
-# pm-mgr：项目初始化、补完、健康检查、类型检测
-pm-mgr -w "<工作空间根>" init|retrofit|check|detect|snapshot <项目目录> [--type software|plc] [--id <编号>] [--name <名称>]
+# auto-pm：项目初始化、补完、健康检查、类型检测
+auto-pm -w "<工作空间根>" project create|show|edit|retrofit|delete ... [--stack <plc|python>] [--id <编号>] [--name <名称>]
+auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...
 
 # SpecMgr：规范健康检查
 specmgr -w "<工作空间根>" check|index|frontmatter|report
 ```
 
 - `-w` 必须放在子命令之前
-- `detect` 自动通过多信号判据识别项目类型
-- `retrofit` 仅添加 hooks/handoffs/Spec Snapshot，不修改现有文件
+- `project show` 自动通过多信号判据识别项目类型
+- `project retrofit` 仅添加 hooks/handoffs/Spec Snapshot，不修改现有文件
+
+> 注意：pm-mgr（SW-2026-007）已被auto-pm（SW-2026-008）取代。pm-mgr命令仍可用但不再维护，建议所有新项目使用auto-pm。
 
 ## 总控流程
 
@@ -44,12 +47,12 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
    # 验证激活成功
    python --version; pip --version
    ```
-   若激活失败，**立即报告用户**，说明 venv 缺失及影响（pm-mgr/specmgr 不可用），不要跳过继续。
+   若激活失败，**立即报告用户**，说明 venv 缺失及影响（auto-pm/specmgr 不可用），不要跳过继续。
 
-2. 运行 `pm-mgr -w "<工作空间根>" detect <项目目录>` 检测项目类型
-3. 查找 `PM_SESSION_<项目编号>.md`，若不存在则 `pm-mgr init`（新项目）或 `pm-mgr retrofit`（已有项目）
+2. 运行 `auto-pm -w "<工作空间根>" project show <项目ID>` 检测项目类型
+3. 查找 `PM_SESSION_<项目编号>.md`，若不存在则 `auto-pm project create`（新项目）或 `auto-pm project retrofit`（已有项目）
 4. 输出 8-12 行状态摘要：项目定位、当前焦点、里程碑、进行中/下一步、未决问题、风险
-5. 做轻量健康检查：`pm-mgr -w "<工作空间根>" check <项目根>`
+5. 做轻量健康检查：`auto-pm -w "<工作空间根>" plc check <项目ID>`
 
 ### Step 1：判定本轮模式（必须用 AskUserQuestion 呈现选项）
 
@@ -83,8 +86,8 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
 | 方案 | 页面清单、主流程、状态覆盖（空/错/加载/权限）、差异说明 |
 | 拆解 | Epic→Feature→Story→Test、优先级、依赖、DoR/DoD；结果必须写入 `01_项目文档/03_执行过程/` 并更新 PM_SESSION §4 |
 | 变更/Bug | 触发原因、影响范围、回归清单、验收清单 |
-| 初始化 | 调用 `pm-mgr init` 自动生成目录结构+文档模板+hooks+handoffs+Spec Snapshot |
-| 补完 | 调用 `pm-mgr retrofit` 注入 hooks+handoffs+Spec Snapshot（不修改现有文件） |
+| 初始化 | 调用 `auto-pm project create` 自动生成目录结构+文档模板+hooks+handoffs+Spec Snapshot |
+| 补完 | 调用 `auto-pm project retrofit` 注入 hooks+handoffs+Spec Snapshot（不修改现有文件） |
 
 ### Step 4：同步回 PM_SESSION
 

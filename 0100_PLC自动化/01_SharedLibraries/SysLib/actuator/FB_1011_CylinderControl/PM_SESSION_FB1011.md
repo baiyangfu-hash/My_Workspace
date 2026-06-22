@@ -4,37 +4,44 @@
 - project_id: FB1011
 - project_name: FB_1011_CylinderControl 双位置电磁阀通用控制
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\01_SharedLibraries\SysLib\actuator\FB_1011_CylinderControl
-- last_updated: 2026-06-17
+- last_updated: 2026-06-18 (PLC技能通过plc-var-parser CLI成功输出FB_1011变量表Excel)
 - owners: Trae
 
 ## 1. Positioning（项目定位）
-- one_liner: 通用双位置电磁阀（气缸/真空阀/夹具）控制，支持消抖/超时/冗余/极性取反
+- one_liner: 通用双位置电磁阀（气缸/真空阀/夹具）控制，支持消抖/超时/冗余/极性取反/防呆锁存/手动自动模式，结构体接口
 - users: PLC程序员(OB1实例化), 产线工程师(参数配置)
 - non_goals: 不直接驱动物理IO, 不处理工艺时序编排（由上级FB处理）
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V10.0.0双线圈功能+文档同步完成, 待PLC编译验证
-- milestone: V10.0.0
-- acceptance: 双线圈A/B互锁, 无命令保持位, CASE分支按类型隔离, 4份文档与源码对齐
+- current_focus: V13.0.0 引脚重命名对齐LSP-905; 文档已同步(DSN/TEC/INT/REQ); PM_SESSION回写中
+- milestone: V13.0.0
+- acceptance: i_stCmd:ST_CylinderCmd(CONSTANT)+q_stSts:ST_CylinderSts结构体接口; 防呆锁存(s_iLatchedSolenoidType/s_iLatchedMode); 手动/自动模式(Mode=0/1); 引脚命名对齐LSP-905 V1.0.2 §3.1; 5份文档与源码对齐
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - V10.0.0 双线圈功能: CASE分支+ARRAY输出, 4份文档已同步
+  - V13.0.0 文档同步: DSN/TEC已完成, PM_SESSION回写中
+- completed:
+  - V12.0.0 防呆锁存+手动/自动模式: 源码+文档已完成
+  - V13.0.0 引脚重命名: 源码已完成
+  - V11.0.0 结构体接口重构: 源码+文档已完成
 - next_up:
-  - P1: 修复首次上电状态处理
-  - P2: FB_1014 同步更新 ST_Cylinder 引用路径
-  - P3: 通用化场景测试（气缸/真空阀/双作用气缸）
+  - P1: PLC编译验证结构体接口兼容性
+  - P2: 调用方迁移(从扁平接口到i_stCmd/q_stSts)
+  - P3: FB_1014 同步更新接口引用
+  - P4: 通用化场景测试（气缸/真空阀/双作用气缸）
+  - P5: 手动模式现场调试验证
 - open_questions:
   - 双线圈极性取反语义需现场确认
   - E-STOP时双线圈安全策略需电气工程师确认
 - risks_dependencies:
   - 依赖 FB_TON/FB_TONR (SysLib/timer/)
-  - FB_1014 需同步更新 ST_Cylinder 引用路径
-  - V10.0.0 Breaking Change: 调用方需从q_bSolenoid改为q_aSolenoid[0]
-  - 需实际PLC编译验证ARRAY输出兼容性
+  - 依赖 ST_CylinderCmd/ST_CylinderSts (ST_Cylinder.scl V3.1.0)
+  - V11.0.0 Breaking Change: 调用方需从扁平i_bXxx/q_bXxx改为i_stCmd.Xxx/q_stSts.Xxx
+  - V13.0.0 Breaking Change: 调用方需从stCmd/stSts改为i_stCmd/q_stSts
+  - 需实际PLC编译验证结构体+CONSTANT输入兼容性
 - spec_compliance:
-  - last_check: 2026-06-17
-  - result: 定时器调用已对齐LSP-903 V2.1.0, 变量命名/注释规范已通过
+  - last_check: 2026-06-18
+  - result: 定时器调用已对齐LSP-903 V2.1.0, 变量命名/注释规范已通过, 结构体接口对齐SysLib风格, 引脚命名对齐LSP-905 V1.0.2 §3.1
 
 ## 4. Artifacts Index（文档索引）
 - req:
@@ -69,6 +76,34 @@
   - (无迭代记录)
 
 ## 6. Implementation Log
+- 2026-06-18 | skill=plc-electrical-engineer | mode=功能开发(结构体接口重构)
+  - goal: V11.0.0 扁平接口→结构体接口, SolenoidType对齐实际场景, 真空阀纳入
+  - changed_files:
+    - ST_Cylinder.scl (V2.1.0→V3.0.0, 拆分为ST_CylinderCmd+ST_CylinderSts)
+    - FB_1011_CylinderControl.scl (V10.0.0→V11.0.0, 结构体接口)
+    - PRD/需求分析文档_REQ.md (V10.0.0→V11.0.0)
+    - PRD/接口文档_INT.md (V10.0.0→V11.0.0)
+    - PRD/详细设计说明书_DSN.md (V10.0.0→V11.0.0)
+    - PRD/技术方案文档_TEC.md (V10.0.0→V11.0.0)
+    - PM_SESSION_FB1011.md (回写)
+  - changes:
+    - 接口重构(Breaking): VAR_INPUT CONSTANT i_stCmd:ST_CylinderCmd + VAR_OUTPUT q_stSts:ST_CylinderSts
+    - q_aSolenoid[0..7]→SolenoidA/SolenoidB两个独立BOOL
+    - SolenoidType注释: 0=二位三通单线圈弹簧复位(气缸阀/真空阀), 1=双线圈中封阀(失电中封保持)
+    - 真空阀纳入SolenoidType=0, 真空检测有真空表达到设定ON
+    - FB引脚: 14→2 (1个输入结构体+1个输出结构体)
+    - ST_CylinderCmd CONSTANT声明禁止FB内部篡改
+    - 4份文档同步V11.0.0, 接口文档变量命名全局更新
+  - impact: 调用方需从扁平i_bXxx/q_bXxx迁移到i_stCmd.Xxx/q_stSts.Xxx; 结构体支持整体保存/传递/快照; 频繁实例化场景引脚数大幅降低
+  - risks: 需PLC编译验证结构体+CONSTANT输入兼容性; 调用方迁移工作量取决于实例数量
+
+- 2026-06-17 | skill=plc-electrical-engineer | mode=功能块分析讨论
+  - goal: 分析讨论FB_1011_CylinderControl功能块的设计、实现和风险
+  - changed_files: 无(本次为分析讨论,无代码变更)
+  - changes: 无
+  - impact: 完成功能块的全面分析，识别工艺视角、TIA实现、规范符合性和风险验证需求
+  - risks: 无
+
 - 2026-06-17 | skill=plc-electrical-engineer | mode=规范检查(新技能完整流程验证)
   - goal: 用修复后的PLC技能(Step0命令合并+Step6强制动作+Step7退出协议)重新跑FB_1011完整流程
   - changed_files: 无(本次为规范检查,无代码变更)
@@ -102,7 +137,6 @@
     - 规范: 从内联展开→索引表(9个规范只保留路径+用途)
     - 删除: FB_1011/1012/1013等具体场景模板硬编码(→外置references/)
     - 删除: 五通道分析详细描述(→保留通道定义表+深度矩阵)
-    - 删除: TIA编程常识/工程上下文/结构体设计方法等冗余段
   - impact: 技能上下文大幅缩小, 不易被压缩丢失; 流程化执行减少遗漏; 强制规则显式化
   - risks: 场景模板外置后需确认按需加载机制; 首次使用需验证Step 0-7完整性
 
@@ -254,6 +288,19 @@
     - 待 FB_1014 引用路径同步
 
 ## 8. Handoff Notes
+- 2026-06-17 | from=plc-electrical-engineer
+  - current_state: FB_1011_CylinderControl功能块分析完成，包含工艺视角、TIA实现、规范符合性和风险验证全面评估
+  - next_focus: PLC编译验证V10.0.0，或处理P1首次上电状态修复
+  - watchouts:
+    - ⚠️ Breaking Change: 调用方需从q_bSolenoid改为q_aSolenoid[0]
+    - ⚠️ 双线圈极性语义需现场确认
+    - ⚠️ E-STOP安全策略需电气工程师确认
+    - ⚠️ 首次上电状态处理待修复
+  - read_first:
+    - PM_SESSION_FB1011.md (§6-§9 本次回写)
+    - FB_1011_CylinderControl.scl (V10.0.0)
+    - 验证需求清单（§4风险与验证部分）
+
 - 2026-06-17 | from=plc-electrical-engineer
   - current_state: V10.0.0 规范检查完成(注释/极性/文档引用修复), 源码与DSN/文档完全对齐
   - next_focus: PLC技能自检与改进; 或PLC编译验证V10.0.0

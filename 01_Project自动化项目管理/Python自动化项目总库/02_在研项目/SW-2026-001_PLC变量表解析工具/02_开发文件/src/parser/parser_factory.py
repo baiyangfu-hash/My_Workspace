@@ -12,6 +12,7 @@ from .autoshop_parser import AutoshopParser
 from .work3_parser import Work3Parser
 from .codesys_parser import CodesysParser
 from .scl_parser import SclParser
+from .intdoc_parser import IntDocParser
 
 
 class ParserFactory:
@@ -43,6 +44,8 @@ class ParserFactory:
             return CodesysParser(file_path)
         elif plc_format == 'scl':
             return SclParser(file_path)
+        elif plc_format == 'intdoc':
+            return IntDocParser(file_path)
         else:
             return None
     
@@ -54,4 +57,4 @@ class ParserFactory:
         返回:
             list: 支持的格式列表
         """
-        return ['autoshop', 'work3', 'codesys', 'scl']
+        return ['autoshop', 'work3', 'codesys', 'scl', 'intdoc']

@@ -30,6 +30,7 @@ const routes = {
   dashboard: { module: null, title: "总览" },
   detail: { module: null, title: "项目详情" },
   change: { module: null, title: "变更管理" },
+  standardize: { module: null, title: "标准化管理" },
 };
 
 /* ========== 路由初始化 ========== */
@@ -38,6 +39,7 @@ function initRouter() {
   routes.dashboard.module = DashboardModule;
   routes.detail.module = DetailModule;
   routes.change.module = ChangeModule;
+  routes.standardize.module = StandardizeModule;
 
   // 监听 hash 变化
   window.addEventListener("hashchange", () => navigate(location.hash));

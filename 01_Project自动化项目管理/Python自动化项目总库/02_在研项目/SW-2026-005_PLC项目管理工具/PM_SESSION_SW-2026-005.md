@@ -8,15 +8,15 @@
 - owners: 电气工程师(用户) + Trae AI(开发)
 
 ## 1. Positioning（项目定位）
-- one_liner: 从项目文档自动提取信息的PLC项目看板 + 变更管理工具
-- users: 电气工程师，管理0100_PLC自动化/下多PLC项目的状态和变更
-- non_goals: 不做IDE、不做在线协作、不做PLC代码编辑、不做规范检查/诊断/文档生成/自动修复/Excel导出等12个非核心功能
-- key_principle: 数据来自项目文档，文档更新则总览自动更新；规范是基准，工具不迁就非规范格式
+- one_liner: PLC项目看板 + 变更管理 + 标准化管理工具（V9.0.0新增第三核心功能）
+- users: 电气工程师，管理0100_PLC自动化/下多PLC项目的状态、变更和结构合规性
+- non_goals: 不做IDE、不做在线协作、不做PLC代码编辑、不做Excel导出等8个非核心功能（V9解除规范检查/自动修复/文档标准化3项限制）
+- key_principle: 数据来自项目文档，文档更新则总览自动更新；规范是基准，工具不迁就非规范格式；工具承载标准化逻辑减少AI技能上下文消耗
 
 ## 2. Current Focus（当前焦点）
-- current_focus: Phase 3 稳定化 — 需求对齐完成(PRD V8.1.0)，AC-01.6筛选已实现，待F3打包+SEC-02路径遍历修复
-- milestone: Phase 3 — 稳定化与交付
-- acceptance: E2E冒烟通过 + UI边界态检查通过 + PyInstaller打包exe可运行
+- current_focus: V9标准化管理实现完成 — STD-1/2/3全链路通过,合规率25%→100%,待F3打包+GUI桌面验证
+- milestone: Phase STD — 标准化管理（V9.0.0）
+- acceptance: 全量扫描8项目 + 全量修复合规率100% + E2E静态结构165/166 + 单元测试148 passed
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
@@ -229,6 +229,68 @@
     - src/parsers/proj_parser.py (_extract_project_id改为从文件名和各级父目录逐级向上提取)
   - impact: PLC项目(DJ-2026-005)和Python项目(SW-2026-001/SW-2026-005)均可被正确扫描和解析
   - risks: _PROJ_FILE_PATTERNS中"立项表*.md"模式可能误匹配非立项表文件; _scan_change_dir递归无深度限制理论上可扫描很深但实际CHG目录结构有限
+- 2026-06-19 | skill=fullstack-engineer | mode=后端(功能开发)
+  - goal: 新增 PLC 项目初始化(plc-init)和结构检查(plc-check)功能，使 SW-2026-005 可标准化 PLC 项目结构
+  - changed_files:
+    - src/services/plc_project_service.py (新增, 330行): PlcProjectService — init_project(创建标准LSP-907目录骨架+模板文件) + check_project(7项检查含.plc.json/PM_SESSION/PRD文档/目录结构) + check_workspace(递归扫描)
+    - cli.py (新增plc-init/plc-check子命令+cmd_plc_init/cmd_plc_check/_print_check_result)
+  - artifacts: 无新增
+  - impact: 工具可创建标准PLC项目(含.plc.json/PM_SESSION/PRD四件套模板/目录结构); 可检查现有项目结构合规性(支持standard/syslib_fb两种项目类型)
+  - risks: init_project模板路径硬编码为标准LSP-907布局，SysLib FB项目结构不同不可直接init; check_workspace的--all扫描依赖项目自识别逻辑(FB_前缀/PM_SESSION/plc.json)，可能漏检或误检
+- 2026-06-19 | skill=pm-workflow | mode=需求+方案
+  - goal: 澄清「标准化管理PLC项目」需求并输出方案文档
+  - changed_files: 01_项目文档/02_规划过程/010_PLC标准化管理功能方案_PLAN.md (新增)
+  - changes:
+    - 扫描0100_PLC自动化全量项目: 7个项目0个全PASS，主要问题: 缺PRD目录/缺标准目录/缺PM_SESSION/PRD命名不标准
+    - 需求澄清: 用户确认全功能(结构检查+初始化+自动修复+文档标准化)+报告+自动修复+独立标签页
+    - 用户补充诉求: "需要PLC管理工具来迭代增加功能，减少技能的上下文"
+    - 方案输出: 4个子功能设计(plc-check增强/plc-init增强/plc-repair新增/plc-standardize新增) + Service/Bridge/CLI/UI架构扩展 + 3阶段路线图 + PLC技能协作模型
+  - impact: PRD需从V8.1.0升级至V9.0.0，标准化管理成为第三个核心功能模块；方案待评审后进入Phase STD-1实现
+  - risks: 文件重命名可能破坏文档交叉引用; SysLib FB项目结构与标准项目不同需区分检查规则; PRD non_goals需解除部分限制(规范检查/自动修复/文档生成)
+- 2026-06-19 | skill=fullstack-engineer | mode=需求+规划
+  - goal: 更新PRD V8.1.0→V9.0.0并分解V9标准化管理任务
+  - changed_files:
+    - 00_项目基础信息/001_产品需求文档_PRD.md (V8.1.0→V9.0.0): §1新增V9诊断(7项目0全PASS); §2新增US-05~08(结构检查/初始化/修复/标准化); §2.3解除NG-06/08/09/11限制新增NG-14~16; §4新增PlcProjectService和CheckResult/RepairResult/StandardizeResult数据结构; §5新增Phase STD-1/2/3路线图
+    - 01_项目文档/02_规划过程/011_V9标准化管理任务分解_TASKS.md (新增): STD-1(5任务后端)/STD-2(2任务前端)/STD-3(3任务集成验证)
+  - impact: 标准化管理从non-goal转为核心功能; PRD解除4项non-goal限制; 任务分解覆盖Service/CLI/Bridge/UI/测试全链路
+  - risks: 无
+- 2026-06-19 | skill=fullstack-engineer | mode=后端(功能开发)
+  - goal: STD-1 实现V9标准化管理后端(PlcProjectService扩展+CLI命令)
+  - changed_files:
+    - src/services/plc_project_service.py (重大扩展): 新增NAMING_RULES常量(4种文档正则); 新增RepairAction/RepairResult/RenamePlan/StandardizeResult数据结构; check_workspace默认深度2→4; _scan_and_check精简识别规则(移除.scl/PRD目录规则,保留.plc.json/PM_SESSION/FB_前缀); 新增repair_project/repair_workspace/standardize_docs/standardize_workspace方法; 新增6个修复辅助方法(_repair_plc_json/_repair_pm_session/_repair_prd_dir/_repair_prd_doc/_repair_std_dir/_repair_rename); 新增_compute_libraries(向上查找SysLib计算相对路径)/_update_references(重命名后更新引用)
+    - cli.py: 新增plc-repair命令(支持--all/--dry-run/--rename-confirm); 新增plc-standardize命令(支持--all/--apply); plc-check默认depth 2→4; 新增_print_repair_result/_print_standardize_result格式化输出
+  - impact: 工具可自动修复项目结构(创建目录/文件/补全字段,破坏性操作需确认); 可标准化文档命名(检测→预览→确认→重命名→备份→更新引用)
+  - risks: 文件重命名可能破坏交叉引用(已通过_update_references缓解); libraries路径计算依赖目录结构约定(01_SharedLibraries/SysLib)
+- 2026-06-19 | skill=fullstack-engineer | mode=后端(测试)
+  - goal: STD-1.5 新增V9标准化管理单元测试
+  - changed_files: tests/test_plc_project_service.py (新增, 17个测试用例)
+  - test_classes:
+    - TestCheckProject (4测试): 标准项目检查/SysLib FB检查/扫描深度4/默认深度
+    - TestRepairProject (7测试): 修复.plc.json/PM_SESSION/PRD目录+文档/标准目录/dry-run/已通过项目/重命名确认
+    - TestStandardizeDocs (5测试): 仅检测/执行重命名/无PRD目录/已标准/引用更新
+    - TestNamingRules (1测试): 命名规范完整性
+  - impact: 17/17测试通过,覆盖repair/standardize核心边界用例
+  - risks: 无
+- 2026-06-19 | skill=fullstack-engineer | mode=前端(功能开发)
+  - goal: STD-2 实现V9标准化管理前端(WebViewBridge API+standardize.js模块)
+  - changed_files:
+    - src/bridge/webview_bridge.py: 新增5个V9 API(plc_check_all/plc_check_project/plc_init_project/plc_repair_project/plc_standardize_project); 新增4个辅助方法(_resolve_project_path/_check_result_to_dict/_repair_result_to_dict/_standardize_result_to_dict)
+    - ui/js/api.js: 新增5个API方法(plcCheckAll/plcCheckProject/plcInitProject/plcRepairProject/plcStandardizeProject)
+    - ui/js/standardize.js (新增, 437行): StandardizeModule完整实现 — _renderMain(扫描+新建按钮+仪表盘+项目列表+详情面板)/_scanAll/_renderDashboard(5统计卡片)/_renderProjectList/_showDetail(逐项pass/warn/fail+修复按钮)/_repairProject(破坏性操作确认)/_renderRepairResult/_standardizeProject(预览+执行)/_showInitWizard(新建项目向导)
+    - ui/index.html: 导航栏新增"标准化管理"链接; 新增standardize.js引用
+    - ui/js/app.js: 路由表新增standardize路由,initRouter绑定StandardizeModule
+    - ui/css/app.css: 新增V9标准化管理页样式(std-dashboard/std-stats/std-project-list/std-detail-panel等)
+  - impact: GUI新增独立标准化管理标签页,支持扫描/检查/修复/标准化/新建项目全流程交互
+  - risks: GUI E2E需桌面环境验证(WebView2 Runtime)
+- 2026-06-19 | skill=fullstack-engineer | mode=集成验证
+  - goal: STD-3 集成验证(全量扫描+修复+GUI E2E)
+  - verified:
+    - STD-3.1 全量扫描: 8个项目(2 PASS/6 FAIL),项目识别规则修复后不再误识别OB1/pickplace等子目录
+    - STD-3.2 全量修复: 6个FAIL项目全部修复到fail=0,合规率25%(2/8)→100%(8/8); 修复统计: SysLib fixed=10/FB_1012 fixed=3/FB_1013 fixed=3/FB_1014 fixed=2/DJ-2026-000 fixed=10/通用ST fixed=11
+    - STD-3.3 GUI E2E: 静态结构验证165/166通过(唯一失败为预存dashboard.js _loadData); V9 API契约24项全PASS; 单元测试148 passed(唯一失败为预存符号链接测试)
+  - changed_files: tests/ui/run_e2e.py (扩展V9测试: HTML结构+JS模块+CSS样式+MockBridge V9 API+契约验证)
+  - impact: V9标准化管理功能全链路验证通过,工具可承载标准化逻辑减少AI技能上下文消耗
+  - risks: 破坏性重命名操作需用户在GUI显式确认(已实现); libraries路径计算依赖目录结构约定
 
 ## 7. Verification Log
 - 2026-06-06 (需求对齐 + AC-01.6筛选功能)

@@ -1,7 +1,7 @@
 ---
 spec_id: DEV-220
 title: Python项目打包规范
-version: V2.2.0
+version: V2.3.0
 domain: python
 lifecycle: stable
 canonical_path: 01_Project自动化项目管理/00_通用规范/Python开发/220_Python项目打包规范_DEV.md
@@ -16,16 +16,17 @@ tags:
 
 ## 1. 文档基础信息
 
-**文档标题**：Python项目打包规范（纯exe交付版）
-**文档版本**：V2.2.0
+**文档标题**：Python项目打包规范
+**文档版本**：V2.3.0
 **编制日期**：2026-04-15
 **编制人**：技术团队
 **审核人**：[审核人姓名]
 
 ## 2. 版本变更记录
 
-| 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
-|--------|----------|--------|----------|----------|
+| 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
+|--------|----------|--------|----------|----------|
+| V2.3.0 | 补充hatchling打包模式 | auto-pm | 2026-06-21 | 1)新增hatchling+pyproject.toml打包模式 2)PyInstaller模式降级为可选方案 3)补充pip install -e .开发模式和hatch build构建流程 |
 | V2.2.0 | 规范缺陷修复+构建脚本强制化 | AI Assistant | 2026-04-15 | 1)D1:消除L526 Compress-Archive矛盾 2)D2:目录结构对齐实际项目 3)D3:ZIP阈值更新至150-170MB 4)D4:新增附录A(标准构建脚本build_delivery.py) |
 | V2.1.0 | AI打包风险控制+强制验证机制+两阶段流程标准化 | AI Assistant | 2026-04-15 | 1)新增第15节AI辅助打包风险控制 2)新增第16节两阶段交付标准流程 3)强化第17节打包后验证为强制性检查 4)新增关键文件阈值校验(文件数/大小/核心程序) 5)补充AI打包遗漏真实案例 |
 | V2.0.0 | 全面升级：完整交付物归档+命名标准统一 | AI Assistant | 2026-04-12 | 1)统一命名格式为{系统名称}_V{版本号}_{日期}.zip 2)新增第11节完整交付物归档章节 3)定义8大目录归档结构 4)对齐通用交付规范 |
@@ -35,38 +36,54 @@ tags:
 
 ## 3. 范围
 
-本规范适用于所有Python项目的exe打包和发布过程，旨在确保项目能够被正确打包成无需安装的可执行文件，便于分发和使用。
-
-**核心原则**：
-- 只交付exe文件，用户双击即可运行
-- 无需任何安装步骤
-- 无需配置Python环境
-- 无需安装任何依赖库
-- 绿色便携，可在任意Windows系统运行
+本规范适用于所有Python项目的打包和发布过程，涵盖两种打包模式：
+
+1. **hatchling + pyproject.toml 模式**（推荐）：适用于库和CLI工具，通过 pip 安装使用
+2. **PyInstaller exe 模式**（可选）：适用于桌面 GUI 应用，打包为独立可执行文件
+
+**核心原则**：
+- 库/CLI工具优先使用 hatchling 打包，通过 pip 安装分发
+- 桌面 GUI 应用使用 PyInstaller 打包为 exe，用户双击即可运行
+- 无需配置Python环境，无需安装任何依赖库
 
 ## 4. 术语定义
 
 | 术语 | 定义 |
 |------|------|
-| exe打包 | 将Python项目打包成Windows可执行文件（.exe） |
-| 无需安装 | 用户无需安装Python环境即可直接运行exe文件 |
-| 单文件打包 | 将所有内容打包成一个exe文件，包含Python解释器和所有依赖 |
-| 绿色版 | 无需安装，解压后双击即可运行 |
-| 便携版 | 可以将整个应用放入U盘中随身携带使用 |
+| exe打包 | 将Python项目打包成Windows可执行文件（.exe） |
+| hatchling打包 | 使用hatchling构建后端打包为sdist/wheel |
+| 无需安装 | 用户无需安装Python环境即可直接运行exe文件 |
+| 单文件打包 | 将所有内容打包成一个exe文件，包含Python解释器和所有依赖 |
+| 绿色版 | 无需安装，解压后双击即可运行 |
+| 便携版 | 可以将整个应用放入U盘中随身携带使用 |
+| 开发模式 | pip install -e . 以可编辑模式安装，代码修改即时生效 |
+| 生产模式 | pip install . 安装到Python环境，适合正式使用 |
 
-## 5. 打包工具
+## 5. 打包工具
+
+### 5.1 hatchling（推荐）
+
+hatchling 是现代化的 Python 构建后端，配合 pyproject.toml 使用，是 PEP 517/518 标准的实现。
+
+**特点**：
+- 符合 PEP 517/518 标准
+- 配置集中在 pyproject.toml
+- 支持 sdist/wheel 构建
+- 开发模式安装（pip install -e .）
+- 社区活跃，Hatch 生态完善
+
+### 5.2 PyInstaller（可选，用于桌面应用）
+
+PyInstaller是最流行的Python打包工具，支持将Python程序打包成独立的可执行文件。
+
+**特点**：
+- 支持Windows、Linux、macOS
+- 支持单文件和目录打包
+- 自动分析依赖关系
+- 支持图标和版本信息
+- 适用于 PySide6/PyQt GUI 应用打包
 
-### 5.1 PyInstaller
-
-PyInstaller是最流行的Python打包工具，支持将Python程序打包成独立的可执行文件。
-
-**特点**：
-- 支持Windows、Linux、macOS
-- 支持单文件和目录打包
-- 自动分析依赖关系
-- 支持图标和版本信息
-
-### 5.2 cx_Freeze
+### 5.3 cx_Freeze
 
 cx_Freeze是另一个流行的Python打包工具，支持跨平台打包。
 
@@ -76,7 +93,7 @@ cx_Freeze是另一个流行的Python打包工具，支持跨平台打包。
 - 支持服务打包
 - 社区活跃
 
-### 5.3 Nuitka
+### 5.4 Nuitka
 
 Nuitka是一个Python编译器，可以将Python代码编译成C代码，然后生成可执行文件。
 
@@ -86,7 +103,7 @@ Nuitka是一个Python编译器，可以将Python代码编译成C代码，然后�
 - 支持C扩展
 - 编译时间较长
 
-### 5.4 PyOxidizer
+### 5.5 PyOxidizer
 
 PyOxidizer是一个现代化的Python打包工具，使用Rust实现。
 
@@ -96,24 +113,124 @@ PyOxidizer是一个现代化的Python打包工具，使用Rust实现。
 - 配置简单
 - 支持嵌入式Python
 
-## 6. 打包流程
-
-### 6.1 准备工作
+## 6. 打包流程
+
+### 6.0 模式选择
+
+| 项目类型 | 推荐模式 | 安装方式 |
+|----------|----------|----------|
+| CLI 工具（如 auto-pm、specmgr） | hatchling + pyproject.toml | `pip install .` 或 `pip install -e .` |
+| 库/SDK | hatchling + pyproject.toml | `pip install .` 或 `pip install -e .` |
+| 桌面 GUI 应用（PySide6/PyQt） | PyInstaller exe | 双击 exe 运行 |
+
+### 6.1 hatchling + pyproject.toml 打包（推荐）
+
+#### 6.1.1 pyproject.toml 配置
+
+```toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "auto-pm"
+version = "2.0.0"
+description = "自动化项目管理工具"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+]
+
+[project.scripts]
+auto-pm = "cli.__main__:cli"
+specmgr = "cli.specmgr:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-qt>=4.0",
+]
+```
+
+#### 6.1.2 开发模式安装
+
+```bash
+# 开发模式：代码修改即时生效，无需重新安装
+pip install -e .
+
+# 带开发依赖
+pip install -e ".[dev]"
+```
+
+**适用场景**：
+- 日常开发调试
+- 代码修改后立即测试
+- 多项目联调
+
+#### 6.1.3 生产模式安装
+
+```bash
+# 生产模式：安装到 Python 环境
+pip install .
+
+# 从 PyPI 安装（发布后）
+pip install auto-pm
+```
+
+**适用场景**：
+- 正式环境部署
+- 用户安装使用
+
+#### 6.1.4 构建 sdist/wheel
+
+```bash
+# 安装 hatch
+pip install hatch
+
+# 构建 sdist 和 wheel
+hatch build
+
+# 输出位置: dist/
+#   dist/auto_pm-2.0.0.tar.gz  (sdist)
+#   dist/auto_pm-2.0.0-py3-none-any.whl  (wheel)
+```
+
+#### 6.1.5 验证构建产物
+
+```bash
+# 检查 wheel 内容
+python -m zipfile -l dist/auto_pm-2.0.0-py3-none-any.whl
+
+# 在干净环境中测试安装
+pip install dist/auto_pm-2.0.0-py3-none-any.whl
+auto-pm --help
+```
+
+### 6.2 准备工作
 
 1. **项目结构**：确保项目结构清晰，入口文件明确
 2. **依赖管理**：使用requirements.txt或pyproject.toml管理依赖
 3. **资源文件**：确保资源文件（图片、配置等）路径正确
 4. **测试验证**：确保项目在开发环境中运行正常
 
-### 6.2 安装打包工具
-
-#### 6.2.1 安装PyInstaller
+### 6.3 安装打包工具
+
+#### 6.3.1 安装hatchling
+
+```bash
+pip install hatchling
+```
+
+#### 6.3.2 安装PyInstaller
 
 ```bash
 pip install pyinstaller
 ```
 
-#### 6.2.2 安装cx_Freeze
+#### 6.3.3 安装cx_Freeze
 
 ```bash
 pip install cx_Freeze
@@ -125,9 +242,9 @@ pip install cx_Freeze
 pip install nuitka
 ```
 
-### 6.3 PyInstaller打包
-
-#### 6.3.1 基本打包命令
+### 6.4 PyInstaller打包（可选，用于桌面应用）
+
+#### 6.4.1 基本打包命令
 
 ```bash
 # 单文件打包
@@ -140,7 +257,7 @@ pyinstaller --onedir main.py
 pyinstaller --distpath ./output main.py
 ```
 
-#### 6.3.2 常用参数
+#### 6.4.2 常用参数
 
 | 参数 | 说明 |
 |------|------|
@@ -156,7 +273,7 @@ pyinstaller --distpath ./output main.py
 | `--clean` | 清理缓存 |
 | `--noconfirm` | 不询问确认 |
 
-#### 6.3.3 完整打包示例
+#### 6.4.3 完整打包示例
 
 ```bash
 pyinstaller ^
@@ -232,9 +349,9 @@ exe = EXE(
 pyinstaller MyApp.spec
 ```
 
-### 6.4 cx_Freeze打包
-
-#### 6.4.1 创建setup.py
+### 6.5 cx_Freeze打包
+
+#### 6.5.1 创建setup.py
 
 ```python
 import sys
@@ -259,21 +376,21 @@ setup(
 )
 ```
 
-#### 6.4.2 打包命令
+#### 6.5.2 打包命令
 
 ```bash
 python setup.py build
 ```
 
-### 6.5 Nuitka打包
-
-#### 6.5.1 基本打包命令
+### 6.6 Nuitka打包
+
+#### 6.6.1 基本打包命令
 
 ```bash
 nuitka --standalone --onefile --enable-plugin=pyqt5 main.py
 ```
 
-#### 6.5.2 常用参数
+#### 6.6.2 常用参数
 
 | 参数 | 说明 |
 |------|------|
@@ -1062,8 +1179,18 @@ Release APPROVED ✓
 
 ---
 
-## 14. 版本详细变更说明
-
+## 14. 版本详细变更说明
+
+<a name="v230"></a>
+### V2.3.0 版本详细变更
+1. 新增 hatchling + pyproject.toml 打包模式（§6.1），作为推荐模式
+2. PyInstaller exe 打包模式降级为可选方案（§6.4），仅用于桌面 GUI 应用
+3. 新增模式选择指引（§6.0）
+4. 新增术语定义：hatchling打包、开发模式、生产模式
+5. 更新打包工具章节，hatchling 列为首选
+
+[↑ 返回版本变更记录](#2-版本变更记录)
+
 <a name="v210"></a>
 ### V2.1.0 版本详细变更
 1. 新增第15节：AI辅助打包风险控制（基于2026-04-15 V2.4.1豆包打包遗漏事件）
@@ -1191,7 +1318,7 @@ Release APPROVED ✓
 
 ---
 
-**文档版本**: V2.2.0
+**文档版本**: V2.3.0
 **编制日期**: 2026-04-15
 **编制人**: 技术团队
 **审核人**: [审核人姓名]

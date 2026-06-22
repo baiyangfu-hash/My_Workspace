@@ -143,6 +143,61 @@ class MockBridge:
     def refresh_cache(self, project_id=None):
         return {"status": "ok"}
 
+    # ── V9 标准化管理 API Mock ──
+
+    def plc_check_all(self):
+        return {
+            "total": 2,
+            "pass_count": 1,
+            "warn_count": 0,
+            "fail_count": 1,
+            "compliance_rate": 50.0,
+            "projects": [
+                {"project_path": "C:/test/DJ-2026-005", "project_id": "DJ-2026-005",
+                 "project_name": "DJ-2026-005", "project_type": "standard",
+                 "pass_count": 13, "warn_count": 0, "fail_count": 0,
+                 "all_pass": True, "items": []},
+                {"project_path": "C:/test/DJ-2026-000", "project_id": "DJ-2026-000",
+                 "project_name": "DJ-2026-000", "project_type": "standard",
+                 "pass_count": 3, "warn_count": 0, "fail_count": 6,
+                 "all_pass": False, "items": [
+                     {"item": "PRD 目录", "status": "fail", "message": "缺少 PRD/ 目录"},
+                 ]},
+            ],
+        }
+
+    def plc_check_project(self, project_path):
+        return {"project_path": project_path, "project_id": "DJ-2026-005",
+                "pass_count": 13, "warn_count": 0, "fail_count": 0,
+                "all_pass": True, "items": []}
+
+    def plc_init_project(self, project_id, project_name, project_type="standard", description=""):
+        if not project_id:
+            return {"error": "ValueError", "message": "project_id 不能为空"}
+        return {"project_id": project_id, "project_path": f"C:/test/{project_id}",
+                "created_files": [".plc.json", "PM_SESSION_" + project_id + ".md"],
+                "dry_run": False}
+
+    def plc_repair_project(self, project_path, rename_confirm=False):
+        return {"project_path": project_path,
+                "before_check": {"pass_count": 3, "warn_count": 0, "fail_count": 6},
+                "after_check": {"pass_count": 13, "warn_count": 0, "fail_count": 0},
+                "actions": [
+                    {"item": "PRD 目录", "action": "创建 PRD/ 目录",
+                     "destructive": False, "status": "fixed", "detail": "创建 PRD/ 目录"},
+                ],
+                "fixed_count": 10, "skipped_count": 0, "failed_count": 0}
+
+    def plc_standardize_project(self, project_path, apply=False):
+        return {"project_path": project_path, "apply": apply,
+                "renames": [
+                    {"old_name": "接口文档_IFC-FB1012-V9.0.0.md",
+                     "new_name": "接口文档_INT.md",
+                     "reason": "命名不匹配标准规范"},
+                ],
+                "rename_count": 1, "applied": apply,
+                "backup_dir": ".backup/20260619" if apply else None}
+
     def get_spec_constants(self):
         return {
             "domains": {"ELEC": "电气设计", "MECH": "机械结构", "PLC": "PLC程序",
@@ -389,14 +444,13 @@ def run_no_gui_tests():
     t.assert_true("HTML: 加载 dashboard.js", 'js/dashboard.js' in html)
     t.assert_true("HTML: 加载 detail.js", 'js/detail.js' in html)
     t.assert_true("HTML: 加载 change.js", 'js/change.js' in html)
+    t.assert_true("HTML: 加载 standardize.js", 'js/standardize.js' in html)
     t.assert_true("HTML: 加载 app.css", 'css/app.css' in html)
+    t.assert_true("HTML: 标准化管理导航链接", '#/standardize' in html)
 
     # ---- JS 模块验证 ----
     print("\n--- JS 模块 ---")
     js_files = {
-        "api.js": ["Api", "_call", "getWorkspaceProjects", "getProjectDetail",
-                    "getProjectChanges", "createChangeRequest", "listChangeRequests",
-                    "getChangeRequest", "transitionStatus", "refreshCache"],
         "app.js": ["initRouter", "navigate", "showToast", "showModal", "closeModal",
                     "STATUS_LABELS", "DOMAIN_LABELS", "NATURE_LABELS", "URGENCY_LABELS",
                     "PHASE_LABELS", "statusBadge", "formatDate"],
@@ -406,6 +460,16 @@ def run_no_gui_tests():
                        "_renderWizardStep", "_onWizardNext", "_submitCreate",
                        "_renderTransitionButtons", "_onTransition", "_doTransition",
                        "btn-transition", "change-row"],
+        "standardize.js": ["StandardizeModule", "_renderMain", "_scanAll",
+                            "_renderDashboard", "_renderProjectList", "_showDetail",
+                            "_repairProject", "_renderRepairResult", "_standardizeProject",
+                            "_showInitWizard", "plcCheckAll", "plcRepairProject",
+                            "plcStandardizeProject", "plcInitProject"],
+        "api.js": ["Api", "_call", "getWorkspaceProjects", "getProjectDetail",
+                    "getProjectChanges", "createChangeRequest", "listChangeRequests",
+                    "getChangeRequest", "transitionStatus", "refreshCache",
+                    "plcCheckAll", "plcCheckProject", "plcInitProject",
+                    "plcRepairProject", "plcStandardizeProject"],
     }
 
     for filename, symbols in js_files.items():
@@ -432,6 +496,8 @@ def run_no_gui_tests():
         ".form-checkbox-group", ".data-table", ".status-badge",
         ".breadcrumb", ".page-header", ".wizard-steps", ".wizard-step",
         ".filter-bar", ".info-row", ".info-row__label", ".info-row__value",
+        # V9 标准化管理页样式
+        ".std-dashboard", ".std-stats", ".std-project-list", ".std-detail-panel",
     ]
     for cls in css_classes:
         t.assert_true(f"CSS: 定义 {cls}", cls in css)
@@ -481,6 +547,45 @@ def run_no_gui_tests():
 
     refresh = bridge.refresh_cache()
     t.assert_true("API: refresh_cache 返回 status=ok", refresh.get("status") == "ok")
+
+    # ---- V9 标准化管理 Bridge API 契约验证 ----
+    print("\n--- V9 标准化管理 Bridge API 契约 ---")
+
+    check_all = bridge.plc_check_all()
+    t.assert_true("V9 API: plc_check_all 返回dict", isinstance(check_all, dict))
+    t.assert_true("V9 API: check_all 含 total", "total" in check_all)
+    t.assert_true("V9 API: check_all 含 compliance_rate", "compliance_rate" in check_all)
+    t.assert_true("V9 API: check_all 含 projects", "projects" in check_all)
+    t.assert_true("V9 API: check_all projects 是list", isinstance(check_all["projects"], list))
+    t.assert_true("V9 API: check_all 项目含 project_id", "project_id" in check_all["projects"][0])
+    t.assert_true("V9 API: check_all 项目含 all_pass", "all_pass" in check_all["projects"][0])
+
+    check_one = bridge.plc_check_project("C:/test/DJ-2026-005")
+    t.assert_true("V9 API: plc_check_project 返回dict", isinstance(check_one, dict))
+    t.assert_true("V9 API: check_project 含 pass_count", "pass_count" in check_one)
+    t.assert_true("V9 API: check_project 含 fail_count", "fail_count" in check_one)
+
+    init_ok = bridge.plc_init_project("DJ-2026-010", "测试项目")
+    t.assert_true("V9 API: plc_init_project 返回 project_id", "project_id" in init_ok)
+    t.assert_true("V9 API: plc_init_project 返回 created_files", "created_files" in init_ok)
+    init_bad = bridge.plc_init_project("", "测试项目")
+    t.assert_true("V9 API: plc_init_project 空ID返回error", init_bad.get("error") == "ValueError")
+
+    repair = bridge.plc_repair_project("C:/test/DJ-2026-000")
+    t.assert_true("V9 API: plc_repair_project 返回dict", isinstance(repair, dict))
+    t.assert_true("V9 API: repair 含 before_check", "before_check" in repair)
+    t.assert_true("V9 API: repair 含 after_check", "after_check" in repair)
+    t.assert_true("V9 API: repair 含 actions", "actions" in repair)
+    t.assert_true("V9 API: repair 含 fixed_count", "fixed_count" in repair)
+
+    std_preview = bridge.plc_standardize_project("C:/test/DJ-2026-000", apply=False)
+    t.assert_true("V9 API: plc_standardize_project 返回dict", isinstance(std_preview, dict))
+    t.assert_true("V9 API: standardize 含 renames", "renames" in std_preview)
+    t.assert_true("V9 API: standardize 含 rename_count", "rename_count" in std_preview)
+    t.assert_true("V9 API: standardize preview applied=False", std_preview.get("applied") is False)
+    std_apply = bridge.plc_standardize_project("C:/test/DJ-2026-000", apply=True)
+    t.assert_true("V9 API: standardize apply applied=True", std_apply.get("applied") is True)
+    t.assert_true("V9 API: standardize apply 含 backup_dir", "backup_dir" in std_apply)
 
     # ---- 汇总 ----
     passed, total = t.summary()

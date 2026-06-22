@@ -1,5 +1,9 @@
 # pm-mgr — pm-workflow 项目工作流工具链
 
+> **归档通知**: 本项目（SW-2026-007 pm-mgr）已被 SW-2026-008 auto-pm 取代。
+> 所有 pm-mgr 功能已迁移至 auto-pm，pm-workflow 技能已更新为调用 auto-pm。
+> 本项目不再维护，仅供历史参考。
+
 纯 Python CLI 工具，为 pm-workflow 技能提供项目初始化、旧项目补完、健康检查、类型检测和 Spec Snapshot 管理能力。
 
 - **项目编号**：SW-2026-007

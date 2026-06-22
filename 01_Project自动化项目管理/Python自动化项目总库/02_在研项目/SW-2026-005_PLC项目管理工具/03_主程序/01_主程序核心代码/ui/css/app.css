@@ -666,3 +666,178 @@ body {
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
 .gap-8 { gap: 8px; }
 .gap-12 { gap: 12px; }
+
+/* ========== V9 标准化管理页 ========== */
+.standardize-page { padding: 16px; }
+
+.std-dashboard { margin-bottom: 20px; }
+
+.std-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.std-stats .stat-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.std-stats .stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.std-stats .stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.std-stats .stat-pass .stat-value { color: var(--success); }
+.std-stats .stat-warn .stat-value { color: var(--warning); }
+.std-stats .stat-fail .stat-value { color: var(--error); }
+.std-stats .stat-rate .stat-value { color: var(--accent); }
+
+.std-project-list { margin-bottom: 20px; }
+
+.std-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.std-table th {
+  background: var(--bg-input);
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.std-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.std-table .project-row:hover { background: var(--bg-card-hover); }
+
+.std-table .status-pass { color: var(--success); font-weight: bold; }
+.std-table .status-warn { color: var(--warning); font-weight: bold; }
+.std-table .status-fail { color: var(--error); font-weight: bold; }
+
+.std-detail-panel {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.std-detail-panel .detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.std-detail-panel .detail-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.check-item .check-icon { font-weight: bold; min-width: 50px; }
+.check-item .check-name { min-width: 180px; color: var(--text-primary); }
+.check-item .check-msg { flex: 1; color: var(--text-muted); font-size: 12px; }
+
+.check-pass .check-icon { color: var(--success); }
+.check-warn .check-icon { color: var(--warning); }
+.check-fail .check-icon { color: var(--error); }
+
+.detail-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.repair-summary {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+
+.repair-stat { font-size: 14px; color: var(--text-muted); }
+
+.repair-action {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.action-fixed .action-status { color: var(--success); }
+.action-skipped .action-status { color: var(--warning); }
+.action-failed .action-status { color: var(--error); }
+
+.repair-comparison {
+  margin-top: 12px;
+  padding: 8px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.rename-plan {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.rename-plan .plan-type { font-weight: bold; color: var(--accent); min-width: 50px; }
+.rename-plan .plan-old { color: var(--text-muted); }
+.rename-plan .plan-arrow { color: var(--text-muted); }
+.rename-plan .plan-new { color: var(--text-primary); }
+.rename-plan.applied { background: rgba(76, 175, 80, 0.1); }
+.rename-plan.skipped { opacity: 0.6; }
+
+.ref-updates { margin-top: 12px; }
+.ref-updates h4 { margin: 0 0 8px 0; font-size: 14px; color: var(--text-primary); }
+.ref-update { padding: 4px 0; font-size: 12px; color: var(--text-muted); }
+
+.wizard { padding: 16px; }
+.wizard-step { margin-bottom: 12px; }
+.wizard-step label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-muted); }
+.wizard-step input, .wizard-step select {
+  width: 100%;
+  padding: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}

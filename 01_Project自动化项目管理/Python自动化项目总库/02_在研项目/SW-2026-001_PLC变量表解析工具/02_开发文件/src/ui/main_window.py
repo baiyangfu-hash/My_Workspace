@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from typing import List, Dict
@@ -51,6 +52,7 @@ class MainWindow:
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(label="打开", command=self.open_file, accelerator="Ctrl+O")
         file_menu.add_command(label="导出", command=self.export_file, accelerator="Ctrl+E")
+        file_menu.add_command(label="解析接口文档", command=self.parse_intdoc, accelerator="Ctrl+I")
         file_menu.add_command(label="创建空文件", command=self.create_empty_file)
         file_menu.add_command(label="转换文件", command=self.convert_file)
         file_menu.add_separator()
@@ -75,6 +77,7 @@ class MainWindow:
         # 绑定快捷键
         self.root.bind("<Control-o>", lambda e: self.open_file())
         self.root.bind("<Control-e>", lambda e: self.export_file())
+        self.root.bind("<Control-i>", lambda e: self.parse_intdoc())
         self.root.bind("<Control-n>", lambda e: self.add_variable())
         self.root.bind("<Control-m>", lambda e: self.edit_variable())
         self.root.bind("<Control-b>", lambda e: self.batch_edit_variables())
@@ -95,6 +98,10 @@ class MainWindow:
         # 导出按钮
         export_button = ttk.Button(toolbar, text="导出", command=self.export_file)
         export_button.pack(side=tk.LEFT, padx=5)
+        
+        # 解析接口文档按钮
+        intdoc_button = ttk.Button(toolbar, text="解析接口文档", command=self.parse_intdoc)
+        intdoc_button.pack(side=tk.LEFT, padx=5)
         
         # 分隔线
         separator = ttk.Separator(toolbar, orient=tk.VERTICAL)
@@ -229,6 +236,89 @@ class MainWindow:
         self.root.wait_window(format_window)
         return result
     
+    def parse_intdoc(self):
+        """
+        解析接口文档(INT.md)并自动导出Excel到同文件夹
+
+        流程：
+            1. 弹出文件选择对话框（.md过滤器）
+            2. 调用IntDocParser解析变量+结构体字段
+            3. 构造导出路径：INT.md所在目录/原文件名_变量表.xlsx
+            4. 调用Exporter.export_to_excel导出多Sheet Excel
+            5. 刷新主表格显示变量
+            6. 弹出成功对话框（含变量数/结构体字段数/导出路径）
+
+        异常处理：
+            - 用户取消选择：静默返回
+            - 解析失败：弹错误框
+            - 导出失败：弹错误框但变量已加载到表格
+            - 解析后变量为空：弹警告框
+        """
+        # 选择接口文档文件
+        file_path = filedialog.askopenfilename(
+            title="选择接口文档(INT.md)",
+            filetypes=[("Markdown文件", "*.md"), ("所有文件", "*.*")]
+        )
+
+        if not file_path:
+            return
+
+        # 创建解析器并解析
+        parser = self.parser_factory.create_parser('intdoc', file_path)
+        if not parser:
+            messagebox.showerror("错误", "创建接口文档解析器失败")
+            return
+
+        try:
+            variables = parser.parse()
+            struct_fields = parser.get_struct_fields()
+        except Exception as e:
+            messagebox.showerror("错误", f"解析接口文档失败: {str(e)}")
+            return
+
+        # 检查解析结果
+        if not variables:
+            messagebox.showwarning(
+                "警告",
+                "解析完成但未提取到变量，请确认文件是接口文档(INT.md)格式"
+            )
+            return
+
+        # 构造导出路径：INT.md所在目录 + 原文件名_变量表.xlsx
+        file_dir = os.path.dirname(file_path)
+        file_basename = os.path.basename(file_path)
+        file_stem = os.path.splitext(file_basename)[0]
+        output_filename = f"{file_stem}_变量表.xlsx"
+        output_path = os.path.join(file_dir, output_filename)
+
+        # 导出Excel
+        export_success = self.exporter.export_to_excel(
+            variables, output_path, struct_fields=struct_fields
+        )
+
+        # 更新主表格状态（重置CSV相关状态，避免后续导出误用Work3格式）
+        self.variables = variables
+        self.original_fieldnames = None
+        self.original_encoding = None
+        self.is_work3_format = False
+        self.variable_table.update_table(self.variables)
+
+        # 反馈结果
+        if export_success:
+            messagebox.showinfo(
+                "成功",
+                f"接口文档解析完成\n"
+                f"• 变量数：{len(variables)}\n"
+                f"• 结构体字段数：{len(struct_fields)}\n"
+                f"• Excel已导出至：{output_path}"
+            )
+        else:
+            messagebox.showerror(
+                "错误",
+                f"Excel导出失败，但变量已加载到表格（共{len(variables)}个）\n"
+                f"可使用\"导出\"按钮手动导出其他格式"
+            )
+
     def export_file(self):
         """
         导出文件
@@ -419,9 +509,10 @@ class MainWindow:
         """
         messagebox.showinfo(
             "关于",
-            "PLC变量表解析工具 v1.0.0\n\n"+
+            "PLC变量表解析工具 v1.1.0\n\n"+
             "用于解析和管理不同PLC软件系统的变量表\n\n"+
-            "支持格式: Autoshop, Work3, Codesys"
+            "支持格式: Autoshop, Work3, Codesys, SCL, 接口文档(INT.md)\n\n"+
+            "快捷键: Ctrl+O打开 Ctrl+E导出 Ctrl+I解析接口文档"
         )
     
     def create_empty_file(self):

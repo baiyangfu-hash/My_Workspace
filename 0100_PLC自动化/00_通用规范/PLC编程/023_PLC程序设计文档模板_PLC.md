@@ -1,7 +1,7 @@
 ---
 spec_id: PLC-023
 title: "PLC程序设计文档模板"
-version: "V2.0.0"
+version: "V2.1.0"
 domain: plc
 lifecycle: stable
 canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/023_PLC程序设计文档模板_PLC.md"
@@ -13,7 +13,7 @@ tags: ["程序设计", "文档模板", "PLC"]
 ## 1. 文档基础信息
 
 **文档标题**：[PLC程序设计文档标题]
-**文档版本**：V2.0.0
+**文档版本**：V2.1.0
 **编制日期**：[日期]
 **编制人**：PLC专家
 **审核人**：[技术负责人/用户]
@@ -26,6 +26,7 @@ tags: ["程序设计", "文档模板", "PLC"]
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
 |--------|----------|--------|----------|----------|
+| V2.1.0 | 修复与905/903/906规范的6项直接矛盾 | AI Assistant | 2026-06-21 | C-02: §6.4.2/§6.5.2定时器示例从TIME字面量改为DINT类型(与903/906对齐); C-03: §6.5.2 METHOD删除CALL_前缀(与905§2.1对齐); C-04: §5.3.2/§6.3/§7.1等中文变量名改为英文(与905§3.3对齐); §6.5.4 DUT_AlarmInfo.nTimestamp从TIME改为DINT; §6.4.2定时器实例从TON改为FB_TON |
 | V2.0.0 | 基于DJ-2026-005项目实践全面重构,新增三层解耦架构、Region标记体系、FB标准化文件头、ST编程规范等核心章节 | Trae | 2026-04-25 | 新增§4.4软件分层架构(三层解耦模型)、§5.3 Region标记编号体系(100~900)、§5.4标准程序执行流程、§6.1.5 FB标准化文件头格式(8个必填项)、§6.4定时器/计数器简化命名、§6.5 IEC 61131-3 ST语言编程规范(METHOD/CASE/DUT)、§7.1前缀体系速查表、§8.1报警编码分段策略重构、§15代码审查检查清单 |
 | V1.0.0 | 初始版本 | PLC专家 | [日期] | 创建初始设计文档 |
 
@@ -111,9 +112,9 @@ tags: ["程序设计", "文档模板", "PLC"]
 
 | 物理地址 | 逻辑变量名 | 数据类型 | 方向 | 所属功能块 | 备注 |
 |---------|-----------|---------|------|----------|------|
-| I0.0 | `i_b急停信号` | BOOL | PRG→FB | 全局 | 安全回路 |
-| I0.1 | `i_b启动按钮` | BOOL | PRG→FB | HMI操作 |
-| Q0.0 | `o_b电机运行` | BOOL | FB→PRG | 执行器输出 |
+| I0.0 | `i_bEmergencyStop` | BOOL | PRG→FB | 全局 | 安全回路 |
+| I0.1 | `i_bStartButton` | BOOL | PRG→FB | HMI操作 |
+| Q0.0 | `o_bMotorRun` | BOOL | FB→PRG | 执行器输出 |
 | [地址] | [变量名] | [类型] | [方向] | [目标FB] | [说明] |
 
 ## 5. 程序结构
@@ -159,8 +160,8 @@ PRG_MainControl (主控调度)
   │     ├─→ FB_1002_SingleLayer × 4     ← 实例化4个单层FB
   │
   ├─→ FB_1003_PickPlace (取放料机构)
-  │     ├─→ METHOD: CALL_自动模式状态机  ← 自动模式子程序
-  │     └─→ METHOD: CALL_手动模式控制    ← 手动模式子程序
+  │     ├─→ METHOD: AutoModeStateMachine  ← 自动模式子程序
+  │     └─→ METHOD: ManualModeControl     ← 手动模式子程序
   │
   └─→ FB_1004_Feeder (打胶机送料机构)
         └─→ ... (内部逻辑)
@@ -196,14 +197,14 @@ FUNCTION_BLOCK FB_1003_PickPlace_BufferFraming
 //#region 100_VAR_INPUT 输入变量定义
 VAR_INPUT
     //#region 110_系统控制信号 来自主控HMI公共透传
-    i_b使能     : BOOL;  // 总使能信号
-    i_b自动模式 : BOOL;  // 自动运行模式选择
-    i_b手动模式 : BOOL;  // 手动调试模式选择
+    i_bEnable     : BOOL;  // 总使能信号
+    i_bAutoMode   : BOOL;  // 自动运行模式选择
+    i_bManualMode : BOOL;  // 手动调试模式选择
     //#endregion 110_系统控制信号
 
     //#region 140_传感器输入 26个BOOL全部来自主控IO映射
-    i_b升降_动点 : BOOL;  // 升降气缸下降到位
-    i_b升降_原点 : BOOL;  // 升降气缸上升到位
+    i_bLiftDownPos : BOOL;  // 升降气缸下降到位
+    i_bLiftUpPos   : BOOL;  // 升降气缸上升到位
     //#endregion 140_传感器输入
 END_VAR
 //#endregion 100_VAR_INPUT
@@ -211,12 +212,12 @@ END_VAR
 //#region 300_VAR 内部变量定义
 VAR
     //#region 310_状态机核心变量
-    s_i步序   : INT;   // 当前状态机步序(0~10)
-    s_b运行中 : BOOL;  // 自动运行中标志
+    s_iStep     : INT;   // 当前状态机步序(0~10)
+    s_bRunning  : BOOL;  // 自动运行中标志
     //#endregion 310_状态机核心变量
 
     //#region 320_定时器 覆盖所有时序需求
-    s_t动作定时器 : TON;  // 通用动作等待定时器
+    fb_tActionTimer : FB_TON;  // 通用动作等待定时器
     //#endregion 320_定时器
 END_VAR
 //#endregion 300_VAR
@@ -224,13 +225,13 @@ END_VAR
 //#region 400_VAR_CONSTANT 常量定义
 VAR CONSTANT
     //#region 410_状态机步序常量 11步0空闲+10工作步
-    STP_空闲 : INT := 0;
-    STP_取料下降 : INT := 2;
+    STP_IDLE       : INT := 0;
+    STP_PICK_DOWN  : INT := 2;
     //#endregion 410_状态机步序常量
 
     //#region 420_报警码常量 101~199段
-    ALM_Z轴伺服故障 : INT := 101;
-    ALM_夹紧超时 : INT := 105;
+    ALM_Z_SERVO_FAULT : INT := 101;
+    ALM_CLAMP_TIMEOUT : INT := 105;
     //#endregion 420_报警码常量
 END_VAR
 //#endregion 400_VAR_CONSTANT
@@ -240,10 +241,10 @@ END_VAR
 //#endregion 500_主程序逻辑
 
 //#region 600_自动模式状态机METHOD 11步完整取放料循环
-METHOD CALL_自动模式状态机 : VOID
-    CASE s_i步序 OF
-    STP_空闲:      (* 待机处理 *)
-    STP_取料下降:  (* Z轴下降 *)
+METHOD AutoModeStateMachine : VOID
+    CASE s_iStep OF
+    STP_IDLE:      (* 待机处理 *)
+    STP_PICK_DOWN: (* Z轴下降 *)
         ...
     END_CASE;
 END_METHOD
@@ -476,18 +477,18 @@ FB_xxx 内部每次调用的标准执行顺序:
 ```st
 (* 纯逻辑FB调用示例 - 所有IO通过参数传入 *)
 FB_ConveyorLayer1(
-    i_b使能     := bSystemEnable,
-    i_b自动模式 := bAutoMode,
-    i_b启动     := bStartCmd,
-    i_b停止     := bStopCmd,
-    i_r输送速度 := rSpeedSetpoint,
+    i_bEnable     := bSystemEnable,
+    i_bAutoMode   := bAutoMode,
+    i_bStart      := bStartCmd,
+    i_bStop       := bStopCmd,
+    i_rConveySpeed := rSpeedSetpoint,
     (* 传感器信号由主控映射 *)
-    i_b阻挡_动点 := M100.0,   (* 主控IO映射后的逻辑变量 *)
-    i_b阻挡_原点 := M100.1,
-    o_b阻挡电磁阀 => bBlockValveOut1,
-    o_i当前状态   => nCurrentStep1,
-    o_b运行中     => bRunning1,
-    o_b故障       => bError1
+    i_bBlockActPos := M100.0,   (* 主控IO映射后的逻辑变量 *)
+    i_bBlockHomePos := M100.1,
+    o_bBlockValve => bBlockValveOut1,
+    o_iCurrentStep   => nCurrentStep1,
+    o_bRunning     => bRunning1,
+    o_bFault       => bError1
 );
 ```
 
@@ -515,22 +516,27 @@ FB_ConveyorLayer1(
 | `.IN` | `.tIn` | `s_tAction.tIn := TRUE` | 输入使能 |
 | `.Q` | `.tQ` | `IF s_tAction.tQ THEN` | 输出完成 |
 | `.R` | `.tR` | `s_tAction.tR := TRUE` | 复位 |
-| `.PT` | `.tPt` | `s_tAction.tPt := T#3S` | 预设时间 |
+| `.PT` | `.tPt` | `s_tAction.tPt := 3000` | 预设时间(DINT扫描周期数) |
 | `.ET` | `.tEt` | `nElapsed := s_tAction.tEt` | 已计时 |
 
 **使用示例**:
 
 ```st
 VAR
-    s_t动作定时器 : TON;  // ✅ 正确: t前缀+功能描述
+    fb_tActionTimer : FB_TON;  // ✅ 正确: fb_t前缀+功能描述
 END_VAR
 
 (* 使用定时器 - 简化成员访问 *)
-s_t动作定时器(IN := TRUE, PT := T#2000ms);  // 启动定时器
-IF s_t动作定时器.tQ THEN                    // ✅ 检查完成
+fb_tActionTimer.IN := TRUE;
+fb_tActionTimer.PT := 2000;                          // DINT扫描周期数
+fb_tActionTimer(IN := fb_tActionTimer.IN,
+                 PT := fb_tActionTimer.PT,
+                 Q => fb_tActionTimer.Q,
+                 ET => fb_tActionTimer.ET);
+IF fb_tActionTimer.Q THEN                            // ✅ 检查完成
     (* 超时处理 *)
 END_IF;
-nElapsedTime := s_t动作定时器.tEt;           // ✅ 读取已计时
+diElapsedTime := fb_tActionTimer.ET;                  // ✅ 读取已计时(DINT类型)
 ```
 
 ### 6.5 IEC 61131-3 ST语言编程规范 (DEV-V2.0 新增)
@@ -548,46 +554,51 @@ nElapsedTime := s_t动作定时器.tEt;           // ✅ 读取已计时
 
 **适用场景**: FB内部功能复用超过2次时抽取为METHOD
 
-**命名规则**: `METH_` 或 `CALL_` + 动作名称，如 `METH_CheckSensor`, `CALL_自动状态机`
+**命名规则**: `METH_` + 动作名称，如 `METH_CheckSensor`, `AutoModeStateMachine`
 
 **访问权限**: METHOD可访问FB的所有局部变量和静态变量
 
 **示例**:
 
 ```st
-METHOD CALL_自动模式状态机 : VOID
+METHOD AutoModeStateMachine : VOID
 (* ================================================================= *)
 (* 自动模式状态机: 11步完整取放料循环                              *)
 (* ================================================================= *)
-CASE s_i步序 OF
-    STP_空闲:
+CASE s_iStep OF
+    STP_IDLE:
         (* 待机等待启动信号 *)
-        IF s_b启动触发 AND NOT s_b故障 THEN
-            s_i步序 := STP_等待放料完成;
-            s_b运行中 := TRUE;
-            s_i已完成层数 := 0;
-            s_i取料次数 := 1;
-            s_i当前取料层号 := 1;
+        IF s_bStartTrigger AND NOT s_bFault THEN
+            s_iStep := STP_WAIT_PLACE_DONE;
+            s_bRunning := TRUE;
+            s_iCompletedLayers := 0;
+            s_iPickCount := 1;
+            s_iCurrentPickLayer := 1;
         END_IF;
 
-    STP_等待放料完成:
+    STP_WAIT_PLACE_DONE:
         (* 等待上游输送机放料完成 *)
         (* ... 步骤逻辑 ... *)
 
-    STP_取料下降:
+    STP_PICK_DOWN:
         (* Z轴下降到取料高度 *)
-        s_bZ轴请求下降 := TRUE;
-        s_t动作定时器(IN := TRUE, PT := T#5000);
-        IF s_t动作定时器.tQ OR i_bZ轴_动点 THEN
-            s_bZ轴请求下降 := FALSE;
-            s_t动作定时器(IN := FALSE);
-            s_i步序 := STP_夹爪夹紧;
+        s_bZAxisReqDown := TRUE;
+        fb_tActionTimer.IN := TRUE;
+        fb_tActionTimer.PT := 5000;
+        fb_tActionTimer(IN := fb_tActionTimer.IN,
+                         PT := fb_tActionTimer.PT,
+                         Q => fb_tActionTimer.Q,
+                         ET => fb_tActionTimer.ET);
+        IF fb_tActionTimer.Q OR i_bZAxisDownPos THEN
+            s_bZAxisReqDown := FALSE;
+            fb_tActionTimer.IN := FALSE;
+            s_iStep := STP_CLAMP;
         END_IF;
 
     ELSE
         (* 非法状态 → 回到空闲 *)
-        s_i步序 := STP_空闲;
-        s_b故障 := TRUE;
+        s_iStep := STP_IDLE;
+        s_bFault := TRUE;
 END_CASE
 END_METHOD
 ```
@@ -608,8 +619,8 @@ END_METHOD
 (* 设备IO接口结构体 - 用于批量传递传感器/执行器数据 *)
 TYPE DUT_SensorGroup :
 STRUCT
-    b动点 : BOOL;  // 动作到位(如气缸伸出)
-    b原点 : BOOL;  // 原点位置(如气缸缩回)
+    bActPos : BOOL;  // 动作到位(如气缸伸出)
+    bHomePos : BOOL;  // 原点位置(如气缸缩回)
 END_STRUCT
 END_TYPE
 
@@ -618,7 +629,7 @@ TYPE DUT_AlarmInfo :
 STRUCT
     nCode      : INT;   // 报警代码
     bActive    : BOOL;  // 是否激活
-    nTimestamp : TIME;  // 触发时间
+    diTimestamp : DINT;  // 触发时间(扫描周期数, 禁止使用TIME类型)
 END_STRUCT
 END_TYPE
 ```
@@ -632,24 +643,24 @@ END_TYPE
 
 | 前缀 | 适用范围 | 示例 | 说明 |
 |-----|---------|------|------|
-| `i_` | 输入参数 | `i_b使能`, `i_r速度` | FB/PRG的VAR_INPUT |
-| `o_` | 输出参数 | `o_b运行中`, `o_i步序` | FB/PRG的VAR_OUTPUT |
-| `s_` | 静态变量(内部) | `s_t动作定时器`, `s_i步序` | FB的VAR(状态保持) |
-| `m_` | 中间变量(临时) | `m_b临时标志` | VAR_TEMP(单周期有效) |
-| `c_` | 常量 | `STP_空闲`, `ALM_超时` | VAR_CONSTANT |
-| `t` | 定时器实例 | `tStartDelay`, `tCooling` | TON/TOF/TP实例 |
+| `i_` | 输入参数 | `i_bEnable`, `i_rSpeed` | FB/PRG的VAR_INPUT |
+| `o_` | 输出参数 | `o_bRunning`, `o_iStep` | FB/PRG的VAR_OUTPUT |
+| `s_` | 静态变量(内部) | `fb_tActionTimer`, `s_iStep` | FB的VAR(状态保持) |
+| `m_` | 中间变量(临时) | `m_bTempFlag` | VAR_TEMP(单周期有效) |
+| `c_` | 常量 | `STP_IDLE`, `ALM_TIMEOUT` | VAR_CONSTANT |
+| `fb_t` | 定时器实例 | `fb_tStartDelay`, `fb_tCooling` | FB_TON/FB_TONR实例 |
 | `ct` | 计数器实例 | `ctProductCount`, `ctBatchDown` | CTU/CTD实例 |
 
 #### 7.1.2 数据类型后缀规范 (DEV-V2.0 新增)
 
 | 后缀 | 含义 | 示例 |
 |-----|------|------|
-| `_b` | BOOL布尔型 | `i_b使能`, `o_b运行中` |
-| `_i` | INT整型 | `s_i步序`, `o_i当前状态` |
-| `_r` | REAL实型 | `i_r输送速度`, `o_r当前位置` |
-| `_d` | DINT双整型 | `m_d累计时间` |
-| `_st` | STRING字符串 | `o_st报警描述` |
-| `_arr` | ARRAY数组 | `o_arr阻挡电磁阀[4]` |
+| `_b` | BOOL布尔型 | `i_bEnable`, `o_bRunning` |
+| `_i` | INT整型 | `s_iStep`, `o_iCurrentState` |
+| `_r` | REAL实型 | `i_rConveySpeed`, `o_rCurrentPos` |
+| `_d` | DINT双整型 | `m_dAccumTime` |
+| `_st` | STRING字符串 | `o_stAlarmDesc` |
+| `_arr` | ARRAY数组 | `o_arrBlockValve[4]` |
 
 ### 7.2 全局变量表
 
@@ -734,8 +745,8 @@ END_TYPE
 | 报警代码 | 报警名称 | 级别 | 触发条件 | 复位条件 | 处理措施 |
 |---------|---------|------|---------|---------|---------|
 | 001 | 急停触发 | 致命 | i_EmergencyStop=False | 手动复位 | 检查急停回路 |
-| 101 | Z轴伺服故障 | 严重 | i_bZ轴_伺服故障=TRUE | 手动复位+检查驱动器 | 检查Z轴伺服ALM输出 |
-| 105 | 夹爪夹紧超时 | 一般 | s_t动作定时器.tQ AND NOT i_b前夹紧_动点 | 自动复位(重试) | 检查气缸气压/磁性开关 |
+| 101 | Z轴伺服故障 | 严重 | i_bZAxisServoFault=TRUE | 手动复位+检查驱动器 | 检查Z轴伺服ALM输出 |
+| 105 | 夹爪夹紧超时 | 一般 | fb_tActionTimer.Q AND NOT i_bFrontClampActPos | 自动复位(重试) | 检查气缸气压/磁性开关 |
 | [代码] | [名称] | [级别] | [条件] | [条件] | [措施] |
 
 ### 8.3 报警处理逻辑

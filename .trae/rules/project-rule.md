@@ -29,7 +29,8 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 ### 规范管理工具
 
 - **SpecMgr**（SW-2026-006）：全局可用 `specmgr -w "<工作空间根>" check|index|frontmatter|report [--auto-fix] [--dry-run]`
-- **pm-mgr**（SW-2026-007）：`pm-mgr -w "<工作空间根>" init|retrofit|check|detect|snapshot <项目目录>`
+- **auto-pm**（SW-2026-008）：`auto-pm -w "<工作空间根>" project create|show|edit|retrofit|delete ...` 和 `auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...`
+- pm-mgr（SW-2026-007）已被 auto-pm（SW-2026-008）取代
 - `-w` 必须放在子命令之前；详细用法见 `pm-workflow` 技能
 
 ## 技术栈适配
@@ -53,11 +54,11 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 4. **激活失败处理**：若 `.venv` 不存在或激活失败，**必须立即报告用户**，说明：
    - 未找到虚拟环境
    - 当前使用的是全局 Python（路径）
-   - 可能导致工具（pm-mgr、specmgr 等）不可用
+   - 可能导致工具（auto-pm、specmgr 等）不可用
    - 建议用户创建虚拟环境或在已有 venv 中安装依赖
 5. **当前工作空间 venv 路径**：`c:\Users\fubai\Desktop\My_Workspace\.venv\`
 
-**禁止**在未激活虚拟环境的情况下运行 `pm-mgr`、`specmgr`、`pip install`、`python` 等命令。
+**禁止**在未激活虚拟环境的情况下运行 `auto-pm`、`specmgr`、`pip install`、`python` 等命令。
 
 ## 一、编码前准备
 

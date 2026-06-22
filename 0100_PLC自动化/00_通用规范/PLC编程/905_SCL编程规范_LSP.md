@@ -1,7 +1,7 @@
 ---
 spec_id: LSP-905
 title: "SCL编程规范"
-version: "V1.0.2"
+version: "V1.0.3"
 domain: plc
 lifecycle: stable
 canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md"
@@ -11,9 +11,9 @@ tags: ["SCL", "编程", "核心规范", "LSP"]
 
 # SCL 编程规范 (Siemens LSP 兼容版)
 
-> 版本：V1.0.2
+> 版本：V1.0.3
 > 状态：已验证
-> 更新日期：2026-05-29
+> 更新日期：2026-06-21
 > 适用环境：Siemens LSP (VS Code)、TIA Portal、CODESYS、GX Works
 
 ---
@@ -210,14 +210,20 @@ END_WHILE;
 ### 4.3 定时器调用规范
 
 ```scl
-// ✅ 正确 - 完整参数调用
+// ✅ 正确 - 完整参数调用, PT 使用 DINT 类型(扫描周期数)
+fb_tActionTimer.IN := FALSE;
+fb_tActionTimer.PT := 500;
+fb_tActionTimer(IN := fb_tActionTimer.IN, PT := fb_tActionTimer.PT,
+                 Q => s_bTimer_Q, ET => q_eElapsed);
+
+// ❌ 错误 - 使用 TIME 字面量(LSP 不支持 TIME 类型)
 fb_tActionTimer(IN := FALSE, PT := T#500ms, Q => s_bTimer_Q, ET => q_eElapsed);
 
 // ❌ 错误 - 缺少 Q 参数
-fb_tActionTimer(IN := FALSE, PT := T#500ms, Q => , ET => q_eElapsed);
+fb_tActionTimer(IN := FALSE, PT := 500, Q => , ET => q_eElapsed);
 ```
 
-> **重要**：定时器调用必须包含所有参数（IN、PT、Q、ET），Q 参数不能省略。
+> **重要**：定时器调用必须包含所有参数（IN、PT、Q、ET），Q 参数不能省略。PT 参数必须使用 DINT 类型（扫描周期数），禁止使用 TIME 字面量（如 `T#500ms`）。详见 903_定时器使用规范。
 
 ---
 
@@ -320,6 +326,7 @@ plccheck --verbose .
 
 | 版本 | 日期 | 作者 | 变更内容 |
 |------|------|------|----------|
+| V1.0.3 | 2026-06-21 | AI Assistant | 修正§4.3定时器示例: PT参数从TIME字面量(T#500ms)改为DINT类型(500), 与903/906对齐(C-01) |
 | V1.0.0 | 2026-05-04 | AI Assistant | 初始版本，基于DJ-2026-005项目验证 |
 | V1.0.2 | 2026-05-29 | AI Assistant | 新增§4.3跳转语句规范(禁止GOTO+标签)；新增§4语法白名单原则(除列出项外一律禁止)；修复FB_1020中GOTO重构为IF-ELSE |
 

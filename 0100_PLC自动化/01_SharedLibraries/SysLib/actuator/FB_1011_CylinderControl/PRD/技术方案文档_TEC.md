@@ -1,11 +1,11 @@
 ---
 spec_id: TEC-FB1011
 title: "FB_1011_CylinderControl技术方案文档"
-version: "V10.0.0"
+version: "V13.0.0"
 domain: plc
 lifecycle: stable
 canonical_path: "0100_PLC自动化/01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/PRD/技术方案文档_TEC.md"
-tags: ["气缸控制", "执行器", "PLC功能块", "技术方案", "电磁阀"]
+tags: ["气缸控制", "执行器", "PLC功能块", "技术方案", "电磁阀", "结构体", "防呆锁存", "运行模式"]
 ---
 
 # 技术方案文档 FB_1011_CylinderControl
@@ -13,17 +13,19 @@ tags: ["气缸控制", "执行器", "PLC功能块", "技术方案", "电磁阀"]
 ## 1. 文档基础信息
 
 **文档标题**：FB_1011_CylinderControl技术方案文档
-**文档版本**：V10.0.0
-**编制日期**：2026-06-17
+**文档版本**：V13.0.0
+**编制日期**：2026-06-18
 **编制人**：Trae
 **审核人**：人工
-**遵循规范**：TECH-014, LSP-905-V1.0.2, LSP-904-V1.1.0, LSP-903-V2.1.0
+**遵循规范**：TECH-014, LSP-905-V1.0.2, LSP-904-V1.2.0, LSP-903-V2.1.0
 
 ## 2. 版本变更记录
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
 |--------|----------|--------|----------|----------|
-| V10.0.0 | Breaking Change: 新增双线圈两位阀支持(i_iSolenoidType=1); 输出q_bSolenoid→q_aSolenoid[0..7] ARRAY输出; 新增i_bRetractPolarity参数; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈A/B互锁+无命令保持位+ELSE安全态 | Trae | 2026-06-17 | 输出接口从q_bSolenoid(BOOL)改为q_aSolenoid[0..7](ARRAY OF BOOL)，单线圈只用[0]([1]始终FALSE)，双线圈[0]=线圈A(动点方向)/[1]=线圈B(原点方向)互斥输出；新增i_bRetractPolarity控制双线圈原点方向极性取反；命令处理重构为CASE i_iSolenoidType分支(0=单线圈/1=双线圈/ELSE=安全态)；双线圈无命令时保持位(非弹簧复位)，ELSE分支全OFF |
+| V13.0.0 | Breaking Change: 引脚重命名对齐LSP-905前缀规范; stCmd→i_stCmd, stSts→q_stSts | Trae | 2026-06-18 | 引脚名对齐LSP-905 V1.0.2 §3.1前缀规范; 调用方需迁移实例化引脚名; 内部逻辑不变 |
+| V12.0.0 | 防呆锁存 + 手动/自动模式; 新增s_iLatchedSolenoidType/s_iLatchedMode; Mode=0手动跳过超时; 信号管线增加第5级防呆锁存层 | Trae | 2026-06-18 | 运动中参数锁存防止运行时SolenoidType/Mode跳变; CASE改用锁存值; 手动模式用于调试/维护场景 |
+| V11.0.0 | Breaking Change: 扁平接口→结构体接口; i_stCmd:ST_CylinderCmd(CONSTANT)+q_stSts:ST_CylinderSts; q_aSolenoid[0..7]→SolenoidA/SolenoidB; FB引脚14→2; SolenoidType对齐实际场景; 真空阀纳入 | Trae | 2026-06-18 | 重构接口: 拆分为ST_CylinderCmd(输入)+ST_CylinderSts(输出)两个结构体; 删除ARRAY输出改为两个独立BOOL; SolenoidType注释: 0=两位三通单线圈弹簧复位(气缸阀/真空阀), 1=双线圈中封阀(失电中封保持); 结构体支持整体保存/传递/快照 |
 | V9.2.0 | P0定时器修复: 定时器调用对齐LSP-903 V2.1.0三段式; 消抖关闭时设IN=FALSE让TON自然复位; 超时检测移入命令分支内加s_bMoving防误报 | Trae | 2026-06-17 | 定时器从条件内联调用改为顶部无条件批量调用; 消抖关闭时设IN=FALSE让TON自然复位Q=FALSE/ET=0; 超时检测从尾部独立检测移入Extend/Retract命令分支内，加s_bMoving条件防误报; 移除尾部独立fb_tTimeout()调用 |
 | V9.0.0 | 移除VAR_IN_OUT ST_Cylinder，回归扁平接口；新增传感器TON消抖；完善极性取反映射层；变量命名对齐LSP-905 | Trae | 2026-05-30 | 移除ST_Cylinder结构体依赖，采用i_/q_/s_/fb_前缀命名，新增消抖和极性映射流水线 |
 | V8.1.0 | 明确电磁阀类型定义，增加通用性设计 | Trae | 2026-05-30 | 新增SolenoidType和ExtendPolarity参数说明，明确当前为单线圈两位阀，预留双线圈/3位阀扩展 |
@@ -337,6 +339,7 @@ SysLib/
 ├── actuator/
 │   ├── FB_1011_CylinderControl/
 │   │   ├── FB_1011_CylinderControl.scl
+│   │   ├── ST_Cylinder.scl
 │   │   └── PRD/
 │   │       ├── 需求分析文档_REQ.md
 │   │       ├── 技术方案文档_TEC.md
@@ -351,33 +354,21 @@ SysLib/
 
 | 功能块名称 | 功能描述 | 输入参数 | 输出参数 | 调用关系 |
 |---------|---------|---------|---------|---------|
-| FB_1011_CylinderControl | 气缸控制（支持单/双线圈两位阀） | 9个VAR_INPUT | 5个VAR_OUTPUT | 被上级FB调用 |
+| FB_1011_CylinderControl | 气缸控制（支持单/双线圈中封阀 + 防呆锁存 + 手动/自动模式） | i_stCmd: ST_CylinderCmd (1个结构体) | q_stSts: ST_CylinderSts (1个结构体) | 被上级FB调用 |
 
-### 7.2 核心代码结构（V10.0.0 单/双线圈两位阀）
+### 7.2 核心代码结构（V13.0.0）
 
 #### 7.2.1 FB声明
 
 ```scl
 FUNCTION_BLOCK FB_1011_CylinderControl
 
-VAR_INPUT
-    i_bExtend          : BOOL := FALSE;   // 伸出命令 (推/降/夹紧)
-    i_bRetract         : BOOL := FALSE;   // 收回命令 (拉/升/松开)
-    i_bExtendedPos     : BOOL := FALSE;   // 伸出位传感器 (物理)
-    i_bRetractedPos    : BOOL := FALSE;   // 收回位传感器 (物理)
-    i_dTimeoutMs       : DINT := 5000;    // 动作超时时间 (ms), 0=关闭
-    i_dDebounceMs      : DINT := 0;       // 传感器消抖时间 (ms), 0=关闭消抖
-    i_iSolenoidType    : INT  := 0;       // 电磁阀类型: 0=单线圈两位阀(默认), 1=双线圈两位阀
-    i_bExtendPolarity  : BOOL := FALSE;   // 伸出方向极性取反: FALSE=正常, TRUE=取反
-    i_bRetractPolarity : BOOL := FALSE;   // 收回方向极性取反(仅双线圈): FALSE=正常, TRUE=取反
+VAR_INPUT CONSTANT
+    i_stCmd : ST_CylinderCmd;  // 命令+参数结构体, CONSTANT禁止FB内部篡改
 END_VAR
 
 VAR_OUTPUT
-    q_aSolenoid    : ARRAY[0..7] OF BOOL := [FALSE, FALSE];  // 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向)
-    q_bIsExtended  : BOOL := FALSE;  // 已伸出到位
-    q_bIsRetracted : BOOL := FALSE;  // 已收回到位
-    q_bTimeout     : BOOL := FALSE;  // 动作超时报警
-    q_bSensorFault : BOOL := FALSE;  // 传感器冲突 (上下位同时ON)
+    q_stSts : ST_CylinderSts;  // 状态输出结构体
 END_VAR
 
 VAR
@@ -391,248 +382,80 @@ VAR
     s_bLogicExtPos   : BOOL := FALSE; // 极性映射后的逻辑伸出位
     s_bLogicRetPos   : BOOL := FALSE; // 极性映射后的逻辑收回位
     s_bMoving        : BOOL := FALSE; // 正在执行动作中
+    s_iLatchedSolenoidType : INT := 0; // ★ 防呆: 运动中锁存的SolenoidType
+    s_iLatchedMode         : INT := 1; // ★ 防呆: 运动中锁存的Mode, 默认自动安全态
 END_VAR
 ```
 
-#### 7.2.2 传感器TON消抖代码
+#### 7.2.2 防呆锁存代码（V12.0.0）★
 
 ```scl
-(* ===== 定时器批量调用 (无条件, 每周期执行, LSP-903 V2.1.0 §3.4) ===== *)
-fb_tDebounceExt(IN := fb_tDebounceExt.IN, PT := fb_tDebounceExt.PT,
-                 Q => fb_tDebounceExt.Q, ET => fb_tDebounceExt.ET);
-fb_tDebounceRet(IN := fb_tDebounceRet.IN, PT := fb_tDebounceRet.PT,
-                 Q => fb_tDebounceRet.Q, ET => fb_tDebounceRet.ET);
-fb_tTimeout(IN := fb_tTimeout.IN, R := fb_tTimeout.R, PT := fb_tTimeout.PT,
-             Q => fb_tTimeout.Q, ET => fb_tTimeout.ET);
-
-(* ===== TON消抖 (只设参数, 只读输出) ===== *)
-IF i_dDebounceMs > 0 THEN
-    fb_tDebounceExt.IN := i_bExtendedPos;
-    fb_tDebounceExt.PT := i_dDebounceMs;
-    s_bExtDebounced := fb_tDebounceExt.Q;
-    s_dExtDebounceEt := fb_tDebounceExt.ET;
-    fb_tDebounceRet.IN := i_bRetractedPos;
-    fb_tDebounceRet.PT := i_dDebounceMs;
-    s_bRetDebounced := fb_tDebounceRet.Q;
-    s_dRetDebounceEt := fb_tDebounceRet.ET;
-ELSE
-    // 消抖关闭: 设IN=FALSE让TON自然复位Q=FALSE/ET=0, 信号直通
-    fb_tDebounceExt.IN := FALSE;
-    fb_tDebounceRet.IN := FALSE;
-    s_bExtDebounced := i_bExtendedPos;
-    s_bRetDebounced := i_bRetractedPos;
+(* ==================== 防呆: 参数锁存 (运动中不可变, 空闲时刷新) ==================== *)
+(* 目的: 防止运行时 SolenoidType/Mode 跳变导致 CASE 分支错乱 *)
+(* 规则: s_bMoving=FALSE 时刷新锁存值; s_bMoving=TRUE 时保持上次锁存值不变 *)
+IF NOT s_bMoving THEN
+    s_iLatchedSolenoidType := i_stCmd.SolenoidType;
+    s_iLatchedMode := i_stCmd.Mode;
 END_IF;
 ```
 
-#### 7.2.3 传感器故障检测
+#### 7.2.3 命令处理（CASE s_iLatchedSolenoidType + Mode判断）★
 
 ```scl
-// ==================== 传感器冗余一致性检查 ====================
-IF s_bExtDebounced AND s_bRetDebounced THEN
-    q_bSensorFault := TRUE;
-ELSE
-    q_bSensorFault := FALSE;
-END_IF;
-```
+(* ==================== 命令处理: CASE按锁存的电磁阀类型分支 ==================== *)
 
-#### 7.2.4 极性映射层
+CASE s_iLatchedSolenoidType OF
 
-```scl
-// ==================== 极性映射 ====================
-// i_bExtendPolarity=TRUE 时，物理传感器互换逻辑含义
-// 正常极性: 物理伸出位 = 逻辑伸出位
-// 取反极性: 物理伸出位 = 逻辑收回位（因为气缸动作方向反转）
-IF i_bExtendPolarity THEN
-    s_bLogicExtPos := s_bRetDebounced;
-    s_bLogicRetPos := s_bExtDebounced;
-ELSE
-    s_bLogicExtPos := s_bExtDebounced;
-    s_bLogicRetPos := s_bRetDebounced;
-END_IF;
-```
-
-#### 7.2.5 命令处理（CASE i_iSolenoidType分支）
-
-```scl
-// ==================== CASE i_iSolenoidType 命令处理 ====================
-CASE i_iSolenoidType OF
-
-    0:  // ===== 单线圈两位阀 =====
-        IF i_bExtend THEN
-            // Extend优先，根据极性输出
-            IF i_bExtendPolarity THEN
-                q_aSolenoid[0] := FALSE;  // 取反：FALSE=伸出
+    0:  (* ---- 两位三通单线圈弹簧复位 (气缸阀/真空阀) ---- *)
+        IF i_stCmd.Extend THEN
+            (* Extend优先，根据极性输出 *)
+            IF i_stCmd.ExtendPolarity THEN
+                q_stSts.SolenoidA := FALSE;
             ELSE
-                q_aSolenoid[0] := TRUE;   // 正常：TRUE=伸出
+                q_stSts.SolenoidA := TRUE;
             END_IF;
-            q_aSolenoid[1] := FALSE;      // 单线圈[1]始终FALSE
+            q_stSts.SolenoidB := FALSE;
 
+            (* 自动模式: 启动超时计时 *)
             IF NOT s_bMoving THEN
                 s_bMoving := TRUE;
-                IF i_dTimeoutMs > 0 THEN
+                IF s_iLatchedMode = 1 AND i_stCmd.TimeoutMs > 0 THEN
                     fb_tTimeout.IN := TRUE;
                     fb_tTimeout.R := FALSE;
-                    fb_tTimeout.PT := i_dTimeoutMs;
+                    fb_tTimeout.PT := i_stCmd.TimeoutMs;
                 END_IF;
             END_IF;
 
             IF s_bLogicExtPos THEN
-                q_bIsExtended := TRUE;
-                q_bIsRetracted := FALSE;
+                q_stSts.IsExtended := TRUE;
+                q_stSts.IsRetracted := FALSE;
                 s_bMoving := FALSE;
-                q_bTimeout := FALSE;
+                q_stSts.Timeout := FALSE;
                 fb_tTimeout.IN := FALSE;
                 fb_tTimeout.R := TRUE;
             END_IF;
 
-            IF fb_tTimeout.Q AND s_bMoving THEN
-                q_bTimeout := TRUE;
+            (* 自动模式: 超时检测 *)
+            IF s_iLatchedMode = 1 AND fb_tTimeout.Q AND s_bMoving THEN
+                q_stSts.Timeout := TRUE;
             END_IF;
 
-        ELSIF i_bRetract THEN
-            // Retract，根据极性输出
-            IF i_bExtendPolarity THEN
-                q_aSolenoid[0] := TRUE;   // 取反：TRUE=收回
-            ELSE
-                q_aSolenoid[0] := FALSE;  // 正常：FALSE=收回
-            END_IF;
-            q_aSolenoid[1] := FALSE;      // 单线圈[1]始终FALSE
-
-            IF NOT s_bMoving THEN
-                s_bMoving := TRUE;
-                IF i_dTimeoutMs > 0 THEN
-                    fb_tTimeout.IN := TRUE;
-                    fb_tTimeout.R := FALSE;
-                    fb_tTimeout.PT := i_dTimeoutMs;
-                END_IF;
-            END_IF;
-
-            IF s_bLogicRetPos THEN
-                q_bIsRetracted := TRUE;
-                q_bIsExtended := FALSE;
-                s_bMoving := FALSE;
-                q_bTimeout := FALSE;
-                fb_tTimeout.IN := FALSE;
-                fb_tTimeout.R := TRUE;
-            END_IF;
-
-            IF fb_tTimeout.Q AND s_bMoving THEN
-                q_bTimeout := TRUE;
-            END_IF;
-
+        ELSIF i_stCmd.Retract THEN
+            (* ... 收回逻辑 *)
         ELSE
-            // 无命令，弹簧复位
-            IF i_bExtendPolarity THEN
-                q_aSolenoid[0] := TRUE;   // 取反：TRUE=弹簧复位（伸出方向）
-            ELSE
-                q_aSolenoid[0] := FALSE;  // 正常：FALSE=弹簧复位（收回方向）
-            END_IF;
-            q_aSolenoid[1] := FALSE;      // 单线圈[1]始终FALSE
-
-            s_bMoving := FALSE;
-            q_bTimeout := FALSE;
-            fb_tTimeout.IN := FALSE;
-            fb_tTimeout.R := TRUE;
-
-            q_bIsExtended := s_bLogicExtPos;
-            q_bIsRetracted := s_bLogicRetPos;
+            (* ... 空闲逻辑 *)
         END_IF;
 
-    1:  // ===== 双线圈两位阀 =====
-        IF i_bExtend THEN
-            // Extend优先，A线圈ON，B线圈OFF（互锁）
-            IF i_bExtendPolarity THEN
-                q_aSolenoid[0] := FALSE;  // 伸出方向极性取反
-            ELSE
-                q_aSolenoid[0] := TRUE;   // 正常：A线圈ON=伸出
-            END_IF;
-            q_aSolenoid[1] := FALSE;      // A/B互锁：A ON时B必须OFF
+    1:  (* ---- 双线圈中封阀 ---- *)
+        (* ... A/B互锁 + 中封保持逻辑 *)
 
-            IF NOT s_bMoving THEN
-                s_bMoving := TRUE;
-                IF i_dTimeoutMs > 0 THEN
-                    fb_tTimeout.IN := TRUE;
-                    fb_tTimeout.R := FALSE;
-                    fb_tTimeout.PT := i_dTimeoutMs;
-                END_IF;
-            END_IF;
-
-            IF s_bLogicExtPos THEN
-                q_bIsExtended := TRUE;
-                q_bIsRetracted := FALSE;
-                s_bMoving := FALSE;
-                q_bTimeout := FALSE;
-                fb_tTimeout.IN := FALSE;
-                fb_tTimeout.R := TRUE;
-            END_IF;
-
-            IF fb_tTimeout.Q AND s_bMoving THEN
-                q_bTimeout := TRUE;
-            END_IF;
-
-        ELSIF i_bRetract THEN
-            // Retract，B线圈ON，A线圈OFF（互锁）
-            q_aSolenoid[0] := FALSE;      // A/B互锁：B ON时A必须OFF
-            IF i_bRetractPolarity THEN
-                q_aSolenoid[1] := FALSE;  // 收回方向极性取反
-            ELSE
-                q_aSolenoid[1] := TRUE;   // 正常：B线圈ON=收回
-            END_IF;
-
-            IF NOT s_bMoving THEN
-                s_bMoving := TRUE;
-                IF i_dTimeoutMs > 0 THEN
-                    fb_tTimeout.IN := TRUE;
-                    fb_tTimeout.R := FALSE;
-                    fb_tTimeout.PT := i_dTimeoutMs;
-                END_IF;
-            END_IF;
-
-            IF s_bLogicRetPos THEN
-                q_bIsRetracted := TRUE;
-                q_bIsExtended := FALSE;
-                s_bMoving := FALSE;
-                q_bTimeout := FALSE;
-                fb_tTimeout.IN := FALSE;
-                fb_tTimeout.R := TRUE;
-            END_IF;
-
-            IF fb_tTimeout.Q AND s_bMoving THEN
-                q_bTimeout := TRUE;
-            END_IF;
-
-        ELSE
-            // 无命令，双线圈保持位（非弹簧复位），全OFF
-            q_aSolenoid[0] := FALSE;
-            q_aSolenoid[1] := FALSE;
-
-            s_bMoving := FALSE;
-            q_bTimeout := FALSE;
-            fb_tTimeout.IN := FALSE;
-            fb_tTimeout.R := TRUE;
-
-            q_bIsExtended := s_bLogicExtPos;
-            q_bIsRetracted := s_bLogicRetPos;
-        END_IF;
-
-ELSE
-    // ===== 非法类型兜底：安全态 =====
-    q_aSolenoid[0] := FALSE;
-    q_aSolenoid[1] := FALSE;
-
-    s_bMoving := FALSE;
-    q_bTimeout := FALSE;
-    fb_tTimeout.IN := FALSE;
-    fb_tTimeout.R := TRUE;
-
-    q_bIsExtended := FALSE;
-    q_bIsRetracted := FALSE;
+    ELSE
+        (* 非法类型安全兜底 *)
+        q_stSts.SolenoidA := FALSE;
+        q_stSts.SolenoidB := FALSE;
+        (* ... 全部复位 *)
 END_CASE;
 ```
-
-#### 7.2.6 超时定时器调用
-
-超时定时器已在§7.2.2定时器批量调用区统一调用，不再独立调用。
 
 ## 8. 接口设计
 
@@ -640,56 +463,50 @@ END_CASE;
 
 | 接口名称 | 调用方 | 被调用方 | 参数 | 返回值 | 说明 |
 |---------|--------|---------|------|--------|------|
-| FB_1011_CylinderControl | 上级FB | FB_1011 | 9个VAR_INPUT | 5个VAR_OUTPUT | 核心接口（含q_aSolenoid ARRAY输出） |
+| FB_1011_CylinderControl | 上级FB | FB_1011 | i_stCmd: ST_CylinderCmd (1个结构体) | q_stSts: ST_CylinderSts (1个结构体) | 核心接口 |
 
 ### 8.2 外部接口
 
 | 接口名称 | 协议 | 方向 | 数据格式 | 频率 | 说明 |
 |---------|------|------|---------|------|------|
-| OB1 IO映射 | 硬件IO | 双向 | BOOL, ARRAY[0..7] OF BOOL | 每扫描周期 | 物理传感器输入，电磁阀ARRAY输出 |
-| 上级编排器 | 内部调用 | 双向 | 扁平变量 | 每扫描周期 | 如FB_1002 |
-| 报警管理 | 内部调用 | 输出 | BOOL, BOOL | 每扫描周期 | q_bTimeout和q_bSensorFault信号 |
+| OB1 IO映射 | 硬件IO | 双向 | ST_CylinderCmd.ExtendedPos/RetractedPos, ST_CylinderSts.SolenoidA/SolenoidB | 每扫描周期 | 物理传感器输入，电磁阀BOOL输出 |
+| 上级编排器 | 内部调用 | 双向 | 结构体 | 每扫描周期 | 如FB_1002，通过i_stCmd/q_stSts交互 |
+| 报警管理 | 内部调用 | 输出 | BOOL, BOOL | 每扫描周期 | q_stSts.Timeout和q_stSts.SensorFault信号 |
 
 ## 9. 数据结构设计
 
-### 9.1 扁平变量说明
+### 9.1 结构体接口说明
 
-V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变量命名遵循LSP-905规范：
+V11.0.0引入结构体接口，替代V9.x-V10.x的扁平接口。接口引脚数从14→2。结构体定义详见 `ST_Cylinder.scl` V3.1.0。
 
-**前缀约定**：
+**ST_CylinderCmd（输入结构体）**：
 
-| 前缀 | 含义 | 作用域 |
-|------|------|--------|
-| i_ | 输入变量 | VAR_INPUT |
-| q_ | 输出变量 | VAR_OUTPUT |
-| s_ | 内部静态变量 | VAR |
-| fb_ | FB实例 | VAR |
-
-**VAR_INPUT（9个）**：
-
-| 变量名 | 类型 | 默认值 | 说明 |
+| 字段 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| i_bExtend | BOOL | FALSE | 伸出命令 (推/降/夹紧) |
-| i_bRetract | BOOL | FALSE | 收回命令 (拉/升/松开) |
-| i_bExtendedPos | BOOL | FALSE | 伸出位传感器 (物理) |
-| i_bRetractedPos | BOOL | FALSE | 收回位传感器 (物理) |
-| i_dTimeoutMs | DINT | 5000 | 动作超时时间 (ms), 0=关闭 |
-| i_dDebounceMs | DINT | 0 | 传感器消抖时间 (ms), 0=关闭消抖 |
-| i_iSolenoidType | INT | 0 | 电磁阀类型: 0=单线圈两位阀(默认), 1=双线圈两位阀 |
-| i_bExtendPolarity | BOOL | FALSE | 伸出方向极性取反: FALSE=正常, TRUE=取反 |
-| i_bRetractPolarity | BOOL | FALSE | 收回方向极性取反(仅双线圈生效): FALSE=正常, TRUE=取反 |
+| Extend | BOOL | FALSE | 动点命令: 伸出/真空ON/夹紧/下降 |
+| Retract | BOOL | FALSE | 原点命令: 收回/破真空/松开/上升 |
+| ExtendedPos | BOOL | FALSE | 动点到位: 伸出位传感器/真空表 |
+| RetractedPos | BOOL | FALSE | 原点到位: 收回位传感器/大气压力 |
+| TimeoutMs | DINT | 5000 | 动作超时时间 ms, 0=关闭 |
+| DebounceMs | DINT | 0 | 传感器消抖时间 ms, 0=关闭 |
+| SolenoidType | INT | 0 | 电磁阀类型: 0=两位三通单线圈弹簧复位, 1=双线圈中封阀 |
+| ExtendPolarity | BOOL | FALSE | 线圈A极性: FALSE=正常, TRUE=取反 |
+| RetractPolarity | BOOL | FALSE | 线圈B极性: FALSE=正常, TRUE=取反; 仅双线圈模式生效 |
+| Mode | INT | 1 | 运行模式: 0=手动(跳过超时), 1=自动(全保护); 默认自动安全态 ★ |
+| ModeStatus | WORD | 16#0000 | 模式状态字: 上层传递的状态标志, 预留 ★ |
 
-**VAR_OUTPUT（5个）**：
+**ST_CylinderSts（输出结构体）**：
 
-| 变量名 | 类型 | 默认值 | 说明 |
+| 字段 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| q_aSolenoid | ARRAY[0..7] OF BOOL | [FALSE,FALSE] | 电磁阀输出: [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0]([1]始终FALSE), 双线圈[0]/[1]互斥 |
-| q_bIsExtended | BOOL | FALSE | 已伸出到位 |
-| q_bIsRetracted | BOOL | FALSE | 已收回到位 |
-| q_bTimeout | BOOL | FALSE | 动作超时报警 |
-| q_bSensorFault | BOOL | FALSE | 传感器冲突 (上下位同时ON) |
+| SolenoidA | BOOL | FALSE | 线圈A输出: 动点方向 |
+| SolenoidB | BOOL | FALSE | 线圈B输出: 原点方向; 单线圈时始终FALSE |
+| IsExtended | BOOL | FALSE | 已到动点（极性映射后） |
+| IsRetracted | BOOL | FALSE | 已到原点（极性映射后） |
+| Timeout | BOOL | FALSE | 动作超时报警 |
+| SensorFault | BOOL | FALSE | 传感器冲突: 两点同时ON, 消抖后检测 |
 
-**VAR（内部变量，10个）**：
+**VAR（内部变量，12个）**：
 
 | 变量名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -703,11 +520,13 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 | s_bLogicExtPos | BOOL | FALSE | 极性映射后的逻辑伸出位 |
 | s_bLogicRetPos | BOOL | FALSE | 极性映射后的逻辑收回位 |
 | s_bMoving | BOOL | FALSE | 正在执行动作中 |
+| s_iLatchedSolenoidType | INT | 0 | ★ 防呆: 运动中锁存的SolenoidType, 空闲时刷新 |
+| s_iLatchedMode | INT | 1 | ★ 防呆: 运动中锁存的Mode, 空闲时刷新; 默认自动安全态 |
 
 ### 9.2 存储策略
 
 - **数据存储**：所有状态在FB实例内部维护
-- **备份策略**：不需要备份，状态由输入重新生成
+- **备份策略**：结构体支持整体保存/传递/快照
 - **清理策略**：不需要清理，FB实例随程序清除
 
 ## 10. 安全设计
@@ -717,11 +536,13 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 - 超时仅报警不强制复位，保持输出状态
 - 传感器故障实时检测
 - 命令优先级防止冲突
-- 失电自动弹簧复位（单线圈两位阀安全特性）
-- 双线圈A/B互锁，任意时刻最多一个ON（双线圈两位阀安全特性）
-- 双线圈无命令时保持位，需E-STOP等外部安全机制确保安全
+- 失电自动弹簧复位（单线圈弹簧复位阀安全特性）
+- 双线圈A/B互锁，任意时刻最多一个ON（双线圈中封阀安全特性）
+- 双线圈无命令时中封保持，需E-STOP等外部安全机制确保安全
 - 传感器消抖防止误触发
-- 非法i_iSolenoidType值时进入安全态（全OFF）
+- 非法SolenoidType值时进入安全态（全OFF）
+- 运动中参数防呆锁存，防止运行时SolenoidType/Mode跳变 ★
+- 手动模式(Mode=0)跳过超时检测，仅用于调试/维护场景 ★
 
 ### 10.2 安全措施
 
@@ -729,15 +550,17 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 |---------|---------|---------|--------|
 | 超时后气缸继续动作 | 中 | 超时仅报警，不强制改变电磁阀，由上级决定策略 | Trae |
 | 传感器故障未发现 | 中 | 实时检测上下位同时ON状态，立即报警 | Trae |
-| 命令冲突 | 低 | i_bExtend优先于i_bRetract，防止电磁阀频繁切换 | Trae |
+| 命令冲突 | 低 | i_stCmd.Extend优先于i_stCmd.Retract，防止电磁阀频繁切换 | Trae |
 | 失电安全（单线圈） | 高 | 单线圈两位阀，失电自动弹簧复位收回 | Trae |
-| 电磁阀选型错误 | 中 | 提供i_iSolenoidType参数，明确文档说明 | Trae |
-| 传感器抖动误触发 | 中 | TON消抖层，i_dDebounceMs可配置 | Trae |
-| 极性接线错误 | 中 | i_bExtendPolarity/i_bRetractPolarity极性映射层，传感器同步互换 | Trae |
+| 电磁阀选型错误 | 中 | 提供SolenoidType参数，明确文档说明 | Trae |
+| 传感器抖动误触发 | 中 | TON消抖层，DebounceMs可配置 | Trae |
+| 极性接线错误 | 中 | ExtendPolarity/RetractPolarity极性映射层，传感器同步互换 | Trae |
 | 双线圈A/B同时ON | 高 | 硬互锁：A ON时B强制OFF，B ON时A强制OFF，代码级保证 | Trae |
-| 双线圈保持位安全 | 高 | 无命令时全OFF（保持位），需E-STOP外部回路确保失电安全 | Trae |
-| 双线圈E-STOP策略 | 高 | E-STOP回路应直接切断双线圈两位阀供电，不依赖PLC程序 | Trae |
+| 双线圈中封保持安全 | 高 | 无命令时全OFF（中封保持），到位后驱动线圈OFF，需E-STOP外部回路切断供电 | Trae |
+| 双线圈E-STOP策略 | 高 | E-STOP回路应直接切断双线圈阀供电，不依赖PLC程序 | Trae |
 | 非法SolenoidType | 中 | CASE ELSE分支进入安全态，全OFF+状态清零 | Trae |
+| 运动中参数跳变 ★ | 高 | 防呆锁存: s_bMoving=TRUE时锁存SolenoidType/Mode; 空闲时自动刷新 | Trae |
+| 手动模式安全 ★ | 高 | Mode=0仅用于调试/维护; 默认Mode=1自动全保护; 手动模式文档明确标注安全警告 | Trae |
 
 ## 11. 性能设计
 
@@ -765,14 +588,16 @@ V10.0.0移除ST_Cylinder结构体，采用扁平VAR_INPUT/VAR_OUTPUT接口。变
 
 | 风险项 | 可能性 | 影响程度 | 风险等级 | 应对措施 | 责任人 |
 |---------|---------|---------|---------|---------|--------|
-| 扁平接口参数数量多 | 低 | 低 | 低 | 9个输入在可接受范围内，调试时一目了然 | Trae |
+| 结构体接口复杂性 | 低 | 低 | 低 | 仅2个引脚，结构体字段清晰 | Trae |
 | 超时策略争议 | 中 | 中 | 低 | 保持当前策略，记录设计决策 | Trae |
 | 传感器类型差异 | 中 | 低 | 低 | OB1处理传感器类型，本FB仅接收BOOL | Trae |
 | 电磁阀选型变更 | 中 | 中 | 中 | 提供参数配置，支持取反和类型选择 | Trae |
 | 消抖时间设置不当 | 中 | 中 | 中 | 默认0=关闭，文档明确推荐值范围 | Trae |
 | 极性映射逻辑复杂 | 低 | 中 | 低 | 极性映射层独立，可单独测试验证 | Trae |
-| Breaking Change迁移风险 | 高 | 高 | 高 | q_bSolenoid→q_aSolenoid[0..7]接口变更，所有调用方需修改OB1映射；提供迁移指南，单线圈映射: q_bSolenoid → q_aSolenoid[0] | Trae |
-| 双线圈极性语义风险 | 中 | 高 | 高 | i_bRetractPolarity仅在双线圈生效，单线圈下忽略；文档明确说明适用范围，防止误用 | Trae |
+| Breaking Change迁移风险 | 高 | 高 | 高 | V11.0.0扁平→结构体; V13.0.0 stCmd→i_stCmd; 所有调用方需修改; 提供迁移指南 | Trae |
+| 双线圈极性语义风险 | 中 | 高 | 高 | RetractPolarity仅在双线圈生效，单线圈下忽略；文档明确说明适用范围 | Trae |
+| 防呆锁存失效风险 ★ | 中 | 高 | 高 | s_bMoving状态机正确性需充分测试；锁存值初始默认值安全 | Trae |
+| 手动模式误用风险 ★ | 中 | 高 | 高 | Mode默认1(自动安全态); 手动模式使用需授权; 文档明确标注安全警告 | Trae |
 
 ### 12.2 依赖风险
 

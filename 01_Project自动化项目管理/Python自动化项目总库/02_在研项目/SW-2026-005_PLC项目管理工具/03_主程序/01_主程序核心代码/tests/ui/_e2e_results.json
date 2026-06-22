@@ -1,6 +1,6 @@
 {
-  "passed": 116,
-  "total": 117,
+  "passed": 165,
+  "total": 166,
   "results": [
     {
       "name": "HTML: 导航栏存在",
@@ -48,57 +48,17 @@
       "actual": "True"
     },
     {
+      "name": "HTML: 加载 standardize.js",
+      "passed": true,
+      "actual": "True"
+    },
+    {
       "name": "HTML: 加载 app.css",
       "passed": true,
       "actual": "True"
     },
     {
-      "name": "JS: api.js 定义 Api",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 _call",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 getWorkspaceProjects",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 getProjectDetail",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 getProjectChanges",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 createChangeRequest",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 listChangeRequests",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 getChangeRequest",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 transitionStatus",
-      "passed": true,
-      "actual": "True"
-    },
-    {
-      "name": "JS: api.js 定义 refreshCache",
+      "name": "HTML: 标准化管理导航链接",
       "passed": true,
       "actual": "True"
     },
@@ -259,6 +219,151 @@
     },
     {
       "name": "JS: change.js 定义 change-row",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 StandardizeModule",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _renderMain",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _scanAll",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _renderDashboard",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _renderProjectList",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _showDetail",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _repairProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _renderRepairResult",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _standardizeProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 _showInitWizard",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 plcCheckAll",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 plcRepairProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 plcStandardizeProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: standardize.js 定义 plcInitProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 Api",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 _call",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 getWorkspaceProjects",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 getProjectDetail",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 getProjectChanges",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 createChangeRequest",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 listChangeRequests",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 getChangeRequest",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 transitionStatus",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 refreshCache",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 plcCheckAll",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 plcCheckProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 plcInitProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 plcRepairProject",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "JS: api.js 定义 plcStandardizeProject",
       "passed": true,
       "actual": "True"
     },
@@ -478,6 +583,26 @@
       "actual": "True"
     },
     {
+      "name": "CSS: 定义 .std-dashboard",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "CSS: 定义 .std-stats",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "CSS: 定义 .std-project-list",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "CSS: 定义 .std-detail-panel",
+      "passed": true,
+      "actual": "True"
+    },
+    {
       "name": "API: get_workspace_projects 返回list",
       "passed": true,
       "actual": "True"
@@ -584,6 +709,126 @@
     },
     {
       "name": "API: refresh_cache 返回 status=ok",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_check_all 返回dict",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_all 含 total",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_all 含 compliance_rate",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_all 含 projects",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_all projects 是list",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_all 项目含 project_id",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_all 项目含 all_pass",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_check_project 返回dict",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_project 含 pass_count",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: check_project 含 fail_count",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_init_project 返回 project_id",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_init_project 返回 created_files",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_init_project 空ID返回error",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_repair_project 返回dict",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: repair 含 before_check",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: repair 含 after_check",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: repair 含 actions",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: repair 含 fixed_count",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: plc_standardize_project 返回dict",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: standardize 含 renames",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: standardize 含 rename_count",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: standardize preview applied=False",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: standardize apply applied=True",
+      "passed": true,
+      "actual": "True"
+    },
+    {
+      "name": "V9 API: standardize apply 含 backup_dir",
       "passed": true,
       "actual": "True"
     }

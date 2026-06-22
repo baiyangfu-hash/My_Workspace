@@ -8,7 +8,7 @@
 
 import csv
 import json
-from typing import List, Dict
+from typing import List, Dict, Optional
 from utils.file_operator import FileOperator
 from utils.encoding_detector import EncodingDetector
 
@@ -212,16 +212,17 @@ class Exporter:
             print(f"导出JSON失败: {str(e)}")
             return False
     
-    def export_to_format(self, variables: List[Dict], output_path: str, format_type: str, encoding: str = 'utf-8', fieldnames: List[str] = None) -> bool:
+    def export_to_format(self, variables: List[Dict], output_path: str, format_type: str, encoding: str = 'utf-8', fieldnames: List[str] = None, **kwargs) -> bool:
         """
         根据指定格式导出变量
         
         参数:
             variables (List[Dict]): 变量列表
             output_path (str): 输出文件路径
-            format_type (str): 导出格式（csv, json）
+            format_type (str): 导出格式（csv, json, excel）
             encoding (str): 文件编码
             fieldnames (List[str]): 字段名称列表
+            **kwargs: 额外参数（如 struct_fields 用于Excel导出）
             
         返回:
             bool: 导出是否成功
@@ -232,8 +233,102 @@ class Exporter:
             return self.export_to_csv(variables, output_path, encoding, fieldnames)
         elif format_type == 'json':
             return self.export_to_json(variables, output_path)
+        elif format_type == 'excel':
+            return self.export_to_excel(variables, output_path, struct_fields=kwargs.get('struct_fields'))
         else:
             print(f"不支持的导出格式: {format_type}")
+            return False
+    
+    def export_to_excel(
+        self,
+        variables: List[Dict],
+        output_path: str,
+        struct_fields: Optional[List[Dict]] = None,
+    ) -> bool:
+        """
+        导出变量到Excel文件（多Sheet）
+
+        参数:
+            variables (List[Dict]): 顶层变量列表
+            output_path (str): 输出文件路径（.xlsx）
+            struct_fields (Optional[List[Dict]]): 结构体字段列表，如有则输出到独立Sheet
+
+        返回:
+            bool: 导出是否成功
+        """
+        try:
+            from openpyxl import Workbook
+            from openpyxl.styles import Font, Alignment, PatternFill
+        except ImportError:
+            print("导出Excel失败: 缺少openpyxl依赖，请运行 pip install openpyxl")
+            return False
+
+        try:
+            wb = Workbook()
+
+            # --- Sheet 1: 变量表 ---
+            ws_vars = wb.active
+            ws_vars.title = "变量表"
+
+            var_headers = ["名称", "数据类型", "声明区", "默认值", "有效值域", "说明"]
+            header_font = Font(bold=True)
+            header_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+            wrap_alignment = Alignment(wrap_text=True, vertical="top")
+
+            for col_idx, header in enumerate(var_headers, 1):
+                cell = ws_vars.cell(row=1, column=col_idx, value=header)
+                cell.font = header_font
+                cell.fill = header_fill
+
+            for row_idx, var in enumerate(variables, 2):
+                ws_vars.cell(row=row_idx, column=1, value=var.get("name", ""))
+                ws_vars.cell(row=row_idx, column=2, value=var.get("type", ""))
+                ws_vars.cell(row=row_idx, column=3, value=var.get("scope", ""))
+                ws_vars.cell(row=row_idx, column=4, value=var.get("default_value", ""))
+                ws_vars.cell(row=row_idx, column=5, value=var.get("value_range", ""))
+                ws_vars.cell(row=row_idx, column=6, value=var.get("description", ""))
+                for col_idx in range(1, 7):
+                    ws_vars.cell(row=row_idx, column=col_idx).alignment = wrap_alignment
+
+            # 列宽
+            ws_vars.column_dimensions["A"].width = 25
+            ws_vars.column_dimensions["B"].width = 20
+            ws_vars.column_dimensions["C"].width = 15
+            ws_vars.column_dimensions["D"].width = 15
+            ws_vars.column_dimensions["E"].width = 20
+            ws_vars.column_dimensions["F"].width = 50
+
+            # --- Sheet 2: 结构体定义 ---
+            if struct_fields:
+                ws_struct = wb.create_sheet(title="结构体定义")
+
+                struct_headers = ["结构体名", "字段", "数据类型", "默认值", "有效值域", "说明"]
+                for col_idx, header in enumerate(struct_headers, 1):
+                    cell = ws_struct.cell(row=1, column=col_idx, value=header)
+                    cell.font = header_font
+                    cell.fill = header_fill
+
+                for row_idx, field in enumerate(struct_fields, 2):
+                    ws_struct.cell(row=row_idx, column=1, value=field.get("struct_name", ""))
+                    ws_struct.cell(row=row_idx, column=2, value=field.get("field", ""))
+                    ws_struct.cell(row=row_idx, column=3, value=field.get("type", ""))
+                    ws_struct.cell(row=row_idx, column=4, value=field.get("default_value", ""))
+                    ws_struct.cell(row=row_idx, column=5, value=field.get("value_range", ""))
+                    ws_struct.cell(row=row_idx, column=6, value=field.get("description", ""))
+                    for col_idx in range(1, 7):
+                        ws_struct.cell(row=row_idx, column=col_idx).alignment = wrap_alignment
+
+                ws_struct.column_dimensions["A"].width = 25
+                ws_struct.column_dimensions["B"].width = 25
+                ws_struct.column_dimensions["C"].width = 20
+                ws_struct.column_dimensions["D"].width = 15
+                ws_struct.column_dimensions["E"].width = 20
+                ws_struct.column_dimensions["F"].width = 50
+
+            wb.save(output_path)
+            return True
+        except Exception as e:
+            print(f"导出Excel失败: {str(e)}")
             return False
     
     def convert_file(self, source_path: str, target_path: str, output_path: str) -> bool:

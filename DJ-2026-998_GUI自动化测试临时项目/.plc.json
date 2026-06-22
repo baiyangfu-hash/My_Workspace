@@ -1,0 +1,8 @@
+{
+  "name": "DJ-2026-998",
+  "description": "GUI自动化测试临时项目",
+  "version": "V1.0.0",
+  "libraries": [
+    "../../../01_SharedLibraries/SysLib"
+  ]
+}

@@ -102,4 +102,21 @@ const Api = {
   selectWorkspace() {
     return this._call("select_workspace");
   },
+
+  // ---- V9 标准化管理 ----
+  plcCheckAll() {
+    return this._call("plc_check_all");
+  },
+  plcCheckProject(projectPath) {
+    return this._call("plc_check_project", projectPath);
+  },
+  plcInitProject(projectId, projectName, projectType, description) {
+    return this._call("plc_init_project", projectId, projectName, projectType, description || "");
+  },
+  plcRepairProject(projectPath, renameConfirm) {
+    return this._call("plc_repair_project", projectPath, renameConfirm || false);
+  },
+  plcStandardizeProject(projectPath, apply) {
+    return this._call("plc_standardize_project", projectPath, apply || false);
+  },
 };

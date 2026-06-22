@@ -1,11 +1,11 @@
 ---
 spec_id: REQ-FB1011
 title: "FB_1011_CylinderControl需求分析文档"
-version: "V10.0.0"
+version: "V13.0.0"
 domain: plc
 lifecycle: stable
 canonical_path: "0100_PLC自动化/01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/PRD/需求分析文档_REQ.md"
-tags: ["气缸控制", "执行器", "PLC功能块", "电磁阀", "单线圈两位阀", "双线圈两位阀", "传感器消抖"]
+tags: ["气缸控制", "执行器", "PLC功能块", "电磁阀", "单线圈弹簧复位", "双线圈中封阀", "传感器消抖", "结构体"]
 ---
 
 # 需求分析文档 FB_1011_CylinderControl
@@ -13,41 +13,46 @@ tags: ["气缸控制", "执行器", "PLC功能块", "电磁阀", "单线圈两�
 ## 1. 文档基础信息
 
 **文档标题**：FB_1011_CylinderControl需求分析文档
-**文档版本**：V10.0.0
-**编制日期**：2026-06-17
+**文档版本**：V13.0.0
+**编制日期**：2026-06-18
 **编制人**：Trae
 **审核人**：人工
-**遵循规范**：REQ-020, LSP-905-V1.0.2, LSP-904-V1.1.0, LSP-903-V2.1.0
+**遵循规范**：REQ-020, LSP-905-V1.0.2, LSP-904-V1.2.0, LSP-903-V2.1.0
 
 ## 2. 版本变更记录
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 | 详细说明 |
 |--------|----------|--------|----------|----------|
-| V10.0.0 | Breaking Change: 新增双线圈两位阀支持; 输出q_bSolenoid→q_aSolenoid[0..7] ARRAY; 新增i_bRetractPolarity参数; 命令处理改CASE分支; 双线圈A/B互锁+保持位+安全态兜底 | Trae | 2026-06-17 | 新增i_iSolenoidType=1双线圈两位阀(双作用,失电保持位); 输出从q_bSolenoid(BOOL)改为q_aSolenoid[0..7](ARRAY[0..7] OF BOOL), [0]=线圈A(动点方向), [1]=线圈B(原点方向); 新增i_bRetractPolarity参数独立控制线圈B极性; 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支; 双线圈逻辑: A/B互锁, 无命令保持位(非弹簧复位), ELSE分支全OFF; CASE ELSE非法类型安全态兜底 |
-| V9.2.0 | P0定时器修复: 定时器调用对齐LSP-903 V2.1.0三段式; 消抖关闭时设IN=FALSE让TON自然复位; 超时检测移入命令分支内加s_bMoving防误报; 移除尾部独立fb_tTimeout()调用 | Trae | 2026-06-17 | 定时器调用从条件内联改为三段式+顶部无条件批量调用; 消抖关闭时不再跳过定时器调用而是设IN=FALSE让TON自然复位Q=FALSE/ET=0; 超时检测从尾部独立检测移入Extend/Retract命令分支内加s_bMoving条件防误报; 移除尾部独立fb_tTimeout()调用统一到顶部批量调用区 |
-| V9.0.0 | 移除ST_Cylinder结构体，回归扁平接口；新增传感器消抖；极性取反完整实现 | Trae | 2026-05-30 | 移除VAR_IN_OUT ST_Cylinder，改为8个VAR_INPUT+5个VAR_OUTPUT扁平接口；变量命名对齐LSP-905(i_/q_前缀)；新增FR-011传感器TON消抖；FR-010升级为极性取反完整实现(电磁阀+传感器映射+状态输出均反转)；规范引用从801/810更新为LSP-905/904/903 |
-| V8.1.0 | 明确电磁阀类型定义，增加通用性设计 | Trae | 2026-05-30 | 新增SolenoidType和ExtendPolarity参数，明确当前为单线圈两位阀，预留双线圈/3位阀扩展 |
-| V8.0.0 | 重构为VAR_IN_OUT ST_Cylinder结构，对齐SysLib规范 | Trae | 2026-05-30 | 参考FB_1003 VAR_IN_OUT io_stZAxis模式，所有接口通过ST_Cylinder结构体传递 |
-| V7.0.0 | 从FB_1002中独立拆分，提高内聚性 | Trae | 2026-05-18 | 接口扁平化设计 |
+| V13.0.0 | Breaking Change: 重命名stCmd→i_stCmd, stSts→q_stSts, 对齐LSP-905 V1.0.2前缀规范 | Trae | 2026-06-18 | 仅重命名FB级引脚名, 结构体内部字段不变; 调用方需更新: stCmd:=→i_stCmd:=, stSts=>→q_stSts=> |
+| V12.0.0 | 新增防呆锁存(s_iLatchedSolenoidType+s_iLatchedMode), 运动中参数不可变; 新增i_stCmd.Mode(0=手动/1=自动); 新增i_stCmd.ModeStatus(WORD); CASE分支改用锁存值; 手动模式跳过超时检测 | Trae | 2026-06-18 | 防呆: 运动期间锁存SolenoidType和Mode, 空闲时自动刷新; 手动模式跳过超时但保留传感器故障诊断; ModeStatus预留上层序列控制器使用 |
+| V11.0.0 | Breaking Change: 扁平接口→结构体接口; i_stCmd:ST_CylinderCmd(CONSTANT)+q_stSts:ST_CylinderSts; q_aSolenoid[0..7]→SolenoidA/SolenoidB; FB引脚14→2; SolenoidType对齐实际场景: 0=两位三通单线圈弹簧复位(气缸阀/真空阀), 1=双线圈中封阀(失电中封保持); 真空阀纳入SolenoidType=0 | Trae | 2026-06-18 | 重构接口: VAR_INPUT CONSTANT i_stCmd:ST_CylinderCmd + VAR_OUTPUT q_stSts:ST_CylinderSts; 删除ARRAY输出改为两个独立BOOL; 调用方引脚数从14降为2, 支持结构体整体保存/传递/快照 |
+| V10.0.0 | Breaking Change: 新增双线圈支持(SolenoidType=1); q_bSolenoid→q_aSolenoid[0..7] ARRAY输出; 新增RetractPolarity参数; 命令处理从IF/ELSIF改为CASE SolenoidType分支 | Trae | 2026-06-17 | 双线圈A/B互锁+无命令保持位+ELSE安全态 |
+| V9.2.0 | P0定时器修复: 定时器调用对齐LSP-903 V2.1.0三段式; 消抖关闭时设IN=FALSE让TON自然复位; 超时检测移入命令分支内加s_bMoving防误报 | Trae | 2026-06-17 | 定时器调用从条件内联改为三段式+顶部无条件批量调用 |
+| V9.0.0 | 移除ST_Cylinder结构体, 回归扁平接口; 新增传感器消抖; 极性取反完整实现 | Trae | 2026-05-30 | 8个VAR_INPUT+5个VAR_OUTPUT扁平接口; 命名对齐LSP-905(i_/q_前缀) |
+| V8.1.0 | 明确电磁阀类型定义 | Trae | 2026-05-30 | 新增SolenoidType和ExtendPolarity参数 |
+| V8.0.0 | 重构为VAR_IN_OUT ST_Cylinder结构 | Trae | 2026-05-30 | 参考FB_1003 VAR_IN_OUT模式 |
+| V7.0.0 | 从FB_1002中独立拆分 | Trae | 2026-05-18 | 接口扁平化设计 |
 
 ## 3. 项目背景
 
 ### 3.1 项目来源
 
-输送机系统中多个执行器（阻挡气缸、分料气缸等）需要标准化的气缸控制功能。原有逻辑耦合在FB_1002中，可复用性差，接口数量多，维护困难。
+输送机系统中多个执行器（阻挡气缸、分料气缸、真空阀等）需要标准化的双位置执行器控制功能。原有逻辑耦合在FB_1002中，可复用性差，接口数量多，维护困难。
 
 ### 3.2 项目目标
 
-为SysLib提供一个通用、高内聚、低耦合的气缸控制功能块，支持：
-- 标准化的伸出/收回控制
+为SysLib提供一个通用、高内聚、低耦合的双位置执行器控制功能块，支持：
+- 标准化的动点(Extend)/原点(Retract)控制
 - 传感器消抖确认（防抖动误触发）
 - 传感器冗余一致性检查
 - 动作超时保护
 - 可配置的超时参数与消抖参数
-- 独立实例化，支持多气缸场景
-- 支持多种电磁阀类型选择（单线圈两位阀+双线圈两位阀）
+- 独立实例化，支持多执行器场景
+- 支持多种电磁阀类型选择（单线圈弹簧复位+双线圈中封）
 - 极性取反完整实现（电磁阀输出+传感器映射+状态输出均反转）
-- 双线圈A/B互锁与失电保持位
+- 双线圈A/B互锁与失电中封保持
+- 手动/自动运行模式切换
+- 运动中参数防呆锁存
 
 ### 3.3 项目范围
 
@@ -55,12 +60,15 @@ tags: ["气缸控制", "执行器", "PLC功能块", "电磁阀", "单线圈两�
 - 单气缸伸出/收回控制
 - 上下位传感器检测（含TON消抖）
 - 传感器冗余一致性检查（基于消抖后信号）
-- 动作超时计时与报警
+- 动作超时计时与报警（自动模式）
 - 命令优先级处理（Extend > Retract）
-- 电磁阀类型参数化配置（单线圈+双线圈两位阀）
+- 电磁阀类型参数化配置（单线圈弹簧复位+双线圈中封）
 - 极性取反完整实现（电磁阀+传感器+状态）
 - 传感器TON消抖功能
-- 双线圈A/B互锁与失电保持位
+- 双线圈A/B互锁与失电中封保持
+- 手动/自动模式（手动跳过超时，线圈直接输出）
+- 运动中参数防呆锁存（SolenoidType+Mode）
+- 结构体接口（1个VAR_INPUT CONSTANT + 1个VAR_OUTPUT）
 
 **不包含范围**：
 - 气缸动作时机的编排（由上级功能块决定）
@@ -68,82 +76,59 @@ tags: ["气缸控制", "执行器", "PLC功能块", "电磁阀", "单线圈两�
 - 报警码编码（由上级功能块完成）
 - 多气缸协同逻辑
 
-### 3.4 V9.0.0重构动机
-
-V8.0.0引入VAR_IN_OUT ST_Cylinder结构体封装，但经实践验证，简单执行机构（如气缸）无需结构体封装，原因如下：
-- **调试不便**：结构体封装导致在线监控时需展开多层才能查看单个信号，扁平接口一目了然
-- **过度抽象**：气缸控制信号数量有限（8入5出），结构体封装增加间接层但无实质收益
-- **命名冗余**：结构体字段名如`io_stCyl.Extend`不如扁平变量`i_bExtend`直观
-- **LSP-905对齐**：扁平VAR_INPUT/VAR_OUTPUT命名（i_/q_前缀）更符合LSP-905规范
-
-因此V9.0.0回归扁平接口设计，同时保留V8.1.0新增的电磁阀类型与极性参数，并新增传感器消抖功能。
-
 ## 4. 电磁阀类型定义
 
 ### 4.1 电磁阀类型对照表（SolenoidType）
 
-| SolenoidType值 | 电磁阀类型 | 线圈数量 | 阀位数 | 输出信号 | 默认行为（无命令时） | 当前V10.0.0支持 |
+| SolenoidType值 | 电磁阀类型 | 线圈数量 | 阀位数 | 输出信号 | 默认行为（无命令时） | 当前V13.0.0支持 |
 |-----------|---------|---------|-------|---------|------------------|---------------|
-| **0** | **单线圈两位阀** | 1个 | 2位 | q_aSolenoid[0] | 弹簧复位（收回） | ✅ **支持（默认）** |
-| **1** | **双线圈两位阀** | 2个 | 2位 | q_aSolenoid[0..7] | 保持最后位置 | ✅ **支持（V10.0.0新增）** |
-| 2 | 3位4通中封阀 | 2个 | 3位 | 2个BOOL | 保持位置（中封） | ⚠️ 预留扩展 |
-| 3 | 3位4通中泄阀 | 2个 | 3位 | 2个BOOL | 泄压回油（中泄） | ⚠️ 预留扩展 |
+| **0** | **两位三通单线圈弹簧复位** | 1个 | 2位 | q_stSts.SolenoidA | 弹簧复位（收回） | 支持（默认） |
+| **1** | **双线圈中封阀** | 2个 | 2位 | q_stSts.SolenoidA, q_stSts.SolenoidB | 失电中封保持 | 支持 |
+| 2 | 3位4通中封阀 | 2个 | 3位 | 2个BOOL | 保持位置（中封） | 预留扩展 |
+| 3 | 3位4通中泄阀 | 2个 | 3位 | 2个BOOL | 泄压回油（中泄） | 预留扩展 |
 
-### 4.2 当前V10.0.0的配置
+### 4.2 当前V13.0.0的配置
 
-**FB_1011 V10.0.0 支持：单线圈两位阀 + 双线圈两位阀**
+**FB_1011 V13.0.0 支持：单线圈弹簧复位阀 + 双线圈中封阀**
 
-#### 4.2.1 单线圈两位阀（i_iSolenoidType=0，默认）
+#### 4.2.1 单线圈弹簧复位阀（SolenoidType=0，默认）
 - 线圈：1个
-- 输出：q_aSolenoid[0]（[1]始终FALSE）
-- [0]=TRUE → 得电伸出（可通过i_bExtendPolarity取反）
-- [0]=FALSE → 失电收回（弹簧复位）
-- 安全性：失电后气缸自动收回（弹簧复位）
+- 输出：q_stSts.SolenoidA（SolenoidB始终FALSE）
+- SolenoidA=TRUE → 得电动作（可通过ExtendPolarity取反）
+- SolenoidA=FALSE → 失电复位（弹簧复位）
+- 安全性：失电后执行器自动复位（弹簧复位）
 
-#### 4.2.2 双线圈两位阀（i_iSolenoidType=1，V10.0.0新增）
+#### 4.2.2 双线圈中封阀（SolenoidType=1）
 - 线圈：2个（线圈A=动点方向，线圈B=原点方向）
-- 输出：q_aSolenoid[0..7]
-  - [0]=线圈A(动点方向)，[1]=线圈B(原点方向)
+- 输出：q_stSts.SolenoidA（动点方向），q_stSts.SolenoidB（原点方向）
   - A/B互锁：任意时刻最多一个ON，禁止同时ON
-- 伸出命令：q_aSolenoid[0]=TRUE, q_aSolenoid[1]=FALSE
-- 收回命令：q_aSolenoid[0]=FALSE, q_aSolenoid[1]=TRUE
-- 无命令时：保持当前位（非弹簧复位，失电保持位）
-- ELSE分支（无命令且非保持态）：q_aSolenoid[0]=FALSE, q_aSolenoid[1]=FALSE（全OFF安全态）
-- 安全性：双线圈为双作用气缸，失电后保持最后位置，不自动收回
+- 伸出命令：q_stSts.SolenoidA=TRUE, q_stSts.SolenoidB=FALSE
+- 收回命令：q_stSts.SolenoidA=FALSE, q_stSts.SolenoidB=TRUE
+- 无命令时：保持当前位（失电中封保持，非弹簧复位）
+- ELSE分支（无命令且非保持态）：SolenoidA=FALSE, SolenoidB=FALSE（全OFF安全态）
+- 安全性：双线圈为双作用执行器，失电后中封保持最后位置
 
-### 4.3 极性取反完整实现（V9.0.0升级，V10.0.0扩展）
+### 4.3 极性取反完整实现
 
-V8.1.0仅取反电磁阀输出，V9.0.0升级为极性取反完整实现：**电磁阀输出+传感器映射+状态输出均随极性反转**。V10.0.0新增i_bRetractPolarity参数，双线圈两位阀的线圈B极性可独立控制。
+#### 4.3.1 单线圈极性取反（ExtendPolarity）
 
-#### 4.3.1 单线圈极性取反（i_bExtendPolarity）
-
-| i_bExtendPolarity值 | 说明 | q_aSolenoid[0]=TRUE | q_aSolenoid[0]=FALSE | 传感器映射 | 状态输出 | 适用场景 |
-|---------------------|------|---------------------|---------------------|-----------|---------|---------|
-| FALSE (默认) | 正常极性 | 伸出 | 收回 | i_bExtendedPos→q_bIsExtended, i_bRetractedPos→q_bIsRetracted | 正常 | 阻挡/夹紧等气缸 |
-| TRUE | 极性取反 | 收回 | 伸出 | i_bExtendedPos→q_bIsRetracted, i_bRetractedPos→q_bIsExtended | 反转 | 拍正/顶升等弹簧复位气缸 |
-
-**单线圈极性取反完整行为**：
-- 电磁阀输出反转：伸出命令→q_aSolenoid[0]=FALSE，收回命令→q_aSolenoid[0]=TRUE
-- 传感器映射反转：伸出位传感器→q_bIsRetracted，收回位传感器→q_bIsExtended
-- 状态输出反转：所有基于位置的状态判断均随极性反转
+| ExtendPolarity值 | 说明 | SolenoidA=TRUE | SolenoidA=FALSE | 传感器映射 | 状态输出 |
+|---------------------|------|---------------------|---------------------|-----------|---------|
+| FALSE (默认) | 正常极性 | 动点方向 | 原点方向 | ExtendedPos→IsExtended, RetractedPos→IsRetracted | 正常 |
+| TRUE | 极性取反 | 原点方向 | 动点方向 | ExtendedPos→IsRetracted, RetractedPos→IsExtended | 反转 |
 
 #### 4.3.2 双线圈极性取反（V10.0.0新增）
 
-双线圈两位阀有两个独立极性参数：
-- **i_bExtendPolarity**：控制线圈A（动点方向）极性
-- **i_bRetractPolarity**：控制线圈B（原点方向）极性（V10.0.0新增）
+双线圈中封阀有两个独立极性参数：
+- **ExtendPolarity**：控制线圈A（动点方向）极性
+- **RetractPolarity**：控制线圈B（原点方向）极性
 
-| i_bExtendPolarity | i_bRetractPolarity | 伸出命令 | 收回命令 | 说明 |
+| ExtendPolarity | RetractPolarity | 伸出命令 | 收回命令 | 说明 |
 |-------------------|-------------------|---------|---------|------|
 | FALSE (默认) | FALSE (默认) | A=TRUE,B=FALSE | A=FALSE,B=TRUE | 正常极性 |
-| TRUE | FALSE | A=FALSE,B=TRUE | A=TRUE,B=FALSE | 仅A极性取反，伸出/收回互换 |
-| FALSE | TRUE | A=TRUE,B=FALSE | A=FALSE,B=TRUE | 仅B极性取反，与默认行为相同但内部逻辑不同 |
-| TRUE | TRUE | A=FALSE,B=TRUE | A=TRUE,B=FALSE | A/B均取反，与仅A取反等效 |
-
-**双线圈极性取反行为**：
-- 线圈A极性取反(i_bExtendPolarity=TRUE)：伸出命令驱动线圈B，收回命令驱动线圈A
-- 线圈B极性取反(i_bRetractPolarity=TRUE)：收回命令驱动线圈A（与B极性取反后方向一致）
-- 传感器映射和状态输出跟随i_bExtendPolarity反转（与单线圈一致）
+| TRUE | FALSE | A=FALSE,B=TRUE | A=TRUE,B=FALSE | 仅A极性取反 |
+| FALSE | TRUE | A=TRUE,B=FALSE | A=FALSE,B=TRUE | 仅B极性取反 |
+| TRUE | TRUE | A=FALSE,B=TRUE | A=TRUE,B=FALSE | A/B均取反 |
 
 ## 5. 需求概述
 
@@ -151,486 +136,195 @@ V8.1.0仅取反电磁阀输出，V9.0.0升级为极性取反完整实现：**电
 
 | 需求编号 | 需求描述 | 优先级 | 备注 |
 |---------|----------|--------|------|
-| FR-001 | 接收伸出命令，驱动电磁阀伸出 | P0 | 核心功能; V10.0.0: 接口9入5出, 输出q_aSolenoid[0..7] |
-| FR-002 | 接收收回命令，驱动电磁阀收回 | P0 | 核心功能; V10.0.0: 接口9入5出, 输出q_aSolenoid[0..7] |
-| FR-003 | 检测伸出位传感器，反馈到位状态 | P0 | 核心功能 |
-| FR-004 | 检测收回位传感器，反馈到位状态 | P0 | 核心功能 |
-| FR-005 | 传感器冗余一致性检查（上下位同时ON检测） | P1 | 诊断功能 |
-| FR-006 | 动作超时计时与报警 | P1 | 安全功能; V9.2.0: 超时检测在命令分支内, 加s_bMoving条件防误报 |
+| FR-001 | 接收动点命令，驱动电磁阀动作 | P0 | 核心功能; V11.0.0: 结构体接口i_stCmd:ST_CylinderCmd+q_stSts:ST_CylinderSts |
+| FR-002 | 接收原点命令，驱动电磁阀复位 | P0 | 核心功能; 同上 |
+| FR-003 | 检测动点到位传感器，反馈到位状态 | P0 | 核心功能 |
+| FR-004 | 检测原点到位传感器，反馈到位状态 | P0 | 核心功能 |
+| FR-005 | 传感器冗余一致性检查（两点同时ON检测） | P1 | 诊断功能 |
+| FR-006 | 动作超时计时与报警（自动模式） | P1 | 安全功能; V12.0.0: 手动模式跳过超时 |
 | FR-007 | 可配置超时时间 | P1 | 灵活配置 |
 | FR-008 | 命令优先级处理（Extend > Retract） | P1 | 防冲突 |
 | FR-009 | 电磁阀类型参数化配置 | P1 | 通用性需求 |
-| FR-010 | 极性取反完整实现（电磁阀+传感器映射+状态输出均反转） | P1 | V9.0.0升级 |
-| FR-011 | 磁环传感器TON消抖 | P1 | V9.0.0新增; V9.2.0: 消抖关闭时设IN=FALSE让TON自然复位 |
-| FR-012 | 定时器调用方式对齐LSP-903 V2.1.0三段式+顶部无条件批量调用 | P0 | V9.2.0新增 |
-| FR-013 | 双线圈两位阀控制（A/B互锁、保持位、CASE分支） | P0 | V10.0.0新增; i_iSolenoidType=1时启用 |
-| FR-014 | 双线圈极性取反（i_bRetractPolarity独立控制线圈B极性） | P1 | V10.0.0新增 |
+| FR-010 | 极性取反完整实现（电磁阀+传感器映射+状态输出均反转） | P1 | |
+| FR-011 | 磁环传感器TON消抖 | P1 | |
+| FR-012 | 定时器调用方式对齐LSP-903 V2.1.0三段式+顶部无条件批量调用 | P0 | |
+| FR-013 | 双线圈中封阀控制（A/B互锁、中封保持、CASE分支） | P0 | |
+| FR-014 | 双线圈极性取反（RetractPolarity独立控制线圈B极性） | P1 | |
+| FR-015 | 手动/自动运行模式 | P1 | V12.0.0新增; Mode=0手动跳过超时, Mode=1自动全保护 |
+| FR-016 | 运动中参数防呆锁存 | P1 | V12.0.0新增; SolenoidType+Mode运动中锁存, 空闲时刷新 |
+| FR-017 | 结构体接口（1入1出） | P0 | V11.0.0; i_stCmd:ST_CylinderCmd(CONSTANT)+q_stSts:ST_CylinderSts |
+| FR-018 | FB引脚重命名对齐LSP-905前缀规范 | P0 | V13.0.0; stCmd:=→i_stCmd:=, stSts=>→q_stSts=> |
 
 ### 5.2 非功能需求
 
 | 需求编号 | 需求描述 | 优先级 | 备注 |
 |---------|----------|--------|------|
 | NFR-001 | 响应时间≤1ms（PLC扫描周期） | P0 | 实时性 |
-| NFR-002 | 传感器一致性检查基于消抖后信号，消抖有延时但故障检测更可靠 | P1 | V9.0.0更新 |
+| NFR-002 | 传感器一致性检查基于消抖后信号 | P1 | |
 | NFR-003 | 超时仅报警不强制复位，保持输出 | P1 | 安全策略 |
 | NFR-004 | 同一FB可实例化≥4个气缸 | P2 | 可复用性 |
 | NFR-005 | 遵循LSP-904注释规范，使用英文半角标点 | P1 | 规范符合性 |
-| NFR-006 | 预留3位阀扩展接口 | P2 | V10.0.0更新: 双线圈已实现, 仅3位阀预留 |
-| NFR-007 | 定时器实例每周期必须无条件调用(), 禁止条件分支内调用 | P0 | V9.2.0新增, LSP-903 V2.1.0 §3.4 |
+| NFR-006 | 预留3位阀扩展接口 | P2 | 双线圈已实现, 仅3位阀预留 |
+| NFR-007 | 定时器实例每周期必须无条件调用()，禁止条件分支内调用 | P0 | LSP-903 V2.1.0 §3.4 |
+| NFR-008 | 结构体接口支持整体保存/传递/快照 | P1 | V11.0.0新增 |
 
 ### 5.3 数据需求
 
 | 需求编号 | 需求描述 | 优先级 | 备注 |
 |---------|----------|--------|------|
-| DR-001 | 通过扁平VAR_INPUT/VAR_OUTPUT传递所有命令、传感器、参数、状态 | P0 | V9.0.0变更，替代ST_Cylinder |
-| DR-002 | 超时时间支持0~60000ms配置 | P1 | 灵活配置 |
-| DR-003 | 超时故障锁存，直到新命令清除 | P1 | 可靠性 |
-| DR-004 | SolenoidType整数类型参数 | P1 | 电磁阀类型选择 |
-| DR-005 | ExtendPolarity布尔取反参数 | P1 | 线圈极性调整 |
-| DR-006 | 传感器消抖时间参数i_dDebounceMs | P1 | V9.0.0新增 |
-| DR-007 | 双线圈原点方向极性取反参数i_bRetractPolarity | P1 | V10.0.0新增; 独立控制线圈B极性 |
-| DR-008 | 电磁阀ARRAY输出q_aSolenoid[0..7] | P0 | V10.0.0变更; 替代原q_bSolenoid(BOOL); [0]=线圈A(动点方向), [1]=线圈B(原点方向) |
+| DR-001 | 通过结构体VAR_INPUT CONSTANT/VAR_OUTPUT传递所有命令、传感器、参数、状态 | P0 | V11.0.0变更 |
+| DR-002 | 超时时间支持0~60000ms配置 | P1 | |
+| DR-003 | 超时故障锁存，直到新命令清除 | P1 | |
+| DR-004 | SolenoidType整数类型参数 | P1 | |
+| DR-005 | ExtendPolarity布尔取反参数 | P1 | |
+| DR-006 | 传感器消抖时间参数DebounceMs | P1 | |
+| DR-007 | 双线圈原点方向极性取反参数RetractPolarity | P1 | |
+| DR-008 | 电磁阀独立BOOL输出SolenoidA/SolenoidB | P0 | V11.0.0变更; 替代原q_aSolenoid ARRAY |
+| DR-009 | 运行模式参数Mode（0=手动/1=自动） | P1 | V12.0.0新增 |
+| DR-010 | 模式状态字ModeStatus（WORD） | P2 | V12.0.0新增; 预留上层序列控制器使用 |
 
 ## 6. 详细需求分析
 
-### 6.1 功能需求详细分析
+### 6.1 接口定义（V13.0.0）
 
-#### FR-001/FR-002：伸出/收回控制
-
-**需求描述**：接收伸出/收回命令，驱动电磁阀动作，等待到位传感器
-
-**VAR_INPUT**（9个）：
-
-| 变量名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| i_bExtend | BOOL | FALSE | 伸出命令 |
-| i_bRetract | BOOL | FALSE | 收回命令 |
-| i_bExtendedPos | BOOL | FALSE | 伸出位传感器 |
-| i_bRetractedPos | BOOL | FALSE | 收回位传感器 |
-| i_dTimeoutMs | DINT | 5000 | 超时时间(ms)，0=关闭 |
-| i_dDebounceMs | DINT | 0 | 传感器消抖时间(ms)，0=关闭 |
-| i_iSolenoidType | INT | 0 | 电磁阀类型，0=单线圈两位阀，1=双线圈两位阀 |
-| i_bExtendPolarity | BOOL | FALSE | 伸出方向极性取反，TRUE时电磁阀+传感器+状态均反转 |
-| i_bRetractPolarity | BOOL | FALSE | 收回方向极性取反（V10.0.0新增），双线圈时独立控制线圈B极性 |
-
-**VAR_OUTPUT**（5个）：
+**VAR_INPUT CONSTANT**（1个结构体）：
 
 | 变量名 | 类型 | 说明 |
 |--------|------|------|
-| q_aSolenoid | ARRAY[0..7] OF BOOL | 电磁阀输出; [0]=线圈A(动点方向), [1]=线圈B(原点方向); 单线圈只用[0], [1]始终FALSE |
-| q_bIsExtended | BOOL | 伸出到位状态 |
-| q_bIsRetracted | BOOL | 收回到位状态 |
-| q_bTimeout | BOOL | 超时报警 |
-| q_bSensorFault | BOOL | 传感器故障 |
-
-**单线圈两位阀行为说明**（i_iSolenoidType=0）：
-- i_bExtend=TRUE时，q_aSolenoid[0] = NOT i_bExtendPolarity（正常为TRUE，取反为FALSE），q_aSolenoid[1] = FALSE
-- i_bRetract=TRUE时，q_aSolenoid[0] = i_bExtendPolarity（正常为FALSE，取反为TRUE），q_aSolenoid[1] = FALSE
-- 无命令时，q_aSolenoid[0] = i_bExtendPolarity（默认保持FALSE，弹簧复位），q_aSolenoid[1] = FALSE
-
-**双线圈两位阀行为说明**（i_iSolenoidType=1，V10.0.0新增）：
-- 伸出命令：q_aSolenoid[0] = NOT i_bExtendPolarity, q_aSolenoid[1] = i_bRetractPolarity（A=ON驱动伸出）
-- 收回命令：q_aSolenoid[0] = i_bExtendPolarity, q_aSolenoid[1] = NOT i_bRetractPolarity（B=ON驱动收回）
-- 无命令时：保持当前输出（双线圈非弹簧复位，失电保持位）
-- ELSE分支：q_aSolenoid[0] = FALSE, q_aSolenoid[1] = FALSE（全OFF安全态）
-- A/B互锁：任意时刻最多一个ON，禁止同时ON
-
-#### FR-003/FR-004：到位检测
-
-与电磁阀类型无关，仅依赖传感器信号。V9.0.0中传感器信号经消抖处理后用于到位判断。
-
-#### FR-005：传感器冗余一致性检查
-
-基于消抖后的传感器信号进行一致性检查。消抖引入延时，但故障检测更可靠，避免传感器抖动导致的误报。
-
-#### FR-006：超时保护
-
-V9.2.0更新：超时检测从尾部独立检测移入Extend/Retract命令分支内，并加s_bMoving条件防误报。
-
-**V9.2.0超时检测逻辑**：
-- 超时检测在Extend/Retract命令分支内执行，仅在气缸正在运动（s_bMoving=TRUE）时检测
-- s_bMoving条件防止到位后仍触发超时误报
-- 移除尾部独立的fb_tTimeout()调用，统一到FB顶部无条件批量调用区
-
-与电磁阀类型无关。
-
-#### FR-007：可配置超时时间
-
-与电磁阀类型无关。
-
-#### FR-008：命令优先级处理（Extend > Retract）
-
-与电磁阀类型无关。
-
-#### FR-009：电磁阀类型配置
-
-V10.0.0代码中使用CASE i_iSolenoidType分支处理不同电磁阀类型：
-- i_iSolenoidType=0：单线圈两位阀（弹簧复位，q_aSolenoid[0]输出，[1]始终FALSE）
-- i_iSolenoidType=1：双线圈两位阀（双作用，失电保持位，q_aSolenoid[0..7]互锁输出）
-- i_iSolenoidType=2/3：3位阀（预留，需后续代码实现）
-- CASE ELSE：非法类型安全态兜底，q_aSolenoid[0]=FALSE, q_aSolenoid[1]=FALSE
-
-#### FR-010：极性取反完整实现（V9.0.0升级，V10.0.0扩展）
-
-V8.1.0仅取反电磁阀输出，V9.0.0升级为完整极性取反，V10.0.0扩展双线圈极性独立控制：
-
-**单线圈极性取反**（i_bExtendPolarity）：
-- i_bExtendPolarity=FALSE：伸出→q_aSolenoid[0]=TRUE，收回→q_aSolenoid[0]=FALSE
-- i_bExtendPolarity=TRUE：伸出→q_aSolenoid[0]=FALSE，收回→q_aSolenoid[0]=TRUE
-
-**双线圈极性取反**（V10.0.0扩展，详见4.3.2）：
-- i_bExtendPolarity控制线圈A极性，i_bRetractPolarity控制线圈B极性
-- 两个极性参数独立控制，支持4种组合
-
-**传感器映射反转**：
-- i_bExtendPolarity=FALSE：i_bExtendedPos→q_bIsExtended，i_bRetractedPos→q_bIsRetracted
-- i_bExtendPolarity=TRUE：i_bExtendedPos→q_bIsRetracted，i_bRetractedPos→q_bIsExtended
-
-**状态输出反转**：
-- 所有基于位置的状态判断均随i_bExtendPolarity反转，确保极性取反后逻辑一致性
-
-#### FR-011：磁环传感器TON消抖（V9.0.0新增）
-
-**需求描述**：磁环传感器（如气缸磁环开关）在气缸运动过程中可能因磁环边缘效应产生信号抖动，导致状态频繁跳变。使用FB_TON（接通延时定时器）对传感器信号进行消抖确认。
-
-**参数**：i_dDebounceMs
-- i_dDebounceMs = 0：关闭消抖，传感器信号直接使用
-- i_dDebounceMs > 0：启用TON消抖，传感器信号持续ON超过i_dDebounceMs后才确认
-
-**消抖逻辑**：
-- 为i_bExtendedPos和i_bRetractedPos各分配一个FB_TON实例
-- 传感器信号ON时启动TON计时，IN=TRUE且ET≥i_dDebounceMs时Q=TRUE
-- 传感器信号OFF时TON立即复位，Q=FALSE
-- 消抖后的信号用于到位判断和一致性检查
-
-**V9.2.0消抖关闭行为更新**：
-- i_dDebounceMs=0（消抖关闭）时，不再跳过定时器调用，而是设IN=FALSE让TON自然复位（Q=FALSE, ET=0）
-- 这确保定时器实例每周期无条件调用()，符合LSP-903 V2.1.0 §3.4要求
-- 消抖关闭时传感器信号直接使用，TON输出不参与判断
-
-**消抖与一致性检查的关系**：
-- 一致性检查基于消抖后信号，避免传感器抖动期间误报SensorFault
-- 消抖引入延时，但故障检测更可靠
-
-#### FR-012：定时器调用方式对齐LSP-903 V2.1.0（V9.2.0新增）
-
-**需求描述**：定时器调用方式必须对齐LSP-903 V2.1.0三段式编程规范，确保定时器实例每周期无条件调用。
-
-**LSP-903 V2.1.0三段式+顶部无条件批量调用**：
-1. **顶部无条件批量调用区**：所有定时器实例（fb_tExtendDebounce, fb_tRetractDebounce, fb_tTimeout）在FB顶部无条件调用()，确保每周期执行
-2. **中间逻辑区**：设置定时器IN/PT输入条件，根据业务逻辑赋值
-3. **底部输出使用区**：读取定时器Q/ET输出，用于状态判断
-
-**V9.2.0变更要点**：
-- 定时器调用从条件内联调用改为顶部无条件批量调用
-- 禁止在条件分支内调用定时器()，避免定时器状态不一致
-- 移除尾部独立fb_tTimeout()调用，统一到顶部批量调用区
-
-#### FR-013：双线圈两位阀控制（V10.0.0新增）
-
-**需求描述**：当i_iSolenoidType=1时，启用双线圈两位阀控制模式，使用CASE i_iSolenoidType分支替代原有IF/ELSIF命令处理。
-
-**双线圈控制核心逻辑**：
-- **CASE分支结构**：命令处理从IF/ELSIF改为CASE i_iSolenoidType分支，0=单线圈逻辑，1=双线圈逻辑
-- **A/B互锁**：q_aSolenoid[0]和q_aSolenoid[1]任意时刻最多一个ON，硬件级互锁保护
-- **保持位**：双线圈为双作用气缸，无命令时不复位，保持当前输出（非弹簧复位）
-- **ELSE分支全OFF**：CASE ELSE（包括无命令且非保持态）时q_aSolenoid[0]=FALSE, q_aSolenoid[1]=FALSE
-- **非法类型兜底**：CASE ELSE对非法i_iSolenoidType值执行安全态（全OFF），防止未定义行为
-
-**双线圈伸出命令**：
-- q_aSolenoid[0] = NOT i_bExtendPolarity（线圈A驱动伸出方向）
-- q_aSolenoid[1] = i_bRetractPolarity（线圈B确保OFF，考虑极性）
-
-**双线圈收回命令**：
-- q_aSolenoid[0] = i_bExtendPolarity（线圈A确保OFF，考虑极性）
-- q_aSolenoid[1] = NOT i_bRetractPolarity（线圈B驱动收回方向）
-
-**双线圈无命令**：
-- 保持当前q_aSolenoid输出不变（失电保持位特性）
-
-#### FR-014：双线圈极性取反（V10.0.0新增）
-
-**需求描述**：新增i_bRetractPolarity参数，独立控制双线圈两位阀的线圈B（原点方向）极性。
-
-**参数说明**：
-- i_bRetractPolarity = FALSE（默认）：线圈B正常极性，收回命令时q_aSolenoid[1]=TRUE
-- i_bRetractPolarity = TRUE：线圈B极性取反，收回命令时q_aSolenoid[1]=FALSE，伸出命令时q_aSolenoid[1]=TRUE
-
-**与i_bExtendPolarity的关系**：
-- i_bExtendPolarity控制线圈A极性（动点方向），适用于单线圈和双线圈
-- i_bRetractPolarity控制线圈B极性（原点方向），仅双线圈(i_iSolenoidType=1)时生效
-- 单线圈模式下i_bRetractPolarity不参与逻辑，但接口统一存在
-
-**设计动机**：
-- 不同厂商双线圈电磁阀的A/B线圈接线方向可能相反
-- i_bRetractPolarity允许独立调整线圈B方向，无需修改硬件接线
-
-## 7. 接口需求
-
-### 7.1 内部接口
-
-| 接口编号 | 接口名称 | 功能描述 | 输入参数 | 输出参数 | 详细说明 | 优先级 |
-|---------|---------|---------|---------|---------|---------|--------|
-| II-001 | FB_1011_CylinderControl | 气缸控制功能块 | 9个VAR_INPUT | 5个VAR_OUTPUT | 扁平接口; V10.0.0: 9入(新增i_bRetractPolarity), 输出q_aSolenoid[0..7]替代q_bSolenoid | P0 |
-
-### 7.2 外部接口
-
-| 接口编号 | 接口名称 | 功能描述 | 输入参数 | 输出参数 | 详细说明 | 优先级 |
-|---------|---------|---------|---------|---------|---------|--------|
-| EI-001 | OB1 IO映射 | 物理IO与FB变量映射 | 物理传感器输入 | 物理电磁阀输出 | 由OB1完成 | P0 |
-| EI-002 | 上级编排器 | 动作时机编排 | i_bExtend/i_bRetract | q_bIsExtended/q_bIsRetracted | 如FB_1002 | P0 |
-| EI-003 | 报警管理 | 报警码编码 | q_bTimeout, q_bSensorFault | 报警码 | 由上级完成 | P1 |
-
-## 8. 验收标准
-
-### 8.1 功能验收
-
-| 验收编号 | 验收项 | 验收标准 | 测试方法 |
-|---------|--------|----------|----------|
-| AC-001 | 伸出控制 | i_bExtend=TRUE时，电磁阀=伸出，下位传感器ON后q_bIsExtended=TRUE | 手动测试 |
-| AC-002 | 收回控制 | i_bRetract=TRUE时，电磁阀=收回，上位传感器ON后q_bIsRetracted=TRUE | 手动测试 |
-| AC-003 | 命令优先级 | i_bExtend和i_bRetract同时TRUE，电磁阀=伸出 | 手动测试 |
-| AC-004 | 传感器一致性检查 | 两传感器同时ON（消抖后），q_bSensorFault=TRUE | 手动测试 |
-| AC-005 | 超时保护 | i_dTimeoutMs=5000，动作5秒未到位，q_bTimeout=TRUE | 手动测试 |
-| AC-006 | 超时关闭 | i_dTimeoutMs=0，不触发超时 | 手动测试 |
-| AC-007 | 单线圈两位阀默认配置 | i_iSolenoidType=0时，工作正常 | 代码审查+测试 |
-| AC-008 | 极性取反完整实现 | i_bExtendPolarity=TRUE时，电磁阀输出取反+传感器映射反转+状态输出反转 | 测试验证 |
-| AC-014 | 消抖功能验证 | i_dDebounceMs>0时，传感器信号稳定后才确认；信号抖动期间不误触发 | 测试验证 |
-| AC-015 | 定时器调用规范验收 | 3个定时器()调用集中在FB顶部无条件批量调用区, 不存在条件分支内调用 | 代码审查 |
-| AC-016 | 双线圈互锁验收 | i_iSolenoidType=1时, q_aSolenoid[0]和q_aSolenoid[1]任意时刻最多一个ON, 禁止同时ON | 测试验证+代码审查 |
-| AC-017 | 双线圈保持位验收 | i_iSolenoidType=1时, 无命令期间q_aSolenoid保持当前输出不变(失电保持位); CASE ELSE时全OFF | 测试验证 |
-
-### 8.2 非功能验收
-
-| 验收编号 | 验收项 | 验收标准 | 测试方法 |
-|---------|--------|----------|----------|
-| AC-009 | 响应时间 | 输入变化后，输出在1个扫描周期内更新 | 示波器测量 |
-| AC-010 | 诊断可靠性 | 消抖后两传感器同时ON，q_bSensorFault可靠响应 | 示波器测量 |
-| AC-011 | 可复用性 | 4个实例同时运行，互不干扰 | 多实例测试 |
-
-### 8.3 接口验收
-
-| 验收编号 | 验收项 | 验收标准 | 测试方法 |
-|---------|--------|----------|----------|
-| AC-012 | 扁平VAR_INPUT/VAR_OUTPUT接口 | 所有命令、传感器、参数通过VAR_INPUT传递，状态通过VAR_OUTPUT传递 | 代码审查 |
-| AC-013 | OB1集成 | OB1完成IO映射，功能正常 | 集成测试 |
-
-## 9. MVP定义
-
-### 9.1 MVP核心功能
-
-**MVP定义**：最小可行产品，包含核心气缸控制功能
-
-**MVP目标**：
-- 支持基本伸出/收回控制
-- 支持到位检测
-- 支持超时保护
-- 明确支持单线圈两位阀（默认配置）
-
-### 9.2 MVP功能清单
-
-| 功能编号 | 功能名称 | 优先级 | 验收标准 | 预计工时 | 必要性说明 |
-|---------|---------|--------|---------|---------|-----------|
-| MVP-001 | 伸出控制 | P0 | i_bExtend=TRUE时电磁阀=伸出，到位后q_bIsExtended=TRUE | 1h | 核心功能，必须有 |
-| MVP-002 | 收回控制 | P0 | i_bRetract=TRUE时电磁阀=收回，到位后q_bIsRetracted=TRUE | 1h | 核心功能，必须有 |
-| MVP-003 | 超时保护 | P0 | 超时后q_bTimeout=TRUE | 1h | 安全功能，必须有 |
-| MVP-004 | 单线圈两位阀默认支持 | P0 | i_iSolenoidType=0时工作正常 | 1h | 默认配置，必须明确 |
-
-### 9.3 MVP成功标准
-
-| 成功标准 | 衡量方式 | 目标值 | 验证方法 |
-|---------|---------|--------|---------|
-| 伸出控制功能正常 | 手动测试 | 100%通过 | 手动测试 |
-| 收回控制功能正常 | 手动测试 | 100%通过 | 手动测试 |
-| 超时保护功能正常 | 手动测试 | 100%通过 | 手动测试 |
-| 单线圈两位阀工作正常 | 集成测试 | 100%通过 | 现场测试 |
-
-## 10. 迭代拆分
-
-### 10.1 迭代规划原则
-
-**迭代周期**：1周/迭代
-
-**拆分原则**：
-1. 核心功能优先：先实现伸出/收回控制
-2. 安全功能其次：再实现超时保护
-3. 诊断功能最后：最后实现传感器冗余检查
-4. 参数化配置逐步推进：先单线圈，预留扩展
-
-### 10.2 迭代拆分方案
-
-| 迭代 | 迭代目标 | 核心功能 | 预计工期 | 优先级 | 依赖关系 |
-|------|---------|---------|---------|--------|---------|
-| 迭代1 | 核心伸出/收回控制（单线圈两位阀） | MVP-001, MVP-002, MVP-004 | 1周 | P0 | 无 |
-| 迭代2 | 超时保护功能 | MVP-003 | 1周 | P0 | 迭代1 |
-| 迭代3 | 传感器消抖与冗余检查 | FR-005, FR-011 | 1周 | P1 | 迭代2 |
-| 迭代4 | 极性取反完整实现 | FR-010 | 1周 | P1 | 迭代3 |
-| 迭代5 | 双线圈两位阀支持 | FR-013, FR-014 | 1周 | P0 | 迭代4 |
-| 迭代6 | 3位阀支持 | FR-009 | 1周 | P2 | 迭代5 |
-
-## 11. 用户价值验证
-
-### 11.1 用户价值主张
-
-**目标用户**：PLC程序开发工程师，自动化设备集成商
-
-**用户痛点**：
-| 痛点编号 | 痛点描述 | 严重程度 | 当前解决方案 |
-|---------|---------|---------|-----------|
-| P-001 | 气缸控制逻辑重复编写，代码复用性差 | 高 | 复制粘贴代码 |
-| P-002 | 接口数量多，维护困难 | 中 | 每个项目重新设计 |
-| P-003 | 缺少标准诊断功能，故障排查困难 | 中 | 临时添加诊断代码 |
-| P-004 | 不同项目电磁阀类型不同，代码需重写 | 中 | 复制后修改逻辑 |
-| P-005 | 磁环传感器抖动导致状态频繁跳变 | 中 | 外部加消抖逻辑或忽略 |
-
-**价值主张**：提供标准化、可复用、带诊断的气缸控制功能块，支持多种电磁阀类型选择与传感器消抖，提高开发效率，降低维护成本
-
-### 11.2 用户价值验证计划
-
-| 验证项 | 验证方法 | 验证时机 | 成功标准 | 负责人 |
-|--------|---------|---------|---------|--------|
-| 代码复用性 | 项目使用统计 | 每项目 | 复用率≥80% | Trae |
-| 开发效率提升 | 工时对比 | 每项目 | 效率提升≥50% | Trae |
-| 用户满意度 | 问卷调查 | 每季度 | 满意度≥4.5/5 | Trae |
-
-## 12. 风险评估
+| i_stCmd | ST_CylinderCmd | 命令+传感器+参数结构体, CONSTANT禁止FB内部篡改 |
+
+**ST_CylinderCmd字段**（V3.1.0）：
+
+| 字段 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| Extend | BOOL | FALSE | 动点命令: 伸出/真空ON/夹紧/下降 |
+| Retract | BOOL | FALSE | 原点命令: 收回/破真空/松开/上升 |
+| ExtendedPos | BOOL | FALSE | 动点到位传感器 |
+| RetractedPos | BOOL | FALSE | 原点到位传感器 |
+| TimeoutMs | DINT | 5000 | 超时时间(ms), 0=关闭 |
+| DebounceMs | DINT | 0 | 传感器消抖时间(ms), 0=关闭 |
+| SolenoidType | INT | 0 | 电磁阀类型: 0=单线圈弹簧复位, 1=双线圈中封阀 |
+| ExtendPolarity | BOOL | FALSE | 线圈A极性取反 |
+| RetractPolarity | BOOL | FALSE | 线圈B极性取反（仅双线圈生效） |
+| Mode | INT | 1 | 运行模式: 0=手动, 1=自动; 默认自动安全态 |
+| ModeStatus | WORD | 16#0000 | 模式状态字, 预留 |
+
+**VAR_OUTPUT**（1个结构体）：
+
+| 变量名 | 类型 | 说明 |
+|--------|------|------|
+| q_stSts | ST_CylinderSts | 线圈输出+到位状态+诊断结构体 |
+
+**ST_CylinderSts字段**（V3.0.0）：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| SolenoidA | BOOL | 线圈A输出: 动点方向; 单线圈仅用此输出 |
+| SolenoidB | BOOL | 线圈B输出: 原点方向; 单线圈时始终FALSE |
+| IsExtended | BOOL | 已到动点（极性映射后） |
+| IsRetracted | BOOL | 已到原点（极性映射后） |
+| Timeout | BOOL | 动作超时报警（自动模式） |
+| SensorFault | BOOL | 传感器冗余故障 |
+
+### 6.2 防呆锁存机制（V12.0.0）
+
+```
+IF NOT s_bMoving THEN
+    s_iLatchedSolenoidType := i_stCmd.SolenoidType;
+    s_iLatchedMode := i_stCmd.Mode;
+END_IF;
+```
+
+- 运动中（s_bMoving=TRUE）：SolenoidType和Mode锁存不变，防止参数跳变
+- 空闲时（s_bMoving=FALSE）：自动刷新锁存值，下次动作时生效
+- CASE分支使用锁存值 `s_iLatchedSolenoidType`，而非直接读 `i_stCmd.SolenoidType`
+
+### 6.3 手动/自动模式（V12.0.0）
+
+| 模式 | Mode值 | 超时检测 | 传感器故障检测 | 线圈输出 |
+|------|--------|---------|--------------|---------|
+| 手动 | 0 | 跳过 | 仍检测 | 直接输出到位 |
+| 自动 | 1（默认） | 全保护 | 检测 | 正常逻辑 |
+
+### 6.4 命令处理（CASE s_iLatchedSolenoidType分支）
+
+- SolenoidType=0：单线圈弹簧复位逻辑
+- SolenoidType=1：双线圈中封逻辑（A/B互锁）
+- ELSE：安全态兜底（SolenoidA=FALSE, SolenoidB=FALSE）
+
+## 7. 验收标准
+
+### 7.1 功能验收（V13.0.0更新）
+
+| 验收编号 | 验收项 | 验收标准 |
+|---------|--------|----------|
+| AC-001 | 伸出控制 | i_stCmd.Extend=TRUE时SolenoidA输出正确, 到位后IsExtended=TRUE |
+| AC-002 | 收回控制 | i_stCmd.Retract=TRUE时输出正确, 到位后IsRetracted=TRUE |
+| AC-003 | 超时保护 | 超时后Timeout=TRUE（自动模式） |
+| AC-004 | 传感器冗余 | 消抖后两点同时ON时SensorFault=TRUE |
+| AC-005 | 命令优先级 | Extend和Retract同时TRUE时, Extend优先 |
+| AC-006 | 极性取反 | ExtendPolarity=TRUE时, 电磁阀+传感器+状态均反转 |
+| AC-007 | 消抖功能 | DebounceMs>0时, 传感器抖动不触发误判 |
+| AC-008 | 双线圈互锁 | SolenoidType=1时, SolenoidA和SolenoidB任意时刻最多一个ON |
+| AC-009 | 双线圈保持位 | SolenoidType=1时, 无命令期间保持中封; CASE ELSE时全OFF |
+| AC-010 | 结构体接口 | i_stCmd:ST_CylinderCmd + q_stSts:ST_CylinderSts, 引脚数=2 |
+| AC-011 | 防呆锁存 | 运动中修改SolenoidType/Mode不影响输出, 空闲后刷新生效 |
+| AC-012 | 手动模式 | Mode=0时跳过超时检测, 线圈直接输出; 传感器故障仍检测 |
+| AC-013 | 引脚重命名 | stCmd:=→i_stCmd:=, stSts=>→q_stSts=> |
+
+### 7.2 非功能验收
+
+| 验收编号 | 验收项 | 验收标准 |
+|---------|--------|----------|
+| AC-014 | 响应时间 | 输入变化后，输出在1个扫描周期内更新 |
+| AC-015 | 定时器规范 | 3个定时器()调用集中在FB顶部无条件批量调用区 |
+| AC-016 | 可复用性 | 4个实例同时运行，互不干扰 |
+
+## 8. 风险评估
 
 | 风险编号 | 风险名称 | 风险描述 | 严重程度 | 发生概率 | 应对措施 |
 |---------|---------|---------|---------|---------|---------|
-| RA-001 | 扁平接口参数数量 | 9个VAR_INPUT参数较多，调用时需注意顺序 | 中 | 低 | 使用LSP-905命名规范(i_前缀)提高可读性，调用时显式赋值 |
+| RA-001 | 结构体接口迁移 | V11.0.0从扁平→结构体, 所有调用方需重构 | 高 | 已发生 | 提供迁移指南; 调用方引脚数从14降为2 |
 | RA-002 | 超时策略争议 | 超时后是否强制复位存在不同意见 | 中 | 中 | 保持当前策略（仅报警不复位），由上级决定 |
-| RA-003 | 传感器类型差异 | 不同气缸传感器类型不同（NPN/PNP） | 低 | 中 | OB1处理传感器类型，本FB仅接收BOOL信号 |
-| RA-004 | 电磁阀选型变更 | 项目中实际使用非默认电磁阀类型 | 中 | 中 | 提供参数配置，支持取反和类型选择 |
-| RA-005 | 消抖延时影响响应 | 消抖引入延时，可能影响快速动作场景 | 低 | 低 | i_dDebounceMs=0可关闭消抖，默认关闭 |
-| RA-006 | Breaking Change接口迁移风险 | V10.0.0输出从q_bSolenoid(BOOL)改为q_aSolenoid[0..7](ARRAY)，所有调用方需迁移；新增i_bRetractPolarity参数 | 高 | 高 | 1.提供迁移指南：q_bSolenoid→q_aSolenoid[0]; 2.单线圈模式[1]始终FALSE，行为等价; 3.逐步迁移，旧代码仅需改输出变量名 |
+| RA-003 | V13.0.0引脚重命名 | stCmd→i_stCmd, stSts→q_stSts, 调用方需更新 | 中 | 已发生 | 仅重命名引脚名, 结构体字段不变; 提供迁移指南 |
+| RA-004 | 防呆锁存延迟生效 | 运动中修改参数不会立即生效, 需等空闲 | 低 | 低 | 设计意图如此, 文档说明即可 |
+| RA-005 | 手动模式安全 | 手动模式跳过超时可能导致线圈持续输出 | 中 | 低 | 手动模式仍保留传感器故障检测; 由上层保障安全 |
 
-## 13. 验收计划
+## 9. 版本详细变更说明
 
-### 13.1 验收阶段划分
+### V13.0.0 版本详细变更
 
-1. **单元测试**：验证各功能点正常工作
-2. **集成测试**：验证与OB1和上级功能块集成
-3. **现场测试**：在实际设备上验证（单线圈两位阀默认配置）
-4. **极性取反测试**：测试极性取反完整实现（电磁阀+传感器+状态）
-5. **消抖功能测试**：测试传感器消抖功能
-6. **双线圈测试**：测试双线圈两位阀控制（A/B互锁、保持位、极性取反）
+1. **Breaking Change: FB引脚重命名**: stCmd:=→i_stCmd:=, stSts=>→q_stSts=>, 对齐LSP-905 V1.0.2 §3.1前缀规范
+2. 结构体内部字段名不变, 仅FB级引脚名变更
+3. 新增FR-018: FB引脚重命名对齐LSP-905前缀规范
+4. 更新AC-013: 引脚重命名验收
 
-### 13.2 验收测试方法
+### V12.0.0 版本详细变更
 
-1. **手动测试**：验证基本功能
-2. **仿真测试**：在PLC仿真环境中验证
-3. **现场测试**：在实际设备上验证
+1. **新增防呆锁存**: s_iLatchedSolenoidType + s_iLatchedMode, 运动中参数不可变, 空闲时自动刷新
+2. **新增运行模式**: i_stCmd.Mode（0=手动/1=自动）, 手动模式跳过超时检测, 线圈直接输出
+3. **新增模式状态字**: i_stCmd.ModeStatus（WORD）, 预留上层序列控制器使用
+4. **CASE分支改用锁存值**: CASE s_iLatchedSolenoidType, 不再直接读i_stCmd.SolenoidType
+5. 新增FR-015: 手动/自动运行模式
+6. 新增FR-016: 运动中参数防呆锁存
+7. 新增DR-009: Mode参数
+8. 新增DR-010: ModeStatus参数
+9. 新增AC-011: 防呆锁存验收
+10. 新增AC-012: 手动模式验收
+11. 新增RA-004: 防呆锁存延迟生效风险
+12. 新增RA-005: 手动模式安全风险
 
-### 13.3 验收标准达成条件
+### V11.0.0 版本详细变更
 
-1. 所有功能验收项通过
-2. 所有非功能验收项通过
-3. 所有接口验收项通过
+1. **Breaking Change: 扁平→结构体接口**: VAR_INPUT CONSTANT i_stCmd:ST_CylinderCmd + VAR_OUTPUT q_stSts:ST_CylinderSts
+2. **删除ARRAY输出**: q_aSolenoid[0..7] → q_stSts.SolenoidA/SolenoidB 两个独立BOOL
+3. **FB引脚数**: 14个引脚(9入5出) → 2个引脚(1入1出)
+4. **SolenoidType注释对齐实际场景**: 0=两位三通单线圈弹簧复位(气缸阀/真空阀), 1=双线圈中封阀(失电中封保持)
+5. **真空阀纳入SolenoidType=0**
+6. 新增FR-017: 结构体接口
+7. 新增NFR-008: 结构体接口支持整体保存/传递/快照
+8. 更新DR-001: 从扁平→结构体
+9. 更新DR-008: 从ARRAY→独立BOOL
+10. 新增RA-001: 结构体接口迁移风险
 
-## 14. 版本详细变更说明
-
-### V10.0.0 版本详细变更
-
-1. **新增双线圈两位阀支持**：i_iSolenoidType=1时启用双线圈两位阀（双作用，失电保持位），电磁阀类型对照表更新
-2. **输出接口Breaking Change**：q_bSolenoid(BOOL) → q_aSolenoid[0..7](ARRAY[0..7] OF BOOL)，[0]=线圈A(动点方向)，[1]=线圈B(原点方向)；单线圈只用[0]，[1]始终FALSE
-3. **新增i_bRetractPolarity参数**：VAR_INPUT从8个增至9个，独立控制双线圈线圈B极性
-4. **命令处理重构**：从IF/ELSIF改为CASE i_iSolenoidType分支，0=单线圈逻辑，1=双线圈逻辑
-5. **双线圈A/B互锁**：任意时刻q_aSolenoid[0]和q_aSolenoid[1]最多一个ON，禁止同时ON
-6. **双线圈保持位**：无命令时保持当前输出（非弹簧复位，失电保持位）
-7. **CASE ELSE安全态兜底**：非法i_iSolenoidType值时q_aSolenoid全OFF，防止未定义行为
-8. **新增FR-013**：双线圈两位阀控制（A/B互锁、保持位、CASE分支）
-9. **新增FR-014**：双线圈极性取反（i_bRetractPolarity独立控制线圈B极性）
-10. **更新FR-001/FR-002**：接口从8入5出变为9入5出，输出从q_bSolenoid变为q_aSolenoid[0..7]
-11. **新增DR-007**：i_bRetractPolarity参数
-12. **新增DR-008**：q_aSolenoid[0..7]数组输出
-13. **更新NFR-006**：双线圈已实现，仅3位阀预留
-14. **新增AC-016**：双线圈互锁验收
-15. **新增AC-017**：双线圈保持位验收
-16. **新增RA-006**：Breaking Change接口迁移风险
-17. **更新4.2节**：拆分为单线圈/双线圈两个配置说明
-18. **更新4.3节**：扩展双线圈极性取反说明（4.3.1单线圈/4.3.2双线圈）
-
-### V9.2.0 版本详细变更
-
-1. **定时器调用方式对齐LSP-903 V2.1.0三段式**：从条件内联调用改为顶部无条件批量调用+中间逻辑区+底部输出使用区
-2. **消抖关闭时行为修正**：i_dDebounceMs=0时不再跳过定时器调用，改为设IN=FALSE让TON自然复位（Q=FALSE, ET=0），确保定时器每周期无条件调用
-3. **超时检测位置调整**：从尾部独立检测移入Extend/Retract命令分支内，加s_bMoving条件防误报
-4. **移除尾部独立fb_tTimeout()调用**：统一到FB顶部无条件批量调用区，消除条件分支内调用
-5. **新增FR-012**：定时器调用方式对齐LSP-903 V2.1.0三段式+顶部无条件批量调用
-6. **新增NFR-007**：定时器实例每周期必须无条件调用()，禁止条件分支内调用
-7. **新增AC-015**：定时器调用规范验收，3个定时器()调用集中在FB顶部无条件批量调用区
-
-### V9.0.0 版本详细变更
-
-1. **移除VAR_IN_OUT ST_Cylinder**：回归扁平VAR_INPUT(8个)/VAR_OUTPUT(5个)接口设计
-2. **变量命名对齐LSP-905**：i_前缀=输入，q_前缀=输出，替代结构体字段命名
-3. **新增FR-011传感器TON消抖**：i_dDebounceMs参数，0=关闭，>0启用FB_TON确认
-4. **FR-010升级为极性取反完整实现**：电磁阀输出+传感器映射+状态输出均随极性反转
-5. **规范引用更新**：从废弃的801/810更新为LSP-905-V1.0.2, LSP-904-V1.1.0, LSP-903-V1.0.0
-6. **DR-001变更**：从"通过ST_Cylinder结构体传递"改为"通过扁平VAR_INPUT/VAR_OUTPUT传递"
-7. **新增DR-006**：传感器消抖时间参数i_dDebounceMs
-8. **NFR-002更新**：传感器一致性检查基于消抖后信号
-9. **AC-008更新**：极性取反时传感器映射+状态输出均反转
-10. **新增AC-014**：消抖功能验证
-
-### V8.1.0 版本详细变更
-
-1. 新增SolenoidType参数：支持电磁阀类型选择，枚举值0-3
-2. 新增ExtendPolarity参数：支持线圈极性取反，解决不同气缸接线差异
-3. 明确默认配置：SolenoidType=0（单线圈两位阀）为默认配置
-4. 详细电磁阀类型文档：提供对照表和行为说明
-5. 预留扩展接口：为双线圈/3位阀预留参数，确保未来兼容性
-
-### V8.0.0 版本详细变更
-
-1. 重构为VAR_IN_OUT ST_Cylinder结构，所有接口通过结构体传递
-2. 仅保留q_bSolenoid为VAR_OUTPUT
-3. 参考FB_1003 VAR_IN_OUT io_stZAxis模式
-4. 对齐SysLib规范
-5. 更新所有相关文档
-
-### V7.0.0 版本详细变更
-
-1. 从FB_1002中独立拆分
-2. 接口扁平化设计
-3. 提高内聚性，降低耦合度
-
-## 15. 附录
-
-### 15.1 参考资料
-
-| 资料名称 | 版本 | 来源 |
-|----------|------|------|
-| 接口文档_INT.md | V10.0.0 | 本目录 |
-| 详细设计说明书_DSN.md | V10.0.0 | 本目录 |
-| 技术方案文档_TEC.md | V10.0.0 | 本目录 |
-| LSP-905_PLC变量命名与功能块命名规范_V1.0.2.md | V1.0.2 | 0100_PLC自动化/00_通用规范/PLC编程/ |
-| LSP-904_SCL注释规范_V1.1.0.md | V1.1.0 | 0100_PLC自动化/00_通用规范/PLC编程/ |
-| LSP-903_SCL编程规范_V2.1.0.md | V2.1.0 | 0100_PLC自动化/00_通用规范/PLC编程/ |
-
-### 15.2 术语定义
-
-| 术语 | 定义 |
-|------|------|
-| VAR_INPUT | 输入变量，用于单向数据传入 |
-| VAR_OUTPUT | 输出变量，用于单向数据传出 |
-| FB_TON | 接通延时定时器，IN=TRUE后延时PT时间Q才置TRUE，IN=FALSE时Q立即复位 |
-| 单线圈两位阀 | 1个线圈，2个位置，弹簧复位，失电自动收回 |
-| 双线圈两位阀 | 2个线圈，2个位置，保持最后位置（双作用，失电保持位） |
-| 线圈A | 双线圈两位阀的动点方向线圈，对应q_aSolenoid[0] |
-| 线圈B | 双线圈两位阀的原点方向线圈，对应q_aSolenoid[1] |
-| A/B互锁 | 双线圈任意时刻最多一个ON，禁止同时ON |
-| 3位4通中封阀 | 2个线圈，3个位置，中位时保持气缸位置 |
-| 3位4通中泄阀 | 2个线圈，3个位置，中位时泄压回油 |
-| 上位传感器 | 气缸收回位置传感器 |
-| 下位传感器 | 气缸伸出位置传感器 |
-| 极性取反完整实现 | 电磁阀输出+传感器映射+状态输出均随极性反转 |
-| 传感器消抖 | 使用FB_TON对传感器信号进行接通延时确认，防止抖动误触发 |
-| 三段式调用 | LSP-903 V2.1.0定时器调用规范：顶部无条件批量调用→中间逻辑区→底部输出使用区 |
-
----
-
-**文档状态**: 审核中
-**下次评审日期**: 2026-06-24
-**编制人**: Trae
-**审核人**: 人工
+## 10. 附录

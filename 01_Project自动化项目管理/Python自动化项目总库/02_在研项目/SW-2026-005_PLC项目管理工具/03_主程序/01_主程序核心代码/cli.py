@@ -14,6 +14,7 @@ import sys
 from dataclasses import asdict
 
 from src.services.change_management_service import ChangeManagementService
+from src.services.plc_project_service import PlcProjectService
 from src.services.project_overview_service import ProjectOverviewService
 from src.utils.logger import get_logger
 
@@ -160,6 +161,166 @@ def cmd_refresh(args: argparse.Namespace) -> None:
         print("已刷新全部缓存")
 
 
+def cmd_plc_init(args: argparse.Namespace) -> None:
+    """创建标准 PLC 项目骨架"""
+    log.info("CLI: plc-init project=%s name=%s", args.project_id, args.name)
+    svc = PlcProjectService(WORKSPACE_ROOT)
+    result = svc.init_project(
+        project_id=args.project_id,
+        project_name=args.name,
+        description=getattr(args, "description", "") or "",
+        dry_run=args.dry_run,
+    )
+    if args.dry_run:
+        print(f"[DRY-RUN] 将创建项目: {result['project_path']}")
+        print("将创建以下文件/目录:")
+        for f in result["created_files"]:
+            print(f"  {f}")
+    else:
+        print(f"项目已创建: {result['project_path']}")
+        print(f"共创建 {len(result['created_files'])} 个文件/目录")
+        print(f"PM_SESSION: {result['project_path']}/PM_SESSION_{args.project_id}.md")
+
+
+def cmd_plc_check(args: argparse.Namespace) -> None:
+    """检查项目结构是否符合 LSP-907 规范"""
+    svc = PlcProjectService(WORKSPACE_ROOT)
+
+    if args.all:
+        log.info("CLI: plc-check --all")
+        results = svc.check_workspace(scan_depth=args.depth)
+        if not results:
+            print("未发现任何项目")
+            return
+        for r in results:
+            _print_check_result(r)
+    else:
+        project_path = args.project_path
+        if not os.path.isabs(project_path):
+            project_path = os.path.join(WORKSPACE_ROOT, project_path)
+        log.info("CLI: plc-check %s", project_path)
+        result = svc.check_project(project_path)
+        _print_check_result(result)
+
+
+def _print_check_result(result) -> None:
+    """格式化输出检查结果"""
+    project_name = os.path.basename(result.project_path)
+    status_icon = "PASS" if result.all_pass else "FAIL"
+    print(f"\n{'='*60}")
+    print(f"  {project_name} [{result.project_type}]  {status_icon}")
+    print(f"  pass={result.pass_count}  warn={result.warn_count}  fail={result.fail_count}")
+    print(f"{'='*60}")
+    for item in result.items:
+        icon = {"pass": "  OK", "warn": " WARN", "fail": "FAIL"}.get(item.status, "  ??")
+        print(f"  [{icon}] {item.item}: {item.message}")
+
+
+def cmd_plc_repair(args: argparse.Namespace) -> None:
+    """自动修复项目结构问题"""
+    from src.services.plc_project_service import RepairResult
+
+    svc = PlcProjectService(WORKSPACE_ROOT)
+
+    if args.all:
+        log.info("CLI: plc-repair --all (dry_run=%s, rename_confirm=%s)",
+                 args.dry_run, args.rename_confirm)
+        results = svc.repair_workspace(
+            dry_run=args.dry_run, rename_confirm=args.rename_confirm
+        )
+        if not results:
+            print("所有项目均已通过检查，无需修复")
+            return
+        for r in results:
+            _print_repair_result(r)
+    else:
+        project_path = args.project_path
+        if not os.path.isabs(project_path):
+            project_path = os.path.join(WORKSPACE_ROOT, project_path)
+        log.info("CLI: plc-repair %s (dry_run=%s, rename_confirm=%s)",
+                 project_path, args.dry_run, args.rename_confirm)
+        result = svc.repair_project(
+            project_path, dry_run=args.dry_run, rename_confirm=args.rename_confirm
+        )
+        _print_repair_result(result)
+
+
+def _print_repair_result(result) -> None:
+    """格式化输出修复结果"""
+    project_name = os.path.basename(result.project_path)
+    print(f"\n{'='*60}")
+    print(f"  修复报告: {project_name}")
+    print(f"  fixed={result.fixed_count}  skipped={result.skipped_count}  failed={result.failed_count}")
+    print(f"{'='*60}")
+
+    for action in result.actions:
+        icon = {"fixed": "FIXED", "skipped": "SKIP ", "failed": "FAIL "}.get(action.status, "??   ")
+        destructive = " [破坏性]" if action.destructive else ""
+        print(f"  [{icon}] {action.item}{destructive}")
+        print(f"         动作: {action.action}")
+        print(f"         详情: {action.detail}")
+
+    # 修复前后对比
+    if result.before_check and result.after_check:
+        print(f"\n  修复前: pass={result.before_check.pass_count} "
+              f"warn={result.before_check.warn_count} "
+              f"fail={result.before_check.fail_count}")
+        print(f"  修复后: pass={result.after_check.pass_count} "
+              f"warn={result.after_check.warn_count} "
+              f"fail={result.after_check.fail_count}")
+        if result.after_check.all_pass:
+            print("  [OK] 项目已全部通过检查")
+        else:
+            print(f"  [FAIL] 仍有 {result.after_check.fail_count} 项未通过")
+
+
+def cmd_plc_standardize(args: argparse.Namespace) -> None:
+    """检测并修正PRD文档命名"""
+    svc = PlcProjectService(WORKSPACE_ROOT)
+
+    if args.all:
+        log.info("CLI: plc-standardize --all (apply=%s)", args.apply)
+        results = svc.standardize_workspace(apply=args.apply)
+        if not results:
+            print("未发现任何项目")
+            return
+        for r in results:
+            _print_standardize_result(r)
+    else:
+        project_path = args.project_path
+        if not os.path.isabs(project_path):
+            project_path = os.path.join(WORKSPACE_ROOT, project_path)
+        log.info("CLI: plc-standardize %s (apply=%s)", project_path, args.apply)
+        result = svc.standardize_docs(project_path, apply=args.apply)
+        _print_standardize_result(result)
+
+
+def _print_standardize_result(result) -> None:
+    """格式化输出标准化结果"""
+    project_name = os.path.basename(result.project_path)
+    print(f"\n{'='*60}")
+    print(f"  文档标准化: {project_name}")
+    print(f"  applied={result.applied_count}  skipped={result.skipped_count}")
+    print(f"{'='*60}")
+
+    if not result.plans:
+        print("  无需标准化（所有文档命名已符合规范）")
+        return
+
+    for plan in result.plans:
+        old_name = os.path.basename(plan.old_path)
+        new_name = os.path.basename(plan.new_path)
+        status = "已执行" if plan.applied else "未执行"
+        print(f"  [{plan.doc_type}] {old_name} → {new_name}  ({status})")
+        if plan.backup_path:
+            print(f"         备份: {plan.backup_path}")
+
+    if result.reference_updates:
+        print(f"\n  关联引用更新 ({len(result.reference_updates)} 处):")
+        for update in result.reference_updates:
+            print(f"    - {update}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="PLC项目管理工具 CLI")
     parser.add_argument(
@@ -224,6 +385,36 @@ def main() -> None:
     sub = subparsers.add_parser("refresh", help="刷新缓存")
     sub.add_argument("project_id", nargs="?", default=None, help="项目编号（可选）")
     sub.set_defaults(func=cmd_refresh)
+
+    # plc-init
+    sub = subparsers.add_parser("plc-init", help="创建标准 PLC 项目骨架")
+    sub.add_argument("project_id", help="项目编号，如 DJ-2026-010")
+    sub.add_argument("name", help="项目名称，如 边框缓存机")
+    sub.add_argument("--description", default="", help="项目描述（可选，默认使用项目名称）")
+    sub.add_argument("--dry-run", action="store_true", help="仅预览，不实际创建文件")
+    sub.set_defaults(func=cmd_plc_init)
+
+    # plc-check
+    sub = subparsers.add_parser("plc-check", help="检查项目结构是否符合 LSP-907 规范")
+    sub.add_argument("project_path", nargs="?", default=".", help="项目路径（绝对路径或相对于工作空间的路径）")
+    sub.add_argument("--all", action="store_true", help="扫描工作空间下所有项目")
+    sub.add_argument("--depth", type=int, default=4, help="扫描深度（默认4，覆盖SysLib/actuator/FB_xxx三级嵌套）")
+    sub.set_defaults(func=cmd_plc_check)
+
+    # plc-repair
+    sub = subparsers.add_parser("plc-repair", help="自动修复项目结构问题")
+    sub.add_argument("project_path", nargs="?", default=".", help="项目路径（绝对路径或相对于工作空间的路径）")
+    sub.add_argument("--all", action="store_true", help="批量修复工作空间所有项目")
+    sub.add_argument("--dry-run", action="store_true", help="仅预览修复动作，不实际执行")
+    sub.add_argument("--rename-confirm", action="store_true", help="确认执行文件重命名（破坏性操作）")
+    sub.set_defaults(func=cmd_plc_repair)
+
+    # plc-standardize
+    sub = subparsers.add_parser("plc-standardize", help="检测并修正PRD文档命名")
+    sub.add_argument("project_path", nargs="?", default=".", help="项目路径（绝对路径或相对于工作空间的路径）")
+    sub.add_argument("--all", action="store_true", help="批量检测工作空间所有项目")
+    sub.add_argument("--apply", action="store_true", help="执行重命名（默认仅检测预览）")
+    sub.set_defaults(func=cmd_plc_standardize)
 
     args = parser.parse_args()
     if not args.command:

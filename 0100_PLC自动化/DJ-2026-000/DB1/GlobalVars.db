@@ -50,23 +50,10 @@ DATA_BLOCK GlobalVars
         // 气缸控制实例 - 双线圈模式
         CylinderDual : FB_1011_CylinderControl;
 
-        // FB_1011 测试输入信号
-        cyl_bExtend : BOOL;
-        cyl_bRetract : BOOL;
-        cyl_bExtendedPos : BOOL;
-        cyl_bRetractedPos : BOOL;
-        cyl_dTimeoutMs : DINT := 5000;
-        cyl_dDebounceMs : DINT := 0;
-        cyl_iSolenoidType : INT := 0;
-        cyl_bExtendPolarity : BOOL := FALSE;
-        cyl_bRetractPolarity : BOOL := FALSE;
-
-        // FB_1011 测试输出信号
-        cyl_aSolenoid : ARRAY[0..7] OF BOOL;
-        cyl_bIsExtended : BOOL;
-        cyl_bIsRetracted : BOOL;
-        cyl_bTimeout : BOOL;
-        cyl_bSensorFault : BOOL;
+        // FB_1011 命令输入结构体 (stCmd: ST_CylinderCmd)
+        cyl_stCmd : ST_CylinderCmd;
+        // FB_1011 状态输出结构体 (stSts: ST_CylinderSts)
+        cyl_stSts : ST_CylinderSts;
 
         // =========================================================================
         // 第五部分: FB_1012_ConveyorMotor 测试实例

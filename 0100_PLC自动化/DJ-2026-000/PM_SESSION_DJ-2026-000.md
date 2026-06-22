@@ -4,7 +4,7 @@
 - project_id: DJ-2026-000
 - project_name: SysLib公共库FB测试套件
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-000
-- last_updated: 2026-06-17
+- last_updated: 2026-06-18
 - owners: PLC开发团队
 - lifecycle: active
 
@@ -14,19 +14,24 @@
 - non_goals: 不做生产部署, 不包含业务逻辑
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V2.0.0 改造完成, 待运行测试验证
-- milestone: V2.0.0 SysLib测试套件首版
-- acceptance: 三个FB测试用例全部通过
+- current_focus: V3.2.0 FB_1011 V13.0.0 引脚前缀对齐, 待运行测试验证
+- milestone: V3.2.0 引脚前缀对齐
+- acceptance: FB_1011 8个测试用例全部通过, i_/q_前缀规范合规
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 测试用例运行验证（cylinder_test/conveyor_motor_test/station_conveyor_test）
+  - FB_1011 V13.0.0 引脚前缀: OB1引脚名 stCmd→i_stCmd, stSts→q_stSts (已完成)
+  - FB_1011 V12.0.0 防呆+模式: 测试文件已新增Mode字段和test8手动模式用例 (已完成)
+  - FB_1011 V11.0.0 接口迁移: DB1/OB1/测试文件已更新为结构体接口 (已完成)
 - next_up:
+  - 运行cylinder_test验证结构体接口兼容性
   - 扩展测试覆盖（FB_1013/FB_1020/timer/counter/edge等模块）
 - open_questions:
+  - 结构体接口在LSP测试环境中的行为需验证
   - FB_1014状态机深层路径测试是否需要补充
 - risks_dependencies:
-  - 依赖SysLib库的稳定性
+  - 依赖SysLib库的ST_CylinderCmd/ST_CylinderSts结构体定义
+  - 依赖FB_1011 V11.0.0的stCmd CONSTANT接口兼容性
 
 ## 4. Artifacts Index（文档索引）
 - src:
@@ -43,6 +48,9 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-06-18 V3.2.0 FB_1011 V13.0.0 引脚前缀: OB1 stCmd→i_stCmd, stSts→q_stSts; 对齐LSP-905 §3.1
+  - 2026-06-18 V3.1.0 FB_1011 V12.0.0 防呆+模式: 测试文件新增Mode字段; 新增test8手动模式跳过超时
+  - 2026-06-18 V3.0.0 FB_1011 V11.0.0 接口迁移: DB1/OB1/Test扁平变量→cyl_stCmd/cyl_stSts结构体
   - 2026-05-27 创建PM_SESSION，标记为归档项目
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
@@ -94,8 +102,9 @@
   - read_first: PM_SESSION_DJ-2026-000.md, Test/cylinder_test.scltest, Test/conveyor_motor_test.scltest, Test/station_conveyor_test.scltest
 
 ## 9. Next Actions
-- [P1] 运行cylinder_test.scltest验证FB_1011测试 | precondition=LSP测试环境就绪 | done_when=7个用例全部通过
+- [P1] 运行cylinder_test.scltest验证FB_1011 V13.0.0 i_/q_前缀 | precondition=LSP测试环境就绪 | done_when=8个用例全部通过
 - [P1] 运行conveyor_motor_test.scltest验证FB_1012测试 | precondition=LSP测试环境就绪 | done_when=6个用例全部通过
 - [P1] 运行station_conveyor_test.scltest验证FB_1014测试 | precondition=LSP测试环境就绪 | done_when=6个用例全部通过
+- [P2] 为CylinderDual实例创建独立结构体变量(cyl_dual_stCmd/cyl_dual_stSts) | precondition=单线圈测试通过 | done_when=双线圈测试可独立运行
 - [P2] 补充FB_1014深层状态路径测试(ALIGN/DISCHARGE子步骤) | precondition=基础测试通过 | done_when=覆盖全部状态转换
 - [P3] 扩展测试覆盖到FB_1013/FB_1020/timer/counter/edge模块 | precondition=当前模块测试稳定 | done_when=SysLib全覆盖

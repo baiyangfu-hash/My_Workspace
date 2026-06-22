@@ -82,6 +82,55 @@ Phase 4: 文档输出
   └→ 815_接口文档模板
 ```
 
+## 接口文档变量表自动输出（SysLib FB 专项）
+
+### 适用范围
+
+仅 `0100_PLC自动化/01_SharedLibraries/SysLib/` 下的 FB 项目，且存在 `PRD/接口文档_INT.md`。非 SysLib 项目不触发。
+
+### 触发条件
+
+当 PLC 技能本次会话的 changed_files 包含 `PRD/接口文档_INT.md` 时，技能退出前（Step 7.5）必须调用 `plc-var-parser` CLI 输出变量表。
+
+### 调用方式
+
+```powershell
+# 1. 激活工作空间 venv（必须）
+& "<工作空间根>\.venv\Scripts\Activate.ps1"
+
+# 2. 调用 CLI（默认输出到 INT.md 同目录）
+plc-var-parser "<项目根>/PRD/接口文档_INT.md"
+
+# 3. 判断结果
+# 退出码 0 = 成功，stdout 输出 JSON（含 status/variables/struct_fields/output_path）
+# 退出码 1 = 解析失败
+# 退出码 2 = 导出失败
+# 退出码 3 = 参数错误（如文件不存在）
+```
+
+### 失败处理
+
+- CLI 失败时仅告警，记录到 PM_SESSION implementation_log（含退出码+stderr），**不阻断** FB 开发流程
+- 常见失败原因：venv 未激活、INT.md 格式不兼容、openpyxl 依赖缺失、plc-var-parser 未安装（需 `pip install -e .`）
+
+### 输出产物
+
+- Excel 文件生成在 INT.md 同目录，命名：`接口文档_INT_变量表.xlsx`
+- 含 2 个 Sheet：变量表（VAR_INPUT/VAR_OUTPUT/VAR）+ 结构体定义（ST_xxx 字段）
+- 每次调用覆盖同名旧文件
+
+### CLI 工具位置
+
+- 源码：`01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-001_PLC变量表解析工具/02_开发文件/`
+- 安装：`pip install -e .`（开发模式，改代码即时生效）
+- 依赖：工作空间 venv（`<工作空间根>\.venv\`）
+
+## 技能强制触发规则（防绕过）
+
+18. 🔴 **修改 `.scl` 源码文件前必须触发 `plc-electrical-engineer` 技能**——禁止绕过技能直接修改 SCL 代码
+19. 🔴 **技能触发后必须同步文档 + 回写 PM_SESSION**——技能退出前必须完成: ① 更新相关 PRD 文档版本/内容; ② 更新 PM_SESSION 变更记录和实施日志
+20. 🔴 **禁止先回复用户再补写 PM_SESSION**——PM_SESSION 回写必须在向用户输出变更摘要之前完成
+
 ## 冲突处理
 
 当PM通用规范与PLC技术栈规范冲突时，以PLC技术栈规范（`0100_PLC自动化/00_通用规范/`）为准

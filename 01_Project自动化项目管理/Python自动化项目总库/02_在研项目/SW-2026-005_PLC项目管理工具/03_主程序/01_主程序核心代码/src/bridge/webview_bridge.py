@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import os
 import threading
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from typing import Any
@@ -26,6 +27,7 @@ from src.models.spec_constants import (
 )
 from src.services.change_management_service import ChangeManagementService
 from src.services.project_overview_service import ProjectOverviewService
+from src.services.plc_project_service import PlcProjectService
 from src.utils.path_resolver import (
     PathTraversalError,
     validate_change_number,
@@ -48,6 +50,7 @@ class WebViewBridge:
     def __init__(self, workspace_root: str) -> None:
         self._overview_svc = ProjectOverviewService(workspace_root)
         self._change_svc = ChangeManagementService(workspace_root)
+        self._plc_svc = PlcProjectService(workspace_root)
         self._window: webview.Window | None = None
         self._workspace_root = workspace_root
         self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="bridge_bg")
@@ -381,6 +384,207 @@ class WebViewBridge:
         except Exception as e:
             log.exception("transition_status 失败")
             return self._error_result(e)
+
+    # ── V9 标准化管理 API ─────────────────────────────────────
+
+    def plc_check_all(self) -> dict:
+        """批量检查工作空间所有项目的结构合规性
+
+        Returns:
+            dict: {
+                "total": int,
+                "pass_count": int,
+                "warn_count": int,
+                "fail_count": int,
+                "compliance_rate": float,
+                "projects": [CheckResult dict, ...]
+            }
+        """
+        try:
+            results = self._plc_svc.check_workspace()
+            projects = [self._check_result_to_dict(r) for r in results]
+            total = len(results)
+            pass_n = sum(1 for r in results if r.all_pass)
+            warn_n = sum(1 for r in results if r.warn_count > 0 and r.fail_count == 0)
+            fail_n = sum(1 for r in results if r.fail_count > 0)
+            rate = (pass_n / total * 100) if total > 0 else 0
+            return {
+                "total": total,
+                "pass_count": pass_n,
+                "warn_count": warn_n,
+                "fail_count": fail_n,
+                "compliance_rate": round(rate, 1),
+                "projects": projects,
+            }
+        except Exception as e:
+            log.exception("plc_check_all 失败")
+            return self._error_result(e)
+
+    def plc_check_project(self, project_path: str) -> dict:
+        """检查单个项目的结构合规性
+
+        Args:
+            project_path: 项目路径（绝对路径或相对于工作空间）
+
+        Returns:
+            dict: CheckResult 字典
+        """
+        try:
+            abs_path = self._resolve_project_path(project_path)
+            result = self._plc_svc.check_project(abs_path)
+            return self._check_result_to_dict(result)
+        except Exception as e:
+            log.exception("plc_check_project 失败")
+            return self._error_result(e)
+
+    def plc_init_project(
+        self,
+        project_id: str,
+        project_name: str,
+        project_type: str = "standard",
+        description: str = "",
+    ) -> dict:
+        """初始化新项目
+
+        Args:
+            project_id: 项目编号，如 DJ-2026-010
+            project_name: 项目名称
+            project_type: 项目类型 standard / syslib_fb
+            description: 项目描述
+
+        Returns:
+            dict: {"project_id", "project_path", "created_files", "dry_run"}
+        """
+        try:
+            result = self._plc_svc.init_project(
+                project_id=project_id,
+                project_name=project_name,
+                description=description,
+                dry_run=False,
+            )
+            return result
+        except Exception as e:
+            log.exception("plc_init_project 失败")
+            return self._error_result(e)
+
+    def plc_repair_project(
+        self, project_path: str, rename_confirm: bool = False
+    ) -> dict:
+        """修复项目结构问题
+
+        Args:
+            project_path: 项目路径
+            rename_confirm: 是否确认文件重命名（破坏性操作）
+
+        Returns:
+            dict: RepairResult 字典
+        """
+        try:
+            abs_path = self._resolve_project_path(project_path)
+            result = self._plc_svc.repair_project(
+                abs_path, dry_run=False, rename_confirm=rename_confirm
+            )
+            return self._repair_result_to_dict(result)
+        except Exception as e:
+            log.exception("plc_repair_project 失败")
+            return self._error_result(e)
+
+    def plc_standardize_project(
+        self, project_path: str, apply: bool = False
+    ) -> dict:
+        """标准化项目文档命名
+
+        Args:
+            project_path: 项目路径
+            apply: False=仅检测预览, True=执行重命名
+
+        Returns:
+            dict: StandardizeResult 字典
+        """
+        try:
+            abs_path = self._resolve_project_path(project_path)
+            result = self._plc_svc.standardize_docs(abs_path, apply=apply)
+            return self._standardize_result_to_dict(result)
+        except Exception as e:
+            log.exception("plc_standardize_project 失败")
+            return self._error_result(e)
+
+    # ── V9 辅助方法 ───────────────────────────────────────────
+
+    def _resolve_project_path(self, project_path: str) -> str:
+        """解析项目路径为绝对路径"""
+        if os.path.isabs(project_path):
+            return project_path
+        return os.path.join(self._workspace_root, project_path)
+
+    @staticmethod
+    def _check_result_to_dict(result) -> dict:
+        """将 CheckResult 转换为 dict"""
+        return {
+            "project_path": result.project_path,
+            "project_name": os.path.basename(result.project_path),
+            "project_type": result.project_type,
+            "pass_count": result.pass_count,
+            "warn_count": result.warn_count,
+            "fail_count": result.fail_count,
+            "all_pass": result.all_pass,
+            "items": [
+                {"item": i.item, "status": i.status, "message": i.message}
+                for i in result.items
+            ],
+        }
+
+    @staticmethod
+    def _repair_result_to_dict(result) -> dict:
+        """将 RepairResult 转换为 dict"""
+        return {
+            "project_path": result.project_path,
+            "project_name": os.path.basename(result.project_path),
+            "fixed_count": result.fixed_count,
+            "skipped_count": result.skipped_count,
+            "failed_count": result.failed_count,
+            "actions": [
+                {
+                    "item": a.item,
+                    "action": a.action,
+                    "destructive": a.destructive,
+                    "status": a.status,
+                    "detail": a.detail,
+                }
+                for a in result.actions
+            ],
+            "before_check": (
+                WebViewBridge._check_result_to_dict(result.before_check)
+                if result.before_check else None
+            ),
+            "after_check": (
+                WebViewBridge._check_result_to_dict(result.after_check)
+                if result.after_check else None
+            ),
+        }
+
+    @staticmethod
+    def _standardize_result_to_dict(result) -> dict:
+        """将 StandardizeResult 转换为 dict"""
+        return {
+            "project_path": result.project_path,
+            "project_name": os.path.basename(result.project_path),
+            "applied_count": result.applied_count,
+            "skipped_count": result.skipped_count,
+            "plans": [
+                {
+                    "old_path": p.old_path,
+                    "new_path": p.new_path,
+                    "old_name": os.path.basename(p.old_path),
+                    "new_name": os.path.basename(p.new_path),
+                    "doc_type": p.doc_type,
+                    "applied": p.applied,
+                    "backup_path": p.backup_path,
+                }
+                for p in result.plans
+            ],
+            "reference_updates": result.reference_updates,
+        }
 
     # ── 错误序列化 ────────────────────────────────────────────
 

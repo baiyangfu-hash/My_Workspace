@@ -47,6 +47,20 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 即使没改代码，也要记录分析了什么、结论、下次从哪里继续。
 
+## 工具参考
+
+| 工具 | 用途 |
+|------|------|
+| auto-pm（SW-2026-008） | 自动化项目管理工具，支持项目CRUD、PLC检查/修复、变更管理、模板管理 |
+| specmgr（SW-2026-006） | 规范管理工具，check/index/frontmatter/report |
+| pm-mgr（SW-2026-007） | 项目结构初始化与检查工具 |
+
+**auto-pm 用法**：
+```powershell
+auto-pm -w "<工作空间根>" project list|create|show|edit|retrofit|delete ...
+auto-pm -w "<工作空间根>" change create|list|show|transition ...
+```
+
 ## 与平台技能的边界
 
 | 触发条件 | 转交 |
@@ -75,6 +89,10 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 从 PM_SESSION 恢复：当前阶段、最近执行结果、当前阻塞、最高优先级动作。
 
+**可用 auto-pm 命令**：
+- 了解工作空间项目列表：`auto-pm -w "<工作空间根>" project list`
+- 获取项目元数据（JSON）：`auto-pm -w "<工作空间根>" project show <项目ID> --json`
+
 ### Step 1：确定模式
 
 页面/组件 → 前端 | 业务/服务 → 后端 | 数据链路 → 联调 | diff/PR → 评审 | 运行时难复现 → 调试 | 小程序 → 小程序
@@ -82,6 +100,10 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 ### Step 2：给出方案
 
 最少明确：改什么、为什么改、改动文件、潜在风险、如何验证。
+
+**可用 auto-pm 命令**：
+- 创建 Python 项目：`auto-pm -w "<工作空间根>" project create --stack python --id <ID> --name <NAME>`
+- 创建变更请求：`auto-pm -w "<工作空间根>" change create --pid <ID> --domain <D> --nature <N> --scope <S> --applicant <A> --background <B> --necessity <N>`
 
 ### Step 3：实施
 

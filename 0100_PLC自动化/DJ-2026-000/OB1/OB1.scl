@@ -63,25 +63,14 @@ END_IF;
 // ============================================================================
 // 第二部分: FB_1011_CylinderControl (单线圈模式测试)
 // ============================================================================
-// DB变量默认值保护: 确保cyl_dTimeoutMs不为0(0=关闭超时检测)
-IF GlobalVars.cyl_dTimeoutMs = 0 THEN
-    GlobalVars.cyl_dTimeoutMs := 5000;
+// 结构体接口: i_stCmd(ST_CylinderCmd) + q_stSts(ST_CylinderSts)
+// 默认值保护: 确保TimeoutMs不为0(0=关闭超时检测)
+IF GlobalVars.cyl_stCmd.TimeoutMs = 0 THEN
+    GlobalVars.cyl_stCmd.TimeoutMs := 5000;
 END_IF;
 GlobalVars.CylinderSingle(
-    i_bExtend          := GlobalVars.cyl_bExtend,
-    i_bRetract         := GlobalVars.cyl_bRetract,
-    i_bExtendedPos     := GlobalVars.cyl_bExtendedPos,
-    i_bRetractedPos    := GlobalVars.cyl_bRetractedPos,
-    i_dTimeoutMs       := GlobalVars.cyl_dTimeoutMs,
-    i_dDebounceMs      := GlobalVars.cyl_dDebounceMs,
-    i_iSolenoidType    := GlobalVars.cyl_iSolenoidType,
-    i_bExtendPolarity  := GlobalVars.cyl_bExtendPolarity,
-    i_bRetractPolarity := GlobalVars.cyl_bRetractPolarity,
-    q_aSolenoid        => GlobalVars.cyl_aSolenoid,
-    q_bIsExtended      => GlobalVars.cyl_bIsExtended,
-    q_bIsRetracted     => GlobalVars.cyl_bIsRetracted,
-    q_bTimeout         => GlobalVars.cyl_bTimeout,
-    q_bSensorFault     => GlobalVars.cyl_bSensorFault
+    i_stCmd := GlobalVars.cyl_stCmd,
+    q_stSts => GlobalVars.cyl_stSts
 );
 
 // ============================================================================

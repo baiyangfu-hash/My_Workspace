@@ -1,0 +1,218 @@
+# PM_SESSION_SW-2026-008
+
+## 0. Meta
+- project_id: SW-2026-008
+- project_name: auto-pm（自动化项目管理工具）
+- project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
+- last_updated: 2026-06-22
+- owners: fubai
+
+## 1. Positioning（项目定位）
+- one_liner: 统一CLI管理PLC/Python多技术栈项目的脚手架工具
+- users: 自动化工程师（兼PLC+Python开发）、AI技能（pm-workflow/plc-electrical-engineer）
+- non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
+
+## 2. Current Focus（当前焦点）
+- current_focus: V2.0.1 基座补齐 - A(site编码修复)+C(042/016规范对齐) 已完成
+- milestone: V2.0.1
+- acceptance: 042/016 规范与代码 19 项冲突全部修复 + 778 测试通过 ✅ 已达成
+
+## 3. Status Summary（当前状态摘要）
+- in_progress:
+  - V2.0.1 基座补齐: 规范修订已完成，代码实施待启动
+- completed:
+  - P1: Copier模板PoC验证通过
+  - P2: Click插件架构 + PLC checker/repairer 迁移 + project CRUD Service
+  - P3: 变更管理迁移（7模块+CLI+19测试用例全部通过）
+  - P4: python-tool Copier模板创建（T1-T8全部完成，7测试通过+ruff+mypy全绿）
+  - P5: SQLite索引缓存(3表) + Pydantic v2模型(核心+DTO) + pywebview GUI(项目CRUD+变更单查看+缓存同步)
+  - V2.0 阶段0: 4个Bug修复（Bug-1~4）
+  - V2.0 阶段A: 文档先行（spec.md/PRD V2.0/DES V2.0/INT V2.0）
+  - V2.0 阶段B: PySide6 主框架搭建（B1 ui包结构 + B2 主窗口导航+多角色适配）
+  - V2.0 阶段C~G: 全部完成（PySide6 UI 详细实现 + 项目CRUD + 变更管理 + 文档同步）
+  - 规范体系审查: 完成（Python/PLC/PM 三域 + spec_registry.json 核查）
+  - 参考项目双重审查: 完成（DJ-2026-000/SysLib/SW-2026-004）
+  - 规范全量修订: 完成（042/016/040/906/905/023/907/210/220 + 216/217 新增）
+  - 路线图重排: 完成（V2.0.1~V2.5 七版本规划）
+- next_up:
+  - V2.0.1-A: 修复 site 模块 GBK 编码崩溃
+  - V2.0.1-B: plc check 增加文档实质化检查
+  - V2.0.1-C: 042/016/040 规范对齐（已完成规范修订，需同步到 auto-pm 代码）
+  - V2.0.1-D: 906/905/023 PLC 规范矛盾修复（已完成规范修订）
+  - V2.0.1-E: spec_registry.json 同步
+- open_questions:
+  - 无
+- risks_dependencies:
+  - 无
+- spec_compliance:
+  - last_check: 2026-06-19
+  - result: 阶段B完成，对齐210规范；ruff check + format 全绿
+
+## 4. Artifacts Index（文档索引）
+- req: 00_项目基础信息/001_产品需求文档_PRD.md
+- int: 00_项目基础信息/002_接口文档_INT.md
+- dsn: 00_项目基础信息/003_详细设计说明书_DSN.md
+- tec: 00_项目基础信息/004_技术方案文档_TEC.md
+
+## 5. Logs（按事件沉淀）
+- change_log:
+  - 2026-06-19 P1完成：Copier模板PoC验证通过
+  - 2026-06-19 P2完成：Click插件架构 + Service层迁移 + PLC检查/修复
+  - 2026-06-19 P3完成：变更管理迁移（7模块+CLI+19测试用例全部通过）
+  - 2026-06-19 P4完成：python-tool Copier模板创建（7测试通过+ruff+mypy全绿）
+  - 2026-06-19 P5完成：SQLite索引缓存(3表) + Pydantic v2模型 + pywebview GUI(项目CRUD+变更单查看+缓存同步)
+  - 2026-06-19 文档补充：PRD修订(frontmatter/信息表/变更记录) + README重写 + CHANGELOG创建 + PM_SESSION更新
+  - 2026-06-19 V2.0阶段B完成：PySide6主框架搭建（ui包结构13文件 + 主窗口导航 + 多角色适配 + cli/gui.py改PySide6入口）
+
+## 6. Implementation Log
+- 2026-06-19 | skill=fullstack-engineer | mode=P2实施
+  - goal: 构建Click插件架构并迁移Service层
+  - changed_files: cli/__main__.py, cli/project.py, cli/plc/, core/project_service.py, core/template_service.py, plc/checker.py, plc/repairer.py
+  - impact: CLI可用，PLC检查/修复功能迁移，project CRUD可用
+  - risks: 无
+- 2026-06-19 | skill=fullstack-engineer | mode=P3变更管理迁移
+  - goal: 迁移SW-2026-005变更管理7个内部模块到auto_pm.change包
+  - changed_files:
+    - auto_pm/utils/file_utils.py（L1: 通用文件读写）
+    - auto_pm/change/models.py（L1: 合并change_request+spec_constants）
+    - auto_pm/change/path_resolver.py（L1: 路径解析+安全校验）
+    - auto_pm/change/parser.py（L2: 变更单Markdown解析器）
+    - auto_pm/change/generator.py（L2: 变更单Markdown生成器）
+    - auto_pm/change/ledger_updater.py（L2: 版本变更台帐更新器）
+    - auto_pm/change/change_service.py（L3: 变更管理Service，类名改为ChangeService）
+    - auto_pm/cli/change.py（L4: change命令组，4个命令）
+    - auto_pm/cli/__main__.py（注册change_group）
+    - tests/change/conftest.py + test_parser.py + test_generator.py + test_change_service.py
+  - impact: change命令组可用（list/show/create/transition），19个测试全部通过
+  - risks: 无；延迟导入避免循环依赖
+- 2026-06-19 | skill=pm-workflow | mode=P4规划
+  - goal: 规划python-tool Copier模板的目录结构和核心依赖配置
+  - changed_files: 无（仅规划，未编码）
+  - impact: P4实施方案确定，8个子任务拆解完成
+  - decisions:
+    - 模板定位: CLI工具（click + console_scripts入口）
+    - 构建后端: hatchling（与auto-pm一致）
+    - 依赖范围: 标准化（click+rich+pydantic+pyyaml + ruff+mypy+pytest+pre-commit）
+    - 目录结构: flat layout，包结构对齐auto-pm（cli/core/config/logging/utils五层）
+    - copier.yml: 8个字段（project_id/project_name/package_name/cli_command/description/author/version）
+  - risks: 无；设计对齐auto-pm自身结构，参考plc-standard同构模式
+- 2026-06-19 | skill=fullstack-engineer | mode=P4实施
+  - goal: 创建python-tool Copier模板，生成符合210规范的Python CLI工具项目骨架
+  - changed_files:
+    - templates/python-tool/copier.yml（7个问题字段+validator）
+    - templates/python-tool/README.md（模板说明）
+    - templates/python-tool/template/pyproject.toml.jinja（hatchling+标准化依赖）
+    - templates/python-tool/template/.ruff.toml（210规范对齐）
+    - templates/python-tool/template/.pre-commit-config.yaml（ruff+hooks）
+    - templates/python-tool/template/.gitignore
+    - templates/python-tool/template/Taskfile.yml.jinja（常用任务）
+    - templates/python-tool/template/.github/pull_request_template.md
+    - templates/python-tool/template/.vscode/settings.json.jinja
+    - templates/python-tool/template/{{ package_name }}/__init__.py.jinja
+    - templates/python-tool/template/{{ package_name }}/app_context.py.jinja
+    - templates/python-tool/template/{{ package_name }}/py.typed
+    - templates/python-tool/template/{{ package_name }}/cli/__init__.py + __main__.py.jinja
+    - templates/python-tool/template/{{ package_name }}/core/__init__.py
+    - templates/python-tool/template/{{ package_name }}/config/__init__.py + app_config.py.jinja
+    - templates/python-tool/template/{{ package_name }}/logging/__init__.py + logging.py.jinja
+    - templates/python-tool/template/{{ package_name }}/utils/__init__.py + file_utils.py.jinja
+    - templates/python-tool/template/tests/__init__.py + conftest.py.jinja + test_import.py.jinja
+    - templates/python-tool/template/.copier-answers.yml.jinja
+    - templates/python-tool/template/PM_SESSION_{{ project_id }}.md.jinja
+    - templates/python-tool/template/00_项目基础信息/001_产品需求文档_PRD.md.jinja
+    - templates/python-tool/template/README.md.jinja
+  - impact: python-tool模板可用，copier copy生成项目立即可pytest+ruff+mypy通过
+  - decisions:
+    - 使用{{ }}语法（Copier v9标准），非[[ ]]（v5旧语法）
+    - 去掉{{~ project_id }}_{{ project_name }}动态目录层，用户在copier copy时指定目标目录
+    - 包名目录{{ package_name }}由Copier渲染目录名
+    - 文件名PM_SESSION_{{ project_id }}.md由Copier渲染
+    - 依赖范围: 标准化（click+rich+pydantic+pyyaml + ruff+mypy+pytest+pre-commit）
+  - risks: 无；端到端验证通过
+- 2026-06-19 | skill=fullstack-engineer | mode=V2.0阶段B实施
+  - goal: 搭建 PySide6 主框架（B1 ui 包结构 + B2 主窗口导航+多角色适配）
+  - changed_files:
+    - auto_pm/ui/__init__.py（导出 MainWindow）
+    - auto_pm/ui/main_window.py（QMainWindow 主窗口：侧边栏+工具栏+状态栏+QStackedWidget+多角色）
+    - auto_pm/ui/roles.py（角色常量与角色-Tab 映射表，避免循环导入）
+    - auto_pm/ui/widgets/__init__.py + project_card.py + stats_bar.py + filter_bar.py
+    - auto_pm/ui/views/__init__.py + project_list_view.py + project_workspace_view.py + global_view.py
+    - auto_pm/ui/models/__init__.py + project_model.py（QAbstractListModel 适配器）
+    - auto_pm/cli/gui.py（默认入口改为 PySide6，--legacy 保留 pywebview 备用）
+    - pyproject.toml（新增 PySide6>=6.8,<7 依赖）
+  - impact: PySide6 主窗口可启动，侧边栏/工具栏/状态栏/QStackedWidget/多角色适配可用
+  - decisions:
+    - 新增 roles.py 共享模块存放角色-Tab 映射，避免 main_window 与 views 循环导入
+    - 使用 showEvent + QTimer.singleShot(0) 实现窗口首次显示自动加载项目列表
+    - Service 层采用延迟导入（方法内 import），保持冒烟测试纯净
+    - 多角色使用 QTabWidget.setTabVisible() 而非增删 Tab，保留组件状态
+  - risks: 无
+- 2026-06-20 | skill=fullstack-engineer | mode=V2.0阶段C-ProjectCard增强
+  - goal: 增强 ProjectCard 组件，新增变更数/修改时间/描述摘要字段显示
+  - changed_files:
+    - auto_pm/models/dto.py（ProjectCardDTO 新增 file_mtime + description 字段）
+    - auto_pm/ui/project_list/project_card.py（重写：set_project/set_project_info 方法 + 阶段徽标颜色 + 变更数/修改时间/描述摘要显示 + 布局重构）
+    - auto_pm/ui/project_list/__init__.py（导出 ProjectCard + extract_business_line）
+    - auto_pm/ui/project_list/list_view.py（_dto_to_info 透传 file_mtime/description，2行）
+    - auto_pm/core/project_service.py（list_projects_with_change_count 构造 DTO 时透传 file_mtime/description，2行）
+    - tests/ui/test_project_card.py（新增 41 个测试用例）
+  - impact: ProjectCard 可显示变更数(活跃标记)/修改时间(YYYY-MM-DD)/描述摘要(2行截断)；数据流贯通 DTO→list_view→card；保留构造函数与 clicked 信号向后兼容
+  - decisions:
+    - 变更数显示规则: count>0 → "变更: N 活跃"，count=0 → "变更: 0"
+    - 修改时间: datetime.fromtimestamp(file_mtime).strftime('%Y-%m-%d')，file_mtime<=0 → "—"
+    - 描述摘要: 折叠空白后截断 80 字符加省略号，空描述隐藏标签
+    - 阶段徽标颜色: developing蓝/commissioning黄/production绿/archived灰；未知阶段回退灰色边框
+    - 版本显示: 已有 v/V 前缀原样显示，否则补 v 前缀，空 → "—"
+    - Qt 枚举改用限定形式(Qt.MouseButton.LeftButton 等)使 project_card.py mypy 干净
+    - 测试可见性断言用 isVisibleTo(card) 而非 isVisible()（offscreen 模式后者恒 False）
+  - risks: 无；list_view.py 既有 mypy/ruff-format 问题(Qt.AlignTop 等)为预存，未在本次范围处理
+
+## 7. Verification Log
+- verified:
+  - P2: CLI --help可用，plc check/repair 迁移完成，project CRUD可用
+  - P3: 19个变更管理测试全部通过（parser 9 + generator 4 + service 6），完整套件35个测试无回归
+  - P4: python-tool模板端到端验证通过
+    - copier copy 成功生成项目（目录名/文件名/内容全部正确渲染）
+    - ruff check: All checks passed!
+    - ruff format --check: 14 files already formatted
+    - mypy: Success: no issues found in 11 source files
+    - pytest: 7 passed in 0.67s（test_package_importable/test_app_name/test_version/test_app_context_creation/test_file_utils_roundtrip/test_cli_hello_command/test_cli_help）
+  - V2.0 阶段B: PySide6 主框架冒烟测试通过
+    - smoke test: `python -c "from auto_pm.ui.main_window import MainWindow; from PySide6.QtWidgets import QApplication; app = QApplication([]); w = MainWindow(); print('SMOKE OK')"` → SMOKE OK
+    - ruff check auto_pm/ui/ auto_pm/cli/gui.py: All checks passed!
+    - ruff format --check: 14 files already formatted
+    - pytest 回归: 41 passed in 23.27s（无回归）
+    - CLI `auto-pm gui --help`: 显示 --debug/--legacy 选项
+  - V2.0 阶段C-ProjectCard增强: 41 个新增测试全部通过，全量套件无回归
+    - pytest tests/ui/test_project_card.py: 41 passed in 7.10s（9 类: FormatHelpers/Construction/ChangeCount/Mtime/Description/Signals/BadgeColors/BusinessLine/Version）
+    - pytest 全量回归: 398 passed in 153.89s（无回归；test_project_list.py flaky 为预存问题，非本次引入）
+    - ruff check auto_pm/ui/project_list/project_card.py: All checks passed!
+    - ruff format --check: project_card.py/test_project_card.py 已格式化
+    - mypy auto_pm/ui/project_list/project_card.py: 干净（Qt 枚举改用限定形式 Qt.MouseButton.LeftButton 等）
+    - 验证范围: set_project(DTO)/set_project_info(ProjectInfo) 填充、变更数显示(0/N活跃)、修改时间格式化(含 file_mtime=0 → "—")、描述截断(80字符+省略号)、点击信号 clicked(str)、阶段徽标颜色(developing蓝/commissioning黄/production绿/archived灰)、技术栈徽标(PLC蓝/Python绿)
+- not_verified:
+  - list_view.py 既有 mypy 错误（Qt.AlignTop/AlignCenter 等 8 处简写）为预存问题，未在本次范围处理
+  - tests/ui/test_project_list.py（未跟踪文件）含 isVisible() 误用导致随机顺序下 flaky，非本次引入
+- method: 单元测试（pytest）+ ruff/mypy 静态检查 + Qt offscreen 渲染验证
+- blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
+
+## 8. Handoff Notes
+- current_state: V2.0.1-A/C 已完成。site 模块 GBK 编码崩溃已修复；042/016 规范与代码 19 项冲突全部修复（状态机 12 状态、门禁逻辑、推断路径、Python 项目路径支持、审批环节中文化）；cli/__main__.py 模块级 stdout 替换改为函数化延迟执行，pytest capture 兼容；778 测试通过。
+- next_focus: V2.0.1 剩余（B: plc check 文档实质化、D: PLC 规范矛盾代码修复 41 片段、E: spec_registry 同步）
+- watchouts:
+  - 旧 auto_pm/gui/（pywebview）保留，阶段F才清理，勿提前删除
+  - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB
+  - tests/ui/test_project_list.py（未跟踪）含 isVisible() 误用，随机顺序下 flaky，非本次引入；后续应改用 isVisibleTo(parent)
+  - list_view.py 既有 Qt 枚举简写(Qt.AlignTop 等)导致 mypy 报错，为预存问题；project_card.py 已改用限定形式(Qt.MouseButton.LeftButton)
+  - ProjectCard 变更数"活跃"标记规则: count>0 即显示"活跃"，无变更状态细分（仅有计数）
+  - archived 状态无法从审批章节推断，必须依赖 §3.4 变更状态字段显式读取
+  - Python 项目路径采用优先匹配已有目录策略，新项目创建默认使用 PLC 约定路径
+  - cli/__main__.py 的 _fix_windows_encoding() 仅在 __main__ 直接执行时调用，被 import 时不触发（避免与 pytest capture 冲突）
+- read_first: PM_SESSION §6 实施日志(2026-06-22 条目), auto_pm/change/change_service.py, auto_pm/change/parser.py, auto_pm/change/path_resolver.py, auto_pm/cli/__main__.py
+
+## 9. Next Actions
+- [precondition: 无] done_when: V2.0.1-B plc check 增加文档实质化检查
+- [precondition: 无] done_when: V2.0.1-D 906/905/023 PLC 规范矛盾代码修复（41个代码片段）
+- [precondition: 无] done_when: V2.0.1-E spec_registry.json 同步
+- [precondition: 无] done_when: 修复 list_view.py 既有 mypy 错误（Qt.AlignTop/AlignCenter 等改限定形式）+ ruff-format 合规
+- [precondition: 无] done_when: 修复 tests/ui/test_project_list.py 的 isVisible() flaky（改用 isVisibleTo(parent)）并纳入 git 跟踪

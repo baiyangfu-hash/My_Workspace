@@ -1,11 +1,11 @@
 ---
 spec_id: DSN-FB1011
 title: "FB_1011 气缸控制详细设计"
-version: "V10.0.0"
+version: "V13.0.0"
 domain: plc
 lifecycle: stable
 canonical_path: "0100_PLC自动化/01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/PRD/详细设计说明书_DSN.md"
-tags: ["气缸控制", "执行器", "PLC功能块", "详细设计", "电磁阀"]
+tags: ["气缸控制", "执行器", "PLC功能块", "详细设计", "电磁阀", "结构体", "防呆锁存", "运行模式"]
 ---
 
 # 详细设计说明书 FB_1011_CylinderControl
@@ -15,34 +15,30 @@ tags: ["气缸控制", "执行器", "PLC功能块", "详细设计", "电磁阀"]
 | 属性 | 值 |
 |------|-----|
 | **文档标题** | FB_1011 气缸控制详细设计 |
-| **文档版本** | V10.0.0 |
+| **文档版本** | V13.0.0 |
 | **关联源码** | actuator/FB_1011_CylinderControl/FB_1011_CylinderControl.scl |
 | **关联IFC** | 接口文档_INT.md |
 | **关联REQ** | 需求分析文档_REQ.md |
 | **关联TECH** | 技术方案文档_TEC.md |
-| **编制日期** | 2026-06-17 |
+| **关联类型** | ST_Cylinder.scl (V3.1.0) |
+| **编制日期** | 2026-06-18 |
 | **编制人** | Trae |
-| **遵循规范** | LSP-905-V1.0.2, LSP-904-V1.1.0, LSP-903-V2.1.0 |
+| **遵循规范** | LSP-905-V1.0.2, LSP-904-V1.2.0, LSP-903-V2.1.0 |
 
-## 0.1 版本变更摘要（V7.1.0 → V10.0.0）
+## 0.1 版本变更摘要（V11.0.0 → V13.0.0）
 
-| 变更项 | V7.1.0 | V9.0.0 | V9.2.0 | V10.0.0 |
-|--------|--------|--------|--------|---------|
-| 接口方式 | VAR_IN_OUT ST_Cylinder | 扁平 VAR_INPUT / VAR_OUTPUT | ← 同V9.0.0 | ← 同V9.0.0 |
-| 变量命名 | io_stCyl.Xxx | i_bXxx / q_bXxx / s_bXxx / fb_tXxx | ← 同V9.0.0 | q_bSolenoid → q_aSolenoid[0..7] |
-| 传感器消抖 | 无 | TON消抖（i_dDebounceMs控制） | ← 同V9.0.0 | ← 同V9.0.0 |
-| 极性取反 | 仅电磁阀输出取反 | 完整极性映射层（传感器互换+输出取反） | ← 同V9.0.0 | 新增i_bRetractPolarity（双线圈原点方向极性） |
-| 信号流水线 | 传感器→故障检测→命令处理 | 物理传感器→TON消抖→故障检测→极性映射→命令处理 | ← 同V9.0.0 | 命令处理从IF/ELSIF改为CASE i_iSolenoidType分支 |
-| 规范引用 | 801_DEV, 810_DEV, 904_LSP | LSP-905, LSP-904, LSP-903 | ← 同V9.0.0 | ← 同V9.0.0 |
-| 定时器调用方式 | — | 条件内联调用 | 三段式+顶部无条件批量调用（LSP-903 V2.1.0） | ← 同V9.2.0 |
-| 消抖关闭时行为 | — | 跳过定时器调用 | 设IN=FALSE让TON自然复位Q=FALSE/ET=0 | ← 同V9.2.0 |
-| 超时检测位置 | — | 尾部独立检测 | 移入命令分支内+s_bMoving条件防误报 | ← 同V9.2.0 |
-| 电磁阀类型 | — | 仅单线圈两位阀 | ← 同V9.0.0 | 新增双线圈两位阀(i_iSolenoidType=1) |
-| 命令处理结构 | — | IF/ELSIF | ← 同V9.0.0 | CASE i_iSolenoidType OF 分支隔离 |
-| 双线圈输出 | — | — | — | q_aSolenoid[0]=线圈A(动点), [1]=线圈B(原点) |
-| 双线圈互锁 | — | — | — | A/B互斥, 任意时刻最多一个ON |
-| 双线圈保持位 | — | — | — | 无命令时保持位(非弹簧复位) |
-| 非法类型兜底 | — | — | — | CASE ELSE 安全态(全OFF) |
+| 变更项 | V11.0.0 | V12.0.0 | V13.0.0 |
+|--------|---------|---------|---------|
+| 接口方式 | 结构体: i_stCmd:ST_CylinderCmd + q_stSts:ST_CylinderSts | ← 同V11.0.0 | 引脚重命名: stCmd→i_stCmd, stSts→q_stSts, 对齐LSP-905前缀规范 |
+| 防呆锁存 | — | **新增**: s_iLatchedSolenoidType + s_iLatchedMode, 运动中(s_bMoving=TRUE)锁存参数不可变 | ← 同V12.0.0 |
+| 运行模式 | — | **新增**: i_stCmd.Mode (0=手动/跳过超时, 1=自动/全保护) | ← 同V12.0.0 |
+| 模式状态字 | — | **新增**: i_stCmd.ModeStatus (WORD), 预留上层序列控制器使用 | ← 同V12.0.0 |
+| CASE分支 | 直接读 i_stCmd.SolenoidType | 改用锁存值 s_iLatchedSolenoidType | 改用锁存值 s_iLatchedSolenoidType |
+| 超时检测 | 无模式区分 | 自动模式(s_iLatchedMode=1)才检测超时 | ← 同V12.0.0 |
+| 手动模式 | — | 手动模式(s_iLatchedMode=0)跳过超时, 线圈直接输出 | ← 同V12.0.0 |
+| 输出方式 | SolenoidA, SolenoidB | ← 同V11.0.0 | ← 同V11.0.0 |
+| 电磁阀类型 | 0=两位三通单线圈弹簧复位, 1=双线圈中封阀 | ← 同V11.0.0 | ← 同V11.0.0 |
+| 命名规范 | i_stCmd/q_stSts (V11.0.0引入) | ← 同V11.0.0 | 对齐LSP-905 V1.0.2 §3.1: i_输入/q_输出前缀 |
 
 ## 0.2 电磁阀类型说明
 
@@ -635,7 +631,48 @@ q_bTimeout        ──────────────────┐
 
 ## 9. 版本详细变更说明
 
-### V10.0.0（Breaking Change: 双线圈两位阀扩展）
+### V13.0.0（Breaking Change: 引脚重命名对齐LSP-905）
+
+**变更类型**: refactor(FB_1011_CylinderControl) — Breaking Change
+
+**变更内容**:
+
+1. **引脚重命名**: `stCmd → i_stCmd`, `stSts → q_stSts`，对齐LSP-905 V1.0.2 §3.1 前缀规范
+   - 输入引脚: `stCmd:=` → `i_stCmd:=`
+   - 输出引脚: `stSts=>` → `q_stSts=>`
+   - 所有调用方需更新实例化引脚名
+
+**向后兼容性**:
+- ❌ 引脚名变更，调用方需修改实例化代码
+- ✅ 内部逻辑、结构体定义、功能行为完全不变
+
+### V12.0.0（防呆锁存 + 手动/自动模式）
+
+**变更类型**: feat(FB_1011_CylinderControl)
+
+**变更内容**:
+
+1. **防呆锁存**: 新增 `s_iLatchedSolenoidType` + `s_iLatchedMode`
+   - s_bMoving=TRUE 期间锁存参数，运动中不可变
+   - s_bMoving=FALSE 时自动刷新锁存值
+   - 防止运行时 SolenoidType/Mode 跳变导致 CASE 分支错乱
+
+2. **运行模式**: 新增 `i_stCmd.Mode` (0=手动/1=自动)
+   - Mode=0 手动: 跳过超时检测，线圈直接输出，传感器故障仍检测
+   - Mode=1 自动: 全保护(超时+传感器故障+消抖)，默认安全态
+
+3. **模式状态字**: 新增 `i_stCmd.ModeStatus` (WORD)，预留上层序列控制器使用
+
+4. **CASE分支**: 改用锁存值 `s_iLatchedSolenoidType` 替代直接读 `i_stCmd.SolenoidType`
+
+5. **超时检测**: 增加 `s_iLatchedMode = 1` 条件判断，手动模式跳过超时
+
+**向后兼容性**:
+- ✅ 新增字段 Mode/ModeStatus 有默认值，不影响现有实例化
+- ✅ 防呆锁存对现有行为无副作用（空闲时自动刷新=直接读入值）
+- ⚠️ 需注意: 手动模式(Mode=0)下超时保护关闭，仅限调试/维护场景使用
+
+### V11.0.0（Breaking Change: 结构体接口重构）
 
 **变更类型**: feat(FB_1011_CylinderControl) — Breaking Change
 

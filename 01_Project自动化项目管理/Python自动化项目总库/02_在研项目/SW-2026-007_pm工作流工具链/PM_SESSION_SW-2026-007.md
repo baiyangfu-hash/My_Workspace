@@ -1,10 +1,15 @@
 # PM_SESSION_SW-2026-007
 
+> **归档通知**: 本项目（SW-2026-007 pm-mgr）已被 SW-2026-008 auto-pm 取代。
+> 所有 pm-mgr 功能已迁移至 auto-pm，pm-workflow 技能已更新为调用 auto-pm。
+> 本项目不再维护，仅供历史参考。
+
 ## 0. Meta
 - project_id: SW-2026-007
 - project_name: pm工作流工具链 (pm-mgr)
+- status: 已归档
 - project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-007_pm工作流工具链
-- last_updated: 2026-06-06
+- last_updated: 2026-06-19
 - owners: fubai
 
 ## 1. Positioning（项目定位）
