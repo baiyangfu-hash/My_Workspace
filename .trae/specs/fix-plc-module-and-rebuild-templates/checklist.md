@@ -24,24 +24,24 @@
 - [x] project create --stack plc 支持 --mode 选项（H-2）
 
 ## 阶段 2: P1 — 模板重构为 3 套
-- [ ] plc-shared-library 模板已创建（参考 SysLib）
-- [ ] plc-shared-library 模板含 actuator/communication/convert/counter/edge/log/pulse/timer/types 目录
-- [ ] plc-shared-library 模板的 .plc.json libraries 为空数组
-- [ ] plc-test-suite 模板已创建（参考 DJ-2026-000）
-- [ ] plc-test-suite 模板含 DB1/OB1/Test 扁平结构
-- [ ] plc-test-suite 模板的 .plc.json libraries 指向 SysLib
-- [ ] plc-standard-project 模板已重构（参考 DJ-2026-005）
-- [ ] plc-standard-project 模板含 11 个标准目录
-- [ ] plc-standard-project 模板无根级 .plc.json（C-1 已修复）
-- [ ] plc-standard-project 模板的 .plc.json 位于 02_PLC程序/02_PLC程序/ 下
-- [ ] plc-standard-project 模板含 DB1/OB1/Test/common/conveyor/external/feeder/pickplace 目录
-- [ ] plc-standard-project 模板含 GlobalVars.db 空文件
-- [ ] plc-standard-project 模板含项目立项表模板
-- [ ] plc-standard-project 模板含 .gitignore 和 .github/hooks/
-- [ ] 3 套模板的 PRD 文档字数均 800+，占位符减少（C-5 已修复）
-- [ ] TemplateService 支持新模板名
-- [ ] project create --stack plc 支持 --mode 选项选择模板
-- [ ] GUI 模板管理页显示 3 套新模板
+- [x] plc-shared-library 模板已创建（参考 SysLib）
+- [x] plc-shared-library 模板含 actuator/communication/convert/counter/edge/log/pulse/timer/types 目录
+- [x] plc-shared-library 模板的 .plc.json libraries 为空数组
+- [x] plc-test-suite 模板已创建（参考 DJ-2026-000）
+- [x] plc-test-suite 模板含 DB1/OB1/Test 扁平结构
+- [x] plc-test-suite 模板的 .plc.json libraries 指向 SysLib
+- [x] plc-standard-project 模板已重构（参考 DJ-2026-005）
+- [x] plc-standard-project 模板含 12 个标准目录
+- [x] plc-standard-project 模板无根级 .plc.json（C-1 已修复）
+- [x] plc-standard-project 模板的 .plc.json 位于 02_PLC程序/02_PLC程序/ 下
+- [x] plc-standard-project 模板含 DB1/OB1/Test/common/conveyor/external/feeder/pickplace 目录
+- [x] plc-standard-project 模板含 GlobalVars.db 空文件
+- [x] plc-standard-project 模板含项目立项表模板
+- [x] plc-standard-project 模板含 .gitignore 和 .github/hooks/
+- [x] 3 套模板的 PRD 文档字数均 800+，占位符减少（C-5 已修复）
+- [x] TemplateService 支持新模板名
+- [x] project create --stack plc 支持 --mode 选项选择模板
+- [x] GUI 模板管理页显示 3 套新模板
 
 ## 阶段 3: P1 — SubstanceChecker 修复
 - [ ] 字数统计已修正：中文按字符数，英文按词数（C-4）

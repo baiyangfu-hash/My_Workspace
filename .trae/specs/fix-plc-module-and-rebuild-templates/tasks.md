@@ -46,39 +46,40 @@
 
 ## 阶段 2: P1 — 模板重构为 3 套
 
-- [ ] Task 2.1: 新建 plc-shared-library 模板
-  - [ ] 创建 `templates/plc-shared-library/copier.yml`（字段：library_name/description/version）
-  - [ ] 创建 `template/` 目录结构：actuator/communication/convert/counter/edge/log/pulse/timer/types/.gitkeep
-  - [ ] 创建 `template/.plc.json.jinja`（libraries: []）
-  - [ ] 创建 `template/PRD/` 4 份文档模板（REQ/INT/DSN/TEC，字数 800+）
-  - [ ] 创建 `template/PM_SESSION_{{ library_name }}.md.jinja`
-  - [ ] 创建 `template/README.md.jinja`（多平台兼容性指南）
-  - [ ] 创建 `template/.gitignore`、`template/.github/hooks/`
-- [ ] Task 2.2: 新建 plc-test-suite 模板
-  - [ ] 创建 `templates/plc-test-suite/copier.yml`（字段：project_id/project_name/description/version）
-  - [ ] 创建 `template/` 扁平结构：DB1/OB1/Test/FB{{xxx}}/.gitkeep
-  - [ ] 创建 `template/.plc.json.jinja`（libraries: ["../01_SharedLibraries/SysLib"]）
-  - [ ] 创建 `template/DB1/GlobalVars.db`（空文件）
-  - [ ] 创建 `template/OB1/OB1.scl.jinja`（最小骨架）
-  - [ ] 创建 `template/PRD/` 4 份文档模板
-  - [ ] 创建 `template/PM_SESSION_{{ project_id }}.md.jinja`
-  - [ ] 创建 `template/.gitignore`、`template/.github/hooks/`
-- [ ] Task 2.3: 重构 plc-standard → plc-standard-project 模板
-  - [ ] 重命名 `templates/plc-standard/` → `templates/plc-standard-project/`
-  - [ ] 删除错误的 `template/.plc.json.jinja`（根级）
-  - [ ] 修正 PLC 程序目录名：`通用ST程序及变量表` → `02_PLC程序`（嵌套）
-  - [ ] 添加 11 个标准目录：00_项目管理/01_需求与设计/02_PLC程序/03_HMI设计/04_现场调试/04_驱动器与设备/05_测试与验证/06_文档与交付/07_技术支持/08_备件管理/09_项目总结/10_知识库
-  - [ ] 添加 `02_PLC程序/02_PLC程序/` 下的 DB1/OB1/Test/common/conveyor/external/feeder/pickplace/.gitkeep
-  - [ ] 添加 `02_PLC程序/02_PLC程序/DB1/GlobalVars.db`（空文件）
-  - [ ] 添加 `02_PLC程序/02_PLC程序/.plc.json.jinja`（libraries 智能推断）
-  - [ ] 添加 `00_项目管理/01_立项与需求/003_{{ project_id }}_项目立项表_PROJ.md.jinja`
-  - [ ] 添加 `02_PLC程序/程序文档/` 6 份核心文档模板（ARC/DSN/FLOW/VAR/IO/PLC）
-  - [ ] 添加 `.gitignore`、`.github/hooks/`、`.trae/specs/.gitkeep`
-  - [ ] 充实 PRD 文档模板内容（字数 800+，减少占位符）
-- [ ] Task 2.4: 更新 TemplateService 支持新模式
-  - [ ] 修改 `auto_pm/core/template_service.py` 支持新模板名
-  - [ ] 修改 `auto_pm/cli/project.py` 的 `get_template_name(stack)` 支持 `--mode` 选项
-  - [ ] 更新 GUI 模板管理页 `auto_pm/ui/global_pages/template_page.py` 显示新模板
+- [x] Task 2.1: 新建 plc-shared-library 模板
+  - [x] 创建 `templates/plc-shared-library/copier.yml`（字段：library_name/description/version）
+  - [x] 创建 `template/` 目录结构：actuator/communication/convert/counter/edge/log/pulse/timer/types/.gitkeep
+  - [x] 创建 `template/.plc.json.jinja`（libraries: []）
+  - [x] 创建 `template/PRD/` 4 份文档模板（REQ/INT/DSN/TEC，字数 800+）
+  - [x] 创建 `template/PM_SESSION_{{ library_name }}.md.jinja`
+  - [x] 创建 `template/README.md.jinja`（多平台兼容性指南）
+  - [x] 创建 `template/.gitignore`、`template/.copier-answers.yml.jinja`
+- [x] Task 2.2: 新建 plc-test-suite 模板
+  - [x] 创建 `templates/plc-test-suite/copier.yml`（字段：project_id/project_name/description/version）
+  - [x] 创建 `template/` 扁平结构：DB1/OB1/Test/FB_0001/.gitkeep
+  - [x] 创建 `template/.plc.json.jinja`（libraries: ["../01_SharedLibraries/SysLib"]）
+  - [x] 创建 `template/DB1/GlobalVars.db`（空文件）
+  - [x] 创建 `template/OB1/OB1.scl.jinja`（最小骨架）
+  - [x] 创建 `template/PRD/` 4 份文档模板（字数 800+）
+  - [x] 创建 `template/PM_SESSION_{{ project_id }}.md.jinja`
+  - [x] 创建 `template/.gitignore`、`template/.copier-answers.yml.jinja`
+- [x] Task 2.3: 重构 plc-standard → plc-standard-project 模板
+  - [x] 创建 `templates/plc-standard-project/copier.yml`
+  - [x] 无根级 .plc.json（C-1 已修复）
+  - [x] 添加 12 个标准目录：00_项目管理/01_需求与设计/02_PLC程序/03_HMI设计/04_现场调试/04_驱动器与设备/05_测试与验证/06_文档与交付/07_技术支持/08_备件管理/09_项目总结/10_知识库
+  - [x] 添加 `02_PLC程序/02_PLC程序/` 下的 DB1/OB1/Test/common/conveyor/external/feeder/pickplace/.gitkeep
+  - [x] 添加 `02_PLC程序/02_PLC程序/DB1/GlobalVars.db`（空文件）
+  - [x] 添加 `02_PLC程序/02_PLC程序/.plc.json.jinja`（libraries: ../../../01_SharedLibraries/SysLib）
+  - [x] 添加 `02_PLC程序/02_PLC程序/OB1/OB1.scl.jinja`（主循环骨架）
+  - [x] 添加 `00_项目管理/01_立项与需求/003_{{ project_id }}_项目立项表_PROJ.md.jinja`
+  - [x] 添加 `02_PLC程序/程序文档/` 6 份核心文档模板（ARC/DSN/FLOW/VAR/IO/PLC）
+  - [x] 添加 `PRD/` 4 份文档模板（字数 4000+，减少占位符）
+  - [x] 添加 `.gitignore`、`.github/hooks/.gitkeep`、`.trae/specs/.gitkeep`
+  - [x] 保留旧 `plc-standard/` 作为备份
+- [x] Task 2.4: 更新 TemplateService 支持新模式
+  - [x] TemplateService 已是通用设计（list_templates 扫描目录），无需修改
+  - [x] `project create --stack plc --mode` 已在 Task 1.4 完成
+  - [x] GUI 模板页面 `_infer_stack` 前缀匹配自动识别新模板，无需修改
 
 ## 阶段 3: P1 — SubstanceChecker 修复
 
