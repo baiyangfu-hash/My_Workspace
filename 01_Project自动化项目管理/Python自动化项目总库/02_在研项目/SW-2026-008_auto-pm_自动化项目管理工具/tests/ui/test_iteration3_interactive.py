@@ -344,15 +344,15 @@ class TestCheckTabInteractive:
         _run_check(tab, qapp)
 
         item_labels = _get_item_labels(tab)
-        # pass 项的文本应包含 ✅ 图标（8 个）
+        # pass 项的文本应包含 ✅ 图标（7 个）
         pass_labels = [lbl for lbl in item_labels if lbl.text().startswith("✅")]
-        assert len(pass_labels) == 8
-        # warn 项的文本应包含 ⚠️ 图标（1 个）
+        assert len(pass_labels) == 7
+        # warn 项的文本应包含 ⚠️ 图标（2 个）
         warn_labels = [lbl for lbl in item_labels if lbl.text().startswith("⚠️")]
-        assert len(warn_labels) == 1
-        # fail 项的文本应包含 ❌ 图标（4 个）
+        assert len(warn_labels) == 2
+        # fail 项的文本应包含 ❌ 图标（12 个）
         fail_labels = [lbl for lbl in item_labels if lbl.text().startswith("❌")]
-        assert len(fail_labels) == 4
+        assert len(fail_labels) == 12
 
         # 分组标题也应显示聚合状态图标
         titles = _get_group_titles(tab)
@@ -376,8 +376,8 @@ class TestCheckTabInteractive:
         _run_check(tab, qapp)
 
         item_btns = _get_item_buttons(tab)
-        # 修复按钮数量 = warn + fail = 1 + 4 = 5
-        assert len(item_btns) == 5
+        # 修复按钮数量 = warn + fail = 2 + 12 = 14（V0.2.3 新增 Spec Snapshot 检查项）
+        assert len(item_btns) == 14
         # 所有修复按钮的文本都是"修复"
         assert all(b.text() == "修复" for b in item_btns)
 
@@ -405,9 +405,9 @@ class TestCheckTabInteractive:
         titles = _get_group_titles(tab)
         assert any("修复预览" in t for t in titles)
         # 摘要应显示可修复/跳过/失败计数
-        # mixed 项目: 4 fixed (创建缺失的 PRD 文档和目录) + 1 skipped (命名不匹配需确认)
+        # mixed 项目: 12 fixed (创建缺失的 PRD 文档和目录) + 1 skipped (命名不匹配需确认)
         summary = tab._summary_label.text()
-        assert "4 可修复" in summary
+        assert "12 可修复" in summary
         assert "1 跳过" in summary
         assert "0 失败" in summary
 

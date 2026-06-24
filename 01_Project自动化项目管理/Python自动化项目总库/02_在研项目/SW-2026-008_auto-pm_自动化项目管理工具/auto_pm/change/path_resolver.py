@@ -216,6 +216,45 @@ def find_ledger_file(project_path: str) -> str | None:
     return None
 
 
+def get_or_create_ledger_file(project_path: str) -> str | None:
+    """查找或创建版本变更台帐文件
+
+    V0.2.1-P2-8: 若台帐文件不存在，按 PLC 约定路径自动创建
+    （00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md），
+    含「变更单索引」表格骨架，供 LedgerUpdater 追加记录。
+
+    Args:
+        project_path: 项目根目录
+
+    Returns:
+        台帐文件路径，失败返回 None
+    """
+    # 1. 先查找已有台帐
+    existing = find_ledger_file(project_path)
+    if existing:
+        return existing
+
+    # 2. 未找到 → 按 PLC 约定路径创建
+    ledger_dir = os.path.join(project_path, *_LEDGER_SEARCH_PATHS[0])
+    ledger_path = os.path.join(ledger_dir, "01_版本变更台帐.md")
+
+    try:
+        os.makedirs(ledger_dir, exist_ok=True)
+        # 写入台帐骨架（含变更单索引表格，与 LedgerUpdater 期望的结构对齐）
+        skeleton = (
+            "# 版本变更台帐\n\n"
+            "> 记录项目所有变更单的索引与状态\n\n"
+            "## 变更单索引\n\n"
+            "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
+            "|------|----------|------|--------|----------|----------|----------|------|\n"
+        )
+        with open(ledger_path, "w", encoding="utf-8") as f:
+            f.write(skeleton)
+        return ledger_path
+    except OSError:
+        return None
+
+
 def get_project_id_from_path(project_path: str) -> str:
     """从项目目录路径提取项目编号
 

@@ -62,7 +62,7 @@ class GlobalView(QWidget):
         v.setContentsMargins(20, 20, 20, 20)
         version = GLOBAL_TAB_VERSION.get(tab_id, "后续版本")
         label = QLabel(f"{GLOBAL_TAB_LABELS[tab_id]} 功能将在 {version} 交付")
-        label.setAlignment(Qt.AlignCenter)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setStyleSheet("color: #999; font-size: 14px;")
         v.addWidget(label)
         v.addStretch(1)

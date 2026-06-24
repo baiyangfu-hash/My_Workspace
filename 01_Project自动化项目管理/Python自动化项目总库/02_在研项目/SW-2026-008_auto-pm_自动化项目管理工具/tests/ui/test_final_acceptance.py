@@ -25,7 +25,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 import pytest
 
@@ -73,6 +73,31 @@ def qapp() -> QApplication:
     """提供全局 QApplication 实例（session 级复用）"""
     app = QApplication.instance() or QApplication([])
     yield app
+
+
+@pytest.fixture(autouse=True)
+def _patch_message_boxes() -> Any:
+    """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试
+
+    CreateChangeDialog._load_projects 和 _on_create 会触发 QMessageBox.critical/warning，
+    在 offscreen 模式下阻塞事件循环导致测试超时。
+    使用直接赋值（monkeypatch.setattr 对 PySide6 C++ 静态方法无效）。
+    """
+    orig_critical = QMessageBox.critical
+    orig_warning = QMessageBox.warning
+    orig_information = QMessageBox.information
+    orig_question = QMessageBox.question
+    QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+        lambda *a, **kw: QMessageBox.StandardButton.Yes
+    )
+    yield
+    QMessageBox.critical = orig_critical  # type: ignore[assignment]
+    QMessageBox.warning = orig_warning  # type: ignore[assignment]
+    QMessageBox.information = orig_information  # type: ignore[assignment]
+    QMessageBox.question = orig_question  # type: ignore[assignment]
 
 
 @pytest.fixture
@@ -125,7 +150,8 @@ def change_workspace(tmp_path: Path) -> Path:
         "project_id: TEST-2026-001\n"
         "project_name: 测试项目\n"
         "version: V1.0.0\n"
-        "_src_path: templates/python-tool\n",
+        "_src_path: templates/python-tool\n"
+        "business_line: SW\n",
         encoding="utf-8",
     )
     return tmp_path

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 import pytest
 
@@ -27,6 +27,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QTimer  # noqa: E402
 from PySide6.QtWidgets import (  # noqa: E402
     QApplication,
+    QMessageBox,
     QPushButton,
     QToolButton,
     QToolBar,
@@ -66,10 +67,36 @@ def change_workspace(tmp_path: Path) -> Path:
         "project_id: TEST-2026-001\n"
         "project_name: 测试项目\n"
         "version: V1.0.0\n"
-        "_src_path: templates/python-tool\n",
+        "_src_path: templates/python-tool\n"
+        "business_line: SW\n",
         encoding="utf-8",
     )
     return tmp_path
+
+
+@pytest.fixture(autouse=True)
+def _patch_message_boxes() -> None:
+    """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试
+
+    MainWindow._on_new_change 创建 CreateChangeDialog 时会调用 _load_projects，
+    加载失败时触发 QMessageBox.critical 阻塞事件循环。
+    使用直接赋值（monkeypatch.setattr 对 PySide6 C++ 静态方法无效）。
+    """
+    orig_critical = QMessageBox.critical
+    orig_warning = QMessageBox.warning
+    orig_information = QMessageBox.information
+    orig_question = QMessageBox.question
+    QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+        lambda *a, **kw: QMessageBox.StandardButton.Yes
+    )
+    yield
+    QMessageBox.critical = orig_critical  # type: ignore[assignment]
+    QMessageBox.warning = orig_warning  # type: ignore[assignment]
+    QMessageBox.information = orig_information  # type: ignore[assignment]
+    QMessageBox.question = orig_question  # type: ignore[assignment]
 
 
 @pytest.fixture

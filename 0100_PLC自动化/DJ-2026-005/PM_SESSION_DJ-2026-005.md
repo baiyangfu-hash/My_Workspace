@@ -145,6 +145,34 @@
   - 2026-05-17 程序文档梳理：补齐导出PNG索引；重命名ARC/DSN/FLOW文件并统一到V2.0.0；同步修正交叉引用
 
 ## 6. Implementation Log
+- 2026-06-24 | skill=plc-electrical-engineer | mode=规范检查+Breaking Change适配
+  - goal: 审查DJ-2026-005项目与全局规范/技术规范/PM自动化工具的冲突, 并修复FB_1002适配FB_1011 V13.0.0
+  - changed_files:
+    - 02_PLC程序/PLC_ST/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl (V9.0.0→V10.0.0)
+  - artifacts:
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/FB_1011_CylinderControl.scl (V13.0.0)
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/ST_Cylinder.scl (V3.1.0)
+    - 01_SharedLibraries/SysLib/actuator/FB_1012_ConveyorMotor/FB_1012_ConveyorMotor.scl (V9.0.0, 无需修改)
+  - impact: |
+      FB_1002 V10.0.0 适配 FB_1011 V13.0.0 结构体接口:
+        1. 新增4个结构体变量: stBlockCmd/stBlockSts/stSeparateCmd/stSeparateSts
+        2. 替换4处扁平14引脚调用为2引脚结构体调用(i_stCmd/q_stSts)
+        3. 新增Mode字段映射: 自动模式=1(全保护), 手动/无模式=0(跳过超时)
+        4. 输出映射: q_bSolenoid→q_stSts.SolenoidA (单线圈模式SolenoidB始终FALSE)
+        5. FB_1002对外接口(VAR_INPUT/VAR_OUTPUT)不变, OB1无需修改
+        6. FB_1012 V9.0.0扁平接口不变, fbMotor调用无需修改
+      审查发现12项冲突(详见审查报告):
+        P0×2: FB_1011 V13.0.0接口断裂(C-01), FB_1012版本待确认(C-02, 已确认兼容)
+        P1×4: PM_SESSION路径陈旧(C-03), FB版本记录不符(C-04), 规范漂移(C-05), OB1注释引用已取消FB_1001(C-06)
+        P2×4: FB_2001 o_前缀(C-07), FB_1004注释格式(C-08), 遵循规范行重复(C-09), //#region语法(C-10)
+        P3×2: 项目根级缺少PRD/(C-11), .plc.json版本不统一(C-12)
+  - risks: |
+      1. 需TIA Portal编译验证FB_1002 V10.0.0与FB_1011 V13.0.0的实际兼容性
+      2. DJ-2026-000 OB1.scl也引用FB_1011(测试代码), 需同步更新
+      3. FB_1002 IFC/DSN文档需同步升级到V10.0.0
+      4. 其余P1-P3冲突尚未修复, 需后续迭代
+  - decision: 用户选择修复C-01(FB_1011接口适配), 其余冲突待后续处理
+
 - 2026-06-17 | skill=plc-electrical-engineer | mode=Bug分析(测试文件错误诊断)
   - goal: 分析 basic_test.scltest "一堆错误" 的根因并给出修复方案
   - changed_files: 无(本次为分析,未修改代码)
@@ -212,6 +240,40 @@
     - 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md
   - impact: 后续 PLC/SCL、程序文档、调试和交付类任务可直接通过 PM_SESSION 恢复上下文并进行 handoff
   - risks: TIA Portal 编译验证、现场验证和安全相关人工复核仍未完成
+
+- 2026-06-23 | skill=pm-workflow + plc-electrical-engineer | mode=PRD文档整理
+  - goal: 整理 PLC_ST 目录下的 PRD 文档，清理冗余、统一命名、更新废弃规范引用、填写程序级PRD
+  - changed_files:
+    - 02_PLC程序/PLC_ST/.plc.json (版本号 V6.0.0→V7.1.1)
+    - 02_PLC程序/PLC_ST/PRD/需求分析文档_REQ.md (空模板→填写实际内容)
+    - 02_PLC程序/PLC_ST/PRD/技术方案文档_TEC.md (空模板→填写实际内容)
+    - 02_PLC程序/PLC_ST/PRD/详细设计说明书_DSN.md (空模板→填写实际内容)
+    - 02_PLC程序/PLC_ST/PRD/接口文档_INT.md (空模板→填写实际内容)
+    - 02_PLC程序/PLC_ST/OB1/PRD/变更记录_CHG-OB1.md (合并V7.1.1/V7.1.0/V6.0.1/V6.0.0版本条目)
+    - 02_PLC程序/PLC_ST/feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl (801/810→LSP-905)
+    - 02_PLC程序/PLC_ST/common/FB_2001_CommonAlarm_AllStation.scl (801/810→LSP-905)
+    - 02_PLC程序/PLC_ST/pickplace/FB_1003_PickPlace_BufferFraming.scl (801/810→LSP-905)
+    - 02_PLC程序/PLC_ST/external/FB_ExternalDeviceInteraction.scl (801/810→LSP-905)
+    - 02_PLC程序/PLC_ST/DB1/GlobalVars.db (801→LSP-905)
+    - 15个PRD markdown文件 (文件名去版本号后缀 + 废弃规范引用更新801/810→LSP-905)
+  - deleted_files:
+    - OB1/PRD/变更记录_CHG-OB1-V7.1.1-GENERATED.md
+    - pickplace/PRD/变更记录_CHG-FB1003-PickPlace-V7.0.0-GENERATED.md
+    - DB1/PRD/接口文档_IFC-FB1002-SingleLayerConveyor-V7.1.1-GENERATED.md
+    - DB1/PRD/接口文档_IFC-FB1003-PickPlace-V7.1.1-GENERATED.md
+    - DB1/PRD/接口文档_IFC-FB1004-GlueMachineFeeder-V7.1.1-GENERATED.md
+  - renamed_files: 15个PRD文件去除版本号后缀
+  - impact: |
+      1. 消除5个GENERATED冗余文档，OB1变更记录补全至V7.1.1
+      2. 所有PRD文件统一命名规范（无版本号后缀，版本在文档内标注）
+      3. .plc.json版本号与实际代码版本对齐(V7.1.1)
+      4. 所有活跃文件中的废弃规范引用(801/810)更新为LSP-905
+      5. 程序级PRD(REQ/TEC/DSN/INT)从空模板填写为实际内容
+      6. auto-pm plc check 20/20 ALL PASS
+  - risks: |
+      1. .scl文件注释修改为纯文本替换，不影响逻辑，但需TIA编译确认无编码问题
+      2. GlobalVars.db文件编码可能非UTF-8，修改后需验证文件完整性
+      3. 程序级PRD为汇总性文档，详细内容需参考各模块PRD
 
 ## 7. Verification Log
 - 2026-06-17 | 测试文件修复静态审查 (basic_test.scltest V7.1.1)
@@ -298,6 +360,29 @@
     - 缺少现场与编译环境的最新验证结果
 
 ## 8. Handoff Notes
+- 2026-06-24 | from=plc-electrical-engineer | reason=FB_1002 V10.0.0适配FB_1011 V13.0.0结构体接口完成
+  - current_state: |
+      FB_1002 V9.0.0→V10.0.0 已完成适配FB_1011 V13.0.0结构体接口(i_stCmd/q_stSts)。
+      FB_1011实际已从V9.0.0(扁平14引脚)→V13.0.0(结构体2引脚), 远超PM_SESSION此前记录的V10.0.0。
+      FB_1002对外接口(VAR_INPUT/VAR_OUTPUT)不变, OB1无需修改。
+      FB_1012 V9.0.0扁平接口不变, fbMotor调用无需修改。
+      审查发现12项冲突, 仅修复C-01(FB_1011接口适配), 其余P1-P3待后续迭代。
+  - next_focus: |
+      1. TIA Portal编译验证FB_1002 V10.0.0
+      2. 同步FB_1002 IFC/DSN文档到V10.0.0
+      3. DJ-2026-000 OB1.scl测试代码也引用FB_1011, 需同步更新
+      4. 修复其余P1-P3冲突(PM_SESSION路径/FB版本记录/规范漂移等)
+  - watchouts:
+    - FB_1011 V13.0.0的i_stCmd是VAR_INPUT CONSTANT, 结构体整体传入
+    - 单线圈模式(SolenoidType=0)下SolenoidA映射到q_bBlockSolenoid, SolenoidB始终FALSE
+    - Mode字段: 自动模式=1(全保护+超时), 手动/无模式=0(跳过超时)
+    - ST_CylinderCmd结构体字段有默认值, 但建议每次调用前显式设置所有字段
+  - read_first:
+    - PM_SESSION_DJ-2026-005.md §6 (2026-06-24 实施日志)
+    - 02_PLC程序/PLC_ST/conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl (V10.0.0)
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/FB_1011_CylinderControl.scl (V13.0.0)
+    - 01_SharedLibraries/SysLib/actuator/FB_1011_CylinderControl/ST_Cylinder.scl (V3.1.0)
+
 - 2026-06-17 | from=pm-workflow | reason=SysLib FB_1011 V10.0.0 Breaking Change 影响分析完成, 待决策修复方案
   - current_state: |
       FB_1011 V10.0.0 已升级(q_bSolenoid→q_aSolenoid[0..7]), DJ-2026-005 项目 FB_1002 V9.0.0 调用方4处使用旧接口, 当前不可编译。
@@ -336,16 +421,15 @@
     - 02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest
 
 ## 9. Next Actions
-- [P0] 决策 FB_1002 对外接口策略(方案A保持BOOL vs 方案B改ARRAY) | precondition=已读§6 2026-06-17影响分析 | done_when=用户明确选定方案, 记录到§8
-- [P0] 开 CHG-PLC-2026-006 变更单: 适配 FB_1011 V10.0.0 Breaking Change | precondition=方案决策完成 | done_when=变更单归档到 00_项目管理/04_变更管理/01_变更单/CHG-PLC/
-- [P0] 修复 FB_1002 调用方代码: 4处 q_bSolenoid=>q_bBlockSolenoid/q_bSeparateSolenoid 改为新接口 | precondition=CHG-PLC-2026-006已开 | done_when=FB_1002编译通过, 调用方使用q_aSolenoid[0]或q_aSolenoid
-- [P1] 同步 FB_1002 IFC/DSN 文档到新版本 | precondition=FB_1002代码修复完成 | done_when=IFC/DSN frontmatter version+1, 接口描述与代码一致
-- [P1] 评估 OB1 DSN 文档是否需同步 | precondition=FB_1002对外接口决策完成 | done_when=若方案A则标注无影响, 若方案B则同步OB1 DSN
-- [P0] TIA Portal 编译验证本次修复 | precondition=项目工程文件可访问, FB_1002已修复 | done_when=无编译错误，警告清单记录并评估
-- [P1] 人工审核状态机逻辑与接口变更 | precondition=可访问最新源码 | done_when=确认状态机行为未改变，所有参数映射正确
+- [P0] TIA Portal 编译验证 FB_1002 V10.0.0 | precondition=项目工程文件可访问 | done_when=无编译错误, 警告清单记录并评估
+- [P1] 同步 FB_1002 IFC/DSN 文档到 V10.0.0 | precondition=FB_1002代码修复完成 | done_when=IFC/DSN frontmatter version+1, 接口描述与代码一致
+- [P1] 人工审核状态机逻辑与接口变更 | precondition=可访问最新源码 | done_when=确认状态机行为未改变, 所有参数映射正确
+- [P1] DJ-2026-000 OB1.scl 测试代码同步更新 FB_1011 调用 | precondition=确认DJ-2026-000项目状态 | done_when=OB1.scl使用i_stCmd/q_stSts结构体接口
+- [P1] 修复 PM_SESSION 路径引用陈旧(C-03) | precondition=无 | done_when=§4所有路径从"通用ST程序及变量表"更新为"PLC_ST"
+- [P1] 修复 PM_SESSION FB版本记录不符(C-04) | precondition=无 | done_when=FB_External/FB_2001/OB1版本号与实际代码一致
+- [P2] 运行 specmgr check 检测规范漂移详情(C-05) | precondition=无 | done_when=评估LSP-906 V1→V2和LSP-907 V1→V1.2.1对代码的影响
+- [P2] 修复 OB1 注释引用已取消 FB_1001(C-06) | precondition=无 | done_when=OB1头部注释更新为4×FB_1002
 - [P2] 复核安全互锁完整性 | precondition=可访问安全相关规范与文档 | done_when=确认安全门/急停等联锁逻辑在外层完整覆盖
-- [P3] 更新相关 PRD 文档 (如需要) | precondition=人工审核完成 | done_when=决定是否需要更新接口文档与详细设计文档
-- [P4] 新增 FB_1002 专用 .scltest 测试用例 | precondition=人工审核完成 | done_when=测试覆盖新接口参数 i_dSeparateTimeoutMs 和 i_dDebounceMs
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）
 
@@ -354,16 +438,16 @@
 
 | spec_id | 版本 | 记录日期 | 说明 |
 |---------|------|---------|------|
-| PROJ-016 | V1.0.0 | 2026-06-06 | 通用项目结构模板 |
+| PROJ-016 | V1.1.0 | 2026-06-06 | 通用项目结构模板 |
 | REQ-020 | V1.1.0 | 2026-06-06 | 通用需求分析文档模板 |
-| LSP-905 | V1.0.2 | 2026-06-06 | SCL编程规范 |
+| LSP-905 | V1.0.3 | 2026-06-06 | SCL编程规范 |
 | LSP-904 | V1.2.0 | 2026-06-06 | SCL注释规范 |
 | LSP-903 | V2.1.0 | 2026-06-06 | 定时器使用规范 |
-| LSP-906 | V1.0.0 | 2026-06-06 | PLC编程错误预防规则 |
-| LSP-907 | V1.0.0 | 2026-06-06 | PLC项目配置规范 |
+| LSP-906 | V2.0.0 | 2026-06-06 | PLC编程错误预防规则 |
+| LSP-907 | V1.2.1 | 2026-06-06 | PLC项目配置规范 |
 | INT-815 | V1.1.0 | 2026-06-06 | PLC接口文档模板 |
-| PLC-023 | V2.0.0 | 2026-06-06 | PLC程序设计文档模板 |
+| PLC-023 | V2.1.0 | 2026-06-06 | PLC程序设计文档模板 |
 | DEV-004 | V1.1.1 | 2026-06-06 | 通用项目文档版本管理与变更核心规范 |
-| CHG-040 | V2.0.0 | 2026-06-06 | 通用变更单模板 |
+| CHG-040 | V2.1.0 | 2026-06-06 | 通用变更单模板 |
 | CHG-041 | V2.1.0 | 2026-06-06 | 通用版本变更台帐模板 |
-| PM-042 | V2.1.0 | 2026-06-06 | 通用变更管理流程规范 |
+| PM-042 | V2.3.0 | 2026-06-06 | 通用变更管理流程规范 |

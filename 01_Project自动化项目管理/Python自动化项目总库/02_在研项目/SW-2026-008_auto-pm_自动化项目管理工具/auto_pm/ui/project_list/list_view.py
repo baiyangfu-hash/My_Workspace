@@ -11,6 +11,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import (
@@ -133,7 +136,7 @@ class ProjectListView(QWidget):
 
         # 状态标签（空/错误）
         self._status_label = QLabel()
-        self._status_label.setAlignment(Qt.AlignCenter)
+        self._status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._status_label.setStyleSheet("color: #999; font-size: 13px; padding: 40px;")
         layout.addWidget(self._status_label)
 
@@ -151,12 +154,12 @@ class ProjectListView(QWidget):
         # 页 0：卡片滚动区
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
-        self._scroll.setAlignment(Qt.AlignTop)
+        self._scroll.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._content_container = QWidget()
         self._content_layout = QVBoxLayout(self._content_container)
         self._content_layout.setContentsMargins(0, 0, 0, 0)
         self._content_layout.setSpacing(8)
-        self._content_layout.setAlignment(Qt.AlignTop)
+        self._content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._scroll.setWidget(self._content_container)
         self._content_stack.addWidget(self._scroll)  # index 0 = 卡片
 
@@ -332,7 +335,7 @@ class ProjectListView(QWidget):
             grid = QGridLayout(cards_widget)
             grid.setContentsMargins(0, 0, 0, 0)
             grid.setSpacing(_CARD_SPACING)
-            grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+            grid.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
             for idx, proj in enumerate(group_projects):
                 card = ProjectCard(proj, change_count=self._change_counts.get(proj.project_id, 0))
                 card.clicked.connect(self.projectSelected.emit)
@@ -351,7 +354,7 @@ class ProjectListView(QWidget):
         self._table_view.set_projects(self._filtered_projects, self._change_counts)
         self._content_stack.setCurrentIndex(1)
 
-    def _make_toggle_handler(self, group_key: str):
+    def _make_toggle_handler(self, group_key: str) -> Callable[[bool], None]:
         """创建分组折叠/展开回调（避免循环闭包捕获问题）"""
 
         def handler(expanded: bool) -> None:
@@ -388,7 +391,7 @@ class ProjectListView(QWidget):
         if self._group_mode == GROUP_NONE:
             return [("", "全部项目", list(self._filtered_projects))]
 
-        groups: dict[str, dict] = {}
+        groups: dict[str, dict[str, Any]] = {}
         for proj in self._filtered_projects:
             key, name, priority = self._project_group(proj, self._group_mode)
             if key not in groups:
@@ -402,7 +405,7 @@ class ProjectListView(QWidget):
         return [(k, groups[k]["name"], groups[k]["projects"]) for k in sorted_keys]
 
     @staticmethod
-    def _project_group(proj: ProjectInfo, mode: str) -> tuple[str, str, tuple]:
+    def _project_group(proj: ProjectInfo, mode: str) -> tuple[str, str, tuple[int, ...]]:
         """返回 (group_key, group_display_name, sort_priority)"""
         stack = proj.stack
         phase = proj.phase or ""

@@ -239,11 +239,14 @@ class TestCheckTabRunCheck:
         """摘要栏应显示正确的通过/警告/失败计数"""
         _run_check(check_tab, qapp)
 
-        # mixed 项目: 8 pass / 1 warn / 4 fail
+        # mixed 项目: 6 pass / 3 warn / 12 fail
+        # pass: .plc.json, PM_SESSION, PRD目录, PRD/接口文档_INT.md, 目录02_PLC程序, 目录03_HMI设计
+        # warn: .plc.json libraries[./lib]路径不存在, PRD/需求分析文档_REQ.md命名不匹配, Spec Snapshot未找到registry
+        # fail: PRD/详细设计说明书_DSN.md, PRD/技术方案文档_TEC.md, 10个缺失目录
         summary = check_tab._summary_label.text()
-        assert "8 通过" in summary
-        assert "1 警告" in summary
-        assert "4 失败" in summary
+        assert "6 通过" in summary
+        assert "3 警告" in summary
+        assert "12 失败" in summary
 
     def test_run_check_groups_correct(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """结果应按类别分组：标志文件 / PRD 文档 / 目录结构"""
@@ -301,7 +304,7 @@ class TestCheckTabStatusIcon:
 
         item_labels = _get_item_labels(check_tab)
         warn_labels = [lbl for lbl in item_labels if lbl.text().startswith("⚠️")]
-        assert len(warn_labels) == 1  # 1 个 warn 项
+        assert len(warn_labels) == 2  # 2 个 warn 项（命名不匹配 + Spec Snapshot）
 
     def test_fail_items_have_fail_icon(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """fail 项的文本应包含 ❌ 图标"""
@@ -309,7 +312,7 @@ class TestCheckTabStatusIcon:
 
         item_labels = _get_item_labels(check_tab)
         fail_labels = [lbl for lbl in item_labels if lbl.text().startswith("❌")]
-        assert len(fail_labels) == 4  # 4 个 fail 项
+        assert len(fail_labels) == 12  # 12 个 fail 项
 
     def test_group_title_icons(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """分组标题应显示聚合状态图标"""
@@ -348,8 +351,8 @@ class TestCheckTabRepairButton:
         item_btns = _get_item_buttons(check_tab)
         # 所有修复按钮的文本都是"修复"
         assert all(b.text() == "修复" for b in item_btns)
-        # 修复按钮数量 = warn + fail = 1 + 4 = 5
-        assert len(item_btns) == 5
+        # 修复按钮数量 = warn + fail = 2 + 12 = 14（V0.2.3 新增检查项）
+        assert len(item_btns) == 14
 
     def test_repair_button_click_fixes_issues(
         self, check_tab: CheckTab, qapp: QApplication
@@ -357,7 +360,7 @@ class TestCheckTabRepairButton:
         """点击修复按钮应实际执行修复，fail 项变为 pass"""
         _run_check(check_tab, qapp)
         assert check_tab._last_check_result is not None
-        assert check_tab._last_check_result.fail_count == 4
+        assert check_tab._last_check_result.fail_count == 12
 
         # 点击第一个修复按钮
         item_btns = _get_item_buttons(check_tab)
@@ -365,11 +368,11 @@ class TestCheckTabRepairButton:
         item_btns[0].click()
         qapp.processEvents()
 
-        # 修复后重新检查，fail 应减少（4 个 fail 全部被修复）
+        # 修复后重新检查，fail 应减少（12 个 fail 全部被修复）
         assert check_tab._last_check_result is not None
         assert check_tab._last_check_result.fail_count == 0
-        # warn 项（命名不匹配）未被修复（rename_confirm=False）
-        assert check_tab._last_check_result.warn_count == 1
+        # warn 项（命名不匹配 + Spec Snapshot）未被修复（rename_confirm=False + registry缺失）
+        assert check_tab._last_check_result.warn_count == 2
 
     def test_repair_button_emits_signal(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """点击修复按钮后应发射 repair_completed 信号"""

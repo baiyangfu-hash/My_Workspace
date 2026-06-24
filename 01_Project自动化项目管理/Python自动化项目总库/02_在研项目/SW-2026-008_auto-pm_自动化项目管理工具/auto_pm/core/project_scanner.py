@@ -38,6 +38,14 @@ class ProjectScanner:
     def __init__(self, workspace_root: str) -> None:
         self.workspace_root = os.path.abspath(workspace_root)
 
+    # 来源优先级（数值越小优先级越高）
+    _SOURCE_PRIORITY: dict[str, int] = {
+        "copier": 0,
+        "plc_json": 1,
+        "pm_session": 2,
+        "dirname": 3,
+    }
+
     def scan(self, scan_depth: int = 4) -> list[ProjectInfo]:
         """扫描工作空间，返回所有项目
 
@@ -46,17 +54,92 @@ class ProjectScanner:
 
         Returns:
             项目列表，按 project_id 排序
+
+        V0.2.1-P2-1: 按项目根目录 + project_id 双重去重，
+        合并多来源元数据（copier > plc_json > pm_session）。
         """
-        results: list[ProjectInfo] = []
-        self._scan(self.workspace_root, results, depth=0, max_depth=scan_depth)
+        raw_results: list[ProjectInfo] = []
+        self._scan(self.workspace_root, raw_results, depth=0, max_depth=scan_depth)
+        # V0.2.1-P2-1: 去重 + 合并多来源元数据
+        results = self._deduplicate_projects(raw_results)
         results.sort(key=lambda p: p.project_id)
-        log.info("扫描完成: 发现 %d 个项目", len(results))
+        log.info(
+            "扫描完成: 发现 %d 个项目（去重前 %d）",
+            len(results), len(raw_results),
+        )
         return results
+
+    def _deduplicate_projects(
+        self, projects: list[ProjectInfo]
+    ) -> list[ProjectInfo]:
+        """按项目根目录 + project_id 双重去重，合并多来源元数据
+
+        策略：
+        1. 按项目根目录分组：同一目录被多来源识别时，保留优先级最高的来源，
+           并合并其他来源的非空字段。
+        2. 按 project_id 分组：不同目录但相同 project_id 时（如嵌套子目录被
+           误识别为独立项目），保留来源优先级更高的记录。
+        """
+        # ── 第1步：按项目根目录去重 ──
+        by_path: dict[str, list[ProjectInfo]] = {}
+        for p in projects:
+            by_path.setdefault(p.path, []).append(p)
+
+        path_deduped: list[ProjectInfo] = []
+        for path, group in by_path.items():
+            # 按来源优先级排序
+            group.sort(
+                key=lambda p: self._SOURCE_PRIORITY.get(p.source, 99)
+            )
+            primary = group[0]
+            # 合并其他来源的非空字段（仅当 primary 字段为空时）
+            for other in group[1:]:
+                if not primary.name and other.name:
+                    primary.name = other.name
+                if not primary.version and other.version:
+                    primary.version = other.version
+                if not primary.description and other.description:
+                    primary.description = other.description
+                if not primary.phase and other.phase:
+                    primary.phase = other.phase
+                if not primary.business_line and other.business_line:
+                    primary.business_line = other.business_line
+                if primary.stack == "unknown" and other.stack != "unknown":
+                    primary.stack = other.stack
+            path_deduped.append(primary)
+
+        # ── 第2步：按 project_id 去重 ──
+        by_id: dict[str, ProjectInfo] = {}
+        for p in path_deduped:
+            if p.project_id in by_id:
+                existing = by_id[p.project_id]
+                existing_pri = self._SOURCE_PRIORITY.get(existing.source, 99)
+                current_pri = self._SOURCE_PRIORITY.get(p.source, 99)
+                if current_pri < existing_pri:
+                    log.warning(
+                        "项目重复（按 project_id=%s）: 保留 %s@%s, 跳过 %s@%s",
+                        p.project_id, p.source, p.path,
+                        existing.source, existing.path,
+                    )
+                    by_id[p.project_id] = p
+                else:
+                    log.warning(
+                        "项目重复（按 project_id=%s）: 保留 %s@%s, 跳过 %s@%s",
+                        p.project_id, existing.source, existing.path,
+                        p.source, p.path,
+                    )
+            else:
+                by_id[p.project_id] = p
+
+        return list(by_id.values())
 
     def try_identify_project(self, project_path: str) -> Optional[ProjectInfo]:
         """尝试识别目录是否为项目，并提取元数据
 
         优先级：.copier-answers.yml > .plc.json > PM_SESSION_*.md > 目录名
+
+        V0.2.1-P2-11: 当项目通过 PM_SESSION 识别但 stack=unknown 时，
+        递归查找子目录的 .plc.json 补充元数据（适配 02_PLC程序/PLC_ST/.plc.json 嵌套结构）。
         """
         # 1. Copier 答案文件（最可靠）
         info = self.read_copier_answers(project_path)
@@ -64,7 +147,7 @@ class ProjectScanner:
             info.file_mtime = self.get_project_mtime(project_path)
             return info
 
-        # 2. .plc.json（PLC 项目）
+        # 2. .plc.json（PLC 项目，仅检查根目录）
         info = self.read_plc_json(project_path)
         if info is not None:
             info.file_mtime = self.get_project_mtime(project_path)
@@ -74,6 +157,8 @@ class ProjectScanner:
         info = self.read_pm_session(project_path)
         if info is not None:
             info.file_mtime = self.get_project_mtime(project_path)
+            # V0.2.1-P2-11: 递归查找 .plc.json 补充元数据
+            info = self._enrich_from_plc_json(info)
             return info
 
         return None
@@ -98,9 +183,11 @@ class ProjectScanner:
         if not project_id:
             project_id = self.extract_id_from_dirname(project_path)
 
-        # 推断技术栈
-        src_path = answers.get("_src_path", "")
-        stack = self.infer_stack(src_path)
+        # V0.2.1-P1-3: 优先从 answers 读取 stack，回退到从 _src_path 推断
+        stack = answers.get("stack", "")
+        if not stack:
+            src_path = answers.get("_src_path", "")
+            stack = self.infer_stack(src_path)
 
         # 业务线：优先从 answers 读取，否则从 project_id 提取
         business_line = answers.get("business_line", "") or extract_business_line(project_id)
@@ -119,7 +206,11 @@ class ProjectScanner:
         )
 
     def read_plc_json(self, project_path: str) -> Optional[ProjectInfo]:
-        """从 .plc.json 读取项目元数据"""
+        """从 .plc.json 读取项目元数据（仅检查项目根目录，用于项目识别）
+
+        注意：递归查找 .plc.json 仅在 _enrich_from_plc_json 中使用，
+        用于补充已识别项目的元数据，避免父目录被误识别为项目。
+        """
         plc_json_path = os.path.join(project_path, self.PLC_JSON_FILE)
         if not os.path.isfile(plc_json_path):
             return None
@@ -143,6 +234,86 @@ class ProjectScanner:
             source="plc_json",
             extra=cfg,
         )
+
+    def _enrich_from_plc_json(self, info: ProjectInfo) -> ProjectInfo:
+        """递归查找 .plc.json 补充项目元数据（不用于项目识别）
+
+        V0.2.1-P2-11: 适配 02_PLC程序/PLC_ST/.plc.json 嵌套结构。
+        当项目通过 PM_SESSION 或 copier 识别但 stack=unknown 时，
+        递归查找子目录的 .plc.json 来补充 stack/version/description 等字段。
+
+        Args:
+            info: 已识别的项目信息（通常 source=pm_session, stack=unknown）
+
+        Returns:
+            补充后的项目信息（原地修改并返回）
+        """
+        plc_json_path = self._find_plc_json_recursive(info.path)
+        if not plc_json_path:
+            return info
+
+        try:
+            with open(plc_json_path, encoding="utf-8") as f:
+                cfg = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return info
+
+        # 仅补充空缺字段，不覆盖已有数据
+        if info.stack == "unknown":
+            info.stack = "plc"
+        if not info.version:
+            info.version = cfg.get("version", "")
+        if not info.description:
+            info.description = cfg.get("description", "")
+        # 如果 project_id 来自 PM_SESSION 但 .plc.json 有更准确的 name，使用 .plc.json 的 name
+        plc_name = cfg.get("name", "")
+        if plc_name and info.name == os.path.basename(info.path):
+            info.name = plc_name
+        return info
+
+    @staticmethod
+    def _find_plc_json_recursive(project_path: str, max_depth: int = 3) -> Optional[str]:
+        """递归查找 .plc.json（仅用于补充元数据，不用于项目识别）
+
+        查找顺序：
+        1. 项目根目录
+        2. 子目录递归查找（适配 02_PLC程序/PLC_ST/.plc.json 嵌套结构）
+
+        Args:
+            project_path: 项目根目录
+            max_depth: 最大递归深度（默认3层）
+
+        Returns:
+            .plc.json 绝对路径，未找到返回 None
+        """
+        # 1. 根目录
+        root_plc_json = os.path.join(project_path, ProjectScanner.PLC_JSON_FILE)
+        if os.path.isfile(root_plc_json):
+            return root_plc_json
+
+        # 2. 递归查找子目录
+        def _search_dir(dir_path: str, depth: int) -> Optional[str]:
+            if depth > max_depth:
+                return None
+            try:
+                entries = os.listdir(dir_path)
+            except OSError:
+                return None
+            for entry in entries:
+                entry_path = os.path.join(dir_path, entry)
+                # 注意：不能跳过 .plc.json（它以 . 开头）
+                if os.path.isfile(entry_path) and entry == ProjectScanner.PLC_JSON_FILE:
+                    return entry_path
+                # 跳过隐藏目录和 Python 缓存目录（但保留 .plc.json 等配置文件）
+                if entry.startswith(".") or entry.startswith("__"):
+                    continue
+                if os.path.isdir(entry_path):
+                    found = _search_dir(entry_path, depth + 1)
+                    if found:
+                        return found
+            return None
+
+        return _search_dir(project_path, 1)
 
     def read_pm_session(self, project_path: str) -> Optional[ProjectInfo]:
         """从 PM_SESSION_*.md 文件名提取项目编号"""

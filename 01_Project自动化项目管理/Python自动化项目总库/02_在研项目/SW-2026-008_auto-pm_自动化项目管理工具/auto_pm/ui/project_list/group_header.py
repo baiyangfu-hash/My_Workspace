@@ -51,7 +51,7 @@ class GroupHeader(QFrame):
         super().__init__(parent)
         self.setObjectName("GroupHeader")
         self.setStyleSheet(_STYLE)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._expanded = expanded
         self._count = count
         self._build_ui()
@@ -81,7 +81,7 @@ class GroupHeader(QFrame):
     # ── 鼠标交互 ──────────────────────────────────────────
 
     def mousePressEvent(self, event) -> None:  # type: ignore[override]
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.set_expanded(not self._expanded)
         super().mousePressEvent(event)
 

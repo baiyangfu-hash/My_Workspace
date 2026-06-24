@@ -1,7 +1,7 @@
 """PLC 项目结构检查器（LSP-907 规范）
 
 迁移自 SW-2026-005 的 PlcProjectService.check_project/check_workspace。
-检查项：.plc.json / PM_SESSION / PRD 文档 / 目录结构。
+检查项：.plc.json / PM_SESSION / PRD 文档 / 目录结构 / Spec Snapshot 规范漂移。
 """
 
 from __future__ import annotations
@@ -16,6 +16,11 @@ from auto_pm.plc.models import (
     STD_DIRS,
     STD_PRDS,
     CheckResult,
+)
+from auto_pm.plc.spec_snapshot import (
+    compare_versions,
+    load_spec_registry,
+    parse_spec_snapshot,
 )
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
@@ -66,6 +71,9 @@ class PlcChecker:
         if project_type == "standard":
             self._check_directory_structure(project_path, result)
 
+        # 5. 检查 Spec Snapshot 规范漂移
+        self._check_spec_snapshot(project_path, result)
+
         log.info(
             "项目检查完成: %s - pass=%d warn=%d fail=%d",
             os.path.basename(project_path),
@@ -95,21 +103,57 @@ class PlcChecker:
     def _detect_project_type(self, project_path: str) -> str:
         """检测项目类型
 
-        - standard: 标准 PLC 项目（有标准目录结构）
+        - standard: 标准 PLC 项目（有 00_项目管理 等标准目录结构）
+        - shared-library: PLC 共享库（有 actuator/timer/counter 等模块目录）
+        - test-suite: 测试套件项目（有 DB1/OB1/Test 但无标准目录）
         - syslib_fb: SysLib 功能块项目（单 FB 目录，无标准子目录）
         """
         basename = os.path.basename(project_path)
         if basename.startswith("FB_") and "SysLib" in project_path:
             return "syslib_fb"
+
+        try:
+            entries = set(os.listdir(project_path))
+        except OSError:
+            entries = set()
+
+        # standard: 有 00_项目管理 目录
+        if "00_项目管理" in entries:
+            return "standard"
+
+        # shared-library: 有共享库特征目录
+        shared_lib_markers = {
+            "actuator",
+            "timer",
+            "counter",
+            "edge",
+            "convert",
+            "log",
+            "pulse",
+            "communication",
+            "types",
+        }
+        if shared_lib_markers & entries:
+            return "shared-library"
+
+        # test-suite: 有 DB1/OB1/Test 但无 00_项目管理
+        test_suite_markers = {"DB1", "OB1", "Test"}
+        if test_suite_markers & entries:
+            return "test-suite"
+
+        # 默认按 standard 检查（触发目录缺失告警）
         return "standard"
 
-    def resolve_project_id(self, project_path: str) -> str:
+    @staticmethod
+    def resolve_project_id(project_path: str) -> str:
         """从目录名解析项目编号
 
         支持多种命名模式：
         - DJ-2026-005_项目名 → DJ-2026-005
         - FB_1011_功能块名 → FB1011
         - SW-2026-005_项目名 → SW-2026-005
+
+        V0.2.1-P2-4: 改为 staticmethod，供 CLI 层无实例调用。
         """
         basename = os.path.basename(project_path)
         parts = basename.split("_", 1)
@@ -122,6 +166,50 @@ class PlcChecker:
             return f"FB{second_parts[0]}"
         return first
 
+    @staticmethod
+    def _find_plc_json(project_path: str, max_depth: int = 3) -> str | None:
+        """递归查找 .plc.json（与模板生成位置对齐）
+
+        查找顺序：
+        1. 项目根目录（标准位置）
+        2. 子目录递归查找（适配 02_PLC程序/02_PLC程序/.plc.json 嵌套结构）
+
+        Args:
+            project_path: 项目根目录
+            max_depth: 最大递归深度（默认3层）
+
+        Returns:
+            .plc.json 绝对路径，未找到返回 None
+        """
+        # 1. 根目录
+        root_plc_json = os.path.join(project_path, ".plc.json")
+        if os.path.isfile(root_plc_json):
+            return root_plc_json
+
+        # 2. 递归查找子目录
+        def _search_dir(dir_path: str, depth: int) -> str | None:
+            if depth > max_depth:
+                return None
+            try:
+                entries = os.listdir(dir_path)
+            except OSError:
+                return None
+            for entry in entries:
+                entry_path = os.path.join(dir_path, entry)
+                # 注意：不能跳过 .plc.json（它以 . 开头）
+                if os.path.isfile(entry_path) and entry == ".plc.json":
+                    return entry_path
+                # 跳过隐藏目录和 Python 缓存目录（但保留 .plc.json 等配置文件）
+                if entry.startswith(".") or entry.startswith("__"):
+                    continue
+                if os.path.isdir(entry_path):
+                    found = _search_dir(entry_path, depth + 1)
+                    if found:
+                        return found
+            return None
+
+        return _search_dir(project_path, 1)
+
     def _check_plc_json(self, project_path: str, result: CheckResult) -> None:
         """检查 .plc.json（LSP-907 §1）"""
         if result.project_type in SKIP_PLC_JSON_TYPES:
@@ -132,8 +220,8 @@ class PlcChecker:
             )
             return
 
-        plc_json_path = os.path.join(project_path, ".plc.json")
-        if not os.path.isfile(plc_json_path):
+        plc_json_path = self._find_plc_json(project_path)
+        if not plc_json_path:
             result.add(".plc.json", "fail", "缺少 .plc.json 配置文件（LSP-907 §1.1）")
             return
 
@@ -168,9 +256,7 @@ class PlcChecker:
             )
         else:
             for lib_path in cfg["libraries"]:
-                abs_lib = os.path.normpath(
-                    os.path.join(os.path.dirname(plc_json_path), lib_path)
-                )
+                abs_lib = os.path.normpath(os.path.join(os.path.dirname(plc_json_path), lib_path))
                 if not os.path.isdir(abs_lib):
                     result.add(
                         f".plc.json libraries[{lib_path}]",
@@ -196,7 +282,7 @@ class PlcChecker:
                     result.add(
                         f".plc.json libraries[{lib_path}]",
                         "warn",
-                        f"库路径存在但关键文件缺失（期望: timer/counter/edge 等）",
+                        "库路径存在但关键文件缺失（期望: timer/counter/edge 等）",
                     )
 
     def _check_pm_session(self, project_path: str, result: CheckResult) -> None:
@@ -224,6 +310,84 @@ class PlcChecker:
                 )
             else:
                 result.add("PM_SESSION", "fail", f"缺少 PM_SESSION_{project_id}.md")
+
+    def _check_spec_snapshot(self, project_path: str, result: CheckResult) -> None:
+        """检查 Spec Snapshot 规范漂移（V2.0.3）
+
+        解析 PM_SESSION 中的 Spec Snapshot 表格，对比 spec_registry.json，
+        根据漂移级别设置检查项状态：
+        - major 漂移 → FAIL
+        - minor/patch 漂移 → WARN
+        - 无漂移 → PASS
+
+        边界情况：
+        - PM_SESSION 不存在 → 跳过（已在 PM_SESSION 检查中报告）
+        - spec_registry.json 缺失 → WARN
+        - Spec Snapshot 表格缺失 → WARN
+        """
+        # 查找 PM_SESSION 文件路径（复用现有查找逻辑）
+        project_id = self.resolve_project_id(project_path)
+        pm_session = os.path.join(project_path, f"PM_SESSION_{project_id}.md")
+        if not os.path.isfile(pm_session):
+            # 尝试模糊匹配
+            found = None
+            try:
+                for f in os.listdir(project_path):
+                    if f.startswith("PM_SESSION_") and f.endswith(".md"):
+                        found = f
+                        break
+            except OSError:
+                pass
+            if found:
+                pm_session = os.path.join(project_path, found)
+            else:
+                # PM_SESSION 不存在，已在第 2 项检查中报告
+                return
+
+        # 加载 spec_registry.json
+        registry = load_spec_registry(self.workspace_root)
+        if registry is None:
+            result.add(
+                "Spec Snapshot",
+                "warn",
+                "未找到 spec_registry.json，跳过漂移检测",
+            )
+            return
+
+        # 解析 Spec Snapshot 表格
+        snapshot = parse_spec_snapshot(pm_session)
+        if not snapshot:
+            result.add(
+                "Spec Snapshot",
+                "warn",
+                "PM_SESSION 缺少 Spec Snapshot 表格",
+            )
+            return
+
+        # 对比版本
+        drifts = compare_versions(snapshot, registry)
+        if not drifts:
+            result.add(
+                "Spec Snapshot",
+                "pass",
+                "Spec Snapshot 与 spec_registry.json 一致",
+            )
+            return
+
+        # 根据漂移级别设置状态
+        level_names = {
+            "major": "主版本漂移",
+            "minor": "次版本漂移",
+            "patch": "补丁漂移",
+        }
+        drift_msgs = [
+            f"{d.spec_id}: {d.snapshot_version} → {d.registry_version} "
+            f"({level_names[d.drift_level]})"
+            for d in drifts
+        ]
+        has_major = any(d.drift_level == "major" for d in drifts)
+        status = "fail" if has_major else "warn"
+        result.add("Spec Snapshot", status, "; ".join(drift_msgs))
 
     def _check_prd_docs(self, project_path: str, result: CheckResult) -> None:
         """检查 PRD 文档完整性"""
@@ -302,13 +466,19 @@ class PlcChecker:
         """判断目录是否为 PLC 项目
 
         识别规则（满足任一）：
-        - 存在 .plc.json
-        - 存在 PM_SESSION_*.md
+        - 存在 .plc.json（根目录或子目录）
+        - 存在 PM_SESSION_*.md 且非 Python 项目
         - 目录名以 FB_ 开头（SysLib FB 项目）
+
+        排除规则：存在 pyproject.toml 且无 .plc.json → Python 项目，跳过
         """
-        # .plc.json
-        if os.path.isfile(os.path.join(project_path, ".plc.json")):
+        # .plc.json（根目录或递归查找）
+        if PlcChecker._find_plc_json(project_path):
             return True
+
+        # 排除 Python 项目（有 pyproject.toml 且无 .plc.json）
+        if os.path.isfile(os.path.join(project_path, "pyproject.toml")):
+            return False
 
         # PM_SESSION_*.md
         try:

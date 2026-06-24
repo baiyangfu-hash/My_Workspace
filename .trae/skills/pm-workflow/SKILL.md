@@ -89,6 +89,29 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
 | 初始化 | 调用 `auto-pm project create` 自动生成目录结构+文档模板+hooks+handoffs+Spec Snapshot |
 | 补完 | 调用 `auto-pm project retrofit` 注入 hooks+handoffs+Spec Snapshot（不修改现有文件） |
 
+### Step 3.5：Bug 诊断强制流程（变更/缺陷模式专用，禁止跳过）
+
+当模式为"变更/缺陷/发布"且涉及 Bug 修复时，**必须**按以下顺序执行，禁止凭代码阅读直接下结论：
+
+1. **完整证据获取**：
+   - 测试失败必须用 `--tb=long`（或至少 `--tb=short`）获取完整 traceback
+   - **禁止**用 `--tb=no` 隐藏错误详情
+   - 必须读取完整的 WARNING/ERROR 日志行，不可只看断言失败信息
+
+2. **诊断脚本先行**：
+   - 读代码形成的假设，**必须**用最小诊断脚本（`python -c "..."`）验证后才能下结论
+   - 诊断脚本应直接调用被测函数，打印实际返回值
+   - 禁止"读了代码 → 推测根因 → 直接输出修复计划"的跳跃
+
+3. **测试问题 vs 生产问题分离**：
+   - 测试失败时，**先检查 fixture 是否完整**（项目标志文件、路径结构、mock 配置）
+   - 再怀疑生产代码
+   - 特别警惕"假通过"：`if cr is not None:` 类条件断言会掩盖 fixture 缺陷
+
+4. **未验证禁止回写**：
+   - 诊断结论未经运行时验证，**禁止**写入 PM_SESSION §8/§9
+   - 必须标注"已验证"或"待验证"，未验证的结论只能放在 `open_questions`
+
 ### Step 4：同步回 PM_SESSION
 
 每次事件处理完更新：`current_focus`、`status_summary`、`artifacts_index`、对应日志（change/iteration/bug/refactor/release/spec_change）、`open_questions`。只追加，不覆盖历史。

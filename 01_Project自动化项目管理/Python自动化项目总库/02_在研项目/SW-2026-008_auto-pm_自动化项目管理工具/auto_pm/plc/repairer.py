@@ -72,17 +72,13 @@ class PlcRepairer:
                 continue
 
             if item.item == ".plc.json":
-                self._repair_plc_json(
-                    project_path, project_id, project_name, result, dry_run
-                )
+                self._repair_plc_json(project_path, project_id, project_name, result, dry_run)
             elif item.item == "PM_SESSION":
-                self._repair_pm_session(
-                    project_path, project_id, project_name, result, dry_run
-                )
+                self._repair_pm_session(project_path, project_id, project_name, result, dry_run)
+            elif item.item == "Spec Snapshot":
+                self._repair_spec_snapshot(project_path, result, dry_run)
             elif item.item == "PRD 目录":
-                self._repair_prd_dir(
-                    project_path, project_id, project_name, result, dry_run
-                )
+                self._repair_prd_dir(project_path, project_id, project_name, result, dry_run)
             elif item.item.startswith("PRD/"):
                 doc_name = item.item.split("/", 1)[1]
                 self._repair_prd_doc(
@@ -146,16 +142,12 @@ class PlcRepairer:
         for cr in check_results:
             if cr.all_pass:
                 continue
-            results.append(
-                self.repair_project(cr.project_path, dry_run, rename_confirm)
-            )
+            results.append(self.repair_project(cr.project_path, dry_run, rename_confirm))
         return results
 
     # ── 文档标准化 ────────────────────────────────────────
 
-    def standardize_docs(
-        self, project_path: str, apply: bool = False
-    ) -> StandardizeResult:
+    def standardize_docs(self, project_path: str, apply: bool = False) -> StandardizeResult:
         """检测并修正 PRD 文档命名
 
         Args:
@@ -207,9 +199,7 @@ class PlcRepairer:
                             plan.applied = True
                             result.applied_count += 1
 
-                            updates = self._update_references(
-                                prd_path, filename, std_name
-                            )
+                            updates = self._update_references(prd_path, filename, std_name)
                             result.reference_updates.extend(updates)
 
                             log.info("重命名: %s → %s", filename, std_name)
@@ -248,24 +238,16 @@ class PlcRepairer:
         result: RepairResult,
         dry_run: bool,
     ) -> None:
-        """修复 .plc.json（创建缺失文件或补全字段）"""
-        plc_json_path = os.path.join(project_path, ".plc.json")
+        """修复 .plc.json（创建缺失文件或补全字段）
 
-        if not os.path.isfile(plc_json_path):
-            # 创建最小 .plc.json
-            content = self._minimal_plc_json(project_id, project_name, plc_json_path)
-            if not dry_run:
-                with open(plc_json_path, "w", encoding="utf-8") as f:
-                    f.write(content)
-            result.add(
-                item=".plc.json",
-                action="创建 .plc.json",
-                destructive=False,
-                status="fixed",
-                detail=f"已创建最小 .plc.json: name={project_id}",
-            )
-        else:
-            # 补全缺失字段
+        V0.2.1-P1-5: 递归查找已有 .plc.json，避免在根目录重复创建
+        V0.2.1-P2-9: 从 .copier-answers.yml 读取元数据（description/version）
+        """
+        # V0.2.1-P1-5: 递归查找已有 .plc.json（与 PlcChecker._find_plc_json 对齐）
+        existing_plc_json = PlcChecker._find_plc_json(project_path)
+        if existing_plc_json:
+            # 已有 .plc.json（可能在嵌套目录），补全缺失字段
+            plc_json_path = existing_plc_json
             try:
                 with open(plc_json_path, encoding="utf-8") as f:
                     cfg = json.load(f)
@@ -299,7 +281,7 @@ class PlcRepairer:
                     action="补全 .plc.json 必填字段",
                     destructive=False,
                     status="fixed",
-                    detail="已补全缺失的必填字段",
+                    detail=f"已补全缺失的必填字段: {plc_json_path}",
                 )
             else:
                 result.add(
@@ -307,8 +289,80 @@ class PlcRepairer:
                     action="无需修复",
                     destructive=False,
                     status="skipped",
-                    detail="字段完整，无需补全",
+                    detail=f"字段完整，无需补全: {plc_json_path}",
                 )
+            return
+
+        # 未找到 .plc.json，创建新的
+        # V0.2.1-P2-9: 从 .copier-answers.yml 读取元数据
+        copier_meta = self._read_copier_answers_meta(project_path)
+        effective_name = copier_meta.get("project_id", project_id)
+        effective_desc = copier_meta.get("description", project_name)
+        effective_version = copier_meta.get("version", "V1.0.0")
+
+        # V0.2.1-P1-5: 根据项目模式决定 .plc.json 创建位置
+        plc_json_path = self._get_plc_json_create_path(project_path)
+        content = self._minimal_plc_json(
+            effective_name, effective_desc, plc_json_path, effective_version
+        )
+        if not dry_run:
+            os.makedirs(os.path.dirname(plc_json_path), exist_ok=True)
+            with open(plc_json_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            result.add(
+                item=".plc.json",
+                action="创建 .plc.json",
+                destructive=False,
+                status="fixed",
+                detail=f"已创建 .plc.json: name={effective_name}, path={plc_json_path}",
+            )
+        else:
+            result.add(
+                item=".plc.json",
+                action="[DRY-RUN] 创建 .plc.json",
+                destructive=False,
+                status="skipped",
+                detail=f"将创建: {plc_json_path}",
+            )
+
+    @staticmethod
+    def _read_copier_answers_meta(project_path: str) -> dict[str, str]:
+        """从 .copier-answers.yml 读取项目元数据
+
+        V0.2.1-P2-9: repairer 创建 .plc.json 时同步 .copier-answers.yml 的元数据
+        """
+        answers_path = os.path.join(project_path, ".copier-answers.yml")
+        if not os.path.isfile(answers_path):
+            return {}
+        try:
+            import yaml
+
+            with open(answers_path, encoding="utf-8") as f:
+                answers = yaml.safe_load(f) or {}
+            return {
+                "project_id": answers.get("project_id", ""),
+                "project_name": answers.get("project_name", ""),
+                "description": answers.get("description", ""),
+                "version": answers.get("version", ""),
+            }
+        except (OSError, Exception):
+            return {}
+
+    @staticmethod
+    def _get_plc_json_create_path(project_path: str) -> str:
+        """根据项目结构决定 .plc.json 的创建位置
+
+        V0.2.1-P1-5: 与模板生成位置对齐
+        - standard-project 模板: 02_PLC程序/02_PLC程序/.plc.json
+        - shared-library/test-suite 模板: .plc.json（项目根）
+        - 未知模式: .plc.json（项目根，向后兼容）
+        """
+        # 检测 standard-project 模式的嵌套目录结构
+        nested_plc_dir = os.path.join(project_path, "02_PLC程序", "02_PLC程序")
+        if os.path.isdir(nested_plc_dir):
+            return os.path.join(nested_plc_dir, ".plc.json")
+        # 默认：项目根目录
+        return os.path.join(project_path, ".plc.json")
 
     def _repair_pm_session(
         self,
@@ -331,6 +385,139 @@ class PlcRepairer:
             destructive=False,
             status="fixed",
             detail="已创建最小 PM_SESSION 骨架",
+        )
+
+    def _repair_spec_snapshot(
+        self,
+        project_path: str,
+        result: RepairResult,
+        dry_run: bool,
+    ) -> None:
+        """修复 Spec Snapshot 版本漂移
+
+        读取 PM_SESSION 中的 Spec Snapshot 表格，对比 spec_registry.json，
+        将漂移的版本号更新为注册表中的最新版本。
+
+        Args:
+            project_path: 项目根目录绝对路径
+            result: 修复结果对象
+            dry_run: 仅预览不执行
+        """
+        from auto_pm.plc.spec_snapshot import (
+            compare_versions,
+            load_spec_registry,
+            parse_spec_snapshot,
+        )
+
+        # 1. 查找 PM_SESSION 文件路径
+        project_id = self._checker.resolve_project_id(project_path)
+        pm_session_path = os.path.join(project_path, f"PM_SESSION_{project_id}.md")
+
+        if not os.path.isfile(pm_session_path):
+            # PM_SESSION 不存在，跳过（由 _repair_pm_session 处理）
+            result.add(
+                item="Spec Snapshot",
+                action="修复 Spec Snapshot 版本漂移",
+                destructive=False,
+                status="skipped",
+                detail="PM_SESSION 文件不存在，跳过",
+            )
+            return
+
+        # 2. 解析 Spec Snapshot 并加载注册表
+        snapshot = parse_spec_snapshot(pm_session_path)
+        registry = load_spec_registry(self.workspace_root)
+
+        # 3. 边界情况：snapshot 为空或 registry 为 None，无法修复
+        if not snapshot or registry is None:
+            result.add(
+                item="Spec Snapshot",
+                action="修复 Spec Snapshot 版本漂移",
+                destructive=False,
+                status="skipped",
+                detail="Spec Snapshot 为空或注册表不可用，无法修复",
+            )
+            return
+
+        # 4. 对比版本，获取漂移项
+        drifts = compare_versions(snapshot, registry)
+
+        if not drifts:
+            result.add(
+                item="Spec Snapshot",
+                action="修复 Spec Snapshot 版本漂移",
+                destructive=False,
+                status="skipped",
+                detail="无版本漂移，无需修复",
+            )
+            return
+
+        # 5. 构造漂移描述
+        drift_descs = [f"{d.spec_id} {d.snapshot_version}→{d.registry_version}" for d in drifts]
+        drift_summary = ", ".join(drift_descs)
+
+        # 6. 执行修复或预览
+        if dry_run:
+            result.add(
+                item="Spec Snapshot",
+                action="[DRY-RUN] 更新 Spec Snapshot 版本号",
+                destructive=False,
+                status="skipped",
+                detail=f"将更新 {len(drifts)} 条规范版本: {drift_summary}",
+            )
+            return
+
+        # 7. 读取 PM_SESSION 内容
+        try:
+            with open(pm_session_path, encoding="utf-8") as f:
+                content = f.read()
+        except OSError as e:
+            result.add(
+                item="Spec Snapshot",
+                action="修复 Spec Snapshot 版本漂移",
+                destructive=False,
+                status="failed",
+                detail=f"读取 PM_SESSION 失败: {e}",
+            )
+            return
+
+        # 8. 正则替换每个漂移项的版本号
+        # 匹配格式：| spec_id | snapshot_version |
+        new_content = content
+        for drift in drifts:
+            pattern = re.compile(
+                r"(\|\s*"
+                + re.escape(drift.spec_id)
+                + r"\s*\|\s*)"
+                + re.escape(drift.snapshot_version)
+                + r"(\s*\|)",
+                re.MULTILINE,
+            )
+            new_content = pattern.sub(
+                lambda m: m.group(1) + drift.registry_version + m.group(2),
+                new_content,
+            )
+
+        # 9. 写回 PM_SESSION 文件
+        try:
+            with open(pm_session_path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+        except OSError as e:
+            result.add(
+                item="Spec Snapshot",
+                action="修复 Spec Snapshot 版本漂移",
+                destructive=False,
+                status="failed",
+                detail=f"写入 PM_SESSION 失败: {e}",
+            )
+            return
+
+        result.add(
+            item="Spec Snapshot",
+            action="更新 Spec Snapshot 版本号",
+            destructive=False,
+            status="fixed",
+            detail=f"更新 {len(drifts)} 条规范版本: {drift_summary}",
         )
 
     def _repair_prd_dir(
@@ -471,9 +658,7 @@ class PlcRepairer:
             )
 
     @staticmethod
-    def _update_references(
-        prd_path: str, old_name: str, new_name: str
-    ) -> list[str]:
+    def _update_references(prd_path: str, old_name: str, new_name: str) -> list[str]:
         """更新 PRD 目录内其他文档中对旧文件名的引用"""
         updates: list[str] = []
         try:
@@ -498,14 +683,20 @@ class PlcRepairer:
     # ── 最小模板 ──────────────────────────────────────────
 
     @staticmethod
-    def _minimal_plc_json(project_id: str, project_name: str, plc_json_path: str = "") -> str:
+    def _minimal_plc_json(
+        project_id: str,
+        project_name: str,
+        plc_json_path: str = "",
+        version: str = "V1.0.0",
+    ) -> str:
         """生成最小 .plc.json 内容
 
         Args:
             project_id: 项目ID
-            project_name: 项目名称
+            project_name: 项目名称（或描述）
             plc_json_path: .plc.json 文件所在路径，用于动态计算 libraries 相对路径。
                           空字符串时默认使用根级项目路径（../01_SharedLibraries/SysLib）。
+            version: 项目版本（V0.2.1-P2-9: 从 .copier-answers.yml 同步）
         """
         # 动态计算 libraries 路径
         if not plc_json_path:
@@ -528,16 +719,19 @@ class PlcRepairer:
                 # 根级：.plc.json 在项目根
                 libraries_path = "../01_SharedLibraries/SysLib"
 
-        return json.dumps(
-            {
-                "name": project_id,
-                "description": project_name,
-                "version": "V1.0.0",
-                "libraries": [libraries_path],
-            },
-            indent=2,
-            ensure_ascii=False,
-        ) + "\n"
+        return (
+            json.dumps(
+                {
+                    "name": project_id,
+                    "description": project_name,
+                    "version": version,
+                    "libraries": [libraries_path],
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
     @staticmethod
     def _minimal_pm_session(project_id: str, project_name: str, project_root: str) -> str:

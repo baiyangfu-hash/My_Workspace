@@ -15,6 +15,12 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
 
 
 @pytest.fixture
+def tests_dir() -> Path:
+    """返回 tests/ 目录路径（供元测试扫描测试文件用）。"""
+    return Path(__file__).parent
+
+
+@pytest.fixture
 def tmp_workspace(tmp_path: Path) -> Path:
     """创建临时工作空间，含一个模拟 PLC 项目（对齐 LSP-907 标准目录结构）"""
     project_dir = tmp_path / "DJ-2026-TEST_测试项目"

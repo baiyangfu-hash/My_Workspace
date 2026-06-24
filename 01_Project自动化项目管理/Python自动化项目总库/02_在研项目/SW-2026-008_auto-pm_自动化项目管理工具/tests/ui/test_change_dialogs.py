@@ -11,13 +11,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QDialogButtonBox  # noqa: E402
+from PySide6.QtWidgets import QApplication, QDialogButtonBox, QMessageBox  # noqa: E402
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
 from auto_pm.change.models import (  # noqa: E402
@@ -56,10 +57,37 @@ def change_workspace(tmp_path: Path) -> Path:
         "project_id: TEST-2026-001\n"
         "project_name: 测试项目\n"
         "version: V1.0.0\n"
-        "_src_path: templates/python-tool\n",
+        "_src_path: templates/python-tool\n"
+        "business_line: SW\n",
         encoding="utf-8",
     )
     return tmp_path
+
+
+@pytest.fixture(autouse=True)
+def _patch_message_boxes() -> None:
+    """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试
+
+    CreateChangeDialog._load_projects 在加载失败时会调用 QMessageBox.critical，
+    TransitionDialog 也可能触发 warning/information，这些模态对话框在 offscreen
+    模式下会阻塞事件循环导致测试超时。
+    使用直接赋值（monkeypatch.setattr 对 PySide6 C++ 静态方法无效）。
+    """
+    orig_critical = QMessageBox.critical
+    orig_warning = QMessageBox.warning
+    orig_information = QMessageBox.information
+    orig_question = QMessageBox.question
+    QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
+    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+        lambda *a, **kw: QMessageBox.StandardButton.Yes
+    )
+    yield
+    QMessageBox.critical = orig_critical  # type: ignore[assignment]
+    QMessageBox.warning = orig_warning  # type: ignore[assignment]
+    QMessageBox.information = orig_information  # type: ignore[assignment]
+    QMessageBox.question = orig_question  # type: ignore[assignment]
 
 
 # ── CreateChangeDialog 测试 ──────────────────────────────

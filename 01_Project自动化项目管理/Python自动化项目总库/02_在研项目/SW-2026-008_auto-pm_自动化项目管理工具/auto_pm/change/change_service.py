@@ -30,7 +30,7 @@ from auto_pm.change.models import (
     validate_urgency,
 )
 from auto_pm.change.parser import ChgParser
-from auto_pm.change.path_resolver import find_ledger_file
+from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository
 from auto_pm.logging.logging import setup_logger as get_logger
@@ -152,14 +152,15 @@ class ChangeService:
         log.info("变更单文件已保存: %s", file_path)
 
         # 更新台帐
-        ledger_path = find_ledger_file(project_path)
+        # V0.2.1-P2-8: 台帐文件不存在时自动创建（含变更单索引表格骨架）
+        ledger_path = get_or_create_ledger_file(project_path)
         if ledger_path:
             self._get_ledger_updater().update(
                 ledger_path, change_number, background[:50]
             )
             log.info("台帐已更新: %s", ledger_path)
         else:
-            log.warning("台帐文件未找到，跳过更新: %s", project_path)
+            log.warning("台帐文件创建失败，跳过更新: %s", project_path)
 
         return cr
 

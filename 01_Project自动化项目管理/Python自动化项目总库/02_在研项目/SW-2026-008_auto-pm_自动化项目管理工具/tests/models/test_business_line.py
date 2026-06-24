@@ -57,13 +57,15 @@ class TestExtractBusinessLine:
         """2位字母前缀（最小长度）"""
         assert extract_business_line("SW-2026-008") == "SW"
 
-    def test_three_letter_prefix(self) -> None:
-        """3位字母前缀"""
-        assert extract_business_line("ABC-2026-001") == "ABC"
+    def test_three_letter_prefix_non_business(self) -> None:
+        """3位字母前缀但非合法业务线（如 ABC）应返回空字符串"""
+        # ABC 不是合法业务线（SW/DJ/ZD/XT/WX），返回空
+        assert extract_business_line("ABC-2026-001") == ""
 
-    def test_four_letter_prefix(self) -> None:
-        """4位字母前缀（最大长度）"""
-        assert extract_business_line("ABCD-2026-001") == "ABCD"
+    def test_four_letter_prefix_non_business(self) -> None:
+        """4位字母前缀但非合法业务线（如 ABCD）应返回空字符串"""
+        # ABCD 不是合法业务线，返回空
+        assert extract_business_line("ABCD-2026-001") == ""
 
     def test_five_letter_prefix_truncated(self) -> None:
         """5位字母前缀：正则 {2,4} 不匹配5位，返回空"""

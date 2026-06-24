@@ -142,7 +142,7 @@ class OverviewTab(QWidget):
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
 
         container = QWidget()
         self._container_layout = QVBoxLayout(container)
@@ -244,9 +244,9 @@ class OverviewTab(QWidget):
             value = QLabel(value_text)
             value.setObjectName("fieldValueLink" if is_link else "fieldValue")
             value.setWordWrap(True)
-            value.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             if is_link and project.path and os.path.isdir(project.path):
-                value.setCursor(Qt.PointingHandCursor)
+                value.setCursor(Qt.CursorShape.PointingHandCursor)
                 value.mousePressEvent = self._make_open_dir_handler(project.path)  # type: ignore[method-assign]
             self._meta_grid.addWidget(value, row_idx, 1)
 

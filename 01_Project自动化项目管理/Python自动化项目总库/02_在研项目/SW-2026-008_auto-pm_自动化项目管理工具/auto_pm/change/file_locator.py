@@ -10,6 +10,8 @@
 ChangeService 通过组合方式使用本模块，保持向后兼容。
 
 M3-Iter6：路径常量统一到 auto_pm.core.paths，消除硬编码。
+V0.2.1-P1-6：find_change_file/scan_all_change_files 改为递归识别项目目录，
+              避免找到非项目目录（如 0100_PLC自动化/00_项目管理/）下的残留文件。
 """
 
 from __future__ import annotations
@@ -55,24 +57,83 @@ class ChangeFileLocator:
 
         项目目录命名约定为 ``{project_id}_{project_name}``（见 cmd_create），
         因此优先按 ``{project_id}_`` 前缀匹配；同时保留精确匹配以向后兼容。
+
+        V0.2.1-P2-3: 递归搜索工作空间子目录。项目可能创建在技术栈子目录下
+        （如 0100_PLC自动化/ 或 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/），
+        仅搜索 workspace_root 一层会找不到这些项目。
         """
         # 1. 精确匹配（向后兼容：目录名 == project_id）
         candidate = os.path.join(self.workspace_root, project_id)
         if os.path.isdir(candidate):
             return candidate
 
-        # 2. 前缀匹配: {project_id}_{project_name}
         if not os.path.isdir(self.workspace_root):
             return None
+
         prefix = project_id + "_"
+
+        # 2. 工作空间根目录直接匹配
         try:
             for name in os.listdir(self.workspace_root):
-                if name.startswith(prefix) and os.path.isdir(
-                    os.path.join(self.workspace_root, name)
-                ):
-                    return os.path.join(self.workspace_root, name)
+                full_path = os.path.join(self.workspace_root, name)
+                if (name == project_id or name.startswith(prefix)) and os.path.isdir(full_path):
+                    return full_path
         except OSError:
             pass
+
+        # V0.2.1-P2-3: 3. 递归搜索子目录（项目可能在技术栈子目录下）
+        return self._recursive_find_project_dir(
+            self.workspace_root, project_id, prefix, depth=0, max_depth=4
+        )
+
+    def _recursive_find_project_dir(
+        self,
+        current_dir: str,
+        project_id: str,
+        prefix: str,
+        depth: int,
+        max_depth: int,
+    ) -> Optional[str]:
+        """递归搜索项目目录
+
+        策略：
+        1. 遍历当前目录的子目录
+        2. 若子目录名匹配 project_id 或前缀，返回该目录
+        3. 若子目录不是项目目录，递归搜索
+        4. 若子目录是项目目录（但不匹配），跳过（不递归进入其他项目）
+        """
+        if depth > max_depth:
+            return None
+
+        try:
+            entries = os.listdir(current_dir)
+        except OSError:
+            return None
+
+        # 跳过隐藏目录和 Python 缓存目录
+        filtered = [
+            e for e in entries
+            if not e.startswith(".") and not e.startswith("__")
+        ]
+
+        for entry in filtered:
+            entry_path = os.path.join(current_dir, entry)
+            if not os.path.isdir(entry_path):
+                continue
+
+            # 检查是否是目标项目目录
+            if entry == project_id or entry.startswith(prefix):
+                return entry_path
+
+            # 若不是项目目录，递归搜索
+            # 使用与 ProjectScanner 相同的标志判断是否为项目目录
+            if not self._is_project_dir(entry_path):
+                result = self._recursive_find_project_dir(
+                    entry_path, project_id, prefix, depth + 1, max_depth
+                )
+                if result:
+                    return result
+
         return None
 
     def generate_change_number(self, project_path: str, domain: str) -> str:
@@ -127,58 +188,157 @@ class ChangeFileLocator:
     def find_change_file(self, change_number: str) -> Optional[str]:
         """根据变更编号查找文件
 
-        遍历工作空间下的项目，按 PLC / Python 两套路径约定搜索。
+        递归遍历工作空间下的项目目录，按 PLC / Python 两套路径约定搜索。
+
+        识别项目目录的标志（与 ProjectScanner 对齐）：
+        - .copier-answers.yml
+        - .plc.json
+        - PM_SESSION_*.md
+
+        非项目目录（如 0100_PLC自动化/00_项目管理/）会被跳过，
+        避免找到残留的空变更单文件。
         """
         domain = extract_domain_from_change_number(change_number)
         if not domain:
             log.warning("查找变更单: 无法从编号提取领域 %s", change_number)
             return None
 
-        # 遍历工作空间下的项目查找
         if not os.path.isdir(self.workspace_root):
             log.warning("查找变更单: 工作空间目录不存在 %s", self.workspace_root)
             return None
 
-        for name in os.listdir(self.workspace_root):
-            project_path = os.path.join(self.workspace_root, name)
-            if not os.path.isdir(project_path):
-                continue
-            # 按优先级搜索 PLC / Python 两套路径
+        # 递归遍历工作空间，只在项目目录内搜索变更单文件
+        return self._recursive_find_change_file(
+            self.workspace_root, change_number, domain, depth=0, max_depth=5
+        )
+
+    def _is_project_dir(self, dir_path: str) -> bool:
+        """判断目录是否为项目目录（与 ProjectScanner 标志对齐）
+
+        项目目录标志：
+        - .copier-answers.yml（Copier 模板生成的项目）
+        - .plc.json（PLC 项目）
+        - PM_SESSION_*.md（PM 会话记录）
+        """
+        if os.path.isfile(os.path.join(dir_path, ".copier-answers.yml")):
+            return True
+        if os.path.isfile(os.path.join(dir_path, ".plc.json")):
+            return True
+        try:
+            for entry in os.listdir(dir_path):
+                if entry.startswith("PM_SESSION_") and entry.endswith(".md"):
+                    return True
+        except OSError:
+            pass
+        return False
+
+    def _recursive_find_change_file(
+        self,
+        current_dir: str,
+        change_number: str,
+        domain: str,
+        depth: int,
+        max_depth: int,
+    ) -> Optional[str]:
+        """递归查找变更单文件
+
+        策略：
+        1. 进入目录后先判断是否为项目目录
+        2. 若是项目目录，按 PLC/Python 两套路径约定搜索变更单文件
+        3. 若不是项目目录，继续递归子目录
+        """
+        if depth > max_depth:
+            return None
+
+        try:
+            entries = os.listdir(current_dir)
+        except OSError:
+            return None
+
+        # 跳过隐藏目录和 Python 缓存目录
+        filtered_entries = [
+            e for e in entries
+            if not e.startswith(".") and not e.startswith("__")
+        ]
+
+        # 若是项目目录，按路径约定搜索变更单文件
+        if self._is_project_dir(current_dir):
             for rel_path in self.CHANGE_FILE_SEARCH_PATHS:
                 candidate = os.path.join(
-                    project_path,
+                    current_dir,
                     rel_path,
                     f"CHG-{domain}",
                     f"{change_number}.md",
                 )
                 if os.path.isfile(candidate):
                     return candidate
+            # 项目目录内不再递归（变更单应放在项目根的标准路径下）
+            return None
+
+        # 非项目目录：递归子目录
+        for entry in filtered_entries:
+            entry_path = os.path.join(current_dir, entry)
+            if not os.path.isdir(entry_path):
+                continue
+            result = self._recursive_find_change_file(
+                entry_path, change_number, domain, depth + 1, max_depth
+            )
+            if result:
+                return result
 
         return None
 
     def scan_all_change_files(self) -> list[ChangeSummary]:
         """扫描工作空间所有项目的变更单文件（无 DB 时的回退路径）
 
-        遍历 workspace_root 下的每个项目目录，调用 scan_change_files
+        递归遍历 workspace_root，只在项目目录内调用 scan_change_files
         解析所有 CHG-*.md 文件并转换为 ChangeSummary。
+
+        V0.2.1-P1-6：改为递归识别项目目录，避免扫描非项目目录
+        （如 0100_PLC自动化/00_项目管理/）下的残留文件。
         """
         summaries: list[ChangeSummary] = []
         if not os.path.isdir(self.workspace_root):
             return summaries
 
-        try:
-            entries = os.listdir(self.workspace_root)
-        except OSError:
-            return summaries
+        self._recursive_scan_projects(self.workspace_root, summaries, depth=0, max_depth=5)
+        return summaries
 
-        for name in entries:
-            project_path = os.path.join(self.workspace_root, name)
-            if not os.path.isdir(project_path):
-                continue
-            for cf in scan_change_files(project_path):
+    def _recursive_scan_projects(
+        self,
+        current_dir: str,
+        summaries: list[ChangeSummary],
+        depth: int,
+        max_depth: int,
+    ) -> None:
+        """递归扫描项目目录，收集变更单摘要"""
+        if depth > max_depth:
+            return
+
+        try:
+            entries = os.listdir(current_dir)
+        except OSError:
+            return
+
+        filtered_entries = [
+            e for e in entries
+            if not e.startswith(".") and not e.startswith("__")
+        ]
+
+        # 若是项目目录，扫描其变更单文件
+        if self._is_project_dir(current_dir):
+            for cf in scan_change_files(current_dir):
                 try:
                     cr = self._parser.parse(cf)
                     summaries.append(self._parser.to_summary(cr))
                 except Exception as e:
                     log.warning("解析变更单文件失败，跳过: %s: %s", cf, e)
-        return summaries
+            # 项目目录内不再递归
+            return
+
+        # 非项目目录：递归子目录
+        for entry in filtered_entries:
+            entry_path = os.path.join(current_dir, entry)
+            if not os.path.isdir(entry_path):
+                continue
+            self._recursive_scan_projects(entry_path, summaries, depth + 1, max_depth)

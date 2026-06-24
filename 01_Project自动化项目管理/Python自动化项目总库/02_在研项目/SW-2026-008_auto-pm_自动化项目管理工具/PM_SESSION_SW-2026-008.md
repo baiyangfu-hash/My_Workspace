@@ -4,7 +4,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-06-23
+- last_updated: 2026-06-24
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -13,13 +13,14 @@
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V2.0.1 基座补齐 - A(site编码修复)+C(042/016规范对齐) 已完成
-- milestone: V2.0.1
-- acceptance: 042/016 规范与代码 19 项冲突全部修复 + 778 测试通过 ✅ 已达成
+- current_focus: V0.3.0 迭代计划已制定并获批准 - V2.1 变更管理增强（M0 基座清理 + M1 章节结构修正 + M2 持久化 + M3 GUI 增强 + M4 Dogfooding 自身使用 CHG-*.md 变更单流程）
+- milestone: V0.3.0（pyproject）/ V2.1.0（PRD）
+- acceptance: 5 里程碑 21 任务组 85 任务全部完成 + 版本号四端统一（pyproject=0.3.0/CHANGELOG=[0.3.0]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0）+ CHG-SW-2026-008.md 变更单走完完整生命周期（dogfooding）
+- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - V2.0.1 基座补齐: 规范修订已完成，代码实施待启动
+  - 无（V0.2.3 已交付）
 - completed:
   - P1: Copier模板PoC验证通过
   - P2: Click插件架构 + PLC checker/repairer 迁移 + project CRUD Service
@@ -34,25 +35,31 @@
   - 参考项目双重审查: 完成（DJ-2026-000/SysLib/SW-2026-004）
   - 规范全量修订: 完成（042/016/040/906/905/023/907/210/220 + 216/217 新增）
   - 路线图重排: 完成（V2.0.1~V2.5 七版本规划）
+  - V0.2.2 PLC 模块修复: 完成（6 阶段全部交付，C-1~C-6 + H-1~H-10 全部修复）
+  - V0.2.3 规范漂移检测能力补齐: 完成（Spec Snapshot 解析器 + PlcChecker/PlcRepairer 扩展 + 版本号统一 + Trae 规则更新 + 27 个单元测试 + 端到端验证）
 - next_up:
-  - V2.0.1-A: 修复 site 模块 GBK 编码崩溃
-  - V2.0.1-B: plc check 增加文档实质化检查
-  - V2.0.1-C: 042/016/040 规范对齐（已完成规范修订，需同步到 auto-pm 代码）
-  - V2.0.1-D: 906/905/023 PLC 规范矛盾修复（已完成规范修订）
-  - V2.0.1-E: spec_registry.json 同步
+  - V0.3.0 M0: 基座清理（V2.0.1-D 41 个 PLC 规范矛盾代码修复 + V2.0.1-E spec_registry 同步 + list_view mypy + test_project_list flaky + 6 个 UI 测试 QMessageBox 阻塞）
+  - V0.3.0 M1: 变更单章节结构修正（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
+  - V0.3.0 M2: 影响分析与审批记录持久化（DB schema 扩展 + Repository + Service 集成 + parser 增强）
+  - V0.3.0 M3: GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
 - open_questions:
   - 无
 - risks_dependencies:
   - 无
 - spec_compliance:
-  - last_check: 2026-06-19
-  - result: 阶段B完成，对齐210规范；ruff check + format 全绿
+  - last_check: 2026-06-24
+  - result: V0.2.3 交付，pyproject=0.2.3、CHANGELOG=[0.2.3]、PRD=V2.0.3、PM_SESSION §2=§8=V0.2.3 四端统一；27 个新增测试全部通过
 
 ## 4. Artifacts Index（文档索引）
 - req: 00_项目基础信息/001_产品需求文档_PRD.md
 - int: 00_项目基础信息/002_接口文档_INT.md
 - dsn: 00_项目基础信息/003_详细设计说明书_DSN.md
 - tec: 00_项目基础信息/004_技术方案文档_TEC.md
+- chg: 00_项目基础信息/005_变更记录_CHG.md
+- tech_debt: 00_项目基础信息/006_技术债评估报告.md
+- spec_v2.1: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
+- spec_v2.0.3: .trae/specs/add-spec-drift-detection/（spec.md + tasks.md + checklist.md）
+- spec_v2.0: .trae/specs/rebuild-auto-pm-v2-unified/（spec.md + tasks.md + checklist.md）
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -63,6 +70,8 @@
   - 2026-06-19 P5完成：SQLite索引缓存(3表) + Pydantic v2模型 + pywebview GUI(项目CRUD+变更单查看+缓存同步)
   - 2026-06-19 文档补充：PRD修订(frontmatter/信息表/变更记录) + README重写 + CHANGELOG创建 + PM_SESSION更新
   - 2026-06-19 V2.0阶段B完成：PySide6主框架搭建（ui包结构13文件 + 主窗口导航 + 多角色适配 + cli/gui.py改PySide6入口）
+  - 2026-06-24 V0.2.3 完成：规范漂移检测能力补齐（Spec Snapshot 解析器 + PlcChecker/PlcRepairer 扩展 + 版本号四端统一 + Trae 规则更新 + 27 个单元测试 + DJ-2026-005 端到端验证）
+  - 2026-06-24 V0.3.0 迭代计划制定：深度代码分析识别 V2.1 路线图 12 项交付物中 3 项已提前完成，剩余 9 项整合为 4 里程碑 17 任务组 79 任务；spec/tasks/checklist 三份文档已创建并获用户批准
 
 ## 6. Implementation Log
 - 2026-06-19 | skill=fullstack-engineer | mode=P2实施
@@ -166,6 +175,28 @@
     - Qt 枚举改用限定形式(Qt.MouseButton.LeftButton 等)使 project_card.py mypy 干净
     - 测试可见性断言用 isVisibleTo(card) 而非 isVisible()（offscreen 模式后者恒 False）
   - risks: 无；list_view.py 既有 mypy/ruff-format 问题(Qt.AlignTop 等)为预存，未在本次范围处理
+- 2026-06-24 | skill=fullstack-engineer | mode=V0.2.3 规范漂移检测能力补齐
+  - goal: 补齐 PlcChecker/PlcRepairer 的规范版本漂移检测与自动修复能力，统一版本号，消除工具能力缺口
+  - changed_files:
+    - auto_pm/plc/spec_snapshot.py（新增：Spec Snapshot 解析器，DriftItem dataclass + parse_spec_snapshot/load_spec_registry/compare_versions 三个函数）
+    - auto_pm/plc/checker.py（新增第 5 项检查 _check_spec_snapshot，major=FAIL/minor/patch=WARN/无漂移=PASS）
+    - auto_pm/plc/repairer.py（新增 _repair_spec_snapshot，正则替换 PM_SESSION Spec Snapshot 表格版本号；dry_run 仅预览）
+    - tests/plc/test_spec_snapshot.py（新增：18 个单元测试）
+    - tests/plc/test_checker_spec_snapshot.py（新增：5 个单元测试）
+    - tests/plc/test_repairer_spec_snapshot.py（新增：4 个单元测试）
+    - pyproject.toml（version 0.2.1 → 0.2.3）
+    - CHANGELOG.md（新增 [0.2.3] 条目）
+    - 00_项目基础信息/001_产品需求文档_PRD.md（V2.0.2 → V2.0.3，新增 V2.0.3 路线图章节）
+    - 00_项目基础信息/005_变更记录_CHG.md（新增：V2.0.3 变更记录文件）
+    - .trae/rules/project-rule.md（新增"迭代文档同步规则（强制）"章节）
+    - PM_SESSION_SW-2026-008.md（§2/§3/§5/§6/§8 统一为 V0.2.3）
+  - impact: auto-pm plc check/plc check --fix 具备规范版本漂移检测与自动修复能力；版本号四端统一（pyproject=0.2.3、CHANGELOG=[0.2.3]、PRD=V2.0.3、PM_SESSION §2=§8=V0.2.3）；Trae 规则新增迭代文档同步强制规则
+  - decisions:
+    - 不引入 specmgr 依赖（V2.2 再正式吸收）
+    - 仅更新 PM_SESSION 中的 Spec Snapshot 版本号，不修改源码、不修改 spec_registry.json
+    - 漂移严重级别：major=FAIL，minor/patch=WARN
+    - pyproject 从 0.2.1 跳过 0.2.2 直接升至 0.2.3（0.2.2 已由 V0.2.2 PLC 模块修复迭代记录）
+  - risks: 无；spec_snapshot 解析器容忍 spec_registry.json 的 dict/list 两种 specs 结构和列名变体
 
 ## 7. Verification Log
 - verified:
@@ -197,8 +228,8 @@
 - blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
 
 ## 8. Handoff Notes
-- current_state: V0.2.2 PLC 模块修复与模板重构已完成（6 阶段全部交付）。C-1~C-6（6 项 Critical）+ H-1~H-10（10 项 Major）全部修复；PlcService 作为 CLI/UI 层统一入口；3 套 PLC 模板（plc-shared-library/plc-test-suite/plc-standard-project）+ core/constants.py 模板映射；SubstanceChecker 字数/章节/占位符检查语义修正；PlcChecker libraries 深度校验；retrofit 对 PLC 项目自动补全标志文件；CLI 测试 4→19 + 端到端测试 3 + 模板测试 5。INT V2.0.2 + DSN V2.0.2 + CHANGELOG V0.2.2 文档已同步。
-- next_focus: V2.0.1 剩余（D: PLC 规范矛盾代码修复 41 片段、E: spec_registry 同步）+ 既有预存问题（list_view mypy/test_project_list flaky）
+- current_state: V0.2.3 规范漂移检测能力补齐已完成。新增 auto_pm/plc/spec_snapshot.py（Spec Snapshot 解析器 + DriftItem + parse/load/compare 三函数）；PlcChecker 新增第 5 项 Spec Snapshot 检查（major=FAIL/minor/patch=WARN/无漂移=PASS）；PlcRepairer 新增 _repair_spec_snapshot（正则替换 PM_SESSION 版本号，dry_run 仅预览）；27 个新增单元测试全部通过；DJ-2026-005 端到端验证（检测 7 条漂移 + --fix 后 PASS + --all 7 项目无崩溃）。版本号四端统一：pyproject=0.2.3、CHANGELOG=[0.2.3]、PRD=V2.0.3、PM_SESSION §2=§8=V0.2.3。新增 005_变更记录_CHG.md；.trae/rules/project-rule.md 新增"迭代文档同步规则（强制）"章节。**技术债评估完成**：19 项技术债已识别并写入 006_技术债评估报告.md，建立 Quadrant 优先级矩阵。
+- next_focus: V0.3.0 M0 基座清理——按技术债偿还计划批次1-5 执行（TD-T01/T02/T04/C01/C02/C03/T03），目标 1019 测试全绿 + ruff 0 errors + mypy <50 errors
 - watchouts:
   - 旧 auto_pm/gui/（pywebview）保留，阶段F才清理，勿提前删除
   - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB；PLC 相关操作必须通过 PlcService（不直接访问 PlcChecker/PlcRepairer/SubstanceChecker）
@@ -211,10 +242,23 @@
   - V0.2.2 模板映射：STACK_TEMPLATE_MAP["plc"]="plc-standard-project"（原 plc-standard 已重命名）；--mode 仅 --stack=plc 时有效，默认 standard-project
   - SubstanceChecker 字数阈值：中文 ≥ 800 字符 或 英文 ≥ 1000 词，任一达标即 PASS（非"且"关系）
   - 占位符密度分级：> 70% FAIL，30-70% WARN，≤ 30% PASS（基于占位符出现次数/非空行数）
-- read_first: PM_SESSION §6 实施日志(2026-06-23 V0.2.2 条目), auto_pm/plc/service.py, auto_pm/plc/substance_checker.py, auto_pm/plc/checker.py, auto_pm/core/constants.py, auto_pm/cli/plc/__init__.py
+  - V0.2.3 Spec Snapshot 漂移检测：仅对比 PM_SESSION Spec Snapshot 表格与 spec_registry.json 的版本号，不修改源码、不修改 spec_registry.json；major=FAIL，minor/patch=WARN
+  - V0.2.3 Spec Snapshot 修复：仅更新 PM_SESSION 中 Spec Snapshot 表格的版本号列，dry_run 模式仅输出预览不修改文件
+  - V0.2.3 spec_snapshot 解析器容忍 spec_registry.json 的 dict/list 两种 specs 结构和列名变体（"规范编号"/"spec_id"等）
+  - V0.2.3 版本号映射：pyproject 0.2.3 ↔ PRD V2.0.3 ↔ PM_SESSION V0.2.3（产品版本 0.2.x 系列，x=3 表示第三个增量）
+  - **技术债警告**：13 个 fixture 缺项目标志文件（TD-T03）可能导致假通过/假失败；4 处条件断言（TD-T04）掩盖真实问题；mypy 99 errors（TD-TA01）类型安全缺失
+- read_first: PM_SESSION §6 实施日志(2026-06-24 V0.2.3 条目), auto_pm/plc/spec_snapshot.py, auto_pm/plc/checker.py(_check_spec_snapshot), auto_pm/plc/repairer.py(_repair_spec_snapshot), .trae/specs/add-spec-drift-detection/spec.md, 00_项目基础信息/005_变更记录_CHG.md, 00_项目基础信息/006_技术债评估报告.md, .trae/rules/project-rule.md(迭代文档同步规则)
 
 ## 9. Next Actions
-- [precondition: 无] done_when: V2.0.1-D 906/905/023 PLC 规范矛盾代码修复（41个代码片段）
-- [precondition: 无] done_when: V2.0.1-E spec_registry.json 同步
-- [precondition: 无] done_when: 修复 list_view.py 既有 mypy 错误（Qt.AlignTop/AlignCenter 等改限定形式）+ ruff-format 合规
-- [precondition: 无] done_when: 修复 tests/ui/test_project_list.py 的 isVisible() flaky（改用 isVisibleTo(parent)）并纳入 git 跟踪
+- [precondition: 无] done_when: 技术债批次1——TD-T01(模板名)+TD-T06(retrofit路径)+TD-C02(project_type类型)+TD-C03(CheckResult导出)+TD-C01(ruff自动修复) 全部修复（5 项技术债偿还；相关测试通过）
+- [precondition: 批次1完成] done_when: 技术债批次2——TD-T02(UI检查项计数12个测试) 全部修复（12 个 UI 测试期望值更新为 7pass/2warn/12fail；按钮数14）
+- [precondition: 无] done_when: 技术债批次3——TD-T03(13个fixture缺标志文件) 全部修复（13 个 fixture 添加 PM_SESSION 标志文件；元测试 0 violations）
+- [precondition: 批次3完成] done_when: 技术债批次4——TD-T04(4处条件断言) 全部修复（4 处 if x is not None 改为 assert x is not None；暴露的真实问题已修复）
+- [precondition: 批次1-4完成] done_when: M0 收尾验证——1019 测试全部通过 + ruff 0 errors + mypy <50 errors + 元测试 0 violations
+- [precondition: M0 完成] done_when: V0.3.0 M1 变更单章节结构修正完成（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
+- [precondition: M1 完成] done_when: V0.3.0 M2 影响分析与审批记录持久化完成（DB schema 扩展 + Repository + Service 集成 + parser 增强）
+- [precondition: M1 完成] done_when: V0.3.0 M3 GUI 变更管理增强完成（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
+- [precondition: M0-M3 全部完成] done_when: 版本号四端统一（pyproject=0.3.0/CHANGELOG=[0.3.0]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0）+ 005_变更记录_CHG.md 新增 V2.1.0 条目
+- [precondition: 迭代启动] done_when: M4-1 Dogfooding 创建 CHG-SW-2026-008.md 变更单（使用 auto-pm change create；走 draft→submitted→under_review→approved→implementing 流程；parser 可解析）
+- [precondition: M0-M3 各里程碑完成] done_when: M4-2 Dogfooding 同步实施记录（每个里程碑完成后在 §9 追加条目；状态流转到 pending_acceptance）
+- [precondition: M0-M3 全部完成] done_when: M4-3/M4-4 Dogfooding 验证+归档+台帐（§10 验证记录完整；走 pending_acceptance→accepting→completed→archived；版本变更台帐含 V0.3.0 条目；auto-pm change list/show 可操作）

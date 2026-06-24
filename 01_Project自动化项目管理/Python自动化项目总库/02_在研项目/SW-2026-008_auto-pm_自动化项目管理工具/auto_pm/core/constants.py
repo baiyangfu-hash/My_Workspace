@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Final
 
 # ── 技术栈 → 模板名映射 ───────────────────────────────────
@@ -101,6 +102,27 @@ def get_business_line_label(code: str) -> str:
 def is_valid_business_line(code: str) -> bool:
     """检查业务线编码是否合法"""
     return code in BUSINESS_LINE_CODES
+
+
+# ── 技术栈 → 工作空间子目录映射（V0.2.1-P1-7） ─────────────
+
+#: 技术栈到工作空间子目录的映射（项目应创建在对应技术栈目录下）
+STACK_WORKSPACE_SUBDIR_MAP: Final[dict[str, str]] = {
+    "plc": "0100_PLC自动化",
+    "python": os.path.join("01_Project自动化项目管理", "Python自动化项目总库", "02_在研项目"),
+}
+
+
+def get_workspace_subdir(stack: str) -> str:
+    """根据技术栈获取工作空间子目录
+
+    Args:
+        stack: 技术栈标识 (plc/python)
+
+    Returns:
+        工作空间子目录相对路径，未知技术栈返回空字符串（表示在根目录创建）
+    """
+    return STACK_WORKSPACE_SUBDIR_MAP.get(stack, "")
 
 
 # ── 技术栈选项 ─────────────────────────────────────────────

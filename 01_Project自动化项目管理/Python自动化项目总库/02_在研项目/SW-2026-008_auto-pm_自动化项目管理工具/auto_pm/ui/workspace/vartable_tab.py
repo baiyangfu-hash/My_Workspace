@@ -89,7 +89,7 @@ class VartableTab(QWidget):
         # 表格
         self._table = QTableWidget(0, len(_VARTABLE_COLUMNS))
         self._table.setHorizontalHeaderLabels(_VARTABLE_COLUMNS)
-        self._table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self._table.setAlternatingRowColors(True)
         layout.addWidget(self._table, 1)
 

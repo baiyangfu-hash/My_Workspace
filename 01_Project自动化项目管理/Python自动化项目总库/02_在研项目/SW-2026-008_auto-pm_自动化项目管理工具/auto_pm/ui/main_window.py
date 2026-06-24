@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
     def _build_sidebar(self) -> None:
         self._nav_tree = NavigationTree()
 
-        self._splitter = QSplitter(Qt.Horizontal)
+        self._splitter = QSplitter(Qt.Orientation.Horizontal)
         self._splitter.addWidget(self._nav_tree)
 
     def _build_central(self) -> None:

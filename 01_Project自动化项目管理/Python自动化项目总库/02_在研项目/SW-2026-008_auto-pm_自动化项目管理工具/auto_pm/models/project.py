@@ -15,6 +15,9 @@ from auto_pm.models.enums import ProjectPhase, ProjectSource, Stack
 # 业务线类型（"" 表示未设置）
 BusinessLine = Literal["SW", "DJ", "ZD", "XT", "WX", ""]
 
+# 合法业务线前缀集合（与 BusinessLine 保持一致）
+_VALID_BUSINESS_LINES = frozenset({"SW", "DJ", "ZD", "XT", "WX"})
+
 # 项目编号正则：SW-2026-001, DJ-2026-010 等格式（前缀 2-4 位大写字母）
 _PROJECT_ID_RE = re.compile(r"^([A-Z]{2,4})-\d{4}-\d{3}")
 
@@ -23,12 +26,17 @@ def extract_business_line(project_id: str) -> str:
     """从项目编号提取业务线前缀（如 SW-2026-008 → SW）
 
     业务线编码：SW=软件 / DJ=单机 / ZD=整线 / XT=升级 / WX=维保。
-    无法识别时返回空字符串。
+    无法识别或前缀非合法业务线时返回空字符串。
+
+    注意：只返回 SW/DJ/ZD/XT/WX 五个合法业务线前缀，其他 2-4 位字母前缀
+    （如 TEST/ABC/ABCD）一律返回空字符串，以保证与 BusinessLine 类型一致。
     """
     if not project_id:
         return ""
     m = _PROJECT_ID_RE.match(project_id)
-    return m.group(1) if m else ""
+    if m and m.group(1) in _VALID_BUSINESS_LINES:
+        return m.group(1)
+    return ""
 
 
 class Project(BaseModel):

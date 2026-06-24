@@ -5,6 +5,29 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.3] - 2026-06-24
+
+### Added - V2.0.3: 规范漂移检测能力补齐
+- auto_pm/plc/spec_snapshot.py（新增：Spec Snapshot 解析器，提供 `parse_spec_snapshot`/`load_spec_registry`/`compare_versions` 三个函数 + `DriftItem` dataclass，正则解析 PM_SESSION 中的 Spec Snapshot 表格，对比 spec_registry.json，判定 major/minor/patch 漂移级别）
+- auto_pm/plc/checker.py（新增第 5 项检查 `Spec Snapshot`：在 PM_SESSION 检查通过后调用 `_check_spec_snapshot`，major 漂移=FAIL，minor/patch 漂移=WARN，无漂移=PASS；边界处理：PM_SESSION 缺失跳过、registry 缺失 WARN、Spec Snapshot 表格缺失 WARN）
+- auto_pm/plc/repairer.py（新增 Spec Snapshot 自动修复：在 PM_SESSION 修复后调用 `_repair_spec_snapshot`，从 spec_registry.json 读取最新版本，正则替换 PM_SESSION 中 Spec Snapshot 表格的版本号列；dry_run 模式仅输出预览不修改文件）
+- tests/plc/test_spec_snapshot.py（新增：18 个单元测试，覆盖标准表格解析/非标准格式/registry 加载/版本对比）
+- tests/plc/test_checker_spec_snapshot.py（新增：5 个单元测试，覆盖无漂移 PASS/主版本 FAIL/次版本 WARN/Spec Snapshot 缺失 WARN/registry 缺失 WARN）
+- tests/plc/test_repairer_spec_snapshot.py（新增：4 个单元测试，覆盖自动修复/dry-run 预览/无漂移跳过/Spec Snapshot 缺失跳过）
+
+### Changed - V2.0.3: 版本号统一
+- pyproject.toml version 0.2.1 → 0.2.3（跳过 0.2.2，因 CHANGELOG 已记录；与 CHANGELOG 最新条目一致）
+- PRD 文档版本 V2.0.2 → V2.0.3（新增 V2.0.3 路线图章节）
+- PM_SESSION §2 Current Focus 与 §8 Handoff Notes 版本号统一为 V0.2.3（原 §2=V2.0.1、§8=V0.2.2 矛盾）
+
+### Added - V2.0.3: 文档同步
+- 00_项目基础信息/005_变更记录_CHG.md（新增：V2.0.3 变更记录文件，记录本次迭代所有变更条目）
+- .trae/rules/project-rule.md（新增"迭代文档同步规则（强制）"章节：进度基线强制/迭代后同步/版本号一致性/里程碑核查/变更记录 5 条强制规则）
+
+### Fixed - V2.0.3: 工具能力缺口
+- 修复 auto-pm `plc check` 无法检测规范版本漂移的问题（原仅检查项目结构，不对比 PM_SESSION Spec Snapshot 与 spec_registry.json）
+- 修复 auto-pm `plc check --fix` 无法自动修复规范版本漂移的问题（原仅修复项目结构问题，不更新 Spec Snapshot 版本号）
+
 ## [0.2.2] - 2026-06-23
 
 ### Added - V0.2.2 Phase 3: P1 模板重构（3 套 PLC 模板）

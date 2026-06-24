@@ -53,7 +53,8 @@ def change_workspace(tmp_path: Path) -> Path:
         "project_id: TEST-2026-001\n"
         "project_name: 测试项目\n"
         "version: V1.0.0\n"
-        "_src_path: templates/python-tool\n",
+        "_src_path: templates/python-tool\n"
+        "business_line: SW\n",
         encoding="utf-8",
     )
     return tmp_path

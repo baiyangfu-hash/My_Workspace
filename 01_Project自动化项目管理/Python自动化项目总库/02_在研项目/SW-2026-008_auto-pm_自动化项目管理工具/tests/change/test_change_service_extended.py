@@ -104,6 +104,10 @@ def _make_summary(
 def _create_chg_file(workspace: str, change_number: str, domain: str, content: str) -> str:
     """在工作空间中创建变更单文件，返回文件路径"""
     project_path = os.path.join(workspace, "TEST-2026-001")
+    # 创建项目标志文件，使 ChangeFileLocator._is_project_dir 识别为项目目录
+    os.makedirs(project_path, exist_ok=True)
+    with open(os.path.join(project_path, "PM_SESSION_TEST-2026-001.md"), "w", encoding="utf-8") as f:
+        f.write("# PM_SESSION\n")
     chg_dir = os.path.join(
         project_path, "00_项目管理", "04_变更管理", "01_变更单", f"CHG-{domain}"
     )

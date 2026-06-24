@@ -21,13 +21,13 @@ class ProjectModel(QAbstractListModel):
     """
 
     # 自定义数据角色
-    ProjectRole = Qt.UserRole + 1  # 完整 ProjectInfo 对象
-    IdRole = Qt.UserRole + 2
-    NameRole = Qt.UserRole + 3
-    StackRole = Qt.UserRole + 4
-    PhaseRole = Qt.UserRole + 5
-    VersionRole = Qt.UserRole + 6
-    PathRole = Qt.UserRole + 7
+    ProjectRole = Qt.ItemDataRole.UserRole + 1  # 完整 ProjectInfo 对象
+    IdRole = Qt.ItemDataRole.UserRole + 2
+    NameRole = Qt.ItemDataRole.UserRole + 3
+    StackRole = Qt.ItemDataRole.UserRole + 4
+    PhaseRole = Qt.ItemDataRole.UserRole + 5
+    VersionRole = Qt.ItemDataRole.UserRole + 6
+    PathRole = Qt.ItemDataRole.UserRole + 7
 
     def __init__(self, projects: list[ProjectInfo] | None = None) -> None:
         super().__init__()
@@ -40,13 +40,13 @@ class ProjectModel(QAbstractListModel):
             return 0
         return len(self._projects)
 
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> Any:
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if not index.isValid() or not (0 <= index.row() < len(self._projects)):
             return None
         proj = self._projects[index.row()]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return proj.name
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             return f"{proj.project_id} | {proj.stack} | {proj.path}"
         if role == self.ProjectRole:
             return proj

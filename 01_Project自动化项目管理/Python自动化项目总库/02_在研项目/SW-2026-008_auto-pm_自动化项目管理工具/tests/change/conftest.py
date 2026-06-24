@@ -90,6 +90,9 @@ def workspace_root(tmp_dir: str) -> str:
     project_path = os.path.join(tmp_dir, project_id)
     # 创建项目目录
     os.makedirs(project_path, exist_ok=True)
+    # 创建项目标志文件，使 ChangeFileLocator._is_project_dir 识别为项目目录
+    with open(os.path.join(project_path, f"PM_SESSION_{project_id}.md"), "w", encoding="utf-8") as f:
+        f.write("# PM_SESSION\n")
     # 创建变更单目录
     chg_dir = os.path.join(
         project_path, "00_项目管理", "04_变更管理", "01_变更单", "CHG-DOCU"

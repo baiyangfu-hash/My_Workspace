@@ -22,7 +22,7 @@ from rich.table import Table
 from yaml import dump as yaml_dump
 
 from auto_pm.app_context import AppContext
-from auto_pm.core.constants import get_template_name
+from auto_pm.core.constants import get_template_name, get_workspace_subdir
 from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.project_service import ProjectService
 from auto_pm.core.template_service import TemplateService
@@ -153,6 +153,12 @@ def cmd_list(
     default="standard-project",
     help="PLC 项目模式（仅 --stack=plc 时有效）",
 )
+@click.option(
+    "--library-name",
+    "library_name",
+    default=None,
+    help="共享库名称（仅 --mode=shared-library 时有效，默认从项目名称推断）",
+)
 @click.option("--dry-run", is_flag=True, help="仅预览，不实际创建")
 @click.pass_context
 def cmd_create(
@@ -163,13 +169,16 @@ def cmd_create(
     description: str,
     business_line: str | None,
     mode: str,
+    library_name: str | None,
     dry_run: bool,
 ) -> None:
     """创建新项目（调用 Copier 模板生成骨架）"""
     app_ctx: AppContext = ctx.obj
 
-    # 业务线校验：若指定 --business-line，检查与项目编号前缀是否一致
-    if business_line is not None:
+    # 业务线推断：未指定时从项目编号前缀提取
+    if business_line is None:
+        business_line = project_id.split("-", 1)[0] if "-" in project_id else ""
+    else:
         inferred = project_id.split("-", 1)[0] if "-" in project_id else ""
         if inferred != business_line:
             console.print(
@@ -179,36 +188,79 @@ def cmd_create(
     # 根据技术栈选择模板（M3-Iter7: 统一从 core.constants 读取；H-2: 支持 mode 参数）
     template_name = get_template_name(stack, mode if stack == "plc" else "")
 
+    # V0.2.1-P1-7: 根据技术栈选择工作空间子目录
+    subdir = get_workspace_subdir(stack)
+    if subdir:
+        dest_root = os.path.join(app_ctx.workspace_root, subdir)
+    else:
+        dest_root = app_ctx.workspace_root
+
     # 目标路径
     project_dir = f"{project_id}_{project_name}"
-    dest_path = os.path.join(app_ctx.workspace_root, project_dir)
+    dest_path = os.path.join(dest_root, project_dir)
 
     if os.path.exists(dest_path):
         console.print(f"[red]错误: 目标路径已存在: {dest_path}[/red]")
         ctx.exit(1)
+
+    # V0.2.1-P1-4: shared-library 模式需要 library_name 参数
+    if stack == "plc" and mode == "shared-library":
+        if library_name is None:
+            # 从项目名称推断：移除空格，首字母大写（如 "系统库" → "系统库"）
+            # 若项目名称是英文则直接使用，否则提示用户指定
+            inferred_lib = project_name.replace(" ", "").replace("_", "")
+            if inferred_lib and inferred_lib[0].isalpha():
+                library_name = inferred_lib
+                console.print(
+                    f"[yellow]提示: shared-library 模式未指定 --library-name，"
+                    f"从项目名称推断为 '{library_name}'[/yellow]"
+                )
+            else:
+                console.print(
+                    f"[red]错误: shared-library 模式需要 --library-name 参数[/red]"
+                )
+                ctx.exit(1)
 
     if dry_run:
         console.print(f"[yellow][DRY-RUN] 将创建项目: {dest_path}[/yellow]")
         console.print(f"  模板: {template_name}")
         console.print(f"  编号: {project_id}")
         console.print(f"  名称: {project_name}")
+        console.print(f"  技术栈: {stack}")
+        console.print(f"  模式: {mode}")
+        console.print(f"  业务线: {business_line}")
+        if library_name:
+            console.print(f"  库名称: {library_name}")
         return
 
     # 调用 Copier 模板
     tpl_svc = TemplateService(app_ctx.templates_dir)
-    data = {
+    # V0.2.1-P1-3: data 字典增加 stack/mode/business_line 字段
+    # V0.2.1-P1-4: shared-library 模式增加 library_name 字段
+    data: dict[str, str] = {
         "project_id": project_id,
         "project_name": project_name,
         "description": description or project_name,
         "version": "V1.0.0",
+        "stack": stack,
+        "mode": mode if stack == "plc" else "",
+        "business_line": business_line,
     }
+    if library_name:
+        data["library_name"] = library_name
 
     try:
+        # 确保目标根目录存在
+        os.makedirs(dest_root, exist_ok=True)
         tpl_svc.copy_template(template_name, dest_path, data)
         console.print(f"[green]项目创建成功: {dest_path}[/green]")
         console.print(f"  项目编号: {project_id}")
         console.print(f"  项目名称: {project_name}")
         console.print(f"  技术栈: {stack}")
+        console.print(f"  模式: {mode if stack == 'plc' else '-'}")
+        console.print(f"  业务线: {business_line}")
+        if library_name:
+            console.print(f"  库名称: {library_name}")
     except FileNotFoundError as e:
         console.print(f"[red]错误: 模板不存在 - {e}[/red]")
         ctx.exit(1)
@@ -238,6 +290,8 @@ def cmd_show(ctx: click.Context, project_id: str, output_json: bool) -> None:
         console.print(f"[cyan]名称:[/cyan]   {proj.name}")
         console.print(f"[cyan]技术栈:[/cyan] {proj.stack}")
         console.print(f"[cyan]版本:[/cyan]   {proj.version}")
+        console.print(f"[cyan]阶段:[/cyan]   {proj.phase or '-'}")
+        console.print(f"[cyan]业务线:[/cyan] {proj.business_line or '-'}")
         console.print(f"[cyan]描述:[/cyan]   {proj.description}")
         console.print(f"[cyan]来源:[/cyan]   {proj.source}")
         console.print(f"[cyan]路径:[/cyan]   {proj.path}")

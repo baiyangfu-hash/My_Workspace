@@ -20,6 +20,7 @@ from rich.table import Table
 from auto_pm.app_context import AppContext
 from auto_pm.core.project_service import ProjectService
 from auto_pm.core.template_service import TemplateService
+from auto_pm.plc.checker import PlcChecker
 from auto_pm.plc.models import CheckResult
 from auto_pm.plc.service import PlcService
 
@@ -209,7 +210,11 @@ def cmd_standardize(
 # ── 输出辅助 ──────────────────────────────────────────────
 
 def _print_check_summary(results: list[CheckResult]) -> None:
-    """打印批量检查摘要"""
+    """打印批量检查摘要
+
+    V0.2.1-P2-4: 项目列使用 project_id（与 project show 一致），
+    而非目录名。
+    """
     table = Table(title=f"PLC 项目检查摘要 ({len(results)} 个)")
     table.add_column("项目", style="cyan")
     table.add_column("类型", style="dim")
@@ -224,7 +229,7 @@ def _print_check_summary(results: list[CheckResult]) -> None:
         if r.all_pass:
             total_pass += 1
         table.add_row(
-            os.path.basename(r.project_path),
+            PlcChecker.resolve_project_id(r.project_path),
             r.project_type,
             str(r.pass_count),
             str(r.warn_count),
@@ -240,9 +245,12 @@ def _print_check_summary(results: list[CheckResult]) -> None:
 
 
 def _print_check_detail(result: CheckResult) -> None:
-    """打印单项目检查详情"""
-    title = f"检查结果: {os.path.basename(result.project_path)}"
-    table = Table(title=title)
+    """打印单项目检查详情
+
+    V0.2.1-P2-4: 标题使用 project_id（与 project show 一致）。
+    """
+    project_id = PlcChecker.resolve_project_id(result.project_path)
+    table = Table(title=f"检查结果: {project_id}")
     table.add_column("检查项", style="cyan")
     table.add_column("状态", style="bold")
     table.add_column("说明", style="white")
@@ -266,8 +274,12 @@ def _print_check_detail(result: CheckResult) -> None:
 
 
 def _print_repair_result(result) -> None:
-    """打印修复结果"""
-    table = Table(title=f"修复结果: {os.path.basename(result.project_path)}")
+    """打印修复结果
+
+    V0.2.1-P2-4: 标题使用 project_id（与 project show 一致）。
+    """
+    project_id = PlcChecker.resolve_project_id(result.project_path)
+    table = Table(title=f"修复结果: {project_id}")
     table.add_column("修复项", style="cyan")
     table.add_column("动作", style="white")
     table.add_column("破坏性", style="dim")

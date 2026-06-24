@@ -228,7 +228,7 @@ class TemplatePage(QWidget):
 
         # 空状态提示
         self._empty_hint = QLabel("暂无可用模板")
-        self._empty_hint.setAlignment(Qt.AlignCenter)
+        self._empty_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._empty_hint.setStyleSheet("color: #999; font-size: 14px;")
         self._empty_hint.setVisible(False)
         layout.addWidget(self._empty_hint)

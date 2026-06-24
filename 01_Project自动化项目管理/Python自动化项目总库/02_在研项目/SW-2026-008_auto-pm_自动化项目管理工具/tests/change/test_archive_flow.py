@@ -123,6 +123,11 @@ def archive_workspace(tmp_path: Path) -> str:
     """临时工作空间，含 completed 状态的变更单"""
     project_id = "TEST-2026-001"
     project_path = tmp_path / project_id
+    project_path.mkdir(parents=True, exist_ok=True)
+    # 创建项目标志文件，使 ChangeFileLocator._is_project_dir 识别为项目目录
+    (project_path / f"PM_SESSION_{project_id}.md").write_text(
+        "# PM_SESSION\n", encoding="utf-8"
+    )
     chg_dir = project_path / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU"
     chg_dir.mkdir(parents=True, exist_ok=True)
     chg_file = chg_dir / "CHG-DOCU-2026-001.md"
@@ -143,6 +148,11 @@ def implementing_workspace(tmp_path: Path) -> str:
     """临时工作空间，含 implementing 状态的变更单"""
     project_id = "TEST-2026-001"
     project_path = tmp_path / project_id
+    project_path.mkdir(parents=True, exist_ok=True)
+    # 创建项目标志文件，使 ChangeFileLocator._is_project_dir 识别为项目目录
+    (project_path / f"PM_SESSION_{project_id}.md").write_text(
+        "# PM_SESSION\n", encoding="utf-8"
+    )
     chg_dir = project_path / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU"
     chg_dir.mkdir(parents=True, exist_ok=True)
     chg_file = chg_dir / "CHG-DOCU-2026-001.md"

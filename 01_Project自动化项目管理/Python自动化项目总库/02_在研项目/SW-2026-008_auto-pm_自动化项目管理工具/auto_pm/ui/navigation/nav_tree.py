@@ -99,7 +99,7 @@ class NavigationTree(QTreeWidget):
                 filter_stack=stack_value,
             )
             stack_item = QTreeWidgetItem(self)
-            stack_item.setData(0, Qt.UserRole, stack_node)
+            stack_item.setData(0, Qt.ItemDataRole.UserRole, stack_node)
             stack_item.setText(0, f"{stack_icon} {stack_label} (0)")
             stack_item.setForeground(0, QColor("#2c3e50"))
 
@@ -112,7 +112,7 @@ class NavigationTree(QTreeWidget):
                     filter_phase=phase_value,
                 )
                 phase_item = QTreeWidgetItem(stack_item)
-                phase_item.setData(0, Qt.UserRole, phase_node)
+                phase_item.setData(0, Qt.ItemDataRole.UserRole, phase_node)
                 phase_item.setText(0, f"{phase_icon} {phase_label} (0)")
                 phase_item.setForeground(0, QColor(phase_color))
                 self._phase_nodes[(stack_value, phase_value)] = phase_item
@@ -123,7 +123,7 @@ class NavigationTree(QTreeWidget):
         # 2. 分隔线（不可选、不可点击）
         sep_item = QTreeWidgetItem(self)
         sep_item.setText(0, "─" * 20)
-        sep_item.setFlags(Qt.NoItemFlags)
+        sep_item.setFlags(Qt.ItemFlag.NoItemFlags)
 
         # 3. 功能节点
         for page_id, label in _FUNCTION_DEFS:
@@ -133,7 +133,7 @@ class NavigationTree(QTreeWidget):
                 page_id=page_id,
             )
             func_item = QTreeWidgetItem(self)
-            func_item.setData(0, Qt.UserRole, func_node)
+            func_item.setData(0, Qt.ItemDataRole.UserRole, func_node)
             func_item.setText(0, label)
             self._function_nodes[page_id] = func_item
 
@@ -184,7 +184,7 @@ class NavigationTree(QTreeWidget):
         - 阶段子节点 → 发射 project_filter_requested(stack, phase)
         - 功能节点 → 发射 page_switch_requested(page_id)
         """
-        node: NavNode | None = item.data(0, Qt.UserRole)
+        node: NavNode | None = item.data(0, Qt.ItemDataRole.UserRole)
         if node is None:
             return
         if node.node_type == "stack":

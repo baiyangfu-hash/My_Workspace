@@ -28,12 +28,12 @@ class TestStackTemplateMap:
 
     def test_stack_template_map(self) -> None:
         """技术栈到模板名的映射"""
-        assert STACK_TEMPLATE_MAP["plc"] == "plc-standard"
+        assert STACK_TEMPLATE_MAP["plc"] == "plc-standard-project"
         assert STACK_TEMPLATE_MAP["python"] == "python-tool"
 
     def test_get_template_name(self) -> None:
         """get_template_name 函数"""
-        assert get_template_name("plc") == "plc-standard"
+        assert get_template_name("plc") == "plc-standard-project"
         assert get_template_name("python") == "python-tool"
         # 未知技术栈返回默认值
         assert get_template_name("unknown") == DEFAULT_TEMPLATE_NAME

@@ -84,15 +84,15 @@ class ProjectTableView(QTableWidget):
     def _build_ui(self) -> None:
         self.setColumnCount(len(_HEADERS))
         self.setHorizontalHeaderLabels(_HEADERS)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setAlternatingRowColors(True)
         self.verticalHeader().setVisible(False)
         self.setSortingEnabled(True)
 
         header = self.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         header.setStretchLastSection(False)
         header.setSectionsClickable(True)
 
@@ -135,7 +135,7 @@ class ProjectTableView(QTableWidget):
             for col in range(len(_HEADERS)):
                 item = self.item(row, col)
                 if item is not None:
-                    item.setData(Qt.UserRole, proj.project_id)
+                    item.setData(Qt.ItemDataRole.UserRole, proj.project_id)
 
         self.setSortingEnabled(True)
         self.resizeColumnsToContents()
@@ -144,9 +144,9 @@ class ProjectTableView(QTableWidget):
         item = QTableWidgetItem(text)
         # 变更数列右对齐并作为数字排序
         if col == _COL_CHANGES:
-            item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             try:
-                item.setData(Qt.EditRole, int(text))
+                item.setData(Qt.ItemDataRole.EditRole, int(text))
             except ValueError:
                 pass
         self.setItem(row, col, item)
