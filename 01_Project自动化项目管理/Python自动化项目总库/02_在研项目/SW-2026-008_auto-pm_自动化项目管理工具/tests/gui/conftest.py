@@ -16,8 +16,9 @@ from pathlib import Path
 
 import pytest
 
-# 必须在导入 PySide6 前设置离屏渲染
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# 必须在导入 PySide6 前设置离屏渲染（GUI_VISIBLE=1 时切换为可见窗口演示模式）
+if not os.environ.get("GUI_VISIBLE"):
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication  # noqa: E402
 

@@ -223,6 +223,12 @@ def get_or_create_ledger_file(project_path: str) -> str | None:
     （00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md），
     含「变更单索引」表格骨架，供 LedgerUpdater 追加记录。
 
+    V0.3.0-M0.5-Phase1: 修复跨栈路径策略。不再固定走 PLC 路径，
+    而是按项目类型标记自动选择：
+    - PLC 项目（有 .plc.json 或 00_项目管理/ 目录）→ PLC 约定路径
+    - Python 项目（有 pyproject.toml 或 01_项目文档/ 目录）→ Python 约定路径
+    - 默认回退 → PLC 约定路径（向后兼容）
+
     Args:
         project_path: 项目根目录
 
@@ -234,8 +240,9 @@ def get_or_create_ledger_file(project_path: str) -> str | None:
     if existing:
         return existing
 
-    # 2. 未找到 → 按 PLC 约定路径创建
-    ledger_dir = os.path.join(project_path, *_LEDGER_SEARCH_PATHS[0])
+    # 2. 未找到 → 按项目类型选择创建路径
+    ledger_rel_path = _detect_ledger_path_for_project(project_path)
+    ledger_dir = os.path.join(project_path, ledger_rel_path)
     ledger_path = os.path.join(ledger_dir, "01_版本变更台帐.md")
 
     try:
@@ -253,6 +260,37 @@ def get_or_create_ledger_file(project_path: str) -> str | None:
         return ledger_path
     except OSError:
         return None
+
+
+def _detect_ledger_path_for_project(project_path: str) -> str:
+    """按项目类型标记检测应使用的台帐路径（V0.3.0-M0.5-Phase1）
+
+    判据优先级：
+    1. 已有目录结构（00_项目管理/ → PLC；01_项目文档/ → Python）
+    2. 标记文件（.plc.json → PLC；pyproject.toml → Python）
+    3. 默认回退 → PLC 约定路径（向后兼容）
+
+    Returns:
+        台帐目录的相对路径（os.path.join 拼接的字符串）
+    """
+    # 判据 1: 已有目录结构
+    plc_dir = os.path.join(project_path, "00_项目管理")
+    python_dir = os.path.join(project_path, "01_项目文档")
+    if os.path.isdir(plc_dir):
+        return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
+    if os.path.isdir(python_dir):
+        return _LEDGER_SEARCH_PATHS[1]  # Python 约定
+
+    # 判据 2: 标记文件
+    has_plc_json = os.path.isfile(os.path.join(project_path, ".plc.json"))
+    has_pyproject = os.path.isfile(os.path.join(project_path, "pyproject.toml"))
+    if has_plc_json and not has_pyproject:
+        return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
+    if has_pyproject and not has_plc_json:
+        return _LEDGER_SEARCH_PATHS[1]  # Python 约定
+
+    # 判据 3: 默认回退（向后兼容）
+    return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
 
 
 def get_project_id_from_path(project_path: str) -> str:

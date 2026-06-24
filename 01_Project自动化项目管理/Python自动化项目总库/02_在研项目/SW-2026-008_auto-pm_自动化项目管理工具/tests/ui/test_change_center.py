@@ -378,8 +378,13 @@ class TestChangeDetailPanel:
         qapp.processEvents()
 
         from PySide6.QtWidgets import QPushButton
-        btns = panel.findChildren(QPushButton)
-        assert len(btns) == 0  # closed 无流转按钮
+        # 只检查流转按钮（M3-1 新增的 editBtn 不属于流转按钮）
+        transition_btns = [
+            btn
+            for btn in panel.findChildren(QPushButton)
+            if btn.objectName() in ("transitionBtn", "rejectBtn")
+        ]
+        assert len(transition_btns) == 0  # closed 无流转按钮
         panel.deleteLater()
         qapp.processEvents()
 

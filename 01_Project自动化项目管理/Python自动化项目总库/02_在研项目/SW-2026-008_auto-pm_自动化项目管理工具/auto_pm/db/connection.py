@@ -66,6 +66,8 @@ class DatabaseManager:
         """删除所有表（仅用于测试/重置）"""
         with self.get_connection() as conn:
             conn.execute("DROP TABLE IF EXISTS scan_log")
+            conn.execute("DROP TABLE IF EXISTS approval_history")
+            conn.execute("DROP TABLE IF EXISTS impact_analysis")
             conn.execute("DROP TABLE IF EXISTS change_requests")
             conn.execute("DROP TABLE IF EXISTS projects")
             conn.commit()

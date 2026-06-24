@@ -5,6 +5,73 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.3.1] - 2026-06-25
+
+### Added - V0.3.0 M2: 影响分析与审批记录持久化
+
+#### M2-1: DB schema 扩展（impact_analysis + approval_history 两张表）
+- auto_pm/db/schema.py（新增 DDL_IMPACT_ANALYSIS 和 DDL_APPROVAL_HISTORY 两张表定义 + approval_history 索引；TABLE_DDL/INDEX_DDL 列表更新）
+- auto_pm/db/connection.py（drop_all 方法新增 DROP TABLE IF EXISTS approval_history/impact_analysis）
+- auto_pm/models/change.py（新增 ImpactAnalysis 和 ApprovalRecord 两个 Pydantic v2 持久化模型）
+- auto_pm/models/__init__.py（导出 ImpactAnalysis 和 ApprovalRecord）
+- auto_pm/db/repository.py（新增 ImpactAnalysisRepository 类：upsert/get_by_change_number/delete；新增 ApprovalHistoryRepository 类：insert/list_by_change/delete_by_change）
+- tests/db/test_repository.py（新增：3 个测试类 19 个测试，覆盖 ImpactAnalysisRepository/ApprovalHistoryRepository/ChangeRequestRepositoryExtension）
+
+#### M2-2: ChangeRequestRepository 扩展（4 个委托方法）
+- auto_pm/db/repository.py（ChangeRequestRepository.__init__ 组合 ImpactAnalysisRepository + ApprovalHistoryRepository；新增 4 个委托方法：save_impact_analysis/get_impact_analysis/save_approval_record/list_approval_history）
+
+#### M2-3: ChangeService 集成（DB 持久化同步）
+- auto_pm/change/change_service.py（__init__ 新增 ProjectRepository 组合，用于满足 change_requests 表外键约束；create_change_request 同步写入 projects + change_requests + impact_analysis；transition_status 同步写入 approval_history；update_change_request 同步更新 impact_analysis）
+- tests/change/test_change_service_db.py（新增：5 个集成测试，覆盖 create/transition/update 的 DB 持久化 + 未注入 DB 向后兼容）
+
+#### M2-4: parser.py 解析增强
+- auto_pm/change/parser.py（新增 to_impact_analysis(cr) 方法，将 ChangeRequest 的 §6 影响分析字段转换为 ImpactAnalysis 持久化模型）
+- tests/change/test_parser.py（新增：test_to_impact_analysis 和 test_to_impact_analysis_empty_fields 2 个测试）
+
+### Changed - V0.3.0 版本号升级
+- pyproject.toml version 0.3.0 → 0.3.1
+
+### Verified - V0.3.0 M2 回归测试
+- 全量测试：1055 passed, 3 warnings（较 M1 的 1029 增加 26 个测试）
+- tests/db/：19 passed（M2-1 + M2-2 新增）
+- tests/change/：含 M2-3 5 个集成测试 + M2-4 2 个解析测试
+
+## [0.3.0] - 2026-06-25
+
+### Added - V0.3.0 M1: 变更单章节结构对齐 040 模板 V2.2.0
+
+#### M1-1: §6.1 风险等级+缓解措施字段（PMBOK 风险评估）
+- auto_pm/models/change.py（新增 risk_level 和 mitigation 字段，PMBOK 风险评估）
+- auto_pm/change/generator.py（新增 _render_risk_level 方法，§6.1 表格下方渲染风险等级和缓解措施）
+- auto_pm/change/parser.py（新增 _parse_risk_level 和 _parse_mitigation 方法）
+- tests/change/test_generator.py（新增 test_section_6_1_fields 和 test_section_6_1_fields_default）
+- tests/change/test_parser.py（新增 test_parse_risk_level_mitigation 和 test_parse_risk_level_none）
+
+#### M1-2: §10 改为三节结构
+- auto_pm/change/generator.py（§10 从 2 节改为 3 节：§10.1 验证项清单 | §10.2 跨领域联动验证 | §10.3 验证结论）
+- auto_pm/change/markdown_editor.py（update_verification_conclusion 适配 §10.3，兼容旧 §10.2；append_to_verification_table docstring 更新）
+- auto_pm/change/parser.py（_extract_verification_conclusion 适配 §10.3；新增 _extract_conclusion_section_text 和 _parse_cross_domain_verification 方法）
+- tests/change/test_generator.py（新增 test_section_10_three_subsections）
+- tests/change/test_markdown_editor.py（新增：3 个测试覆盖三节结构下追加验证项、更新 §10.3 结论、向后兼容旧 §10.2）
+
+#### M1-3: §11 版本详细变更说明 + §12 附录
+- auto_pm/change/generator.py（§11 从"附录"改为"版本详细变更说明"，新增 §12 附录含填写指南和参考资料）
+
+#### M1-4: 文档版本号对齐 040 模板
+- auto_pm/change/generator.py（§1 和文档末尾"文档版本"从 V1.0.0 升级为 V2.1.0，表示基于 V2.1.0 模板生成）
+- tests/change/test_generator.py（新增 test_document_version_aligned_with_template）
+
+#### M1-5: 040 §3.4 变更状态字段定义
+- 040_通用变更单模板_CHG.md（§3.4 新增"变更状态"字段；frontmatter/§1/文档末尾版本号 V2.1.0→V2.2.0；§2 添加 V2.2.0 条目；§11 添加 V2.2.0 详细变更说明）
+
+### Changed - V0.3.0 版本号升级
+- pyproject.toml version 0.2.3 → 0.3.0
+- 040 规范模板版本 V2.1.0 → V2.2.0（§3.4 新增变更状态字段）
+
+### Verified - V0.3.0 M1 回归测试
+- 全量测试：1029 passed, 3 warnings（较 M0.5 的 1019 增加 10 个测试）
+- tests/change/：143 passed（含 M1 新增 10 个测试）
+
 ## [0.2.3] - 2026-06-24
 
 ### Added - V2.0.3: 规范漂移检测能力补齐

@@ -38,13 +38,17 @@ class ChgGenerator:
         nature_lines = self._render_nature_options(cr.business_nature)
         # 紧急程度
         urgency_lines = self._render_urgency(cr.urgency)
+        # M1-1: 风险等级（PMBOK 风险评估）
+        risk_level_lines = self._render_risk_level(cr.risk_level)
+        # M1-1: 缓解措施
+        mitigation_text = cr.mitigation if cr.mitigation else "（待填写）"
 
         content = f"""# 变更单
 
 ## 1. 文档基础信息
 
 **文档标题**：变更单
-**文档版本**：V1.0.0
+**文档版本**：V2.1.0
 **编制日期**：{today}
 **编制人**：{cr.applicant}
 **审核人**：
@@ -121,6 +125,11 @@ class ChgGenerator:
 | **质量(Quality)** | □无 □低 □中 □高 |  |  |
 | **风险(Risk)** | □无 □低 □中 □高 |  |  |
 
+**风险等级**（PMBOK风险评估）：{risk_level_lines}
+
+**缓解措施**（风险应对策略）：
+{mitigation_text}
+
 ### 6.2 技术领域影响（跨领域变更必填！）
 
 | 受影响领域 | 是否受影响 | 具体影响内容 | 涉及交付物 | 关联变更单号 |
@@ -187,17 +196,51 @@ class ChgGenerator:
 |---|--------|----------|----------|----------|------|--------|----------|
 | | | | | | | | |
 
-### 10.2 验证结论
+### 10.2 跨领域联动验证（如有传播链）
+
+| 传播环节 | 关联变更单 | 该环节验证 | 验证人 | 验证日期 |
+|----------|-----------|:---------:|--------|----------|
+| [原始]→[领域A] | CHG-xxx | □通过 □不通过 |  |  |
+| [领域A]→[领域B] | CHG-yyy | □通过 □不通过 |  |  |
+
+### 10.3 验证结论
 | 结论 | □ 全部通过,可关闭 □ 部分不通过,需返工 □ 需补充验证 |
 |------|-------------------------------------------------------|
 
-## 11. 附录
+## 11. 版本详细变更说明
 
-（待填写）
+<a name="v100"></a>
+### V1.0.0 版本详细变更
+1. 变更单创建
+2. 初始版本，记录变更基本信息、原因、内容、影响分析
+
+[↑ 返回版本变更记录](#L13)
+
+## 12. 附录
+
+### 12.1 填写指南
+
+#### 如何选择技术领域?
+- 主要改哪个专业的交付物,就选哪个领域
+- 如果同时涉及多个专业,选**最主要**的那个作为主领域,其他在§6.2中标注
+
+#### 如何判断影响范围?
+- **LOCAL**: 改一个变量/一行代码/一个接线端子
+- **MODULE**: 改一个FB/一条输送线/一台设备
+- **SYSTEM**: 改全局变量/联锁逻辑/通讯接口
+- **CROSS**: 改了电气,PLC和HMI都要跟着改
+- **SAFE**: 动了急停回路/安全继电器/SIL相关
+
+### 12.2 参考资料
+| 资料名称 | 版本 | 来源 |
+|----------|------|------|
+| 通用变更单模板 | V2.1.0 | 00_Obsidian_Base全局规范文件仓库/01_项目管理域/04_变更管理/ |
+| 变更管理流程规范 | V2.2.0 | 本仓库/04_监控和控制/01_变更管理/ |
+| 项目管理知识体系指南(PMBOK) | - | PMI |
 
 ---
 
-**文档版本**：V1.0.0
+**文档版本**：V2.1.0
 **编制日期**：{today}
 **编制人**：{cr.applicant}
 **审核人**：
@@ -249,5 +292,21 @@ class ChgGenerator:
         parts = []
         for code, label in URGENCY_LEVELS.items():
             mark = "☑" if code == urgency else "□"
+            parts.append(f"{mark}{label}")
+        return " ".join(parts)
+
+    def _render_risk_level(self, risk_level: str) -> str:
+        """渲染风险等级（M1-1: PMBOK 风险评估）
+
+        Args:
+            risk_level: none/low/medium/high，空字符串表示未评估
+
+        Returns:
+            ☑/□ 格式的风险等级选项字符串
+        """
+        levels = [("none", "无"), ("low", "低"), ("medium", "中"), ("high", "高")]
+        parts = []
+        for code, label in levels:
+            mark = "☑" if code == risk_level else "□"
             parts.append(f"{mark}{label}")
         return " ".join(parts)

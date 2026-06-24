@@ -67,6 +67,9 @@ class ChangeRequest(BaseModel):
         default_factory=dict,
         description="§6.1 项目约束影响: 维度→影响程度(无/低/中/高)",
     )
+    # M1-1: §6.1 下方独立字段（PMBOK 风险评估）
+    risk_level: str = Field("", description="§6.1 风险等级: none/low/medium/high")
+    mitigation: str = Field("", description="§6.1 缓解措施（风险应对策略）")
     domain_impacts: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
         description="§6.2 技术领域影响: 领域代码→{affected, content, related_chg}",
@@ -101,5 +104,50 @@ class ChangeSummary(BaseModel):
     applicant: str = Field("待补充", description="申请人")
     apply_date: str = Field("待补充", description="申请日期")
     title: str = Field("待补充", description="标题（background 摘要）")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ImpactAnalysis(BaseModel):
+    """变更影响分析持久化模型（M2-1 新增）
+
+    对齐 §6 变更影响分析章节，存储结构化数据供 GUI 传播链视图和影响分析编辑使用。
+    字段对齐 impact_analysis 表。
+    """
+
+    change_number: str = Field("", description="变更编号（主键）")
+    risk_level: str = Field("", description="§6.1 风险等级: none/low/medium/high")
+    mitigation: str = Field("", description="§6.1 缓解措施")
+    constraint_impacts: dict[str, str] = Field(
+        default_factory=dict,
+        description="§6.1 项目约束影响: 维度→影响程度(无/低/中/高)",
+    )
+    domain_impacts: dict[str, dict[str, Any]] = Field(
+        default_factory=dict,
+        description="§6.2 技术领域影响: 领域代码→{affected, content, related_chg}",
+    )
+    propagation_chain: str = Field("", description="§6.3 变更传播链路径描述")
+    related_changes: list[str] = Field(
+        default_factory=list,
+        description="§6.3 关联变更单编号清单",
+    )
+    updated_at: str = Field("", description="最后更新时间（ISO 格式）")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ApprovalRecord(BaseModel):
+    """审批流转历史记录（M2-1 新增）
+
+    每次 transition_status 流转追加一条记录。对齐 approval_history 表。
+    """
+
+    id: int = Field(0, description="记录 ID（自增，新建时为 0）")
+    change_number: str = Field("", description="变更编号")
+    from_status: str = Field("", description="流转前状态")
+    to_status: str = Field("", description="流转后状态")
+    approver: str = Field("", description="审批人/操作人")
+    comment: str = Field("", description="审批意见")
+    transition_date: str = Field("", description="流转日期（ISO 格式）")
 
     model_config = ConfigDict(from_attributes=True)

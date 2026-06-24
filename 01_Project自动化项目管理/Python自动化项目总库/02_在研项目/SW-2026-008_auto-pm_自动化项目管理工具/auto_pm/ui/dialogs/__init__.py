@@ -8,11 +8,13 @@
 
 变更管理对话框：
 - CreateChangeDialog: 创建变更单（调用 ChangeService.create_change_request）
+- EditChangeDialog: 编辑变更单（调用 ChangeService.update_change_request，M3-1）
 - TransitionDialog: 状态流转确认（调用 ChangeService.transition_status）
 """
 
 from auto_pm.ui.dialogs.create_change_dialog import CreateChangeDialog
 from auto_pm.ui.dialogs.delete_project_dialog import DeleteProjectDialog
+from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog
 from auto_pm.ui.dialogs.edit_project_dialog import EditProjectDialog
 from auto_pm.ui.dialogs.import_project_dialog import ImportProjectDialog
 from auto_pm.ui.dialogs.new_project_dialog import NewProjectDialog
@@ -24,5 +26,6 @@ __all__ = [
     "DeleteProjectDialog",
     "ImportProjectDialog",
     "CreateChangeDialog",
+    "EditChangeDialog",
     "TransitionDialog",
 ]

@@ -187,3 +187,297 @@ class TestChgParser:
         cr = parser.parse(file_path)
 
         assert cr.urgency == "urgent"
+
+    def test_parse_risk_level_mitigation(self, tmp_dir: str) -> None:
+        """测试解析 §6.1 风险等级和缓解措施（M1-1）
+
+        验证 PMBOK 风险评估字段能被正确解析。
+        """
+        content = """# 变更单
+
+## 3. 变更基本信息
+
+### 3.0 编号与项目
+| 字段 | 内容 |
+|------|------|
+| 变更编号 | CHG-PLC-2026-300 |
+| 项目名称 | 测试项目 |
+| 项目编号 | TEST-2026-001 |
+
+### 3.4 申请信息
+| 字段 | 内容 |
+|------|------|
+| 变更申请人 | 张三 |
+| 申请日期 | 2026-01-15 |
+
+## 4. 变更原因
+
+**变更背景**：
+测试风险等级解析
+
+**变更必要性**：
+验证 M1-1 字段
+
+## 6. 变更影响分析
+
+### 6.1 项目约束影响（PMBOK五大约束）
+
+| 约束维度 | 影响程度 | 影响描述 | 应对措施 |
+|---------|:--------:|----------|----------|
+| **范围(Scope)** | □无 □低 ☑中 □高 | 影响多个模块 | 分阶段实施 |
+| **进度(Schedule)** | □无 □低 □中 □高 |  |  |
+| **成本(Cost)** | □无 □低 □中 □高 |  |  |
+| **质量(Quality)** | □无 □低 □中 □高 |  |  |
+| **风险(Risk)** | □无 □低 ☑中 □高 |  |  |
+
+**风险等级**（PMBOK风险评估）：□无 □低 ☑中 □高
+
+**缓解措施**（风险应对策略）：
+增加单元测试覆盖率，进行代码评审，分阶段上线
+
+### 6.2 技术领域影响（跨领域变更必填！）
+
+| 受影响领域 | 是否受影响 | 具体影响内容 | 涉及交付物 | 关联变更单号 |
+|-----------|:---------:|-------------|-----------|-------------|
+| □ **PLC**   PLC程序 | □是 □否 |  |  | CHG-______ |
+
+## 8. 变更审批
+
+### 8.2 审批结论
+| 结论 | ☑ 通过 |
+"""
+        chg_dir = os.path.join(tmp_dir, "CHG-PLC")
+        os.makedirs(chg_dir, exist_ok=True)
+        file_path = os.path.join(chg_dir, "CHG-PLC-2026-300.md")
+        write_file(file_path, content)
+
+        parser = ChgParser()
+        cr = parser.parse(file_path)
+
+        # M1-1: 验证风险等级解析
+        assert cr.risk_level == "medium"
+        # M1-1: 验证缓解措施解析
+        assert cr.mitigation == "增加单元测试覆盖率，进行代码评审，分阶段上线"
+        # M1-1: 验证 §6.1 约束影响仍然正常解析
+        assert "范围" in cr.constraint_impacts
+        assert cr.constraint_impacts["范围"] == "中"
+
+    def test_parse_risk_level_none(self, tmp_dir: str) -> None:
+        """测试解析 §6.1 风险等级为空的情况（M1-1）
+
+        未设置风险等级时返回空字符串。
+        """
+        content = """# 变更单
+
+## 3. 变更基本信息
+
+### 3.0 编号与项目
+| 字段 | 内容 |
+|------|------|
+| 变更编号 | CHG-PLC-2026-301 |
+
+## 4. 变更原因
+
+**变更背景**：
+测试无风险等级
+
+## 6. 变更影响分析
+
+### 6.1 项目约束影响（PMBOK五大约束）
+
+| 约束维度 | 影响程度 | 影响描述 | 应对措施 |
+|---------|:--------:|----------|----------|
+| **范围(Scope)** | □无 □低 □中 □高 |  |  |
+
+**风险等级**（PMBOK风险评估）：□无 □低 □中 □高
+
+**缓解措施**（风险应对策略）：
+（待填写）
+
+## 8. 变更审批
+
+### 8.2 审批结论
+| 结论 | ☑ 通过 |
+"""
+        chg_dir = os.path.join(tmp_dir, "CHG-PLC")
+        os.makedirs(chg_dir, exist_ok=True)
+        file_path = os.path.join(chg_dir, "CHG-PLC-2026-301.md")
+        write_file(file_path, content)
+
+        parser = ChgParser()
+        cr = parser.parse(file_path)
+
+        # M1-1: 未选中任何风险等级 → 空字符串
+        assert cr.risk_level == ""
+        # M1-1: 缓解措施为模板占位符 → 空字符串
+        assert cr.mitigation == ""
+
+    def test_to_impact_analysis(self, tmp_dir: str) -> None:
+        """M2-4 T59: to_impact_analysis 将 §6 字段转换为 ImpactAnalysis 持久化模型"""
+        content = """# 变更单
+
+## 3. 变更基本信息
+
+### 3.0 编号与项目
+| 字段 | 内容 |
+|------|------|
+| 变更编号 | CHG-PLC-2026-001 |
+| 项目名称 | 测试项目 |
+| 项目编号 | SW-2026-001 |
+
+### 3.4 申请信息
+| 字段 | 内容 |
+|------|------|
+| 变更申请人 | 张三 |
+| 申请日期 | 2026-06-25 |
+| 预计实施日期 | 2026-07-01 |
+| 紧急程度 | ☑一般 |
+| 变更状态 | draft |
+
+## 4. 变更原因
+
+**变更背景**：
+测试影响分析持久化
+
+## 6. 变更影响分析
+
+### 6.1 项目约束影响（PMBOK五大约束）
+
+| 约束维度 | 影响程度 | 影响描述 | 应对措施 |
+|---------|:--------:|----------|----------|
+| **范围(Scope)** | □无 □低 ☑中 □高 | 新增模块 | 分阶段实施 |
+| **进度(Schedule)** | □无 ☑低 □中 □高 | 延迟3天 | 加班追赶 |
+
+**风险等级**（PMBOK风险评估）：□无 □低 ☑中 □高
+
+**缓解措施**（风险应对策略）：
+增加单元测试覆盖率，进行代码评审
+
+### 6.2 技术领域影响
+
+| 领域 | 是否受影响 | 影响内容 | 关联变更单 |
+|------|:--------:|----------|-----------|
+| **PLC** | ☑是 | 修改FB_TON定时器 | CHG-PLC-2026-002 |
+| **HMI** | ☑是 | 更新变量映射 | |
+
+### 6.3 变更传播链
+
+```
+SCPT -> PLC -> HMI
+```
+
+| 关联变更单 | 传播方向 |
+|-----------|---------|
+| CHG-PLC-2026-002 | SCPT → PLC |
+| CHG-HMI-2026-001 | PLC → HMI |
+
+## 8. 变更审批
+
+### 8.2 审批结论
+| 结论 | ☑ 通过 |
+"""
+        chg_dir = os.path.join(tmp_dir, "CHG-PLC")
+        os.makedirs(chg_dir, exist_ok=True)
+        file_path = os.path.join(chg_dir, "CHG-PLC-2026-001.md")
+        write_file(file_path, content)
+
+        parser = ChgParser()
+        cr = parser.parse(file_path)
+
+        # 验证解析结果（前提条件）
+        assert cr.change_number == "CHG-PLC-2026-001"
+        assert cr.risk_level == "medium"
+        assert cr.mitigation == "增加单元测试覆盖率，进行代码评审"
+        assert "范围" in cr.constraint_impacts
+        assert cr.constraint_impacts["范围"] == "中"
+        assert "PLC" in cr.domain_impacts
+        assert cr.domain_impacts["PLC"]["affected"] is True
+        assert cr.propagation_chain == "SCPT -> PLC -> HMI"
+        assert "CHG-PLC-2026-002" in cr.related_changes
+
+        # M2-4 T59: 调用 to_impact_analysis 转换为持久化模型
+        analysis = parser.to_impact_analysis(cr)
+
+        # 验证字段映射
+        assert analysis.change_number == "CHG-PLC-2026-001"
+        assert analysis.risk_level == "medium"
+        assert analysis.mitigation == "增加单元测试覆盖率，进行代码评审"
+        assert analysis.constraint_impacts == {"范围": "中", "进度": "低"}
+        assert analysis.domain_impacts["PLC"]["affected"] is True
+        assert analysis.domain_impacts["PLC"]["related_chg"] == "CHG-PLC-2026-002"
+        assert analysis.domain_impacts["HMI"]["affected"] is True
+        assert analysis.propagation_chain == "SCPT -> PLC -> HMI"
+        assert "CHG-PLC-2026-002" in analysis.related_changes
+        assert "CHG-HMI-2026-001" in analysis.related_changes
+        # updated_at 应自动填充
+        assert analysis.updated_at != ""
+
+    def test_to_impact_analysis_empty_fields(self, tmp_dir: str) -> None:
+        """M2-4 T59: to_impact_analysis 处理空影响分析字段"""
+        content = """# 变更单
+
+## 3. 变更基本信息
+
+### 3.0 编号与项目
+| 字段 | 内容 |
+|------|------|
+| 变更编号 | CHG-PLC-2026-002 |
+| 项目名称 | 测试项目 |
+| 项目编号 | SW-2026-001 |
+
+### 3.4 申请信息
+| 字段 | 内容 |
+|------|------|
+| 变更申请人 | 张三 |
+| 申请日期 | 2026-06-25 |
+| 预计实施日期 | 2026-07-01 |
+| 紧急程度 | ☑一般 |
+| 变更状态 | draft |
+
+## 4. 变更原因
+
+**变更背景**：
+测试空影响分析
+
+## 6. 变更影响分析
+
+### 6.1 项目约束影响（PMBOK五大约束）
+
+| 约束维度 | 影响程度 | 影响描述 | 应对措施 |
+|---------|:--------:|----------|----------|
+| **范围(Scope)** | □无 □低 □中 □高 |  |  |
+
+**风险等级**（PMBOK风险评估）：□无 □低 □中 □高
+
+**缓解措施**（风险应对策略）：
+（待填写）
+
+## 8. 变更审批
+
+### 8.2 审批结论
+| 结论 | ☑ 通过 |
+"""
+        chg_dir = os.path.join(tmp_dir, "CHG-PLC")
+        os.makedirs(chg_dir, exist_ok=True)
+        file_path = os.path.join(chg_dir, "CHG-PLC-2026-002.md")
+        write_file(file_path, content)
+
+        parser = ChgParser()
+        cr = parser.parse(file_path)
+
+        # 验证空字段
+        assert cr.risk_level == ""
+        assert cr.mitigation == ""
+        assert cr.constraint_impacts == {}
+
+        # M2-4 T59: 转换为持久化模型
+        analysis = parser.to_impact_analysis(cr)
+
+        assert analysis.change_number == "CHG-PLC-2026-002"
+        assert analysis.risk_level == ""
+        assert analysis.mitigation == ""
+        assert analysis.constraint_impacts == {}
+        assert analysis.domain_impacts == {}
+        assert analysis.propagation_chain == ""
+        assert analysis.related_changes == []
+        assert analysis.updated_at != ""

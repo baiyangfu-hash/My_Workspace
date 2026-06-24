@@ -32,8 +32,9 @@ from auto_pm.change.models import (
 from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
-from auto_pm.db.repository import ChangeRequestRepository
+from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.logging.logging import setup_logger as get_logger
+from auto_pm.models.project import ProjectRecord
 from auto_pm.utils.file_utils import get_mtime, read_file, write_file
 
 if TYPE_CHECKING:
@@ -41,6 +42,35 @@ if TYPE_CHECKING:
     from auto_pm.change.ledger_updater import LedgerUpdater
 
 log = get_logger(log_level="INFO", app_name="auto_pm")
+
+
+def _is_verification_passed(conclusion: str) -> bool:
+    """检查验证结论是否表示通过（V0.3.0-M0.5-Phase1 BUG-001 修复）
+
+    规则：
+    - 必须包含"通过"关键词
+    - 不能包含"不通过"/"部分通过"/"未通过"等否定关键词（强约束：未通过不得完成验收）
+
+    允许的表达：
+    - "全部通过"
+    - "全部通过（附说明）"
+    - "通过，存在观察项"
+    - "通过"
+
+    拒绝的表达：
+    - "不通过"
+    - "部分通过"（部分通过不是全部通过，视为未通过）
+    - "未通过"
+    - ""（空）
+    """
+    if not conclusion:
+        return False
+    # 否定关键词清单：包含任一即视为未通过
+    fail_keywords = ["不通过", "部分通过", "未通过"]
+    for kw in fail_keywords:
+        if kw in conclusion:
+            return False
+    return "通过" in conclusion
 
 
 class ChangeService:
@@ -53,11 +83,18 @@ class ChangeService:
 
     # update_change_request 允许修改的字段
     _UPDATABLE_FIELDS: set[str] = {
+        # §4/§3.4 基本字段
         "background",
         "necessity",
         "references",
         "planned_date",
         "urgency",
+        # §6 影响分析字段（M3-1 新增）
+        "risk_level",
+        "mitigation",
+        "propagation_chain",
+        "constraint_impacts",
+        "domain_impacts",
     }
 
     # update_change_request 禁止修改的字段（受保护）
@@ -73,6 +110,10 @@ class ChangeService:
         self.db = db
         self._repo: ChangeRequestRepository | None = (
             ChangeRequestRepository(db) if db else None
+        )
+        # M2-3 T55: 项目表 Repository（用于满足 change_requests 外键约束）
+        self._project_repo: ProjectRepository | None = (
+            ProjectRepository(db) if db else None
         )
         # M3-Iter2: 组合职责单一的辅助类
         self._locator = ChangeFileLocator(workspace_root, self._parser)
@@ -166,6 +207,23 @@ class ChangeService:
         else:
             log.warning("台帐文件创建失败，跳过更新: %s", project_path)
 
+        # M2-3 T53: 同步写入 DB 缓存和影响分析
+        if self._repo is not None:
+            # T55: 先确保 projects 表有记录（change_requests.project_id 外键约束）
+            if self._project_repo and self._project_repo.get_by_id(project_id) is None:
+                self._project_repo.upsert(ProjectRecord(
+                    project_id=project_id,
+                    name=project_id,
+                    path=project_path,
+                    stack="unknown",
+                ))
+            # 然后写 change_requests + impact_analysis
+            summary = self._parser.to_summary(cr)
+            self._repo.upsert(summary, file_path, get_mtime(file_path))
+            analysis = self._parser.to_impact_analysis(cr)
+            self._repo.save_impact_analysis(analysis)
+            log.debug("DB 缓存和影响分析已写入: %s", change_number)
+
         return cr
 
     def list_change_requests(
@@ -255,11 +313,13 @@ class ChangeService:
 
         if new_status == "completed":
             # [PM-042 §5.2] accepting → completed: 验证通过路径
-            # 门禁: verification_conclusion 必须为「全部通过」（参数级前置拦截）
-            if verification_conclusion != "全部通过":
+            # 门禁: verification_conclusion 必须包含"通过"且不包含"不通过"（V0.3.0-M0.5-Phase1 BUG-001 修复）
+            # 允许自然表达：全部通过 / 全部通过（附说明）/ 通过，存在观察项 等
+            # 拒绝：不通过 / 部分不通过 / 未通过 等
+            if not _is_verification_passed(verification_conclusion):
                 raise TransitionGuardError(
                     f"变更单 {change_number} 验证结论为'{verification_conclusion}'，"
-                    "需为'全部通过'才能完成验收；"
+                    "需包含'通过'且不包含'不通过'才能完成验收；"
                     "如验证不通过请使用「退回返工」(accepting → implementing)"
                 )
 
@@ -319,6 +379,17 @@ class ChangeService:
 
         write_file(file_path, content)
 
+        # M2-3 T52: 同步写入审批历史到 DB（每次流转追加一条记录）
+        if self._repo is not None:
+            self._repo.save_approval_record(
+                change_number=change_number,
+                to_status=new_status,
+                approver=approver,
+                comment=comment,
+                from_status=current_cr.status,
+            )
+            log.debug("审批历史已写入 DB: %s %s → %s", change_number, current_cr.status, new_status)
+
         # 重新解析返回
         result = self._parser.parse(file_path)
         log.info("状态流转完成: %s, 新状态=%s", change_number, result.status)
@@ -364,12 +435,15 @@ class ChangeService:
     ) -> Optional[ChangeRequest]:
         """修改变更单字段
 
-        支持修改的字段：background, necessity, urgency, planned_date, references
+        支持修改的字段：
+        - §4/§3.4 基本字段: background, necessity, references, planned_date, urgency
+        - §6 影响分析字段: risk_level, mitigation, propagation_chain,
+          constraint_impacts(dict), domain_impacts(dict)
         不允许修改：change_number, project_id, status（用 transition_status）
 
         Args:
             change_number: 变更单编号
-            **kwargs: 要修改的字段
+            **kwargs: 要修改的字段（str 或 dict）
 
         Returns:
             更新后的 ChangeRequest，失败返回 None
@@ -429,7 +503,10 @@ class ChangeService:
         if self._repo is not None:
             summary = self._parser.to_summary(updated)
             self._repo.upsert(summary, file_path, get_mtime(file_path))
-            log.debug("DB 缓存已更新: %s", change_number)
+            # M2-3 T54: 同步更新影响分析
+            analysis = self._parser.to_impact_analysis(updated)
+            self._repo.save_impact_analysis(analysis)
+            log.debug("DB 缓存和影响分析已更新: %s", change_number)
 
         return updated
 

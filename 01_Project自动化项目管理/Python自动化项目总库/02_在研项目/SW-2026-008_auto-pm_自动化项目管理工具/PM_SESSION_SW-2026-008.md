@@ -13,14 +13,14 @@
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V0.3.0 M0 基座清理已完成（16/19 项技术债已偿还）- M1 章节结构修正 + M2 持久化 + M3 GUI 增强 待启动
-- milestone: V0.3.0（pyproject）/ V2.1.0（PRD）
-- acceptance: 5 里程碑 21 任务组 85 任务全部完成 + 版本号四端统一（pyproject=0.3.0/CHANGELOG=[0.3.0]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0）+ CHG-SW-2026-008.md 变更单走完完整生命周期（dogfooding）
-- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
+- current_focus: V0.3.0 M3-1 EditChangeDialog（已完成）- 5 个任务（T60-T64）全部完成
+- milestone: V0.3.1（pyproject）/ V2.1.0（PRD）
+- acceptance: M3-1 完成（Service 层扩展 _UPDATABLE_FIELDS 支持 §6 五字段 + ChangeMarkdownEditor 新增 5 个 §6 字段更新方法 + 新增 EditChangeDialog QDialog+QTabWidget 双 Tab + change_detail_panel.py 集成编辑按钮 + center_view.py 连接 change_updated 信号 + parser 修复 _extract_propagation_chain 多代码块解析 + 17 个 UI 测试）；1072 测试通过
+- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 无（M0 基座清理已完成）
+  - 无（M2 已完成，M3 待启动）
 - completed:
   - P1: Copier模板PoC验证通过
   - P2: Click插件架构 + PLC checker/repairer 迁移 + project CRUD Service
@@ -38,19 +38,22 @@
   - V0.2.2 PLC 模块修复: 完成（6 阶段全部交付，C-1~C-6 + H-1~H-10 全部修复）
   - V0.2.3 规范漂移检测能力补齐: 完成（Spec Snapshot 解析器 + PlcChecker/PlcRepairer 扩展 + 版本号统一 + Trae 规则更新 + 27 个单元测试 + 端到端验证）
   - V0.3.0 M0 基座清理: 完成（16/19 项技术债已偿还；1019 测试通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations + 元测试 FAIL 级别；dogfooding: CHG-SCPT-2026-001 走完完整生命周期）
+  - V0.3.0 M0.5 Phase 0 真源收口: 完成（spec.md/tasks.md 状态修正 + BUG 入图 + change ledger 移除）
+  - V0.3.0 M0.5 Phase 1 产品自洽修复: 完成（ProjectScanner 元数据契约 + 台帐路径跨栈 + verification 门禁 + 自用回归）
+  - V0.3.0 M0.5 Phase 2 dogfood 制度化: 完成（固定模板 + 发布门禁 + 使用者视角检查项）
+  - V0.3.0 M1 变更单章节结构修正: 完成（§6.1 风险等级+缓解措施 + §10 三节结构 + §11 版本详细变更说明 + §12 附录 + 文档版本号 V2.1.0 + 040 §3.4 变更状态字段；040 模板 V2.1.0→V2.2.0；1029 测试通过）
+  - V0.3.0 M2 影响分析与审批记录持久化: 完成（DB schema 扩展 impact_analysis + approval_history 两张表 + ImpactAnalysisRepository/ApprovalHistoryRepository 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化 + parser to_impact_analysis 方法；pyproject 0.3.0→0.3.1；1055 测试通过）
 - next_up:
-  - V0.3.0 M1: 变更单章节结构修正（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
-  - V0.3.0 M2: 影响分析与审批记录持久化（DB schema 扩展 + Repository + Service 集成 + parser 增强）
   - V0.3.0 M3: GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
   - 剩余技术债: TD-T08（测试并行化）+ TD-A02（测试生产解耦）+ TD-TC01（沙箱路径限制）
-  - dogfooding 发现的产品缺陷: BUG-001（verification_conclusion 过于严格）+ BUG-002（台帐路径解析错误）
+  - dogfooding 发现的产品缺陷: BUG-001（verification_conclusion 过于严格）+ BUG-002（台帐路径解析错误）— 已入 tasks.md M0.5-2
 - open_questions:
-  - 无
+  - 无（4 项决策已定）
 - risks_dependencies:
   - 无
 - spec_compliance:
   - last_check: 2026-06-25
-  - result: V0.3.0 M0 完成，pyproject=0.3.0（开发中）、CHANGELOG=[0.3.0]（待追加）、PRD=V2.1.0、PM_SESSION §2=§8=V0.3.0；1019 测试全部通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations
+  - result: V0.3.0 M2 完成；pyproject=0.3.1、CHANGELOG=[0.3.1]、PRD=V2.0.3（待升级 V2.1.0）、PM_SESSION §2=V0.3.0 M2；040 模板=V2.2.0；spec.md/tasks.md 已对齐
 
 ## 4. Artifacts Index（文档索引）
 - req: 00_项目基础信息/001_产品需求文档_PRD.md
@@ -81,6 +84,8 @@
   - 2026-06-25 V0.3.0 M0 批次6 完成：TD-TA01 mypy 99 errors → 0（17 根因修复 + 82 子代理并行修复）
   - 2026-06-25 V0.3.0 M0 批次7 收尾完成：TD-T07 元测试升级为 FAIL 级别 + TD-C02 ProjectType 根因修复 + TD-A01 dogfooding（CHG-SCPT-2026-001 走完完整生命周期）+ TD-D02 005 标准化为变更记录索引
   - 2026-06-25 V0.3.0 M0 基座清理全部完成：16/19 项技术债已偿还；1019 测试通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations + 元测试 FAIL 级别；dogfooding 发现 2 个产品缺陷（BUG-001 verification_conclusion 过于严格、BUG-002 台帐路径解析错误）
+  - 2026-06-25 V0.3.0 M2 影响分析与审批记录持久化全部完成：4 个子任务组 19 个任务（T41-T59）全部完成；DB schema 扩展 impact_analysis + approval_history 两张表 + 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化（create/transition/update 同步写入）+ parser to_impact_analysis 方法；修复 T55 外键约束失败（添加 ProjectRepository 先 upsert projects 记录）+ 修复 SQLite WAL 文件锁定 teardown 问题；pyproject 0.3.0→0.3.1；1055 测试通过（较 M1 增加 26 个测试）
+  - 2026-06-25 V0.3.0 M3 设计讨论完成：作为电气工程师兼项目经理视角体验工具（change list/show），发现 CLI 不显示 §6 影响分析/无 change edit 命令/不显示审批历史；梳理 M3 详细设计思路并确认 4 项决策（推进顺序 M3-1→M3-3→M3-2→M3-4 + 传播链 QGraphicsView 方案 + 拆分 change_detail_panel.py + GUI 原型文档结构化拆解）；设计决策已写入 §8 m3_design_decisions，新会话可直接执行
 
 ## 6. Implementation Log
 - 2026-06-19 | skill=fullstack-engineer | mode=P2实施
@@ -207,6 +212,24 @@
     - pyproject 从 0.2.1 跳过 0.2.2 直接升至 0.2.3（0.2.2 已由 V0.2.2 PLC 模块修复迭代记录）
   - risks: 无；spec_snapshot 解析器容忍 spec_registry.json 的 dict/list 两种 specs 结构和列名变体
 
+- date: 2026-06-25 M3-1 EditChangeDialog GUI 测试 bug 修复（5 个 bug）
+  - task: 运行 test_17_edit_change_dialog.py 验证 EditChangeDialog 弹窗与 Tab 切换 UI 交互逻辑，修复测试过程中发现的 5 个 bug
+  - files:
+    - tests/gui/test_17_edit_change_dialog.py（修复 BUG-001/002/003/005；新增 Qt 导入；ruff --fix 清理未用导入）
+    - tests/gui/helpers/bug_recorder.py（修复 BUG-004：dataclass 下标访问 → 属性访问）
+  - bugs_fixed:
+    - BUG-001 [critical]: test_edit_dialog_popup_from_detail_panel 卡死——change_detail_panel._on_edit_clicked() 调用 dialog.exec() 模态阻塞，原测试 capture_dialog 未关闭弹窗导致死锁。修复：测试中用 QTimer.singleShot(0) 在 exec() 嵌套事件循环内捕获弹窗、验证属性后 reject() 让 exec() 返回；新增 QTimer.singleShot(3000) 硬超时兜底，3s 未弹出则强制 reject 任何阻塞对话框并记录 TimeoutError（满足"不允许卡死，要有超时检测"要求）。生产代码 exec() 保留不变。
+    - BUG-002 [major]: test_form_interaction urgency 断言失败——测试 setCurrentIndex(2) 注释"urgent"，但 URGENCY_LEVELS 顺序 normal=0/urgent=1/critical=2，index 2 实为 critical。修复：改用 findData("urgent") 健壮定位索引。
+    - BUG-003 [major]: test_form_fields_loaded propagation_chain 断言失败——断言默认值为空字符串，但 generator 模板含 [___________] 占位符，parser 解析后为占位符字符串。修复：断言改为"含占位符或为空"。
+    - BUG-004 [major]: bug_recorder.dump_report teardown 抛 TypeError——对 dataclass BugRecord 用 b["severity"] 下标访问。修复：改为 b.severity 属性访问（critical/major/minor 三处）。
+    - BUG-005 [major]: test_form_interaction domain_impacts 断言失败——测试假设领域影响表格 row 0 = SCPT，但 DOMAINS 顺序为 ELEC/MECH/PLC/HMI/SCPT/DOCU/SAFE，row 0 实为 ELEC。修复：遍历表格按 Qt.ItemDataRole.UserRole 查找 SCPT 行再设值。
+  - impact: EditChangeDialog 7 个 GUI 集成测试全部通过（弹窗弹出/Tab 结构/Tab 切换/字段加载/表单交互/保存信号/取消关闭），UI 交互逻辑验证无问题；bug_recorder 报告生成恢复正常
+  - decisions:
+    - BUG-001 保留生产代码 exec() 模态语义，仅在测试层用 QTimer 捕获+reject+硬超时兜底（用户确认方案）
+    - BUG-002/005 采用 findData/UserRole 查找而非硬编码索引，避免 DOMAINS/URGENCY_LEVELS 顺序耦合
+    - BUG-003 接受 generator 模板占位符为新建变更单的合法默认值
+  - risks: 无；硬超时兜底确保测试不会卡死（最坏情况 3s 后强制关闭对话框并 fail）
+
 ## 7. Verification Log
 - verified:
   - P2: CLI --help可用，plc check/repair 迁移完成，project CRUD可用
@@ -230,6 +253,11 @@
     - ruff format --check: project_card.py/test_project_card.py 已格式化
     - mypy auto_pm/ui/project_list/project_card.py: 干净（Qt 枚举改用限定形式 Qt.MouseButton.LeftButton 等）
     - 验证范围: set_project(DTO)/set_project_info(ProjectInfo) 填充、变更数显示(0/N活跃)、修改时间格式化(含 file_mtime=0 → "—")、描述截断(80字符+省略号)、点击信号 clicked(str)、阶段徽标颜色(developing蓝/commissioning黄/production绿/archived灰)、技术栈徽标(PLC蓝/Python绿)
+  - V0.3.0 M0.5 真源收口+产品自洽+dogfood 制度化:
+    - Phase 0 真源收口: spec.md §0.4-0.6 重写核查通过（V2.0 历史里程碑归档 + V0.3.0 当前状态表 + BUG 入图）；tasks.md M0 重定义 + M0.5 新增 11 任务 + T88 移除核查通过
+    - Phase 1 产品自洽: P1-1 project show 验证成功（版本 0.2.3 + 描述正确显示，元数据契约修复）；P1-2 台帐路径跨栈策略代码核查通过（_detect_ledger_path_for_project 三级判据）；P1-3 verification 门禁测试 19 passed in 1.38s（规则校验：包含"通过"且不包含"不通过"/"部分通过"/"未通过"）；P1-4 自用回归 1019 passed in 164.59s + change list/show/transition 正常
+    - Phase 2 dogfood 制度化: spec.md §9 核查通过（§9.1 固定模板 10 步 + §9.2 发布门禁 10 项 + §9.3 使用者视角 8 项）；M4 出口标准更新为制度化版本核查通过
+    - 09_整改项整理: 3 份文档状态标识核查通过（V0.2.1 历史参考 / V0.3.0 诊断 问题判断依据 / V0.3.0 总计划 当前执行主计划+4 项决策）
 - not_verified:
   - list_view.py 既有 mypy 错误（Qt.AlignTop/AlignCenter 等 8 处简写）为预存问题，未在本次范围处理
   - tests/ui/test_project_list.py（未跟踪文件）含 isVisible() 误用导致随机顺序下 flaky，非本次引入
@@ -237,8 +265,40 @@
 - blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
 
 ## 8. Handoff Notes
-- current_state: V0.3.0 M0 基座清理全部完成。**16/19 项技术债已偿还**：TD-T01~T07（测试债 7 项）+ TD-C01~C04（代码质量债 4 项）+ TD-TA01/TA02（类型标注债 2 项）+ TD-A01（架构债 dogfooding）+ TD-D01/D02（文档债 2 项）。**M0 验收标准全部达成**：1019 测试通过 + ruff 0 errors + mypy 0 errors（超额完成，目标 <50）+ 元测试 0 violations + 元测试 FAIL 级别。**mypy 清理**：99 errors → 0 errors（17 根因修复 models.py __all__ + 82 子代理并行修复 cast/TYPE_CHECKING/dict generics/assert isinstance）。**TD-C02 根因修复**：ProjectType 扩展包含 substance_check，移除 type: ignore[assignment]。**TD-T07 升级**：元测试从 WARN 级别升级为 FAIL 级别（warnings.warn → pytest.fail）。**TD-A01 dogfooding**：创建 CHG-SCPT-2026-001.md 标准变更单，走完完整生命周期（draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed），发现 2 个产品缺陷（BUG-001 verification_conclusion 过于严格、BUG-002 台帐路径解析错误）。**TD-D02 标准化**：005_变更记录_CHG.md 添加"标准变更单索引"章节，指向 CHG-SCPT-2026-001.md。**剩余 3 项技术债**：TD-T08（测试并行化）+ TD-A02（测试生产解耦）+ TD-TC01（沙箱路径限制）。
-- next_focus: V0.3.0 M1 变更单章节结构修正（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
+- current_state: V0.3.0 M3-1 EditChangeDialog 完成 + GUI 集成测试 bug 修复完成。M3-1 已交付 EditChangeDialog（QDialog+QTabWidget 双 Tab：基本信息/影响分析）+ change_detail_panel 编辑按钮集成 + center_view change_updated 信号连接 + parser _extract_propagation_chain 修复 + 17 个 UI 测试（1072 测试通过）。随后运行 test_17_edit_change_dialog.py 验证 UI 交互逻辑，发现并修复 5 个 bug：BUG-001 exec 模态卡死（QTimer 捕获+reject+3s 硬超时兜底）/ BUG-002 urgency 索引（findData）/ BUG-003 propagation_chain 占位符断言 / BUG-004 bug_recorder dataclass 下标→属性 / BUG-005 domain 表 SCPT 行（UserRole 查找）；7 个 GUI 测试全部通过 in 15.34s。M2 影响分析与审批记录持久化此前已完成（DB schema 扩展 + 4 子任务组 19 任务 + pyproject 0.3.1 + 1055 测试）。
+- next_focus: V0.3.0 M3 GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
+- m3_design_decisions（2026-06-25 设计讨论确认，新会话直接执行无需重新讨论）:
+  - **推进顺序**: M3-1 EditChangeDialog → M3-3 审批时间线 → M3-2 传播链可视化 → M3-4 增强功能
+  - **M3-1 EditChangeDialog**:
+    - Service 前置依赖: 扩展 `ChangeService.update_change_request` 支持 §6 字段（risk_level/mitigation/constraint_impacts/domain_impacts/propagation_chain/related_changes），保持 Service 单一入口
+    - UI 结构: QDialog + QTabWidget（Tab1 基本信息: background/necessity/references/planned_date/urgency；Tab2 影响分析: 风险等级 QComboBox + 缓解措施 QTextEdit + 约束影响 QTableWidget 5×4 + 领域影响 QTableWidget 7×4 + 传播链 QLineEdit）
+    - 集成点: change_detail_panel.py 添加"编辑"按钮
+    - 数据流: 加载 get_change_request → 填充表单；保存 update_change_request → 更新 Markdown + DB（M2 已实现）
+  - **M3-3 审批时间线**:
+    - 数据源: DB approval_history 表（M2 新增），`list_approval_history(change_number)` → list[ApprovalRecord]
+    - UI 结构: 自定义 QWidget，垂直时间线，每条记录显示 from_status → to_status + 审批人 + 意见 + 日期
+    - 视觉: 节点圆点 + 连接线，状态颜色区分（draft 灰/submitted 蓝/approved 绿/implementing 橙/completed 青绿）
+    - 空历史: 显示"暂无审批记录"
+  - **M3-2 传播链可视化**（QGraphicsView 方案，用户确认）:
+    - 数据源: `ChangeRequest.propagation_chain`（字符串 "SCPT -> PLC -> HMI"），解析为节点列表 + 边列表
+    - UI 结构: QGraphicsView + QGraphicsScene，节点 QGraphicsRectItem 120×40px 圆角矩形 + 连线 QGraphicsLineItem 带箭头
+    - 布局: 简单线性链水平排列，节点间距固定，支持缩放
+    - 空传播链: 显示"无跨领域影响"
+    - 关联变更单列表: QTableWidget（变更单号 + 传播方向）
+  - **change_detail_panel.py 拆分方案**（用户确认拆分）:
+    - 当前 314 行 → 拆分为: change_detail_panel.py 主容器(~100行) + detail_header.py(~60行) + detail_content.py(~80行) + propagation_section.py(~50行) + approval_timeline_section.py(~50行) + action_buttons.py(~40行)
+    - 主容器负责数据加载和信号转发，子组件只负责展示
+  - **M3-4 增强功能**（最后做）:
+    - create_change_dialog.py 改为 QWizard 分步向导（基本信息 → 影响分析 → 提交确认）
+    - transition_dialog.py 可视化状态机 + 一键流转按钮
+    - change_list_panel.py 列表筛选增强（状态/领域/紧急程度/项目）
+  - **GUI 原型设计文档**: 02_设计/GUI原型设计-V2.0.md（614行，V2.0 已实现）+ 02_设计/GUI原型-V2.0.html；M3 基于此增量扩展，不重写
+  - **工具体验发现的问题**（作为电气工程师兼项目经理视角）:
+    - CLI `change show` 不显示 §6 影响分析（M1 新增的风险等级/缓解措施/传播链都没展示）
+    - 没有 `change edit` 命令（M3-1 EditChangeDialog 的 CLI 对应）
+    - 变更单详情不显示审批历史（M2 新增的 approval_history 表数据没用到）
+    - CLI 表格显示被截断（"CHG-SCP…"、"MODULE,S…"）
+  - **specmgr 状态**: SW-2026-006 独立工具，不在 auto-pm 依赖中，venv 未安装；M1-5 T40 人工核查 040 模板；不影响 M3
 - watchouts:
   - 旧 auto_pm/gui/（pywebview）保留，阶段F才清理，勿提前删除
   - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB；PLC 相关操作必须通过 PlcService（不直接访问 PlcChecker/PlcRepairer/SubstanceChecker）
@@ -267,9 +327,12 @@
 - ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次5——TD-C01(ruff错误) 全部修复（ruff --fix 自动修复 60 个 + 手动修复 51 个：E402 noqa 13个 + E741 l→label 25个 + F841 未使用变量 10个 + T201 CLI JSON 输出 noqa 3个；ruff 0 errors；1019 测试全绿）
 - ✅ [precondition: 批次1-5完成] [已完成 2026-06-25] done_when: 技术债批次6——TD-TA01(mypy 99 errors) 全部修复（17 根因修复 models.py __all__ + 82 子代理并行修复 cast/TYPE_CHECKING/dict generics/assert isinstance；mypy 0 errors；1019 测试全绿）
 - ✅ [precondition: 批次6完成] [已完成 2026-06-25] done_when: M0 收尾验证——1019 测试全部通过 ✅ + ruff 0 errors ✅ + mypy 0 errors ✅（超额完成，目标 <50）+ 元测试 0 violations ✅ + 元测试 FAIL 级别 ✅（TD-T07 升级）+ TD-C02 根因修复 ✅（ProjectType 扩展）+ TD-A01 dogfooding ✅（CHG-SCPT-2026-001 走完完整生命周期）+ TD-D02 标准化 ✅（005 添加标准变更单索引）
-- [precondition: M0 完成] done_when: V0.3.0 M1 变更单章节结构修正完成（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
-- [precondition: M1 完成] done_when: V0.3.0 M2 影响分析与审批记录持久化完成（DB schema 扩展 + Repository + Service 集成 + parser 增强）
-- [precondition: M1 完成] done_when: V0.3.0 M3 GUI 变更管理增强完成（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
-- [precondition: M0-M3 全部完成] done_when: 版本号四端统一（pyproject=0.3.0/CHANGELOG=[0.3.0]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0）+ 005_变更记录_CHG.md 新增 V2.1.0 条目
+- ✅ [precondition: M0 完成] [已完成 2026-06-25] done_when: V0.3.0 M1 变更单章节结构修正完成（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + §12 附录 + 文档版本号 V2.1.0 + 040 §3.4 变更状态字段；040 模板 V2.2.0；pyproject 0.3.0；1029 测试通过）
+- ✅ [precondition: M1 完成] [已完成 2026-06-25] done_when: V0.3.0 M2 影响分析与审批记录持久化完成（DB schema 扩展 impact_analysis + approval_history 两张表 + ImpactAnalysisRepository/ApprovalHistoryRepository 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化 + parser to_impact_analysis 方法；pyproject 0.3.1；1055 测试通过）
+- ✅ [precondition: M2 完成] [已完成 2026-06-25] done_when: V0.3.0 M3-1 EditChangeDialog 完成（Service 层扩展 _UPDATABLE_FIELDS 支持 §6 五字段 + ChangeMarkdownEditor 新增 5 个 §6 字段更新方法 + 新增 EditChangeDialog QDialog+QTabWidget 双 Tab + change_detail_panel.py 集成编辑按钮 + center_view.py 连接 change_updated 信号 + parser 修复 _extract_propagation_chain + 17 个 UI 测试；1072 测试通过）
+- [precondition: M3-1 完成] done_when: V0.3.0 M3-3 审批时间线完成（新增 ApprovalTimeline 自定义 QWidget + change_detail_panel.py 拆分为 detail_header/detail_content/propagation_section/approval_timeline_section/action_buttons + UI 测试）
+- [precondition: M3-3 完成] done_when: V0.3.0 M3-2 传播链可视化完成（新增 PropagationView QGraphicsView+QGraphicsScene + 解析 propagation_chain 字符串为节点+边 + UI 测试）
+- [precondition: M3-2 完成] done_when: V0.3.0 M3-4 增强功能完成（create_change_dialog.py 改为 QWizard 分步向导 + transition_dialog.py 可视化状态机 + change_list_panel.py 列表筛选增强 + UI 测试）
+- [precondition: M0-M3 全部完成] done_when: 版本号四端统一（pyproject=0.3.1/CHANGELOG=[0.3.1]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0 M2）+ 005_变更记录_CHG.md 新增 V2.1.0 条目
 - [precondition: dogfooding 持续] done_when: 修复 dogfooding 发现的产品缺陷——BUG-001(verification_conclusion 过于严格) + BUG-002(台帐路径解析错误)
 - [precondition: M0-M3 各里程碑完成] done_when: M4 Dogfooding 持续化——每个里程碑完成后创建对应 CHG-SCPT-2026-XXX.md 变更单，走完整生命周期

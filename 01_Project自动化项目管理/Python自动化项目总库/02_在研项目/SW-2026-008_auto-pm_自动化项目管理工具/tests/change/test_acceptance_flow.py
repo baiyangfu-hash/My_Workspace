@@ -260,7 +260,11 @@ class TestFullAcceptanceFlow:
             svc.transition_status(chg_number, "pending_acceptance", approver="张三")
 
     def test_complete_requires_all_pass(self, acceptance_workspace: str) -> None:
-        """完成验收时 verification_conclusion 必须为「全部通过」"""
+        """完成验收时 verification_conclusion 必须通过规则校验（V0.3.0-M0.5-Phase1）
+
+        规则：包含"通过"且不包含"不通过"/"部分通过"/"未通过"。
+        "部分通过"应被拒绝（部分通过不是全部通过）。
+        """
         svc = ChangeService(acceptance_workspace)
         chg_number = "CHG-DOCU-2026-001"
 
@@ -268,7 +272,7 @@ class TestFullAcceptanceFlow:
         svc.transition_status(chg_number, "pending_acceptance", approver="张三")
         svc.transition_status(chg_number, "accepting", approver="李四")
 
-        # 尝试用非「全部通过」完成验收
+        # 尝试用「部分通过」完成验收（应失败）
         with pytest.raises(TransitionGuardError, match="验证结论"):
             svc.transition_status(
                 chg_number, "completed",
@@ -380,14 +384,18 @@ class TestAcceptanceGuards:
     def test_completed_guard_requires_all_pass(
         self, acceptance_workspace: str
     ) -> None:
-        """accepting → completed 必须 verification_conclusion='全部通过'"""
+        """accepting → completed 必须 verification_conclusion 通过规则校验（V0.3.0-M0.5-Phase1）
+
+        规则：包含"通过"且不包含"不通过"/"部分通过"/"未通过"。
+        "部分通过"应被拒绝（部分通过不是全部通过）。
+        """
         svc = ChangeService(acceptance_workspace)
         chg_number = "CHG-DOCU-2026-001"
 
         svc.transition_status(chg_number, "pending_acceptance", approver="张三")
         svc.transition_status(chg_number, "accepting", approver="李四")
 
-        # 非全部通过应失败
+        # 部分通过应失败
         with pytest.raises(TransitionGuardError):
             svc.transition_status(
                 chg_number, "completed",

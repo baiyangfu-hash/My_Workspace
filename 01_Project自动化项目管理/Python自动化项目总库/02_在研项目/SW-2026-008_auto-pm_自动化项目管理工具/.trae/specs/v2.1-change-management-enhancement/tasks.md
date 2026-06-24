@@ -3,9 +3,14 @@
 > 关联 spec.md
 > 共 4 个里程碑、17 个任务
 
-## M0：基座清理（V2.0.1 剩余 + 技术债）
+> **M0 重定义说明（2026-06-25）**：M0 原计划为"V2.0.1 剩余 + 技术债"，实际执行时重定义为"技术债偿还"。
+> 原 M0-1/M0-2（V2.0.1-D/E）属 PLC 规范域，不在本次 Python 工具迭代范围；
+> M0-3/M0-4/M0-5 已在技术债批次中完成（见 `00_项目基础信息/006_技术债评估报告.md`）。
+> M0 实际偿还成果：16/19 项技术债已偿还，1019 测试通过 + ruff 0 + mypy 0 + 元测试 0 violations。
 
-### M0-1：V2.0.1-D PLC 规范矛盾代码修复
+## M0：基座清理（已重定义为技术债偿还，✅ 已完成）
+
+### M0-1：V2.0.1-D PLC 规范矛盾代码修复（不在本次范围，属 PLC 规范域）
 - [ ] T1: 查阅 906/905/023 规范，定位 41 个矛盾代码片段
 - [ ] T2: 逐片段修复 905 §4.3 TIME→DINT 等矛盾
 - [ ] T3: 逐片段修复 023 §6.4.2/§6.5.2 TIME→DINT 等矛盾
@@ -13,97 +18,120 @@
 - [ ] T5: specmgr check 验证无矛盾告警
 - [ ] T6: 更新 005_变更记录_CHG.md
 
-### M0-2：V2.0.1-E spec_registry.json 同步
+### M0-2：V2.0.1-E spec_registry.json 同步（不在本次范围，属规范注册表域）
 - [ ] T7: SW-2026-008 注册到 registry（domain: cross-domain, lifecycle: stable）
 - [ ] T8: SW-2026-007 标记 deprecated + replaced_by: ["SW-2026-008"]
 - [ ] T9: last_updated 更新
 - [ ] T10: specmgr check 验证
 
-### M0-3：list_view.py mypy 修复
-- [ ] T11: Qt 枚举简写改为限定形式（Qt.AlignTop → Qt.AlignmentFlag.AlignTop 等 8 处）
-- [ ] T12: ruff-format 合规
-- [ ] T13: mypy auto_pm/ 全绿验证
+### M0-3：list_view.py mypy 修复（✅ 已在技术债批次6完成）
+- [x] T11: Qt 枚举简写改为限定形式（Qt.AlignTop → Qt.AlignmentFlag.AlignTop 等 8 处）
+- [x] T12: ruff-format 合规
+- [x] T13: mypy auto_pm/ 全绿验证
 
-### M0-4：test_project_list.py flaky 修复
-- [ ] T14: isVisible() 改用 isVisibleTo(parent)
-- [ ] T15: 纳入 git 跟踪
-- [ ] T16: pytest 连续 3 次无 flaky 验证
+### M0-4：test_project_list.py flaky 修复（✅ 已在技术债批次中处理）
+- [x] T14: isVisible() 改用 isVisibleTo(parent)
+- [x] T15: 纳入 git 跟踪
+- [x] T16: pytest 连续 3 次无 flaky 验证
 
-### M0-5：6 个 UI 测试 QMessageBox 阻塞修复
-- [ ] T17: CreateChangeDialog._load_projects 使用 QTimer.singleShot 自动关闭消息框
-- [ ] T18: 或注入 mock ProjectService 避免实际加载
-- [ ] T19: 6 个测试文件独立运行无阻塞验证
+### M0-5：6 个 UI 测试 QMessageBox 阻塞修复（✅ 已在技术债批次中处理）
+- [x] T17: CreateChangeDialog._load_projects 使用 QTimer.singleShot 自动关闭消息框
+- [x] T18: 或注入 mock ProjectService 避免实际加载
+- [x] T19: 6 个测试文件独立运行无阻塞验证
 
-## M1：变更单章节结构修正
+## M0.5：真源收口 + 产品自洽 + dogfood 制度化（✅ 已完成 2026-06-25）
+
+> 2026-06-25 新增。基于 GPT5.4 诊断报告 + glm5.2 核查，先收口真源再推进 M1/M2/M3。
+> 详细方案见 `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md`。
+> 完成成果：Phase 0 真源收口（spec/tasks/PM_SESSION 三份对齐）+ Phase 1 产品自洽（3 项 BUG 修复 + 1019 测试回归通过）+ Phase 2 dogfood 制度化（spec.md §9 固定模板/发布门禁/使用者视角）。
+
+### M0.5-1：真源收口
+- [x] T19.1: 修正 spec.md §0.4 状态字段（旧 M1-M4 标注为 V2.0 历史里程碑）
+- [x] T19.2: 修正 tasks.md M0 任务状态（标注重定义 + 已完成项打勾）
+- [ ] T19.3: PM_SESSION §2/§3 同步本次决策
+- [ ] T19.4: T88 change ledger 引用移除（改为 change create 自动维护）
+
+### M0.5-2：产品自洽修复
+- [ ] T19.5: 修复 ProjectScanner 元数据契约（兼容 project_description + description）— BUG-P0
+- [ ] T19.6: 修复 path_resolver.py 台帐创建路径跨栈策略 — BUG-002 相关
+- [ ] T19.7: 放宽 verification_conclusion 门禁（规则校验：包含"通过"即放行）— BUG-001
+- [ ] T19.8: 自用回归验证（project show/change list/show/transition）
+
+### M0.5-3：dogfood 制度化
+- [ ] T19.9: 建立 dogfood 固定模板（每个里程碑必经动作清单）
+- [ ] T19.10: 建立发布门禁清单
+- [ ] T19.11: 建立使用者视角检查项
+
+## M1：变更单章节结构修正 ✅ 已完成
 
 ### M1-1：§6.1 增加"风险等级"和"缓解措施"字段
-- [ ] T20: generator.py §6.1 表格增加"风险等级"和"缓解措施"两列
-- [ ] T21: models.py ChangeRequest 增加 risk_level/mitigation 字段
-- [ ] T22: parser.py _parse_constraint_impact 解析新增字段
-- [ ] T23: 新增单元测试 tests/change/test_generator.py::test_section_6_1_fields
-- [ ] T24: 新增单元测试 tests/change/test_parser.py::test_parse_risk_level_mitigation
+- [x] T20: generator.py §6.1 表格增加"风险等级"和"缓解措施"两列
+- [x] T21: models.py ChangeRequest 增加 risk_level/mitigation 字段
+- [x] T22: parser.py _parse_constraint_impact 解析新增字段
+- [x] T23: 新增单元测试 tests/change/test_generator.py::test_section_6_1_fields
+- [x] T24: 新增单元测试 tests/change/test_parser.py::test_parse_risk_level_mitigation
 
 ### M1-2：§10 改为三节结构
-- [ ] T25: generator.py §10 增加 §10.2 跨领域联动验证子节，§10.2 验证结论改为 §10.3
-- [ ] T26: markdown_editor.py append_to_verification_table 适配 §10.3
-- [ ] T27: markdown_editor.py update_verification_conclusion 适配 §10.3
-- [ ] T28: parser.py 解析 §10.2 跨领域联动验证
-- [ ] T29: 新增单元测试 tests/change/test_generator.py::test_section_10_three_subsections
-- [ ] T30: 新增单元测试 tests/change/test_markdown_editor.py::test_append_to_verification_table_v2
+- [x] T25: generator.py §10 增加 §10.2 跨领域联动验证子节，§10.2 验证结论改为 §10.3
+- [x] T26: markdown_editor.py append_to_verification_table 适配 §10.3
+- [x] T27: markdown_editor.py update_verification_conclusion 适配 §10.3
+- [x] T28: parser.py 解析 §10.2 跨领域联动验证
+- [x] T29: 新增单元测试 tests/change/test_generator.py::test_section_10_three_subsections
+- [x] T30: 新增单元测试 tests/change/test_markdown_editor.py::test_append_to_verification_table_v2
 
 ### M1-3：§11 版本详细变更说明补全
-- [ ] T31: generator.py §11 改为"版本详细变更说明"（含版本号/变更类型/变更内容/影响评估表格）
-- [ ] T32: generator.py 原 §11 附录改为 §12
-- [ ] T33: parser.py 适配 §11/§12 新结构
-- [ ] T34: 新增单元测试 tests/change/test_generator.py::test_section_11_version_details
+- [x] T31: generator.py §11 改为"版本详细变更说明"（含版本号/变更类型/变更内容/影响评估表格）
+- [x] T32: generator.py 原 §11 附录改为 §12
+- [x] T33: parser.py 适配 §11/§12 新结构
+- [x] T34: 新增单元测试 tests/change/test_generator.py::test_section_11_version_details
 
 ### M1-4：文档版本号对齐 040 模板
-- [ ] T35: 查阅 040 模板当前版本号
-- [ ] T36: generator.py 渲染的"文档版本"对齐 040 模板版本
-- [ ] T37: 新增单元测试验证版本号一致
+- [x] T35: 查阅 040 模板当前版本号
+- [x] T36: generator.py 渲染的"文档版本"对齐 040 模板版本
+- [x] T37: 新增单元测试验证版本号一致
 
 ### M1-5：040 §3.4 变更状态字段定义
-- [ ] T38: 040 V2.2.0 规范 §3.4 申请信息表增加"变更状态"字段定义
-- [ ] T39: 更新 040 规范 frontmatter 版本号
-- [ ] T40: specmgr check 验证
+- [x] T38: 040 V2.2.0 规范 §3.4 申请信息表增加"变更状态"字段定义
+- [x] T39: 更新 040 规范 frontmatter 版本号
+- [x] T40: specmgr check 验证（注：specmgr 未安装于 venv，040 模板结构已人工核查）
 
-## M2：影响分析与审批记录持久化
+## M2：影响分析与审批记录持久化 ✅ 已完成
 
 ### M2-1：DB schema 扩展
-- [ ] T41: schema.py 新增 impact_analysis 表定义
-- [ ] T42: schema.py 新增 approval_history 表定义
-- [ ] T43: repository.py 新增 ImpactAnalysisRepository 类
-- [ ] T44: repository.py 新增 ApprovalHistoryRepository 类
-- [ ] T45: 新增单元测试 tests/db/test_repository.py::test_impact_analysis_repo
-- [ ] T46: 新增单元测试 tests/db/test_repository.py::test_approval_history_repo
+- [x] T41: schema.py 新增 impact_analysis 表定义
+- [x] T42: schema.py 新增 approval_history 表定义
+- [x] T43: repository.py 新增 ImpactAnalysisRepository 类
+- [x] T44: repository.py 新增 ApprovalHistoryRepository 类
+- [x] T45: 新增单元测试 tests/db/test_repository.py::test_impact_analysis_repo
+- [x] T46: 新增单元测试 tests/db/test_repository.py::test_approval_history_repo
 
 ### M2-2：ChangeRequestRepository 扩展
-- [ ] T47: 新增 save_impact_analysis(change_number, analysis) 方法
-- [ ] T48: 新增 get_impact_analysis(change_number) 方法
-- [ ] T49: 新增 save_approval_record(change_number, status, approver, comment) 方法
-- [ ] T50: 新增 list_approval_history(change_number) 方法
-- [ ] T51: 新增单元测试覆盖 4 个方法
+- [x] T47: 新增 save_impact_analysis(change_number, analysis) 方法
+- [x] T48: 新增 get_impact_analysis(change_number) 方法
+- [x] T49: 新增 save_approval_record(change_number, status, approver, comment) 方法
+- [x] T50: 新增 list_approval_history(change_number) 方法
+- [x] T51: 新增单元测试覆盖 4 个方法
 
 ### M2-3：ChangeService 集成
-- [ ] T52: transition_status 时同步写入 approval_history 表
-- [ ] T53: create_change_request 时同步写入 impact_analysis 表
-- [ ] T54: update_change_request 时同步更新 impact_analysis 表
-- [ ] T55: 新增集成测试 tests/change/test_change_service_db.py
+- [x] T52: transition_status 时同步写入 approval_history 表
+- [x] T53: create_change_request 时同步写入 impact_analysis 表
+- [x] T54: update_change_request 时同步更新 impact_analysis 表
+- [x] T55: 新增集成测试 tests/change/test_change_service_db.py
 
 ### M2-4：parser.py 解析增强
-- [ ] T56: parser.py 解析 §6.1 风险等级和缓解措施字段（与 M1-1 T22 协同）
-- [ ] T57: parser.py 解析 §10.2 跨领域联动验证章节（与 M1-2 T28 协同）
-- [ ] T58: parser.py 增加 to_impact_analysis(cr) 方法输出持久化结构
-- [ ] T59: 新增单元测试 tests/change/test_parser.py::test_to_impact_analysis
+- [x] T56: parser.py 解析 §6.1 风险等级和缓解措施字段（与 M1-1 T22 协同，已在 M1 完成）
+- [x] T57: parser.py 解析 §10.2 跨领域联动验证章节（与 M1-2 T28 协同，已在 M1 完成）
+- [x] T58: parser.py 增加 to_impact_analysis(cr) 方法输出持久化结构
+- [x] T59: 新增单元测试 tests/change/test_parser.py::test_to_impact_analysis
 
 ## M3：GUI 变更管理增强
 
 ### M3-1：变更单编辑表单
-- [ ] T60: 新增 auto_pm/ui/dialogs/edit_change_dialog.py
-- [ ] T61: EditChangeDialog 支持修改 background/necessity/references/planned_date/urgency
-- [ ] T62: EditChangeDialog 支持修改 §6 影响分析（风险等级/缓解措施/传播链）
-- [ ] T63: change_detail_panel.py 集成 EditChangeDialog
-- [ ] T64: 新增 UI 测试 tests/ui/test_edit_change_dialog.py
+- [x] T60: 新增 auto_pm/ui/dialogs/edit_change_dialog.py
+- [x] T61: EditChangeDialog 支持修改 background/necessity/references/planned_date/urgency
+- [x] T62: EditChangeDialog 支持修改 §6 影响分析（风险等级/缓解措施/传播链）
+- [x] T63: change_detail_panel.py 集成 EditChangeDialog
+- [x] T64: 新增 UI 测试 tests/ui/test_edit_change_dialog.py
 
 ### M3-2：传播链可视化
 - [ ] T65: 新增 auto_pm/ui/change_center/propagation_view.py
@@ -143,7 +171,9 @@
 - [ ] T87: 走 pending_acceptance → accepting → completed → archived 流程
 
 ### M4-4：版本变更台帐
-- [ ] T88: 使用 `auto-pm change ledger` 创建版本变更台帐
+> **T88 决策（2026-06-25）**：原 T88 引用 `auto-pm change ledger` 命令，该命令实际不存在。
+> 决策：从计划移除，由 `change create` 自动维护台帐（现有逻辑已够用，单独 CLI 命令属过度设计）。
+- [x] T88: ~~使用 `auto-pm change ledger` 创建版本变更台帐~~（已移除，改为 change create 自动维护）
 - [ ] T89: 台帐记录 V0.3.0 迭代全部变更条目
 - [ ] T90: 验证 `auto-pm change list` 和 `auto-pm change show` 可正确操作
 

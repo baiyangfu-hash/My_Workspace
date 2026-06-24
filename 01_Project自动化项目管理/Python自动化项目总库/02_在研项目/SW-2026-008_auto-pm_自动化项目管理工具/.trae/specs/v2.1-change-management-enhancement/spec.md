@@ -31,11 +31,33 @@
 - V2.4（模板/插件/报告）：⏳ 后续
 - V2.5（系统设置/用户管理/打包）：⏳ 后续
 
-### 0.4 里程碑核查（M1-M4 已完成）
+### 0.4 V2.0 历史里程碑核查（已完成，归档参考）
+> 以下 M1-M4 为 V2.0 时代里程碑，已于 2026-06-19 前全部完成。**不要与 V0.3.0 的 M0-M3 混淆**（命名碰撞）。
+
 - M1 稳基座（文档/版本对齐）：✅ 6/6 迭代完成
 - M2 补能力（CLI/Service 缺口）：✅ 8/8 迭代完成
 - M3 重架构（拆上帝类+接口抽象）：✅ 7/7 迭代完成
 - M4 扩功能（V2.1~V2.3 路线图）：✅ 5/5 迭代完成
+
+### 0.5 V0.3.0 当前里程碑状态（2026-06-25 更新）
+
+> V0.3.0 里程碑为本次迭代计划，M0 已重定义为"技术债偿还"（非原计划的 V2.0.1 剩余+技术债）。
+> 原 M0-1~M0-5 任务（V2.0.1-D/E、list_view mypy、test_project_list flaky、QMessageBox 阻塞）大部分已通过技术债偿还批次完成或并入技术债报告。
+
+| 里程碑 | 状态 | 说明 |
+|--------|------|------|
+| M0 基座清理（重定义为技术债偿还） | ✅ 完成 | 16/19 项技术债已偿还；1019 测试通过 + ruff 0 + mypy 0 + 元测试 0 violations |
+| M0.5 真源收口 + 产品自洽 + dogfood 制度化 | ⏳ 进行中 | 本次 Phase 0-2 推进范围 |
+| M1 变更单章节结构修正 | ⏳ 待启动 | Phase 0-2 完成后推进 |
+| M2 影响分析与审批记录持久化 | ⏳ 待启动 | M1 完成后推进 |
+| M3 GUI 变更管理增强 | ⏳ 待启动 | M2 完成后推进 |
+
+### 0.6 dogfood 发现的产品缺陷（已入图，待修复）
+
+| 缺陷 ID | 描述 | 归属阶段 | 严重程度 |
+|---------|------|---------|---------|
+| BUG-001 | `verification_conclusion` 门禁过硬编码（必须字面量"全部通过"） | M0.5 Phase 1-3 | 🟡 中 |
+| BUG-002 | 台帐更新路径解析错误（中文路径被字符级拆分） | M0.5 Phase 1-2 | 🟡 中 |
 
 ## 1. Why
 
@@ -53,33 +75,39 @@ V0.2.3 交付后存在三类未解决问题：
 
 ## 2. What Changes
 
-### 2.1 M0：基座清理（V2.0.1 剩余 + 技术债）
+### 2.1 M0：基座清理（已重定义为技术债偿还，✅ 已完成）
 
-#### M0-1：V2.0.1-D PLC 规范矛盾代码修复
+> **重定义说明（2026-06-25）**：M0 原计划为"V2.0.1 剩余 + 技术债"，实际执行时重定义为"技术债偿还"。
+> 原 M0-1~M0-5 任务中：list_view mypy（M0-3）和 test_project_list flaky（M0-4）已在技术债批次中完成；
+> V2.0.1-D（M0-1）和 V2.0.1-E（M0-2）属 PLC 规范域，不在本次 Python 工具迭代范围；
+> QMessageBox 阻塞（M0-5）已在技术债批次中处理。
+> 详细偿还记录见 `00_项目基础信息/006_技术债评估报告.md`。
+
+#### M0-1：V2.0.1-D PLC 规范矛盾代码修复（不在本次范围）
 - 修复 906/905/023 规范中 41 个矛盾代码片段
 - 涉及文件：`0100_PLC自动化/00_通用规范/PLC编程/` 下 905/906/023 规范文档
 - 验收：41 个片段全部修复，specmgr check 无矛盾告警
 
-#### M0-2：V2.0.1-E spec_registry.json 同步
+#### M0-2：V2.0.1-E spec_registry.json 同步（不在本次范围）
 - SW-2026-008 注册到 registry（domain: cross-domain, lifecycle: stable）
 - SW-2026-007 标记 deprecated + replaced_by: ["SW-2026-008"]
 - last_updated 更新
 - 涉及文件：`00_Obsidian_Base全局规范文件仓库/spec_registry.json`
 - 验收：spec_registry.json 反映当前工具状态
 
-#### M0-3：list_view.py mypy 修复
+#### M0-3：list_view.py mypy 修复（✅ 已在技术债批次6完成）
 - Qt 枚举简写改为限定形式（Qt.AlignTop → Qt.AlignmentFlag.AlignTop 等）
 - ruff-format 合规
 - 涉及文件：`auto_pm/ui/project_list/list_view.py`
 - 验收：mypy auto_pm/ 全绿
 
-#### M0-4：test_project_list.py flaky 修复
+#### M0-4：test_project_list.py flaky 修复（✅ 已在技术债批次中处理）
 - isVisible() 改用 isVisibleTo(parent)
 - 纳入 git 跟踪
 - 涉及文件：`tests/ui/test_project_list.py`
 - 验收：pytest -p no:randomly 连续 3 次无 flaky
 
-#### M0-5：6 个 UI 测试 QMessageBox 阻塞修复
+#### M0-5：6 个 UI 测试 QMessageBox 阻塞修复（✅ 已在技术债批次中处理）
 - CreateChangeDialog._load_projects 使用 QTimer.singleShot 自动关闭消息框
 - 或注入 mock ProjectService 避免实际加载
 - 涉及文件：`tests/ui/test_iteration1~4_interactive.py`、`test_change_dialogs.py`、`test_final_acceptance.py`
@@ -265,5 +293,56 @@ V0.2.3 交付后存在三类未解决问题：
 - [PM_SESSION_SW-2026-008.md](../../../PM_SESSION_SW-2026-008.md)
 - [CHANGELOG.md](../../../CHANGELOG.md)
 - [PRD V2.0.3](../../../00_项目基础信息/001_产品需求文档_PRD.md)
-- [里程碑迭代计划_V2.1（M1-M4 已完成）](../../../docs/里程碑迭代计划_V2.1.md)
 - [005_变更记录_CHG.md](../../../00_项目基础信息/005_变更记录_CHG.md)
+- [006_技术债评估报告.md](../../../00_项目基础信息/006_技术债评估报告.md)
+- [V0.3.0-项目落地执行总计划_重规划版.md](../../../09_整改项/V0.3.0-项目落地执行总计划_重规划版.md)
+- [V0.3.0-项目深度诊断与Dogfood专项报告.md](../../../09_整改项/V0.3.0-项目深度诊断与Dogfood专项报告.md)
+
+## 9. Dogfood 制度化（V0.3.0-M0.5-Phase2 新增）
+
+> 基于 GPT5.4 诊断报告 + glm5.2 核查，将 dogfood 从"做过一次"升级为"每次必经"的发布门禁。
+
+### 9.1 Dogfood 固定模板（每个里程碑必经动作清单）
+
+每个里程碑（M0/M1/M2/M3）完成后，必须执行以下固定动作：
+
+| 序号 | 动作 | 命令/操作 | 产出 |
+|------|------|----------|------|
+| 1 | 创建变更单 | `python -m auto_pm -w "<workspace>" change create --pid SW-2026-008 --domain SCPT --nature OPT --scope SYSTEM --scope MODULE --applicant fubai --background "..." --necessity "..." --references "..." --urgency normal` | CHG-SCPT-2026-XXX.md |
+| 2 | 流转到审批 | `change transition CHG-SCPT-2026-XXX --to submitted` | 状态更新 |
+| 3 | 流转到实施 | `change transition CHG-SCPT-2026-XXX --to approved` → `--to implementing` | 状态更新 |
+| 4 | 补实施记录 | 手动编辑变更单 §9 | §9 填充 |
+| 5 | 流转到验收 | `change transition CHG-SCPT-2026-XXX --to pending_acceptance` → `--to accepting` | 状态更新 |
+| 6 | 补验证记录 | 手动编辑变更单 §10 | §10 填充 |
+| 7 | 完成验收 | `change transition CHG-SCPT-2026-XXX --to completed --verification-conclusion "全部通过（附说明）"` | 状态更新 |
+| 8 | 归档关闭 | `change transition CHG-SCPT-2026-XXX --to closed` 或 `--to archived` | 终态 |
+| 9 | 验证可读 | `change list SW-2026-008` + `change show CHG-SCPT-2026-XXX` | 列表+解析验证 |
+| 10 | 回写文档 | PM_SESSION §5/§6/§8/§9 + 005_变更记录_CHG.md + CHANGELOG.md | 文档同步 |
+
+### 9.2 发布门禁清单（强制，未通过不得发布）
+
+| 序号 | 门禁项 | 验证方法 | 通过标准 |
+|------|--------|---------|---------|
+| 1 | 版本号四端一致 | 检查 pyproject.toml / CHANGELOG.md / PRD / PM_SESSION §2=§8 | 四端版本号一致 |
+| 2 | 全量测试通过 | `pytest -q --no-cov` | 0 failed |
+| 3 | ruff 检查通过 | `ruff check auto_pm tests` | 0 errors |
+| 4 | mypy 检查通过 | `mypy auto_pm` | 0 errors |
+| 5 | 元测试无 violations | `pytest tests/test_fixture_health.py -q` | 0 violations |
+| 6 | 核心 CLI 回归 | `project show SW-2026-008` + `change list SW-2026-008` | 命令成功且输出可信 |
+| 7 | dogfood 闭环证据 | 检查 CHG-SCPT-2026-XXX.md 状态 | 走完完整生命周期（draft→...→closed/archived） |
+| 8 | 文档同步 | 检查 PM_SESSION/CHANGELOG/005_变更记录 | 全部已更新 |
+| 9 | 关键缺陷有状态 | 检查 BUG-XXX 在 tasks.md 中的归属 | 每个缺陷有归属阶段和状态 |
+| 10 | 使用者视角检查 | 见 §9.3 | 全部通过 |
+
+### 9.3 使用者视角检查项（电气工程师/项目经理视角）
+
+| 序号 | 检查项 | 视角 | 通过标准 |
+|------|--------|------|---------|
+| 1 | 项目列表信息可信 | 电气工程师 | `project list` 输出的名称/版本/阶段/描述非空且正确 |
+| 2 | 项目详情信息可信 | 电气工程师 | `project show <pid>` 输出完整且正确 |
+| 3 | 新建变更单顺手 | 项目经理 | `change create` 命令参数自然，不需要"迎合工具的话" |
+| 4 | 验收结论表达自然 | 项目经理 | `verification_conclusion` 可写"全部通过（附说明）"等自然表达 |
+| 5 | 路径与台帐跨栈顺手 | 电气工程师 | PLC 和 Python 项目都能在正确位置创建/更新台帐 |
+| 6 | 审批与验收表达自然 | 项目经理 | 状态流转命令参数自然，错误提示清晰 |
+| 7 | GUI/CLI 减少管理成本 | 电气工程师 | CLI 命令简洁，GUI 操作直观（如已有 GUI） |
+| 8 | 变更单可读性 | 项目经理 | `change show` 输出格式清晰，关键信息一目了然 |

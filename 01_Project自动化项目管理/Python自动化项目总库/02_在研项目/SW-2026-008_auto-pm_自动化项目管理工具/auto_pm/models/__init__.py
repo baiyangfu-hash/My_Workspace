@@ -8,7 +8,12 @@
 - enums.py: Literal 类型定义
 """
 
-from auto_pm.models.change import ChangeRequest, ChangeSummary
+from auto_pm.models.change import (
+    ApprovalRecord,
+    ChangeRequest,
+    ChangeSummary,
+    ImpactAnalysis,
+)
 from auto_pm.models.dto import (
     ApiResponse,
     ProjectCardDTO,
@@ -45,6 +50,8 @@ __all__ = [
     # change
     "ChangeRequest",
     "ChangeSummary",
+    "ImpactAnalysis",
+    "ApprovalRecord",
     # plc
     "CheckItem",
     "CheckResult",

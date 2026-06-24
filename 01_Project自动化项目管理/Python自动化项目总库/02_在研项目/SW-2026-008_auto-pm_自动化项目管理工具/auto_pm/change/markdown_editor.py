@@ -12,6 +12,7 @@ ChangeService 通过组合方式使用本模块，保持向后兼容。
 from __future__ import annotations
 
 import re
+from typing import Any
 
 from auto_pm.change.models import URGENCY_LEVELS
 from auto_pm.logging.logging import setup_logger as get_logger
@@ -53,7 +54,8 @@ class ChangeMarkdownEditor:
     def append_to_verification_table(self, content: str, row: str) -> str:
         """在验证表格 (§10.1) 末尾追加一行
 
-        在 §10.2 节标题之前插入新行，避免正则匹配偏移。
+        M1-2: §10 改为三节结构后，§10.2 为跨领域联动验证。
+        验证项仍追加到 §10.1 末尾（即 §10.2 标题之前）。
         """
         # 定位 §10.1 起始位置
         sec_10_1 = re.search(r"^###\s*10\.1", content, re.MULTILINE)
@@ -88,28 +90,40 @@ class ChangeMarkdownEditor:
         return content + f"\n| 变更状态 | {new_status} |\n"
 
     def update_verification_conclusion(self, content: str, conclusion: str) -> str:
-        """更新 §10.2 验证结论为指定值
+        """更新验证结论为指定值（M1-2: 适配 §10.3 三节结构，兼容旧 §10.2）
 
-        兼容三种格式：
+        定位策略（按优先级）：
+        1. 新结构 §10.3 验证结论（M1-2 后生成器默认输出）
+        2. 旧结构 §10.2 验证结论（向后兼容已存在的变更单）
+
+        兼容三种行格式：
         1. 原始模板格式: | 结论 | □ 全部通过,可关闭 □ 部分不通过,需返工 □ 需补充验证 |
         2. 已写入格式:    | **验证结论** | 全部通过 |
-        3. § 符号变体:    ### §10.2 或 ### 10.2
+        3. § 符号变体:    ### §10.3 或 ### 10.3
         """
+        # 先扫描判断结构：优先 §10.3，无 §10.3 时回退到 §10.2
+        has_section_10_3 = bool(re.search(r"^###\s*§?\s*10\.3\b", content, re.MULTILINE))
+        if has_section_10_3:
+            target_pattern = re.compile(r"^###\s*§?\s*10\.3\b")
+        else:
+            target_pattern = re.compile(r"^###\s*§?\s*10\.2\b")
+
         lines = content.splitlines()
-        in_section_10_2 = False
+        in_conclusion_section = False
         found_conclusion_line = False
         result = []
         for line in lines:
             stripped = line.strip()
-            # 匹配 ### 10.2 或 ### §10.2（兼容有无 § 符号）
-            if re.match(r"^###\s*§?\s*10\.2\b", stripped):
-                in_section_10_2 = True
+            # 匹配目标结论节标题
+            if not in_conclusion_section and target_pattern.match(stripped):
+                in_conclusion_section = True
                 result.append(line)
                 continue
-            if in_section_10_2 and re.match(r"^###\s", stripped):
-                in_section_10_2 = False
+            # 遇到下一个 ### 节标题，退出当前结论节
+            if in_conclusion_section and re.match(r"^###\s", stripped):
+                in_conclusion_section = False
 
-            if in_section_10_2 and not found_conclusion_line:
+            if in_conclusion_section and not found_conclusion_line:
                 # 格式A: 模板原始格式 | 结论 | □ ... |
                 if re.match(r"^\|\s*结论\s*\|", stripped):
                     result.append(f"| **验证结论** | {conclusion} |")
@@ -123,27 +137,28 @@ class ChangeMarkdownEditor:
 
             result.append(line)
 
-        # 如果进入了 §10.2 但没找到结论行，在节标题后插入
-        if in_section_10_2 and not found_conclusion_line:
-            # 在 result 中找到 §10.2 标题行后插入
+        # 如果进入了结论节但没找到结论行，在节标题后插入
+        if not found_conclusion_line:
             for i, r in enumerate(result):
-                if re.match(r"^###\s*§?\s*10\.2\b", r.strip()):
+                if target_pattern.match(r.strip()):
                     result.insert(i + 1, f"| **验证结论** | {conclusion} |")
                     break
 
         return "\n".join(result)
 
-    def update_field(self, content: str, field: str, value: str) -> str:
+    def update_field(self, content: str, field: str, value: Any) -> str:
         """根据字段名分发到对应的章节更新逻辑
 
         Args:
             content: .md 文件原始内容
-            field: 字段名（background/necessity/references/planned_date/urgency）
-            value: 新值
+            field: 字段名（background/necessity/references/planned_date/urgency
+                   /risk_level/mitigation/propagation_chain/constraint_impacts/domain_impacts）
+            value: 新值（str 或 dict）
 
         Returns:
             更新后的 .md 内容（未匹配到则原样返回）
         """
+        # §4/§3.4 基本字段
         if field in ("background", "necessity", "references"):
             label_map = {
                 "background": "变更背景",
@@ -157,6 +172,17 @@ class ChangeMarkdownEditor:
             return self._update_table_field(
                 content, "紧急程度", self.render_urgency_value(value)
             )
+        # §6 影响分析字段（M3-1 新增）
+        if field == "risk_level":
+            return self.update_risk_level(content, value)
+        if field == "mitigation":
+            return self.update_mitigation(content, value)
+        if field == "propagation_chain":
+            return self.update_propagation_chain(content, value)
+        if field == "constraint_impacts":
+            return self.update_constraint_impacts(content, value)
+        if field == "domain_impacts":
+            return self.update_domain_impacts(content, value)
         return content
 
     def _update_text_block(self, content: str, label: str, value: str) -> str:
@@ -199,4 +225,144 @@ class ChangeMarkdownEditor:
         for code, label in URGENCY_LEVELS.items():
             mark = "☑" if code == urgency else "□"
             parts.append(f"{mark}{label}")
+        return " ".join(parts)
+
+    # ── §6 影响分析字段更新（M3-1 新增） ──────────────────
+
+    def update_risk_level(self, content: str, risk_level: str) -> str:
+        """更新 §6.1 风险等级行的 ☑ 标记
+
+        匹配格式: **风险等级**（PMBOK风险评估）：□无 □低 □中 □高
+
+        Args:
+            risk_level: none/low/medium/high，空字符串保留原样
+        """
+        new_value = self._render_risk_level_value(risk_level)
+        pattern = re.compile(r"(\*\*风险等级\*\*[^：:]*[：:])\s*[^|\n]+")
+        if pattern.search(content):
+            return pattern.sub(lambda m: m.group(1) + " " + new_value, content)
+        log.warning("更新风险等级: 未找到 **风险等级** 标记行，跳过")
+        return content
+
+    def update_mitigation(self, content: str, mitigation: str) -> str:
+        """更新 §6.1 缓解措施文本块
+
+        匹配格式:
+            **缓解措施**（风险应对策略）：
+            （待填写）
+        """
+        pattern = re.compile(
+            r"(\*\*缓解措施\*\*[^：:]*[：:]\s*\n)(.*?)(?=\n\n###|\n###|\n##|\Z)",
+            re.DOTALL,
+        )
+        if pattern.search(content):
+            return pattern.sub(
+                lambda m: m.group(1) + mitigation + "\n", content, count=1
+            )
+        log.warning("更新缓解措施: 未找到 **缓解措施** 标记，跳过")
+        return content
+
+    def update_propagation_chain(self, content: str, chain: str) -> str:
+        """更新 §6.3 本次变更传播链代码块
+
+        匹配格式:
+            **本次变更传播链:**
+            ```
+            [___________] → [___________]
+            ```
+        """
+        pattern = re.compile(
+            r"(\*\*本次变更传播链:\*\*\s*\n```\s*\n)(.*?)(\n```)",
+            re.DOTALL,
+        )
+        if pattern.search(content):
+            return pattern.sub(
+                lambda m: m.group(1) + chain + m.group(3), content, count=1
+            )
+        log.warning("更新传播链: 未找到 **本次变更传播链:** 代码块，跳过")
+        return content
+
+    def update_constraint_impacts(
+        self, content: str, impacts: dict[str, str]
+    ) -> str:
+        """更新 §6.1 项目约束影响表格中每个维度的影响程度
+
+        逐行扫描表格，匹配包含 **{维度}** 的行，替换影响程度列的 ☑ 标记。
+
+        Args:
+            impacts: {维度名称: 影响程度(无/低/中/高)}
+        """
+        lines = content.splitlines()
+        result: list[str] = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("|"):
+                for dim, level in impacts.items():
+                    if f"**{dim}" in stripped:
+                        cells = [c.strip() for c in line.split("|")]
+                        # cells[0] 为空（行首 |），cells[-1] 为空（行尾 |）
+                        if len(cells) >= 4:
+                            # cells[1] = 维度列, cells[2] = 影响程度列
+                            cells[2] = self._render_impact_level(level)
+                            line = "|" + "|".join(cells[1:-1]) + "|"
+                        break
+            result.append(line)
+        return "\n".join(result)
+
+    def update_domain_impacts(
+        self, content: str, impacts: dict[str, dict[str, Any]]
+    ) -> str:
+        """更新 §6.2 技术领域影响表格中每个领域的是否受影响和影响内容
+
+        逐行扫描表格，匹配包含 **{领域代码}** 的行，替换：
+        - 领域列的 ☑/□ 标记（行首）
+        - 是否受影响列（☑是 □否 / □是 ☑否）
+        - 具体影响内容列
+
+        Args:
+            impacts: {领域代码: {affected: bool, content: str, related_chg: str}}
+        """
+        lines = content.splitlines()
+        result: list[str] = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("|"):
+                for domain_code, info in impacts.items():
+                    if f"**{domain_code}**" in stripped:
+                        cells = [c.strip() for c in line.split("|")]
+                        if len(cells) >= 6:
+                            affected = bool(info.get("affected", False))
+                            # cells[1] = 领域列（更新行首 ☑/□）
+                            cells[1] = re.sub(
+                                r"^[□☑]\s*",
+                                "☑ " if affected else "□ ",
+                                cells[1],
+                            )
+                            # cells[2] = 是否受影响列
+                            cells[2] = "☑是 □否" if affected else "□是 ☑否"
+                            # cells[3] = 具体影响内容列
+                            cells[3] = info.get("content", "") or ""
+                            line = "|" + "|".join(cells[1:-1]) + "|"
+                        break
+            result.append(line)
+        return "\n".join(result)
+
+    @staticmethod
+    def _render_risk_level_value(risk_level: str) -> str:
+        """渲染风险等级为 ☑/□ 格式（与 ChgGenerator._render_risk_level 对齐）"""
+        levels = [("none", "无"), ("low", "低"), ("medium", "中"), ("high", "高")]
+        parts = []
+        for code, label in levels:
+            mark = "☑" if code == risk_level else "□"
+            parts.append(f"{mark}{label}")
+        return " ".join(parts)
+
+    @staticmethod
+    def _render_impact_level(level: str) -> str:
+        """渲染影响程度为 ☑/□ 格式"""
+        levels = ["无", "低", "中", "高"]
+        parts = []
+        for lvl in levels:
+            mark = "☑" if lvl == level else "□"
+            parts.append(f"{mark}{lvl}")
         return " ".join(parts)

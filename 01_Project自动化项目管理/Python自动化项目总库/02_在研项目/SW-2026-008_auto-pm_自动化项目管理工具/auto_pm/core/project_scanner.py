@@ -164,7 +164,13 @@ class ProjectScanner:
         return None
 
     def read_copier_answers(self, project_path: str) -> Optional[ProjectInfo]:
-        """从 .copier-answers.yml 读取项目元数据"""
+        """从 .copier-answers.yml 读取项目元数据
+
+        V0.3.0-M0.5-Phase1: 修复元数据契约不一致问题。
+        - description: 兼容 project_description（copier-python-template 标准）和 description
+        - version: 优先从 answers 读取，回退到 pyproject.toml [project].version
+        - phase: 优先从 answers 读取，回退到 PM_SESSION_*.md frontmatter
+        """
         answers_path = os.path.join(project_path, self.COPIER_ANSWERS_FILE)
         if not os.path.isfile(answers_path):
             return None
@@ -192,18 +198,70 @@ class ProjectScanner:
         # 业务线：优先从 answers 读取，否则从 project_id 提取
         business_line = answers.get("business_line", "") or extract_business_line(project_id)
 
+        # V0.3.0-M0.5-Phase1: description 兼容 project_description（copier-python-template 标准）
+        description = answers.get("project_description", "") or answers.get("description", "")
+
+        # V0.3.0-M0.5-Phase1: version 回退到 pyproject.toml
+        version = answers.get("version", "")
+        if not version:
+            version = self._read_version_from_pyproject(project_path)
+
+        # V0.3.0-M0.5-Phase1: phase 回退到 PM_SESSION frontmatter
+        phase = answers.get("phase", "")
+        if not phase:
+            phase = self._read_phase_from_pm_session(project_path, project_id)
+
         return ProjectInfo(
             project_id=project_id,
             name=project_name or answers.get("project_name", "") or os.path.basename(project_path),
             path=project_path,
             stack=stack,
-            version=answers.get("version", ""),
-            description=answers.get("description", ""),
-            phase=answers.get("phase", ""),
+            version=version,
+            description=description,
+            phase=phase,
             business_line=business_line,
             source="copier",
             extra=answers,
         )
+
+    def _read_version_from_pyproject(self, project_path: str) -> str:
+        """从 pyproject.toml 读取版本号（Python 项目回退策略）"""
+        pyproject_path = os.path.join(project_path, "pyproject.toml")
+        if not os.path.isfile(pyproject_path):
+            return ""
+        try:
+            with open(pyproject_path, encoding="utf-8") as f:
+                content = f.read()
+            # 简单正则提取 [project].version，避免引入 tomli 依赖
+            match = re.search(r'^version\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+            return match.group(1) if match else ""
+        except OSError:
+            return ""
+
+    def _read_phase_from_pm_session(self, project_path: str, project_id: str) -> str:
+        """从 PM_SESSION_*.md frontmatter 读取项目阶段（回退策略）"""
+        if not project_id:
+            # project_id 为空时，扫描目录下的 PM_SESSION_*.md
+            try:
+                for name in os.listdir(project_path):
+                    if name.startswith(self.PM_SESSION_PREFIX) and name.endswith(".md"):
+                        project_id = name[len(self.PM_SESSION_PREFIX):-len(".md")]
+                        break
+            except OSError:
+                return ""
+        if not project_id:
+            return ""
+        pm_session_path = os.path.join(project_path, f"PM_SESSION_{project_id}.md")
+        if not os.path.isfile(pm_session_path):
+            return ""
+        try:
+            with open(pm_session_path, encoding="utf-8") as f:
+                content = f.read()
+            # 从 frontmatter 提取 phase 字段
+            match = re.search(r'^phase:\s*["\']?([^"\'\n]+)["\']?\s*$', content, re.MULTILINE)
+            return match.group(1).strip() if match else ""
+        except OSError:
+            return ""
 
     def read_plc_json(self, project_path: str) -> Optional[ProjectInfo]:
         """从 .plc.json 读取项目元数据（仅检查项目根目录，用于项目识别）

@@ -125,6 +125,7 @@ class ChangeCenterView(QWidget):
         """连接子面板信号"""
         self._list_panel.change_selected.connect(self._on_change_selected)
         self._detail_panel.transition_completed.connect(self._on_transition_completed)
+        self._detail_panel.change_updated.connect(self._on_change_updated)
 
     # ── 公共方法 ─────────────────────────────────────────
 
@@ -145,6 +146,13 @@ class ChangeCenterView(QWidget):
         log.info("变更中心: 流转完成 %s，刷新列表", change_number)
         self._list_panel.refresh()
         # 流转后重新选中该变更单（若仍在列表中）
+        self._list_panel.select_change(change_number)
+        self.change_updated.emit()
+
+    def _on_change_updated(self, change_number: str) -> None:
+        """变更单编辑完成 → 刷新列表 + 发射 change_updated()"""
+        log.info("变更中心: 变更单已修改 %s，刷新列表", change_number)
+        self._list_panel.refresh()
         self._list_panel.select_change(change_number)
         self.change_updated.emit()
 

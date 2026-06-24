@@ -40,6 +40,7 @@ from auto_pm.change.models import (
     ChangeRequest,
 )
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog
 from auto_pm.ui.dialogs.transition_dialog import TransitionDialog
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
@@ -115,6 +116,12 @@ QPushButton#transitionBtn#rejectBtn {
     background: #e74c3c;
 }
 QPushButton#transitionBtn#rejectBtn:hover { background: #c0392b; }
+QPushButton#editBtn {
+    font-size: 12px; color: #ffffff;
+    background: #27ae60; border: none;
+    border-radius: 3px; padding: 6px 14px;
+}
+QPushButton#editBtn:hover { background: #229954; }
 QFrame#infoRow {
     border-bottom: 1px solid #f0f0f0;
 }
@@ -151,11 +158,13 @@ def _format_urgency(urgency: str) -> str:
 class ChangeDetailPanel(QWidget):
     """变更单详情面板
 
-    显示变更单完整详情，提供状态流转按钮。
+    显示变更单完整详情，提供编辑按钮和状态流转按钮。
+    编辑成功后发射 change_updated(change_number) 信号。
     流转成功后发射 transition_completed(change_number) 信号。
     """
 
     transition_completed = Signal(str)
+    change_updated = Signal(str)
 
     def __init__(
         self,
@@ -244,7 +253,7 @@ class ChangeDetailPanel(QWidget):
 
     def _render_detail(self, cr: ChangeRequest) -> None:
         """渲染变更单详情"""
-        # 标题行：编号 + 状态徽标
+        # 标题行：编号 + 状态徽标 + 编辑按钮
         header_row = QHBoxLayout()
         header_row.setSpacing(8)
         number_label = QLabel(cr.change_number)
@@ -253,6 +262,13 @@ class ChangeDetailPanel(QWidget):
         badge = _make_status_badge_label(cr.status, self._content_widget)
         header_row.addWidget(badge)
         header_row.addStretch(1)
+
+        # 编辑按钮（M3-1 新增）
+        edit_btn = QPushButton("编辑")
+        edit_btn.setObjectName("editBtn")
+        edit_btn.clicked.connect(self._on_edit_clicked)
+        header_row.addWidget(edit_btn)
+
         self._content_layout.addLayout(header_row)
 
         # 基本信息
@@ -367,3 +383,28 @@ class ChangeDetailPanel(QWidget):
         log.info("状态流转完成，刷新详情: %s", change_number)
         self.load_change(change_number)
         self.transition_completed.emit(change_number)
+
+    # ── 编辑处理（M3-1 新增） ─────────────────────────────
+
+    def _on_edit_clicked(self) -> None:
+        """编辑按钮点击 → 弹出 EditChangeDialog"""
+        if self._current_change is None:
+            log.warning("编辑按钮点击但当前无选中变更单")
+            return
+
+        change_number = self._current_change.change_number
+        log.info("打开编辑变更单对话框: %s", change_number)
+
+        dialog = EditChangeDialog(
+            change_number=change_number,
+            change_service=self._change_service,
+            parent=self,
+        )
+        dialog.change_updated.connect(self._on_edit_done)
+        dialog.exec()
+
+    def _on_edit_done(self, change_number: str) -> None:
+        """EditChangeDialog 保存成功回调 → 重新加载详情 + 发射信号"""
+        log.info("变更单已修改，刷新详情: %s", change_number)
+        self.load_change(change_number)
+        self.change_updated.emit(change_number)

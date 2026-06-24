@@ -84,6 +84,64 @@ class BugRecorder:
         """标记测试失败的项目，session 结束后清理"""
         self._failed_projects.add(project_id)
 
+    def capture_all_windows(
+        self,
+        app: object,
+        test_name: str,
+        step: str,
+        expected: str,
+        actual: str,
+        severity: str = "critical",
+    ) -> BugRecord:
+        """截图所有可见顶层窗口并记录 Bug（用于超时/卡死现场保存）
+
+        遍历 app.topLevelWidgets()，对每个可见 QWidget 调用 grab().save()
+        保存截图到 screenshot_dir，文件名含 bug_id 和窗口标题。
+        返回 BugRecord，screenshot_path 指向第一张截图。
+        """
+        self._counter += 1
+        bug_id = f"BUG-{self._counter:03d}"
+
+        screenshot_path = ""
+        captured_count = 0
+        captured_paths: list[str] = []
+        try:
+            from PySide6.QtWidgets import QWidget  # noqa: PLC0415
+
+            for w in app.topLevelWidgets():
+                if isinstance(w, QWidget) and w.isVisible():
+                    title = w.windowTitle() or w.__class__.__name__
+                    safe_title = (
+                        "".join(c for c in title if c.isalnum() or c in "-_")
+                        or "window"
+                    )
+                    path = self.screenshot_dir / f"{bug_id}_{safe_title}.png"
+                    if w.grab().save(str(path)):
+                        captured_count += 1
+                        captured_paths.append(str(path))
+                        if not screenshot_path:
+                            screenshot_path = str(path)
+        except Exception:
+            pass
+
+        if captured_count == 0:
+            actual = f"{actual}（未捕获到任何可见窗口）"
+        else:
+            actual = f"{actual}（已截图 {captured_count} 个窗口: {captured_paths}）"
+
+        bug = BugRecord(
+            bug_id=bug_id,
+            test_name=test_name,
+            step=step,
+            expected=expected,
+            actual=actual,
+            severity=severity,
+            screenshot_path=screenshot_path,
+            traceback="",
+        )
+        self.bugs.append(bug)
+        return bug
+
     @property
     def failed_projects(self) -> set[str]:
         return set(self._failed_projects)
@@ -98,9 +156,9 @@ class BugRecorder:
             "test_session": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "total_bugs": len(self.bugs),
             "by_severity": {
-                "critical": sum(1 for b in self.bugs if b["severity"] == "critical"),
-                "major": sum(1 for b in self.bugs if b["severity"] == "major"),
-                "minor": sum(1 for b in self.bugs if b["severity"] == "minor"),
+                "critical": sum(1 for b in self.bugs if b.severity == "critical"),
+                "major": sum(1 for b in self.bugs if b.severity == "major"),
+                "minor": sum(1 for b in self.bugs if b.severity == "minor"),
             },
             "failed_projects": sorted(self._failed_projects),
             "bugs": [asdict(b) for b in self.bugs],

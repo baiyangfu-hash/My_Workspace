@@ -1,6 +1,6 @@
 """数据访问层（Repository）
 
-提供 projects / change_requests / scan_log 三张表的 CRUD 操作。
+提供 projects / change_requests / impact_analysis / approval_history / scan_log 五张表的 CRUD 操作。
 所有方法使用参数化查询防止 SQL 注入。
 """
 
@@ -12,7 +12,12 @@ from datetime import datetime
 from typing import Any
 
 from auto_pm.db.connection import DatabaseManager
-from auto_pm.models import ChangeSummary, ProjectRecord
+from auto_pm.models import (
+    ApprovalRecord,
+    ChangeSummary,
+    ImpactAnalysis,
+    ProjectRecord,
+)
 
 
 class ProjectRepository:
@@ -172,6 +177,9 @@ class ChangeRequestRepository:
 
     def __init__(self, db: DatabaseManager) -> None:
         self.db = db
+        # M2-2: 组合影响分析和审批历史 Repository，提供统一入口
+        self._impact_repo = ImpactAnalysisRepository(db)
+        self._approval_repo = ApprovalHistoryRepository(db)
 
     def upsert(self, change: ChangeSummary, file_path: str = "", file_mtime: float = 0) -> None:
         """插入或更新变更单记录"""
@@ -273,6 +281,248 @@ class ChangeRequestRepository:
             applicant=row["applicant"],
             apply_date=row["apply_date"],
             title=row["title"],
+        )
+
+    # ── M2-2: 影响分析与审批历史委托方法（统一入口） ──
+
+    def save_impact_analysis(self, analysis: ImpactAnalysis) -> None:
+        """保存变更影响分析（M2-2 T47）
+
+        委托给 ImpactAnalysisRepository.upsert，提供 ChangeRequestRepository 统一入口。
+
+        Args:
+            analysis: 影响分析模型，change_number 为主键
+        """
+        self._impact_repo.upsert(analysis)
+
+    def get_impact_analysis(self, change_number: str) -> ImpactAnalysis | None:
+        """查询变更影响分析（M2-2 T48）
+
+        委托给 ImpactAnalysisRepository.get_by_change_number。
+
+        Returns:
+            ImpactAnalysis 或 None（不存在时）
+        """
+        return self._impact_repo.get_by_change_number(change_number)
+
+    def save_approval_record(
+        self,
+        change_number: str,
+        to_status: str,
+        approver: str,
+        comment: str = "",
+        from_status: str = "",
+    ) -> int:
+        """保存审批流转记录（M2-2 T49）
+
+        委托给 ApprovalHistoryRepository.insert，提供 ChangeRequestRepository 统一入口。
+        每次 transition_status 流转都应调用此方法追加一条记录。
+
+        Args:
+            change_number: 变更编号
+            to_status: 流转后的目标状态
+            approver: 审批人/操作人
+            comment: 审批意见
+            from_status: 流转前状态（可选，由 ChangeService 传入 current_cr.status）
+
+        Returns:
+            记录 ID
+        """
+        record = ApprovalRecord(
+            change_number=change_number,
+            from_status=from_status,
+            to_status=to_status,
+            approver=approver,
+            comment=comment,
+        )
+        return self._approval_repo.insert(record)
+
+    def list_approval_history(self, change_number: str) -> list[ApprovalRecord]:
+        """查询审批流转历史（M2-2 T50）
+
+        委托给 ApprovalHistoryRepository.list_by_change，按 id 升序（时间顺序）返回。
+
+        Returns:
+            审批记录列表，空列表表示无记录
+        """
+        return self._approval_repo.list_by_change(change_number)
+
+
+class ImpactAnalysisRepository:
+    """变更影响分析持久化 CRUD（M2-1 新增）
+
+    对齐 impact_analysis 表，存储 §6 影响分析的结构化数据。
+    供 GUI 传播链视图和影响分析编辑使用。
+    """
+
+    def __init__(self, db: DatabaseManager) -> None:
+        self.db = db
+
+    def upsert(self, analysis: ImpactAnalysis) -> None:
+        """插入或更新影响分析记录（UPSERT）
+
+        Args:
+            analysis: 影响分析模型，change_number 为主键
+        """
+        with self.db.get_connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO impact_analysis
+                    (change_number, risk_level, mitigation, constraint_impacts,
+                     domain_impacts, propagation_chain, related_changes, updated_at)
+                VALUES
+                    (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(change_number) DO UPDATE SET
+                    risk_level=excluded.risk_level,
+                    mitigation=excluded.mitigation,
+                    constraint_impacts=excluded.constraint_impacts,
+                    domain_impacts=excluded.domain_impacts,
+                    propagation_chain=excluded.propagation_chain,
+                    related_changes=excluded.related_changes,
+                    updated_at=excluded.updated_at
+                """,
+                (
+                    analysis.change_number,
+                    analysis.risk_level,
+                    analysis.mitigation,
+                    json.dumps(analysis.constraint_impacts, ensure_ascii=False),
+                    json.dumps(analysis.domain_impacts, ensure_ascii=False),
+                    analysis.propagation_chain,
+                    json.dumps(analysis.related_changes, ensure_ascii=False),
+                    analysis.updated_at or datetime.now().isoformat(),
+                ),
+            )
+            conn.commit()
+
+    def get_by_change_number(self, change_number: str) -> ImpactAnalysis | None:
+        """按变更编号查询影响分析
+
+        Returns:
+            ImpactAnalysis 或 None（不存在时）
+        """
+        with self.db.get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM impact_analysis WHERE change_number = ?",
+                (change_number,),
+            ).fetchone()
+            return self._row_to_analysis(row) if row else None
+
+    def delete(self, change_number: str) -> bool:
+        """删除影响分析记录
+
+        Returns:
+            True 如果删除了记录，False 如果记录不存在
+        """
+        with self.db.get_connection() as conn:
+            cursor = conn.execute(
+                "DELETE FROM impact_analysis WHERE change_number = ?",
+                (change_number,),
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def _row_to_analysis(row: sqlite3.Row) -> ImpactAnalysis:
+        """将数据库行转换为 ImpactAnalysis"""
+        constraint_impacts: dict[str, str] = (
+            json.loads(row["constraint_impacts"]) if row["constraint_impacts"] else {}
+        )
+        domain_impacts: dict[str, dict[str, Any]] = (
+            json.loads(row["domain_impacts"]) if row["domain_impacts"] else {}
+        )
+        related_changes: list[str] = (
+            json.loads(row["related_changes"]) if row["related_changes"] else []
+        )
+        return ImpactAnalysis(
+            change_number=row["change_number"],
+            risk_level=row["risk_level"],
+            mitigation=row["mitigation"],
+            constraint_impacts=constraint_impacts,
+            domain_impacts=domain_impacts,
+            propagation_chain=row["propagation_chain"],
+            related_changes=related_changes,
+            updated_at=row["updated_at"],
+        )
+
+
+class ApprovalHistoryRepository:
+    """审批流转历史持久化 CRUD（M2-1 新增）
+
+    对齐 approval_history 表，每次 transition_status 流转追加一条记录。
+    供 GUI 审批时间线使用。
+    """
+
+    def __init__(self, db: DatabaseManager) -> None:
+        self.db = db
+
+    def insert(self, record: ApprovalRecord) -> int:
+        """插入一条审批流转记录
+
+        Args:
+            record: 审批记录模型（id 字段忽略，由 DB 自增）
+
+        Returns:
+            记录 ID
+        """
+        transition_date = record.transition_date or datetime.now().isoformat()
+        with self.db.get_connection() as conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO approval_history
+                    (change_number, from_status, to_status, approver,
+                     comment, transition_date)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record.change_number,
+                    record.from_status,
+                    record.to_status,
+                    record.approver,
+                    record.comment,
+                    transition_date,
+                ),
+            )
+            conn.commit()
+            return cursor.lastrowid or 0
+
+    def list_by_change(self, change_number: str) -> list[ApprovalRecord]:
+        """按变更编号查询审批历史（按 id 升序，即时间顺序）
+
+        Returns:
+            审批记录列表，空列表表示无记录
+        """
+        with self.db.get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM approval_history WHERE change_number = ? ORDER BY id ASC",
+                (change_number,),
+            ).fetchall()
+            return [self._row_to_record(row) for row in rows]
+
+    def delete_by_change(self, change_number: str) -> int:
+        """删除变更单的所有审批历史记录
+
+        Returns:
+            删除的记录数
+        """
+        with self.db.get_connection() as conn:
+            cursor = conn.execute(
+                "DELETE FROM approval_history WHERE change_number = ?",
+                (change_number,),
+            )
+            conn.commit()
+            return cursor.rowcount
+
+    @staticmethod
+    def _row_to_record(row: sqlite3.Row) -> ApprovalRecord:
+        """将数据库行转换为 ApprovalRecord"""
+        return ApprovalRecord(
+            id=row["id"],
+            change_number=row["change_number"],
+            from_status=row["from_status"],
+            to_status=row["to_status"],
+            approver=row["approver"],
+            comment=row["comment"],
+            transition_date=row["transition_date"],
         )
 
 

@@ -16,6 +16,7 @@ from auto_pm.change.models import (
     ChangeSummary,
 )
 from auto_pm.logging.logging import setup_logger as get_logger
+from auto_pm.models import ImpactAnalysis
 from auto_pm.models.enums import BusinessNature, ChangeStatus, Domain, ImpactScope
 from auto_pm.utils.file_utils import get_mtime, read_file
 
@@ -115,6 +116,31 @@ class ChgParser:
             applicant=cr.applicant,
             apply_date=cr.apply_date,
             title=title,
+        )
+
+    def to_impact_analysis(self, cr: ChangeRequest) -> ImpactAnalysis:
+        """将 ChangeRequest 的 §6 影响分析字段转换为 ImpactAnalysis 持久化模型（M2-4 T58）
+
+        提取 ChangeRequest 中已解析的 §6.1/§6.2/§6.3 字段，构造 ImpactAnalysis 模型。
+        供 ChangeService.create_change_request / update_change_request 调用以持久化影响分析。
+
+        Args:
+            cr: 已解析的 ChangeRequest
+
+        Returns:
+            ImpactAnalysis 持久化模型（updated_at 自动填充当前时间）
+        """
+        from datetime import datetime
+
+        return ImpactAnalysis(
+            change_number=cr.change_number,
+            risk_level=cr.risk_level,
+            mitigation=cr.mitigation,
+            constraint_impacts=cr.constraint_impacts,
+            domain_impacts=cr.domain_impacts,
+            propagation_chain=cr.propagation_chain,
+            related_changes=cr.related_changes,
+            updated_at=datetime.now().isoformat(),
         )
 
     # ---- 内部方法 ----
@@ -384,6 +410,9 @@ class ChgParser:
         s61 = self._find_subsection(text, "6.1")
         if s61:
             cr.constraint_impacts = self._parse_constraint_impacts(s61)
+            # M1-1: 解析 §6.1 下方的风险等级和缓解措施
+            cr.risk_level = self._parse_risk_level(s61)
+            cr.mitigation = self._parse_mitigation(s61)
 
         # §6.2 技术领域影响
         s62 = self._find_subsection(text, "6.2")
@@ -403,6 +432,57 @@ class ChgParser:
         )
         has_propagation = bool(cr.related_changes)
         cr.has_section_6 = has_constraint or has_domain or has_propagation
+
+    def _parse_risk_level(self, text: str) -> str:
+        """解析 §6.1 风险等级（M1-1: PMBOK 风险评估）
+
+        从 **风险等级** 标记行中提取 ☑ 对应的等级。
+        返回: none/low/medium/high，空字符串表示未评估。
+
+        格式示例:
+            **风险等级**（PMBOK风险评估）：□无 ☑低 □中 □高 → low
+            **风险等级**（PMBOK风险评估）：☑无 □低 □中 □高 → none
+        """
+        # 定位 **风险等级** 标记行
+        pattern = re.compile(
+            r"\*\*风险等级\*\*[^：:]*[：:]\s*(.*?)(?:\n\n|\n\*\*|\n###|\Z)",
+            re.DOTALL,
+        )
+        match = pattern.search(text)
+        if not match:
+            return ""
+        risk_text = match.group(1).strip()
+
+        # 提取 ☑ 标记对应的等级
+        level_map = {"无": "none", "低": "low", "中": "medium", "高": "high"}
+        for cn, code in level_map.items():
+            if f"☑{cn}" in risk_text or f"☑ {cn}" in risk_text:
+                return code
+        return ""
+
+    def _parse_mitigation(self, text: str) -> str:
+        """解析 §6.1 缓解措施（M1-1: 风险应对策略）
+
+        从 **缓解措施** 标记后提取文本块。
+        返回: 缓解措施文本，空字符串表示未填写。
+
+        格式示例:
+            **缓解措施**（风险应对策略）：
+            增加单元测试覆盖率，进行代码评审
+        """
+        # 定位 **缓解措施** 标记后的文本块
+        pattern = re.compile(
+            r"\*\*缓解措施\*\*[^：:]*[：:]\s*\n(.*?)(?:\n\n###|\n###|\n##|\Z)",
+            re.DOTALL,
+        )
+        match = pattern.search(text)
+        if not match:
+            return ""
+        content = match.group(1).strip()
+        # 过滤模板占位符
+        if content == "（待填写）" or not content:
+            return ""
+        return content
 
     def _parse_constraint_impacts(self, text: str) -> dict[str, str]:
         """解析 §6.1 项目约束影响表
@@ -487,15 +567,16 @@ class ChgParser:
     def _extract_propagation_chain(self, text: str) -> str:
         """提取 §6.3 变更传播链路径描述
 
-        从代码块中提取传播路径文本。
+        §6.3 包含两个代码块：
+        1. 传播路径示例（包含"原始领域变更"/"领域A"等占位文字）
+        2. 本次变更传播链（用户填写）
+
+        遍历所有代码块，跳过示例路径，返回第一个非示例代码块的内容。
         """
-        # 提取代码块中的传播链
-        code_block_match = re.search(
-            r"```\s*\n(.*?)\n```", text, re.DOTALL
-        )
-        if code_block_match:
-            chain_text = code_block_match.group(1).strip()
-            # 过滤掉示例路径（包含"原始领域变更"等占位文字的为示例）
+        code_blocks: list[str] = re.findall(r"```\s*\n(.*?)\n```", text, re.DOTALL)
+        for raw_block in code_blocks:
+            chain_text = raw_block.strip()
+            # 跳过示例路径
             if "原始领域变更" not in chain_text and "领域A" not in chain_text:
                 return chain_text
         return ""
@@ -585,16 +666,19 @@ class ChgParser:
         return self._has_table_data_rows(text)
 
     def _extract_verification_conclusion(self, text: str) -> str:
-        """提取 §10.2 验证结论
+        """提取验证结论（M1-2: 适配 §10.3 三节结构，兼容旧 §10.2）
 
-        匹配三种格式（按优先级）：
+        定位策略（按优先级）：
+        1. 新结构 §10.3 验证结论区域
+        2. 旧结构 §10.2 验证结论区域（向后兼容）
+
+        匹配三种行格式（按优先级）：
         1. _update_verification_conclusion 写入格式: | **验证结论** | 全部通过 |
-        2. 原始模板格式: 在 §10.2 区域内的 | 结论 | ☑全部通过 □ ... |
-        3. 原始模板格式: 在 §10.2 区域内的 | 结论 | □ 全部通过,可关闭 ... |
+        2. 原始模板格式: | 结论 | ☑全部通过 □ ... |
+        3. 原始模板格式: | 结论 | □ 全部通过,可关闭 ... |
         """
-        # 优先提取 §10.2 区域文本（避免 §10.1 的 ☑ 干扰）
-        sec_10_2_match = re.search(r"###\s*§?\s*10\.2\b(.*?)(?:###\s|##\s11\b|\Z)", text, re.DOTALL)
-        section_text = sec_10_2_match.group(1) if sec_10_2_match else text
+        # 优先提取 §10.3 区域文本，回退到 §10.2（向后兼容）
+        section_text = self._extract_conclusion_section_text(text)
 
         # 格式1: _update_verification_conclusion 写入的 **验证结论** | 值 | 格式（精确匹配）
         match = re.search(
@@ -606,14 +690,12 @@ class ChgParser:
             if conclusion:
                 return conclusion
 
-        # 格式2: 原始模板含 ☑ 标记（仅在 §10.2 区域内）
+        # 格式2: 原始模板含 ☑ 标记（仅在结论区域内）
         match = re.search(r"\|[^|\n]*结论[^|\n]*\|[^|\n]*☑\s*(\S+?)(?:\s*[,，□\|\n]|$)", section_text)
         if match:
             return match.group(1).strip()
 
-        # 格式3: 原始模板中 □ 选中（在结论行中匹配 "□ 全部通过" 模式）
-        # 这里匹配的是模板中 □ 被替换为 ☑ 的情况已在格式2处理
-        # 兜底：如果结论行明确写了"全部通过"，提取它
+        # 格式3: 兜底，如果结论行明确写了"全部通过"，提取它
         conclusion_match = re.search(
             r"\|[^|\n]*结论[^|\n]*\|\s*[^|\n]*全部通过[^|\n]*\s*\|",
             section_text,
@@ -622,6 +704,89 @@ class ChgParser:
             return "全部通过"
 
         return ""
+
+    def _extract_conclusion_section_text(self, text: str) -> str:
+        """提取验证结论章节文本（M1-2）
+
+        优先匹配 §10.3，回退到 §10.2（向后兼容旧变更单）。
+        返回结论章节的正文文本（不含节标题），用于在其中查找结论行。
+        """
+        # 优先匹配 §10.3（新结构）
+        sec_10_3_match = re.search(
+            r"###\s*§?\s*10\.3\b(.*?)(?:###\s|##\s11\b|\Z)",
+            text,
+            re.DOTALL,
+        )
+        if sec_10_3_match:
+            return sec_10_3_match.group(1)
+
+        # 回退到 §10.2（旧结构）
+        sec_10_2_match = re.search(
+            r"###\s*§?\s*10\.2\b(.*?)(?:###\s|##\s11\b|\Z)",
+            text,
+            re.DOTALL,
+        )
+        if sec_10_2_match:
+            return sec_10_2_match.group(1)
+
+        # 兜底：返回整个 §10 文本
+        return text
+
+    def _parse_cross_domain_verification(self, text: str) -> list[dict[str, str]]:
+        """解析 §10.2 跨领域联动验证（M1-2）
+
+        解析 §10.2 表格中的传播环节验证记录。
+
+        表格结构（对齐 040 模板 V2.1.0）：
+        | 传播环节 | 关联变更单 | 该环节验证 | 验证人 | 验证日期 |
+
+        返回: [{propagation: str, related_chg: str, result: str, verifier: str, date: str}]
+        """
+        # 定位 §10.2 区域
+        sec_10_2_match = re.search(
+            r"###\s*§?\s*10\.2\b(.*?)(?:###\s|##\s11\b|\Z)",
+            text,
+            re.DOTALL,
+        )
+        if not sec_10_2_match:
+            return []
+
+        section_text = sec_10_2_match.group(1)
+        records: list[dict[str, str]] = []
+
+        for line in section_text.split("\n"):
+            line = line.strip()
+            if not line.startswith("|"):
+                continue
+            if re.match(r"^\|[\s\-:|]+\|$", line):
+                continue
+            # 排除表头行
+            if "传播环节" in line and "关联变更单" in line:
+                continue
+
+            cells = [c.strip() for c in line.split("|")[1:-1]]
+            if len(cells) < 5:
+                continue
+            # 排除模板占位行（CHG-xxx 占位符）
+            if "CHG-xxx" in cells[1] or "CHG-yyy" in cells[1]:
+                continue
+
+            # 解析验证结果：☑通过 / ☑不通过
+            result = ""
+            if "☑通过" in cells[2] or "☑ 通过" in cells[2]:
+                result = "通过"
+            elif "☑不通过" in cells[2] or "☑ 不通过" in cells[2]:
+                result = "不通过"
+
+            records.append({
+                "propagation": cells[0],
+                "related_chg": cells[1],
+                "result": result,
+                "verifier": cells[3],
+                "date": cells[4],
+            })
+
+        return records
 
     def _validate_spec_compliance(self, cr: ChangeRequest, sections: dict[str, str]) -> list[str]:
         """校验变更单是否符合 CHG-040 规范
