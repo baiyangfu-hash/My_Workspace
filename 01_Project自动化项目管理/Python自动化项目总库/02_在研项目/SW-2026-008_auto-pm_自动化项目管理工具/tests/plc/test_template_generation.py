@@ -68,9 +68,9 @@ class TestTemplateGeneration:
         assert os.path.isfile(os.path.join(path, "copier.yml"))
         # 验证无根级 .plc.json.jinja（C-1 修复）
         assert not os.path.isfile(os.path.join(path, "template", ".plc.json.jinja"))
-        # 验证 .plc.json.jinja 在 02_PLC程序/02_PLC程序/ 下
+        # 验证 .plc.json.jinja 在 02_PLC程序/PLC_ST/ 下
         plc_json_jinja = os.path.join(
-            path, "template", "02_PLC程序", "02_PLC程序", ".plc.json.jinja"
+            path, "template", "02_PLC程序", "PLC_ST", ".plc.json.jinja"
         )
         assert os.path.isfile(plc_json_jinja)
 

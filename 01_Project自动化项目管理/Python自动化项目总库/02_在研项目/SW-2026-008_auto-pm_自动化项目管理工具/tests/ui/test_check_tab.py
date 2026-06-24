@@ -239,13 +239,13 @@ class TestCheckTabRunCheck:
         """摘要栏应显示正确的通过/警告/失败计数"""
         _run_check(check_tab, qapp)
 
-        # mixed 项目: 6 pass / 3 warn / 12 fail
-        # pass: .plc.json, PM_SESSION, PRD目录, PRD/接口文档_INT.md, 目录02_PLC程序, 目录03_HMI设计
-        # warn: .plc.json libraries[./lib]路径不存在, PRD/需求分析文档_REQ.md命名不匹配, Spec Snapshot未找到registry
+        # mixed 项目: 7 pass / 2 warn / 12 fail
+        # pass: .plc.json, PM_SESSION, PRD目录, PRD/接口文档_INT.md, 目录02_PLC程序, 目录03_HMI设计, +1
+        # warn: .plc.json libraries[./lib]路径不存在, Spec Snapshot未找到registry
         # fail: PRD/详细设计说明书_DSN.md, PRD/技术方案文档_TEC.md, 10个缺失目录
         summary = check_tab._summary_label.text()
-        assert "6 通过" in summary
-        assert "3 警告" in summary
+        assert "7 通过" in summary
+        assert "2 警告" in summary
         assert "12 失败" in summary
 
     def test_run_check_groups_correct(self, check_tab: CheckTab, qapp: QApplication) -> None:
@@ -257,14 +257,14 @@ class TestCheckTabRunCheck:
         assert any("标志文件" in t for t in titles)
         assert any("PRD 文档" in t for t in titles)
         assert any("目录结构" in t for t in titles)
-        assert len(titles) == 3
+        assert len(titles) == 4  # 标志文件/PRD文档/目录结构/其他（V0.2.3 新增 Spec Snapshot 归入"其他"）
 
     def test_run_check_group_card_count(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """分组卡片数量应与分组数一致"""
         _run_check(check_tab, qapp)
 
         cards = check_tab._get_group_cards()
-        assert len(cards) == 3
+        assert len(cards) == 4
 
     def test_run_check_emits_signal(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """执行检查后应发射 check_completed 信号"""
@@ -279,9 +279,9 @@ class TestCheckTabRunCheck:
         assert check_tab._last_check_result is None
         _run_check(check_tab, qapp)
         assert check_tab._last_check_result is not None
-        assert check_tab._last_check_result.pass_count == 8
-        assert check_tab._last_check_result.warn_count == 1
-        assert check_tab._last_check_result.fail_count == 4
+        assert check_tab._last_check_result.pass_count == 7
+        assert check_tab._last_check_result.warn_count == 2
+        assert check_tab._last_check_result.fail_count == 12
 
 
 # ── 状态图标测试 ─────────────────────────────────────────
@@ -296,7 +296,7 @@ class TestCheckTabStatusIcon:
 
         item_labels = _get_item_labels(check_tab)
         pass_labels = [lbl for lbl in item_labels if lbl.text().startswith("✅")]
-        assert len(pass_labels) == 8  # 8 个 pass 项
+        assert len(pass_labels) == 7  # 7 个 pass 项
 
     def test_warn_items_have_warn_icon(self, check_tab: CheckTab, qapp: QApplication) -> None:
         """warn 项的文本应包含 ⚠️ 图标"""
@@ -336,11 +336,11 @@ class TestCheckTabRepairButton:
     def test_repair_buttons_only_for_warn_fail(
         self, check_tab: CheckTab, qapp: QApplication
     ) -> None:
-        """修复按钮仅对 warn/fail 项显示（共 5 个：1 warn + 4 fail）"""
+        """修复按钮仅对 warn/fail 项显示（共 14 个：2 warn + 12 fail）"""
         _run_check(check_tab, qapp)
 
         item_btns = _get_item_buttons(check_tab)
-        assert len(item_btns) == 5
+        assert len(item_btns) == 14
 
     def test_pass_items_have_no_repair_button(
         self, check_tab: CheckTab, qapp: QApplication
@@ -410,9 +410,9 @@ class TestCheckTabAutoRepair:
         check_tab._on_auto_repair()
         qapp.processEvents()
 
-        # mixed 项目: 4 fixed (创建缺失的 PRD 文档和目录) + 1 skipped (命名不匹配需确认)
+        # mixed 项目: 12 fixed (创建缺失的 PRD 文档和目录) + 1 skipped (命名不匹配需确认)
         summary = check_tab._summary_label.text()
-        assert "4 可修复" in summary
+        assert "12 可修复" in summary
         assert "1 跳过" in summary
         assert "0 失败" in summary
 

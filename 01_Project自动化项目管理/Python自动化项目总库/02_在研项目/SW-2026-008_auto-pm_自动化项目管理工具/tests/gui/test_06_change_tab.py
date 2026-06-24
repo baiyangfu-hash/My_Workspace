@@ -50,9 +50,9 @@ def test_create_change_dialog_open(main_window, app, test_project_id):
 
     def _verify_and_close():
         dlg = find_dialog(app, "创建变更单")
-        if dlg is not None:
-            found.append(dlg)
-            reject_dialog(dlg, app)
+        assert dlg is not None, "创建变更单对话框未弹出"
+        found.append(dlg)
+        reject_dialog(dlg, app)
 
     QTimer.singleShot(100, _verify_and_close)
     change_tab._on_create_change()

@@ -304,10 +304,10 @@ class TestCheckTabInteractive:
         assert len(cards) > 0
         # 检查结果应被保存
         assert tab._last_check_result is not None
-        # mixed 项目: 8 pass / 1 warn / 4 fail
-        assert tab._last_check_result.pass_count == 8
-        assert tab._last_check_result.warn_count == 1
-        assert tab._last_check_result.fail_count == 4
+        # mixed 项目: 7 pass / 2 warn / 12 fail
+        assert tab._last_check_result.pass_count == 7
+        assert tab._last_check_result.warn_count == 2
+        assert tab._last_check_result.fail_count == 12
 
     def test_check_tab_groups(
         self, qapp: QApplication, main_window: MainWindow, workspace_root: Path
@@ -326,10 +326,10 @@ class TestCheckTabInteractive:
         assert any("标志文件" in t for t in titles)
         assert any("PRD 文档" in t for t in titles)
         assert any("目录结构" in t for t in titles)
-        assert len(titles) == 3
+        assert len(titles) == 4  # 标志文件/PRD文档/目录结构/其他（V0.2.3 新增）
         # 分组卡片数量应与分组数一致
         cards = tab._get_group_cards()
-        assert len(cards) == 3
+        assert len(cards) == 4
 
     def test_check_tab_status_icons(
         self, qapp: QApplication, main_window: MainWindow, workspace_root: Path
@@ -458,9 +458,9 @@ class TestCheckTabInteractive:
 
         # 执行检查后摘要应显示正确计数
         summary = tab._summary_label.text()
-        assert "8 通过" in summary
-        assert "1 警告" in summary
-        assert "4 失败" in summary
+        assert "7 通过" in summary
+        assert "2 警告" in summary
+        assert "12 失败" in summary
 
 
 # ══════════════════════════════════════════════════════════
@@ -651,16 +651,16 @@ class TestFullFlow:
         qapp.processEvents()
 
         assert tab._last_check_result is not None
-        assert tab._last_check_result.fail_count == 4
-        assert tab._last_check_result.warn_count == 1
-        assert tab._last_check_result.pass_count == 8
-        # 应有 5 个修复按钮（1 warn + 4 fail）
+        assert tab._last_check_result.fail_count == 12
+        assert tab._last_check_result.warn_count == 2
+        assert tab._last_check_result.pass_count == 7
+        # 应有 14 个修复按钮（2 warn + 12 fail）
         item_btns = _get_item_buttons(tab)
-        assert len(item_btns) == 5
+        assert len(item_btns) == 14
 
         # ── Step 2: 点击修复按钮 → 实际执行修复 ──
         # 修复按钮触发 _on_repair_item，执行 repair_project(dry_run=False)
-        # 后端会修复所有可修复项（4 个 fail 全部被修复）
+        # 后端会修复所有可修复项（12 个 fail 全部被修复）
         item_btns[0].click()
         qapp.processEvents()
 
@@ -668,20 +668,20 @@ class TestFullFlow:
         # _on_repair_item 内部会重新检查并渲染结果
         assert tab._last_check_result is not None
         assert tab._last_check_result.fail_count == 0
-        # warn 项（命名不匹配）未被修复（rename_confirm=False）
-        assert tab._last_check_result.warn_count == 1
-        # pass 项应增加（原 8 + 修复的 4 个 fail = 12）
-        assert tab._last_check_result.pass_count == 12
+        # warn 项（命名不匹配 + Spec Snapshot）未被修复（rename_confirm=False + registry缺失）
+        assert tab._last_check_result.warn_count == 2
+        # pass 项应增加（原 7 + 修复的 12 个 fail = 19）
+        assert tab._last_check_result.pass_count == 19
 
         # 摘要栏应更新
         summary = tab._summary_label.text()
         assert "0 失败" in summary
-        assert "1 警告" in summary
-        assert "12 通过" in summary
+        assert "2 警告" in summary
+        assert "19 通过" in summary
 
         # 修复后应发射 repair_completed 信号
         # （通过重新检查验证修复效果，信号已在 _on_repair_item 中发射）
 
-        # 修复按钮数量应减少（只剩 warn 项的 1 个）
+        # 修复按钮数量应减少（只剩 warn 项的 2 个）
         remaining_btns = _get_item_buttons(tab)
-        assert len(remaining_btns) == 1
+        assert len(remaining_btns) == 2

@@ -38,9 +38,9 @@ def test_new_project_dialog_open(main_window, app):
 
     def _verify_and_close():
         dlg = find_dialog(app, "新建项目")
-        if dlg is not None:
-            found.append(dlg)
-            reject_dialog(dlg, app)
+        assert dlg is not None, "新建项目对话框未弹出"
+        found.append(dlg)
+        reject_dialog(dlg, app)
 
     QTimer.singleShot(100, _verify_and_close)
     main_window._on_new_project("plc")
@@ -81,9 +81,9 @@ def test_edit_project_dialog_open(main_window, app, test_project_id):
 
     def _verify_and_close():
         dlg = find_dialog(app, "编辑项目")
-        if dlg is not None:
-            found.append(dlg)
-            reject_dialog(dlg, app)
+        assert dlg is not None, "编辑项目对话框未弹出"
+        found.append(dlg)
+        reject_dialog(dlg, app)
 
     QTimer.singleShot(100, _verify_and_close)
     main_window._workspace_view._on_edit_clicked()

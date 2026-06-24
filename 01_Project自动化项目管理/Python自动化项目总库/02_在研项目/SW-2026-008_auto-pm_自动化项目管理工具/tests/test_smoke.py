@@ -89,7 +89,7 @@ class TestCoreImports:
         )
         assert STACK_TEMPLATE_MAP is not None
         assert BUSINESS_LINE_OPTIONS is not None
-        assert get_template_name("plc") == "plc-standard"
+        assert get_template_name("plc") == "plc-standard-project"
 
 
 # ── 状态流转合法性测试 ─────────────────────────────────

@@ -78,9 +78,9 @@ class TestChangeService:
         svc = ChangeService(workspace_root)
         cr = svc.get_change_request("CHG-DOCU-2026-001")
 
-        if cr is not None:
-            assert cr.change_number == "CHG-DOCU-2026-001"
-            assert cr.domain == "DOCU"
+        assert cr is not None, "变更单 CHG-DOCU-2026-001 未找到，fixture 可能缺项目标志文件"
+        assert cr.change_number == "CHG-DOCU-2026-001"
+        assert cr.domain == "DOCU"
 
     def test_get_change_request_not_found(self, workspace_root: str) -> None:
         """测试查询不存在的变更单"""

@@ -54,7 +54,7 @@ class TestRetrofitProjectByPath:
         assert answers["description"] == "PLC测试项目"
         assert answers["version"] == "V1.0.0"
         # PLC 项目模板路径
-        assert answers["_src_path"] == "templates/plc-standard"
+        assert answers["_src_path"] == "templates/plc-standard-project"
 
     def test_retrofit_python_project(self, tmp_path: Path) -> None:
         """非 PLC 项目（无 .plc.json）补全 .copier-answers.yml"""
