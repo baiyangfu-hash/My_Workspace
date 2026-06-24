@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QWidget
 
 from auto_pm.models import ProjectInfo
 from auto_pm.ui.navigation.nav_model import NavNode
@@ -74,7 +74,7 @@ class NavigationTree(QTreeWidget):
     project_filter_requested = Signal(str, str)
     page_switch_requested = Signal(str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("navTree")
         self.setHeaderHidden(True)
@@ -152,8 +152,8 @@ class NavigationTree(QTreeWidget):
         phase_counts: dict[tuple[str, str], int] = {}
 
         for proj in projects:
-            stack = proj.stack or ""
-            phase = proj.phase or ""
+            stack = proj.stack
+            phase = proj.phase
             if stack not in self._stack_nodes:
                 continue
             stack_counts[stack] = stack_counts.get(stack, 0) + 1

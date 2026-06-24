@@ -28,7 +28,8 @@ import os
 from datetime import datetime
 from typing import Any
 
-from PySide6.QtCore import Qt, Signal, QUrl
+import yaml
+from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QFrame,
@@ -40,8 +41,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-import yaml
 
 from auto_pm.core.template_service import TemplateService
 from auto_pm.logging.logging import setup_logger
@@ -333,7 +332,6 @@ class DocTab(QWidget):
         - 变更单_*.md 或 CHG-*.md → change
         - 其他 .md → other
         """
-        name = filename.lower()
         if filename.startswith("PM_SESSION_") and filename.endswith(".md"):
             return "pm_session"
         if filename.startswith("立项表_") and filename.endswith(".md"):
@@ -427,7 +425,9 @@ class DocTab(QWidget):
         """获取文档树的所有分类节点（顶层节点）"""
         items: list[QTreeWidgetItem] = []
         for i in range(self._doc_tree.topLevelItemCount()):
-            items.append(self._doc_tree.topLevelItem(i))
+            item = self._doc_tree.topLevelItem(i)
+            assert item is not None
+            items.append(item)
         return items
 
     def _get_documents_in_category(self, cat_item: QTreeWidgetItem) -> list[QTreeWidgetItem]:

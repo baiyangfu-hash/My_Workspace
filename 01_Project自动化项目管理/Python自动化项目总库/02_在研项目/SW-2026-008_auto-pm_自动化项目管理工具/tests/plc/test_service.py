@@ -6,10 +6,7 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
-
-import pytest
 
 from auto_pm.core.protocols import PlcServiceProtocol
 from auto_pm.plc.service import PlcService
@@ -78,7 +75,7 @@ class TestPlcServiceCheck:
         )
 
         svc = PlcService(str(tmp_path))
-        result = svc.check(str(project_dir), fix=True)
+        svc.check(str(project_dir), fix=True)
 
         # 修复后应创建标准目录（STD_DIRS 已更新为 12 个，检查其中一个即可）
         assert (project_dir / "00_项目管理").is_dir()

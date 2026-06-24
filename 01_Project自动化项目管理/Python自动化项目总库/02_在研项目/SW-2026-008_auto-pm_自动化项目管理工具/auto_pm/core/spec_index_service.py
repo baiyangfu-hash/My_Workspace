@@ -14,7 +14,7 @@ from __future__ import annotations
 import glob
 import os
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 
 from auto_pm.logging.logging import setup_logger
 
@@ -288,7 +288,7 @@ class SpecIndexService:
 
     # ── 统计 ──────────────────────────────────────────────
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         """获取规范索引统计信息
 
         Returns:

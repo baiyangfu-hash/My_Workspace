@@ -217,7 +217,7 @@ def cmd_create(
                 )
             else:
                 console.print(
-                    f"[red]错误: shared-library 模式需要 --library-name 参数[/red]"
+                    "[red]错误: shared-library 模式需要 --library-name 参数[/red]"
                 )
                 ctx.exit(1)
 

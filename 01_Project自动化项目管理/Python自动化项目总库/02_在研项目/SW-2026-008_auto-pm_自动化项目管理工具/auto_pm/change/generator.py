@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+from typing import cast
 
 from auto_pm.change.models import (
     BUSINESS_NATURE_DESCRIPTIONS,
@@ -30,7 +31,7 @@ class ChgGenerator:
         today = datetime.date.today().isoformat()
 
         # 影响范围选择行
-        scope_lines = self._render_scope_options(cr.impact_scope)
+        scope_lines = self._render_scope_options(cast(list[str], cr.impact_scope))
         # 领域选择行
         domain_lines = self._render_domain_options(cr.domain)
         # 业务性质选择行

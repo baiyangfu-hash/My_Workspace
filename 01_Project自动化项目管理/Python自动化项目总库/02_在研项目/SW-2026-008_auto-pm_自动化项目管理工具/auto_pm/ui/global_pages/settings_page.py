@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime
 
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -23,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from auto_pm.change.change_service import ChangeService
 from auto_pm.core.project_service import ProjectService
+from auto_pm.db.connection import DatabaseManager
 from auto_pm.logging.logging import setup_logger
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
@@ -173,7 +173,7 @@ class SettingsPage(QWidget):
         # 上次同步时间
         self._last_sync_label.setText(f"上次同步: {self._get_last_sync_time(db)}")
 
-    def _get_last_sync_time(self, db) -> str:
+    def _get_last_sync_time(self, db: DatabaseManager) -> str:
         """获取上次同步时间
 
         M3-Iter5：通过 ProjectService.get_last_sync_time() 访问，

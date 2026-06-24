@@ -74,10 +74,9 @@ def bug_recorder() -> BugRecorder:
 def setup_test_project(qapp: QApplication, bug_recorder: BugRecorder):
     """session 级：创建测试项目，session 结束后清理失败项目"""
     # ── Setup：创建测试项目 ──
-    created = False
     if TEST_PROJECT_DIR.exists():
         # 已存在则复用
-        created = True
+        pass
     else:
         # 通过 auto-pm CLI 创建
         try:
@@ -94,14 +93,12 @@ def setup_test_project(qapp: QApplication, bug_recorder: BugRecorder):
                 cwd=str(Path(__file__).resolve().parent.parent.parent),
             )
             if result.returncode == 0:
-                created = True
+                pass
             else:
                 # CLI 失败则手动创建最小项目结构
                 _create_minimal_project()
-                created = True
         except Exception:
             _create_minimal_project()
-            created = True
 
     qapp.processEvents()
 

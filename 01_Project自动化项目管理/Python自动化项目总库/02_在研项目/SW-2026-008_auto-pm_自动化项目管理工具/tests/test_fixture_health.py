@@ -219,8 +219,8 @@ class TestFixtureHealth:
         V2 改进：用 AST 分析 mkdir/makedirs 调用检测"创建目录"，
         递归检查辅助函数调用，避免字符串模式匹配的误报。
 
-        本测试为 WARN 级别：发现问题时输出警告但不阻断测试套件，
-        因为这些是技术债需要逐步修复。
+        本测试为 FAIL 级别（TD-T07 已升级）：发现问题时阻断测试套件，
+        防止技术债再次累积。依赖 TD-T03/T04 已偿还（0 violations）。
         """
         test_files = _find_test_files(tests_dir)
         assert len(test_files) > 0, "未找到测试文件"
@@ -256,19 +256,18 @@ class TestFixtureHealth:
                     )
 
         if violations:
-            import warnings
             msg = "\n".join(violations)
-            warnings.warn(
-                f"\n[FIXTURE HEALTH WARN] 发现 {len(violations)} 个 fixture 缺项目标志文件：\n{msg}\n"
-                f"这些 fixture 可能导致 ChangeFileLocator 无法定位项目目录，"
-                f"建议逐步修复以避免假通过/假失败。"
+            pytest.fail(
+                f"[FIXTURE HEALTH FAIL] 发现 {len(violations)} 个 fixture 缺项目标志文件：\n{msg}\n"
+                f"这些 fixture 会导致 ChangeFileLocator 无法定位项目目录，"
+                f"必须修复以避免假通过/假失败。"
             )
 
     def test_no_conditional_assertion_skips(self, tests_dir: Path) -> None:
         """检查是否存在 `if cr is not None:` 类条件断言跳过（假通过模式）。
 
-        本测试为 WARN 级别：发现问题时输出警告但不阻断测试套件，
-        因为这些是技术债需要逐步修复。
+        本测试为 FAIL 级别（TD-T07 已升级）：发现问题时阻断测试套件，
+        防止假通过模式再次出现。依赖 TD-T04 已偿还（0 violations）。
         """
         test_files = _find_test_files(tests_dir)
         violations: list[str] = []
@@ -285,9 +284,8 @@ class TestFixtureHealth:
                 )
 
         if violations:
-            import warnings
             msg = "\n".join(violations)
-            warnings.warn(
-                f"\n[FIXTURE HEALTH WARN] 发现 {len(violations)} 个文件存在条件断言跳过模式：\n{msg}\n"
-                f"建议改为 `assert x is not None` 暴露 fixture 缺陷，避免假通过。"
+            pytest.fail(
+                f"[FIXTURE HEALTH FAIL] 发现 {len(violations)} 个文件存在条件断言跳过模式：\n{msg}\n"
+                f"必须改为 `assert x is not None` 暴露 fixture 缺陷，避免假通过。"
             )

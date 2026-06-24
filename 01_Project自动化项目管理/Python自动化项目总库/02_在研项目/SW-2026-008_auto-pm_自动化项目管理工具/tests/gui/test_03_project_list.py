@@ -63,8 +63,6 @@ class TestProjectList:
     def test_filter_business_line(self, main_window, app):
         """切换 _business_combo，验证不崩溃且筛选状态更新"""
         combo = main_window._business_combo
-        # 记录初始筛选列表
-        initial_count = len(main_window._project_list_view._filtered_projects)
 
         # 依次切换每个业务线选项
         for i in range(combo.count()):

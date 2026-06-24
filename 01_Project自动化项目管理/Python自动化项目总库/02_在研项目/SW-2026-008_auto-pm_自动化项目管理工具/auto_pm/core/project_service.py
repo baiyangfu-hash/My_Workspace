@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import yaml
 
@@ -472,7 +472,7 @@ class ProjectService:
             latest = repo.get_latest()
             if latest is None:
                 return "—"
-            timestamp = latest.get("timestamp", "")
+            timestamp = cast(str, latest.get("timestamp", ""))
             if not timestamp:
                 return "—"
             # 截取 YYYY-MM-DD HH:MM 部分

@@ -134,11 +134,11 @@ class BugRecorder:
                 if bug.screenshot_path:
                     lines.append(f"- **截图**: {bug.screenshot_path}")
                 if bug.traceback:
-                    lines.append(f"- **堆栈**:")
-                    lines.append(f"  ```")
+                    lines.append("- **堆栈**:")
+                    lines.append("  ```")
                     for line in bug.traceback.splitlines():
                         lines.append(f"  {line}")
-                    lines.append(f"  ```")
+                    lines.append("  ```")
                 lines.append("")
         md_path.write_text("\n".join(lines), encoding="utf-8")
         return json_path, md_path

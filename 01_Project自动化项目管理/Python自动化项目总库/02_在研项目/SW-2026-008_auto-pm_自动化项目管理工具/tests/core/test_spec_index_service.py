@@ -19,10 +19,8 @@ import pytest
 
 from auto_pm.core.spec_index_service import (
     SpecDiffResult,
-    SpecIndexEntry,
     SpecIndexService,
 )
-
 
 # ── fixtures ─────────────────────────────────────────────
 

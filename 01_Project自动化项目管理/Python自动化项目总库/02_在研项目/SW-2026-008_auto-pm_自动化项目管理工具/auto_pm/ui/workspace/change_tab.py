@@ -20,6 +20,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
@@ -144,7 +146,7 @@ def _make_status_badge_label(status: str, parent: QWidget | None = None) -> QLab
     return label
 
 
-def _format_impact_scope(scopes: list[str]) -> str:
+def _format_impact_scope(scopes: Sequence[str]) -> str:
     """格式化影响范围列表为中文标签字符串"""
     if not scopes:
         return "—"
@@ -281,6 +283,7 @@ class _ChangeCard(QFrame):
         """清空详情区域"""
         while self._detail_layout.count():
             item = self._detail_layout.takeAt(0)
+            assert item is not None
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
@@ -421,6 +424,7 @@ class ChangeTab(QWidget):
         """清空列表中的卡片（保留底部弹簧）"""
         while self._list_layout.count() > 1:
             item = self._list_layout.takeAt(0)
+            assert item is not None
             widget = item.widget()
             if widget is not None:
                 widget.setParent(None)

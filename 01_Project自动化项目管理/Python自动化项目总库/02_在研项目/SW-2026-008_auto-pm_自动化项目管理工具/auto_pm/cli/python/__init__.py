@@ -77,7 +77,7 @@ def cmd_init(
 
     if dry_run:
         console.print(f"[yellow][DRY-RUN] 将创建 Python 项目: {dest_path}[/yellow]")
-        console.print(f"  模板: python-tool")
+        console.print("  模板: python-tool")
         console.print(f"  编号: {project_id}")
         console.print(f"  名称: {project_name}")
         console.print(f"  包名: {package_name}")

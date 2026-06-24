@@ -21,7 +21,7 @@ from auto_pm.app_context import AppContext
 from auto_pm.core.project_service import ProjectService
 from auto_pm.core.template_service import TemplateService
 from auto_pm.plc.checker import PlcChecker
-from auto_pm.plc.models import CheckResult
+from auto_pm.plc.models import CheckResult, RepairResult
 from auto_pm.plc.service import PlcService
 
 console = Console()
@@ -107,12 +107,12 @@ def cmd_check(
         results = svc.check_workspace()
         if not results:
             if output_json:
-                print(json.dumps([], ensure_ascii=False, indent=2))
+                print(json.dumps([], ensure_ascii=False, indent=2))  # noqa: T201
             else:
                 console.print("[yellow]未发现 PLC 项目[/yellow]")
             return
         if output_json:
-            print(json.dumps([r.model_dump() for r in results], ensure_ascii=False, indent=2))
+            print(json.dumps([r.model_dump() for r in results], ensure_ascii=False, indent=2))  # noqa: T201
         else:
             _print_check_summary(results)
         return
@@ -134,7 +134,7 @@ def cmd_check(
         result = svc.check(proj.path, fix=fix)
 
     if output_json:
-        print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))
+        print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))  # noqa: T201
     else:
         _print_check_detail(result)
 
@@ -273,7 +273,7 @@ def _print_check_detail(result: CheckResult) -> None:
     )
 
 
-def _print_repair_result(result) -> None:
+def _print_repair_result(result: RepairResult) -> None:
     """打印修复结果
 
     V0.2.1-P2-4: 标题使用 project_id（与 project show 一致）。

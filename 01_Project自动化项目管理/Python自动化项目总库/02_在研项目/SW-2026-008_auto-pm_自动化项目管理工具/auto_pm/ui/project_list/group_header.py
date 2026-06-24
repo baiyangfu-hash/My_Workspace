@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
 __all__ = ["GroupHeader"]
@@ -80,7 +81,7 @@ class GroupHeader(QFrame):
 
     # ── 鼠标交互 ──────────────────────────────────────────
 
-    def mousePressEvent(self, event) -> None:  # type: ignore[override]
+    def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
             self.set_expanded(not self._expanded)
         super().mousePressEvent(event)

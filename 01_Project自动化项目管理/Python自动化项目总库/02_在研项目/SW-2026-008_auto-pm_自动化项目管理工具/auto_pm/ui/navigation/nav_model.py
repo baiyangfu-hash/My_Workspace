@@ -31,4 +31,4 @@ class NavNode:
     filter_phase: Optional[str] = None
     page_id: Optional[str] = None
     badge_count: int = 0
-    children: list = field(default_factory=list)
+    children: list[NavNode] = field(default_factory=list)

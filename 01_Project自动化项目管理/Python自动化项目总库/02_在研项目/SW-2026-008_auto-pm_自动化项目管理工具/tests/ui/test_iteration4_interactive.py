@@ -31,7 +31,6 @@ from PySide6.QtWidgets import (  # noqa: E402
     QLabel,
     QMessageBox,
     QProgressBar,
-    QPushButton,
 )
 
 from auto_pm.db.repository import ChangeRequestRepository  # noqa: E402

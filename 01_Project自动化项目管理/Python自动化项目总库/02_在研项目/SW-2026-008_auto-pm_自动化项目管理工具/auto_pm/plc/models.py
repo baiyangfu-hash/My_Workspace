@@ -19,6 +19,16 @@ from auto_pm.models.plc import (  # noqa: F401
     StandardizeResult,
 )
 
+# 显式导出（mypy strict 模式要求）
+__all__ = [
+    "CheckItem",
+    "CheckResult",
+    "RenamePlan",
+    "RepairAction",
+    "RepairResult",
+    "StandardizeResult",
+]
+
 # ── 常量 ──────────────────────────────────────────────────
 
 # 标准 PLC 项目目录结构（LSP-907 §3.1）

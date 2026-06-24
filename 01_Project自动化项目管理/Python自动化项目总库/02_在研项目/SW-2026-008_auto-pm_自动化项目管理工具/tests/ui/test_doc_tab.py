@@ -23,7 +23,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QUrl  # noqa: E402
-from PySide6.QtWidgets import QApplication, QPushButton  # noqa: E402
+from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from auto_pm.core.template_service import TemplateService  # noqa: E402
 from auto_pm.ui.workspace.doc_tab import DocTab  # noqa: E402
@@ -287,11 +287,11 @@ class TestDocTabClassification:
         qapp.processEvents()
 
         labels = _get_category_labels(tab)
-        assert any("PM_SESSION" in l for l in labels)
-        assert any("立项表" in l for l in labels)
-        assert any("变更单" in l for l in labels)
-        assert any("整改项" in l for l in labels)
-        assert any("其他文档" in l for l in labels)
+        assert any("PM_SESSION" in label for label in labels)
+        assert any("立项表" in label for label in labels)
+        assert any("变更单" in label for label in labels)
+        assert any("整改项" in label for label in labels)
+        assert any("其他文档" in label for label in labels)
         tab.deleteLater()
         qapp.processEvents()
 

@@ -1,0 +1,413 @@
+auto_pm\ui\navigation\nav_model.py: note: In class "NavNode":
+auto_pm\ui\navigation\nav_model.py:34:15: error: Missing type arguments for
+generic type "list"  [type-arg]
+        children: list = field(default_factory=list)
+                  ^
+auto_pm\core\spec_index_service.py: note: In member "get_stats" of class "SpecIndexService":
+auto_pm\core\spec_index_service.py:291:28: error: Missing type arguments for
+generic type "dict"  [type-arg]
+        def get_stats(self) -> dict:
+                               ^
+auto_pm\ui\project_list\group_header.py:83: error: Unused "type: ignore"
+comment  [unused-ignore]
+        def mousePressEvent(self, event) -> None:  # type: ignore[override...
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\project_list\group_header.py: note: In member "mousePressEvent" of class "GroupHeader":
+auto_pm\ui\project_list\group_header.py:83:5: error: Function is missing a type
+annotation for one or more parameters  [no-untyped-def]
+        def mousePressEvent(self, event) -> None:  # type: ignore[override...
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\project_list\group_header.py:83:5: note: Error code "no-untyped-def" not covered by "type: ignore[override]" comment
+auto_pm\ui\global_pages\global_view.py: note: In member "__init__" of class "GlobalView":
+auto_pm\ui\global_pages\global_view.py:43:5: error: Function is missing a type
+annotation for one or more parameters  [no-untyped-def]
+        def __init__(self, parent=None) -> None:
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\global_pages\spec_center.py: note: In member "_show_diff_dialog" of class "SpecCenterView":
+auto_pm\ui\global_pages\spec_center.py:397:5: error: Function is missing a type
+annotation for one or more parameters  [no-untyped-def]
+        def _show_diff_dialog(self, diff) -> None:
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\models\change.py: note: In class "ChangeRequest":
+auto_pm\models\change.py:68:31: error: Missing type arguments for generic type
+"dict"  [type-arg]
+        domain_impacts: dict[str, dict] = Field(
+                                  ^
+auto_pm\plc\substance_checker.py: note: In member "check_project" of class "SubstanceChecker":
+auto_pm\plc\substance_checker.py:68:31: error: Incompatible types in assignment
+(expression has type "Literal['substance_check']", variable has type
+"Literal['standard', 'syslib_fb']")  [assignment]
+            result.project_type = "substance_check"
+                                  ^~~~~~~~~~~~~~~~~
+auto_pm\ui\navigation\nav_tree.py: note: In member "__init__" of class "NavigationTree":
+auto_pm\ui\navigation\nav_tree.py:77:5: error: Function is missing a type
+annotation for one or more parameters  [no-untyped-def]
+        def __init__(self, parent=None) -> None:
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\navigation\nav_tree.py: note: In member "update_counts" of class "NavigationTree":
+auto_pm\ui\navigation\nav_tree.py:155:35: error: Right operand of "or" is never
+evaluated  [unreachable]
+                stack = proj.stack or ""
+                                      ^~
+auto_pm\ui\models\project_model.py: note: In member "rowCount" of class "ProjectModel":
+auto_pm\ui\models\project_model.py:38:24: error: Argument 1 of "rowCount" is
+incompatible with supertype "PySide6.QtCore.QAbstractItemModel"; supertype
+defines the argument type as "QModelIndex | QPersistentModelIndex"  [override]
+        def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+                           ^~~~~~~~~~~~~~~~~~~
+auto_pm\ui\models\project_model.py:38:24: note: This violates the Liskov substitution principle
+auto_pm\ui\models\project_model.py:38:24: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+auto_pm\ui\models\project_model.py: note: In member "data" of class "ProjectModel":
+auto_pm\ui\models\project_model.py:43:20: error: Argument 1 of "data" is
+incompatible with supertype "PySide6.QtCore.QAbstractItemModel"; supertype
+defines the argument type as "QModelIndex | QPersistentModelIndex"  [override]
+        def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.Dis...
+                       ^~~~~~~~~~~~~~~~~~
+auto_pm\ui\models\project_model.py:43:20: note: This violates the Liskov substitution principle
+auto_pm\ui\models\project_model.py:43:20: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+auto_pm\core\report_service.py: note: In member "get_project_overview" of class "ReportService":
+auto_pm\core\report_service.py:94:39: error: Missing type arguments for generic
+type "dict"  [type-arg]
+        def get_project_overview(self) -> dict:
+                                          ^
+auto_pm\core\report_service.py:110:20: error: "object" has no attribute
+"list_projects_cached"  [attr-defined]
+            projects = self._project_service.list_projects_cached()
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\core\report_service.py: note: In member "get_change_overview" of class "ReportService":
+auto_pm\core\report_service.py:141:38: error: Missing type arguments for
+generic type "dict"  [type-arg]
+        def get_change_overview(self) -> dict:
+                                         ^
+auto_pm\core\report_service.py:151:19: error: "object" has no attribute
+"list_all_changes"  [attr-defined]
+            changes = self._change_service.list_all_changes()
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\core\report_service.py: note: In member "get_spec_report" of class "ReportService":
+auto_pm\core\report_service.py:175:34: error: Missing type arguments for
+generic type "dict"  [type-arg]
+        def get_spec_report(self) -> dict:
+                                     ^
+auto_pm\core\report_service.py: note: In member "get_scan_report" of class "ReportService":
+auto_pm\core\report_service.py:245:34: error: Missing type arguments for
+generic type "dict"  [type-arg]
+        def get_scan_report(self) -> dict:
+                                     ^
+auto_pm\core\report_service.py:266:34: error: Argument 1 to "ScanLogRepository"
+has incompatible type "object"; expected "DatabaseManager"  [arg-type]
+            repo = ScanLogRepository(self._db)
+                                     ^~~~~~~~
+auto_pm\core\report_service.py: note: In member "get_report" of class "ReportService":
+auto_pm\core\report_service.py:287:47: error: Missing type arguments for
+generic type "dict"  [type-arg]
+        def get_report(self, report_type: str) -> dict:
+                                                  ^
+auto_pm\ui\global_pages\report_page.py: note: In member "_render_project_overview" of class "ReportPage":
+auto_pm\ui\global_pages\report_page.py:208:46: error: Missing type arguments
+for generic type "dict"  [type-arg]
+        def _render_project_overview(self, data: dict) -> None:
+                                                 ^
+auto_pm\ui\global_pages\report_page.py:214:9: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+            v.addWidget(self._make_summary_label(f"����Ŀ��: {total}"))
+            ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:216:19: error: Missing type arguments
+for generic type "dict"  [type-arg]
+            by_stack: dict = data.get("by_stack", {})
+                      ^
+auto_pm\ui\global_pages\report_page.py:221:13: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+                v.addWidget(self._make_bar_row(label, count, max_val))
+                ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:223:9: error: Item "QLayout" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:223:9: error: Item "None" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py: note: In member "_render_phase_distribution" of class "ReportPage":
+auto_pm\ui\global_pages\report_page.py:225:48: error: Missing type arguments
+for generic type "dict"  [type-arg]
+        def _render_phase_distribution(self, data: dict) -> None:
+                                                   ^
+auto_pm\ui\global_pages\report_page.py:230:19: error: Missing type arguments
+for generic type "dict"  [type-arg]
+            by_phase: dict = data.get("by_phase", {})
+                      ^
+auto_pm\ui\global_pages\report_page.py:235:13: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+                v.addWidget(self._make_bar_row(label, count, max_val))
+                ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:237:9: error: Item "QLayout" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:237:9: error: Item "None" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py: note: In member "_render_bl_distribution" of class "ReportPage":
+auto_pm\ui\global_pages\report_page.py:239:45: error: Missing type arguments
+for generic type "dict"  [type-arg]
+        def _render_bl_distribution(self, data: dict) -> None:
+                                                ^
+auto_pm\ui\global_pages\report_page.py:244:16: error: Missing type arguments
+for generic type "dict"  [type-arg]
+            by_bl: dict = data.get("by_business_line", {})
+                   ^
+auto_pm\ui\global_pages\report_page.py:248:13: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+                v.addWidget(self._make_bar_row(key, count, max_val))
+                ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:250:9: error: Item "QLayout" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:250:9: error: Item "None" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py: note: In member "_render_change_overview" of class "ReportPage":
+auto_pm\ui\global_pages\report_page.py:252:45: error: Missing type arguments
+for generic type "dict"  [type-arg]
+        def _render_change_overview(self, data: dict) -> None:
+                                                ^
+auto_pm\ui\global_pages\report_page.py:258:9: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+            v.addWidget(self._make_summary_label(f"�ܱ��: {total}"))
+            ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:260:20: error: Missing type arguments
+for generic type "dict"  [type-arg]
+            by_status: dict = data.get("by_status", {})
+                       ^
+auto_pm\ui\global_pages\report_page.py:268:17: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+                    v.addWidget(self._make_bar_row(label, count, max_val))
+                    ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:274:17: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+                    v.addWidget(self._make_bar_row(label, count, max_val))
+                    ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:276:9: error: Item "QLayout" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:276:9: error: Item "None" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py: note: In member "_render_error" of class "ReportPage":
+auto_pm\ui\global_pages\report_page.py:335:9: error: Item "None" of
+"QLayout | None" has no attribute "addWidget"  [union-attr]
+            v.addWidget(self._make_empty_hint(f"����ʧ��: {message}"))
+            ^~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:336:9: error: Item "QLayout" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py:336:9: error: Item "None" of
+"QLayout | None" has no attribute "addStretch"  [union-attr]
+            v.addStretch(1)
+            ^~~~~~~~~~~~
+auto_pm\ui\global_pages\report_page.py: note: In member "_clear_card" of class "ReportPage":
+auto_pm\ui\global_pages\report_page.py:346:15: error: Item "None" of
+"QLayout | None" has no attribute "count"  [union-attr]
+            while v.count():
+                  ^~~~~~~
+auto_pm\ui\global_pages\report_page.py:347:20: error: Item "None" of
+"QLayout | None" has no attribute "takeAt"  [union-attr]
+                item = v.takeAt(0)
+                       ^~~~~~~~
+auto_pm\ui\global_pages\report_page.py:348:22: error: Item "None" of
+"QLayoutItem | Any | None" has no attribute "widget"  [union-attr]
+                widget = item.widget()
+                         ^~~~~~~~~~~
+auto_pm\ui\workspace\doc_tab.py: note: In member "_get_category_items" of class "DocTab":
+auto_pm\ui\workspace\doc_tab.py:428:26: error: Argument 1 to "append" of "list"
+has incompatible type "QTreeWidgetItem | None"; expected "QTreeWidgetItem" 
+[arg-type]
+                items.append(self._doc_tree.topLevelItem(i))
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\plc\checker.py: note: In member "check_project" of class "PlcChecker":
+auto_pm\plc\checker.py:59:31: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['standard', 'syslib_fb']")  [assignment]
+            result.project_type = project_type
+                                  ^~~~~~~~~~~~
+auto_pm\change\parser.py: note: In member "parse" of class "ChgParser":
+auto_pm\change\parser.py:39:21: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['ELEC', 'MECH', 'PLC', 'HMI', 'SCPT', 'DOCU', 'SAFE', '']") 
+[assignment]
+            cr.domain = self._extract_domain_from_path(file_path)
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\parser.py:64:25: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['draft', 'submitted', 'under_review', 'approved', 'conditionally_approved', 'rejected', 'implementing', 'pending_acceptance', 'accepting', 'completed', 'closed', 'archived']")
+ [assignment]
+                cr.status = explicit_status
+                            ^~~~~~~~~~~~~~~
+auto_pm\change\parser.py:69:29: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['draft', 'submitted', 'under_review', 'approved', 'conditionally_approved', 'rejected', 'implementing', 'pending_acceptance', 'accepting', 'completed', 'closed', 'archived']")
+ [assignment]
+                    cr.status = self._infer_status_from_approval(sections[...
+                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~...
+auto_pm\change\parser.py:71:29: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['draft', 'submitted', 'under_review', 'approved', 'conditionally_approved', 'rejected', 'implementing', 'pending_acceptance', 'accepting', 'completed', 'closed', 'archived']")
+ [assignment]
+                    cr.status = self._infer_status_from_approval(sections[...
+                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~...
+auto_pm\change\parser.py: note: In member "_parse_change_info" of class "ChgParser":
+auto_pm\change\parser.py:164:25: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['ELEC', 'MECH', 'PLC', 'HMI', 'SCPT', 'DOCU', 'SAFE', '']") 
+[assignment]
+                cr.domain = self._extract_selected_option(s31) or cr.domai...
+                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\parser.py:169:34: error: Incompatible types in assignment
+(expression has type "str", variable has type
+"Literal['REQ', 'DEF', 'OPT', 'CFG', 'EMRG', '']")  [assignment]
+                cr.business_nature = self._extract_selected_option(s32) or...
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~...
+auto_pm\change\parser.py:174:31: error: Incompatible types in assignment
+(expression has type "list[str]", variable has type
+"list[Literal['LOCAL', 'MODULE', 'SYSTEM', 'CROSS', 'SAFE', '']]")  [assignment]
+                cr.impact_scope = self._extract_selected_options(s33)
+                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\parser.py: note: In member "_parse_domain_impacts" of class "ChgParser":
+auto_pm\change\parser.py:444:61: error: Missing type arguments for generic type
+"dict"  [type-arg]
+        def _parse_domain_impacts(self, text: str) -> dict[str, dict]:
+                                                                ^
+auto_pm\change\parser.py:450:28: error: Missing type arguments for generic type
+"dict"  [type-arg]
+            impacts: dict[str, dict] = {}
+                               ^
+auto_pm\change\generator.py: note: In member "render" of class "ChgGenerator":
+auto_pm\change\generator.py:33:50: error: Argument 1 to "_render_scope_options"
+of "ChgGenerator" has incompatible type
+"list[Literal['LOCAL', 'MODULE', 'SYSTEM', 'CROSS', 'SAFE', '']]"; expected
+"list[str]"  [arg-type]
+            scope_lines = self._render_scope_options(cr.impact_scope)
+                                                     ^~~~~~~~~~~~~~~
+auto_pm\change\generator.py:33:50: note: "list" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+auto_pm\change\generator.py:33:50: note: Consider using "Sequence" instead, which is covariant
+auto_pm\ui\workspace\check_tab.py: note: In member "_clear_list" of class "CheckTab":
+auto_pm\ui\workspace\check_tab.py:466:22: error: Item "None" of
+"QLayoutItem | None" has no attribute "widget"  [union-attr]
+                widget = item.widget()
+                         ^~~~~~~~~~~
+auto_pm\change\change_service.py: note: In member "_get_generator" of class "ChangeService":
+auto_pm\change\change_service.py:78:5: error: Function is missing a return type
+annotation  [no-untyped-def]
+        def _get_generator(self):
+        ^~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\change_service.py:81:31: error: Incompatible types in assignment
+(expression has type "ChgGenerator", variable has type "None")  [assignment]
+                self._generator = ChgGenerator()
+                                  ^~~~~~~~~~~~~~
+auto_pm\change\change_service.py: note: In member "_get_ledger_updater" of class "ChangeService":
+auto_pm\change\change_service.py:84:5: error: Function is missing a return type
+annotation  [no-untyped-def]
+        def _get_ledger_updater(self):
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\change_service.py:87:36: error: Incompatible types in assignment
+(expression has type "LedgerUpdater", variable has type "None")  [assignment]
+                self._ledger_updater = LedgerUpdater()
+                                       ^~~~~~~~~~~~~~~
+auto_pm\change\change_service.py: note: In member "create_change_request" of class "ChangeService":
+auto_pm\change\change_service.py:149:19: error: Call to untyped function
+"_get_generator" in typed context  [no-untyped-call]
+            content = self._get_generator().render(cr)
+                      ^~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\change_service.py:158:13: error: Call to untyped function
+"_get_ledger_updater" in typed context  [no-untyped-call]
+                self._get_ledger_updater().update(
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\change\change_service.py: note: In member "update_change_request" of class "ChangeService":
+auto_pm\change\change_service.py:356:5: error: Function is missing a type
+annotation for one or more parameters  [no-untyped-def]
+        def update_change_request(
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\core\project_service.py: note: In member "get_last_sync_time" of class "ProjectService":
+auto_pm\core\project_service.py:479:13: error: Returning Any from function
+declared to return "str"  [no-any-return]
+                return timestamp[:16].replace("T", " ")
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\global_pages\settings_page.py: note: In member "_get_last_sync_time" of class "SettingsPage":
+auto_pm\ui\global_pages\settings_page.py:175:5: error: Function is missing a
+type annotation for one or more parameters  [no-untyped-def]
+        def _get_last_sync_time(self, db) -> str:
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\plc\service.py: note: In member "check_substance" of class "PlcService":
+auto_pm\plc\service.py:105:5: error: Function is missing a return type
+annotation  [no-untyped-def]
+        def check_substance(self, project_path: str):
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\dialogs\transition_dialog.py: note: In member "get_transition_data" of class "TransitionDialog":
+auto_pm\ui\dialogs\transition_dialog.py:136:38: error: Missing type arguments
+for generic type "dict"  [type-arg]
+        def get_transition_data(self) -> dict:
+                                         ^
+auto_pm\ui\change_center\change_list_panel.py: note: In member "get_current_selection" of class "ChangeListPanel":
+auto_pm\ui\change_center\change_list_panel.py:324:9: error: Returning Any from
+function declared to return "str | None"  [no-any-return]
+            return items[0].data(Qt.ItemDataRole.UserRole)
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\dialogs\create_change_dialog.py: note: In member "get_change_data" of class "CreateChangeDialog":
+auto_pm\ui\dialogs\create_change_dialog.py:172:34: error: Missing type
+arguments for generic type "dict"  [type-arg]
+        def get_change_data(self) -> dict:
+                                     ^
+auto_pm\cli\plc\__init__.py: note: In function "_print_repair_result":
+auto_pm\cli\plc\__init__.py:276:1: error: Function is missing a type annotation
+for one or more parameters  [no-untyped-def]
+    def _print_repair_result(result) -> None:
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\change_center\change_detail_panel.py: note: In member "_clear_content" of class "ChangeDetailPanel":
+auto_pm\ui\change_center\change_detail_panel.py:236:22: error: Item "None" of
+"QLayoutItem | None" has no attribute "widget"  [union-attr]
+                widget = item.widget()
+                         ^~~~~~~~~~~
+auto_pm\ui\change_center\change_detail_panel.py: note: In member "_render_detail" of class "ChangeDetailPanel":
+auto_pm\ui\change_center\change_detail_panel.py:264:65: error: Argument 1 to
+"_format_impact_scope" has incompatible type
+"list[Literal['LOCAL', 'MODULE', 'SYSTEM', 'CROSS', 'SAFE', '']]"; expected
+"list[str]"  [arg-type]
+    ...     self._add_info_row("Ӱ�췶Χ", _format_impact_scope(cr.impact_scope))
+                                                                    ^~~~~~~~~
+auto_pm\ui\change_center\change_detail_panel.py:264:65: note: "list" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+auto_pm\ui\change_center\change_detail_panel.py:264:65: note: Consider using "Sequence" instead, which is covariant
+auto_pm\ui\workspace\change_tab.py: note: In member "_build_ui" of class "_ChangeCard":
+auto_pm\ui\workspace\change_tab.py:198:43: error: Argument 1 to
+"_format_impact_scope" has incompatible type
+"list[Literal['LOCAL', 'MODULE', 'SYSTEM', 'CROSS', 'SAFE', '']]"; expected
+"list[str]"  [arg-type]
+            scope_text = _format_impact_scope(self._summary.impact_scope)
+                                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+auto_pm\ui\workspace\change_tab.py:198:43: note: "list" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+auto_pm\ui\workspace\change_tab.py:198:43: note: Consider using "Sequence" instead, which is covariant
+auto_pm\ui\workspace\change_tab.py: note: In member "_load_detail" of class "_ChangeCard":
+auto_pm\ui\workspace\change_tab.py:272:51: error: Argument 1 to
+"_format_impact_scope" has incompatible type
+"list[Literal['LOCAL', 'MODULE', 'SYSTEM', 'CROSS', 'SAFE', '']]"; expected
+"list[str]"  [arg-type]
+                ("Ӱ�췶Χ", _format_impact_scope(cr.impact_scope)),
+                                                      ^~~~~~~~~~
+auto_pm\ui\workspace\change_tab.py:272:51: note: "list" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+auto_pm\ui\workspace\change_tab.py:272:51: note: Consider using "Sequence" instead, which is covariant
+auto_pm\ui\workspace\change_tab.py: note: In member "_clear_detail" of class "_ChangeCard":
+auto_pm\ui\workspace\change_tab.py:284:22: error: Item "None" of
+"QLayoutItem | None" has no attribute "widget"  [union-attr]
+                widget = item.widget()
+                         ^~~~~~~~~~~
+auto_pm\ui\workspace\change_tab.py: note: In member "_clear_list" of class "ChangeTab":
+auto_pm\ui\workspace\change_tab.py:424:22: error: Item "None" of
+"QLayoutItem | None" has no attribute "widget"  [union-attr]
+                widget = item.widget()
+                         ^~~~~~~~~~~
+Found 82 errors in 26 files (checked 95 source files)

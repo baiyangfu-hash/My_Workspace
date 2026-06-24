@@ -17,6 +17,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
@@ -133,7 +135,7 @@ def _make_status_badge_label(status: str, parent: QWidget | None = None) -> QLab
     return label
 
 
-def _format_impact_scope(scopes: list[str]) -> str:
+def _format_impact_scope(scopes: Sequence[str]) -> str:
     """格式化影响范围列表为中文标签字符串"""
     if not scopes:
         return "—"
@@ -233,6 +235,7 @@ class ChangeDetailPanel(QWidget):
         """清空详情内容布局中的所有 widget"""
         while self._content_layout.count():
             item = self._content_layout.takeAt(0)
+            assert item is not None
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()

@@ -46,16 +46,16 @@ def _fix_windows_encoding() -> None:
             )
 
 
-import click
-from rich.console import Console
+import click  # noqa: E402
+from rich.console import Console  # noqa: E402
 
-from auto_pm.app_context import AppContext
-from auto_pm.cli.change import change_group
-from auto_pm.cli.gui import gui_command
-from auto_pm.cli.plc import plc_group
-from auto_pm.cli.project import project_group
-from auto_pm.cli.python import python_group
-from auto_pm.cli.template import template_group
+from auto_pm.app_context import AppContext  # noqa: E402
+from auto_pm.cli.change import change_group  # noqa: E402
+from auto_pm.cli.gui import gui_command  # noqa: E402
+from auto_pm.cli.plc import plc_group  # noqa: E402
+from auto_pm.cli.project import project_group  # noqa: E402
+from auto_pm.cli.python import python_group  # noqa: E402
+from auto_pm.cli.template import template_group  # noqa: E402
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 

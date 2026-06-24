@@ -13,7 +13,6 @@ from PySide6.QtCore import QTimer
 from PySide6.QtTest import QTest
 
 from tests.gui.helpers.interactions import (
-    accept_dialog,
     dismiss_message_boxes,
     enter_workspace,
     find_dialog,

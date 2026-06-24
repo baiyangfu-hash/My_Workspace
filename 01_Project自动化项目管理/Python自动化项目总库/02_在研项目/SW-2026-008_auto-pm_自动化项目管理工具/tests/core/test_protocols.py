@@ -13,15 +13,14 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from auto_pm.change.change_service import ChangeService
-from auto_pm.core.project_service import ProjectService
-from auto_pm.core.protocols import (
+from auto_pm.change.change_service import ChangeService  # noqa: E402
+from auto_pm.core.project_scanner import ProjectScanner  # noqa: E402
+from auto_pm.core.project_service import ProjectService  # noqa: E402
+from auto_pm.core.protocols import (  # noqa: E402
     ChangeServiceProtocol,
     ProjectScannerProtocol,
     ProjectServiceProtocol,
-    ServiceProtocol,
 )
-from auto_pm.core.project_scanner import ProjectScanner
 
 
 class TestProtocolConformance:

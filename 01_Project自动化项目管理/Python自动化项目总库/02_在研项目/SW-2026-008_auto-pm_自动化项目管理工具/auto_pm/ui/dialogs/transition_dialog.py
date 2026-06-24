@@ -11,6 +11,8 @@ current_status / target_status 使用 CHG-040 规范的英文状态码
 
 from __future__ import annotations
 
+from typing import Any
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QDialog,
@@ -133,7 +135,7 @@ class TransitionDialog(QDialog):
 
     # ── 数据收集 ──────────────────────────────────────────
 
-    def get_transition_data(self) -> dict:
+    def get_transition_data(self) -> dict[str, Any]:
         """返回 {approver, comment, verification_conclusion}"""
         if self._requires_verification:
             conclusion = self._verification_edit.toPlainText().strip() or "全部通过"

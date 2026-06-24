@@ -504,11 +504,11 @@ class TestDocTabInteractive:
         labels = [item.text(0) for item in cats]
 
         # 应包含所有 5 个分类
-        assert any("PM_SESSION" in l for l in labels)
-        assert any("立项表" in l for l in labels)
-        assert any("变更单" in l for l in labels)
-        assert any("整改项" in l for l in labels)
-        assert any("其他文档" in l for l in labels)
+        assert any("PM_SESSION" in label for label in labels)
+        assert any("立项表" in label for label in labels)
+        assert any("变更单" in label for label in labels)
+        assert any("整改项" in label for label in labels)
+        assert any("其他文档" in label for label in labels)
 
         # PM_SESSION 类应有 1 个文档
         pm_cat = _find_category(tab, "PM_SESSION")

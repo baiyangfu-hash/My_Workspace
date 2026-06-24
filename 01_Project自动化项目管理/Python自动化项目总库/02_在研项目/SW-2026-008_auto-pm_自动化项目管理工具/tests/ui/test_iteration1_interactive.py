@@ -31,10 +31,9 @@ from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from auto_pm.models import ProjectInfo  # noqa: E402
 from auto_pm.ui.main_window import MainWindow  # noqa: E402
-from auto_pm.ui.navigation.nav_tree import NavigationTree  # noqa: E402
+from auto_pm.ui.project_list.group_header import GroupHeader  # noqa: E402
 from auto_pm.ui.project_list.list_view import ProjectListView  # noqa: E402
 from auto_pm.ui.project_list.project_card import ProjectCard  # noqa: E402
-from auto_pm.ui.project_list.group_header import GroupHeader  # noqa: E402
 
 
 @pytest.fixture(scope="session")

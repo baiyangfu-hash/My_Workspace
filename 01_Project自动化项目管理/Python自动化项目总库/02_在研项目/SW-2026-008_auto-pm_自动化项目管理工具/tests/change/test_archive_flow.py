@@ -20,10 +20,8 @@ import pytest
 from auto_pm.change.change_service import ChangeService
 from auto_pm.change.models import (
     SpecViolationError,
-    TransitionGuardError,
     validate_status_transition,
 )
-
 
 # ── 测试用变更单内容 ────────────────────────────────────
 

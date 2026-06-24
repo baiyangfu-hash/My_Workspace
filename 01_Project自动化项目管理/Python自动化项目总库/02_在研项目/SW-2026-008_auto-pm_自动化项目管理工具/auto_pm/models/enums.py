@@ -57,8 +57,8 @@ CheckStatus = Literal["pass", "warn", "fail"]
 # 修复动作状态
 RepairStatus = Literal["fixed", "skipped", "failed"]
 
-# 项目类型
-ProjectType = Literal["standard", "syslib_fb"]
+# 项目类型（substance_check 为运行期标记，用于文档实质化检查）
+ProjectType = Literal["standard", "syslib_fb", "substance_check"]
 
 # 文档类型
 DocType = Literal["REQ", "INT", "DSN", "TEC"]

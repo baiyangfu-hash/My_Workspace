@@ -79,10 +79,10 @@ class ReportService:
 
     def __init__(
         self,
-        project_service: object,
-        change_service: object,
+        project_service: Any,
+        change_service: Any,
         workspace_root: str = "",
-        db: Optional[object] = None,
+        db: Optional[Any] = None,
     ) -> None:
         self._project_service = project_service
         self._change_service = change_service
@@ -91,7 +91,7 @@ class ReportService:
 
     # ── 项目报告 ──────────────────────────────────────────
 
-    def get_project_overview(self) -> dict:
+    def get_project_overview(self) -> dict[str, Any]:
         """项目概览统计
 
         Returns:
@@ -138,7 +138,7 @@ class ReportService:
 
     # ── 变更报告 ──────────────────────────────────────────
 
-    def get_change_overview(self) -> dict:
+    def get_change_overview(self) -> dict[str, Any]:
         """变更统计
 
         Returns:
@@ -172,7 +172,7 @@ class ReportService:
 
     # ── 规范报告 ──────────────────────────────────────────
 
-    def get_spec_report(self) -> dict:
+    def get_spec_report(self) -> dict[str, Any]:
         """规范覆盖报告
 
         扫描 workspace_root 下的规范目录，统计每个技术栈的规范总数、
@@ -242,7 +242,7 @@ class ReportService:
 
     # ── 扫描报告 ──────────────────────────────────────────
 
-    def get_scan_report(self) -> dict:
+    def get_scan_report(self) -> dict[str, Any]:
         """扫描日志报告
 
         从 ScanLogRepository 获取扫描日志统计。
@@ -284,7 +284,7 @@ class ReportService:
 
     # ── 统一入口 ──────────────────────────────────────────
 
-    def get_report(self, report_type: str) -> dict:
+    def get_report(self, report_type: str) -> dict[str, Any]:
         """统一报告入口
 
         Args:

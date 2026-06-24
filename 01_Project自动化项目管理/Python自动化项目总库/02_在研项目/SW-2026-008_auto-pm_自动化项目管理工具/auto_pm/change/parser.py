@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+from typing import Any, cast
 
 from auto_pm.change.models import (
     ALL_STATUSES,
@@ -15,6 +16,7 @@ from auto_pm.change.models import (
     ChangeSummary,
 )
 from auto_pm.logging.logging import setup_logger as get_logger
+from auto_pm.models.enums import BusinessNature, ChangeStatus, Domain, ImpactScope
 from auto_pm.utils.file_utils import get_mtime, read_file
 
 log = get_logger(log_level="INFO", app_name="auto_pm")
@@ -36,7 +38,7 @@ class ChgParser:
         )
 
         # 从文件路径提取 domain
-        cr.domain = self._extract_domain_from_path(file_path)
+        cr.domain = cast(Domain, self._extract_domain_from_path(file_path))
         # 从文件名提取 change_number
         cr.change_number = self._extract_change_number(file_path)
 
@@ -61,14 +63,14 @@ class ChgParser:
         # 状态确定：优先从 §3.4 "变更状态" 字段读取（流转时写入），回退到 §8 推断
         explicit_status = self._read_explicit_status(sections.get("3", ""))
         if explicit_status:
-            cr.status = explicit_status
+            cr.status = cast(ChangeStatus, explicit_status)
             log.debug("状态来源: §3.4 变更状态字段 → %s", explicit_status)
         else:
             # 回退：从 §8 审批章节推断
             if "8" in sections:
-                cr.status = self._infer_status_from_approval(sections["8"])
+                cr.status = cast(ChangeStatus, self._infer_status_from_approval(sections["8"]))
             elif "7" in sections:
-                cr.status = self._infer_status_from_approval(sections["7"])
+                cr.status = cast(ChangeStatus, self._infer_status_from_approval(sections["7"]))
 
             # 从 §9/§10 进一步推断
             if "9" in sections and cr.status in ("approved",):
@@ -161,17 +163,17 @@ class ChgParser:
         # §3.1 技术领域
         s31 = self._find_subsection(text, "3.1")
         if s31:
-            cr.domain = self._extract_selected_option(s31) or cr.domain
+            cr.domain = cast(Domain, self._extract_selected_option(s31) or cr.domain)
 
         # §3.2 业务性质
         s32 = self._find_subsection(text, "3.2")
         if s32:
-            cr.business_nature = self._extract_selected_option(s32) or cr.business_nature
+            cr.business_nature = cast(BusinessNature, self._extract_selected_option(s32) or cr.business_nature)
 
         # §3.3 影响范围
         s33 = self._find_subsection(text, "3.3")
         if s33:
-            cr.impact_scope = self._extract_selected_options(s33)
+            cr.impact_scope = cast(list[ImpactScope], self._extract_selected_options(s33))
 
         # §3.4 申请信息
         s34 = self._find_subsection(text, "3.4")
@@ -441,13 +443,13 @@ class ChgParser:
                 return level
         return ""
 
-    def _parse_domain_impacts(self, text: str) -> dict[str, dict]:
+    def _parse_domain_impacts(self, text: str) -> dict[str, dict[str, Any]]:
         """解析 §6.2 技术领域影响表
 
         提取每个领域的受影响状态、影响内容和关联变更单号。
         返回: {领域代码: {affected: bool, content: str, related_chg: str}}
         """
-        impacts: dict[str, dict] = {}
+        impacts: dict[str, dict[str, Any]] = {}
 
         for line in text.split("\n"):
             line = line.strip()

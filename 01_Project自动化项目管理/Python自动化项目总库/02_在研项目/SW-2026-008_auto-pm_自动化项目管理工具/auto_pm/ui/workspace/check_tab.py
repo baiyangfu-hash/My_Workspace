@@ -463,6 +463,7 @@ class CheckTab(QWidget):
         """清空列表（保留底部弹簧）"""
         while self._list_layout.count() > 1:
             item = self._list_layout.takeAt(0)
+            assert item is not None
             widget = item.widget()
             if widget is not None:
                 widget.setParent(None)

@@ -4,7 +4,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-06-24
+- last_updated: 2026-06-25
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -13,14 +13,14 @@
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V0.3.0 迭代计划已制定并获批准 - V2.1 变更管理增强（M0 基座清理 + M1 章节结构修正 + M2 持久化 + M3 GUI 增强 + M4 Dogfooding 自身使用 CHG-*.md 变更单流程）
+- current_focus: V0.3.0 M0 基座清理已完成（16/19 项技术债已偿还）- M1 章节结构修正 + M2 持久化 + M3 GUI 增强 待启动
 - milestone: V0.3.0（pyproject）/ V2.1.0（PRD）
 - acceptance: 5 里程碑 21 任务组 85 任务全部完成 + 版本号四端统一（pyproject=0.3.0/CHANGELOG=[0.3.0]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0）+ CHG-SW-2026-008.md 变更单走完完整生命周期（dogfooding）
 - plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 无（V0.2.3 已交付）
+  - 无（M0 基座清理已完成）
 - completed:
   - P1: Copier模板PoC验证通过
   - P2: Click插件架构 + PLC checker/repairer 迁移 + project CRUD Service
@@ -37,18 +37,20 @@
   - 路线图重排: 完成（V2.0.1~V2.5 七版本规划）
   - V0.2.2 PLC 模块修复: 完成（6 阶段全部交付，C-1~C-6 + H-1~H-10 全部修复）
   - V0.2.3 规范漂移检测能力补齐: 完成（Spec Snapshot 解析器 + PlcChecker/PlcRepairer 扩展 + 版本号统一 + Trae 规则更新 + 27 个单元测试 + 端到端验证）
+  - V0.3.0 M0 基座清理: 完成（16/19 项技术债已偿还；1019 测试通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations + 元测试 FAIL 级别；dogfooding: CHG-SCPT-2026-001 走完完整生命周期）
 - next_up:
-  - V0.3.0 M0: 基座清理（V2.0.1-D 41 个 PLC 规范矛盾代码修复 + V2.0.1-E spec_registry 同步 + list_view mypy + test_project_list flaky + 6 个 UI 测试 QMessageBox 阻塞）
   - V0.3.0 M1: 变更单章节结构修正（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
   - V0.3.0 M2: 影响分析与审批记录持久化（DB schema 扩展 + Repository + Service 集成 + parser 增强）
   - V0.3.0 M3: GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
+  - 剩余技术债: TD-T08（测试并行化）+ TD-A02（测试生产解耦）+ TD-TC01（沙箱路径限制）
+  - dogfooding 发现的产品缺陷: BUG-001（verification_conclusion 过于严格）+ BUG-002（台帐路径解析错误）
 - open_questions:
   - 无
 - risks_dependencies:
   - 无
 - spec_compliance:
-  - last_check: 2026-06-24
-  - result: V0.2.3 交付，pyproject=0.2.3、CHANGELOG=[0.2.3]、PRD=V2.0.3、PM_SESSION §2=§8=V0.2.3 四端统一；27 个新增测试全部通过
+  - last_check: 2026-06-25
+  - result: V0.3.0 M0 完成，pyproject=0.3.0（开发中）、CHANGELOG=[0.3.0]（待追加）、PRD=V2.1.0、PM_SESSION §2=§8=V0.3.0；1019 测试全部通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations
 
 ## 4. Artifacts Index（文档索引）
 - req: 00_项目基础信息/001_产品需求文档_PRD.md
@@ -72,6 +74,13 @@
   - 2026-06-19 V2.0阶段B完成：PySide6主框架搭建（ui包结构13文件 + 主窗口导航 + 多角色适配 + cli/gui.py改PySide6入口）
   - 2026-06-24 V0.2.3 完成：规范漂移检测能力补齐（Spec Snapshot 解析器 + PlcChecker/PlcRepairer 扩展 + 版本号四端统一 + Trae 规则更新 + 27 个单元测试 + DJ-2026-005 端到端验证）
   - 2026-06-24 V0.3.0 迭代计划制定：深度代码分析识别 V2.1 路线图 12 项交付物中 3 项已提前完成，剩余 9 项整合为 4 里程碑 17 任务组 79 任务；spec/tasks/checklist 三份文档已创建并获用户批准
+  - 2026-06-24 V0.3.0 M0 批次1-2 完成：TD-T01/T02/T05/T06 测试同步修复（模板名/检查项计数/模板结构/retrofit 路径）
+  - 2026-06-24 V0.3.0 M0 批次3 完成：TD-T03 元测试 V2 重写（AST 分析替代字符串匹配，13 误报消除）
+  - 2026-06-24 V0.3.0 M0 批次4 完成：TD-T04 4 处条件断言跳过修复（if x is not None → assert x is not None）
+  - 2026-06-24 V0.3.0 M0 批次5 完成：TD-C01 ruff 110 errors → 0（60 自动修复 + 51 手动修复）
+  - 2026-06-25 V0.3.0 M0 批次6 完成：TD-TA01 mypy 99 errors → 0（17 根因修复 + 82 子代理并行修复）
+  - 2026-06-25 V0.3.0 M0 批次7 收尾完成：TD-T07 元测试升级为 FAIL 级别 + TD-C02 ProjectType 根因修复 + TD-A01 dogfooding（CHG-SCPT-2026-001 走完完整生命周期）+ TD-D02 005 标准化为变更记录索引
+  - 2026-06-25 V0.3.0 M0 基座清理全部完成：16/19 项技术债已偿还；1019 测试通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations + 元测试 FAIL 级别；dogfooding 发现 2 个产品缺陷（BUG-001 verification_conclusion 过于严格、BUG-002 台帐路径解析错误）
 
 ## 6. Implementation Log
 - 2026-06-19 | skill=fullstack-engineer | mode=P2实施
@@ -228,13 +237,12 @@
 - blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
 
 ## 8. Handoff Notes
-- current_state: V0.2.3 规范漂移检测能力补齐已完成。新增 auto_pm/plc/spec_snapshot.py（Spec Snapshot 解析器 + DriftItem + parse/load/compare 三函数）；PlcChecker 新增第 5 项 Spec Snapshot 检查（major=FAIL/minor/patch=WARN/无漂移=PASS）；PlcRepairer 新增 _repair_spec_snapshot（正则替换 PM_SESSION 版本号，dry_run 仅预览）；27 个新增单元测试全部通过；DJ-2026-005 端到端验证（检测 7 条漂移 + --fix 后 PASS + --all 7 项目无崩溃）。版本号四端统一：pyproject=0.2.3、CHANGELOG=[0.2.3]、PRD=V2.0.3、PM_SESSION §2=§8=V0.2.3。新增 005_变更记录_CHG.md；.trae/rules/project-rule.md 新增"迭代文档同步规则（强制）"章节。**技术债评估完成**：19 项技术债已识别并写入 006_技术债评估报告.md，建立 Quadrant 优先级矩阵。 **批次1-4技术债修复完成**：TD-T01(模板名)+TD-T06(retrofit路径)+TD-T02(UI检查计数11测试)+TD-T05(模板结构)+TD-T03(13个fixture标志文件)+TD-T04(4处条件断言) 全部修复，1019 测试全绿（1019 passed, 3 warnings in 155s）。**批次3 TD-T03 修复方式变更**：经 AST 诊断确认 13 个 violation 全部是元测试 V1 误报（字符串模式匹配缺陷），实际修复方式为重写元测试 V2（AST 分析 mkdir/makedirs + write_text/open + f-string + 递归辅助函数），violation 从 13→0，无需修改任何 fixture。**批次4 TD-T04 修复**：4 处 `if x is not None:` 改为 `assert x is not None`（含描述性错误信息），条件断言跳过 WARN 消除（warnings 从 4→3），无真实问题暴露。
-- next_focus: V0.3.0 M0 基座清理——继续技术债批次5（TD-C01 ruff自动修复）+ mypy 错误清理（TD-TA01），目标 ruff 0 errors + mypy <50 errors + 元测试 0 violations
+- current_state: V0.3.0 M0 基座清理全部完成。**16/19 项技术债已偿还**：TD-T01~T07（测试债 7 项）+ TD-C01~C04（代码质量债 4 项）+ TD-TA01/TA02（类型标注债 2 项）+ TD-A01（架构债 dogfooding）+ TD-D01/D02（文档债 2 项）。**M0 验收标准全部达成**：1019 测试通过 + ruff 0 errors + mypy 0 errors（超额完成，目标 <50）+ 元测试 0 violations + 元测试 FAIL 级别。**mypy 清理**：99 errors → 0 errors（17 根因修复 models.py __all__ + 82 子代理并行修复 cast/TYPE_CHECKING/dict generics/assert isinstance）。**TD-C02 根因修复**：ProjectType 扩展包含 substance_check，移除 type: ignore[assignment]。**TD-T07 升级**：元测试从 WARN 级别升级为 FAIL 级别（warnings.warn → pytest.fail）。**TD-A01 dogfooding**：创建 CHG-SCPT-2026-001.md 标准变更单，走完完整生命周期（draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed），发现 2 个产品缺陷（BUG-001 verification_conclusion 过于严格、BUG-002 台帐路径解析错误）。**TD-D02 标准化**：005_变更记录_CHG.md 添加"标准变更单索引"章节，指向 CHG-SCPT-2026-001.md。**剩余 3 项技术债**：TD-T08（测试并行化）+ TD-A02（测试生产解耦）+ TD-TC01（沙箱路径限制）。
+- next_focus: V0.3.0 M1 变更单章节结构修正（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
 - watchouts:
   - 旧 auto_pm/gui/（pywebview）保留，阶段F才清理，勿提前删除
   - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB；PLC 相关操作必须通过 PlcService（不直接访问 PlcChecker/PlcRepairer/SubstanceChecker）
   - tests/ui/test_project_list.py（未跟踪）含 isVisible() 误用，随机顺序下 flaky，非本次引入；后续应改用 isVisibleTo(parent)
-  - list_view.py 既有 Qt 枚举简写(Qt.AlignTop 等)导致 mypy 报错，为预存问题；project_card.py 已改用限定形式(Qt.MouseButton.LeftButton)
   - ProjectCard 变更数"活跃"标记规则: count>0 即显示"活跃"，无变更状态细分（仅有计数）
   - archived 状态无法从审批章节推断，必须依赖 §3.4 变更状态字段显式读取
   - Python 项目路径采用优先匹配已有目录策略，新项目创建默认使用 PLC 约定路径
@@ -245,9 +253,10 @@
   - V0.2.3 Spec Snapshot 漂移检测：仅对比 PM_SESSION Spec Snapshot 表格与 spec_registry.json 的版本号，不修改源码、不修改 spec_registry.json；major=FAIL，minor/patch=WARN
   - V0.2.3 Spec Snapshot 修复：仅更新 PM_SESSION 中 Spec Snapshot 表格的版本号列，dry_run 模式仅输出预览不修改文件
   - V0.2.3 spec_snapshot 解析器容忍 spec_registry.json 的 dict/list 两种 specs 结构和列名变体（"规范编号"/"spec_id"等）
-  - V0.2.3 版本号映射：pyproject 0.2.3 ↔ PRD V2.0.3 ↔ PM_SESSION V0.2.3（产品版本 0.2.x 系列，x=3 表示第三个增量）
-  - **技术债警告**：13 个 fixture 缺项目标志文件（TD-T03）可能导致假通过/假失败；4 处条件断言（TD-T04）掩盖真实问题；mypy 99 errors（TD-TA01）类型安全缺失
-- read_first: PM_SESSION §6 实施日志(2026-06-24 V0.2.3 条目), auto_pm/plc/spec_snapshot.py, auto_pm/plc/checker.py(_check_spec_snapshot), auto_pm/plc/repairer.py(_repair_spec_snapshot), .trae/specs/add-spec-drift-detection/spec.md, 00_项目基础信息/005_变更记录_CHG.md, 00_项目基础信息/006_技术债评估报告.md, .trae/rules/project-rule.md(迭代文档同步规则)
+  - **dogfooding 产品缺陷**：BUG-001 verification_conclusion 参数必须是字面量"全部通过"，不能包含详细说明（过于严格，待修复）；BUG-002 台帐更新路径解析错误（中文路径被字符级拆分，TD-TC01 具体表现）
+  - **元测试已升级为 FAIL 级别**：新增 fixture 缺标志文件或条件断言跳过会直接阻断测试套件（不再只是 warning）
+  - **ProjectType 已扩展**：包含 standard/syslib_fb/substance_check 三种类型
+- read_first: PM_SESSION §6 实施日志(2026-06-25 V0.3.0 M0 条目), 00_项目基础信息/006_技术债评估报告.md, 00_项目基础信息/005_变更记录_CHG.md(标准变更单索引), 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-001.md(dogfooding), .trae/specs/v2.1-change-management-enhancement/spec.md, .trae/rules/project-rule.md(迭代文档同步规则)
 
 ## 9. Next Actions
 - ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次1——TD-T01(模板名)+TD-T06(retrofit路径)+TD-C02(project_type类型)+TD-C03(CheckResult导出)+TD-C01(ruff自动修复) 全部修复（5 项技术债偿还；相关测试通过）
@@ -255,11 +264,12 @@
 - ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次2.5——TD-T05(模板结构断言) 修复（期望路径 02_PLC程序/02_PLC程序 → 02_PLC程序/PLC_ST；1 测试通过）
 - ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次3——TD-T03(13个fixture缺标志文件) 全部修复（13 个 violation 经 AST 诊断确认全部为元测试 V1 误报；重写元测试 V2 用 AST 分析替代字符串模式匹配；violation 从 13→0；1019 测试全绿无回归）
 - ✅ [precondition: 批次3完成] [已完成 2026-06-24] done_when: 技术债批次4——TD-T04(4处条件断言) 全部修复（4 处 if x is not None 改为 assert x is not None；含描述性错误信息；无真实问题暴露；1019 测试全绿）
-- [precondition: 批次1-4完成] done_when: M0 收尾验证——1019 测试全部通过 + ruff 0 errors + mypy <50 errors + 元测试 0 violations
+- ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次5——TD-C01(ruff错误) 全部修复（ruff --fix 自动修复 60 个 + 手动修复 51 个：E402 noqa 13个 + E741 l→label 25个 + F841 未使用变量 10个 + T201 CLI JSON 输出 noqa 3个；ruff 0 errors；1019 测试全绿）
+- ✅ [precondition: 批次1-5完成] [已完成 2026-06-25] done_when: 技术债批次6——TD-TA01(mypy 99 errors) 全部修复（17 根因修复 models.py __all__ + 82 子代理并行修复 cast/TYPE_CHECKING/dict generics/assert isinstance；mypy 0 errors；1019 测试全绿）
+- ✅ [precondition: 批次6完成] [已完成 2026-06-25] done_when: M0 收尾验证——1019 测试全部通过 ✅ + ruff 0 errors ✅ + mypy 0 errors ✅（超额完成，目标 <50）+ 元测试 0 violations ✅ + 元测试 FAIL 级别 ✅（TD-T07 升级）+ TD-C02 根因修复 ✅（ProjectType 扩展）+ TD-A01 dogfooding ✅（CHG-SCPT-2026-001 走完完整生命周期）+ TD-D02 标准化 ✅（005 添加标准变更单索引）
 - [precondition: M0 完成] done_when: V0.3.0 M1 变更单章节结构修正完成（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 §3.4 变更状态字段）
 - [precondition: M1 完成] done_when: V0.3.0 M2 影响分析与审批记录持久化完成（DB schema 扩展 + Repository + Service 集成 + parser 增强）
 - [precondition: M1 完成] done_when: V0.3.0 M3 GUI 变更管理增强完成（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
 - [precondition: M0-M3 全部完成] done_when: 版本号四端统一（pyproject=0.3.0/CHANGELOG=[0.3.0]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0）+ 005_变更记录_CHG.md 新增 V2.1.0 条目
-- [precondition: 迭代启动] done_when: M4-1 Dogfooding 创建 CHG-SW-2026-008.md 变更单（使用 auto-pm change create；走 draft→submitted→under_review→approved→implementing 流程；parser 可解析）
-- [precondition: M0-M3 各里程碑完成] done_when: M4-2 Dogfooding 同步实施记录（每个里程碑完成后在 §9 追加条目；状态流转到 pending_acceptance）
-- [precondition: M0-M3 全部完成] done_when: M4-3/M4-4 Dogfooding 验证+归档+台帐（§10 验证记录完整；走 pending_acceptance→accepting→completed→archived；版本变更台帐含 V0.3.0 条目；auto-pm change list/show 可操作）
+- [precondition: dogfooding 持续] done_when: 修复 dogfooding 发现的产品缺陷——BUG-001(verification_conclusion 过于严格) + BUG-002(台帐路径解析错误)
+- [precondition: M0-M3 各里程碑完成] done_when: M4 Dogfooding 持续化——每个里程碑完成后创建对应 CHG-SCPT-2026-XXX.md 变更单，走完整生命周期

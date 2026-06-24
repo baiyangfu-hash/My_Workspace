@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Callable
+from typing import Callable
 
 import pytest
 
@@ -29,12 +29,11 @@ from PySide6.QtWidgets import (  # noqa: E402
     QApplication,
     QMessageBox,
     QPushButton,
-    QToolButton,
     QToolBar,
+    QToolButton,
 )
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
-from auto_pm.core.project_service import ProjectService  # noqa: E402
 from auto_pm.models import ProjectInfo  # noqa: E402
 from auto_pm.ui.dialogs.create_change_dialog import CreateChangeDialog  # noqa: E402
 from auto_pm.ui.dialogs.transition_dialog import TransitionDialog  # noqa: E402
@@ -521,7 +520,7 @@ class TestChangeCenterInteractive:
     ) -> None:
         """详情面板点击流转按钮 → TransitionDialog 弹出"""
         cs = main_window._change_service
-        num = _create_change(cs, background="中心流转对话框测试")
+        _create_change(cs, background="中心流转对话框测试")
 
         view = main_window._change_center_view
         view.refresh()

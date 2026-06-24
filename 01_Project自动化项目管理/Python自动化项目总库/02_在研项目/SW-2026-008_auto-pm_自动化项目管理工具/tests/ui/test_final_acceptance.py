@@ -39,30 +39,22 @@ from PySide6.QtWidgets import (  # noqa: E402
     QLabel,
     QMessageBox,
     QProgressBar,
-    QPushButton,
-    QToolButton,
     QToolBar,
+    QToolButton,
 )
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
-from auto_pm.core.project_service import ProjectService  # noqa: E402
 from auto_pm.db.repository import ChangeRequestRepository  # noqa: E402
 from auto_pm.models import ChangeSummary, ProjectInfo  # noqa: E402
 from auto_pm.ui.change_center.center_view import ChangeCenterView  # noqa: E402
 from auto_pm.ui.dialogs.create_change_dialog import CreateChangeDialog  # noqa: E402
-from auto_pm.ui.dialogs.transition_dialog import TransitionDialog  # noqa: E402
 from auto_pm.ui.global_pages.report_page import ReportPage  # noqa: E402
 from auto_pm.ui.global_pages.settings_page import SettingsPage  # noqa: E402
-from auto_pm.ui.global_pages.spec_center import SpecCenterView  # noqa: E402
-from auto_pm.ui.global_pages.template_page import TemplatePage  # noqa: E402
 from auto_pm.ui.main_window import MainWindow  # noqa: E402
 from auto_pm.ui.navigation.nav_tree import NavigationTree  # noqa: E402
+from auto_pm.ui.project_list.group_header import GroupHeader  # noqa: E402
 from auto_pm.ui.project_list.list_view import ProjectListView  # noqa: E402
 from auto_pm.ui.project_list.project_card import ProjectCard  # noqa: E402
-from auto_pm.ui.project_list.group_header import GroupHeader  # noqa: E402
-from auto_pm.ui.workspace.change_tab import ChangeTab, _ChangeCard  # noqa: E402
-from auto_pm.ui.workspace.check_tab import CheckTab  # noqa: E402
-from auto_pm.ui.workspace.workspace_view import ProjectWorkspaceView  # noqa: E402
 from auto_pm.utils.file_utils import read_file, write_file  # noqa: E402
 
 # ── fixtures ─────────────────────────────────────────────

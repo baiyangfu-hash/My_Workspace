@@ -23,7 +23,6 @@ from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository
 from auto_pm.models import ChangeSummary, ProjectRecord
 
-
 # ── fixtures ─────────────────────────────────────────────
 
 
@@ -550,7 +549,7 @@ class TestGetReportDispatch:
 
     def test_list_report_types(self) -> None:
         """list_report_types 返回所有支持的类型"""
-        types = ReportService.list_report_types.__doc__  # 方法存在性检查
+        assert hasattr(ReportService, "list_report_types")  # 方法存在性检查
         # 直接调用实例方法
         ps = ProjectService.__new__(ProjectService)  # 不调用 __init__
         cs = ChangeService.__new__(ChangeService)

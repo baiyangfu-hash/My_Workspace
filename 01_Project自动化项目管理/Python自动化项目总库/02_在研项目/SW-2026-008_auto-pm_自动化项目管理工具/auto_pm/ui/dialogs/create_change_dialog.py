@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from PySide6.QtCore import QDate, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox,
@@ -169,7 +171,7 @@ class CreateChangeDialog(QDialog):
 
     # ── 数据收集 ──────────────────────────────────────────
 
-    def get_change_data(self) -> dict:
+    def get_change_data(self) -> dict[str, Any]:
         """返回表单数据"""
         scope = self._scope_combo.currentData()
         return {

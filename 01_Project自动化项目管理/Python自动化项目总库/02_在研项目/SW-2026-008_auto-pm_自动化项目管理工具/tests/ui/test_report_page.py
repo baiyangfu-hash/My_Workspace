@@ -34,7 +34,6 @@ from auto_pm.db.repository import ChangeRequestRepository  # noqa: E402
 from auto_pm.models import ChangeSummary, ProjectRecord  # noqa: E402
 from auto_pm.ui.global_pages.report_page import ReportPage  # noqa: E402
 
-
 # ── fixtures ─────────────────────────────────────────────
 
 
@@ -185,12 +184,12 @@ class TestReportPageRefresh:
 
         # 项目概览卡片应含"总项目数: 0"
         summary_labels = page._project_card.findChildren(QLabel)
-        texts = [l.text() for l in summary_labels]
+        texts = [label.text() for label in summary_labels]
         assert any("总项目数: 0" in t for t in texts)
 
         # 变更统计卡片应含"总变更: 0"
         change_labels = page._change_card.findChildren(QLabel)
-        texts = [l.text() for l in change_labels]
+        texts = [label.text() for label in change_labels]
         assert any("总变更: 0" in t for t in texts)
         page.deleteLater()
         qapp.processEvents()
@@ -227,12 +226,12 @@ class TestReportPageRefresh:
 
         # 项目概览：总项目数 3
         proj_labels = page._project_card.findChildren(QLabel)
-        proj_texts = [l.text() for l in proj_labels]
+        proj_texts = [label.text() for label in proj_labels]
         assert any("总项目数: 3" in t for t in proj_texts)
 
         # 变更统计：总变更 3
         chg_labels = page._change_card.findChildren(QLabel)
-        chg_texts = [l.text() for l in chg_labels]
+        chg_texts = [label.text() for label in chg_labels]
         assert any("总变更: 3" in t for t in chg_texts)
         page.deleteLater()
         qapp.processEvents()
@@ -317,7 +316,7 @@ class TestReportPageRefresh:
         page.refresh()
         qapp.processEvents()
         labels = page._project_card.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         assert any("总项目数: 0" in t for t in texts)
 
         # 新增数据后 refresh
@@ -333,7 +332,7 @@ class TestReportPageRefresh:
         qapp.processEvents()
 
         labels = page._project_card.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         assert any("总项目数: 2" in t for t in texts)
         page.deleteLater()
         qapp.processEvents()
@@ -371,7 +370,7 @@ class TestReportPageCardData:
         qapp.processEvents()
 
         labels = page._project_card.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         # 总数
         assert any("总项目数: 3" in t for t in texts)
         # Python 计数 2
@@ -404,7 +403,7 @@ class TestReportPageCardData:
         qapp.processEvents()
 
         labels = page._phase_card.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         # 应包含 4 个阶段标签
         assert any("开发中" in t for t in texts)
         assert any("调试中" in t for t in texts)
@@ -438,7 +437,7 @@ class TestReportPageCardData:
         qapp.processEvents()
 
         labels = page._bl_card.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         # 应包含 5 个业务线标签
         assert any(t == "SW" for t in texts)
         assert any(t == "DJ" for t in texts)
@@ -477,7 +476,7 @@ class TestReportPageCardData:
         qapp.processEvents()
 
         labels = page._change_card.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         # 总数
         assert any("总变更: 3" in t for t in texts)
         # 状态标签

@@ -19,7 +19,6 @@ from auto_pm.models import (
     ProjectInfo,
 )
 
-
 # ── Project 域 ────────────────────────────────────────────
 
 @runtime_checkable

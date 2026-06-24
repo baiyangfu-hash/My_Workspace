@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from auto_pm.models.enums import (
@@ -65,7 +67,7 @@ class ChangeRequest(BaseModel):
         default_factory=dict,
         description="§6.1 项目约束影响: 维度→影响程度(无/低/中/高)",
     )
-    domain_impacts: dict[str, dict] = Field(
+    domain_impacts: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
         description="§6.2 技术领域影响: 领域代码→{affected, content, related_chg}",
     )

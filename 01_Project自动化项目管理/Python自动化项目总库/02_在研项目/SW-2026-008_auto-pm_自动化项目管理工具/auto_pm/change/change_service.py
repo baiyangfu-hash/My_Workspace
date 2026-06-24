@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import datetime
 import os
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from auto_pm.change.file_locator import ChangeFileLocator
 from auto_pm.change.guard_checker import TransitionGuardChecker
@@ -30,11 +30,15 @@ from auto_pm.change.models import (
     validate_urgency,
 )
 from auto_pm.change.parser import ChgParser
-from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
+from auto_pm.change.path_resolver import get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository
 from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.utils.file_utils import get_mtime, read_file, write_file
+
+if TYPE_CHECKING:
+    from auto_pm.change.generator import ChgGenerator
+    from auto_pm.change.ledger_updater import LedgerUpdater
 
 log = get_logger(log_level="INFO", app_name="auto_pm")
 
@@ -63,8 +67,8 @@ class ChangeService:
         self.workspace_root = workspace_root
         self._parser = ChgParser()
         # 延迟导入，避免循环依赖
-        self._generator = None
-        self._ledger_updater = None
+        self._generator: ChgGenerator | None = None
+        self._ledger_updater: LedgerUpdater | None = None
         # DB 缓存（可选，传入后 list_all_changes/update/delete 会同步缓存）
         self.db = db
         self._repo: ChangeRequestRepository | None = (
@@ -75,13 +79,13 @@ class ChangeService:
         self._editor = ChangeMarkdownEditor()
         self._guard = TransitionGuardChecker()
 
-    def _get_generator(self):
+    def _get_generator(self) -> ChgGenerator:
         if self._generator is None:
             from auto_pm.change.generator import ChgGenerator
             self._generator = ChgGenerator()
         return self._generator
 
-    def _get_ledger_updater(self):
+    def _get_ledger_updater(self) -> LedgerUpdater:
         if self._ledger_updater is None:
             from auto_pm.change.ledger_updater import LedgerUpdater
             self._ledger_updater = LedgerUpdater()
@@ -356,7 +360,7 @@ class ChangeService:
     def update_change_request(
         self,
         change_number: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> Optional[ChangeRequest]:
         """修改变更单字段
 

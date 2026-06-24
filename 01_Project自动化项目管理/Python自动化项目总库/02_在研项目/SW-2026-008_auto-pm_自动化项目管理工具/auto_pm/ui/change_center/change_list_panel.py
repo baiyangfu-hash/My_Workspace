@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
@@ -321,7 +323,7 @@ class ChangeListPanel(QWidget):
         items = self._list_widget.selectedItems()
         if not items:
             return None
-        return items[0].data(Qt.ItemDataRole.UserRole)
+        return cast(str | None, items[0].data(Qt.ItemDataRole.UserRole))
 
     def select_change(self, change_number: str) -> bool:
         """选中指定变更单（用于外部联动），返回是否选中成功"""

@@ -42,7 +42,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from auto_pm.core.spec_index_service import SpecIndexService
+from auto_pm.core.spec_index_service import SpecDiffResult, SpecIndexService
 from auto_pm.logging.logging import setup_logger
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
@@ -384,7 +384,7 @@ class SpecCenterView(QWidget):
             return
 
         keys = list(self._selected_for_compare)
-        (stack1, code1), (stack2, code2) = keys[0], keys[1]
+        (_stack1, code1), (_stack2, code2) = keys[0], keys[1]
 
         try:
             diff = self._index_service.compare(code1, code2)
@@ -394,7 +394,7 @@ class SpecCenterView(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "对比失败", f"对比过程出错：\n{e}")
 
-    def _show_diff_dialog(self, diff) -> None:
+    def _show_diff_dialog(self, diff: SpecDiffResult) -> None:
         """展示对比结果对话框"""
         msg = QMessageBox(self)
         msg.setWindowTitle(f"规范对比: {diff.code1} vs {diff.code2}")

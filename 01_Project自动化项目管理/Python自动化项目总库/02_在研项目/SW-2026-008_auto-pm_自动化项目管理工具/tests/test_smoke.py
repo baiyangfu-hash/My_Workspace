@@ -63,9 +63,9 @@ class TestCoreImports:
     def test_import_protocols(self) -> None:
         """Protocol 接口可导入"""
         from auto_pm.core.protocols import (
-            ProjectServiceProtocol,
             ChangeServiceProtocol,
             PlcServiceProtocol,
+            ProjectServiceProtocol,
         )
         assert ProjectServiceProtocol is not None
         assert ChangeServiceProtocol is not None
@@ -83,8 +83,8 @@ class TestCoreImports:
     def test_import_constants(self) -> None:
         """业务常量可导入"""
         from auto_pm.core.constants import (
-            STACK_TEMPLATE_MAP,
             BUSINESS_LINE_OPTIONS,
+            STACK_TEMPLATE_MAP,
             get_template_name,
         )
         assert STACK_TEMPLATE_MAP is not None
@@ -195,8 +195,8 @@ class TestReportServiceBasic:
 
     def test_report_types(self) -> None:
         """支持 4 种报告类型"""
-        from auto_pm.core.project_service import ProjectService
         from auto_pm.change.change_service import ChangeService
+        from auto_pm.core.project_service import ProjectService
         from auto_pm.core.report_service import ReportService
 
         ps = ProjectService.__new__(ProjectService)
@@ -250,8 +250,8 @@ class TestDatabaseBasic:
         """Repository 可实例化"""
         from auto_pm.db.connection import DatabaseManager
         from auto_pm.db.repository import (
-            ProjectRepository,
             ChangeRequestRepository,
+            ProjectRepository,
             ScanLogRepository,
         )
 
@@ -282,6 +282,7 @@ class TestCLIEntry:
     def test_cli_help(self, capsys) -> None:
         """CLI --help 正常工作"""
         from click.testing import CliRunner
+
         from auto_pm.cli.__main__ import cli
         runner = CliRunner()
         result = runner.invoke(cli, ["--help"])

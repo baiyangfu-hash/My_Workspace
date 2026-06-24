@@ -13,7 +13,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -24,7 +23,6 @@ from auto_pm.change.models import (
     TransitionGuardError,
     validate_status_transition,
 )
-
 
 # ── 测试用变更单内容 ────────────────────────────────────
 

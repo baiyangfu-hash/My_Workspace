@@ -13,7 +13,6 @@ UI/CLI 层通过 PlcService 操作 PLC 项目，不直接访问 PlcChecker/PlcRe
 from __future__ import annotations
 
 import os
-from typing import Optional
 
 from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.plc.checker import PlcChecker
@@ -103,7 +102,7 @@ class PlcService:
             project_path, apply=not dry_run
         )
 
-    def check_substance(self, project_path: str):
+    def check_substance(self, project_path: str) -> CheckResult:
         """文档实质化检查（V2.0.1-B）
 
         检查 PRD/DSN/INT/TEC 文档字数、章节数、占位符，

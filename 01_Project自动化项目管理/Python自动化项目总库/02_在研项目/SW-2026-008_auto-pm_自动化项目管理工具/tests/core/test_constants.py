@@ -130,10 +130,10 @@ class TestNoDuplicateDefinitions:
 
     def test_project_service_uses_constants(self) -> None:
         """ProjectService 使用 constants 而非硬编码"""
-        from auto_pm.core.project_service import ProjectService
-
         # 检查 project_service.py 模块不再有硬编码的 template_map
         import inspect
+
+        from auto_pm.core.project_service import ProjectService
 
         source = inspect.getsource(ProjectService)
         # 不应包含硬编码的 template_map 定义

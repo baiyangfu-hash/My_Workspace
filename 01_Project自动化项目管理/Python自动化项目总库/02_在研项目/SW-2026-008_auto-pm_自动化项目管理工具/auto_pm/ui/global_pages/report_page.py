@@ -9,6 +9,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QGridLayout,
@@ -205,15 +207,16 @@ class ReportPage(QWidget):
 
     # ── 渲染方法 ─────────────────────────────────────────
 
-    def _render_project_overview(self, data: dict) -> None:
+    def _render_project_overview(self, data: dict[str, Any]) -> None:
         """渲染项目概览卡片（总数 + 按 stack）"""
         self._clear_card(self._project_card)
         v = self._project_card.layout()
+        assert isinstance(v, QVBoxLayout)
 
         total = data.get("total", 0)
         v.addWidget(self._make_summary_label(f"总项目数: {total}"))
 
-        by_stack: dict = data.get("by_stack", {})
+        by_stack: dict[str, int] = data.get("by_stack", {})
         max_val = max(by_stack.values()) if by_stack else 0
         for key in _STACK_ORDER:
             count = by_stack.get(key, 0)
@@ -222,12 +225,13 @@ class ReportPage(QWidget):
 
         v.addStretch(1)
 
-    def _render_phase_distribution(self, data: dict) -> None:
+    def _render_phase_distribution(self, data: dict[str, Any]) -> None:
         """渲染阶段分布卡片（按 phase）"""
         self._clear_card(self._phase_card)
         v = self._phase_card.layout()
+        assert isinstance(v, QVBoxLayout)
 
-        by_phase: dict = data.get("by_phase", {})
+        by_phase: dict[str, int] = data.get("by_phase", {})
         max_val = max(by_phase.values()) if by_phase else 0
         for key in _PHASE_ORDER:
             count = by_phase.get(key, 0)
@@ -236,12 +240,13 @@ class ReportPage(QWidget):
 
         v.addStretch(1)
 
-    def _render_bl_distribution(self, data: dict) -> None:
+    def _render_bl_distribution(self, data: dict[str, Any]) -> None:
         """渲染业务线分布卡片（按 business_line）"""
         self._clear_card(self._bl_card)
         v = self._bl_card.layout()
+        assert isinstance(v, QVBoxLayout)
 
-        by_bl: dict = data.get("by_business_line", {})
+        by_bl: dict[str, int] = data.get("by_business_line", {})
         max_val = max(by_bl.values()) if by_bl else 0
         for key in _BL_ORDER:
             count = by_bl.get(key, 0)
@@ -249,15 +254,16 @@ class ReportPage(QWidget):
 
         v.addStretch(1)
 
-    def _render_change_overview(self, data: dict) -> None:
+    def _render_change_overview(self, data: dict[str, Any]) -> None:
         """渲染变更统计卡片（总数 + 按状态）"""
         self._clear_card(self._change_card)
         v = self._change_card.layout()
+        assert isinstance(v, QVBoxLayout)
 
         total = data.get("total", 0)
         v.addWidget(self._make_summary_label(f"总变更: {total}"))
 
-        by_status: dict = data.get("by_status", {})
+        by_status: dict[str, int] = data.get("by_status", {})
         max_val = max(by_status.values()) if by_status else 0
         # 按预定义顺序渲染存在的状态
         rendered_keys: set[str] = set()
@@ -332,6 +338,7 @@ class ReportPage(QWidget):
         """渲染错误状态"""
         self._clear_card(card)
         v = card.layout()
+        assert isinstance(v, QVBoxLayout)
         v.addWidget(self._make_empty_hint(f"加载失败: {message}"))
         v.addStretch(1)
 
@@ -343,8 +350,10 @@ class ReportPage(QWidget):
         deleteLater() 随后释放内存。
         """
         v = card.layout()
+        assert v is not None
         while v.count():
             item = v.takeAt(0)
+            assert item is not None
             widget = item.widget()
             if widget is not None:
                 widget.setParent(None)

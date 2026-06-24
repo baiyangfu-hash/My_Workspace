@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import json
 import os
+from typing import cast
 
 from auto_pm.logging.logging import setup_logger
+from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
     REQUIRED_PLC_JSON_FIELDS,
     SKIP_PLC_JSON_TYPES,
@@ -56,7 +58,7 @@ class PlcChecker:
 
         # 检测项目类型
         project_type = self._detect_project_type(project_path)
-        result.project_type = project_type
+        result.project_type = cast(ProjectType, project_type)
 
         # 1. 检查 .plc.json
         self._check_plc_json(project_path, result)

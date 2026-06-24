@@ -40,7 +40,7 @@ class GlobalView(QWidget):
     V2.0 仅占位。
     """
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._tab_indices: dict[str, int] = {}
         self._build_ui()

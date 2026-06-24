@@ -12,6 +12,19 @@ from __future__ import annotations
 
 from auto_pm.models import ChangeRequest, ChangeSummary  # noqa: F401
 
+# 显式导出（mypy strict 模式要求）
+__all__ = [
+    "ChangeRequest",
+    "ChangeSummary",
+    "SpecViolationError",
+    "TransitionGuardError",
+    "validate_domain",
+    "validate_business_nature",
+    "validate_impact_scope",
+    "validate_urgency",
+    "validate_status_transition",
+]
+
 # ════════════════════════════════════════════════════════════
 #  CHG-040 变更管理规范常量
 # ════════════════════════════════════════════════════════════

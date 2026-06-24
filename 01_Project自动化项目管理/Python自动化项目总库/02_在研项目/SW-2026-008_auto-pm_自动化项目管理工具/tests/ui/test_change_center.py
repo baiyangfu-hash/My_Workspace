@@ -18,7 +18,7 @@ import pytest
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QListWidget, QListWidgetItem  # noqa: E402
+from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
 from auto_pm.core.project_service import ProjectService  # noqa: E402

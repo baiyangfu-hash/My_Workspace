@@ -25,14 +25,14 @@ from auto_pm.ui.dialogs import (  # noqa: E402
     ImportProjectDialog,
     NewProjectDialog,
 )
-from auto_pm.ui.main_window import MainWindow  # noqa: E402
 from auto_pm.ui.global_pages.global_view import GlobalView  # noqa: E402
+from auto_pm.ui.main_window import MainWindow  # noqa: E402
 from auto_pm.ui.navigation.nav_tree import NavigationTree  # noqa: E402
 from auto_pm.ui.project_list.list_view import ProjectListView  # noqa: E402
 from auto_pm.ui.project_list.project_card import ProjectCard  # noqa: E402
+from auto_pm.ui.widgets import FilterBar, StatsBar  # noqa: E402
 from auto_pm.ui.workspace.overview_tab import OverviewTab  # noqa: E402
 from auto_pm.ui.workspace.workspace_view import ProjectWorkspaceView  # noqa: E402
-from auto_pm.ui.widgets import FilterBar, StatsBar  # noqa: E402
 
 
 @pytest.fixture(scope="session")

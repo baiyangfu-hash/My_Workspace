@@ -27,7 +27,6 @@ from PySide6.QtWidgets import QApplication, QGroupBox, QLabel, QPushButton  # no
 
 from auto_pm.ui.global_pages.spec_center import SpecCenterView  # noqa: E402
 
-
 # ── fixtures ─────────────────────────────────────────────
 
 
@@ -115,7 +114,7 @@ class TestSpecCenterViewLoad:
         """应显示"规范中心"标题"""
         view = SpecCenterView()
         labels = view.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         assert "规范中心" in texts
         view.deleteLater()
         qapp.processEvents()
@@ -141,7 +140,7 @@ class TestPlcSpecList:
         """PLC 规范编号应正确显示"""
         view = SpecCenterView()
         labels = view.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         for code in ["905", "904", "903", "906"]:
             assert code in texts, f"PLC 规范编号 {code} 未显示"
         view.deleteLater()
@@ -151,7 +150,7 @@ class TestPlcSpecList:
         """PLC 规范名称应正确显示"""
         view = SpecCenterView()
         labels = view.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         expected_names = [
             "SCL 编程规范",
             "SCL 注释规范",
@@ -184,7 +183,7 @@ class TestPythonSpecList:
         """Python 规范编号应正确显示"""
         view = SpecCenterView()
         labels = view.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         for code in ["210", "211", "220"]:
             assert code in texts, f"Python 规范编号 {code} 未显示"
         view.deleteLater()
@@ -194,7 +193,7 @@ class TestPythonSpecList:
         """Python 规范名称应正确显示"""
         view = SpecCenterView()
         labels = view.findChildren(QLabel)
-        texts = [l.text() for l in labels]
+        texts = [label.text() for label in labels]
         expected_names = [
             "Python 编程规范",
             "Python 代码审查规范",

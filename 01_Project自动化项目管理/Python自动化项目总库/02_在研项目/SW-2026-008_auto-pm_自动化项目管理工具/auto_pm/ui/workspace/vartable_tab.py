@@ -27,7 +27,7 @@ import csv
 import os
 from typing import Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -41,7 +41,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from auto_pm.core.paths import PLC_STD_DIRS
 from auto_pm.logging.logging import setup_logger
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")

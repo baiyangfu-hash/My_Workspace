@@ -23,7 +23,7 @@ import pytest
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QComboBox, QPushButton  # noqa: E402
+from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
 from auto_pm.core.project_service import ProjectService  # noqa: E402
@@ -237,7 +237,7 @@ class TestChangeTabFilter:
     ) -> None:
         """通过下拉框切换状态筛选应刷新列表"""
         num1 = _create_change(change_service, background="下拉筛选1")
-        num2 = _create_change(change_service, background="下拉筛选2")
+        _create_change(change_service, background="下拉筛选2")
         change_service.transition_status(num1, "submitted", approver="fubai")
 
         tab = ChangeTab(change_service, project_service)
@@ -419,7 +419,7 @@ class TestChangeTabTransition:
         project_service: ProjectService,
     ) -> None:
         """终态（closed）变更单的"流转"按钮应禁用"""
-        num = _create_change(change_service, background="终态按钮测试")
+        _create_change(change_service, background="终态按钮测试")
 
         tab = ChangeTab(change_service, project_service)
         tab.load_project("TEST-2026-001")
