@@ -5,9 +5,13 @@ Commands:
     show <CHG-NUM>                      查看变更单详情
     create --pid --domain ...           创建变更单
     transition <CHG-NUM> --to <STATUS>  状态流转
+    edit <CHG-NUM> --background ...     编辑变更单字段
 """
 
 from __future__ import annotations
+
+import re
+from typing import Any
 
 import click
 from rich.console import Console
@@ -23,6 +27,7 @@ from auto_pm.change.models import (
     STATUS_LABELS,
     URGENCY_LEVELS,
 )
+from auto_pm.models import ChangeRequest
 
 console = Console()
 
@@ -32,6 +37,256 @@ _NATURE_CHOICES = list(BUSINESS_NATURES.keys())
 _SCOPE_CHOICES = list(IMPACT_SCOPES.keys())
 _URGENCY_CHOICES = list(URGENCY_LEVELS.keys())
 _STATUS_CHOICES = sorted(ALL_STATUSES)
+
+
+# ════════════════════════════════════════════════════════════
+#  M3.5-6: Markdown 表格解析辅助函数（供 cmd_show 渲染 §6/§8/§9/§10）
+# ════════════════════════════════════════════════════════════
+
+def _parse_md_table(text: str) -> tuple[list[str], list[list[str]]]:
+    """解析 Markdown 表格为表头+数据行
+
+    Args:
+        text: 包含 Markdown 表格的文本（可含非表格行）
+
+    Returns:
+        (header_cells, data_rows) — 表头单元格列表 + 数据行列表
+        无表格时返回 ([], [])
+    """
+    header: list[str] = []
+    rows: list[list[str]] = []
+    seen_header = False
+
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        # 跳过分隔行（|---|---|）
+        if re.match(r"^\|[\s\-:|]+\|$", line):
+            continue
+        # 按 | 分割，去除首尾空单元格
+        cells = [c.strip() for c in line.split("|")]
+        if cells and cells[0] == "":
+            cells = cells[1:]
+        if cells and cells[-1] == "":
+            cells = cells[:-1]
+        if not cells:
+            continue
+        if not seen_header:
+            header = cells
+            seen_header = True
+        else:
+            rows.append(cells)
+
+    return header, rows
+
+
+def _extract_subsection(section_text: str, sub_num: str) -> str:
+    """从章节文本中提取子章节（如 §8.1、§10.3）
+
+    Args:
+        section_text: 章节正文（如 cr.sections["8"]）
+        sub_num: 子章节号（如 "8.1"）
+
+    Returns:
+        子章节文本（含标题行），未找到返回空字符串
+    """
+    pattern = re.compile(
+        rf"###\s*{re.escape(sub_num)}\s*[.、：:]*(.*?)(?=\n###|\n##|\Z)",
+        re.DOTALL,
+    )
+    match = pattern.search(section_text)
+    return match.group(0) if match else ""
+
+
+def _truncate(text: str, max_len: int = 60) -> str:
+    """截断长文本，保留可读性"""
+    text = text.strip()
+    if len(text) <= max_len:
+        return text
+    return text[:max_len - 3] + "..."
+
+
+# ════════════════════════════════════════════════════════════
+#  §6/§8/§9/§10 显示函数
+# ════════════════════════════════════════════════════════════
+
+def _display_section_6(cr: ChangeRequest) -> None:
+    """显示 §6 变更影响分析"""
+    section = cr.sections.get("6", "")
+    if not section:
+        return
+
+    # 判断是否有实质内容
+    has_constraint = bool(cr.constraint_impacts)
+    has_domain = any(info.get("affected") for info in cr.domain_impacts.values())
+    has_propagation = bool(cr.propagation_chain) or bool(cr.related_changes)
+    has_risk = bool(cr.risk_level) or bool(cr.mitigation)
+    if not (has_constraint or has_domain or has_propagation or has_risk):
+        return
+
+    console.print()
+    console.print("[bold cyan]═══ §6 变更影响分析 ═══[/bold cyan]")
+
+    # §6.1 项目约束影响
+    if has_constraint:
+        s61 = _extract_subsection(section, "6.1")
+        if s61:
+            header, rows = _parse_md_table(s61)
+            if header and rows:
+                table = Table(title="§6.1 项目约束影响（PMBOK五大约束）", show_lines=False)
+                for h in header:
+                    table.add_column(_truncate(h, 20), style="white", no_wrap=False)
+                for row in rows:
+                    # 补齐列数
+                    while len(row) < len(header):
+                        row.append("")
+                    table.add_row(*[_truncate(c, 50) for c in row[:len(header)]])
+                console.print(table)
+
+    # §6.1 风险评估（独立于约束表，CLI edit 可单独设置）
+    if has_risk:
+        if cr.risk_level:
+            risk_labels = {"none": "无", "low": "低", "medium": "中", "high": "高"}
+            console.print(f"  [cyan]风险等级:[/cyan] {risk_labels.get(cr.risk_level, cr.risk_level)}")
+        if cr.mitigation:
+            console.print(f"  [cyan]缓解措施:[/cyan] {_truncate(cr.mitigation, 100)}")
+
+    # §6.2 技术领域影响
+    if has_domain:
+        s62 = _extract_subsection(section, "6.2")
+        if s62:
+            header, rows = _parse_md_table(s62)
+            if header and rows:
+                table = Table(title="§6.2 技术领域影响", show_lines=False)
+                for h in header:
+                    table.add_column(_truncate(h, 20), style="white", no_wrap=False)
+                for row in rows:
+                    while len(row) < len(header):
+                        row.append("")
+                    table.add_row(*[_truncate(c, 50) for c in row[:len(header)]])
+                console.print(table)
+
+    # §6.3 变更传播链
+    if has_propagation:
+        console.print()
+        console.print("[bold]§6.3 变更传播链:[/bold]")
+        if cr.propagation_chain:
+            console.print(f"  [dim]{cr.propagation_chain}[/dim]")
+        if cr.related_changes:
+            console.print(f"  [cyan]关联变更单:[/cyan] {', '.join(cr.related_changes)}")
+
+
+def _display_section_8(cr: ChangeRequest) -> None:
+    """显示 §8 变更审批"""
+    section = cr.sections.get("8", "")
+    if not section:
+        return
+
+    # §8.1 审批流程
+    s81 = _extract_subsection(section, "8.1")
+    if s81:
+        header, rows = _parse_md_table(s81)
+        if header and rows:
+            console.print()
+            console.print("[bold cyan]═══ §8 变更审批 ═══[/bold cyan]")
+            table = Table(title="§8.1 审批流程", show_lines=False)
+            for h in header:
+                table.add_column(_truncate(h, 15), style="white", no_wrap=False)
+            for row in rows:
+                while len(row) < len(header):
+                    row.append("")
+                table.add_row(*[_truncate(c, 50) for c in row[:len(header)]])
+            console.print(table)
+
+    # §8.2 审批结论
+    s82 = _extract_subsection(section, "8.2")
+    if s82:
+        header, rows = _parse_md_table(s82)
+        if rows:
+            for row in rows:
+                cells = [c for c in row if c]
+                if cells:
+                    console.print(f"  [cyan]审批结论:[/cyan] {_truncate(' | '.join(cells), 120)}")
+
+
+def _display_section_9(cr: ChangeRequest) -> None:
+    """显示 §9 变更实施记录"""
+    section = cr.sections.get("9", "")
+    if not section:
+        return
+
+    header, rows = _parse_md_table(section)
+    if not header or not rows:
+        return
+
+    console.print()
+    console.print("[bold cyan]═══ §9 变更实施记录 ═══[/bold cyan]")
+    table = Table(title="实施记录", show_lines=False)
+    for h in header:
+        table.add_column(_truncate(h, 15), style="white", no_wrap=False)
+    for row in rows:
+        while len(row) < len(header):
+            row.append("")
+        table.add_row(*[_truncate(c, 50) for c in row[:len(header)]])
+    console.print(table)
+
+
+def _display_section_10(cr: ChangeRequest) -> None:
+    """显示 §10 变更验证"""
+    section = cr.sections.get("10", "")
+    if not section:
+        return
+
+    has_verify = cr.has_section_10_verify
+    has_conclusion = bool(cr.section_10_conclusion)
+    if not (has_verify or has_conclusion):
+        return
+
+    console.print()
+    console.print("[bold cyan]═══ §10 变更验证 ═══[/bold cyan]")
+
+    # §10.1 验证项清单
+    if has_verify:
+        s101 = _extract_subsection(section, "10.1")
+        if s101:
+            header, rows = _parse_md_table(s101)
+            if header and rows:
+                table = Table(title="§10.1 验证项清单", show_lines=False)
+                for h in header:
+                    table.add_column(_truncate(h, 15), style="white", no_wrap=False)
+                for row in rows:
+                    while len(row) < len(header):
+                        row.append("")
+                    table.add_row(*[_truncate(c, 50) for c in row[:len(header)]])
+                console.print(table)
+
+    # §10.2 跨领域联动验证
+    s102 = _extract_subsection(section, "10.2")
+    if s102:
+        header, rows = _parse_md_table(s102)
+        if header and rows:
+            table = Table(title="§10.2 跨领域联动验证", show_lines=False)
+            for h in header:
+                table.add_column(_truncate(h, 20), style="white", no_wrap=False)
+            for row in rows:
+                while len(row) < len(header):
+                    row.append("")
+                table.add_row(*[_truncate(c, 50) for c in row[:len(header)]])
+            console.print(table)
+
+    # §10.3 验证结论
+    if has_conclusion:
+        s103 = _extract_subsection(section, "10.3")
+        if s103:
+            header, rows = _parse_md_table(s103)
+            if rows:
+                for row in rows:
+                    cells = [c for c in row if c]
+                    if cells:
+                        console.print(f"  [cyan]验证结论:[/cyan] {_truncate(' | '.join(cells), 120)}")
+            else:
+                console.print(f"  [cyan]验证结论:[/cyan] {cr.section_10_conclusion}")
 
 
 @click.group(name="change")
@@ -44,14 +299,20 @@ def change_group(ctx: click.Context) -> None:
 @click.argument("project_id")
 @click.option("--status", type=click.Choice(_STATUS_CHOICES), default=None, help="按状态筛选")
 @click.option("--domain", type=click.Choice(_DOMAIN_CHOICES), default=None, help="按领域筛选")
+@click.option("--full", "full_mode", is_flag=True, default=False, help="完整模式：标题列自动换行不截断（适合详细查看）")
 @click.pass_context
 def cmd_list(
     ctx: click.Context,
     project_id: str,
     status: str | None,
     domain: str | None,
+    full_mode: bool,
 ) -> None:
-    """列出项目变更单"""
+    """列出项目变更单
+
+    默认紧凑模式：关键短列（编号/领域/性质/范围/状态/申请人/日期）不换行，
+    标题列单行省略号截断。--full 模式下标题列自动换行完整显示。
+    """
     app_ctx: AppContext = ctx.obj
     svc = ChangeService(app_ctx.workspace_root)
     summaries = svc.list_change_requests(project_id, status=status, domain=domain)
@@ -60,15 +321,23 @@ def cmd_list(
         console.print("[yellow]未发现变更单[/yellow]")
         return
 
-    table = Table(title=f"变更单列表 ({len(summaries)} 条) - 项目 {project_id}")
-    table.add_column("变更编号", style="cyan")
-    table.add_column("领域", style="green")
-    table.add_column("性质", style="blue")
-    table.add_column("影响范围", style="magenta")
-    table.add_column("状态", style="yellow")
-    table.add_column("申请人", style="white")
-    table.add_column("申请日期", style="dim")
-    table.add_column("标题", style="white")
+    table = Table(title=f"变更单列表 ({len(summaries)} 条) - 项目 {project_id}", expand=False)
+    # 关键短列：min_width 保证不被压缩，no_wrap 保证不换行
+    table.add_column("变更编号", style="cyan", no_wrap=True, min_width=19)
+    table.add_column("领域", style="green", no_wrap=True, min_width=6)
+    table.add_column("性质", style="blue", no_wrap=True, min_width=6)
+    table.add_column("影响范围", style="magenta", no_wrap=True, min_width=13)
+    table.add_column("状态", style="yellow", no_wrap=True, min_width=6)
+    table.add_column("申请人", style="white", no_wrap=True, min_width=6)
+    table.add_column("申请日期", style="dim", no_wrap=True, min_width=10)
+    # 标题列：ratio=1 吸收剩余空间；默认单行省略号截断，--full 自动换行
+    table.add_column(
+        "标题",
+        style="white",
+        no_wrap=not full_mode,
+        overflow="fold" if full_mode else "ellipsis",
+        ratio=1,
+    )
 
     for s in summaries:
         table.add_row(
@@ -119,6 +388,13 @@ def cmd_show(ctx: click.Context, change_number: str) -> None:
         console.print()
         console.print("[cyan]参考依据:[/cyan]")
         console.print(cr.references)
+
+    # M3.5-6: 渲染 §6/§8/§9/§10 章节内容（仅当存在实质内容时显示）
+    _display_section_6(cr)
+    _display_section_8(cr)
+    _display_section_9(cr)
+    _display_section_10(cr)
+
     if cr.file_path:
         console.print()
         console.print(f"[dim]文件路径: {cr.file_path}[/dim]")
@@ -220,4 +496,81 @@ def cmd_transition(
         ctx.exit(1)
     except Exception as e:
         console.print(f"[red]流转异常: {e}[/red]")
+        ctx.exit(1)
+
+
+# M3.5-8: change edit 命令支持的风险等级选项
+_RISK_LEVEL_CHOICES = ["none", "low", "medium", "high"]
+
+
+@change_group.command(name="edit")
+@click.argument("change_number")
+@click.option("--background", default=None, help="§4 变更背景")
+@click.option("--necessity", default=None, help="§4 变更必要性")
+@click.option("--references", default=None, help="§4 参考依据")
+@click.option("--planned-date", default=None, help="§3.4 预计实施日期（YYYY-MM-DD）")
+@click.option("--urgency", type=click.Choice(_URGENCY_CHOICES), default=None, help="§3.4 紧急程度")
+@click.option("--risk-level", type=click.Choice(_RISK_LEVEL_CHOICES), default=None, help="§6.1 风险等级")
+@click.option("--mitigation", default=None, help="§6.1 缓解措施")
+@click.option("--propagation-chain", default=None, help="§6.3 变更传播链")
+@click.pass_context
+def cmd_edit(
+    ctx: click.Context,
+    change_number: str,
+    background: str | None,
+    necessity: str | None,
+    references: str | None,
+    planned_date: str | None,
+    urgency: str | None,
+    risk_level: str | None,
+    mitigation: str | None,
+    propagation_chain: str | None,
+) -> None:
+    """编辑变更单字段（支持 §4 基本字段 + §6 影响分析字符串字段）
+
+    constraint_impacts/domain_impacts 两个 dict 字段因 CLI 输入繁琐，
+    留给 GUI EditChangeDialog 编辑（见 spec.md M3.5-8 说明）。
+    """
+    app_ctx: AppContext = ctx.obj
+    svc = ChangeService(app_ctx.workspace_root)
+
+    # 收集实际要更新的字段（跳过 None）
+    updates: dict[str, Any] = {}
+    if background is not None:
+        updates["background"] = background
+    if necessity is not None:
+        updates["necessity"] = necessity
+    if references is not None:
+        updates["references"] = references
+    if planned_date is not None:
+        updates["planned_date"] = planned_date
+    if urgency is not None:
+        updates["urgency"] = urgency
+    if risk_level is not None:
+        updates["risk_level"] = risk_level
+    if mitigation is not None:
+        updates["mitigation"] = mitigation
+    if propagation_chain is not None:
+        updates["propagation_chain"] = propagation_chain
+
+    if not updates:
+        console.print("[yellow]未指定要更新的字段，请使用 --background/--necessity 等选项[/yellow]")
+        ctx.exit(1)
+
+    try:
+        cr = svc.update_change_request(change_number, **updates)
+        if cr is None:
+            console.print(f"[red]错误: 变更单不存在: {change_number}[/red]")
+            ctx.exit(1)
+        console.print(f"[green]变更单已更新: {change_number}[/green]")
+        console.print(f"  更新字段: {', '.join(updates.keys())}")
+        if cr.file_path:
+            console.print(f"  文件: {cr.file_path}")
+    except click.exceptions.Exit:
+        raise
+    except ValueError as e:
+        console.print(f"[red]更新失败: {e}[/red]")
+        ctx.exit(1)
+    except Exception as e:
+        console.print(f"[red]更新异常: {e}[/red]")
         ctx.exit(1)

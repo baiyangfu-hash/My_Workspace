@@ -48,19 +48,19 @@
 ### M0.5-1：真源收口
 - [x] T19.1: 修正 spec.md §0.4 状态字段（旧 M1-M4 标注为 V2.0 历史里程碑）
 - [x] T19.2: 修正 tasks.md M0 任务状态（标注重定义 + 已完成项打勾）
-- [ ] T19.3: PM_SESSION §2/§3 同步本次决策
-- [ ] T19.4: T88 change ledger 引用移除（改为 change create 自动维护）
+- [x] T19.3: PM_SESSION §2/§3 同步本次决策
+- [x] T19.4: T88 change ledger 引用移除（改为 change create 自动维护）
 
 ### M0.5-2：产品自洽修复
-- [ ] T19.5: 修复 ProjectScanner 元数据契约（兼容 project_description + description）— BUG-P0
-- [ ] T19.6: 修复 path_resolver.py 台帐创建路径跨栈策略 — BUG-002 相关
-- [ ] T19.7: 放宽 verification_conclusion 门禁（规则校验：包含"通过"即放行）— BUG-001
-- [ ] T19.8: 自用回归验证（project show/change list/show/transition）
+- [x] T19.5: 修复 ProjectScanner 元数据契约（兼容 project_description + description）— BUG-P0
+- [x] T19.6: 修复 path_resolver.py 台帐创建路径跨栈策略 — BUG-002 相关
+- [x] T19.7: 放宽 verification_conclusion 门禁（规则校验：包含"通过"即放行）— BUG-001
+- [x] T19.8: 自用回归验证（project show/change list/show/transition）
 
 ### M0.5-3：dogfood 制度化
-- [ ] T19.9: 建立 dogfood 固定模板（每个里程碑必经动作清单）
-- [ ] T19.10: 建立发布门禁清单
-- [ ] T19.11: 建立使用者视角检查项
+- [x] T19.9: 建立 dogfood 固定模板（每个里程碑必经动作清单）
+- [x] T19.10: 建立发布门禁清单
+- [x] T19.11: 建立使用者视角检查项
 
 ## M1：变更单章节结构修正 ✅ 已完成
 
@@ -133,20 +133,34 @@
 - [x] T63: change_detail_panel.py 集成 EditChangeDialog
 - [x] T64: 新增 UI 测试 tests/ui/test_edit_change_dialog.py
 
+### M3.5：真源收口 Round 2 + 产品自洽 Round 2（⏳ 进行中）
+
+> 2026-06-25 深度审查后插入。基于三角色视角（架构师/PLC工程师/项目经理）真实运行 auto-pm 发现 6 项阻断问题。
+> 详细方案见 `09_整改项/V0.3.0-项目深度诊断与Dogfood专项报告.md`。
+
+- [x] M3.5-1: 清理 GUI 测试污染（删除 60 个残留变更单 CHG-SCPT-2026-002~061 + 添加 _cleanup_test_changes autouse fixture）
+- [x] M3.5-2: 修复 TD-T04 条件断言跳过复发（test_17 中 4 处 `if dlg is not None:` 改为 assert + 反转模式）
+- [x] M3.5-3: 真源收口 Round 2（spec/tasks/技术债报告/PRD 测试数与版本号对齐 1087 passed + 新增 TD-T09）
+- [x] M3.5-4: 填充 CHG-SCPT-2026-001 内容（§5/§6/§7/§8/§9 真实内容 + 文档版本 V1.0.0→V2.1.0 + §10 三节结构 + §11 版本变更说明 + §12 附录）
+- [x] M3.5-5: 创建 CHG-SCPT-2026-062 并走完完整生命周期（draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed，8 次流转全部成功）
+- [x] M3.5-6: `change show` 命令增强（ChangeRequest 新增 `sections: dict[str, str]` 字段 + parser 保存原始章节文本 + cmd_show 调用 `_display_section_6/8/9/10` 渲染 §6.1/§6.2/§6.3 + §8.1/§8.2 + §9 + §10.1/§10.2/§10.3 共 10 张 rich.Table；CHG-001/CHG-062 验证通过；396 passed 1 skipped 无回归）
+- [x] M3.5-7: CLI 表格不截断（cmd_list 所有短列 min_width+no_wrap + 标题列 ratio=1 吸收剩余空间 + 新增 --full 选项标题列 fold 换行；120 宽度下 8 列全部完整显示 CHG-SCPT-2026-001 不再截断为 CHG-SCP…）
+- [x] M3.5-8: 新增 `change edit` CLI 命令（8 个字符串字段：§4 background/necessity/references/planned_date/urgency + §6 risk_level/mitigation/propagation_chain；复用 ChangeService.update_change_request；dict 字段 constraint_impacts/domain_impacts 留给 GUI EditChangeDialog；修复 _display_section_6 中 risk_level/mitigation 误判 has_constraint 的显示 bug + click.exceptions.Exit 误捕获）
+
 ### M3-2：传播链可视化
-- [ ] T65: 新增 auto_pm/ui/change_center/propagation_view.py
-- [ ] T66: QGraphicsView + 节点连线展示传播链
-- [ ] T67: 节点显示领域名称，连线显示传播方向
-- [ ] T68: 空传播链显示"无跨领域影响"
-- [ ] T69: change_detail_panel.py 集成传播链视图
-- [ ] T70: 新增 UI 测试 tests/ui/test_propagation_view.py
+- [x] T65: 新增 auto_pm/ui/change_center/propagation_view.py
+- [x] T66: QGraphicsView + 节点连线展示传播链
+- [x] T67: 节点显示领域名称，连线显示传播方向
+- [x] T68: 空传播链显示"无跨领域影响"
+- [x] T69: change_detail_panel.py 集成传播链视图
+- [x] T70: 新增 UI 测试 tests/ui/test_propagation_view.py
 
 ### M3-3：审批时间线
-- [ ] T71: 新增 auto_pm/ui/change_center/approval_timeline.py
-- [ ] T72: 自定义 QWidget 时间线展示（审批环节/审批人/审批意见/审批日期）
-- [ ] T73: 从 DB approval_history 表读取审批历史
-- [ ] T74: change_detail_panel.py 集成审批时间线
-- [ ] T75: 新增 UI 测试 tests/ui/test_approval_timeline.py
+- [x] T71: 新增 auto_pm/ui/change_center/approval_timeline.py
+- [x] T72: 自定义 QWidget 时间线展示（审批环节/审批人/审批意见/审批日期）
+- [x] T73: 从 DB approval_history 表读取审批历史
+- [x] T74: change_detail_panel.py 集成审批时间线
+- [x] T75: 新增 UI 测试 tests/ui/test_approval_timeline.py
 
 ### M3-4：变更管理增强
 - [ ] T76: create_change_dialog.py 改为分步向导（基本信息 → 影响分析 → 提交）

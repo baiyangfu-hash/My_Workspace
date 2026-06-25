@@ -84,6 +84,12 @@ class ChangeRequest(BaseModel):
     file_path: str = Field("", description="CHG-*.md 文件路径")
     file_mtime: float = Field(0, description="文件修改时间")
 
+    # 原始章节文本（M3.5-6: 供 CLI show 命令渲染 §6/§8/§9/§10）
+    sections: dict[str, str] = Field(
+        default_factory=dict,
+        description="按章节号拆分的原始 Markdown 文本（'6'/'8'/'9'/'10' 等）",
+    )
+
     model_config = ConfigDict(from_attributes=True)
 
 

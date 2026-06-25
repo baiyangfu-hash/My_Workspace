@@ -35,11 +35,33 @@ from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog  # noqa: E402
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
 from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
 
+# ── 测试隔离：记录本模块创建的变更单，autouse fixture 在每个测试后清理 ──
+_created_change_numbers: list[str] = []
+
+
+@pytest.fixture(autouse=True)
+def _cleanup_test_changes(workspace_root: str):
+    """每个测试后清理本测试创建的变更单文件，避免污染生产数据"""
+    yield
+    cs = ChangeService(workspace_root)
+    for change_number in _created_change_numbers:
+        try:
+            file_path = cs._locator.find_change_file(change_number)
+            if file_path and os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception:
+            pass
+    _created_change_numbers.clear()
+
+
 # ── 辅助函数 ──────────────────────────────────────────────
 
 
 def _create_test_change(change_service: ChangeService, project_id: str) -> str:
-    """创建一个测试变更单，返回 change_number"""
+    """创建一个测试变更单，返回 change_number
+
+    记录到模块级列表，由 _cleanup_test_changes fixture 在测试后自动清理。
+    """
     cr = change_service.create_change_request(
         project_id=project_id,
         domain="SCPT",
@@ -49,6 +71,7 @@ def _create_test_change(change_service: ChangeService, project_id: str) -> str:
         background="GUI 集成测试变更背景",
         necessity="验证 EditChangeDialog 弹窗和 Tab 切换",
     )
+    _created_change_numbers.append(cr.change_number)
     return cr.change_number
 
 
@@ -638,21 +661,21 @@ class TestEditChangeDialogGUI:
                 elif step == 1:
                     # 切换到影响分析 Tab
                     dlg = _find_visible_edit_dialog(app)
-                    if dlg is not None:
-                        dlg._tab_widget.setCurrentIndex(1)
-                        demo_steps.append("切换到影响分析 Tab")
+                    assert dlg is not None, "演示步骤1: 未找到弹窗"
+                    dlg._tab_widget.setCurrentIndex(1)
+                    demo_steps.append("切换到影响分析 Tab")
                 elif step == 2:
                     # 切换回基本信息 Tab
                     dlg = _find_visible_edit_dialog(app)
-                    if dlg is not None:
-                        dlg._tab_widget.setCurrentIndex(0)
-                        demo_steps.append("切换回基本信息 Tab")
+                    assert dlg is not None, "演示步骤2: 未找到弹窗"
+                    dlg._tab_widget.setCurrentIndex(0)
+                    demo_steps.append("切换回基本信息 Tab")
                 elif step == 3:
                     # 关闭弹窗
                     dlg = _find_visible_edit_dialog(app)
-                    if dlg is not None:
-                        dlg.reject()
-                        demo_steps.append("关闭弹窗")
+                    assert dlg is not None, "演示步骤3: 未找到弹窗"
+                    dlg.reject()
+                    demo_steps.append("关闭弹窗")
 
                 # 安排下一步（每步间隔 1.5 秒，让用户看清）
                 if step < 3:
@@ -661,12 +684,12 @@ class TestEditChangeDialogGUI:
             def capture_and_demo(retries: int = 60) -> None:
                 """捕获弹窗后启动演示流程"""
                 dlg = _find_visible_edit_dialog(app)
-                if dlg is not None:
-                    demo_steps.append(f"捕获弹窗: {dlg.windowTitle()}")
-                    QTimer.singleShot(1500, lambda: run_demo_step(0))
+                if dlg is None:
+                    if retries > 0:
+                        QTimer.singleShot(50, lambda: capture_and_demo(retries - 1))
                     return
-                if retries > 0:
-                    QTimer.singleShot(50, lambda: capture_and_demo(retries - 1))
+                demo_steps.append(f"捕获弹窗: {dlg.windowTitle()}")
+                QTimer.singleShot(1500, lambda: run_demo_step(0))
 
             def hard_timeout() -> None:
                 """10s 兜底超时：截图保存现场 → 记录 bug → 强制 reject 避免卡死"""

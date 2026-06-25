@@ -93,6 +93,9 @@ class ChgParser:
         # 填充章节内容标志（门禁校验用）
         self._fill_section_flags(cr, sections)
 
+        # M3.5-6: 保存原始章节文本供 CLI show 命令渲染 §6/§8/§9/§10
+        cr.sections = sections
+
         # 规范结构校验：检查必填字段和合法枚举值
         violations = self._validate_spec_compliance(cr, sections)
         if violations:

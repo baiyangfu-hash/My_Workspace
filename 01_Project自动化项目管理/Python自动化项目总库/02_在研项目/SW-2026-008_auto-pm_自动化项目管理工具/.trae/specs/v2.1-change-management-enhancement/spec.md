@@ -1,24 +1,24 @@
 # V2.1 变更管理增强迭代 Spec
 
 > 项目：SW-2026-008 auto-pm
-> 版本：V0.3.0（pyproject）/ V2.1.0（PRD）
+> 版本：V0.3.1（pyproject）/ V2.1.0（PRD，M3.5-3 已升级）
 > 创建日期：2026-06-24
-> 基线：V0.2.3 已交付（875 测试通过）
+> 基线：V0.2.3 已交付（875 测试通过）→ V0.3.1（1087 测试通过）
 
 ## 0. 当前进度基线（强制）
 
 ### 0.1 代码规模
 - Python 源码：auto_pm/ 包，含 cli/core/change/db/plc/ui/models/config/logging/utils 11 个子包
-- 测试套件：875 个测试全部通过（含 GUI 90 个）
+- 测试套件：1087 个测试全部通过（含 GUI 测试，1 skipped 为可见演示模式）
 - 模板：plc-standard-project / plc-shared-library / plc-test-suite / python-tool 4 套 Copier 模板
 
 ### 0.2 版本号现状
 | 维度 | 当前值 | 目标值 |
 |------|--------|--------|
-| pyproject.toml | 0.2.3 | 0.3.0 |
-| CHANGELOG 最新 | [0.2.3] | [0.3.0] |
-| PRD | V2.0.3 | V2.1.0 |
-| PM_SESSION §2/§8 | V0.2.3 | V0.3.0 |
+| pyproject.toml | 0.3.4 | 0.3.5（M3-4 完成后） |
+| CHANGELOG 最新 | [0.3.4] | [0.3.5] |
+| PRD | V2.1.0 | V2.1.0 |
+| PM_SESSION §2/§8 | V0.3.4 M3-4 | V0.3.4 M3-4 完成 |
 
 ### 0.3 路线图完成度
 - V2.0（PySide6 UI 基座 + 项目CRUD + 总库管理）：✅ 完成
@@ -47,10 +47,14 @@
 | 里程碑 | 状态 | 说明 |
 |--------|------|------|
 | M0 基座清理（重定义为技术债偿还） | ✅ 完成 | 16/19 项技术债已偿还；1019 测试通过 + ruff 0 + mypy 0 + 元测试 0 violations |
-| M0.5 真源收口 + 产品自洽 + dogfood 制度化 | ⏳ 进行中 | 本次 Phase 0-2 推进范围 |
-| M1 变更单章节结构修正 | ⏳ 待启动 | Phase 0-2 完成后推进 |
-| M2 影响分析与审批记录持久化 | ⏳ 待启动 | M1 完成后推进 |
-| M3 GUI 变更管理增强 | ⏳ 待启动 | M2 完成后推进 |
+| M0.5 真源收口 + 产品自洽 + dogfood 制度化 | ✅ 完成 | Phase 0 真源收口 + Phase 1 产品自洽（3 项 BUG 修复）+ Phase 2 dogfood 制度化（spec.md §9） |
+| M1 变更单章节结构修正 | ✅ 完成 | §6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + 040 V2.2.0 |
+| M2 影响分析与审批记录持久化 | ✅ 完成 | DB schema 扩展（impact_analysis + approval_history 表）+ Repository + Service 集成 + parser 增强 |
+| M3-1 变更单编辑表单 | ✅ 完成 | EditChangeDialog QDialog+QTabWidget 双 Tab + 17 UI 测试 + 5 bug 修复 |
+| M3.5 真源收口 Round 2 + 产品自洽 Round 2 | ✅ 完成 | 8 项任务全部完成：M3.5-1 清理 GUI 测试污染 ✅ + M3.5-2 修复 TD-T04 复发 ✅ + M3.5-3 真源收口 R2 ✅ + M3.5-4 CHG-001 内容补全 ✅ + M3.5-5 CHG-062 完整生命周期 ✅ + M3.5-6 change show §6/§8/§9/§10 增强 ✅ + M3.5-7 CLI 表格不截断 ✅ + M3.5-8 change edit CLI 命令 ✅（dict 字段 constraint_impacts/domain_impacts 留给 GUI EditChangeDialog，见 §0.7 CLI/GUI 字段分工） |
+| M3-2 传播链可视化 | ✅ 完成 | PropagationView QGraphicsView 水平展示传播链 + _parse_chain 解析 ->/→ 分隔符 + 节点中文名映射 + 箭头连线 + 空链"无跨领域影响" + DEBUG tracing + 8 UI 测试 |
+| M3-3 审批时间线 | ✅ 完成 | ApprovalTimeline 自定义 QWidget 垂直展示审批历史 + ChangeService.list_approval_history 读取方法 + change_detail_panel 集成 + 7 UI 测试 |
+| M3-4 增强功能 | ⏳ 待启动 | M3-2 完成后推进（当前焦点） |
 
 ### 0.6 dogfood 发现的产品缺陷（已入图，待修复）
 
@@ -58,6 +62,25 @@
 |---------|------|---------|---------|
 | BUG-001 | `verification_conclusion` 门禁过硬编码（必须字面量"全部通过"） | M0.5 Phase 1-3 | 🟡 中 |
 | BUG-002 | 台帐更新路径解析错误（中文路径被字符级拆分） | M0.5 Phase 1-2 | 🟡 中 |
+
+### 0.7 CLI/GUI 变更单编辑字段分工（M3.5-8 确立）
+
+变更单可编辑字段（`ChangeService._UPDATABLE_FIELDS`，共 10 个）按输入复杂度分为 CLI 可编辑和 GUI 专属两类，避免下次迭代遗漏：
+
+| 字段 | 章节 | 类型 | CLI edit | GUI EditChangeDialog | 说明 |
+|------|------|------|----------|----------------------|------|
+| background | §4 | str | ✅ `--background` | ✅ | 变更背景 |
+| necessity | §4 | str | ✅ `--necessity` | ✅ | 变更必要性 |
+| references | §4 | str | ✅ `--references` | ✅ | 参考依据 |
+| planned_date | §3.4 | str | ✅ `--planned-date` | ✅ | 预计实施日期 |
+| urgency | §3.4 | enum | ✅ `--urgency` | ✅ | 紧急程度（normal/urgent/critical） |
+| risk_level | §6.1 | enum | ✅ `--risk-level` | ✅ | 风险等级（none/low/medium/high） |
+| mitigation | §6.1 | str | ✅ `--mitigation` | ✅ | 缓解措施 |
+| propagation_chain | §6.3 | str | ✅ `--propagation-chain` | ✅ | 变更传播链 |
+| constraint_impacts | §6.1 | dict | ❌ 留 GUI | ✅ | 项目约束影响（维度→影响程度），CLI 输入 dict 繁琐 |
+| domain_impacts | §6.2 | dict | ❌ 留 GUI | ✅ | 技术领域影响（领域→{affected,content,related_chg}），CLI 输入 dict 繁琐 |
+
+**设计原则**：CLI 覆盖 8 个字符串/枚举字段（快速编辑场景），GUI 覆盖全部 10 个字段（含 2 个 dict 复杂字段，完整编辑场景）。下次迭代扩展编辑能力时，需同步检查 CLI/GUI 两端覆盖范围。
 
 ## 1. Why
 

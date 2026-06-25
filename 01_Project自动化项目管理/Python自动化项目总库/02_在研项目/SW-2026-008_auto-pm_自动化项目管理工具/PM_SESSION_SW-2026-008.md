@@ -4,7 +4,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-06-25
+- last_updated: 2026-06-26
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -13,14 +13,15 @@
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V0.3.0 M3-1 EditChangeDialog（已完成）- 5 个任务（T60-T64）全部完成
-- milestone: V0.3.1（pyproject）/ V2.1.0（PRD）
-- acceptance: M3-1 完成（Service 层扩展 _UPDATABLE_FIELDS 支持 §6 五字段 + ChangeMarkdownEditor 新增 5 个 §6 字段更新方法 + 新增 EditChangeDialog QDialog+QTabWidget 双 Tab + change_detail_panel.py 集成编辑按钮 + center_view.py 连接 change_updated 信号 + parser 修复 _extract_propagation_chain 多代码块解析 + 17 个 UI 测试）；1072 测试通过
+- current_focus: V0.3.0 M3-4 增强功能（M3-2 已完成，版本号已升至 0.3.4）
+- milestone: V0.3.4（pyproject，M3-2 完成）/ V2.1.0（PRD）
+- acceptance: M3-2 6 项任务全部完成 ✅；PropagationView QGraphicsView 水平展示传播链 + _parse_chain 解析 ->/→ 分隔符 + 节点中文名映射 + 箭头连线 + 空链"无跨领域影响" + DEBUG tracing + change_detail_panel 集成 + 8 UI 测试 + 1102 passed 无回归
 - plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
+- m3.5_insertion_reason: 三角色视角真实运行证据发现 6 项阻断项（GUI 测试污染生产数据 + TD-T04 复发 + spec/tasks 再次严重滞后 + CHG-SCPT-001 内容空白 + change show 信息缺失 + CLI 缺 edit 命令），直接推进 M3-3 会继续在失真基线上累积债务
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 无（M2 已完成，M3 待启动）
+  - 无（M3-2 全部完成，待启动 M3-4 增强功能）
 - completed:
   - P1: Copier模板PoC验证通过
   - P2: Click插件架构 + PLC checker/repairer 迁移 + project CRUD Service
@@ -43,17 +44,29 @@
   - V0.3.0 M0.5 Phase 2 dogfood 制度化: 完成（固定模板 + 发布门禁 + 使用者视角检查项）
   - V0.3.0 M1 变更单章节结构修正: 完成（§6.1 风险等级+缓解措施 + §10 三节结构 + §11 版本详细变更说明 + §12 附录 + 文档版本号 V2.1.0 + 040 §3.4 变更状态字段；040 模板 V2.1.0→V2.2.0；1029 测试通过）
   - V0.3.0 M2 影响分析与审批记录持久化: 完成（DB schema 扩展 impact_analysis + approval_history 两张表 + ImpactAnalysisRepository/ApprovalHistoryRepository 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化 + parser to_impact_analysis 方法；pyproject 0.3.0→0.3.1；1055 测试通过）
+  - V0.3.0 M3.5-1 GUI 测试污染清理: 完成（删除 60 个残留变更单 CHG-SCPT-2026-002~061 + 添加 _cleanup_test_changes autouse fixture；TD-T09 已偿还）
+  - V0.3.0 M3.5-2 TD-T04 复发修复: 完成（test_17 中 4 处条件断言跳过修复；元测试 0 violations）
+  - V0.3.0 M3.5-3 真源收口 R2: 完成（spec.md/tasks.md/技术债报告/PRD 四端对齐 1087 passed + PRD V2.0.3→V2.1.0 + 新增 TD-T09）
+  - V0.3.0 M3.5-4 CHG-SCPT-2026-001 内容补全: 完成（§5/§6/§7/§8/§9/§10/§11/§12 全部填充真实内容 + 文档版本 V1.0.0→V2.1.0 + M1 模板三节结构/风险等级列/版本变更说明 + `change show` parser 验证通过）
+  - V0.3.0 M3.5-5 CHG-SCPT-2026-062 完整生命周期: 完成（V2.1.0 模板创建 + 12 章节填充 M3.5-1~4 真实内容 + 8 次状态流转 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed 全部成功 + `change show` parser 验证通过 + `change list` 返回 2 条记录；dogfooding 第二次闭环）
+  - V0.3.0 M3.5-6 change show 命令增强: 完成（ChangeRequest 新增 `sections: dict[str, str]` 字段保存原始章节 Markdown + parser `cr.sections = sections` 注入 + cmd_show 调用 `_display_section_6/8/9/10` 渲染 §6.1 项目约束影响 + §6.2 技术领域影响 + §6.3 变更传播链 + §8.1 审批流程 + §8.2 审批结论 + §9 实施记录 + §10.1 验证项清单 + §10.2 跨领域联动验证 + §10.3 验证结论共 10 张 rich.Table；3 个辅助函数 `_parse_md_table`/`_extract_subsection`/`_truncate`；CHG-001/CHG-062 验证通过；396 passed 1 skipped 无回归）
+  - V0.3.0 M3.5-7 CLI 表格不截断: 完成（cmd_list 所有短列 min_width+no_wrap + 标题列 ratio=1 吸收剩余空间 + 新增 --full 选项标题列 fold 换行；120 宽度下 8 列全部完整显示 CHG-SCPT-2026-001 不再截断为 CHG-SCP…；79 宽度 piped 场景短列也保留可读宽度）
+  - V0.3.0 M3.5-8 change edit CLI 命令: 完成（新增 cmd_edit 命令支持 8 个字符串字段：§4 background/necessity/references/planned_date/urgency + §6 risk_level/mitigation/propagation_chain；复用 ChangeService.update_change_request；dict 字段 constraint_impacts/domain_impacts 留给 GUI EditChangeDialog；修复 _display_section_6 中 risk_level/mitigation 误判 has_constraint 的显示 bug + click.exceptions.Exit 误捕获；CHG-063 测试验证通过后已清理；396 passed 1 skipped 无回归）
+  - V0.3.0 M3-3 审批时间线: 完成（ApprovalTimeline 自定义 QWidget 垂直展示审批历史：圆点+连接线+状态流转+审批人+意见+日期，12 状态颜色映射，空历史"暂无审批记录"提示；ChangeService 新增 list_approval_history 方法委托 ChangeRequestRepository.list_approval_history → ApprovalHistoryRepository.list_by_change，无 DB 返回空列表；change_detail_panel 在"参考依据"与"状态流转按钮"之间集成"审批记录"章节；7 UI 测试覆盖空历史/单条/多条/状态文案/审批人意见/圆点颜色/无 DB 防御；pyproject 0.3.2→0.3.3；1094 passed 1 skipped 无回归）
+  - V0.3.0 M3-2 传播链可视化: 完成（PropagationView 自定义 QGraphicsView 水平展示传播链：节点 100×40px 圆角矩形 + 箭头连线 + 领域中文名映射（DOMAINS），_parse_chain 兼容 -> ASCII 与 → Unicode 分隔符，空链"无跨领域影响"提示；DEBUG tracing 覆盖 _parse_chain/load_chain/_render/_add_node/_add_arrow 全过程；change_detail_panel 在"参考依据"与"审批记录"之间集成"传播链"章节；8 UI 测试覆盖空链/None/单节点/三节点/中文名/Unicode箭头/水平方向/无箭头格式；pyproject 0.3.3→0.3.4；1102 passed 1 skipped 无回归）
 - next_up:
-  - V0.3.0 M3: GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
+  - V0.3.0 M3-4 增强功能（M3-2 全部完成，回到原 M3 推进顺序最后一步）
+  - M3-4 完成后推进 M4 Dogfooding 持续化
   - 剩余技术债: TD-T08（测试并行化）+ TD-A02（测试生产解耦）+ TD-TC01（沙箱路径限制）
-  - dogfooding 发现的产品缺陷: BUG-001（verification_conclusion 过于严格）+ BUG-002（台帐路径解析错误）— 已入 tasks.md M0.5-2
 - open_questions:
-  - 无（4 项决策已定）
+  - 无（M3-2 全部完成，M3-4 方向已确认）
 - risks_dependencies:
-  - 无
+  - spec.md/tasks.md 滞后问题已通过 M3.5-3 修复（四端对齐 1087 passed）
+  - GUI 测试污染已通过 M3.5-1 修复（60 个残留变更单已删除 + autouse fixture）
+  - TD-T04 复发已通过 M3.5-2 修复（4 处条件断言已改为 assert）
 - spec_compliance:
-  - last_check: 2026-06-25
-  - result: V0.3.0 M2 完成；pyproject=0.3.1、CHANGELOG=[0.3.1]、PRD=V2.0.3（待升级 V2.1.0）、PM_SESSION §2=V0.3.0 M2；040 模板=V2.2.0；spec.md/tasks.md 已对齐
+  - last_check: 2026-06-26
+  - result: V0.3.0 M3-2 全部完成；pyproject=0.3.4、CHANGELOG=[0.3.4]、PRD=V2.1.0、PM_SESSION §2=V0.3.0 M3-2 完成；040 模板=V2.2.0；spec.md/tasks.md 已同步（M3-2 T65-T70 全部 [x] + §0.5 M3-2 ✅）；PropagationView 自定义 QGraphicsView 已集成到 change_detail_panel（M3-2 T65/T66/T67/T68/T69）；_parse_chain 解析 ->/→ 分隔符（M3-2 T66）；8 UI 测试通过（M3-2 T70）；测试实际 1102 passed + 1 skipped（较 0.3.3 基线 +8 测试，无回归）；ruff 0 errors + mypy 0 errors
 
 ## 4. Artifacts Index（文档索引）
 - req: 00_项目基础信息/001_产品需求文档_PRD.md
@@ -87,6 +100,18 @@
   - 2026-06-25 V0.3.0 M2 影响分析与审批记录持久化全部完成：4 个子任务组 19 个任务（T41-T59）全部完成；DB schema 扩展 impact_analysis + approval_history 两张表 + 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化（create/transition/update 同步写入）+ parser to_impact_analysis 方法；修复 T55 外键约束失败（添加 ProjectRepository 先 upsert projects 记录）+ 修复 SQLite WAL 文件锁定 teardown 问题；pyproject 0.3.0→0.3.1；1055 测试通过（较 M1 增加 26 个测试）
   - 2026-06-25 V0.3.0 M3 设计讨论完成：作为电气工程师兼项目经理视角体验工具（change list/show），发现 CLI 不显示 §6 影响分析/无 change edit 命令/不显示审批历史；梳理 M3 详细设计思路并确认 4 项决策（推进顺序 M3-1→M3-3→M3-2→M3-4 + 传播链 QGraphicsView 方案 + 拆分 change_detail_panel.py + GUI 原型文档结构化拆解）；设计决策已写入 §8 m3_design_decisions，新会话可直接执行
   - 2026-06-25 09_整改项总计划同步：`V0.3.0-项目落地执行总计划_重规划版.md` 已按当前代码与 PM_SESSION 基线更新，明确 Phase 0-2、M1、M2、M3-1 已完成，后续执行顺序收敛为 M3-3→M3-2→M3-4→Phase 6；文档从“历史规划态”切换为“当前执行基线态”
+  - 2026-06-25 V0.3.0 M3.5 真源收口 Round 2 + 产品自洽 Round 2 插入决策：pm-workflow 深度解读（真实运行 auto-pm project show/change list/show + pytest + 代码级核查 + 三角色视角）发现 6 项阻断项：(1) GUI 测试污染生产数据（53 个 draft 残留变更单 CHG-SCPT-2026-002~054）；(2) TD-T04 条件断言跳过复发（gui/test_17_edit_change_dialog.py 4 处，pytest 1 failed）；(3) spec.md/tasks.md 严重滞后（M0.5/M1/M2/M3-1 已完成但 spec/tasks 仍写"待启动"）；(4) CHG-SCPT-2026-001 内容空白（§5/§6/§7/§8 全部待填写，文档版本仍 V1.0.0）；(5) change show 不显示 §6/§8/§9/§10 关键信息；(6) CLI 缺 change edit 命令 + 表格截断严重。用户确认插入 M3.5（8 项任务），M3-3/M3-2/M3-4 延后
+  - 2026-06-25 V0.3.0 M3.5-1 GUI 测试污染清理完成：删除 60 个残留变更单（CHG-SCPT-2026-002~061，实测 60 个非 53 个）；在 tests/gui/test_17_edit_change_dialog.py 添加 _cleanup_test_changes autouse fixture（模块级 _created_change_numbers 跟踪 + ChangeService._locator.find_change_file() 定位 + os.remove() 删除）；change list SW-2026-008 仅返回 1 条（CHG-SCPT-2026-001）；TD-T09 已偿还
+  - 2026-06-25 V0.3.0 M3.5-2 TD-T04 复发修复完成：test_17_edit_change_dialog.py::test_visible_demo 中 4 处 `if dlg is not None:` 条件断言跳过修复（3 处改为 `assert dlg is not None` + 1 处反转为 `if dlg is None: ... return` 保留重试逻辑）；元测试 0 violations；全量测试 1087 passed + 1 skipped
+  - 2026-06-25 V0.3.0 M3.5-3 真源收口 R2 完成：spec.md（§0.1 测试数 1087 + §0.2 PRD V2.1.0 + §0.5 M3.5-3 ✅）+ tasks.md（M3.5 章节 8 任务插入，M3.5-1/2/3 打勾）+ 006_技术债评估报告.md（测试数 1087 + TD-T09 新增 + TD-A01 验收修正 + TD-T04 复发记录 + §10 变更记录）+ 001_PRD.md（V2.0.3→V2.1.0 + 版本变更记录）+ PM_SESSION §2/§3/§5/§8/§9 五端对齐；全量测试 1087 passed + 1 skipped + 3 warnings
+  - 2026-06-26 V0.3.0 M3.5-4 CHG-SCPT-2026-001 内容补全完成：全部 12 个章节填充真实 M0 基座清理内容（§5 变更前 875 passed/99 mypy/110 ruff + 变更后 1019 passed/0/0 + §6.1 五大约束含风险等级/缓解措施 + §6.2 SCPT+DOCU 跨领域 + §6.3 传播链 SCPT→DOCU + §7 实施计划 7 批次 + §8.1 审批 8 步 draft→closed + §8.2 通过 + §9 实施记录 7 批次 + §10 三节结构 9 验证项 + §11 版本详细变更说明 + §12 附录）；文档版本 V1.0.0→V2.1.0 对齐 M1 模板；`change show CHG-SCPT-2026-001` parser 验证通过
+  - 2026-06-26 V0.3.0 M3.5-5 CHG-SCPT-2026-062 完整生命周期完成：V2.1.0 模板创建变更单（覆盖 M3.5-1~4 真实工作：GUI 测试污染清理 + TD-T04 复发修复 + 真源收口 R2 + CHG-001 内容补全）+ 12 章节填充真实内容 + 8 次状态流转全部成功（draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed）+ `change show CHG-SCPT-2026-062` parser 验证通过（status=closed）+ `change list SW-2026-008` 返回 2 条记录（001+062 均 closed）；dogfooding 第二次闭环完成
+  - 2026-06-26 V0.3.0 M3.5-6 change show 命令增强完成：ChangeRequest 模型新增 `sections: dict[str, str]` 字段保存原始章节 Markdown 文本 + ChgParser.parse 末尾 `cr.sections = sections` 注入 + cmd_show 调用 `_display_section_6/8/9/10` 渲染 §6.1 项目约束影响（含风险等级/缓解措施）+ §6.2 技术领域影响 + §6.3 变更传播链 + §8.1 审批流程 + §8.2 审批结论 + §9 实施记录 + §10.1 验证项清单 + §10.2 跨领域联动验证 + §10.3 验证结论共 10 张 rich.Table；3 个辅助函数 `_parse_md_table`/`_extract_subsection`/`_truncate`；`change show CHG-SCPT-2026-001` + `change show CHG-SCPT-2026-062` 均正确渲染所有章节；396 passed 1 skipped 无回归
+  - 2026-06-26 V0.3.0 M3.5-7 CLI 表格不截断完成：cmd_list 所有短列（变更编号/领域/性质/影响范围/状态/申请人/申请日期）添加 `min_width` + `no_wrap=True` 保证不被压缩 + 标题列 `ratio=1` 吸收剩余空间 + 新增 `--full` 选项（标题列 `overflow="fold"` 自动换行）；120 宽度下 8 列全部完整显示 CHG-SCPT-2026-001 不再截断为 CHG-SCP…；用户手动验证通过
+  - 2026-06-26 V0.3.0 M3.5-8 change edit CLI 命令完成：新增 `cmd_edit` 命令支持 8 个字符串字段（§4 background/necessity/references/planned_date/urgency + §6 risk_level/mitigation/propagation_chain）+ 复用 `ChangeService.update_change_request` + dict 字段 constraint_impacts/domain_impacts 留给 GUI EditChangeDialog（spec.md §0.7 文档体现）；修复 `_display_section_6` 中 risk_level/mitigation 误判 has_constraint 的显示 bug（独立为 has_risk 判断）+ 修复 `click.exceptions.Exit` 被 `except Exception` 误捕获；CHG-SCPT-2026-063 测试验证通过后已清理；396 passed 1 skipped 无回归
+  - 2026-06-26 V0.3.0 版本号 0.3.1→0.3.2 四端+变更记录对齐完成：pyproject.toml + CHANGELOG [0.3.2] 条目 + PRD 版本变更记录新增 2026-06-26 行 + PM_SESSION §2/§8 + 005_变更记录 [V0.3.2] 章节 + spec.md §0.2 版本号现状表；全量测试核查 1087 passed 1 skipped 3 warnings（与 M3.5-3 一致，M3.5-6/7/8 未新增测试文件）；M3.5 里程碑文档收口完成，待启动 M3-3 审批时间线
+  - 2026-06-26 V0.3.0 M3-3 审批时间线完成：ApprovalTimeline 自定义 QWidget（垂直展示，圆点+连接线+状态流转+审批人+意见+日期，12 状态颜色映射，空历史提示）+ ChangeService.list_approval_history 读取方法（委托 Repository.list_by_change，无 DB 返回空列表）+ change_detail_panel 集成（"参考依据"与"状态流转按钮"之间插入"审批记录"章节）+ 7 UI 测试（空历史/单条/多条/状态文案/审批人意见/圆点颜色/无 DB 防御，覆盖率 100%）；pyproject 0.3.2→0.3.3 四端+变更记录对齐；全量测试 1094 passed 1 skipped 3 warnings（较 0.3.2 基线 +7 测试，无回归）；ruff 0 errors + mypy 0 errors；M3-3 里程碑全部完成，待启动 M3-2 传播链可视化
+  - 2026-06-26 V0.3.0 M3-2 传播链可视化完成：PropagationView 自定义 QGraphicsView（水平展示，节点 100×40px 圆角矩形 + 箭头连线 + 领域中文名映射 DOMAINS，_parse_chain 兼容 -> ASCII 与 → Unicode 分隔符，空链"无跨领域影响"提示）+ DEBUG tracing 覆盖 _parse_chain/load_chain/_render/_add_node/_add_arrow 全过程（用户需显式 `logging.getLogger('auto_pm').setLevel(logging.DEBUG)` 启用）+ change_detail_panel 集成（"参考依据"与"审批记录"之间插入"传播链"章节）+ 8 UI 测试（空链/None/单节点/三节点/中文名/Unicode箭头/水平方向/无箭头格式）；修复 5 个实现期问题（QPolygonF.append 需 QPointF 而非两标量 + QPainter.RenderHint.Antialiasing 限定形式 + 方法内 import 提升到模块级 + 未使用 idx 变量 + QWidget | None 类型标注）；pyproject 0.3.3→0.3.4 五端+变更记录对齐；全量测试 1102 passed 1 skipped 3 warnings（较 0.3.3 基线 +8 测试，无回归）；ruff 0 errors + mypy 0 errors；M3-2 里程碑全部完成，待启动 M3-4 增强功能
 
 ## 6. Implementation Log
 - 2026-06-19 | skill=fullstack-engineer | mode=P2实施
@@ -291,8 +316,13 @@
 - blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
 
 ## 8. Handoff Notes
-- current_state: V0.3.0 M3-1 EditChangeDialog 完成 + 规范偏移检测方案 C 落地（独立 snapshot 命令补全）+ `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` 已同步到当前 M3-1 基线。方案 C 决策后已补全 `auto-pm project snapshot <项目ID>` 独立命令（复用 spec_snapshot.py 逻辑，支持 --dry-run/--json，不限 PLC/Python 技术栈），同时提取 update_spec_snapshot 为公开函数消除 repairer 代码重复。38 个测试通过（11 project CLI + 27 spec_snapshot/repairer/checker），ruff/mypy 0 errors。此前 M3-1 已交付 EditChangeDialog + 17 个 UI 测试（1072 测试通过），GUI 测试发现并修复 5 个 bug。
-- next_focus: V0.3.0 M3 GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
+- current_state: V0.3.0 M3-2 传播链可视化全部完成，版本号已升至 0.3.4（五端+变更记录对齐：pyproject/CHANGELOG/PRD/PM_SESSION/005_变更记录）。PropagationView 自定义 QGraphicsView 水平展示传播链（节点 100×40px 圆角矩形 + 箭头连线 + 领域中文名映射 DOMAINS）；_parse_chain 兼容 -> ASCII 与 → Unicode 分隔符；空链"无跨领域影响"提示；DEBUG tracing 覆盖 _parse_chain/load_chain/_render/_add_node/_add_arrow 全过程；change_detail_panel 在"参考依据"与"审批记录"之间集成"传播链"章节；8 UI 测试覆盖率 100%。全量测试 1102 passed 1 skipped 3 warnings 无回归（较 0.3.3 基线 +8 测试）；ruff 0 errors + mypy 0 errors。M3-2 里程碑全部完成，待启动 M3-4 增强功能。
+- next_focus: V0.3.0 M3-4 增强功能（create_change_dialog.py 改为 QWizard 分步向导 + transition_dialog.py 可视化状态机 + change_list_panel.py 列表筛选增强 + UI 测试），M3-2 已全部完成可回到原 M3 推进顺序最后一步
+- m3.5_deep_review_findings（2026-06-25 三角色视角真实运行证据，已验证）:
+  - **架构师视角**: 架构健康度良好（11 子包分层 + M3-Iter2 上帝类拆分成功 + mypy 0 + DB 三层 + 安全校验到位）；风险：GUI 测试隔离不彻底、TD-T04 复发、CLI 命令签名不一致
+  - **PLC 电气工程师视角**: 可用性不够顺手 — 变更单列表被 53 条垃圾数据淹没、CLI 表格截断严重（"CHG-SCP…"）、change show 不显示影响分析/审批/实施/验证、change create 9 个必填参数负担重、无 change edit CLI 命令、CHG-SCPT-001 内容空白
+  - **项目经理视角**: 真源治理仍是最大风险 — spec.md/tasks.md 再次严重滞后（Phase 0 真源收口未真正落地）、测试数文档漂移（PM_SESSION 1072/技术债 1019/实际 1086+1failed）、dogfooding 只是骨架闭环（CHG-001 内容空白）、M4 任务未真正落地、PRD 版本号未升级
+  - **结论**: 直接推进 M3-3 会继续在失真基线上累积债务，必须先做 M3.5 收口
 - m3_design_decisions（2026-06-25 设计讨论确认，新会话直接执行无需重新讨论）:
   - **推进顺序**: M3-1 EditChangeDialog → M3-3 审批时间线 → M3-2 传播链可视化 → M3-4 增强功能
   - **M3-1 EditChangeDialog**:
@@ -366,8 +396,16 @@
 - ✅ [precondition: M0 完成] [已完成 2026-06-25] done_when: V0.3.0 M1 变更单章节结构修正完成（§6.1 风险等级/缓解措施 + §10 三节结构 + §11 版本详细变更说明 + §12 附录 + 文档版本号 V2.1.0 + 040 §3.4 变更状态字段；040 模板 V2.2.0；pyproject 0.3.0；1029 测试通过）
 - ✅ [precondition: M1 完成] [已完成 2026-06-25] done_when: V0.3.0 M2 影响分析与审批记录持久化完成（DB schema 扩展 impact_analysis + approval_history 两张表 + ImpactAnalysisRepository/ApprovalHistoryRepository 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化 + parser to_impact_analysis 方法；pyproject 0.3.1；1055 测试通过）
 - ✅ [precondition: M2 完成] [已完成 2026-06-25] done_when: V0.3.0 M3-1 EditChangeDialog 完成（Service 层扩展 _UPDATABLE_FIELDS 支持 §6 五字段 + ChangeMarkdownEditor 新增 5 个 §6 字段更新方法 + 新增 EditChangeDialog QDialog+QTabWidget 双 Tab + change_detail_panel.py 集成编辑按钮 + center_view.py 连接 change_updated 信号 + parser 修复 _extract_propagation_chain + 17 个 UI 测试；1072 测试通过）
-- [precondition: M3-1 完成] done_when: V0.3.0 M3-3 审批时间线完成（新增 ApprovalTimeline 自定义 QWidget + change_detail_panel.py 拆分为 detail_header/detail_content/propagation_section/approval_timeline_section/action_buttons + UI 测试）
-- [precondition: M3-3 完成] done_when: V0.3.0 M3-2 传播链可视化完成（新增 PropagationView QGraphicsView+QGraphicsScene + 解析 propagation_chain 字符串为节点+边 + UI 测试）
+- ✅ [precondition: M3-1 完成] [已完成 2026-06-25] done_when: V0.3.0 M3.5-1 清理 GUI 测试污染生产数据（删除 CHG-SCPT-2026-002~061 共 60 个测试残留变更单；添加 _cleanup_test_changes autouse fixture 防止复发；`change list SW-2026-008` 仅返回 1 条 CHG-SCPT-2026-001；TD-T09 已偿还）
+- ✅ [precondition: M3.5-1 完成] [已完成 2026-06-25] done_when: V0.3.0 M3.5-2 修复 TD-T04 条件断言跳过复发（tests/gui/test_17_edit_change_dialog.py 4 处 if dlg is not None 改为 assert + 反转模式；元测试 0 violations；1087 passed + 1 skipped）
+- ✅ [precondition: M3.5-2 完成] [已完成 2026-06-25] done_when: V0.3.0 M3.5-3 真源收口 Round 2（spec.md §0.1/§0.2/§0.5 修正 + tasks.md M3.5 章节 8 任务插入 + 技术债报告测试数 1087 + TD-T09 新增 + TD-A01 验收修正 + PRD V2.0.3→V2.1.0 + PM_SESSION 五端对齐；spec.md/tasks.md/PM_SESSION/PRD/技术债报告五端一致 1087 passed）
+- ✅ [precondition: M3.5-3 完成] [已完成 2026-06-26] done_when: V0.3.0 M3.5-4 补全 CHG-SCPT-2026-001 内容（§5.1/§5.2 变更前/变更后真实填写 + §6.1 五大约束影响表含风险等级/缓解措施 + §6.2 跨领域影响表 SCPT+DOCU + §6.3 传播链 SCPT→DOCU + §7 实施计划 7 批次 + §8.1 审批流程 8 步 draft→closed + §8.2 审批结论通过 + §9 实施记录 7 批次；文档版本 V1.0.0→V2.1.0；§10 三节结构（§10.1 验证项 9 项 + §10.2 跨领域联动验证 + §10.3 验证结论全部通过）；§11 版本详细变更说明；§12 附录；`change show CHG-SCPT-2026-001` parser 验证通过）
+- ✅ [precondition: M3.5-4 完成] [已完成 2026-06-26] done_when: V0.3.0 M3.5-5 创建 CHG-SCPT-2026-062 走完整生命周期（V2.1.0 模板 + 12 章节填充 M3.5-1~4 真实内容 + 8 次状态流转 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed 全部成功；`change show` parser 验证通过 status=closed；`change list` 返回 2 条记录；dogfooding 第二次闭环）
+- ✅ [precondition: M3.5-2 完成] [已完成 2026-06-26] done_when: V0.3.0 M3.5-6 change show 命令信息增强（auto_pm/cli/change.py cmd_show 显示 §6 影响分析 + §8 审批记录 + §9 实施记录 + §10 验证项清单和验证结论；CLI 输出覆盖使用者关心的所有章节）— ChangeRequest 新增 `sections: dict[str, str]` 字段 + parser 注入 + 4 个 `_display_section_*` 函数渲染 §6.1/§6.2/§6.3/§8.1/§8.2/§9/§10.1/§10.2/§10.3 共 10 张 rich.Table；CHG-001/CHG-062 验证通过；396 passed 1 skipped 无回归
+- ✅ [precondition: M3.5-6 完成] [已完成 2026-06-26] done_when: V0.3.0 M3.5-7 CLI 表格不截断（change list rich.Table 列宽调整或新增 --full 选项；变更编号/申请日期/标题完整显示不被截断为"CHG-SCP…"）— cmd_list 所有短列 min_width+no_wrap + 标题列 ratio=1 + --full 选项；120 宽度 8 列完整显示；396 passed 1 skipped
+- ✅ [precondition: M3.5-6 完成] [已完成 2026-06-26] done_when: V0.3.0 M3.5-8 新增 change edit CLI 命令（auto-pm change edit <CHG-NUM> 对齐 GUI EditChangeDialog；支持编辑 §4 基本字段 + §6 影响分析字段；复用 ChangeService.update_change_request；CLI 可编辑变更单字段无需开 GUI 或手改 Markdown）— cmd_edit 支持 8 字符串字段（§4 5个 + §6 3个），dict 字段留 GUI 见 spec.md §0.7；修复 _display_section_6 risk_level/mitigation 显示 bug + click.exceptions.Exit 误捕获；CHG-063 验证后清理；396 passed 1 skipped
+- ✅ [precondition: M3.5-1~8 全部完成] [已完成 2026-06-26] done_when: V0.3.0 M3-3 审批时间线完成（新增 ApprovalTimeline 自定义 QWidget 垂直展示审批历史 + ChangeService.list_approval_history 读取方法 + change_detail_panel 轻量集成"审批记录"章节 + 7 UI 测试覆盖率 100%；pyproject 0.3.2→0.3.3；1094 passed 1 skipped 无回归；ruff/mypy 0 errors）
+- ✅ [precondition: M3-3 完成] [已完成 2026-06-26] done_when: V0.3.0 M3-2 传播链可视化完成（新增 PropagationView QGraphicsView+QGraphicsScene 水平展示传播链 + _parse_chain 解析 ->/→ 分隔符 + 节点中文名映射 + 箭头连线 + 空链"无跨领域影响" + DEBUG tracing + change_detail_panel 集成 + 8 UI 测试覆盖率 100%；pyproject 0.3.3→0.3.4；1102 passed 1 skipped 无回归；ruff/mypy 0 errors）
 - [precondition: M3-2 完成] done_when: V0.3.0 M3-4 增强功能完成（create_change_dialog.py 改为 QWizard 分步向导 + transition_dialog.py 可视化状态机 + change_list_panel.py 列表筛选增强 + UI 测试）
 - [precondition: M0-M3 全部完成] done_when: 版本号四端统一（pyproject=0.3.1/CHANGELOG=[0.3.1]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0 M2）+ 005_变更记录_CHG.md 新增 V2.1.0 条目
 - [precondition: dogfooding 持续] done_when: 修复 dogfooding 发现的产品缺陷——BUG-001(verification_conclusion 过于严格) + BUG-002(台帐路径解析错误)

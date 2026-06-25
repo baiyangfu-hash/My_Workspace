@@ -5,6 +5,63 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.3.4] - 2026-06-26
+
+### Added - V0.3.0 M3-2: 传播链可视化
+
+- auto_pm/ui/change_center/propagation_view.py（新增 PropagationView QGraphicsView：水平展示传播链，圆角矩形节点+箭头连线；_parse_chain 解析 `->`/`→` 分隔符为节点+边；节点显示领域中文名 via DOMAINS 映射；空链"无跨领域影响"提示；DEBUG 级别 tracing 覆盖解析/渲染全过程）
+- auto_pm/ui/change_center/change_detail_panel.py（集成传播链视图：在"参考依据"与"审批记录"之间插入"传播链"章节）
+- tests/ui/test_propagation_view.py（新增 8 UI 测试：空链/None/单节点/多节点/中文名/Unicode箭头/水平方向/无箭头格式）
+
+### Verified
+- 1102 passed, 1 skipped, 3 warnings（较 0.3.3 基线 1094 增加 8 个新测试，无回归）
+- ruff 0 errors, mypy 0 errors
+
+## [0.3.3] - 2026-06-26
+
+### Added - V0.3.0 M3-3: 审批时间线
+
+- auto_pm/ui/change_center/approval_timeline.py（新增 ApprovalTimeline 自定义 QWidget：垂直展示变更单状态流转历史，圆点+连接线+状态流转+审批人+意见+日期；12 状态颜色映射；空历史"暂无审批记录"提示）
+- auto_pm/change/change_service.py（新增 list_approval_history 方法：委托 ChangeRequestRepository.list_approval_history → ApprovalHistoryRepository.list_by_change，按 id 升序返回审批记录；无 DB 时返回空列表）
+- auto_pm/ui/change_center/change_detail_panel.py（集成审批时间线：在"参考依据"与"状态流转按钮"之间插入"审批记录"章节）
+- tests/ui/test_approval_timeline.py（新增 7 UI 测试：空历史提示 + 单条/多条记录节点数与连接线 + 状态流转文案 + 审批人意见 + 圆点颜色 + 无 DB 不崩溃）
+
+### Verified
+- 1094 passed, 1 skipped, 3 warnings（较 0.3.2 基线 1087 增加 7 个新测试，无回归）
+- ruff 0 errors, mypy 0 errors
+
+## [0.3.2] - 2026-06-26
+
+### Added - V0.3.0 M3.5: 真源收口 Round 2 + 产品自洽 Round 2
+
+#### M3.5-1~3: GUI 测试污染清理 + TD-T04 复发修复 + 真源收口 R2
+- tests/gui/test_17_edit_change_dialog.py（新增 _cleanup_test_changes autouse fixture，模块级跟踪 + os.remove 删除残留变更单）
+- 删除 60 个 GUI 测试残留变更单 CHG-SCPT-2026-002~061
+- tests/gui/test_17_edit_change_dialog.py（修复 TD-T04 复发：4 处 `if dlg is not None:` → `assert dlg is not None`）
+- spec.md/tasks.md/006_技术债评估报告.md/001_PRD.md/PM_SESSION 五端对齐 1087 passed
+
+#### M3.5-4~5: CHG-SCPT-2026-001 内容补全 + CHG-SCPT-2026-062 完整生命周期
+- CHG-SCPT-2026-001.md（§5/§6/§7/§8/§9/§10/§11/§12 全部填充真实内容 + 文档版本 V1.0.0→V2.1.0）
+- CHG-SCPT-2026-062.md（V2.1.0 模板创建 + 8 次状态流转走完完整生命周期 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed）
+
+#### M3.5-6: change show 命令增强
+- auto_pm/models/change.py（ChangeRequest 新增 `sections: dict[str, str]` 字段，存储按章节号拆分的原始 Markdown 文本）
+- auto_pm/change/parser.py（解析时保存 `cr.sections = sections`）
+- auto_pm/cli/change.py（新增 `_display_section_6/8/9/10` 四个渲染函数 + `_parse_md_table`/`_extract_subsection`/`_truncate` 辅助函数；cmd_show 调用渲染 §6.1/§6.2/§6.3 + §8.1/§8.2 + §9 + §10.1/§10.2/§10.3 共 10 张 rich.Table）
+
+#### M3.5-7: CLI 表格不截断
+- auto_pm/cli/change.py（cmd_list 所有短列 min_width+no_wrap=True + 标题列 ratio=1 吸收剩余空间 + 新增 `--full` 选项标题列 overflow="fold" 自动换行；120 宽度下 8 列完整显示）
+
+#### M3.5-8: 新增 change edit CLI 命令
+- auto_pm/cli/change.py（新增 cmd_edit 命令，8 个字符串/枚举字段：§4 background/necessity/references/planned_date/urgency + §6 risk_level/mitigation/propagation_chain；复用 ChangeService.update_change_request；dict 字段 constraint_impacts/domain_impacts 留 GUI EditChangeDialog）
+- auto_pm/cli/change.py（修复 _display_section_6 中 risk_level/mitigation 误被 has_constraint 门控的显示 bug + click.exceptions.Exit 误捕获）
+
+### Changed - V0.3.0 版本号升级
+- pyproject.toml version 0.3.1 → 0.3.2
+
+### Verified - V0.3.0 M3.5 回归测试
+- 全量测试：1087 passed, 1 skipped, 3 warnings（与 M3.5-3 一致，M3.5-6/7/8 为 CLI 增强 + bug 修复，未新增测试文件）
+
 ## [0.3.1] - 2026-06-25
 
 ### Added - V0.3.0 M2: 影响分析与审批记录持久化

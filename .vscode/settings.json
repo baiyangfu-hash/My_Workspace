@@ -15,5 +15,5 @@
         ".venv": false,
         ".venvs": true
     },
-    "python.defaultInterpreterPath": "C:\\Users\\fubai\\Desktop\\My_Workspace\\.venv\\Scripts\\python.exe"
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
 }

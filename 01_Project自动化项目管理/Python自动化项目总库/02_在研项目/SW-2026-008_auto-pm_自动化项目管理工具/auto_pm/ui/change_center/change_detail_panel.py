@@ -40,6 +40,8 @@ from auto_pm.change.models import (
     ChangeRequest,
 )
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.change_center.approval_timeline import ApprovalTimeline
+from auto_pm.ui.change_center.propagation_view import PropagationView
 from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog
 from auto_pm.ui.dialogs.transition_dialog import TransitionDialog
 
@@ -297,6 +299,18 @@ class ChangeDetailPanel(QWidget):
         # 参考依据
         self._add_section_header("参考依据")
         self._add_full_text(cr.references or "—")
+
+        # 传播链可视化（M3-2 新增）
+        self._add_section_header("传播链")
+        self._propagation_view = PropagationView(self._content_widget)
+        self._propagation_view.load_chain(cr.propagation_chain or "")
+        self._content_layout.addWidget(self._propagation_view)
+
+        # 审批记录时间线（M3-3 新增）
+        self._add_section_header("审批记录")
+        self._timeline = ApprovalTimeline(self._change_service, self._content_widget)
+        self._timeline.load_history(cr.change_number)
+        self._content_layout.addWidget(self._timeline)
 
         # 状态流转按钮
         self._render_transition_buttons(cr)

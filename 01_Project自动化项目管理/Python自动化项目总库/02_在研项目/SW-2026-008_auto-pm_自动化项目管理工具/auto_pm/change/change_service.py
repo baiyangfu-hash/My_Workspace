@@ -34,6 +34,7 @@ from auto_pm.change.path_resolver import get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.logging.logging import setup_logger as get_logger
+from auto_pm.models import ApprovalRecord
 from auto_pm.models.project import ProjectRecord
 from auto_pm.utils.file_utils import get_mtime, read_file, write_file
 
@@ -394,6 +395,19 @@ class ChangeService:
         result = self._parser.parse(file_path)
         log.info("状态流转完成: %s, 新状态=%s", change_number, result.status)
         return result
+
+    def list_approval_history(self, change_number: str) -> list[ApprovalRecord]:
+        """查询变更单审批流转历史（供 GUI 审批时间线使用，M3-3 T73）
+
+        Args:
+            change_number: 变更单编号
+
+        Returns:
+            审批记录列表（按时间顺序，即 id 升序）；无 DB 或无记录时返回空列表
+        """
+        if self._repo is None:
+            return []
+        return self._repo.list_approval_history(change_number)
 
     # ---- 跨项目查询 / 修改 / 删除 ----
 
