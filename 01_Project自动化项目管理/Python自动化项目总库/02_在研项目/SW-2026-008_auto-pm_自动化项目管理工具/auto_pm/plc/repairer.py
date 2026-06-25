@@ -407,6 +407,7 @@ class PlcRepairer:
             compare_versions,
             load_spec_registry,
             parse_spec_snapshot,
+            update_spec_snapshot,
         )
 
         # 1. 查找 PM_SESSION 文件路径
@@ -467,58 +468,24 @@ class PlcRepairer:
             )
             return
 
-        # 7. 读取 PM_SESSION 内容
-        try:
-            with open(pm_session_path, encoding="utf-8") as f:
-                content = f.read()
-        except OSError as e:
+        # 7. 调用公共函数更新 PM_SESSION（V0.3.2 提取为 spec_snapshot.update_spec_snapshot）
+        success = update_spec_snapshot(pm_session_path, drifts)
+        if success:
             result.add(
                 item="Spec Snapshot",
-                action="修复 Spec Snapshot 版本漂移",
+                action="更新 Spec Snapshot 版本号",
                 destructive=False,
-                status="failed",
-                detail=f"读取 PM_SESSION 失败: {e}",
+                status="fixed",
+                detail=f"更新 {len(drifts)} 条规范版本: {drift_summary}",
             )
-            return
-
-        # 8. 正则替换每个漂移项的版本号
-        # 匹配格式：| spec_id | snapshot_version |
-        new_content = content
-        for drift in drifts:
-            pattern = re.compile(
-                r"(\|\s*"
-                + re.escape(drift.spec_id)
-                + r"\s*\|\s*)"
-                + re.escape(drift.snapshot_version)
-                + r"(\s*\|)",
-                re.MULTILINE,
-            )
-            new_content = pattern.sub(
-                lambda m: m.group(1) + drift.registry_version + m.group(2),
-                new_content,
-            )
-
-        # 9. 写回 PM_SESSION 文件
-        try:
-            with open(pm_session_path, "w", encoding="utf-8") as f:
-                f.write(new_content)
-        except OSError as e:
+        else:
             result.add(
                 item="Spec Snapshot",
-                action="修复 Spec Snapshot 版本漂移",
+                action="更新 Spec Snapshot 版本号",
                 destructive=False,
                 status="failed",
-                detail=f"写入 PM_SESSION 失败: {e}",
+                detail=f"写入 PM_SESSION 失败或无内容变更: {drift_summary}",
             )
-            return
-
-        result.add(
-            item="Spec Snapshot",
-            action="更新 Spec Snapshot 版本号",
-            destructive=False,
-            status="fixed",
-            detail=f"更新 {len(drifts)} 条规范版本: {drift_summary}",
-        )
 
     def _repair_prd_dir(
         self,

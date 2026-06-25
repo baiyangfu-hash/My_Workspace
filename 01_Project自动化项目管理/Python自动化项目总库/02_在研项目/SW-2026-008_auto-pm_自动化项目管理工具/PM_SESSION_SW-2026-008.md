@@ -86,6 +86,7 @@
   - 2026-06-25 V0.3.0 M0 基座清理全部完成：16/19 项技术债已偿还；1019 测试通过 + ruff 0 errors + mypy 0 errors + 元测试 0 violations + 元测试 FAIL 级别；dogfooding 发现 2 个产品缺陷（BUG-001 verification_conclusion 过于严格、BUG-002 台帐路径解析错误）
   - 2026-06-25 V0.3.0 M2 影响分析与审批记录持久化全部完成：4 个子任务组 19 个任务（T41-T59）全部完成；DB schema 扩展 impact_analysis + approval_history 两张表 + 两个 Repository 类 + ChangeRequestRepository 4 个委托方法 + ChangeService 集成 DB 持久化（create/transition/update 同步写入）+ parser to_impact_analysis 方法；修复 T55 外键约束失败（添加 ProjectRepository 先 upsert projects 记录）+ 修复 SQLite WAL 文件锁定 teardown 问题；pyproject 0.3.0→0.3.1；1055 测试通过（较 M1 增加 26 个测试）
   - 2026-06-25 V0.3.0 M3 设计讨论完成：作为电气工程师兼项目经理视角体验工具（change list/show），发现 CLI 不显示 §6 影响分析/无 change edit 命令/不显示审批历史；梳理 M3 详细设计思路并确认 4 项决策（推进顺序 M3-1→M3-3→M3-2→M3-4 + 传播链 QGraphicsView 方案 + 拆分 change_detail_panel.py + GUI 原型文档结构化拆解）；设计决策已写入 §8 m3_design_decisions，新会话可直接执行
+  - 2026-06-25 09_整改项总计划同步：`V0.3.0-项目落地执行总计划_重规划版.md` 已按当前代码与 PM_SESSION 基线更新，明确 Phase 0-2、M1、M2、M3-1 已完成，后续执行顺序收敛为 M3-3→M3-2→M3-4→Phase 6；文档从“历史规划态”切换为“当前执行基线态”
 
 ## 6. Implementation Log
 - 2026-06-19 | skill=fullstack-engineer | mode=P2实施
@@ -230,6 +231,28 @@
     - BUG-003 接受 generator 模板占位符为新建变更单的合法默认值
   - risks: 无；硬超时兜底确保测试不会卡死（最坏情况 3s 后强制关闭对话框并 fail）
 
+- 2026-06-25 | skill=pm-workflow | mode=规范（方案 C 落地：补全独立 snapshot 命令）
+  - goal: 补全 `auto-pm project snapshot <项目ID>` 独立命令，对齐 pm-mgr 的 snapshot 命令能力，不限技术栈（PLC/Python 均可），复用现有 spec_snapshot.py 逻辑
+  - changed_files:
+    - auto_pm/plc/spec_snapshot.py（新增 update_spec_snapshot 公开函数：提取 repairer 正则替换逻辑为独立函数，支持写回 PM_SESSION 表格版本号；更新模块 docstring 说明可被 project 级命令复用）
+    - auto_pm/plc/repairer.py（重构 _repair_spec_snapshot：移除内联正则替换逻辑，改为调用 update_spec_snapshot 公共函数，消除代码重复；新增 failed 状态分支处理写入失败情况）
+    - auto_pm/cli/project.py（新增 cmd_snapshot 命令：支持 --dry-run 预览/--json 格式输出；复用 parse_spec_snapshot/load_spec_registry/compare_versions/update_spec_snapshot 四个函数；边界处理：项目不存在/PM_SESSION 缺失/表格缺失/registry 缺失）
+    - tests/cli/test_project.py（新增 TestProjectSnapshot 测试类：8 个测试用例覆盖有漂移更新/dry-run/无漂移/项目不存在/无表格/无registry/JSON输出/JSON无漂移）
+  - impact: auto-pm 具备独立 Spec Snapshot 刷新能力（不再依赖 plc repair），支持所有技术栈；repairer 代码消除重复；CLI 命令体系从 6 个 project 子命令扩展为 7 个（list/create/show/edit/delete/retrofit/import/snapshot）
+  - decisions:
+    - 复用 spec_snapshot.py 现有逻辑而非重写（DRY 原则）
+    - 提取 update_spec_snapshot 为公开函数，让 CLI 和 repairer 共享（单一职责）
+    - spec_snapshot.py 虽位于 plc/ 目录但不依赖 PLC 特性，project 级命令直接复用（避免大规模移动文件）
+    - 新命令支持所有技术栈，不限于 PLC（对齐 pm-mgr snapshot 命令的通用性）
+  - risks: 无；update_spec_snapshot 返回 bool 表示成功/失败，repairer 新增 failed 状态分支处理失败情况
+  - verification: 38 个测试全部通过（11 project CLI + 27 spec_snapshot/repairer/checker 相关）；ruff 0 errors；mypy 0 errors；CLI --help 确认命令注册正确
+- 2026-06-25 | skill=pm-workflow | mode=项目推进（09_整改项总计划同步）
+  - goal: 将 `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` 从历史规划态更新为当前执行基线态，对齐 PM_SESSION 现状并供 glm5.2 直接接手
+  - changed_files:
+    - 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md（头部执行进度改为 M3-1 基线；新增当前开发进度基线表；路线图补充各阶段当前状态；标记 Phase 0-4 已完成；重写 M3/Phase 6 的当前执行顺序与首日清单）
+  - impact: 09_整改项 当前执行主计划已与代码/PM_SESSION 对齐，新执行者可直接从 M3-3 审批时间线继续推进，不会被早期“Phase 0-2 优先”口径误导
+  - risks: 无；本次仅同步文档，不涉及代码或测试行为变更
+
 ## 7. Verification Log
 - verified:
   - P2: CLI --help可用，plc check/repair 迁移完成，project CRUD可用
@@ -258,6 +281,9 @@
     - Phase 1 产品自洽: P1-1 project show 验证成功（版本 0.2.3 + 描述正确显示，元数据契约修复）；P1-2 台帐路径跨栈策略代码核查通过（_detect_ledger_path_for_project 三级判据）；P1-3 verification 门禁测试 19 passed in 1.38s（规则校验：包含"通过"且不包含"不通过"/"部分通过"/"未通过"）；P1-4 自用回归 1019 passed in 164.59s + change list/show/transition 正常
     - Phase 2 dogfood 制度化: spec.md §9 核查通过（§9.1 固定模板 10 步 + §9.2 发布门禁 10 项 + §9.3 使用者视角 8 项）；M4 出口标准更新为制度化版本核查通过
     - 09_整改项整理: 3 份文档状态标识核查通过（V0.2.1 历史参考 / V0.3.0 诊断 问题判断依据 / V0.3.0 总计划 当前执行主计划+4 项决策）
+  - 09_整改项总计划同步:
+    - `V0.3.0-项目落地执行总计划_重规划版.md` 已更新为 M3-1 基线，文档内明确 Phase 0-2、M1、M2、M3-1 已完成，且下一执行顺序与 §8 m3_design_decisions 一致
+    - Markdown 诊断检查无错误（GetDiagnostics 为空）
 - not_verified:
   - list_view.py 既有 mypy 错误（Qt.AlignTop/AlignCenter 等 8 处简写）为预存问题，未在本次范围处理
   - tests/ui/test_project_list.py（未跟踪文件）含 isVisible() 误用导致随机顺序下 flaky，非本次引入
@@ -265,7 +291,7 @@
 - blocker: 无；ProjectCard 增强已完整交付，剩余为既有预存问题
 
 ## 8. Handoff Notes
-- current_state: V0.3.0 M3-1 EditChangeDialog 完成 + GUI 集成测试 bug 修复完成。M3-1 已交付 EditChangeDialog（QDialog+QTabWidget 双 Tab：基本信息/影响分析）+ change_detail_panel 编辑按钮集成 + center_view change_updated 信号连接 + parser _extract_propagation_chain 修复 + 17 个 UI 测试（1072 测试通过）。随后运行 test_17_edit_change_dialog.py 验证 UI 交互逻辑，发现并修复 5 个 bug：BUG-001 exec 模态卡死（QTimer 捕获+reject+3s 硬超时兜底）/ BUG-002 urgency 索引（findData）/ BUG-003 propagation_chain 占位符断言 / BUG-004 bug_recorder dataclass 下标→属性 / BUG-005 domain 表 SCPT 行（UserRole 查找）；7 个 GUI 测试全部通过 in 15.34s。M2 影响分析与审批记录持久化此前已完成（DB schema 扩展 + 4 子任务组 19 任务 + pyproject 0.3.1 + 1055 测试）。
+- current_state: V0.3.0 M3-1 EditChangeDialog 完成 + 规范偏移检测方案 C 落地（独立 snapshot 命令补全）+ `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` 已同步到当前 M3-1 基线。方案 C 决策后已补全 `auto-pm project snapshot <项目ID>` 独立命令（复用 spec_snapshot.py 逻辑，支持 --dry-run/--json，不限 PLC/Python 技术栈），同时提取 update_spec_snapshot 为公开函数消除 repairer 代码重复。38 个测试通过（11 project CLI + 27 spec_snapshot/repairer/checker），ruff/mypy 0 errors。此前 M3-1 已交付 EditChangeDialog + 17 个 UI 测试（1072 测试通过），GUI 测试发现并修复 5 个 bug。
 - next_focus: V0.3.0 M3 GUI 变更管理增强（EditChangeDialog + 传播链可视化 + 审批时间线 + 创建向导/状态流转/列表筛选）
 - m3_design_decisions（2026-06-25 设计讨论确认，新会话直接执行无需重新讨论）:
   - **推进顺序**: M3-1 EditChangeDialog → M3-3 审批时间线 → M3-2 传播链可视化 → M3-4 增强功能
@@ -299,7 +325,17 @@
     - 变更单详情不显示审批历史（M2 新增的 approval_history 表数据没用到）
     - CLI 表格显示被截断（"CHG-SCP…"、"MODULE,S…"）
   - **specmgr 状态**: SW-2026-006 独立工具，不在 auto-pm 依赖中，venv 未安装；M1-5 T40 人工核查 040 模板；不影响 M3
+- spec_drift_gap_analysis（2026-06-25 规范模式对比分析，已验证）:
+  - **结论**: auto-pm **不能完全替代** pm-mgr + specmgr 组合，规范偏移检测是主要缺口
+  - **pm-mgr 5 命令覆盖**: init✅(project create+plc/python init) / retrofit✅(project retrofit) / check⚠️(分栈 plc check/python check，无统一 check) / detect✅(project show 自动检测) / snapshot❌(无独立命令，仅藏在 plc repair 的 _repair_spec_snapshot 私有方法)
+  - **specmgr SHC-001~010 覆盖**: 仅 SHC-002 部分覆盖（auto-pm 只对比 PM_SESSION Spec Snapshot 表格 vs registry，不检测规范文件本身版本一致性）；SHC-001/003/004/005/006/007/008/009/010 共 9 项全部缺失
+  - **git pre-commit 暴露的盲区**: SHC-002（040 模板 V2.1.0 vs V2.2.0）+ SHC-009（PM_SESSION 引用失效）—— auto-pm 两项都检测不到
+  - **架构定位**: auto-pm=项目管理工具 / specmgr=规范管理工具 / pm-mgr=已归档工作流工具链；三者互补非替代
+  - **auto-pm spec drift 代码位置**: 全部在 auto_pm/plc/ 子目录（checker.py:316 _check_spec_snapshot / repairer.py:390 _repair_spec_snapshot / spec_snapshot.py），仅 plc check 时调用，Python 项目和全局规范文件不检查
+  - **验证方法**: `python -m auto_pm --help` 实测顶层命令（change/gui-command/plc/project/python/template，无 snapshot/spec）；grep auto_pm 全目录确认 snapshot 仅在 plc 子模块；读取 specmgr checker_base.py 确认 SHC-001~010 完整列表
+  - **用户决策（2026-06-25）**: 方案 C — 保持 auto-pm + specmgr 双工具并行，文档明确分工边界；auto-pm 专注项目管理，specmgr 专注规范健康检查；补全独立 snapshot 命令对齐 pm-mgr；规范检查仍用 specmgr 独立运行
 - watchouts:
+  - **规范偏移检测盲区（重要）**: auto-pm 不具备 specmgr 的 SHC-001/003~010 检查能力，SHC-002 仅部分覆盖；本地 git pre-commit 已禁用（.git/hooks/pre-commit → pre-commit.bak），规范偏移问题需依赖 specmgr 独立运行或重新启用 hook
   - 旧 auto_pm/gui/（pywebview）保留，阶段F才清理，勿提前删除
   - UI 层必须通过 Service 层访问数据，不直接访问文件系统/DB；PLC 相关操作必须通过 PlcService（不直接访问 PlcChecker/PlcRepairer/SubstanceChecker）
   - tests/ui/test_project_list.py（未跟踪）含 isVisible() 误用，随机顺序下 flaky，非本次引入；后续应改用 isVisibleTo(parent)
@@ -336,3 +372,8 @@
 - [precondition: M0-M3 全部完成] done_when: 版本号四端统一（pyproject=0.3.1/CHANGELOG=[0.3.1]/PRD=V2.1.0/PM_SESSION §2=§8=V0.3.0 M2）+ 005_变更记录_CHG.md 新增 V2.1.0 条目
 - [precondition: dogfooding 持续] done_when: 修复 dogfooding 发现的产品缺陷——BUG-001(verification_conclusion 过于严格) + BUG-002(台帐路径解析错误)
 - [precondition: M0-M3 各里程碑完成] done_when: M4 Dogfooding 持续化——每个里程碑完成后创建对应 CHG-SCPT-2026-XXX.md 变更单，走完整生命周期
+- ✅ [precondition: 规范偏移检测缺口确认] [已决策 2026-06-25] done_when: 规范偏移检测补全方案决策——用户选择方案 C（保持 auto-pm + specmgr 双工具并行，文档明确分工边界；auto-pm 专注项目管理，specmgr 专注规范健康检查；规范检查仍用 specmgr 独立运行）
+- ✅ [precondition: 方案 C 决策] [已完成 2026-06-25] done_when: 补全独立 snapshot 刷新命令——新增 `auto-pm project snapshot <项目ID>`，从 spec_registry.json 读取最新版本号更新 PM_SESSION Spec Snapshot 表格（对齐 pm-mgr snapshot 命令能力；复用 auto_pm/plc/spec_snapshot.py 现有 parse/compare 逻辑，提升为 project 级命令，不限 PLC；提取 update_spec_snapshot 公开函数消除 repairer 重复；8 个测试用例 + 38 个相关测试全部通过；ruff/mypy 0 errors）
+- [precondition: 方案 C 决策] done_when: 修复 git pre-commit 策略——本地提交不触发规范检查（已禁用 .git/hooks/pre-commit.bak），规范检查改为 release/CI 场景触发；在项目文档中明确 specmgr 在 CI 环境的调用方式
+- [precondition: 方案 C 决策] done_when: 文档明确 auto-pm vs specmgr 分工边界——在 README/PM_SESSION 中补充架构定位说明：auto-pm=项目管理（骨架/变更/模板/GUI）+ Spec Snapshot 表格漂移检测（PLC 专属）；specmgr=规范健康检查（SHC-001~010 全局规范文件检查）；两者互补非替代
+- ✅ [precondition: PM_SESSION 基线确认] [已完成 2026-06-25] done_when: `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` 与 PM_SESSION 对齐到当前实际进度（Phase 0-2、M1、M2、M3-1 已完成；后续执行顺序明确为 M3-3→M3-2→M3-4→Phase 6），glm5.2 可直接从剩余 M3 工作继续推进

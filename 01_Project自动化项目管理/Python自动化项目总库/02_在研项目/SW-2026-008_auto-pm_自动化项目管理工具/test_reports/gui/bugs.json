@@ -1,11 +1,23 @@
 {
-  "test_session": "2026-06-25 01:14:17",
-  "total_bugs": 0,
+  "test_session": "2026-06-25 07:05:18",
+  "total_bugs": 1,
   "by_severity": {
-    "critical": 0,
+    "critical": 1,
     "major": 0,
     "minor": 0
   },
   "failed_projects": [],
-  "bugs": []
+  "bugs": [
+    {
+      "bug_id": "BUG-001",
+      "test_name": "timeout_test",
+      "step": "simulate timeout",
+      "expected": "popup within 3s",
+      "actual": "no popup（已截图 2 个窗口: ['test_reports\\\\gui\\\\bug_screenshots\\\\BUG-001_EditChangeDialog-CHG-001.png', 'test_reports\\\\gui\\\\bug_screenshots\\\\BUG-001_MainWindow.png']）",
+      "severity": "critical",
+      "screenshot_path": "test_reports\\gui\\bug_screenshots\\BUG-001_EditChangeDialog-CHG-001.png",
+      "traceback": "",
+      "timestamp": "2026-06-25T07:05:18.201981"
+    }
+  ]
 }

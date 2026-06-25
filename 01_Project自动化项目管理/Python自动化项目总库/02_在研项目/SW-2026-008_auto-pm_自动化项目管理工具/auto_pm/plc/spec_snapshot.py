@@ -3,10 +3,14 @@
 提供 PM_SESSION Spec Snapshot 表格解析、spec_registry.json 加载、版本对比能力，
 供 PlcChecker/PlcRepairer 调用以检测和修复规范版本漂移。
 
+注意：本模块虽位于 plc/ 目录，但不依赖任何 PLC 特性，可被 project 级命令复用
+（如 `auto-pm project snapshot` 命令）。
+
 职责：
 - parse_spec_snapshot: 解析 PM_SESSION 中的 Spec Snapshot 表格为 dict[规范ID→版本号]
 - load_spec_registry: 加载 spec_registry.json 提取规范ID→版本号映射
 - compare_versions: 对比 snapshot 与 registry 版本差异，判定漂移级别
+- update_spec_snapshot: 将漂移项的版本号更新为 registry 中的最新版本（写回 PM_SESSION）
 """
 
 from __future__ import annotations
@@ -252,7 +256,66 @@ def compare_versions(
     return drifts
 
 
-# ── 内部工具函数 ──────────────────────────────────────────
+def update_spec_snapshot(
+    pm_session_path: str,
+    drifts: list[DriftItem],
+) -> bool:
+    """将漂移项的版本号更新为 registry 中的最新版本（写回 PM_SESSION）
+
+    对每个漂移项，使用正则匹配 PM_SESSION 表格中的 `| spec_id | snapshot_version |`
+    格式，将 snapshot_version 替换为 registry_version。
+
+    Args:
+        pm_session_path: PM_SESSION markdown 文件路径
+        drifts: 漂移项列表（由 compare_versions 产生）
+
+    Returns:
+        True 表示更新成功（至少更新了一条）；False 表示写入失败或无漂移项
+    """
+    if not drifts:
+        return False
+
+    if not os.path.isfile(pm_session_path):
+        log.warning("PM_SESSION 文件不存在，无法更新: %s", pm_session_path)
+        return False
+
+    try:
+        with open(pm_session_path, encoding="utf-8") as f:
+            content = f.read()
+    except OSError as e:
+        log.warning("读取 PM_SESSION 失败: %s (%s)", pm_session_path, e)
+        return False
+
+    # 正则替换每个漂移项的版本号
+    # 匹配格式：| spec_id | snapshot_version |
+    new_content = content
+    for drift in drifts:
+        pattern = re.compile(
+            r"(\|\s*"
+            + re.escape(drift.spec_id)
+            + r"\s*\|\s*)"
+            + re.escape(drift.snapshot_version)
+            + r"(\s*\|)",
+            re.MULTILINE,
+        )
+        new_content = pattern.sub(
+            lambda m: m.group(1) + drift.registry_version + m.group(2),
+            new_content,
+        )
+
+    if new_content == content:
+        log.debug("无内容变更（可能版本号已一致）: %s", pm_session_path)
+        return False
+
+    try:
+        with open(pm_session_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+    except OSError as e:
+        log.warning("写入 PM_SESSION 失败: %s (%s)", pm_session_path, e)
+        return False
+
+    log.info("Spec Snapshot 已更新: %s (%d 条)", pm_session_path, len(drifts))
+    return True
 
 
 def _split_table_row(row: str) -> list[str]:

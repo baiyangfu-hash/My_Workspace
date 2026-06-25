@@ -8,6 +8,7 @@ Commands:
     delete <ID> --confirm         删除项目
     retrofit <ID>                 补全 .copier-answers.yml 元数据文件
     import <PATH> [--move]        导入外部项目目录到工作空间
+    snapshot <ID> [--dry-run]     刷新 PM_SESSION 的 Spec Snapshot 版本号
 """
 
 from __future__ import annotations
@@ -82,10 +83,7 @@ def cmd_list(
     projects = svc.list_projects()
 
     if business_line is not None:
-        projects = [
-            p for p in projects
-            if p.project_id.split("-", 1)[0] == business_line
-        ]
+        projects = [p for p in projects if p.project_id.split("-", 1)[0] == business_line]
     if stack is not None:
         projects = [p for p in projects if p.stack == stack]
     if phase is not None:
@@ -93,7 +91,8 @@ def cmd_list(
     if search is not None:
         search_lower = search.lower()
         projects = [
-            p for p in projects
+            p
+            for p in projects
             if search_lower in p.project_id.lower()
             or search_lower in p.name.lower()
             or search_lower in p.description.lower()
@@ -216,9 +215,7 @@ def cmd_create(
                     f"从项目名称推断为 '{library_name}'[/yellow]"
                 )
             else:
-                console.print(
-                    "[red]错误: shared-library 模式需要 --library-name 参数[/red]"
-                )
+                console.print("[red]错误: shared-library 模式需要 --library-name 参数[/red]")
                 ctx.exit(1)
 
     if dry_run:
@@ -333,7 +330,9 @@ def cmd_edit(
         kwargs["business_line"] = business_line
 
     if not kwargs:
-        console.print("[yellow]未指定更新字段（使用 --phase/--desc/--version/--business-line）[/yellow]")
+        console.print(
+            "[yellow]未指定更新字段（使用 --phase/--desc/--version/--business-line）[/yellow]"
+        )
         return
 
     try:
@@ -424,6 +423,155 @@ def cmd_retrofit(ctx: click.Context, project_id: str) -> None:
             )
         except Exception as e:
             console.print(f"[red]PLC 标志文件补全失败: {e}[/red]")
+
+
+@project_group.command(name="snapshot")
+@click.argument("project_id")
+@click.option("--dry-run", is_flag=True, help="仅预览漂移项，不实际更新版本号")
+@click.option("--json", "output_json", is_flag=True, help="以JSON格式输出漂移详情")
+@click.pass_context
+def cmd_snapshot(
+    ctx: click.Context,
+    project_id: str,
+    dry_run: bool,
+    output_json: bool,
+) -> None:
+    """刷新 PM_SESSION 的 Spec Snapshot 版本号（对齐 spec_registry.json）
+
+    从 spec_registry.json 读取最新版本号，更新 PM_SESSION 中 Spec Snapshot 表格的版本号列。
+    不限技术栈（PLC/Python 均可），复用 auto_pm.plc.spec_snapshot 模块的解析与对比逻辑。
+
+    \b
+    行为：
+    - 无漂移 → 输出"已是最新，无需更新"
+    - 有漂移 + --dry-run → 输出漂移项预览（不修改文件）
+    - 有漂移（默认）→ 更新 PM_SESSION 表格版本号，输出更新结果
+    """
+    from auto_pm.plc.spec_snapshot import (
+        compare_versions,
+        load_spec_registry,
+        parse_spec_snapshot,
+        update_spec_snapshot,
+    )
+
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    proj = svc.get_project(project_id)
+
+    if proj is None:
+        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
+        ctx.exit(1)
+
+    # 定位 PM_SESSION 文件
+    pm_session_path = os.path.join(proj.path, f"PM_SESSION_{project_id}.md")
+    if not os.path.isfile(pm_session_path):
+        # 尝试模糊匹配
+        found = None
+        try:
+            for f in os.listdir(proj.path):
+                if f.startswith("PM_SESSION_") and f.endswith(".md"):
+                    found = f
+                    break
+        except OSError:
+            pass
+        if found:
+            pm_session_path = os.path.join(proj.path, found)
+        else:
+            console.print(f"[red]错误: PM_SESSION 文件不存在: {pm_session_path}[/red]")
+            console.print("[yellow]提示: 请先使用 `auto-pm project retrofit` 补全项目结构[/yellow]")
+            ctx.exit(1)
+
+    # 加载 spec_registry.json
+    registry = load_spec_registry(app_ctx.workspace_root)
+    if registry is None:
+        console.print("[red]错误: spec_registry.json 不存在或格式错误[/red]")
+        console.print(f"[yellow]提示: 确认工作空间路径正确: {app_ctx.workspace_root}[/yellow]")
+        ctx.exit(1)
+
+    # 解析 Spec Snapshot 表格
+    snapshot = parse_spec_snapshot(pm_session_path)
+    if not snapshot:
+        console.print(
+            f"[yellow]PM_SESSION 缺少 Spec Snapshot 表格: {os.path.basename(pm_session_path)}[/yellow]"
+        )
+        console.print(
+            "[yellow]提示: 请先使用 `auto-pm project retrofit` 补全 Spec Snapshot 区块[/yellow]"
+        )
+        ctx.exit(1)
+
+    # 对比版本
+    drifts = compare_versions(snapshot, registry)
+
+    if not drifts:
+        if output_json:
+            click.echo(json.dumps({"drifts": [], "updated": False}, ensure_ascii=False))
+        else:
+            console.print("[green]Spec Snapshot 已是最新，无需更新[/green]")
+        return
+
+    # 有漂移：构造漂移详情
+    drift_details = [
+        {
+            "spec_id": d.spec_id,
+            "snapshot_version": d.snapshot_version,
+            "registry_version": d.registry_version,
+            "drift_level": d.drift_level,
+        }
+        for d in drifts
+    ]
+
+    if dry_run:
+        if output_json:
+            click.echo(
+                json.dumps(
+                    {"drifts": drift_details, "updated": False, "dry_run": True},
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+        else:
+            console.print(f"[yellow][DRY-RUN] 检测到 {len(drifts)} 条规范版本漂移:[/yellow]")
+            table = Table(title="Spec Snapshot 漂移预览")
+            table.add_column("规范ID", style="cyan")
+            table.add_column("当前版本", style="red")
+            table.add_column("最新版本", style="green")
+            table.add_column("漂移级别", style="yellow")
+            for d in drifts:
+                level_names = {
+                    "major": "主版本漂移",
+                    "minor": "次版本漂移",
+                    "patch": "补丁漂移",
+                }
+                table.add_row(
+                    d.spec_id,
+                    d.snapshot_version,
+                    d.registry_version,
+                    level_names.get(d.drift_level, d.drift_level),
+                )
+            console.print(table)
+        return
+
+    # 执行更新
+    success = update_spec_snapshot(pm_session_path, drifts)
+    if success:
+        if output_json:
+            click.echo(
+                json.dumps(
+                    {"drifts": drift_details, "updated": True},
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+        else:
+            console.print(
+                f"[green]Spec Snapshot 已更新: {os.path.basename(pm_session_path)}[/green]"
+            )
+            console.print(f"  更新 {len(drifts)} 条规范版本:")
+            for d in drifts:
+                console.print(f"    {d.spec_id}: {d.snapshot_version} → {d.registry_version}")
+    else:
+        console.print("[red]错误: 更新失败（写入 PM_SESSION 失败或无内容变更）[/red]")
+        ctx.exit(1)
 
 
 _PROJECTS_SUBDIR = WORKSPACE_PROJECTS_SUBDIR  # M3-Iter6: 从 core.paths 读取
