@@ -30,7 +30,7 @@ from auto_pm.change.models import (
     validate_urgency,
 )
 from auto_pm.change.parser import ChgParser
-from auto_pm.change.path_resolver import get_or_create_ledger_file
+from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.logging.logging import setup_logger as get_logger
@@ -72,6 +72,23 @@ def _is_verification_passed(conclusion: str) -> bool:
         if kw in conclusion:
             return False
     return "通过" in conclusion
+
+
+# 台帐状态文案映射（TD-T10 修复：transition 流转后自动更新台帐状态行）
+_LEDGER_STATUS_MAP: dict[str, str] = {
+    "draft": "🔄待处理",
+    "submitted": "🔄审核中",
+    "under_review": "🔄审核中",
+    "approved": "🔄已批准",
+    "conditionally_approved": "🔄有条件批准",
+    "rejected": "❌已拒绝",
+    "implementing": "🔄实施中",
+    "pending_acceptance": "🔄待验收",
+    "accepting": "🔄验收中",
+    "completed": "✅已关闭",
+    "closed": "✅已关闭",
+    "archived": "✅已归档",
+}
 
 
 class ChangeService:
@@ -132,6 +149,26 @@ class ChangeService:
             from auto_pm.change.ledger_updater import LedgerUpdater
             self._ledger_updater = LedgerUpdater()
         return self._ledger_updater
+
+    @staticmethod
+    def _find_project_root_from_path(file_path: str) -> str | None:
+        """从文件路径向上查找项目根目录（TD-T10 修复）
+
+        判据：包含 `00_项目管理` 或 `01_项目文档` 目录的路径视为项目根目录。
+
+        Args:
+            file_path: CHG 文件路径
+
+        Returns:
+            项目根目录路径，未找到返回 None
+        """
+        current = os.path.dirname(os.path.abspath(file_path))
+        while current and current != os.path.dirname(current):
+            if os.path.isdir(os.path.join(current, "00_项目管理")) or \
+               os.path.isdir(os.path.join(current, "01_项目文档")):
+                return current
+            current = os.path.dirname(current)
+        return None
 
     def create_change_request(
         self,
@@ -391,6 +428,15 @@ class ChangeService:
             )
             log.debug("审批历史已写入 DB: %s %s → %s", change_number, current_cr.status, new_status)
 
+        # TD-T10 修复：同步更新台帐状态行（transition 流转后自动回写台帐）
+        project_path = self._find_project_root_from_path(file_path)
+        if project_path:
+            ledger_path = find_ledger_file(project_path)
+            if ledger_path:
+                status_label = _LEDGER_STATUS_MAP.get(new_status, "🔄进行中")
+                self._get_ledger_updater().update_status(ledger_path, change_number, status_label)
+                log.debug("台帐状态已同步: %s → %s", change_number, status_label)
+
         # 重新解析返回
         result = self._parser.parse(file_path)
         log.info("状态流转完成: %s, 新状态=%s", change_number, result.status)
@@ -415,12 +461,18 @@ class ChangeService:
         self,
         status: Optional[str] = None,
         domain: Optional[str] = None,
+        urgency: Optional[str] = None,
+        project_id: Optional[str] = None,
     ) -> list[ChangeSummary]:
         """跨项目查询所有变更单（用于变更中心全局列表）
 
         Args:
             status: 按状态筛选（draft/submitted/approved/implementing/completed/archived 等）
             domain: 按领域筛选（ELEC/MECH/PLC/HMI/SCPT/DOCU/SAFE）
+            urgency: 按紧急程度筛选（normal/urgent/critical）。注意：DB 缓存模式未持久化
+                urgency 字段，DB 路径返回的 summary.urgency 均为默认值 "normal"，因此
+                urgency 筛选仅在文件扫描模式（_repo=None）下完整可用。
+            project_id: 按项目编号筛选
 
         Returns:
             变更单摘要列表，按 change_number 排序
@@ -435,10 +487,14 @@ class ChangeService:
             changes = [c for c in changes if c.status == status]
         if domain:
             changes = [c for c in changes if c.domain == domain]
+        if urgency:
+            changes = [c for c in changes if c.urgency == urgency]
+        if project_id:
+            changes = [c for c in changes if c.project_id == project_id]
 
         log.info(
-            "跨项目查询变更单: status=%s domain=%s → %d 条",
-            status, domain, len(changes),
+            "跨项目查询变更单: status=%s domain=%s urgency=%s project_id=%s → %d 条",
+            status, domain, urgency, project_id, len(changes),
         )
         return sorted(changes, key=lambda c: c.change_number)
 

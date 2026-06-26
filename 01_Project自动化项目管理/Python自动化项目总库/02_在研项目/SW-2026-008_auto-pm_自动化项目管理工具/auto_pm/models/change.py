@@ -110,6 +110,7 @@ class ChangeSummary(BaseModel):
     applicant: str = Field("待补充", description="申请人")
     apply_date: str = Field("待补充", description="申请日期")
     title: str = Field("待补充", description="标题（background 摘要）")
+    urgency: Urgency = Field("normal", description="紧急程度: normal/urgent/critical")
 
     model_config = ConfigDict(from_attributes=True)
 

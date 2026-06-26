@@ -7,12 +7,12 @@
 - ImportProjectDialog: 导入已有项目目录到工作空间
 
 变更管理对话框：
-- CreateChangeDialog: 创建变更单（调用 ChangeService.create_change_request）
+- CreateChangeWizard: 创建变更单 QWizard 分步向导（M3-4，CreateChangeDialog 为兼容别名）
 - EditChangeDialog: 编辑变更单（调用 ChangeService.update_change_request，M3-1）
 - TransitionDialog: 状态流转确认（调用 ChangeService.transition_status）
 """
 
-from auto_pm.ui.dialogs.create_change_dialog import CreateChangeDialog
+from auto_pm.ui.dialogs.create_change_dialog import CreateChangeDialog, CreateChangeWizard
 from auto_pm.ui.dialogs.delete_project_dialog import DeleteProjectDialog
 from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog
 from auto_pm.ui.dialogs.edit_project_dialog import EditProjectDialog
@@ -26,6 +26,7 @@ __all__ = [
     "DeleteProjectDialog",
     "ImportProjectDialog",
     "CreateChangeDialog",
+    "CreateChangeWizard",
     "EditChangeDialog",
     "TransitionDialog",
 ]

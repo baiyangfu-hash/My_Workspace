@@ -626,7 +626,8 @@ class TestFlowChangeCreateTransition:
         def on_create_dialog(dlg: CreateChangeDialog) -> None:
             dlg._background_edit.setPlainText("最终验收变更流程测试背景")
             dlg._necessity_edit.setPlainText("最终验收变更流程测试必要性")
-            dlg._on_create()
+            if dlg._on_create():
+                dlg.accept()
 
         _schedule_dialog_interaction(qapp, CreateChangeDialog, on_create_dialog)
         view._create_btn.click()

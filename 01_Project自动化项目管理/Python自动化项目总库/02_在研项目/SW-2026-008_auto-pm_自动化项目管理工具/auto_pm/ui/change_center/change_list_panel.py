@@ -20,6 +20,7 @@ from typing import cast
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -35,6 +36,7 @@ from auto_pm.change.models import (
     BUSINESS_NATURES,
     DOMAINS,
     STATUS_LABELS,
+    URGENCY_LEVELS,
     ChangeSummary,
 )
 from auto_pm.logging.logging import setup_logger
@@ -213,6 +215,8 @@ class ChangeListPanel(QWidget):
         self._summaries: list[ChangeSummary] = []
         self._current_status: str | None = None  # 当前状态筛选（None=全部）
         self._current_domain: str | None = None  # 当前领域筛选（None=全部）
+        self._current_urgency: str | None = None  # 当前紧急程度筛选（None=全部）
+        self._current_project: str | None = None  # 当前项目筛选（None=全部）
         self._build_ui()
 
     # ── UI 构建 ────────────────────────────────────────────
@@ -240,6 +244,35 @@ class ChangeListPanel(QWidget):
         tab_row.addStretch(1)
         layout.addLayout(tab_row)
 
+        # 筛选下拉行（T78：领域/紧急程度/项目 3 维度筛选）
+        filter_row = QHBoxLayout()
+        filter_row.setSpacing(8)
+        filter_row.setContentsMargins(0, 0, 0, 0)
+
+        filter_row.addWidget(QLabel("领域:"))
+        self._domain_combo = QComboBox()
+        self._domain_combo.addItem("全部", None)
+        for code, label in DOMAINS.items():
+            self._domain_combo.addItem(label, code)
+        self._domain_combo.currentIndexChanged.connect(self._on_domain_changed)
+        filter_row.addWidget(self._domain_combo)
+
+        filter_row.addWidget(QLabel("紧急程度:"))
+        self._urgency_combo = QComboBox()
+        self._urgency_combo.addItem("全部", None)
+        for code, label in URGENCY_LEVELS.items():
+            self._urgency_combo.addItem(label, code)
+        self._urgency_combo.currentIndexChanged.connect(self._on_urgency_changed)
+        filter_row.addWidget(self._urgency_combo)
+
+        filter_row.addWidget(QLabel("项目:"))
+        self._project_combo = QComboBox()
+        self._project_combo.addItem("全部", None)
+        self._project_combo.currentIndexChanged.connect(self._on_project_changed)
+        filter_row.addWidget(self._project_combo, 1)
+
+        layout.addLayout(filter_row)
+
         # 变更单列表
         self._list_widget = QListWidget()
         self._list_widget.setObjectName("changeList")
@@ -260,16 +293,63 @@ class ChangeListPanel(QWidget):
     # ── 数据加载 ──────────────────────────────────────────
 
     def refresh(self) -> None:
-        """加载所有变更单（应用当前状态/领域筛选）"""
+        """加载所有变更单（应用当前状态/领域/紧急程度/项目筛选）"""
+        self._apply_filters()
+        self._refresh_project_options()
+
+    def _apply_filters(self) -> None:
+        """调用 list_all_changes 应用 4 维度筛选并重新渲染列表"""
         try:
             self._summaries = self._change_service.list_all_changes(
                 status=self._current_status,
                 domain=self._current_domain,
+                urgency=self._current_urgency,
+                project_id=self._current_project,
             )
         except Exception as e:
             log.error("变更中心加载变更单列表失败: %s", e, exc_info=True)
             self._summaries = []
         self._render_list()
+
+    def _refresh_project_options(self) -> None:
+        """从当前变更单列表提取项目选项，更新项目下拉（避免递归信号）"""
+        # 先加载全部变更单提取项目（不受当前项目筛选影响）
+        try:
+            all_changes = self._change_service.list_all_changes(
+                status=self._current_status,
+                domain=self._current_domain,
+                urgency=self._current_urgency,
+            )
+        except Exception:
+            all_changes = self._summaries
+
+        # 提取去重的项目选项（project_id + project_name）
+        seen: set[str] = set()
+        options: list[tuple[str, str]] = []
+        for c in all_changes:
+            if c.project_id and c.project_id not in seen:
+                seen.add(c.project_id)
+                label = c.project_id
+                if c.project_name and c.project_name != c.project_id:
+                    label = f"{c.project_id} · {c.project_name}"
+                options.append((c.project_id, label))
+        options.sort(key=lambda x: x[0])
+
+        # blockSignals 防止更新选项时触发 _on_project_changed
+        self._project_combo.blockSignals(True)
+        try:
+            current = self._project_combo.currentData()
+            self._project_combo.clear()
+            self._project_combo.addItem("全部", None)
+            for pid, label in options:
+                self._project_combo.addItem(label, pid)
+            # 恢复之前选中项
+            if current is not None:
+                idx = self._project_combo.findData(current)
+                if idx >= 0:
+                    self._project_combo.setCurrentIndex(idx)
+        finally:
+            self._project_combo.blockSignals(False)
 
     def _render_list(self) -> None:
         """重新渲染列表"""
@@ -305,7 +385,48 @@ class ChangeListPanel(QWidget):
     def set_domain_filter(self, domain: str | None) -> None:
         """设置领域筛选（None=全部）并重新加载"""
         self._current_domain = domain
+        # 同步下拉选中态
+        idx = self._domain_combo.findData(domain)
+        if idx >= 0 and self._domain_combo.currentIndex() != idx:
+            self._domain_combo.blockSignals(True)
+            self._domain_combo.setCurrentIndex(idx)
+            self._domain_combo.blockSignals(False)
         self.refresh()
+
+    def set_urgency_filter(self, urgency: str | None) -> None:
+        """设置紧急程度筛选（None=全部）并重新加载"""
+        self._current_urgency = urgency
+        idx = self._urgency_combo.findData(urgency)
+        if idx >= 0 and self._urgency_combo.currentIndex() != idx:
+            self._urgency_combo.blockSignals(True)
+            self._urgency_combo.setCurrentIndex(idx)
+            self._urgency_combo.blockSignals(False)
+        self.refresh()
+
+    def set_project_filter(self, project_id: str | None) -> None:
+        """设置项目筛选（None=全部）并重新加载"""
+        self._current_project = project_id
+        idx = self._project_combo.findData(project_id)
+        if idx >= 0 and self._project_combo.currentIndex() != idx:
+            self._project_combo.blockSignals(True)
+            self._project_combo.setCurrentIndex(idx)
+            self._project_combo.blockSignals(False)
+        self._apply_filters()
+
+    def _on_domain_changed(self) -> None:
+        """领域下拉切换回调"""
+        self._current_domain = self._domain_combo.currentData()
+        self.refresh()
+
+    def _on_urgency_changed(self) -> None:
+        """紧急程度下拉切换回调"""
+        self._current_urgency = self._urgency_combo.currentData()
+        self.refresh()
+
+    def _on_project_changed(self) -> None:
+        """项目下拉切换回调（不刷新项目选项，避免递归）"""
+        self._current_project = self._project_combo.currentData()
+        self._apply_filters()
 
     # ── 信号处理 ─────────────────────────────────────────
 

@@ -163,10 +163,10 @@
 - [x] T75: 新增 UI 测试 tests/ui/test_approval_timeline.py
 
 ### M3-4：变更管理增强
-- [ ] T76: create_change_dialog.py 改为分步向导（基本信息 → 影响分析 → 提交）
-- [ ] T77: transition_dialog.py 可视化状态机 + 一键流转按钮
-- [ ] T78: change_list_panel.py 列表筛选增强（按状态/领域/紧急程度/项目）
-- [ ] T79: 新增 UI 测试覆盖向导/流转/筛选
+- [x] T76: create_change_dialog.py 改为 QWizard 分步向导（基本信息 → 变更描述 → 提交确认）
+- [x] T77: transition_dialog.py 可视化状态机 + 一键流转按钮
+- [x] T78: change_list_panel.py 列表筛选增强（按状态/领域/紧急程度/项目）
+- [x] T79: 新增 UI 测试覆盖向导/流转/筛选
 
 ## M4：Dogfooding — auto-pm 自身使用 CHG-*.md 变更单流程
 

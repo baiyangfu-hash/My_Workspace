@@ -18,11 +18,13 @@ from __future__ import annotations
 
 import datetime
 import os
+import re
 from typing import Optional
 
 from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import (
     extract_domain_from_change_number,
+    find_ledger_file,
     scan_change_files,
 )
 from auto_pm.core.paths import (
@@ -31,6 +33,7 @@ from auto_pm.core.paths import (
 )
 from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.models import ChangeSummary
+from auto_pm.utils.file_utils import read_file
 
 log = get_logger(log_level="INFO", app_name="auto_pm")
 
@@ -156,6 +159,15 @@ class ChangeFileLocator:
                     max_seq = max(max_seq, seq)
                 except ValueError:
                     pass
+
+        # 同步检查台帐中已记录的最大序号（防止文件删除后编号回退）
+        ledger_path = find_ledger_file(project_path)
+        if ledger_path:
+            ledger_content = read_file(ledger_path)
+            if ledger_content:
+                for match in re.finditer(rf"{re.escape(prefix)}(\d+)", ledger_content):
+                    seq = int(match.group(1))
+                    max_seq = max(max_seq, seq)
 
         next_seq = max_seq + 1
         result = f"CHG-{domain}-{year}-{next_seq:03d}"

@@ -5,6 +5,89 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.3.8] - 2026-06-27
+
+### Added - V0.3.8 技术债偿还批次（TD-T10 + TD-T08）
+
+- **T86 TD-T10 台帐脏数据根因修复**：auto_pm/change/ledger_updater.py 新增 `update_status(ledger_path, change_number, status)` 方法（更新台帐状态行）+ `remove(ledger_path, change_number)` 方法（删除台帐行）；auto_pm/change/change_service.py 新增 `_LEDGER_STATUS_MAP`（12 状态→文案映射，含 closed）+ `_find_project_root_from_path` 静态方法（从 CHG 文件路径向上查找项目根目录）+ `transition_status` 方法新增台帐状态回写调用（transition 流转后自动同步台帐状态行）；tests/gui/test_17_edit_change_dialog.py `_cleanup_test_changes` fixture 扩展（删除 CHG 文件后同时调用 `LedgerUpdater.remove` 清理台帐条目）；tests/change/test_ledger_updater.py 新增 8 个单元测试（TestLedgerUpdaterUpdateStatus 4 + TestLedgerUpdaterRemove 4）
+- **T87 TD-T08 测试并行化评估**：pyproject.toml dev 依赖新增 `pytest-xdist>=3,<4`；tests/conftest.py `pytest_collection_modifyitems` 改用固定 seed `random.Random(20260627)` 确保 xdist 多 worker 收集一致性
+- **T89 CHG-SCPT-2026-072 dogfooding 第五次闭环**：创建 CHG-SCPT-2026-072 + 8 步状态流转 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed 全部成功；transition 自动回写台帐状态验证通过（台帐从🔄实施中→✅已关闭）；填充 §5/§6/§7/§8/§9/§10/§11 真实内容
+
+### Changed - V0.3.8 版本号升级
+- pyproject.toml version 0.3.7 → 0.3.8
+
+### Fixed - V0.3.8 根因修复 + 历史脏数据清理
+
+- **TD-T10 台帐脏数据根因修复**：transition 命令流转状态后自动回写台帐状态行（之前需手动更新）；GUI 测试 fixture 清理台帐条目（之前仅删除 CHG 文件不清理台帐）
+- **_LEDGER_STATUS_MAP 补充 closed 映射**：T89 dogfooding 流转时发现 `closed` 状态缺少映射（回退为"🔄进行中"），补充 `closed→✅已关闭`
+- **台帐历史脏数据清理**：清理 7 条 GUI 测试历史残留脏数据（CHG-065~071 序号 005~011，文件已删除但台帐行残留）；修复 CHG-064 状态为 ✅已关闭
+
+### Verified - V0.3.8 回归测试
+
+- 全量回归：✅ 1163 passed, 1 skipped, 3 warnings in 388.84s（较 V0.3.7 基线 1155 + 8 新增 LedgerUpdater 测试，无回归；3 warnings 为 jinja2 第三方库 DeprecationWarning）
+- ruff 0 errors, mypy 0 errors
+- T86 单元测试：tests/change/test_ledger_updater.py 19 passed ✅
+- T86 GUI 测试：tests/gui/test_17_edit_change_dialog.py 7 passed 1 skipped ✅
+- T87 xdist 实测：tests/change/ 串行 158 passed in 39.62s vs 并行 -n 2 158 passed in 492.75s（**xdist 反优化 12 倍**，不采用并行化，改用 --no-cov 加速方案）
+- dogfooding: CHG-SCPT-2026-072 完整 8 步生命周期闭环 ✅；change list SW-2026-008 返回 5 条记录（001/062/063/064/072 全 closed）✅；台帐 5 条正确记录全 ✅已关闭/已归档 ✅
+- 技术债：20/22 项已偿还，剩余 2 项（TD-A02/TD-TC01）
+
+## [0.3.7] - 2026-06-27
+
+### Added - V0.3.0 Phase 6 发布收口：落地发布 + 证据归档 + 版本切换
+
+- **T80 README 重写**：README.md 8 项更新（功能特性补 M3-2/M3-3/M3-4/M3.5 新能力 + python 命令注释 V1.2.0→V2.5 + change 命令补 edit/--full/show 增强 + GUI 功能补 6 项新功能 + 项目结构 plc-standard→plc-standard-project + 文档导航修正 + 新增 Dogfooding 证据章节 + 工具链关系补充 V2.2/V2.3 吸收计划）
+- **T81 CHANGELOG 整理**：CHANGELOG.md [0.3.6] 条目下新增 Fixed 子章节（phase 修复 + ruff 清零 + 台帐重复追加 bug 修复 + 台帐数据清理 185→3 条）；Verified 部分追加 glm5.2 收口后全量回归证据（1155 passed 1 skipped 3 warnings 320s 无回归）
+- **T82 发布门禁规范**：新建 `00_项目基础信息/007_发布门禁规范_REL.md` V1.0.0（G1-G5 五项门禁定义：ruff 0 / mypy 0 / pytest 全绿 / 元测试 0 violations / dogfooding CHG 闭环；触发条件 + 标准执行顺序 + 门禁失败处理 + 版本号与门禁关系 + 例外与豁免）
+- **T83 试运行证据归档**：新建 `00_项目基础信息/008_试运行报告_PILOT.md` V1.0.0（3 次 Dogfooding 闭环证据 CHG-001/062/063 + 4 项已修复问题 BUG-001/002 + 台帐去重 + CHG-001 内容空白 + 4 项已知限制 + 试运行结论通过 + 后续建议）
+- **T84 CHG-SCPT-2026-064 完整生命周期**：创建 CHG-SCPT-2026-064（Phase 6 发布收口）+ 走完整 8 步生命周期（draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed）；台帐清理 7 条 GUI 测试残留脏数据（CHG-064~070 序号 004~010）；change list SW-2026-008 返回 4 条 closed 记录；dogfooding 第四次闭环完成
+
+### Changed - V0.3.0 版本号升级
+- pyproject.toml version 0.3.6 → 0.3.7
+
+### Fixed - V0.3.7 台帐脏数据复发清理
+- 台帐 GUI 测试残留复发：glm5.2 修复后台帐曾清理为 3 条，但全量回归测试时 GUI 测试再次写入 7 条脏数据（CHG-064~070 序号 004~010，无对应文件）；本轮再次清理为 4 条正确记录（001/062/063/064）
+- **已知限制记录**：transition 命令不自动更新台帐状态行（仍为"待处理"），需手动更新台帐；GUI 测试 fixture 仅删除 CHG 文件不清理台帐条目，需后续修复（建议新增 TD 项）
+
+### Verified - V0.3.7 Phase 6 回归测试
+- 复用 V0.3.6 glm5.2 收口后全量回归基线：✅ 1155 passed, 1 skipped, 3 warnings（无回归，320s；3 warnings 为 jinja2 第三方库 DeprecationWarning）
+- ruff 0 errors, mypy 0 errors
+- dogfooding: CHG-SCPT-2026-064 完整 8 步生命周期闭环 ✅；change list SW-2026-008 返回 4 条 closed 记录 ✅；台帐 4 条正确记录 ✅
+
+## [0.3.6] - 2026-06-26
+
+### Added - V0.3.0 M3-4 T77-T79: 状态机可视化 + 列表筛选增强 + UI 测试
+
+- **T77 状态机可视化**：auto_pm/ui/dialogs/status_machine_view.py（新增 StatusMachineView QWidget：水平展示 12 状态节点 + 11 箭头；当前状态蓝色边框 + 目标状态绿色填充 + 可达状态可点击 + 不可达状态灰色禁用；节点点击发射 target_selected 信号）；auto_pm/ui/dialogs/transition_dialog.py（集成 StatusMachineView + _on_target_selected 联动更新目标状态/标签/验证结论显隐）
+- **T78 列表筛选增强**：auto_pm/models/change.py（ChangeSummary 增加 urgency 字段）；auto_pm/change/parser.py（to_summary 填充 urgency）；auto_pm/change/change_service.py（list_all_changes 增加 urgency 和 project_id 参数，内存筛选）；auto_pm/ui/change_center/change_list_panel.py（新增筛选行：领域下拉 + 紧急程度下拉 + 项目下拉；项目下拉选项从变更单列表动态提取；set_urgency_filter/set_project_filter 方法；blockSignals 防递归）
+- **T79 UI 测试**：tests/ui/test_status_machine_view.py（19 测试：渲染 4 + 状态高亮 9 + 信号 3 + 动态更新 3）；tests/ui/test_change_list_panel_filters.py（22 测试：初始加载 4 + 领域 4 + 紧急程度 4 + 项目 4 + 组合 5 + 状态共存 1）；tests/ui/test_change_dialogs.py（新增 TestTransitionDialogStateMachine 7 测试：集成/当前高亮/目标高亮/目标联动/验证结论显隐/可达状态一致性）
+
+### Fixed - V0.3.6-glm5.1/glm5.2 收口（2026-06-26）
+
+- **phase 修复**：auto_pm/core/project_scanner.py（新增 _derive_phase_from_pm_session_content 方法，从 PM_SESSION §2/§8 关键词推导阶段 developing/commissioning/production/archived；`project show` phase 字段从 `-` 恢复为 `developing`）
+- **ruff 清零**：scripts/gui_plc_full_test.py（文件级 `# ruff: noqa: E402, T201` + 删除 7 个未使用 import）；scripts/run_tests.py（文件级 `# ruff: noqa: T201`）；tests/gui/test_17_edit_change_dialog.py（2 处 `view = ...` 改为 `_view = ...`）；ruff 34 errors → 0
+- **台帐重复追加 bug 修复**：auto_pm/change/ledger_updater.py（update() 添加 `change_number in content` 去重检查，防止重复追加）；auto_pm/change/file_locator.py（generate_change_number() 添加台帐序号 re 扫描，防止文件删除后编号回退）
+- **台帐数据清理**：01_版本变更台帐.md 从 185 条脏数据重建为 3 条正确记录（001 archived / 062 closed / 063 closed）
+
+### Verified
+- 48 passed（test_status_machine_view + test_change_list_panel_filters + test_change_dialogs，2.17s）
+- ruff 0 errors, mypy 0 errors
+- 全量回归：✅ 1155 passed, 1 skipped（较 0.3.5 基线 1107 + 48 新增测试，无回归，164s）
+- glm5.2 收口后全量回归：✅ 1155 passed, 1 skipped, 3 warnings（无回归，320s；3 warnings 为 jinja2 第三方库 DeprecationWarning）
+
+## [0.3.5] - 2026-06-26
+
+### Added - V0.3.0 M3-4: 创建变更单 QWizard 分步向导
+
+- auto_pm/ui/dialogs/create_change_dialog.py（重写为 QWizard 分步向导：BasicInfoPage 基本信息 7 字段 + DescriptionPage 变更描述 2 字段 + ConfirmPage 提交确认汇总展示；isComplete 联动 Next 按钮；validatePage 触发创建；兼容性保留 CreateChangeDialog 别名 + 构造签名 + change_created 信号 + get_change_data + 内部控件 property + 虚拟 _button_box）
+- auto_pm/ui/dialogs/__init__.py（导出 CreateChangeWizard）
+- tests/ui/test_change_dialogs.py（新增 TestCreateChangeWizard 5 项测试：3 页面结构 + BasicInfoPage isComplete + DescriptionPage isComplete + ConfirmPage 汇总展示 + validatePage 创建信号；修复预存 mypy 错误：qapp/_patch_message_boxes 返回类型 + type: ignore 错误码）
+
+### Verified
+- 16 passed（test_change_dialogs.py，无 coverage 3.09s）
+- ruff 0 errors, mypy 0 errors
+- 全量回归：✅ 1107 passed, 1 skipped（较 0.3.4 基线 1102 + 5 新增 QWizard 测试，无回归，158s）
+
 ## [0.3.4] - 2026-06-26
 
 ### Added - V0.3.0 M3-2: 传播链可视化

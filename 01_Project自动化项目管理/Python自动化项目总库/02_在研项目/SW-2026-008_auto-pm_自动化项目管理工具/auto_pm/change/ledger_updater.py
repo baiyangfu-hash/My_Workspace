@@ -26,6 +26,11 @@ class LedgerUpdater:
             log.warning("台帐文件为空或读取失败: %s", ledger_path)
             return
 
+        # 去重检查：变更编号已存在于台帐中则跳过追加
+        if change_number in content:
+            log.info("台帐中已存在 %s，跳过追加", change_number)
+            return
+
         # 提取领域
         domain = ""
         parts = change_number.split("-")
@@ -48,6 +53,61 @@ class LedgerUpdater:
             log.info("台帐已更新: 追加 %s (序号%03d)", change_number, seq)
         else:
             log.warning("台帐更新失败: 未找到变更单索引表格 %s", ledger_path)
+
+    def update_status(self, ledger_path: str, change_number: str, status: str) -> None:
+        """更新台帐中指定变更单的状态行（TD-T10 修复）
+
+        Args:
+            ledger_path: 台帐文件路径
+            change_number: 变更编号（如 CHG-SCPT-2026-064）
+            status: 新状态文案（如"✅已关闭"、"✅已归档"、"🔄实施中"）
+        """
+        content = read_file(ledger_path)
+        if not content:
+            log.warning("台帐文件为空或读取失败: %s", ledger_path)
+            return
+
+        lines = content.split("\n")
+        updated = False
+        for i, line in enumerate(lines):
+            if change_number in line and line.strip().startswith("|"):
+                parts = line.split("|")
+                if len(parts) >= 4:  # 至少有内容列（首尾空字符串 + 至少 2 列）
+                    # 状态列是最后一个内容列 = parts[-2]（parts[-1] 是行尾空字符串）
+                    parts[-2] = f" {status} "
+                    lines[i] = "|".join(parts)
+                    updated = True
+                    log.info("台帐状态已更新: %s → %s", change_number, status)
+                    break
+
+        if updated:
+            write_file(ledger_path, "\n".join(lines))
+        else:
+            log.warning("台帐状态更新失败: 未找到 %s 的行", change_number)
+
+    def remove(self, ledger_path: str, change_number: str) -> None:
+        """从台帐中删除指定变更单的行（TD-T10 修复，供测试 fixture 清理用）
+
+        Args:
+            ledger_path: 台帐文件路径
+            change_number: 变更编号
+        """
+        content = read_file(ledger_path)
+        if not content:
+            return
+
+        lines = content.split("\n")
+        new_lines: list[str] = []
+        removed = False
+        for line in lines:
+            if change_number in line and line.strip().startswith("|"):
+                removed = True
+                log.info("台帐条目已删除: %s", change_number)
+                continue  # 跳过该行（删除）
+            new_lines.append(line)
+
+        if removed:
+            write_file(ledger_path, "\n".join(new_lines))
 
     def _get_next_sequence(self, content: str) -> int:
         """获取变更单索引中的下一个序号"""

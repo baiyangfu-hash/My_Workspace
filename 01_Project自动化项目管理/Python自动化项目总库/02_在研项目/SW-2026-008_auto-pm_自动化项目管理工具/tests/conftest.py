@@ -10,8 +10,13 @@ TEST_S3_BUCKET = "test-bucket"
 
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
-    """Randomise the order of tests to avoid flakiness."""
-    random.shuffle(items)
+    """Randomise the order of tests to avoid flakiness.
+
+    使用固定 seed 的 Random 实例，确保 pytest-xdist 多 worker 收集时
+    各 worker 的收集顺序一致（xdist 会比较各 worker 的收集结果）。
+    """
+    rng = random.Random(20260627)
+    rng.shuffle(items)
 
 
 @pytest.fixture

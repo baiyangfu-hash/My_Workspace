@@ -24,10 +24,7 @@ from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import QDialog  # noqa: E402
 
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
-from tests.gui.helpers.interactions import (  # noqa: E402
-    click_nav_page,
-    reject_dialog,
-)
+from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
 
 
 @pytest.mark.gui
@@ -85,7 +82,12 @@ class TestChangeCenter:
         found: list[bool] = [False]
 
         def find_and_reject(retries: int = 100) -> None:
-            """在模态事件循环中查找并关闭对话框"""
+            """在模态事件循环中查找并关闭对话框
+
+            注意：QWizard 改造后，reject_dialog 内的 QTest.qWait(300) 嵌套事件循环
+            会吞掉 wizard.done() 的退出请求，导致 exec() 不退出。改为直接调用
+            wizard.reject() 规避此问题。
+            """
             for w in app.topLevelWidgets():
                 if (
                     isinstance(w, QDialog)
@@ -93,7 +95,8 @@ class TestChangeCenter:
                     and "创建变更单" in w.windowTitle()
                 ):
                     found[0] = True
-                    reject_dialog(w, app)
+                    w.reject()
+                    app.processEvents()
                     return
             if retries > 0:
                 QTimer.singleShot(10, lambda: find_and_reject(retries - 1))

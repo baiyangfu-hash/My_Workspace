@@ -239,7 +239,12 @@ class ProjectScanner:
             return ""
 
     def _read_phase_from_pm_session(self, project_path: str, project_id: str) -> str:
-        """从 PM_SESSION_*.md frontmatter 读取项目阶段（回退策略）"""
+        """从 PM_SESSION_*.md 读取项目阶段（回退策略）
+
+        V0.3.6 扩展：除原有 frontmatter `phase:` 字段外，
+        增加从 §2 Current Focus / §8 Handoff Notes 推导阶段的能力，
+        解决 PM_SESSION 无 frontmatter phase 字段时阶段为空的问题。
+        """
         if not project_id:
             # project_id 为空时，扫描目录下的 PM_SESSION_*.md
             try:
@@ -257,11 +262,46 @@ class ProjectScanner:
         try:
             with open(pm_session_path, encoding="utf-8") as f:
                 content = f.read()
-            # 从 frontmatter 提取 phase 字段
+            # 1. 优先从 frontmatter 提取 phase 字段（向后兼容）
             match = re.search(r'^phase:\s*["\']?([^"\'\n]+)["\']?\s*$', content, re.MULTILINE)
-            return match.group(1).strip() if match else ""
+            if match:
+                return match.group(1).strip()
+            # 2. V0.3.6 扩展：从 §2/§8 推导阶段
+            return self._derive_phase_from_pm_session_content(content)
         except OSError:
             return ""
+
+    def _derive_phase_from_pm_session_content(self, content: str) -> str:
+        """从 PM_SESSION §2/§8 内容推导项目阶段
+
+        解析 §2 Current Focus 的 current_focus 字段和 §8 Handoff Notes 的
+        current_state 字段，根据关键词映射到标准阶段
+        （archived/production/commissioning/developing）。
+        无法识别时返回空字符串。
+        """
+        # 收集 current_focus 和 current_state 文本
+        texts: list[str] = []
+        for field in ("current_focus", "current_state"):
+            match = re.search(
+                rf'^-\s*{field}:\s*(.+)$',
+                content,
+                re.MULTILINE,
+            )
+            if match:
+                texts.append(match.group(1).strip())
+        if not texts:
+            return ""
+        combined = " ".join(texts).lower()
+        # 关键词映射（按优先级，先匹配先返回）
+        if any(kw in combined for kw in ("归档", "archived", "已归档")):
+            return "archived"
+        if any(kw in combined for kw in ("生产", "production", "投产", "上线运行")):
+            return "production"
+        if any(kw in combined for kw in ("调试", "commissioning", "现场调试", "联调")):
+            return "commissioning"
+        if any(kw in combined for kw in ("开发", "developing", "完成", "待启动", "进行中", "迭代", "里程碑")):
+            return "developing"
+        return ""
 
     def read_plc_json(self, project_path: str) -> Optional[ProjectInfo]:
         """从 .plc.json 读取项目元数据（仅检查项目根目录，用于项目识别）

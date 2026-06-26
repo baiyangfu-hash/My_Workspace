@@ -21,9 +21,9 @@
   python scripts/gui_plc_full_test.py
 """
 
+# ruff: noqa: E402, T201
 from __future__ import annotations
 
-import os
 import sys
 import time
 import traceback
@@ -34,20 +34,15 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
     QDialogButtonBox,
-    QLineEdit,
     QMessageBox,
     QPushButton,
-    QSpinBox,
-    QTextEdit,
-    QTreeWidget,
-    QTreeWidgetItem,
     QWidget,
 )
 

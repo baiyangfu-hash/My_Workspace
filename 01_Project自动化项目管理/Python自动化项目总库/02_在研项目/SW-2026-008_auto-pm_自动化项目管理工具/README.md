@@ -4,13 +4,14 @@
 
 ## 功能特性
 
-- **项目 CRUD** - 新建/列表/查看/编辑/删除/补全项目元数据
-- **PLC 项目管理** - 初始化/规范检查(LSP-907)/自动修复/文档命名标准化
-- **Python 项目管理** - 初始化（规范检查占位，V1.2.0 实现）
-- **变更管理** - 变更单创建/查询/状态流转（完整状态机+门禁校验）
+- **项目 CRUD** - 新建/列表/查看/编辑/删除/补全项目元数据；自动从 PM_SESSION 推导项目阶段（developing/commissioning/production/archived）
+- **PLC 项目管理** - 初始化/规范检查(LSP-907)/自动修复/文档命名标准化/Spec Snapshot 漂移检测
+- **Python 项目管理** - 初始化（规范检查计划 V2.5 实现）
+- **变更管理** - 变更单创建/查询/状态流转/编辑（CLI+GUI）；完整 12 状态机 + 门禁校验 + §6/§8/§9/§10 章节渲染；CLI 表格 `--full` 不截断选项
 - **模板管理** - Copier 模板列表/增量更新
-- **桌面 GUI** - PySide6 原生桌面应用，项目中心式导航 + 项目 CRUD + 多角色适配 + 缓存同步
-- **SQLite 索引缓存** - 增量扫描（file_mtime 判据），加速查询
+- **桌面 GUI** - PySide6 原生桌面应用，项目中心式导航 + 项目 CRUD + 多角色适配 + 缓存同步；变更中心含 QWizard 分步创建向导 + StatusMachineView 可视化状态机 + ApprovalTimeline 审批时间线 + PropagationView 传播链可视化 + 4 维度列表筛选（状态/领域/紧急程度/项目）
+- **SQLite 索引缓存** - 增量扫描（file_mtime 判据），加速查询；变更单影响分析与审批记录持久化（impact_analysis + approval_history 两张表）
+- **Dogfooding** - auto-pm 自身使用 CHG-*.md 变更单流程（已闭环 3 次：CHG-SCPT-2026-001/062/063）
 
 ## 安装
 
@@ -107,25 +108,26 @@ auto-pm plc standardize DJ-2026-010 --apply
 
 ### python - Python 项目管理
 
-> **注意**: `python init`/`python check` 当前为占位实现，计划 V1.2.0 版本交付。
+> **注意**: `python init`/`python check` 当前为占位实现，计划 V2.5 版本交付（见 PRD 路线图）。
 
 ```bash
-# 创建 Python 项目骨架（V1.2.0 实现）
+# 创建 Python 项目骨架（V2.5 实现）
 auto-pm python init SW-2026-009 --name 数据分析工具
 
-# 检查 Python 项目规范（V1.2.0 实现）
+# 检查 Python 项目规范（V2.5 实现）
 auto-pm python check SW-2026-009
 ```
 
 ### change - 变更管理
 
 ```bash
-# 列出项目变更单（支持按状态/领域筛选）
+# 列出项目变更单（支持按状态/领域筛选；--full 标题列不截断）
 auto-pm change list DJ-2026-010
 auto-pm change list DJ-2026-010 --status implementing
 auto-pm change list DJ-2026-010 --domain PLC
+auto-pm change list DJ-2026-010 --full                # 标题列 fold 换行不截断
 
-# 查看变更单详情
+# 查看变更单详情（渲染 §6 影响分析 + §8 审批记录 + §9 实施记录 + §10 验证项共 10 张表）
 auto-pm change show CHG-PLC-2026-001
 
 # 创建变更单（生成 CHG-*.md 文件并更新台帐）
@@ -138,11 +140,18 @@ auto-pm change create \
   --background "新增输送线急停逻辑" \
   --necessity "安全规范要求"
 
-# 状态流转（更新变更单章节并持久化状态）
+# 编辑变更单（CLI 支持 8 个字符串/枚举字段；dict 字段 constraint_impacts/domain_impacts 留给 GUI）
+auto-pm change edit CHG-PLC-2026-001 --background "更新的背景说明"
+auto-pm change edit CHG-PLC-2026-001 --risk-level high --mitigation "增加联锁测试"
+auto-pm change edit CHG-PLC-2026-001 --propagation-chain "PLC -> HMI -> DOCU"
+auto-pm change edit CHG-PLC-2026-001 --urgency critical
+
+# 状态流转（更新变更单章节并持久化状态 + DB 记录审批历史）
 auto-pm change transition CHG-PLC-2026-001 --to submitted
 auto-pm change transition CHG-PLC-2026-001 --to approved --approver fubai
 auto-pm change transition CHG-PLC-2026-001 --to implementing --approver fubai
-auto-pm change transition CHG-PLC-2026-001 --to completed --approver fubai
+auto-pm change transition CHG-PLC-2026-001 --to completed --approver fubai \
+  --verification-conclusion "全部通过：单元测试 + 集成测试 + 现场联调"
 ```
 
 ### template - 模板管理
@@ -169,7 +178,13 @@ auto-pm gui --debug    # 调试模式（开启日志详细输出）
 - **项目中心式导航** - QMainWindow + 左侧侧边栏 + QStackedWidget 切换主区域
 - **项目列表首页** - 项目卡片网格（编号/名称/技术栈徽标/版本/阶段/业务线），统计栏 + 搜索 + 筛选
 - **项目工作区** - Tab 容器（概览/变更/检查/文档 四 Tab）
-- **变更中心** - 变更列表 + 详情面板 + 创建对话框 + 状态流转对话框
+- **变更中心** - 变更列表 + 详情面板 + 创建对话框 + 状态流转对话框 + 编辑对话框
+- **变更创建 QWizard 分步向导** - BasicInfoPage 基本信息 → DescriptionPage 变更描述 → ConfirmPage 提交确认（M3-4 T76）
+- **StatusMachineView 可视化状态机** - 水平展示 12 状态节点 + 11 箭头；当前状态蓝色边框 + 目标状态绿色填充 + 可达状态可点击 + 不可达灰色禁用；节点点击一键流转（M3-4 T77）
+- **ApprovalTimeline 审批时间线** - 垂直展示审批历史：圆点+连接线+状态流转+审批人+意见+日期；12 状态颜色映射（M3-3）
+- **PropagationView 传播链可视化** - QGraphicsView 水平展示跨领域传播链：节点+箭头+领域中文名映射；兼容 `->`/`→` 分隔符（M3-2）
+- **4 维度列表筛选** - 状态 Tab + 领域 + 紧急程度 + 项目下拉筛选；项目下拉选项从变更单列表动态提取（M3-4 T78）
+- **EditChangeDialog 编辑对话框** - QDialog + QTabWidget 双 Tab（基本信息 + 影响分析）；覆盖 10 个可编辑字段（含 dict 类型 constraint_impacts/domain_impacts）（M3-1）
 - **全局功能页** - 规范中心/模板管理/报告中心/系统设置骨架页
 - **项目 CRUD 对话框** - 新建/编辑/删除/导入四个对话框（ui/dialogs/）
 - **多角色适配** - 角色切换菜单（项目经理/PLC工程师/Python工程师/规范编辑），角色-Tab 映射
@@ -230,7 +245,9 @@ auto-pm/
 │   ├── logging/                    # 日志
 │   └── utils/                      # 工具函数
 ├── templates/                      # Copier 模板仓库
-│   ├── plc-standard/               # PLC 标准项目模板
+│   ├── plc-standard-project/       # PLC 标准项目模板
+│   ├── plc-shared-library/         # PLC 共享函数库模板
+│   ├── plc-test-suite/             # PLC 测试套件模板
 │   └── python-tool/                # Python 工具项目模板
 ├── tests/                          # 测试
 ├── 00_项目基础信息/                 # 项目自身文档
@@ -259,12 +276,17 @@ auto-pm/
 
 | 文档 | 路径 | 说明 |
 |------|------|------|
-| PRD 产品需求文档 | `00_项目基础信息/001_产品需求文档_PRD.md` | 产品需求定义 |
+| PRD 产品需求文档 | `00_项目基础信息/001_产品需求文档_PRD.md` | 产品需求定义（V2.1.0） |
 | INT 接口文档 | `00_项目基础信息/002_接口文档_INT.md` | CLI/Service/Model 接口声明 |
 | DSN 详细设计说明书 | `00_项目基础信息/003_详细设计说明书_DSN.md` | 模块详细设计 |
 | TEC 技术方案文档 | `00_项目基础信息/004_技术方案文档_TEC.md` | 技术选型与方案 |
-| PM_SESSION | `PM_SESSION_SW-2026-008.md` | 项目会话文档（单一真源） |
-| 里程碑迭代计划 | `docs/里程碑迭代计划_V2.1.md` | V2.1 里程碑计划与执行记录 |
+| CHG 变更记录 | `00_项目基础信息/005_变更记录_CHG.md` | 项目级变更记录索引（指向标准变更单） |
+| 技术债评估报告 | `00_项目基础信息/006_技术债评估报告.md` | 技术债跟踪（21 项，18 项已偿还） |
+| 发布门禁规范 | `00_项目基础信息/007_发布门禁规范_REL.md` | 发布前质量门禁定义（V0.3.7+） |
+| 试运行报告 | `00_项目基础信息/008_试运行报告_PILOT.md` | Dogfooding 试运行证据归档（V0.3.7+） |
+| PM_SESSION | `PM_SESSION_SW-2026-008.md` | 项目会话文档（**单一状态真源**） |
+| V2.1 迭代 Spec | `.trae/specs/v2.1-change-management-enhancement/spec.md` | V2.1 变更管理增强迭代规格 |
+| 执行总计划 | `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` | V0.3.0 落地执行主计划 |
 | CHANGELOG | `CHANGELOG.md` | 变更日志 |
 
 ### 已废弃文档
@@ -275,9 +297,22 @@ auto-pm/
 |------|----------|----------|
 | `docs/example.md` | Copier 模板示例，非项目文档 | 无（可删除） |
 | `docs/gui-prototype/` | V2.0 HTML 原型，已被实际 UI 替代 | `auto_pm/ui/` |
-| `09_整改项/V2.0-全功能自动化测试计划.md` | 含已删除的角色系统用例 | `docs/里程碑迭代计划_V2.1.md` |
-| `09_整改项/GUI-V2.0-测试执行报告.md` | V2.0 测试结果，不再反映当前状态 | `docs/里程碑迭代计划_V2.1.md` |
-| `09_整改项/archive/` 下全部文档 | V2.0 整改/迭代报告，问题已修复 | `docs/里程碑迭代计划_V2.1.md` |
+| `docs/里程碑迭代计划_V2.1.md` | 仅历史/镜像参考，不再作为推进真源 | `.trae/specs/v2.1-change-management-enhancement/spec.md` + `PM_SESSION_SW-2026-008.md` |
+| `09_整改项/V2.0-全功能自动化测试计划.md` | 含已删除的角色系统用例 | `PM_SESSION_SW-2026-008.md` |
+| `09_整改项/GUI-V2.0-测试执行报告.md` | V2.0 测试结果，不再反映当前状态 | `PM_SESSION_SW-2026-008.md` |
+| `09_整改项/archive/` 下全部文档 | V2.0 整改/迭代报告，问题已修复 | `PM_SESSION_SW-2026-008.md` |
+
+## Dogfooding 证据
+
+auto-pm 自身使用 CHG-*.md 变更单流程管理迭代（M4 Dogfooding 持续化）。已完成的闭环：
+
+| 变更单 | 内容 | 状态 |
+|--------|------|------|
+| CHG-SCPT-2026-001 | M0 基座清理（TD-T01~T04 修复 + ruff/mypy 清理 + 元测试升级） | ✅ 已归档 |
+| CHG-SCPT-2026-062 | M3.5 真源收口 + TD-T04 复发修复 + CHG-001 内容补全 | ✅ 已关闭 |
+| CHG-SCPT-2026-063 | phase 修复 + ruff 清零 + M4 Dogfooding 启动 | ✅ 已关闭 |
+
+每个里程碑必须经过 CHG-*.md 流程（spec.md §9.1 固定模板 10 步：创建→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed→回写 PM_SESSION）。
 
 ## 工具链关系
 
@@ -285,7 +320,8 @@ auto-pm/
 |------|------|----------------|
 | pm-mgr | SW-2026-007 | **已取代** - auto-pm 完全替代 pm-mgr |
 | plc-check | — | **已取代** - auto-pm plc check/repair/standardize 替代 |
-| specmgr | SW-2026-006 | **独立** - 规范管理工具，与 auto-pm 互补 |
+| specmgr | SW-2026-006 | **独立** - 规范管理工具，与 auto-pm 互补；V2.2 规范中心整合后吸收 |
+| plc-var-parser | SW-2026-001 | **独立** - 变量表解析工具；V2.3 变量表整合后吸收 |
 
 ## 版本管理
 

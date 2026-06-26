@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (  # noqa: E402
 )
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
+from auto_pm.change.path_resolver import find_ledger_file  # noqa: E402
 from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog  # noqa: E402
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
 from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
@@ -41,13 +42,20 @@ _created_change_numbers: list[str] = []
 
 @pytest.fixture(autouse=True)
 def _cleanup_test_changes(workspace_root: str):
-    """每个测试后清理本测试创建的变更单文件，避免污染生产数据"""
+    """每个测试后清理本测试创建的变更单文件和台帐条目，避免污染生产数据（TD-T10 修复）"""
     yield
     cs = ChangeService(workspace_root)
+    ledger_updater = cs._get_ledger_updater()
     for change_number in _created_change_numbers:
         try:
             file_path = cs._locator.find_change_file(change_number)
             if file_path and os.path.exists(file_path):
+                # TD-T10 修复：同时清理台帐条目
+                project_path = cs._find_project_root_from_path(file_path)
+                if project_path:
+                    ledger_path = find_ledger_file(project_path)
+                    if ledger_path:
+                        ledger_updater.remove(ledger_path, change_number)
                 os.remove(file_path)
         except Exception:
             pass
@@ -231,7 +239,7 @@ class TestEditChangeDialogGUI:
         """测试 EditChangeDialog 的 Tab 结构（基本信息 + 影响分析）"""
         try:
             click_nav_page(main_window, "change_center", app)
-            view = main_window._change_center_view
+            _view = main_window._change_center_view
 
             # 创建测试变更单
             cs = ChangeService(workspace_root)
@@ -291,7 +299,7 @@ class TestEditChangeDialogGUI:
         """测试 Tab 切换功能（基本信息 ↔ 影响分析）"""
         try:
             click_nav_page(main_window, "change_center", app)
-            view = main_window._change_center_view
+            _view = main_window._change_center_view
 
             cs = ChangeService(workspace_root)
             change_number = _create_test_change(cs, "SW-2026-008")

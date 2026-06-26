@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 from auto_pm.change.change_service import ChangeService
 from auto_pm.change.models import STATUS_LABELS
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.dialogs.status_machine_view import StatusMachineView
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -66,6 +67,11 @@ class TransitionDialog(QDialog):
         self._target_status = target_status
         self._change_service = change_service
         self._requires_verification = target_status == "completed"
+        self._status_machine = StatusMachineView(
+            current_status=current_status,
+            target_status=target_status,
+        )
+        self._status_machine.target_selected.connect(self._on_target_selected)
         self._build_ui()
 
     # ── UI 构建 ────────────────────────────────────────────
@@ -82,6 +88,9 @@ class TransitionDialog(QDialog):
         title = QLabel("状态流转确认")
         title.setObjectName("dialogTitle")
         layout.addWidget(title)
+
+        # 状态机概览（T77：可视化状态机 + 一键流转）
+        layout.addWidget(self._status_machine)
 
         form = QFormLayout()
         form.setSpacing(8)
@@ -134,6 +143,15 @@ class TransitionDialog(QDialog):
         layout.addWidget(self._button_box)
 
     # ── 数据收集 ──────────────────────────────────────────
+
+    def _on_target_selected(self, target: str) -> None:
+        """状态机节点点击：联动更新目标状态字段和验证结论显隐"""
+        self._target_status = target
+        self._target_label.setText(STATUS_LABELS.get(target, target))
+        self._requires_verification = target == "completed"
+        self._verification_label.setVisible(self._requires_verification)
+        self._verification_edit.setVisible(self._requires_verification)
+        self._status_machine.set_target(target)
 
     def get_transition_data(self) -> dict[str, Any]:
         """返回 {approver, comment, verification_conclusion}"""

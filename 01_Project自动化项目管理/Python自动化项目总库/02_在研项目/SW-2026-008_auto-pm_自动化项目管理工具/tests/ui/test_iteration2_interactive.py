@@ -660,8 +660,9 @@ class TestFullFlow:
             # 填写必填字段
             dlg._background_edit.setPlainText("完整流程测试变更背景")
             dlg._necessity_edit.setPlainText("完整流程测试变更必要性")
-            # 触发创建
-            dlg._on_create()
+            # 触发创建，成功后关闭对话框以退出 exec()
+            if dlg._on_create():
+                dlg.accept()
 
         _schedule_dialog_interaction(qapp, CreateChangeDialog, on_create_dialog)
         view._create_btn.click()

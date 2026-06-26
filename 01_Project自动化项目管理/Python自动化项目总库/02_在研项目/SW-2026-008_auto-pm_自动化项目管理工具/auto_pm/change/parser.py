@@ -119,6 +119,7 @@ class ChgParser:
             applicant=cr.applicant,
             apply_date=cr.apply_date,
             title=title,
+            urgency=cr.urgency,
         )
 
     def to_impact_analysis(self, cr: ChangeRequest) -> ImpactAnalysis:

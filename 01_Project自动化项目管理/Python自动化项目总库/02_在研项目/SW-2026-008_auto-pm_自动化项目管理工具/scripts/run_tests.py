@@ -18,6 +18,7 @@
 M4-Iter6：测试脚本工具更新（冒烟/GUI 测试前）
 """
 
+# ruff: noqa: T201
 from __future__ import annotations
 
 import argparse

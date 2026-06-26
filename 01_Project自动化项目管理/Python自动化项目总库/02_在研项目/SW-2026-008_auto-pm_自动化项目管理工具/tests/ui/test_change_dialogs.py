@@ -10,7 +10,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -28,16 +30,19 @@ from auto_pm.change.models import (  # noqa: E402
     URGENCY_LEVELS,
 )
 from auto_pm.core.project_service import ProjectService  # noqa: E402
-from auto_pm.ui.dialogs.create_change_dialog import CreateChangeDialog  # noqa: E402
+from auto_pm.ui.dialogs.create_change_dialog import (  # noqa: E402
+    CreateChangeDialog,
+    CreateChangeWizard,
+)
 from auto_pm.ui.dialogs.transition_dialog import TransitionDialog  # noqa: E402
 
 # ── fixtures ─────────────────────────────────────────────
 
 
 @pytest.fixture(scope="session")
-def qapp() -> QApplication:
+def qapp() -> Iterator[QApplication]:
     """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
+    app = cast(QApplication, QApplication.instance() or QApplication([]))
     yield app
 
 
@@ -64,7 +69,7 @@ def change_workspace(tmp_path: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def _patch_message_boxes() -> None:
+def _patch_message_boxes() -> Iterator[None]:
     """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试
 
     CreateChangeDialog._load_projects 在加载失败时会调用 QMessageBox.critical，
@@ -79,14 +84,14 @@ def _patch_message_boxes() -> None:
     QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
     QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
     QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
-    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+    QMessageBox.question = staticmethod(  # type: ignore[method-assign]
         lambda *a, **kw: QMessageBox.StandardButton.Yes
     )
     yield
-    QMessageBox.critical = orig_critical  # type: ignore[assignment]
-    QMessageBox.warning = orig_warning  # type: ignore[assignment]
-    QMessageBox.information = orig_information  # type: ignore[assignment]
-    QMessageBox.question = orig_question  # type: ignore[assignment]
+    QMessageBox.critical = orig_critical  # type: ignore[method-assign]
+    QMessageBox.warning = orig_warning  # type: ignore[method-assign]
+    QMessageBox.information = orig_information  # type: ignore[method-assign]
+    QMessageBox.question = orig_question  # type: ignore[method-assign]
 
 
 # ── CreateChangeDialog 测试 ──────────────────────────────
@@ -209,6 +214,113 @@ class TestCreateChangeDialog:
         qapp.processEvents()
 
 
+# ── CreateChangeWizard 专项测试（M3-4 QWizard） ──────────
+
+
+class TestCreateChangeWizard:
+    """CreateChangeWizard QWizard 分步向导专项测试（M3-4）
+
+    覆盖 QWizard 特有行为：3 页面结构、各页 isComplete 联动、
+    ConfirmPage 汇总展示、validatePage 触发创建。
+    兼容性测试由 TestCreateChangeDialog 覆盖（CreateChangeDialog 为别名）。
+    """
+
+    def test_wizard_has_three_pages(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """向导应包含 3 个页面，标题对齐设计"""
+        ps = ProjectService(str(change_workspace))
+        cs = ChangeService(str(change_workspace))
+        wizard = CreateChangeWizard(ps, cs)
+
+        page_ids = wizard.pageIds()
+        assert len(page_ids) == 3
+        titles = [wizard.page(pid).title() for pid in page_ids]
+        assert titles == ["基本信息", "变更描述", "提交确认"]
+        wizard.deleteLater()
+        qapp.processEvents()
+
+    def test_basic_page_complete_validation(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """Step 1 isComplete: 项目+申请人同时满足才为 True"""
+        ps = ProjectService(str(change_workspace))
+        cs = ChangeService(str(change_workspace))
+        wizard = CreateChangeWizard(ps, cs)
+
+        # 默认: 项目已选 + 申请人=fubai → True
+        assert wizard._basic_page.isComplete() is True
+
+        # 清空申请人 → False
+        wizard._applicant_edit.setText("")
+        assert wizard._basic_page.isComplete() is False
+
+        # 填回申请人 → True
+        wizard._applicant_edit.setText("fubai")
+        assert wizard._basic_page.isComplete() is True
+        wizard.deleteLater()
+        qapp.processEvents()
+
+    def test_desc_page_complete_validation(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """Step 2 isComplete: 背景非空才为 True"""
+        ps = ProjectService(str(change_workspace))
+        cs = ChangeService(str(change_workspace))
+        wizard = CreateChangeWizard(ps, cs)
+
+        # 背景为空 → False
+        assert wizard._desc_page.isComplete() is False
+
+        # 填入背景 → True
+        wizard._background_edit.setPlainText("测试背景")
+        assert wizard._desc_page.isComplete() is True
+        wizard.deleteLater()
+        qapp.processEvents()
+
+    def test_confirm_page_shows_summary(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """Step 3 initializePage 后应显示含项目编号和背景的汇总信息"""
+        ps = ProjectService(str(change_workspace))
+        cs = ChangeService(str(change_workspace))
+        wizard = CreateChangeWizard(ps, cs)
+        wizard._background_edit.setPlainText("汇总测试背景")
+
+        # 手动触发 initializePage（模拟导航到 Step 3）
+        wizard._confirm_page.initializePage()
+
+        summary_text = wizard._confirm_page._summary_label.text()
+        assert "TEST-2026-001" in summary_text
+        assert "汇总测试背景" in summary_text
+        wizard.deleteLater()
+        qapp.processEvents()
+
+    def test_validate_page_creates_change(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """validatePage 应触发创建并发射 change_created 信号"""
+        ps = ProjectService(str(change_workspace))
+        cs = ChangeService(str(change_workspace))
+        wizard = CreateChangeWizard(ps, cs)
+        wizard._background_edit.setPlainText("验证测试背景")
+
+        received: list[str] = []
+        wizard.change_created.connect(received.append)
+
+        # 直接调用 validatePage（模拟 Finish 点击）
+        result = wizard._confirm_page.validatePage()
+        assert result is True
+        assert received == ["TEST-2026-001"]
+
+        # 确认真实变更单已生成
+        changes = cs.list_change_requests("TEST-2026-001")
+        assert len(changes) >= 1
+        assert changes[0].change_number.startswith("CHG-")
+        wizard.deleteLater()
+        qapp.processEvents()
+
+
 # ── TransitionDialog 测试 ────────────────────────────────
 
 
@@ -307,4 +419,118 @@ class TestTransitionDialog:
         assert updated is not None
         assert updated.status == "submitted"
         dlg.deleteLater()
+        qapp.processEvents()
+
+
+class TestTransitionDialogStateMachine:
+    """TransitionDialog 状态机集成测试（M3-4 T77/T79）"""
+
+    def test_status_machine_integrated(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """TransitionDialog 应包含 StatusMachineView"""
+        cs = ChangeService(str(change_workspace))
+        dlg = TransitionDialog("CHG-PLC-2026-001", "draft", "submitted", cs)
+        assert dlg._status_machine is not None
+        assert dlg._status_machine._current == "draft"
+        assert dlg._status_machine._target == "submitted"
+        dlg.deleteLater()
+        qapp.processEvents()
+
+    def test_status_machine_current_highlighted(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """状态机当前状态节点应为蓝色边框样式"""
+        cs = ChangeService(str(change_workspace))
+        dlg = TransitionDialog("CHG-PLC-2026-001", "draft", "submitted", cs)
+        current_btn = dlg._status_machine._buttons["draft"]
+        assert not current_btn.isEnabled()  # 当前状态禁用
+        style = current_btn.styleSheet()
+        assert "#4a90d9" in style  # 蓝色边框
+        dlg.deleteLater()
+        qapp.processEvents()
+
+    def test_status_machine_target_highlighted(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """状态机目标状态节点应为绿色填充样式"""
+        cs = ChangeService(str(change_workspace))
+        dlg = TransitionDialog("CHG-PLC-2026-001", "draft", "submitted", cs)
+        target_btn = dlg._status_machine._buttons["submitted"]
+        assert target_btn.isEnabled()  # 目标状态启用
+        style = target_btn.styleSheet()
+        assert "#27ae60" in style  # 绿色填充
+        dlg.deleteLater()
+        qapp.processEvents()
+
+    def test_target_selected_updates_dialog(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """状态机节点点击联动更新 TransitionDialog 目标状态字段"""
+        cs = ChangeService(str(change_workspace))
+        # submitted 可达 {under_review, draft}
+        dlg = TransitionDialog("CHG-PLC-2026-001", "submitted", "under_review", cs)
+        assert dlg._target_status == "under_review"
+        assert dlg._target_label.text() == STATUS_LABELS["under_review"]
+
+        # 模拟点击 draft 节点（回退）
+        dlg._on_target_selected("draft")
+        assert dlg._target_status == "draft"
+        assert dlg._target_label.text() == STATUS_LABELS["draft"]
+        assert dlg._status_machine._target == "draft"
+        dlg.deleteLater()
+        qapp.processEvents()
+
+    def test_target_selected_completed_shows_verification(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """状态机点击 completed 节点联动显示验证结论字段"""
+        cs = ChangeService(str(change_workspace))
+        # accepting 可达 {completed, implementing}
+        dlg = TransitionDialog("CHG-PLC-2026-001", "accepting", "implementing", cs)
+        assert dlg._requires_verification is False
+        assert not dlg._verification_edit.isVisibleTo(dlg)
+
+        # 模拟点击 completed 节点
+        dlg._on_target_selected("completed")
+        assert dlg._target_status == "completed"
+        assert dlg._requires_verification is True
+        assert dlg._verification_edit.isVisibleTo(dlg) is True
+        dlg.deleteLater()
+        qapp.processEvents()
+
+    def test_target_selected_non_completed_hides_verification(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """状态机点击非 completed 节点联动隐藏验证结论字段"""
+        cs = ChangeService(str(change_workspace))
+        # accepting → completed 初始显示验证结论
+        dlg = TransitionDialog("CHG-PLC-2026-001", "accepting", "completed", cs)
+        assert dlg._requires_verification is True
+        assert dlg._verification_edit.isVisibleTo(dlg) is True
+
+        # 模拟点击 implementing 节点（返工）
+        dlg._on_target_selected("implementing")
+        assert dlg._target_status == "implementing"
+        assert dlg._requires_verification is False
+        assert not dlg._verification_edit.isVisibleTo(dlg)
+        dlg.deleteLater()
+        qapp.processEvents()
+
+    def test_status_machine_reachable_matches_flow(
+        self, qapp: QApplication, change_workspace: Path
+    ) -> None:
+        """状态机可达状态集合与 STATUS_FLOW 一致"""
+        from auto_pm.change.models import STATUS_FLOW
+
+        cs = ChangeService(str(change_workspace))
+        for current in ["draft", "submitted", "under_review", "approved",
+                        "implementing", "pending_acceptance", "accepting"]:
+            dlg = TransitionDialog("CHG-X", current, "", cs)
+            expected = STATUS_FLOW[current]
+            assert dlg._status_machine.get_reachable_targets() == expected, (
+                f"current={current}: expected {expected}, "
+                f"got {dlg._status_machine.get_reachable_targets()}"
+            )
+            dlg.deleteLater()
         qapp.processEvents()
