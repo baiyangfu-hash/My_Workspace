@@ -255,8 +255,8 @@ def get_or_create_ledger_file(project_path: str) -> str | None:
             "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
             "|------|----------|------|--------|----------|----------|----------|------|\n"
         )
-        with open(ledger_path, "w", encoding="utf-8") as f:
-            f.write(skeleton)
+        from auto_pm.utils.file_utils import write_file
+        write_file(ledger_path, skeleton)
         return ledger_path
     except OSError:
         return None

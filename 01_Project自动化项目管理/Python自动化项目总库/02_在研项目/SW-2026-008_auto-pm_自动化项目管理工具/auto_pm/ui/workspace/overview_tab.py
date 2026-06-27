@@ -25,6 +25,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from auto_pm.core.constants import (
+    get_equipment_type_label,
+    get_project_type_label,
+)
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
 
@@ -232,6 +236,19 @@ class OverviewTab(QWidget):
             ("技术栈", stack_text, False),
             ("版本", version_text, False),
             ("阶段", phase_text, False),
+            ("业务线", project.business_line or "—", False),
+            (
+                "项目类型",
+                get_project_type_label(project.project_type) if project.project_type else "—",
+                False,
+            ),
+            (
+                "设备类型",
+                get_equipment_type_label(project.equipment_type) if project.equipment_type else "—",
+                False,
+            ),
+            ("PLC 品牌", project.plc_vendor or "—", False),
+            ("PLC 型号", project.plc_model or "—", False),
             ("项目路径", project.path or "—", True),
             ("描述", desc_text, False),
         ]

@@ -102,6 +102,30 @@ class ProjectUpdateRequest(BaseModel):
     version: str | None = Field(None, description="版本号")
 
 
+class DashboardSummaryDTO(BaseModel):
+    """项目驾驶舱摘要 DTO（首页/报告页聚合数据）"""
+
+    total_projects: int = Field(0, description="项目总数")
+    phase_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="阶段分布: developing/commissioning/production/archived",
+    )
+    open_change_count: int = Field(0, description="未关闭变更数")
+    failed_check_project_count: int = Field(0, description="PLC 检查失败项目数")
+    failed_check_project_ids: list[str] = Field(
+        default_factory=list,
+        description="PLC 检查失败项目编号列表",
+    )
+    recent_activities: list[str] = Field(
+        default_factory=list,
+        description="最近活动摘要列表",
+    )
+    risk_hints: list[str] = Field(
+        default_factory=list,
+        description="交付风险/健康提示列表",
+    )
+
+
 class ScanResult(BaseModel):
     """扫描结果"""
 

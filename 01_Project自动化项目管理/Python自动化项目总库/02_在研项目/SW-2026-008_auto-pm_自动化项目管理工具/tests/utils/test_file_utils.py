@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import glob
+import os
+
 from auto_pm.utils.file_utils import get_mtime, read_file, write_file
 
 
@@ -47,6 +50,75 @@ class TestWriteFile:
         f.write_text("old", encoding="utf-8")
         write_file(str(f), "new")
         assert f.read_text(encoding="utf-8") == "new"
+
+
+class TestWriteFileAtomic:
+    """write_file 原子写入测试（TD-T11 修复）"""
+
+    def test_write_preserves_original_on_success(self, tmp_path: object) -> None:
+        """写入成功后原文件被新内容替换"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "test.txt"
+        f.write_text("old content", encoding="utf-8")
+        write_file(str(f), "new content")
+        assert f.read_text(encoding="utf-8") == "new content"
+
+    def test_no_temp_file_left_after_write(self, tmp_path: object) -> None:
+        """写入完成后无临时文件残留"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "test.txt"
+        write_file(str(f), "content")
+        # 检查目录中无 .tmp 文件残留
+        tmp_files = glob.glob(str(tmp / "*.tmp"))
+        assert len(tmp_files) == 0, f"发现临时文件残留: {tmp_files}"
+
+    def test_write_unicode_content(self, tmp_path: object) -> None:
+        """写入 Unicode 内容（中文+emoji）"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "unicode.txt"
+        content = "# 变更台帐\n| ✅已关闭 | 🔄实施中 |\n"
+        write_file(str(f), content)
+        assert f.read_text(encoding="utf-8") == content
+
+    def test_write_empty_content(self, tmp_path: object) -> None:
+        """写入空内容"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "empty.txt"
+        write_file(str(f), "")
+        assert f.read_text(encoding="utf-8") == ""
+
+    def test_write_large_content(self, tmp_path: object) -> None:
+        """写入大内容（验证 fsync 不中断）"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "large.txt"
+        content = "x" * 100000  # 100KB
+        write_file(str(f), content)
+        result = f.read_text(encoding="utf-8")
+        assert len(result) == 100000
+        assert result == content
+
+    def test_write_to_nested_dir(self, tmp_path: object) -> None:
+        """写入深层嵌套目录（自动创建父目录 + 原子替换）"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "a" / "b" / "c" / "d" / "test.txt"
+        write_file(str(f), "nested")
+        assert f.read_text(encoding="utf-8") == "nested"
+        # 确认无临时文件残留
+        for dirpath, _dirs, files in os.walk(str(tmp)):
+            for fname in files:
+                assert not fname.endswith(".tmp"), f"临时文件残留: {dirpath}/{fname}"
+
+    def test_overwrite_does_not_corrupt(self, tmp_path: object) -> None:
+        """覆盖写入不会损坏文件（原子替换保证）"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "test.txt"
+        f.write_text("original", encoding="utf-8")
+        write_file(str(f), "replacement")
+        # 文件应该完整包含新内容
+        assert f.read_text(encoding="utf-8") == "replacement"
+        # 确认没有额外的临时文件
+        all_files = list(tmp.iterdir())
+        assert len(all_files) == 1, f"目录中有额外文件: {all_files}"
 
 
 class TestGetMtime:

@@ -157,3 +157,64 @@ PHASE_LABELS: Final[dict[str, str]] = dict(PHASE_OPTIONS)
 def get_phase_label(code: str) -> str:
     """根据阶段编码获取标签"""
     return PHASE_LABELS.get(code, code)
+
+
+# ── V0.4.0 项目元数据选项 ──────────────────────────────────
+
+#: 项目类型选项列表：(value, label) 格式
+PROJECT_TYPE_OPTIONS: Final[list[tuple[str, str]]] = [
+    ("single_machine", "单机设备"),
+    ("line_project", "自动化整线"),
+    ("retrofit_project", "改造项目"),
+    ("maintenance_project", "维保项目"),
+    ("shared_library", "标准库/功能块"),
+    ("test_suite", "测试台/仿真项目"),
+]
+
+#: 项目类型编码列表
+PROJECT_TYPE_CODES: Final[list[str]] = [opt[0] for opt in PROJECT_TYPE_OPTIONS]
+
+#: 项目类型编码到标签的映射
+PROJECT_TYPE_LABELS: Final[dict[str, str]] = dict(PROJECT_TYPE_OPTIONS)
+
+
+def get_project_type_label(code: str) -> str:
+    """根据项目类型编码获取标签"""
+    return PROJECT_TYPE_LABELS.get(code, code)
+
+
+#: 设备类型选项列表：(value, label) 格式
+EQUIPMENT_TYPE_OPTIONS: Final[list[tuple[str, str]]] = [
+    ("conveyor", "输送设备"),
+    ("packaging", "包装设备"),
+    ("palletizer", "码垛设备"),
+    ("robot_cell", "机器人单元"),
+    ("test_rig", "测试台"),
+    ("other", "其他"),
+]
+
+#: 设备类型编码列表
+EQUIPMENT_TYPE_CODES: Final[list[str]] = [opt[0] for opt in EQUIPMENT_TYPE_OPTIONS]
+
+#: 设备类型编码到标签的映射
+EQUIPMENT_TYPE_LABELS: Final[dict[str, str]] = dict(EQUIPMENT_TYPE_OPTIONS)
+
+
+def get_equipment_type_label(code: str) -> str:
+    """根据设备类型编码获取标签"""
+    return EQUIPMENT_TYPE_LABELS.get(code, code)
+
+
+#: PLC 品牌选项列表：(value, label) 格式
+PLC_VENDOR_OPTIONS: Final[list[tuple[str, str]]] = [
+    ("Siemens", "Siemens"),
+    ("Mitsubishi", "Mitsubishi"),
+    ("Omron", "Omron"),
+    ("Keyence", "Keyence"),
+    ("Beckhoff", "Beckhoff"),
+    ("Delta", "Delta"),
+    ("Other", "Other"),
+]
+
+#: PLC 品牌编码列表
+PLC_VENDOR_CODES: Final[list[str]] = [opt[0] for opt in PLC_VENDOR_OPTIONS]

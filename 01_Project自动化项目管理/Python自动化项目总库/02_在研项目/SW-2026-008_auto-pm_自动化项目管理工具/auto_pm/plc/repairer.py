@@ -274,8 +274,8 @@ class PlcRepairer:
 
             if changed:
                 if not dry_run:
-                    with open(plc_json_path, "w", encoding="utf-8") as f:
-                        json.dump(cfg, f, indent=2, ensure_ascii=False)
+                    from auto_pm.utils.file_utils import write_file
+                    write_file(plc_json_path, json.dumps(cfg, indent=2, ensure_ascii=False))
                 result.add(
                     item=".plc.json",
                     action="补全 .plc.json 必填字段",
@@ -306,9 +306,8 @@ class PlcRepairer:
             effective_name, effective_desc, plc_json_path, effective_version
         )
         if not dry_run:
-            os.makedirs(os.path.dirname(plc_json_path), exist_ok=True)
-            with open(plc_json_path, "w", encoding="utf-8") as f:
-                f.write(content)
+            from auto_pm.utils.file_utils import write_file
+            write_file(plc_json_path, content)
             result.add(
                 item=".plc.json",
                 action="创建 .plc.json",
@@ -377,8 +376,8 @@ class PlcRepairer:
         content = self._minimal_pm_session(project_id, project_name, project_path)
 
         if not dry_run:
-            with open(pm_session_path, "w", encoding="utf-8") as f:
-                f.write(content)
+            from auto_pm.utils.file_utils import write_file
+            write_file(pm_session_path, content)
         result.add(
             item="PM_SESSION",
             action=f"创建 PM_SESSION_{project_id}.md",
@@ -521,9 +520,8 @@ class PlcRepairer:
         content = self._minimal_prd_doc(doc_name, project_id, project_name)
 
         if not dry_run:
-            os.makedirs(os.path.dirname(doc_path), exist_ok=True)
-            with open(doc_path, "w", encoding="utf-8") as f:
-                f.write(content)
+            from auto_pm.utils.file_utils import write_file
+            write_file(doc_path, content)
         result.add(
             item=f"PRD/{doc_name}",
             action=f"创建 {doc_name}",
@@ -638,8 +636,8 @@ class PlcRepairer:
                         content = fh.read()
                     if old_name in content:
                         new_content = content.replace(old_name, new_name)
-                        with open(fpath, "w", encoding="utf-8") as fh:
-                            fh.write(new_content)
+                        from auto_pm.utils.file_utils import write_file
+                        write_file(fpath, new_content)
                         updates.append(f"{f}: {old_name} → {new_name}")
                 except OSError:
                     pass

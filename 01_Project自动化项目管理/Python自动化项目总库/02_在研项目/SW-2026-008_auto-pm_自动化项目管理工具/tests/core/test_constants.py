@@ -10,14 +10,22 @@ from auto_pm.core.constants import (
     BUSINESS_LINE_LABELS,
     BUSINESS_LINE_OPTIONS,
     DEFAULT_TEMPLATE_NAME,
+    EQUIPMENT_TYPE_CODES,
+    EQUIPMENT_TYPE_LABELS,
     PHASE_CODES,
     PHASE_LABELS,
     PHASE_OPTIONS,
+    PLC_VENDOR_CODES,
+    PLC_VENDOR_OPTIONS,
+    PROJECT_TYPE_CODES,
+    PROJECT_TYPE_LABELS,
     STACK_CODES,
     STACK_OPTIONS,
     STACK_TEMPLATE_MAP,
     get_business_line_label,
+    get_equipment_type_label,
     get_phase_label,
+    get_project_type_label,
     get_template_name,
     is_valid_business_line,
 )
@@ -123,6 +131,30 @@ class TestPhaseOptions:
         """get_phase_label 函数"""
         assert get_phase_label("developing") == "开发中"
         assert get_phase_label("UNKNOWN") == "UNKNOWN"
+
+
+class TestV040MetadataOptions:
+    """V0.4.0 项目元数据选项测试"""
+
+    def test_project_type_options(self) -> None:
+        """项目类型选项列表"""
+        assert "single_machine" in PROJECT_TYPE_CODES
+        assert "shared_library" in PROJECT_TYPE_CODES
+        assert PROJECT_TYPE_LABELS["single_machine"] == "单机设备"
+        assert get_project_type_label("line_project") == "自动化整线"
+
+    def test_equipment_type_options(self) -> None:
+        """设备类型选项列表"""
+        assert "conveyor" in EQUIPMENT_TYPE_CODES
+        assert "robot_cell" in EQUIPMENT_TYPE_CODES
+        assert EQUIPMENT_TYPE_LABELS["conveyor"] == "输送设备"
+        assert get_equipment_type_label("packaging") == "包装设备"
+
+    def test_plc_vendor_options(self) -> None:
+        """PLC 品牌选项列表"""
+        assert "Siemens" in PLC_VENDOR_CODES
+        assert "Mitsubishi" in PLC_VENDOR_CODES
+        assert len(PLC_VENDOR_OPTIONS) >= 5
 
 
 class TestNoDuplicateDefinitions:

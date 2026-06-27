@@ -28,7 +28,7 @@ from PySide6.QtWidgets import (
 
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
-from auto_pm.models.dto import ProjectCardDTO
+from auto_pm.models.dto import DashboardSummaryDTO, ProjectCardDTO
 from auto_pm.models.project import extract_business_line
 from auto_pm.ui.project_list.group_header import GroupHeader
 from auto_pm.ui.project_list.project_card import ProjectCard
@@ -80,6 +80,109 @@ _PHASE_ORDER: dict[str, int] = {
 _BL_ORDER: dict[str, int] = {"DJ": 0, "SW": 1, "ZD": 2, "XT": 3, "WX": 4, "": 5}
 
 
+class _DashboardBanner(QWidget):
+    """首页驾驶舱摘要横幅"""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._build_ui()
+        self.setVisible(False)
+
+    def _build_ui(self) -> None:
+        self.setObjectName("dashboardBanner")
+        self.setStyleSheet(
+            """
+QWidget#dashboardBanner {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+QLabel#dashboardTitle {
+    font-size: 14px;
+    font-weight: bold;
+    color: #222;
+}
+QLabel#dashboardMetric {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1f2d3d;
+}
+QLabel#dashboardHint {
+    font-size: 12px;
+    color: #666;
+}
+QLabel#dashboardSection {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 4px;
+}
+"""
+        )
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(8)
+
+        title = QLabel("项目驾驶舱")
+        title.setObjectName("dashboardTitle")
+        layout.addWidget(title)
+
+        self._total_label = QLabel("项目总数: 0")
+        self._total_label.setObjectName("dashboardMetric")
+        layout.addWidget(self._total_label)
+
+        self._phase_label = QLabel("阶段分布: 开发中 0 / 调试中 0 / 生产中 0 / 已归档 0")
+        self._phase_label.setObjectName("dashboardHint")
+        layout.addWidget(self._phase_label)
+
+        self._change_label = QLabel("未关闭变更: 0")
+        self._change_label.setObjectName("dashboardMetric")
+        layout.addWidget(self._change_label)
+
+        self._check_label = QLabel("检查失败项目: 0")
+        self._check_label.setObjectName("dashboardMetric")
+        layout.addWidget(self._check_label)
+
+        recent_title = QLabel("最近活动")
+        recent_title.setObjectName("dashboardSection")
+        layout.addWidget(recent_title)
+
+        self._recent_label = QLabel("暂无最近活动")
+        self._recent_label.setObjectName("dashboardHint")
+        self._recent_label.setWordWrap(True)
+        layout.addWidget(self._recent_label)
+
+        risk_title = QLabel("风险提示")
+        risk_title.setObjectName("dashboardSection")
+        layout.addWidget(risk_title)
+
+        self._risk_label = QLabel("当前未发现高优先级风险")
+        self._risk_label.setObjectName("dashboardHint")
+        self._risk_label.setWordWrap(True)
+        layout.addWidget(self._risk_label)
+
+    def set_summary(self, summary: DashboardSummaryDTO) -> None:
+        """更新横幅内容"""
+        phases = summary.phase_counts
+        self._total_label.setText(f"项目总数: {summary.total_projects}")
+        self._phase_label.setText(
+            "阶段分布: "
+            f"开发中 {phases.get('developing', 0)} / "
+            f"调试中 {phases.get('commissioning', 0)} / "
+            f"生产中 {phases.get('production', 0)} / "
+            f"已归档 {phases.get('archived', 0)}"
+        )
+        self._change_label.setText(f"未关闭变更: {summary.open_change_count}")
+        self._check_label.setText(f"检查失败项目: {summary.failed_check_project_count}")
+        if summary.failed_check_project_ids:
+            self._check_label.setToolTip("失败项目: " + ", ".join(summary.failed_check_project_ids))
+        else:
+            self._check_label.setToolTip("")
+        self._recent_label.setText("\n".join(summary.recent_activities) or "暂无最近活动")
+        self._risk_label.setText("\n".join(summary.risk_hints) or "当前未发现高优先级风险")
+        self.setVisible(True)
+
+
 class ProjectListView(QWidget):
     """项目列表页
 
@@ -126,6 +229,9 @@ class ProjectListView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(10)
+
+        self._dashboard_banner = _DashboardBanner()
+        layout.addWidget(self._dashboard_banner)
 
         # 视图控制栏
         self._view_controls = ViewControls()
@@ -223,6 +329,10 @@ class ProjectListView(QWidget):
             else:
                 self._all_projects.append(proj)
         self._refresh()
+
+    def set_dashboard_summary(self, summary: DashboardSummaryDTO) -> None:
+        """设置首页驾驶舱摘要"""
+        self._dashboard_banner.set_summary(summary)
 
     def get_project(self, project_id: str) -> ProjectInfo | None:
         """按 project_id 查询项目（供主窗口进入工作区用）"""

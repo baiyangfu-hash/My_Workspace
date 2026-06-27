@@ -39,6 +39,26 @@ business_line:
   default: ""
   when: false
 
+project_type:
+  type: str
+  default: "single_machine"
+  when: false
+
+equipment_type:
+  type: str
+  default: ""
+  when: false
+
+plc_vendor:
+  type: str
+  default: ""
+  when: false
+
+plc_model:
+  type: str
+  default: ""
+  when: false
+
 # 模板内容在 template/ 子目录
 _subdirectory: template
 

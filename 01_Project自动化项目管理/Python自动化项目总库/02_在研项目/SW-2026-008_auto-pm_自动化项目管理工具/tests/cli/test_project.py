@@ -41,6 +41,80 @@ def test_project_show_not_found(cli_runner: CliRunner, tmp_workspace: Path) -> N
     assert result.exit_code == 1
 
 
+def test_project_show_displays_v040_metadata(cli_runner: CliRunner, tmp_path: Path) -> None:
+    """project show 展示 Week 2 项目元数据"""
+    project_dir = tmp_path / "DJ-2026-020_单机项目"
+    project_dir.mkdir()
+    (project_dir / ".copier-answers.yml").write_text(
+        "\n".join(
+            [
+                "project_id: DJ-2026-020",
+                "project_name: 单机项目",
+                "stack: plc",
+                "project_type: single_machine",
+                "equipment_type: conveyor",
+                "plc_vendor: Siemens",
+                "plc_model: S7-1200",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = cli_runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "project", "show", "DJ-2026-020"],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    assert "项目类型" in result.output
+    assert "单机设备" in result.output
+    assert "设备类型" in result.output
+    assert "输送设备" in result.output
+    assert "PLC品牌" in result.output
+    assert "Siemens" in result.output
+    assert "PLC型号" in result.output
+    assert "S7-1200" in result.output
+
+
+def test_project_create_dry_run_displays_v040_metadata(
+    cli_runner: CliRunner, tmp_path: Path
+) -> None:
+    """project create --dry-run 输出 Week 2 元数据"""
+    result = cli_runner.invoke(
+        cli,
+        [
+            "-w",
+            str(tmp_path),
+            "project",
+            "create",
+            "--stack",
+            "plc",
+            "--id",
+            "DJ-2026-021",
+            "--name",
+            "测试单机",
+            "--project-type",
+            "single_machine",
+            "--equipment-type",
+            "conveyor",
+            "--plc-vendor",
+            "Siemens",
+            "--plc-model",
+            "S7-1200",
+            "--dry-run",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    assert "项目类型: single_machine" in result.output
+    assert "设备类型: conveyor" in result.output
+    assert "PLC 品牌: Siemens" in result.output
+    assert "PLC 型号: S7-1200" in result.output
+
+
 # ── project snapshot 命令测试（V0.3.2 独立 Spec Snapshot 刷新） ──
 
 # PM_SESSION 内容（含 Spec Snapshot 表格，版本号故意设旧）

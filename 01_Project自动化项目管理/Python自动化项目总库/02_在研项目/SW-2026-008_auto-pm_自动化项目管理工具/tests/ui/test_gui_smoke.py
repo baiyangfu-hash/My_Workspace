@@ -305,6 +305,19 @@ class TestNewProjectDialog:
         dialog.deleteLater()
         qapp.processEvents()
 
+    def test_v040_metadata_fields_present(
+        self, qapp: QApplication, tmp_path: Path
+    ) -> None:
+        """NewProjectDialog 提供 Week 2 元数据字段"""
+        dialog = NewProjectDialog(workspace_root=str(tmp_path))
+        assert dialog._project_type_combo is not None
+        assert dialog._equipment_type_combo is not None
+        assert dialog._plc_vendor_combo is not None
+        assert dialog._plc_model_edit is not None
+        assert dialog._project_type_combo.currentData() == "single_machine"
+        dialog.deleteLater()
+        qapp.processEvents()
+
 
 class TestEditProjectDialog:
     """EditProjectDialog 实例化测试"""

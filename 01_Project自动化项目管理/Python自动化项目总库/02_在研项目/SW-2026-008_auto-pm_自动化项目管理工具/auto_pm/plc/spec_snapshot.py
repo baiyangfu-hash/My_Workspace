@@ -308,8 +308,8 @@ def update_spec_snapshot(
         return False
 
     try:
-        with open(pm_session_path, "w", encoding="utf-8") as f:
-            f.write(new_content)
+        from auto_pm.utils.file_utils import write_file
+        write_file(pm_session_path, new_content)
     except OSError as e:
         log.warning("写入 PM_SESSION 失败: %s (%s)", pm_session_path, e)
         return False

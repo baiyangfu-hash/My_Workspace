@@ -23,7 +23,15 @@ from rich.table import Table
 from yaml import dump as yaml_dump
 
 from auto_pm.app_context import AppContext
-from auto_pm.core.constants import get_template_name, get_workspace_subdir
+from auto_pm.core.constants import (
+    EQUIPMENT_TYPE_CODES,
+    PLC_VENDOR_CODES,
+    PROJECT_TYPE_CODES,
+    get_equipment_type_label,
+    get_project_type_label,
+    get_template_name,
+    get_workspace_subdir,
+)
 from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.project_service import ProjectService
 from auto_pm.core.template_service import TemplateService
@@ -158,6 +166,25 @@ def cmd_list(
     default=None,
     help="共享库名称（仅 --mode=shared-library 时有效，默认从项目名称推断）",
 )
+@click.option(
+    "--project-type",
+    type=click.Choice(PROJECT_TYPE_CODES),
+    default=None,
+    help="项目类型（如 single_machine/line_project）",
+)
+@click.option(
+    "--equipment-type",
+    type=click.Choice(EQUIPMENT_TYPE_CODES),
+    default=None,
+    help="设备类型（如 conveyor/packaging）",
+)
+@click.option(
+    "--plc-vendor",
+    type=click.Choice(PLC_VENDOR_CODES),
+    default=None,
+    help="PLC 品牌（如 Siemens/Mitsubishi）",
+)
+@click.option("--plc-model", default=None, help="PLC 型号（如 S7-1200）")
 @click.option("--dry-run", is_flag=True, help="仅预览，不实际创建")
 @click.pass_context
 def cmd_create(
@@ -169,6 +196,10 @@ def cmd_create(
     business_line: str | None,
     mode: str,
     library_name: str | None,
+    project_type: str | None,
+    equipment_type: str | None,
+    plc_vendor: str | None,
+    plc_model: str | None,
     dry_run: bool,
 ) -> None:
     """创建新项目（调用 Copier 模板生成骨架）"""
@@ -183,6 +214,14 @@ def cmd_create(
             console.print(
                 f"[yellow]提示: 指定业务线 {business_line} 与项目编号前缀 {inferred} 不一致[/yellow]"
             )
+
+    if stack == "plc" and project_type is None:
+        default_project_types = {
+            "standard-project": "single_machine",
+            "shared-library": "shared_library",
+            "test-suite": "test_suite",
+        }
+        project_type = default_project_types.get(mode, "single_machine")
 
     # 根据技术栈选择模板（M3-Iter7: 统一从 core.constants 读取；H-2: 支持 mode 参数）
     template_name = get_template_name(stack, mode if stack == "plc" else "")
@@ -226,6 +265,10 @@ def cmd_create(
         console.print(f"  技术栈: {stack}")
         console.print(f"  模式: {mode}")
         console.print(f"  业务线: {business_line}")
+        console.print(f"  项目类型: {project_type or '-'}")
+        console.print(f"  设备类型: {equipment_type or '-'}")
+        console.print(f"  PLC 品牌: {plc_vendor or '-'}")
+        console.print(f"  PLC 型号: {plc_model or '-'}")
         if library_name:
             console.print(f"  库名称: {library_name}")
         return
@@ -245,6 +288,14 @@ def cmd_create(
     }
     if library_name:
         data["library_name"] = library_name
+    for key, value in (
+        ("project_type", project_type),
+        ("equipment_type", equipment_type),
+        ("plc_vendor", plc_vendor),
+        ("plc_model", plc_model),
+    ):
+        if value:
+            data[key] = value
 
     try:
         # 确保目标根目录存在
@@ -256,6 +307,10 @@ def cmd_create(
         console.print(f"  技术栈: {stack}")
         console.print(f"  模式: {mode if stack == 'plc' else '-'}")
         console.print(f"  业务线: {business_line}")
+        console.print(f"  项目类型: {project_type or '-'}")
+        console.print(f"  设备类型: {equipment_type or '-'}")
+        console.print(f"  PLC 品牌: {plc_vendor or '-'}")
+        console.print(f"  PLC 型号: {plc_model or '-'}")
         if library_name:
             console.print(f"  库名称: {library_name}")
     except FileNotFoundError as e:
@@ -289,6 +344,14 @@ def cmd_show(ctx: click.Context, project_id: str, output_json: bool) -> None:
         console.print(f"[cyan]版本:[/cyan]   {proj.version}")
         console.print(f"[cyan]阶段:[/cyan]   {proj.phase or '-'}")
         console.print(f"[cyan]业务线:[/cyan] {proj.business_line or '-'}")
+        console.print(
+            f"[cyan]项目类型:[/cyan] {get_project_type_label(proj.project_type) if proj.project_type else '-'}"
+        )
+        console.print(
+            f"[cyan]设备类型:[/cyan] {get_equipment_type_label(proj.equipment_type) if proj.equipment_type else '-'}"
+        )
+        console.print(f"[cyan]PLC品牌:[/cyan] {proj.plc_vendor or '-'}")
+        console.print(f"[cyan]PLC型号:[/cyan] {proj.plc_model or '-'}")
         console.print(f"[cyan]描述:[/cyan]   {proj.description}")
         console.print(f"[cyan]来源:[/cyan]   {proj.source}")
         console.print(f"[cyan]路径:[/cyan]   {proj.path}")
@@ -401,8 +464,8 @@ def cmd_retrofit(ctx: click.Context, project_id: str) -> None:
             "version": proj.version,
         }
         try:
-            with open(copier_answers_path, "w", encoding="utf-8") as f:
-                yaml_dump(content, f, default_flow_style=False, allow_unicode=True)
+            from auto_pm.utils.file_utils import write_file
+            write_file(copier_answers_path, yaml_dump(content, default_flow_style=False, allow_unicode=True))
             console.print(f"[green].copier-answers.yml 已创建: {copier_answers_path}[/green]")
         except Exception as e:
             console.print(f"[red]创建 .copier-answers.yml 失败: {e}[/red]")

@@ -8,20 +8,21 @@
 - owners: fubai
 
 ## 1. Positioning（项目定位）
-- one_liner: 统一CLI管理PLC/Python多技术栈项目的脚手架工具
+- one_liner: 面向电气自动化工程师的本地项目作业系统，用于统一管理 PLC 项目结构、工程文档、变更闭环、调试记录、质量门禁和交付证据
 - users: 自动化工程师（兼PLC+Python开发）、AI技能（pm-workflow/plc-electrical-engineer）
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V0.3.8 技术债偿还批次完成（T86 TD-T10 台帐脏数据根因修复 + T87 TD-T08 测试并行化评估 + T89 CHG-SCPT-2026-072 dogfooding 第五次闭环 + T90 版本号 0.3.7→0.3.8 + 文档同步）；20/22 项技术债已偿还，剩余 2 项（TD-A02/TD-TC01）；dogfooding 第五次闭环完成
-- milestone: V0.3.8（pyproject，技术债偿还批次完成）/ V2.1.0（PRD）
-- acceptance: V0.3.8 技术债偿还批次完成 ✅（T86 TD-T10 根因修复 LedgerUpdater update_status/remove + ChangeService _LEDGER_STATUS_MAP 12 状态映射 + transition 台帐回写 + GUI fixture 清理台帐条目 + 8 单元测试；T87 TD-T08 xdist 评估实测反优化 12 倍改用 --no-cov 加速方案 + conftest.py 固定 seed；T89 CHG-SCPT-2026-072 完整 8 步生命周期闭环 draft→closed + transition 自动回写台帐状态验证通过 + 台帐历史脏数据清理 7 条；T90 版本号 0.3.7→0.3.8 + PM_SESSION §6-§9 回写 + 005/006 同步 + CHANGELOG）；全量回归 1163 passed 1 skipped 3 warnings（较 V0.3.7 基线 1155 + 8 新增测试，无回归）；ruff 0 errors + mypy 0 errors；dogfooding 5 次闭环（CHG-001/062/063/064/072 全 closed）；台帐 5 条正确记录
-- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
+- current_focus: V0.4.0 Week 1 已按方案 A 收口：首页继续保留项目列表页驾驶舱横幅，不升级为独立首页模块；Week 2 第一批元数据链路已完成，当前 `project create`、`.copier-answers.yml`、`.plc.json`、`project show`、GUI 新建对话框与项目概览页已能读写和展示 `project_type/equipment_type/plc_vendor/plc_model` 4 个字段；Week 2 第二批已完成项目推进准备，确认先在 `plc-standard-project` 上增量扩展单机设备模板 PoC，不先拆独立 `plc-single-machine` 模板
+- milestone: V0.3.8（代码基线冻结）/ V0.4.0（当前主线启动）/ PRD V2.1.1（方向校准）
+- acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）
+- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md + 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
 - m3.5_insertion_reason: 三角色视角真实运行证据发现 6 项阻断项（GUI 测试污染生产数据 + TD-T04 复发 + spec/tasks 再次严重滞后 + CHG-SCPT-001 内容空白 + change show 信息缺失 + CLI 缺 edit 命令），直接推进 M3-3 会继续在失真基线上累积债务
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 无（V0.3.8 技术债偿还批次完成，待启动下一迭代：剩余 2 项技术债 TD-A02/TD-TC01 或 V2.2 规范中心整合或 M4 持续化后续）
+  - V0.4.0 Week 2 单机设备模板 PoC：已完成 `project_type/equipment_type/plc_vendor/plc_model` 元数据链路第一批；第二批已确认先扩 `plc-standard-project`，下一步补模板目录/文档差异、样例资产占位与真实创建验证
+  - 自我管理优先策略生效：继续围绕“今天最该处理什么”补足待办和风险排序口径
 - completed:
   - P1: Copier模板PoC验证通过
   - P2: Click插件架构 + PLC checker/repairer 迁移 + project CRUD Service
@@ -63,18 +64,21 @@
   - V0.3.0 Phase 6 发布收口: 完成（T80 README 重写 8 项更新 + T81 CHANGELOG 整理补 Fixed 子章节 + T82 发布门禁规范 G1-G5 + T83 试运行报告归档 + T84 CHG-SCPT-2026-064 完整 8 步生命周期闭环 + T85 版本号 0.3.6→0.3.7 + PM_SESSION §6-§9 回写）；pyproject 0.3.7；复用 V0.3.6 glm5.2 基线 1155 passed 1 skipped 3 warnings 无回归；ruff/mypy 0 errors；dogfooding 4 次闭环
   - V0.3.0 V0.3.8 技术债偿还批次: 完成（T86 TD-T10 台帐脏数据根因修复：LedgerUpdater update_status/remove + ChangeService _LEDGER_STATUS_MAP 12 状态映射 + transition 台帐回写 + GUI fixture 清理台帐条目 + 8 单元测试；T87 TD-T08 测试并行化：xdist 实测反优化 12 倍改用 --no-cov 加速方案 + conftest.py 固定 seed；T89 CHG-SCPT-2026-072 dogfooding 第五次闭环 8 步生命周期 + transition 自动回写台帐状态验证 + 台帐历史脏数据清理 7 条；T90 版本号 0.3.7→0.3.8 + PM_SESSION §6-§9 回写 + 005/006 同步 + CHANGELOG）；pyproject 0.3.8；全量回归 1163 passed 1 skipped 3 warnings 无回归（+8 新增测试）；ruff/mypy 0 errors；dogfooding 5 次闭环（CHG-001/062/063/064/072 全 closed）；台帐 5 条正确记录；技术债 20/22 项已偿还（剩余 TD-A02/TD-TC01）
 - next_up:
-  - 下一迭代方向决策（V2.2 规范中心整合吸收 specmgr SHC-001~010 / M4 Dogfooding 持续化后续 / 剩余技术债偿还 TD-A02 测试生产解耦 + TD-TC01 沙箱路径限制 / T88 TD-A02 测试生产解耦）
+  - Week 2：按 `00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md` 推进第二批，先在 `plc-standard-project` 上补目录/文档/样例资产，再做真实创建验证
+  - Week 3：PLC 工程资产读取与检查能力
+  - Week 4：文档自动区刷新 + 真实/准真实项目试运行
 - open_questions:
-  - 无硬阻断；V0.3.8 已完成台帐脏数据根因修复（TD-T10），台帐 GUI 测试残留复发问题已根治；剩余 2 项技术债（TD-A02/TD-TC01）属低优先级，可按需推进
+  - 真实/准真实 PLC 试运行项目具体选型待确定
+  - Week 2 第二批已决策先扩 `plc-standard-project`；是否在 Week 2 收口时拆出独立 `plc-single-machine` 模板，取决于真实创建验证后模板分支复杂度与可维护性评估
 - risks_dependencies:
   - spec.md/tasks.md 滞后问题已通过 M3.5-3 修复（四端对齐 1087 passed）
   - GUI 测试污染已通过 M3.5-1 修复（60 个残留变更单已删除 + autouse fixture）
   - TD-T04 复发已通过 M3.5-2 修复（4 处条件断言已改为 assert）
-  - 2026-06-26 文档收口复核发现 `project show` 的 phase 仍为空；需修复 ProjectScanner phase 回退链路
-  - 2026-06-26 文档收口复核发现 `ruff check .` 仍有 34 个既存问题；质量签字口径需与文档同步
+  - `ProjectScanner._derive_phase_from_pm_session_content()` 关键词误报已修复；后续若新增阶段表达，需继续补模式测试防回归
+  - `plc check` 当前对 Python 项目缺少“不适用”提示，真实驾驶舱若直接复用检查结果，可能放大误报
 - spec_compliance:
   - last_check: 2026-06-27
-  - result: V0.3.8 技术债偿还批次完成；pyproject=0.3.8、CHANGELOG=[0.3.8]、PRD=V2.1.0、PM_SESSION §2=V0.3.8；spec.md/PRD/技术债报告/005 变更记录已收口到当前基线。运行复核：ruff check . 0 errors；mypy auto_pm 0 errors；pytest --no-cov 1163 passed 1 skipped 3 warnings 无回归；dogfooding 5 次闭环（CHG-001/062/063/064/072 全 closed）；台帐 5 条正确记录
+  - result: 代码基线仍为 V0.3.8；pyproject=0.3.8、CHANGELOG=[0.3.8]、PRD=V2.1.1、PM_SESSION §2 当前焦点已切换到 V0.4.0 主线校准。运行复核沿用既有签字基线：ruff check . 0 errors；mypy auto_pm 0 errors；pytest --no-cov 1163 passed 1 skipped 3 warnings 无回归；dogfooding 5 次闭环（CHG-001/062/063/064/072 全 closed）；当前新增的是产品方向和执行计划更新，非代码发布
 
 ## 4. Artifacts Index（文档索引）
 - req: 00_项目基础信息/001_产品需求文档_PRD.md
@@ -83,12 +87,14 @@
 - tec: 00_项目基础信息/004_技术方案文档_TEC.md
 - chg: 00_项目基础信息/005_变更记录_CHG.md
 - tech_debt: 00_项目基础信息/006_技术债评估报告.md
+- execution_plan_week2_batch2: 00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md
 - spec_v2.1: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
 - spec_v2.0.3: .trae/specs/add-spec-drift-detection/（spec.md + tasks.md + checklist.md）
 - spec_v2.0: .trae/specs/rebuild-auto-pm-v2-unified/（spec.md + tasks.md + checklist.md）
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-06-27 V0.4.0 Week 2 第二批迭代准备完成：按 pm-workflow 重新读取 PM_SESSION/PRD/主计划并执行 `auto-pm project show` + `plc check`；确认本轮采用“项目推进”模式、模板策略为“先扩现有 `plc-standard-project`”、主要产出为 `PM_SESSION + 执行计划`；新增 `00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md`
   - 2026-06-19 P1完成：Copier模板PoC验证通过
   - 2026-06-19 P2完成：Click插件架构 + Service层迁移 + PLC检查/修复
   - 2026-06-19 P3完成：变更管理迁移（7模块+CLI+19测试用例全部通过）
@@ -128,6 +134,73 @@
   - 2026-06-27 V0.3.8 技术债偿还批次完成：T86 TD-T10 台帐脏数据根因修复（LedgerUpdater update_status/remove + ChangeService _LEDGER_STATUS_MAP 12 状态映射含 closed + _find_project_root_from_path + transition 台帐回写 + GUI fixture 清理台帐条目 + tests/change/test_ledger_updater.py 新增 8 单元测试）+ T87 TD-T08 测试并行化评估（pyproject 新增 pytest-xdist>=3,<4 + tests/conftest.py 改用固定 seed random.Random(20260627) 确保 xdist 收集一致性 + 实测 xdist 反优化 12 倍 492.75s vs 串行 39.62s 改用 --no-cov 加速方案）+ T89 CHG-SCPT-2026-072 dogfooding 第五次闭环（8 步状态流转 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed + transition 自动回写台帐状态验证通过 + 台帐历史脏数据清理 7 条 CHG-065~071 + CHG-064 状态修复 + 台帐 5 条正确记录）+ T90 版本号 0.3.7→0.3.8 + CHANGELOG [0.3.8] + 006 技术债报告 TD-T08/TD-T10 标记已偿还 + 005 变更记录 + PM_SESSION §6-§9 回写；全量回归 1163 passed 1 skipped 3 warnings（较 V0.3.7 基线 1155 + 8 新增测试，无回归）；ruff/mypy 0 errors；dogfooding 5 次闭环；技术债 20/22 项已偿还
 
 ## 6. Implementation Log
+- 2026-06-27 | skill=pm-workflow | mode=项目推进（V0.4.0 Week 2 第二批迭代准备）
+  - goal: 在不直接进入编码的前提下，为单机设备模板 PoC 第二批建立可执行的推进面，明确模板策略、任务边界、风险和后续验证口径
+  - changed_files:
+    - 00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md（新增 Week 2 第二批执行计划，固化“先扩现有模板”的策略、任务拆分、风险和验收标准）
+    - PM_SESSION_SW-2026-008.md（同步当前焦点、执行计划位置、open question 决策结果、日志、handoff 和 next actions）
+  - impact: Week 2 第二批从“下一步补模板目录/文档差异”收敛为具备明确执行面的迭代；团队无需再重复讨论是否立即拆独立模板，可以先围绕 `plc-standard-project` 做真实创建验证，再依据分支复杂度做模板分型决策
+  - risks: `plc check` 对 Python 项目仍会给出 PLC 目录缺失误报，容易污染驾驶舱“检查失败项”解释；若本轮对单机模板补得过重，可能把 `plc-standard-project` 推成高条件分支模板，反而增加后续维护成本
+- 2026-06-27 | skill=fullstack-engineer | mode=V0.4.0 Week 2 第一批开发（单机设备模板 PoC 元数据链路）
+  - goal: 在不做无关重构的前提下，先打通 `project_type/equipment_type/plc_vendor/plc_model` 的最小可用链路，让单机设备模板 PoC 能从“新建输入”走到“模板落盘 + 扫描读取 + CLI/GUI 展示”
+  - changed_files:
+    - auto_pm/core/constants.py（新增 V0.4.0 项目类型/设备类型/PLC 品牌选项与标签）
+    - auto_pm/models/project.py（Project/ProjectRecord 新增 4 个元数据字段）
+    - auto_pm/core/project_scanner.py（从 `.copier-answers.yml`/`.plc.json` 读取并合并 4 个元数据字段）
+    - auto_pm/core/project_service.py（缓存回写与 retrofit 保留 4 个字段，DB 继续通过 `extra` 承载，无 schema 迁移）
+    - auto_pm/cli/project.py（`project create` 新增 4 个选项；`project show` 展示项目类型/设备类型/PLC 基础信息）
+    - auto_pm/ui/dialogs/new_project_dialog.py（GUI 新建项目对话框新增 4 个字段，PLC 默认 `single_machine`）
+    - auto_pm/ui/workspace/overview_tab.py（项目概览页新增元数据展示）
+    - templates/plc-standard-project/copier.yml（声明 4 个隐藏元数据变量）
+    - templates/plc-standard-project/template/.copier-answers.yml.jinja（写入 4 个字段）
+    - templates/plc-standard-project/template/02_PLC程序/PLC_ST/.plc.json.jinja（写入 4 个字段）
+    - tests/core/test_constants.py / tests/core/test_project_scanner.py / tests/cli/test_project.py / tests/ui/test_gui_smoke.py（补 Week 2 焦点测试）
+  - impact: Week 1 首页挂载方式已收敛为“继续保留项目列表页横幅”；Week 2 已进入执行态，单机设备模板 PoC 的第一批关键链路已具备输入、落盘、扫描与展示能力；后续可以在现有 `plc-standard-project` 基础上继续细化单机目录/文档，而不必先做模板体系大重构
+  - risks: 当前 4 个字段未进入 `projects` 表独立列，DB 通过 `extra` 透传，足以支撑当前 `project show`/概览页/缓存回写，但若后续要做列表筛选、统计聚合或 SQL 级查询，需要再决定是否正式迁移 schema；单机模板 PoC 仍未决定继续演进现有模板还是拆独立模板
+- 2026-06-27 | skill=fullstack-engineer | mode=V0.4.0 Week 1 下半场开发（最近活动 + 风险提示）
+  - goal: 在首页驾驶舱横幅基础上补齐“最近活动 + 风险提示”，让第一页不仅能看见统计数字，还能帮助判断今天最该处理什么
+  - changed_files:
+    - auto_pm/models/dto.py（DashboardSummaryDTO 新增 `recent_activities` / `risk_hints`）
+    - auto_pm/core/dashboard_service.py（新增最近活动聚合、风险提示生成、时间格式化与日期解析辅助逻辑）
+    - auto_pm/ui/project_list/list_view.py（首页 `_DashboardBanner` 扩展“最近活动”“风险提示”两段展示）
+    - tests/core/test_dashboard_service.py（补最近活动排序与风险提示断言，修正测试样本时间戳口径）
+    - tests/ui/test_project_list.py（补最近活动和风险提示渲染断言）
+  - impact: 首页驾驶舱从“纯统计摘要”升级为“可操作工作台摘要”；用户现在能直接在第一屏看到最近更新项目、最近变更和高优先级风险提示；Week 1 的“今天先处理什么”目标更接近真实工作台
+  - risks: 最近活动目前使用项目 `file_mtime` 和变更 `apply_date` 作为轻量时间源，后续若要更准确展示“最近活动”，应考虑使用变更文件 mtime、审批历史时间或独立活动日志；当前风险提示仍是摘要文本，尚未细化到可点击待办
+- 2026-06-27 | skill=fullstack-engineer | mode=V0.4.0 Week 1 第一批开发（阶段口径修复 + 驾驶舱数据层 + 首页横幅）
+  - goal: 启动 V0.4.0 Week 1 开发，先解决阶段误判，再实现最小驾驶舱数据层，并让 GUI 第一屏可直接看到项目总数、阶段分布、未关闭变更、检查失败项目
+  - changed_files:
+    - auto_pm/core/project_scanner.py（收紧 PM_SESSION 阶段推导规则，改用短语/模式匹配，避免“测试生产解耦”被误判为 `production`）
+    - auto_pm/core/dashboard_service.py（新增 DashboardService，聚合项目总数、阶段分布、未关闭变更数、PLC 检查失败项目数）
+    - auto_pm/models/dto.py（新增 DashboardSummaryDTO）
+    - auto_pm/models/__init__.py（导出 DashboardSummaryDTO）
+    - auto_pm/ui/project_list/list_view.py（新增首页 `_DashboardBanner` 横幅与 `set_dashboard_summary()` 接口）
+    - auto_pm/ui/main_window.py（接入 DashboardService/PlcService，在刷新链路中更新首页驾驶舱摘要）
+    - tests/core/test_project_scanner.py（新增阶段误判/真实生产短语测试）
+    - tests/core/test_dashboard_service.py（新增驾驶舱聚合统计测试）
+    - tests/ui/test_project_list.py（新增首页驾驶舱横幅渲染测试）
+  - impact: Week 1 第一批功能已落地；GUI 第一屏现在能看到最小驾驶舱摘要；项目阶段统计口径不再被“测试生产解耦”类文案污染；后续可以基于现有数据层继续扩展最近活动、风险清单和待办
+  - risks: 首页驾驶舱当前仍是“摘要横幅”而非完整独立工作台；PLC 检查失败数目前通过实时检查 PLC 项目得到，后续若项目规模增大可能需要缓存或异步化；Python 项目执行 `plc check` 仍缺“不适用”提示
+- 2026-06-27 | skill=pm-workflow | mode=项目推进+PRD 方向校准（V0.4.0 主线启动）
+  - goal: 回答“原计划是否暂停、dogfood 能否落地、未来 4 周怎么排”，并把项目从“继续并行推进 V2.2~V2.5”收敛到“先自我管理，再真实落地”的单一主线
+  - changed_files:
+    - 00_项目基础信息/001_产品需求文档_PRD.md（V2.1.1：新增 2026-06-27 方向校准、V0.4.0 成功标准、未来 4 周计划、旧路线冻结策略）
+    - PM_SESSION_SW-2026-008.md（更新项目定位、当前焦点、状态摘要、风险、交接说明和 next actions）
+  - impact: 明确原 V2.0~V2.1 作为已完成基线保留，V2.2~V2.5 冻结为中长期 backlog；V0.4.0 成为当前唯一执行主线；dogfood 从“只证明 auto-pm 能管理 auto-pm”升级为“先自我管理，再验证真实自动化项目落地”
+  - risks: 真实/准真实试运行项目尚未选定；Dashboard 第一版挂载位置（报告中心增强 vs GUI 首页替换）尚待 Week 1 决策；阶段判定误报若不先修复，会污染驾驶舱统计
+- 2026-06-27 | skill=fullstack-engineer | mode=TD-T11 文件写入原子性修复（Bug 诊断 → 根因修复 → 全量回归）
+  - goal: 从根源上解决 VS Code"文件内容较新"冲突报错问题——write_file() 非原子写入 + 12 处直接 open("w") 绕过统一入口，导致文件损坏风险和 lost update 竞态
+  - changed_files:
+    - auto_pm/utils/file_utils.py（write_file 升级为原子写入：tempfile.mkstemp 创建同目录临时文件 → os.fdopen 写入 → f.flush + os.fsync 确保持久化 → os.replace 原子替换 → 失败时 os.unlink 清理临时文件）
+    - auto_pm/change/path_resolver.py（get_or_create_ledger_file: open("w") → write_file()）
+    - auto_pm/plc/repairer.py（5 处：_repair_plc_json 补全字段 json.dump→write_file(json.dumps) + _repair_plc_json 创建新文件 + _repair_pm_session + _repair_prd_doc + _update_references）
+    - auto_pm/plc/spec_snapshot.py（update_spec_snapshot: open("w") → write_file()）
+    - auto_pm/core/project_service.py（3 处：_update_copier_answers yaml.safe_dump→write_file(yaml.safe_dump(str)) + _update_plc_json json.dump→write_file(json.dumps(str)) + retrofit_project_by_path）
+    - auto_pm/cli/project.py（cmd_retrofit: yaml_dump(stream) → write_file(yaml_dump(str))）
+    - tests/utils/test_file_utils.py（新增 TestWriteFileAtomic 测试类 7 个测试：正常写入/无临时文件残留/Unicode/空内容/大内容100KB/嵌套目录/覆盖不损坏）
+  - impact: TD-T11 文件写入原子性修复完成；19 个写入点全部收口为 write_file() 统一入口；写入过程中断不再损坏原文件（os.replace 原子性保证）；临时文件无残留（失败时自动清理）；21/22 项技术债已偿还（新增 TD-T11，剩余仅 TD-A02）
+  - risks: lost update 竞态（read-modify-write 无 mtime 乐观锁）仍存在但影响范围有限——VS Code 的"文件内容较新"报错本身是一种 mtime 保护机制，防止 Agent 基于旧内容覆盖；彻底解决 lost update 需引入乐观锁（write_file 增加 expected_mtime 参数），属 TD-T12 后续技术债
+  - verification: 诊断脚本验证 write_file 非原子+os.replace 可用+12 处直接 open("w") 统计；全量回归 1170 passed 1 skipped 3 warnings（较 V0.3.8 基线 1163 + 7 新增测试，无回归）；ruff 0 errors + mypy 0 errors
 - 2026-06-27 | skill=pm-workflow | mode=V0.3.8 技术债偿还批次（TD-T10 根因修复 + TD-T08 并行化评估 + dogfooding 第五次闭环 + 版本号对齐）
   - goal: 偿还 V0.3.7 Phase 6 发布收口后剩余 4 项技术债中的 2 项（TD-T10 台帐脏数据根因 + TD-T08 测试并行化评估），保持 dogfooding 第五次闭环连续性；用户明确要求"主要偿还技术债，dogfood必须完成"
   - changed_files:
@@ -346,6 +419,34 @@
 
 ## 7. Verification Log
 - verified:
+  - V0.4.0 Week 2 第二批迭代准备（2026-06-27，已验证）:
+    - `auto-pm -w "c:\Users\fubai\Desktop\My_Workspace" project show SW-2026-008` → 确认项目仍为 Python 项目，代码基线 `0.3.8`，Week 2 第一批元数据链路已纳入当前状态基线
+    - `auto-pm -w "c:\Users\fubai\Desktop\My_Workspace" plc check SW-2026-008` → 确认 Python 项目会被 PLC 检查规则误报目录缺失，本轮记录为口径风险而非实现阻断
+    - 人工复核 `PM_SESSION`、PRD `V0.4.0` 周计划、`09_整改项` 主计划后完成第二批执行计划落文，当前策略已明确为“先扩现有模板，再用真实创建样例决定是否拆模板”
+  - V0.4.0 Week 2 第一批开发（2026-06-27，已验证）:
+    - `pytest --no-cov tests/core/test_constants.py tests/core/test_project_scanner.py tests/cli/test_project.py tests/ui/test_gui_smoke.py -k 'NewProjectDialog or metadata or project_type or project_show or project_create_dry_run or not TestProjectSnapshot'` → 76 passed, 8 deselected
+    - CLI 焦点验证：`project create --dry-run` 可显示 `project_type/equipment_type/plc_vendor/plc_model`；`project show` 可展示项目类型、设备类型和 PLC 基础信息
+    - VS Code 诊断：`auto_pm/core/constants.py`、`auto_pm/cli/project.py`、`auto_pm/core/project_scanner.py`、`auto_pm/ui/dialogs/new_project_dialog.py` 均 0 diagnostics
+  - V0.4.0 Week 1 下半场开发（2026-06-27，已验证）:
+    - `pytest --no-cov tests/core/test_dashboard_service.py tests/ui/test_project_list.py` → 42 passed
+    - 修复中途失败根因已验证：原失败来自测试样本 `file_mtime` 与真实日期时间戳量级不一致，已通过统一测试时间口径修复
+    - VS Code 诊断：本轮新增修改文件 0 diagnostics
+  - V0.4.0 Week 1 第一批开发（2026-06-27，已验证）:
+    - `ruff check` 焦点文件通过
+    - `pytest --no-cov tests/core/test_project_scanner.py tests/core/test_dashboard_service.py tests/ui/test_project_list.py` → 62 passed
+    - `pytest --no-cov tests/ui/test_gui_smoke.py -k "main_window_instantiation or main_window_has_toolbar_and_statusbar or main_window_has_navigation_tree"` → 3 passed
+    - VS Code 诊断：本轮修改文件 0 diagnostics
+  - V0.4.0 主线校准（2026-06-27，已验证）:
+    - PRD 已更新为 V2.1.1，写入“方向校准”“V0.4.0 成功标准”“未来 4 周计划”
+    - PM_SESSION §1/§2/§3/§6/§8/§9 已对齐到“先自我管理，再真实落地”的口径
+    - 运行证据沿用当前稳定代码基线：pyproject=0.3.8，CHANGELOG=[0.3.8]，既有质量签字不变
+  - TD-T11 文件写入原子性修复（2026-06-27，已验证）:
+    - 诊断脚本验证: write_file 非原子 CONFIRMED + read-modify-write lost update CONFIRMED + os.replace 原子性 CONFIRMED + 12 处直接 open("w") 绕过统计 CONFIRMED
+    - 焦点测试: tests/utils/test_file_utils.py 7 个新测试全部通过（TestWriteFileAtomic: 正常写入/无临时文件残留/Unicode/空内容/大内容100KB/嵌套目录/覆盖不损坏）
+    - 焦点测试: tests/change/test_ledger_updater.py + tests/change/test_change_service.py 全部通过（57 passed in 0.60s）
+    - 全量回归: 1170 passed 1 skipped 3 warnings in 169.04s（较 V0.3.8 基线 1163 + 7 新增测试，无回归）
+    - ruff: 0 errors（修复 1 个 import 排序 glob/os 顺序）
+    - mypy: Success: no issues found in 5 source files
   - P2: CLI --help可用，plc check/repair 迁移完成，project CRUD可用
   - P3: 19个变更管理测试全部通过（parser 9 + generator 4 + service 6），完整套件35个测试无回归
   - P4: python-tool模板端到端验证通过
@@ -395,8 +496,19 @@
 - blocker: 无硬阻断；phase 与 ruff 两个残留问题已收口，M4 Dogfooding 持续化已正式启动
 
 ## 8. Handoff Notes
-- current_state: V0.3.8 技术债偿还批次完成，版本号 0.3.8；T86/T87/T89/T90 全部完成（T86 TD-T10 台帐脏数据根因修复 + T87 TD-T08 测试并行化评估 + T89 CHG-SCPT-2026-072 dogfooding 第五次闭环 + T90 版本号 0.3.7→0.3.8 + 文档同步）。全量回归 1163 passed 1 skipped 3 warnings（较 V0.3.7 基线 1155 + 8 新增测试，无回归）；ruff 0 errors + mypy 0 errors；dogfooding 5 次闭环（CHG-001/062/063/064/072 全 closed）；台帐 5 条正确记录；技术债 20/22 项已偿还（剩余 TD-A02 测试生产解耦 + TD-TC01 沙箱路径限制）。台帐 GUI 测试残留复发问题已根治（TD-T10 修复 transition 自动回写台帐状态 + GUI fixture 清理台帐条目）。
-- next_focus: 下一迭代方向决策（V2.2 规范中心整合吸收 specmgr SHC-001~010 / M4 Dogfooding 持续化后续 / 剩余技术债偿还 TD-A02 测试生产解耦 + TD-TC01 沙箱路径限制 / T88 TD-A02 测试生产解耦）
+- current_state: V0.4.0 Week 1 已确认按方案 A 收口，Week 2 第一批元数据链路已完成；本轮 pm-workflow 已把 Week 2 第二批执行面落到 `00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md`，并明确先在 `plc-standard-project` 上增量扩展单机模板 PoC
+- next_focus: 直接按新执行计划推进 Week 2 第二批，优先补模板目录/文档骨架/样例资产占位与至少 1 次真实创建验证；待验证结果出来后，再决定 Week 2 收口时是否需要拆独立 `plc-single-machine` 模板；之后进入 Week 3 的 PLC 工程资产读取
+- watchouts:
+  - 本轮为了最小改动没有迁移 `projects` 表 schema，4 个 Week 2 字段暂存于 `.copier-answers.yml` / `.plc.json` 与 DB `extra`；如果后续要做列表筛选或统计卡片，需再评估是否加列
+  - Week 2 第二批已决策“先扩现有模板”不是最终否决独立模板，而是为了先拿到真实创建验证；若模板条件分支开始明显堆叠，应在 Week 2 收口时升级为独立模板决策
+  - 当前最重要的不是继续展开 V2.2~V2.5，而是防止多主线并行导致再次失焦；中长期能力吸收（specmgr/变量表/插件系统）在 V0.4.0 真实试运行之后再重新排优先级
+  - dogfood 可以落地，但必须分两层推进：先用 auto-pm 管理 auto-pm 自身，再引入一个真实/准真实 PLC 项目；不能一上来就把“真实项目试运行”当成唯一验证
+  - 首页驾驶舱当前统计中的“检查失败项目”只统计 PLC 项目；Python 项目需要后续补“不适用”口径，避免把 PLC 规则误当全项目健康度
+  - 最近活动当前是轻量拼装，不应被当成审计日志；若后续要支持“最近活动可点击跳转”，需要给活动项补结构化字段而不只是字符串
+  - lost update 竞态仍存在：write_file 原子写入解决了"文件损坏"问题，但未解决"read-modify-write 竞态导致 lost update"问题。VS Code 的"文件内容较新"报错是 mtime 保护机制，Agent 修改文件前应重新 Read（特别是运行 auto-pm 命令后）
+  - yaml.safe_dump 和 json.dumps 的序列化方式变更：原 yaml.safe_dump(data, stream) 直接写入文件对象，现改为 yaml.safe_dump(data) 返回字符串再 write_file。功能等价但需关注 yaml 流式写入与字符串写入的细微差异（如末尾换行符）
+  - repairer.py 中 5 处 import write_file 使用了函数内延迟导入（from auto_pm.utils.file_utils import write_file），避免循环导入风险
+- read_first: 00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md → auto_pm/cli/project.py（Week 2 CLI 元数据入口）→ auto_pm/ui/dialogs/new_project_dialog.py（GUI 新建元数据入口）→ auto_pm/core/project_scanner.py（扫描回读链路）→ PM_SESSION §6 最新 Week 2 条目
 - m3.5_deep_review_findings（2026-06-25 三角色视角真实运行证据，已验证）:
   - **架构师视角**: 架构健康度良好（11 子包分层 + M3-Iter2 上帝类拆分成功 + mypy 0 + DB 三层 + 安全校验到位）；风险：GUI 测试隔离不彻底、TD-T04 复发、CLI 命令签名不一致
   - **PLC 电气工程师视角**: 可用性不够顺手 — 变更单列表被 53 条垃圾数据淹没、CLI 表格截断严重（"CHG-SCP…"）、change show 不显示影响分析/审批/实施/验证、change create 9 个必填参数负担重、无 change edit CLI 命令、CHG-SCPT-001 内容空白
@@ -469,6 +581,20 @@
 - read_first: PM_SESSION §6 最新条目（2026-06-27 V0.3.8 技术债偿还批次）, 00_项目基础信息/007_发布门禁规范_REL.md, 00_项目基础信息/008_试运行报告_PILOT.md, 00_项目基础信息/006_技术债评估报告.md, .trae/specs/v2.1-change-management-enhancement/spec.md, 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
 
 ## 9. Next Actions
+- ✅ [precondition: Week 1 上下半场开发已完成] [已完成 2026-06-27] done_when: 明确首页挂载方式——继续保留项目列表页驾驶舱横幅，不升级为独立首页模块；PM_SESSION §2/§3/§8 已固化该决策
+- [precondition: 驾驶舱摘要已稳定] [待启动] done_when: 评估 `DashboardService` 中 PLC 实时检查的耗时，若样本工作空间 > 20 个 PLC 项目时仍可接受则保留同步计算，否则设计缓存或异步化方案
+- [precondition: Week 1 已收口] [进行中] done_when: Week 2 第二批完成单机设备模板 PoC——在现有 `project_type/equipment_type/plc_vendor/plc_model` 链路基础上补齐目录结构、文档差异和至少 1 次真实创建验证
+- [precondition: Week 2 第二批执行面已建立] [待启动] done_when: W2-B2-01/02 完成——`plc-standard-project` 模板补齐单机目录差异和最小文档骨架，且不引入不可控条件分支
+- [precondition: W2-B2-01/02 完成] [待启动] done_when: W2-B2-03/04 完成——模板内补好样例资产入口，并通过至少 1 次真实 `project create --stack plc --project-type single_machine` 创建验证
+- [precondition: W2-B2-04 完成] [待启动] done_when: W2-B2-05 完成——基于真实创建结果，在 PM_SESSION 中给出“继续单模板”或“拆独立模板”的 Week 2 收口判据
+- ✅ [precondition: Week 1 决策收口] [已完成 2026-06-27] done_when: Week 2 第一批元数据链路完成——`project_type/equipment_type/plc_vendor/plc_model` 已接入 `project create`、`plc-standard-project` 模板、`project show`、GUI 新建项目对话框和概览页；焦点回归 76 passed
+- [precondition: Week 2 完成] [待启动] done_when: Week 3 完成 PLC 工程资产文件读取与检查，至少覆盖 `io_points.csv`、`program_blocks.yml`、`communications.yml`
+- [precondition: Week 3 完成] [待启动] done_when: Week 4 完成 `doc refresh --dry-run` 最小自动区刷新，并形成一份真实/准真实项目试运行报告
+- [precondition: TD-T11 修复完成] [待启动] done_when: TD-T12 乐观锁 mtime 检查——write_file 增加 expected_mtime 可选参数，写入前比对文件 mtime 检测外部修改，彻底解决 lost update 竞态（当前 VS Code 的"文件内容较新"报错是外部 mtime 保护，auto-pm 侧无保护）
+- [precondition: TD-T11 修复完成] [待启动] done_when: 006_技术债评估报告.md 登记 TD-T11 已偿还 + 新增 TD-T12 乐观锁技术债条目
+- [precondition: 无] [待启动] done_when: 剩余技术债 TD-A02 测试生产解耦偿还
+- [precondition: 无] [待启动] done_when: 下一迭代方向决策（V2.2 规范中心整合吸收 specmgr / M4 Dogfooding 持续化后续）
+- ✅ [precondition: 无] [已完成 2026-06-27] done_when: TD-T11 文件写入原子性修复完成（write_file 升级为 tempfile+os.replace 原子写入 + 12 处直接 open("w") 收口为 write_file() + 7 个原子写入测试；全量回归 1170 passed 无回归；ruff/mypy 0 errors）
 - ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次1——TD-T01(模板名)+TD-T06(retrofit路径)+TD-C02(project_type类型)+TD-C03(CheckResult导出)+TD-C01(ruff自动修复) 全部修复（5 项技术债偿还；相关测试通过）
 - ✅ [precondition: 批次1完成] [已完成 2026-06-24] done_when: 技术债批次2——TD-T02(UI检查项计数12个测试) 全部修复（12 个 UI 测试期望值更新为 7pass/2warn/12fail；按钮数14）
 - ✅ [precondition: 无] [已完成 2026-06-24] done_when: 技术债批次2.5——TD-T05(模板结构断言) 修复（期望路径 02_PLC程序/02_PLC程序 → 02_PLC程序/PLC_ST；1 测试通过）

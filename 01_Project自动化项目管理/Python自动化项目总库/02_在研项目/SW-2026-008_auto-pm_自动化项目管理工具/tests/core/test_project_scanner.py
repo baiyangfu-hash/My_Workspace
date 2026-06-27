@@ -28,6 +28,10 @@ class TestScan:
                     "_src_path": "templates/python-tool",
                     "version": "V1.0.0",
                     "description": "Python 项目",
+                    "project_type": "single_machine",
+                    "equipment_type": "conveyor",
+                    "plc_vendor": "Siemens",
+                    "plc_model": "S7-1200",
                 },
                 allow_unicode=True,
             ),
@@ -41,6 +45,10 @@ class TestScan:
         assert results[0].project_id == "SW-2026-001"
         assert results[0].stack == "python"
         assert results[0].source == "copier"
+        assert results[0].project_type == "single_machine"
+        assert results[0].equipment_type == "conveyor"
+        assert results[0].plc_vendor == "Siemens"
+        assert results[0].plc_model == "S7-1200"
 
     def test_scan_finds_plc_project(self, tmp_path: Path) -> None:
         """扫描能识别 .plc.json 项目"""
@@ -52,6 +60,10 @@ class TestScan:
                     "name": "DJ-2026-002",
                     "version": "V1.0.0",
                     "description": "PLC 项目",
+                    "project_type": "single_machine",
+                    "equipment_type": "conveyor",
+                    "plc_vendor": "Siemens",
+                    "plc_model": "S7-1200",
                 },
                 ensure_ascii=False,
             ),
@@ -65,6 +77,8 @@ class TestScan:
         assert results[0].project_id == "DJ-2026-002"
         assert results[0].stack == "plc"
         assert results[0].source == "plc_json"
+        assert results[0].project_type == "single_machine"
+        assert results[0].plc_vendor == "Siemens"
 
     def test_scan_finds_pm_session_project(self, tmp_path: Path) -> None:
         """扫描能识别 PM_SESSION_*.md 项目"""
@@ -241,6 +255,35 @@ class TestReadCopierAnswers:
         scanner = ProjectScanner(str(tmp_path))
         assert scanner.read_copier_answers(str(project_dir)) is None
 
+    def test_read_copier_answers_reads_v040_metadata(self, tmp_path: Path) -> None:
+        """读取 Week 2 元数据字段"""
+        project_dir = tmp_path / "DJ-2026-020_项目"
+        project_dir.mkdir()
+        (project_dir / ".copier-answers.yml").write_text(
+            yaml.safe_dump(
+                {
+                    "project_id": "DJ-2026-020",
+                    "project_name": "项目",
+                    "_src_path": "templates/plc-standard-project",
+                    "project_type": "single_machine",
+                    "equipment_type": "conveyor",
+                    "plc_vendor": "Siemens",
+                    "plc_model": "S7-1200",
+                },
+                allow_unicode=True,
+            ),
+            encoding="utf-8",
+        )
+
+        scanner = ProjectScanner(str(tmp_path))
+        info = scanner.read_copier_answers(str(project_dir))
+
+        assert info is not None
+        assert info.project_type == "single_machine"
+        assert info.equipment_type == "conveyor"
+        assert info.plc_vendor == "Siemens"
+        assert info.plc_model == "S7-1200"
+
     def test_read_copier_answers_handles_invalid_yaml(self, tmp_path: Path) -> None:
         """YAML 解析失败返回 None（不抛异常）"""
         project_dir = tmp_path / "坏项目"
@@ -294,6 +337,27 @@ class TestStaticMethods:
         project_dir.mkdir()
 
         assert ProjectScanner.get_project_mtime(str(project_dir)) == 0.0
+
+
+class TestPhaseDerivation:
+    """PM_SESSION 阶段推导测试"""
+
+    def test_derive_phase_avoids_false_production_match(self, tmp_path: Path) -> None:
+        """“测试生产解耦”不应被误判为 production"""
+        scanner = ProjectScanner(str(tmp_path))
+        content = """
+- current_focus: TD-A02 测试生产解耦修复启动，当前迭代进行中
+- current_state: 当前正在推进 V0.4.0 Week 1
+"""
+        assert scanner._derive_phase_from_pm_session_content(content) == "developing"
+
+    def test_derive_phase_matches_real_production_phrase(self, tmp_path: Path) -> None:
+        """明确生产阶段短语应判定为 production"""
+        scanner = ProjectScanner(str(tmp_path))
+        content = """
+- current_focus: 项目已投产运行，进入稳定运行阶段
+"""
+        assert scanner._derive_phase_from_pm_session_content(content) == "production"
 
 
 class TestBackwardCompatibility:

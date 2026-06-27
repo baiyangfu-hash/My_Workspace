@@ -307,7 +307,7 @@ class ProjectService:
 
         Args:
             project_id: 项目编号
-            **kwargs: 可更新字段 (phase, description, version)
+            **kwargs: 可更新字段（如 phase/description/version/project_type 等）
 
         Returns:
             更新后的 ProjectInfo
@@ -352,13 +352,17 @@ class ProjectService:
         # 保证关键字段存在（防止重新扫描时识别失败）
         answers.setdefault("project_id", proj.project_id)
         answers.setdefault("project_name", proj.name)
+        answers.setdefault("project_type", proj.project_type)
+        answers.setdefault("equipment_type", proj.equipment_type)
+        answers.setdefault("plc_vendor", proj.plc_vendor)
+        answers.setdefault("plc_model", proj.plc_model)
 
         for key, value in kwargs.items():
             if value is not None:
                 answers[key] = value
 
-        with open(answers_path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(answers, f, allow_unicode=True, sort_keys=False)
+        from auto_pm.utils.file_utils import write_file
+        write_file(answers_path, yaml.safe_dump(answers, allow_unicode=True, sort_keys=False))
 
     def _update_plc_json(self, project_path: str, kwargs: dict[str, str]) -> None:
         """写入 .plc.json（保留原有字段，更新指定字段）"""
@@ -372,8 +376,8 @@ class ProjectService:
             if value is not None:
                 cfg[key] = value
 
-        with open(plc_json_path, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, ensure_ascii=False, indent=2)
+        from auto_pm.utils.file_utils import write_file
+        write_file(plc_json_path, json.dumps(cfg, ensure_ascii=False, indent=2))
 
     # ── 项目补全 ──────────────────────────────────────────
 
@@ -427,9 +431,14 @@ class ProjectService:
             "description": description or project_name,
             "version": version or "V1.0.0",
         }
+        if plc_info is not None:
+            for key in ("project_type", "equipment_type", "plc_vendor", "plc_model"):
+                value = getattr(plc_info, key, "")
+                if value:
+                    content[key] = value
 
-        with open(answers_path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(content, f, allow_unicode=True, sort_keys=False)
+        from auto_pm.utils.file_utils import write_file
+        write_file(answers_path, yaml.safe_dump(content, allow_unicode=True, sort_keys=False))
 
         log.info("已补全 .copier-answers.yml: %s", answers_path)
         return answers_path
@@ -493,6 +502,15 @@ class ProjectService:
         mtime = self._get_project_mtime(proj.path)
         # 优先使用 proj.business_line，为空时从 project_id 提取
         business_line = proj.business_line or extract_business_line(proj.project_id)
+        extra = dict(proj.extra)
+        for key, value in (
+            ("project_type", proj.project_type),
+            ("equipment_type", proj.equipment_type),
+            ("plc_vendor", proj.plc_vendor),
+            ("plc_model", proj.plc_model),
+        ):
+            if value:
+                extra[key] = value
         record = ProjectRecord(
             project_id=proj.project_id,
             name=proj.name,
@@ -503,7 +521,11 @@ class ProjectService:
             source=proj.source,
             phase=proj.phase,
             business_line=business_line,
-            extra=proj.extra,
+            project_type=proj.project_type,
+            equipment_type=proj.equipment_type,
+            plc_vendor=proj.plc_vendor,
+            plc_model=proj.plc_model,
+            extra=extra,
             file_mtime=mtime,
             last_scanned=datetime.now().isoformat(),
         )
@@ -522,6 +544,10 @@ class ProjectService:
             source=record.source,
             phase=record.phase,
             business_line=record.business_line,
+            project_type=record.project_type or str(record.extra.get("project_type", "")),
+            equipment_type=record.equipment_type or str(record.extra.get("equipment_type", "")),
+            plc_vendor=record.plc_vendor or str(record.extra.get("plc_vendor", "")),
+            plc_model=record.plc_model or str(record.extra.get("plc_model", "")),
             extra=record.extra,
             file_mtime=record.file_mtime,
         )

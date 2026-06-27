@@ -56,6 +56,10 @@ class Project(BaseModel):
         "", description="项目阶段: developing/commissioning/production/archived"
     )
     business_line: BusinessLine = Field("", description="业务线: SW/DJ/ZD/XT/WX")
+    project_type: str = Field("", description="项目类型: single_machine/line_project 等")
+    equipment_type: str = Field("", description="设备类型: conveyor/packaging 等")
+    plc_vendor: str = Field("", description="PLC 品牌: Siemens/Mitsubishi 等")
+    plc_model: str = Field("", description="PLC 型号: S7-1200 等")
     extra: dict[str, Any] = Field(default_factory=dict, description="额外字段")
     file_mtime: float = Field(0.0, description="项目文件最近修改时间")
 

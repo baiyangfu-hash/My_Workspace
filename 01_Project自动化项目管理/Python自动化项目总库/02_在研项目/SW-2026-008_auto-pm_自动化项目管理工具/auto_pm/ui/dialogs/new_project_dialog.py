@@ -27,6 +27,9 @@ from PySide6.QtWidgets import (
 
 from auto_pm.core.constants import (
     BUSINESS_LINE_OPTIONS,
+    EQUIPMENT_TYPE_OPTIONS,
+    PLC_VENDOR_OPTIONS,
+    PROJECT_TYPE_OPTIONS,
     STACK_TEMPLATE_MAP,
 )
 from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
@@ -85,6 +88,7 @@ class NewProjectDialog(QDialog):
                 if self._stack_combo.currentIndex() != i:
                     self._stack_combo.setCurrentIndex(i)
                 break
+        self._sync_project_metadata_defaults()
         self._update_path_preview()
         self._update_template_combo()
 
@@ -135,6 +139,28 @@ class NewProjectDialog(QDialog):
         self._template_combo = QComboBox()
         form.addRow("模板", self._template_combo)
 
+        self._project_type_combo = QComboBox()
+        self._project_type_combo.addItem("未设置", "")
+        for value, label in PROJECT_TYPE_OPTIONS:
+            self._project_type_combo.addItem(label, value)
+        form.addRow("项目类型", self._project_type_combo)
+
+        self._equipment_type_combo = QComboBox()
+        self._equipment_type_combo.addItem("未设置", "")
+        for value, label in EQUIPMENT_TYPE_OPTIONS:
+            self._equipment_type_combo.addItem(label, value)
+        form.addRow("设备类型", self._equipment_type_combo)
+
+        self._plc_vendor_combo = QComboBox()
+        self._plc_vendor_combo.addItem("未设置", "")
+        for value, label in PLC_VENDOR_OPTIONS:
+            self._plc_vendor_combo.addItem(label, value)
+        form.addRow("PLC 品牌", self._plc_vendor_combo)
+
+        self._plc_model_edit = QLineEdit()
+        self._plc_model_edit.setPlaceholderText("如 S7-1200 / FX5U")
+        form.addRow("PLC 型号", self._plc_model_edit)
+
         self._desc_edit = QTextEdit()
         self._desc_edit.setPlaceholderText("项目描述（可选）")
         self._desc_edit.setMaximumHeight(80)
@@ -178,6 +204,7 @@ class NewProjectDialog(QDialog):
     def _on_stack_changed(self) -> None:
         """技术栈变化时更新模板选项"""
         self._update_template_combo()
+        self._sync_project_metadata_defaults()
 
     def _update_template_combo(self) -> None:
         """根据技术栈更新模板下拉选项"""
@@ -186,6 +213,25 @@ class NewProjectDialog(QDialog):
         self._template_combo.clear()
         if template_name:
             self._template_combo.addItem(template_name, template_name)
+
+    def _sync_project_metadata_defaults(self) -> None:
+        """根据技术栈同步 Week 2 元数据默认值"""
+        stack = self._stack_combo.currentData() or "plc"
+        if stack == "plc":
+            self._set_combo_by_data(self._project_type_combo, "single_machine")
+        else:
+            self._set_combo_by_data(self._project_type_combo, "")
+            self._set_combo_by_data(self._equipment_type_combo, "")
+            self._set_combo_by_data(self._plc_vendor_combo, "")
+            self._plc_model_edit.clear()
+
+    @staticmethod
+    def _set_combo_by_data(combo: QComboBox, target: str) -> None:
+        """按 itemData 设置下拉框当前项"""
+        for i in range(combo.count()):
+            if combo.itemData(i) == target:
+                combo.setCurrentIndex(i)
+                return
 
     def _update_path_preview(self) -> None:
         """更新路径预览标签"""
@@ -263,7 +309,19 @@ class NewProjectDialog(QDialog):
             "project_name": project_name,
             "description": self._desc_edit.toPlainText().strip() or project_name,
             "version": "V1.0.0",
+            "stack": stack,
+            "business_line": self._bl_combo.currentData() or "",
         }
+        if stack == "plc":
+            data["mode"] = "standard-project"
+        for key, value in (
+            ("project_type", self._project_type_combo.currentData() or ""),
+            ("equipment_type", self._equipment_type_combo.currentData() or ""),
+            ("plc_vendor", self._plc_vendor_combo.currentData() or ""),
+            ("plc_model", self._plc_model_edit.text().strip()),
+        ):
+            if value:
+                data[key] = value
         author = self._author_edit.text().strip()
         if author:
             data["author"] = author

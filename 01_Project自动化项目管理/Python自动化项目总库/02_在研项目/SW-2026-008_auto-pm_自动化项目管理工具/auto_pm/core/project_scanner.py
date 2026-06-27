@@ -104,6 +104,14 @@ class ProjectScanner:
                     primary.phase = other.phase
                 if not primary.business_line and other.business_line:
                     primary.business_line = other.business_line
+                if not primary.project_type and other.project_type:
+                    primary.project_type = other.project_type
+                if not primary.equipment_type and other.equipment_type:
+                    primary.equipment_type = other.equipment_type
+                if not primary.plc_vendor and other.plc_vendor:
+                    primary.plc_vendor = other.plc_vendor
+                if not primary.plc_model and other.plc_model:
+                    primary.plc_model = other.plc_model
                 if primary.stack == "unknown" and other.stack != "unknown":
                     primary.stack = other.stack
             path_deduped.append(primary)
@@ -197,6 +205,10 @@ class ProjectScanner:
 
         # 业务线：优先从 answers 读取，否则从 project_id 提取
         business_line = answers.get("business_line", "") or extract_business_line(project_id)
+        project_type = answers.get("project_type", "")
+        equipment_type = answers.get("equipment_type", "")
+        plc_vendor = answers.get("plc_vendor", "")
+        plc_model = answers.get("plc_model", "")
 
         # V0.3.0-M0.5-Phase1: description 兼容 project_description（copier-python-template 标准）
         description = answers.get("project_description", "") or answers.get("description", "")
@@ -220,6 +232,10 @@ class ProjectScanner:
             description=description,
             phase=phase,
             business_line=business_line,
+            project_type=project_type,
+            equipment_type=equipment_type,
+            plc_vendor=plc_vendor,
+            plc_model=plc_model,
             source="copier",
             extra=answers,
         )
@@ -292,16 +308,31 @@ class ProjectScanner:
         if not texts:
             return ""
         combined = " ".join(texts).lower()
-        # 关键词映射（按优先级，先匹配先返回）
-        if any(kw in combined for kw in ("归档", "archived", "已归档")):
+
+        # 使用短语/词边界匹配，避免“测试生产解耦”之类文本被误判为 production。
+        if self._matches_phase_patterns(combined, (r"archived", r"已归档", r"归档中", r"已封存")):
             return "archived"
-        if any(kw in combined for kw in ("生产", "production", "投产", "上线运行")):
+        if self._matches_phase_patterns(
+            combined,
+            (r"production", r"生产中", r"已投产", r"投产中", r"投产运行", r"上线运行", r"稳定运行"),
+        ):
             return "production"
-        if any(kw in combined for kw in ("调试", "commissioning", "现场调试", "联调")):
+        if self._matches_phase_patterns(
+            combined,
+            (r"commissioning", r"调试中", r"现场调试", r"联调", r"联机调试"),
+        ):
             return "commissioning"
-        if any(kw in combined for kw in ("开发", "developing", "完成", "待启动", "进行中", "迭代", "里程碑")):
+        if self._matches_phase_patterns(
+            combined,
+            (r"developing", r"开发中", r"开发", r"待启动", r"进行中", r"迭代", r"里程碑", r"启动"),
+        ):
             return "developing"
         return ""
+
+    @staticmethod
+    def _matches_phase_patterns(text: str, patterns: tuple[str, ...]) -> bool:
+        """阶段模式匹配（统一大小写处理，支持中英文短语）"""
+        return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
 
     def read_plc_json(self, project_path: str) -> Optional[ProjectInfo]:
         """从 .plc.json 读取项目元数据（仅检查项目根目录，用于项目识别）
@@ -329,6 +360,10 @@ class ProjectScanner:
             version=cfg.get("version", ""),
             description=cfg.get("description", ""),
             phase=cfg.get("phase", ""),
+            project_type=cfg.get("project_type", ""),
+            equipment_type=cfg.get("equipment_type", ""),
+            plc_vendor=cfg.get("plc_vendor", ""),
+            plc_model=cfg.get("plc_model", ""),
             source="plc_json",
             extra=cfg,
         )
@@ -363,6 +398,14 @@ class ProjectScanner:
             info.version = cfg.get("version", "")
         if not info.description:
             info.description = cfg.get("description", "")
+        if not info.project_type:
+            info.project_type = cfg.get("project_type", "")
+        if not info.equipment_type:
+            info.equipment_type = cfg.get("equipment_type", "")
+        if not info.plc_vendor:
+            info.plc_vendor = cfg.get("plc_vendor", "")
+        if not info.plc_model:
+            info.plc_model = cfg.get("plc_model", "")
         # 如果 project_id 来自 PM_SESSION 但 .plc.json 有更准确的 name，使用 .plc.json 的 name
         plc_name = cfg.get("name", "")
         if plc_name and info.name == os.path.basename(info.path):

@@ -26,7 +26,7 @@ from PySide6.QtCore import QEvent, QPointF, Qt  # noqa: E402
 from PySide6.QtGui import QMouseEvent  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
-from auto_pm.models import ProjectInfo  # noqa: E402
+from auto_pm.models import DashboardSummaryDTO, ProjectInfo  # noqa: E402
 from auto_pm.ui.project_list.group_header import GroupHeader  # noqa: E402
 from auto_pm.ui.project_list.list_view import ProjectListView  # noqa: E402
 from auto_pm.ui.project_list.project_card import ProjectCard  # noqa: E402
@@ -88,6 +88,29 @@ def _find_cards(view: ProjectListView) -> list[ProjectCard]:
             if isinstance(cw, ProjectCard):
                 cards.append(cw)
     return cards
+
+
+def _make_dashboard_summary() -> DashboardSummaryDTO:
+    return DashboardSummaryDTO(
+        total_projects=5,
+        phase_counts={
+            "developing": 2,
+            "commissioning": 1,
+            "production": 1,
+            "archived": 1,
+        },
+        open_change_count=3,
+        failed_check_project_count=1,
+        failed_check_project_ids=["DJ-2026-001"],
+        recent_activities=[
+            "[项目] SW-2026-003 于 2026-06-27 09:30 更新",
+            "[变更] CHG-PLC-2026-002 (implementing) 申请日期 2026-06-27",
+        ],
+        risk_hints=[
+            "存在 3 条未关闭变更，建议优先清理实施中和待验收项",
+            "PLC 检查失败项目: DJ-2026-001",
+        ],
+    )
 
 
 # ── ViewControls 测试 ────────────────────────────────────
@@ -251,6 +274,33 @@ class TestProjectListViewFilter:
         stacks = {p.stack for p in view._filtered_projects}
         assert stacks == {"plc"}
         assert len(view._filtered_projects) == 3
+        view.deleteLater()
+        qapp.processEvents()
+
+
+class TestDashboardBanner:
+    """首页驾驶舱横幅测试"""
+
+    def test_dashboard_banner_hidden_by_default(self, qapp: QApplication) -> None:
+        view = ProjectListView()
+        assert view._dashboard_banner.isHidden() is True
+        view.deleteLater()
+        qapp.processEvents()
+
+    def test_set_dashboard_summary_renders_banner(self, qapp: QApplication) -> None:
+        view = ProjectListView()
+
+        view.set_dashboard_summary(_make_dashboard_summary())
+        qapp.processEvents()
+
+        assert view._dashboard_banner.isHidden() is False
+        assert view._dashboard_banner._total_label.text() == "项目总数: 5"
+        assert "开发中 2 / 调试中 1 / 生产中 1 / 已归档 1" in view._dashboard_banner._phase_label.text()
+        assert view._dashboard_banner._change_label.text() == "未关闭变更: 3"
+        assert view._dashboard_banner._check_label.text() == "检查失败项目: 1"
+        assert "DJ-2026-001" in view._dashboard_banner._check_label.toolTip()
+        assert "SW-2026-003 于 2026-06-27 09:30 更新" in view._dashboard_banner._recent_label.text()
+        assert "存在 3 条未关闭变更" in view._dashboard_banner._risk_label.text()
         view.deleteLater()
         qapp.processEvents()
 

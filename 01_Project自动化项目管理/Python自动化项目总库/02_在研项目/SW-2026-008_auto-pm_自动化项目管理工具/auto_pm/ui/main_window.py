@@ -133,12 +133,20 @@ class MainWindow(QMainWindow):
 
         # 变更中心所需 Service（复用 DB 缓存）
         from auto_pm.change.change_service import ChangeService
+        from auto_pm.core.dashboard_service import DashboardService
         from auto_pm.core.project_service import ProjectService
         from auto_pm.core.report_service import ReportService
         from auto_pm.core.template_service import TemplateService
+        from auto_pm.plc.service import PlcService
 
         self._change_service = ChangeService(self._workspace_root, db=self._db)
         self._project_service = ProjectService(self._workspace_root, db=self._db)
+        self._plc_service = PlcService(self._workspace_root)
+        self._dashboard_service = DashboardService(
+            self._project_service,
+            self._change_service,
+            plc_service=self._plc_service,
+        )
         self._change_center_view = ChangeCenterView(
             change_service=self._change_service,
             project_service=self._project_service,
@@ -425,6 +433,7 @@ QStatusBar QLabel { padding: 0 8px; color: #555; }
         try:
             projects = self._load_projects()
             self._project_list_view.set_projects(projects)
+            self._update_dashboard_summary()
             self._nav_tree.update_counts(projects)
             self._update_statusbar(projects)
             self._change_center_view.refresh()
@@ -475,6 +484,14 @@ QStatusBar QLabel { padding: 0 8px; color: #555; }
         else:
             self._status_db.setText("DB: 未连接")
         self._status_scan.setText(f"上次扫描: {self._get_latest_scan_time()}")
+
+    def _update_dashboard_summary(self) -> None:
+        """刷新首页驾驶舱摘要（失败时不阻断主列表加载）"""
+        try:
+            summary = self._dashboard_service.get_summary()
+            self._project_list_view.set_dashboard_summary(summary)
+        except Exception as e:
+            log.warning("刷新驾驶舱摘要失败，已跳过: %s", e)
 
     def _get_latest_scan_time(self) -> str:
         """获取最近一次扫描时间，格式 YYYY-MM-DD HH:MM
