@@ -303,7 +303,11 @@ class PlcRepairer:
         # V0.2.1-P1-5: 根据项目模式决定 .plc.json 创建位置
         plc_json_path = self._get_plc_json_create_path(project_path)
         content = self._minimal_plc_json(
-            effective_name, effective_desc, plc_json_path, effective_version
+            effective_name,
+            effective_desc,
+            project_path=project_path,
+            plc_json_path=plc_json_path,
+            version=effective_version,
         )
         if not dry_run:
             from auto_pm.utils.file_utils import write_file
@@ -352,11 +356,13 @@ class PlcRepairer:
         """根据项目结构决定 .plc.json 的创建位置
 
         V0.2.1-P1-5: 与模板生成位置对齐
-        - standard-project 模板: 02_PLC程序/02_PLC程序/.plc.json
+        - standard-project 模板: 02_PLC程序/PLC_ST/.plc.json
         - shared-library/test-suite 模板: .plc.json（项目根）
         - 未知模式: .plc.json（项目根，向后兼容）
         """
-        # 检测 standard-project 模式的嵌套目录结构
+        current_plc_dir = os.path.join(project_path, "02_PLC程序", "PLC_ST")
+        if os.path.isdir(current_plc_dir):
+            return os.path.join(current_plc_dir, ".plc.json")
         nested_plc_dir = os.path.join(project_path, "02_PLC程序", "02_PLC程序")
         if os.path.isdir(nested_plc_dir):
             return os.path.join(nested_plc_dir, ".plc.json")
@@ -651,6 +657,7 @@ class PlcRepairer:
     def _minimal_plc_json(
         project_id: str,
         project_name: str,
+        project_path: str = "",
         plc_json_path: str = "",
         version: str = "V1.0.0",
     ) -> str:
@@ -659,30 +666,17 @@ class PlcRepairer:
         Args:
             project_id: 项目ID
             project_name: 项目名称（或描述）
-            plc_json_path: .plc.json 文件所在路径，用于动态计算 libraries 相对路径。
-                          空字符串时默认使用根级项目路径（../01_SharedLibraries/SysLib）。
+            project_path: 项目根目录，用于计算 SysLib 相对路径。
+            plc_json_path: .plc.json 文件所在路径。
             version: 项目版本（V0.2.1-P2-9: 从 .copier-answers.yml 同步）
         """
-        # 动态计算 libraries 路径
-        if not plc_json_path:
-            # 默认：根级项目（.plc.json 在项目根目录）
-            libraries_path = "../01_SharedLibraries/SysLib"
-        else:
-            # 根据 .plc.json 所在目录深度计算相对路径
-            # 检测是否为嵌套项目（02_PLC程序/02_PLC程序/ 下）
+        libraries_path = "../01_SharedLibraries/SysLib"
+        if project_path and plc_json_path:
             plc_json_dir = os.path.dirname(plc_json_path)
-            # 统计路径中 02_PLC程序 出现的次数来判断嵌套深度
-            depth = plc_json_dir.count("02_PLC程序")
-            if depth >= 2:
-                # 嵌套项目：02_PLC程序/02_PLC程序/.plc.json
-                # 需要回退 3 级到项目根，再进入 01_SharedLibraries/SysLib
-                libraries_path = "../../../01_SharedLibraries/SysLib"
-            elif depth == 1:
-                # 单层：02_PLC程序/.plc.json
-                libraries_path = "../../01_SharedLibraries/SysLib"
-            else:
-                # 根级：.plc.json 在项目根
-                libraries_path = "../01_SharedLibraries/SysLib"
+            syslib_path = os.path.join(
+                os.path.dirname(project_path), "01_SharedLibraries", "SysLib"
+            )
+            libraries_path = os.path.relpath(syslib_path, plc_json_dir).replace("\\", "/")
 
         return (
             json.dumps(

@@ -15,6 +15,15 @@
 
 本项目为自动化控制设备，通过 PLC 控制伺服电机、气缸、输送带等执行机构，实现物料的自动分料、输送、取放和送料功能。设备需与上下游设备进行信号交互，并通过 HMI 人机界面实现操作和监控。
 
+### 1.1.1 项目基线元数据
+
+| 项目 | 当前值 | 说明 |
+|------|--------|------|
+| 项目类型 | {{ project_type or 'single_machine' }} | Week 2 单机模板默认采用 `single_machine` |
+| 设备类型 | {{ equipment_type or '待填写' }} | 用于区分输送设备/包装设备/机器人单元等 |
+| PLC 品牌 | {{ plc_vendor or '待填写' }} | 与电气选型和驱动接口口径保持一致 |
+| PLC 型号 | {{ plc_model or '待填写' }} | 作为后续程序块、通讯和文档刷新输入 |
+
 ### 1.2 项目目标
 
 - 搭建符合 LSP-907 规范的标准 PLC 项目骨架
@@ -43,11 +52,11 @@
 
 | 子系统编号 | 子系统名称 | 目录 | 功能描述 |
 |-----------|-----------|------|---------|
-| SS-001 | conveyor (输送机) | `02_PLC程序/02_PLC程序/conveyor/` | 物料分料、输送控制 |
-| SS-002 | pickplace (取放料) | `02_PLC程序/02_PLC程序/pickplace/` | Z轴升降、X1轴横移、夹爪控制 |
-| SS-003 | feeder (送料) | `02_PLC程序/02_PLC程序/feeder/` | X2轴横移、下游设备交互 |
-| SS-004 | external (外部设备) | `02_PLC程序/02_PLC程序/external/` | 上下游设备信号交互、安全联锁 |
-| SS-005 | common (公共报警) | `02_PLC程序/02_PLC程序/common/` | 报警汇总、全局报警字、MES接口 |
+| SS-001 | conveyor (输送机) | `02_PLC程序/PLC_ST/conveyor/` | 物料分料、输送控制 |
+| SS-002 | pickplace (取放料) | `02_PLC程序/PLC_ST/pickplace/` | Z轴升降、X1轴横移、夹爪控制 |
+| SS-003 | feeder (送料) | `02_PLC程序/PLC_ST/feeder/` | X2轴横移、下游设备交互 |
+| SS-004 | external (外部设备) | `02_PLC程序/PLC_ST/external/` | 上下游设备信号交互、安全联锁 |
+| SS-005 | common (公共报警) | `02_PLC程序/PLC_ST/common/` | 报警汇总、全局报警字、MES接口 |
 
 ### 2.2 功能清单
 
@@ -116,6 +125,8 @@
 | AO (模拟量输出) | 待填写 | 待填写 |
 
 详细 IO 分配见 `02_PLC程序/程序文档/015_IO分配表_IO.md`。
+
+Week 2 模板已同步预埋 `02_PLC程序/工程资产/io_points.csv`、`program_blocks.yml`、`communications.yml` 三类结构化资产文件，后续可作为文档刷新和资产校验入口。
 
 ### 4.2 通信接口
 

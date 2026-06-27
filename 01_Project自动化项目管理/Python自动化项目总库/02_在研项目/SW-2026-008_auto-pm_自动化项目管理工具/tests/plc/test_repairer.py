@@ -245,6 +245,25 @@ class TestRepairProject:
         assert "description" in cfg
         assert "version" in cfg
 
+    def test_repair_creates_plc_json_under_plc_st_when_directory_exists(self, tmp_path: Path) -> None:
+        """标准项目存在 PLC_ST 时，repair 应在该目录创建 .plc.json"""
+        project_dir = tmp_path / "DJ-2026-PLCST_标准项目"
+        (project_dir / "02_PLC程序" / "PLC_ST").mkdir(parents=True)
+        (project_dir / "PM_SESSION_DJ-2026-PLCST.md").write_text(
+            "# PM_SESSION_DJ-2026-PLCST\n", encoding="utf-8"
+        )
+
+        repairer = PlcRepairer(str(tmp_path))
+        result = repairer.repair_project(str(project_dir))
+
+        assert any(
+            a.item == ".plc.json" and a.status == "fixed" for a in result.actions
+        )
+        plc_json_path = project_dir / "02_PLC程序" / "PLC_ST" / ".plc.json"
+        assert plc_json_path.exists()
+        cfg = json.loads(plc_json_path.read_text(encoding="utf-8"))
+        assert cfg["libraries"] == ["../../../01_SharedLibraries/SysLib"]
+
 
 # ── repair_workspace 测试 ─────────────────────────────
 

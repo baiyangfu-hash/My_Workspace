@@ -84,3 +84,25 @@ class TestTemplateGeneration:
         template_dir = os.path.join(path, "template")
         for d in STD_DIRS:
             assert os.path.isdir(os.path.join(template_dir, d)), f"缺少标准目录: {d}"
+
+    def test_plc_standard_project_includes_week2_assets_and_overview(
+        self, template_service: TemplateService
+    ) -> None:
+        """plc-standard-project 模板包含 Week 2 单机概览和工程资产样例"""
+        path = template_service.get_template_path("plc-standard-project")
+        template_dir = os.path.join(path, "template")
+
+        assert os.path.isfile(
+            os.path.join(
+                template_dir, "01_需求与设计", "001_单机设备项目概览_OVW.md.jinja"
+            )
+        )
+        for asset_name in (
+            "README.md.jinja",
+            "io_points.csv.jinja",
+            "program_blocks.yml.jinja",
+            "communications.yml.jinja",
+        ):
+            assert os.path.isfile(
+                os.path.join(template_dir, "02_PLC程序", "工程资产", asset_name)
+            ), f"缺少工程资产样例: {asset_name}"

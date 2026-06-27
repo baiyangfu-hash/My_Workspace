@@ -56,13 +56,14 @@
 
 | 序号 | 组件 | 类型 | 文件路径 | 核心职责 |
 |------|------|------|----------|----------|
-| 1 | **OB1** | OB | `02_PLC程序/02_PLC程序/OB1/OB1.scl` | 主循环、FB 调用顺序管理、安全联锁 |
-| 2 | **GlobalVars** | DB | `02_PLC程序/02_PLC程序/DB1/GlobalVars.db` | 全局变量、I/O 映射中心 |
-| 3 | **fbConveyor** | FB | `02_PLC程序/02_PLC程序/conveyor/` | 输送机控制 (分料/输送) |
-| 4 | **fbPickPlace** | FB | `02_PLC程序/02_PLC程序/pickplace/` | 取放料控制 (Z轴+X1轴+夹爪) |
-| 5 | **fbFeeder** | FB | `02_PLC程序/02_PLC程序/feeder/` | 送料控制 (X2轴+下游交互) |
-| 6 | **fbExternal** | FB | `02_PLC程序/02_PLC程序/external/` | 外部设备交互 (上游/下游) |
-| 7 | **fbCommonAlarm** | FB | `02_PLC程序/02_PLC程序/common/` | 公共报警管理 (汇总+MES) |
+| 1 | **OB1** | OB | `02_PLC程序/PLC_ST/OB1/OB1.scl` | 主循环、FB 调用顺序管理、安全联锁 |
+| 2 | **GlobalVars** | DB | `02_PLC程序/PLC_ST/DB1/GlobalVars.db` | 全局变量、I/O 映射中心 |
+| 3 | **fbConveyor** | FB | `02_PLC程序/PLC_ST/conveyor/` | 输送机控制 (分料/输送) |
+| 4 | **fbPickPlace** | FB | `02_PLC程序/PLC_ST/pickplace/` | 取放料控制 (Z轴+X1轴+夹爪) |
+| 5 | **fbFeeder** | FB | `02_PLC程序/PLC_ST/feeder/` | 送料控制 (X2轴+下游交互) |
+| 6 | **fbExternal** | FB | `02_PLC程序/PLC_ST/external/` | 外部设备交互 (上游/下游) |
+| 7 | **fbCommonAlarm** | FB | `02_PLC程序/PLC_ST/common/` | 公共报警管理 (汇总+MES) |
+| 8 | **工程资产样例** | Asset | `02_PLC程序/工程资产/` | IO 点表、程序块、通讯资产占位 |
 
 ## 5. 数据流架构
 
@@ -88,7 +89,7 @@
 
 ```
 02_PLC程序/
-├── 02_PLC程序/                    # PLC 项目根 (嵌套，.plc.json 所在)
+├── PLC_ST/                        # PLC 项目根 (.plc.json 所在)
 │   ├── .plc.json                  # PLC 项目配置
 │   ├── DB1/
 │   │   └── GlobalVars.db          # 全局变量数据块
@@ -100,6 +101,10 @@
 │   ├── external/                  # 外部设备交互功能块
 │   ├── feeder/                    # 送料功能块
 │   └── pickplace/                 # 取放料功能块
+├── 工程资产/
+│   ├── io_points.csv              # IO 点表
+│   ├── program_blocks.yml         # 程序块清单
+│   └── communications.yml         # 通讯对象清单
 └── 程序文档/                      # 程序设计文档
     ├── 016_PLC程序设计总文档_PLC.md
     ├── 018_自动工艺流程图_FLOW.md

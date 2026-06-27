@@ -19,7 +19,10 @@
 
 | 项目 | 选型 | 说明 |
 |------|------|------|
-| PLC 型号 | 待填写（建议三菱 FX5U 或同等性能） | 主控制器 |
+| 项目类型 | {{ project_type or 'single_machine' }} | 单机模板默认项目类型 |
+| 设备类型 | {{ equipment_type or '待填写' }} | 作为目录/文档/资产口径基线 |
+| PLC 品牌 | {{ plc_vendor or '待填写' }} | 与电气选型保持一致 |
+| PLC 型号 | {{ plc_model or '待填写（建议三菱 FX5U 或同等性能）' }} | 主控制器 |
 | HMI 型号 | 待填写（建议 ProFace GP 或同等性能） | 人机交互 |
 | 编程软件 | 待填写（如 GX Works3） | PLC 编程环境 |
 | 编程语言 | SCL/ST（遵循 IEC 61131-3） | 结构化文本 |
@@ -89,7 +92,7 @@
 
 ```
 02_PLC程序/
-├── 02_PLC程序/                    # PLC 项目根 (.plc.json 所在)
+├── PLC_ST/                        # PLC 项目根 (.plc.json 所在)
 │   ├── .plc.json                  # PLC 项目配置
 │   ├── DB1/GlobalVars.db          # 全局变量数据块
 │   ├── OB1/OB1.scl                # 主循环程序
@@ -99,6 +102,10 @@
 │   ├── external/                  # 外部设备交互 FB
 │   ├── common/                    # 公共报警 FB
 │   └── Test/                      # 测试用例
+├── 工程资产/                       # Week 2 预埋资产台帐样例
+│   ├── io_points.csv              # IO 点表
+│   ├── program_blocks.yml         # 程序块清单
+│   └── communications.yml         # 通讯对象清单
 └── 程序文档/                      # 程序设计文档
 ```
 

@@ -57,11 +57,11 @@ class TestE2ePlcWorkflow:
         由于端到端测试不依赖 copier，手动创建最小结构：
         - shared-library: .plc.json 在根目录, libraries 为空
         - test-suite: .plc.json 在根目录, libraries 指向 SysLib
-        - standard-project: .plc.json 在 02_PLC程序/02_PLC程序/ 下（C-1 结构）
+        - standard-project: .plc.json 在 02_PLC程序/PLC_ST/ 下
         """
         if mode == "standard-project":
-            # 标准项目: .plc.json 在 02_PLC程序/02_PLC程序/ 下
-            plc_subdir = project_dir / "02_PLC程序" / "02_PLC程序"
+            # 标准项目: .plc.json 在 02_PLC程序/PLC_ST/ 下
+            plc_subdir = project_dir / "02_PLC程序" / "PLC_ST"
             plc_subdir.mkdir(parents=True)
             (plc_subdir / ".plc.json").write_text(
                 json.dumps(

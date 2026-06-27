@@ -115,6 +115,53 @@ def test_project_create_dry_run_displays_v040_metadata(
     assert "PLC 型号: S7-1200" in result.output
 
 
+def test_project_create_single_machine_generates_week2_template_assets(
+    cli_runner: CliRunner, tmp_path: Path
+) -> None:
+    """project create 真实生成 Week 2 单机模板差异"""
+    result = cli_runner.invoke(
+        cli,
+        [
+            "-w",
+            str(tmp_path),
+            "project",
+            "create",
+            "--stack",
+            "plc",
+            "--id",
+            "DJ-2026-022",
+            "--name",
+            "周单机模板",
+            "--project-type",
+            "single_machine",
+            "--equipment-type",
+            "conveyor",
+            "--plc-vendor",
+            "Siemens",
+            "--plc-model",
+            "S7-1200",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    project_dir = tmp_path / "0100_PLC自动化" / "DJ-2026-022_周单机模板"
+    assert (project_dir / "01_需求与设计" / "001_单机设备项目概览_OVW.md").exists()
+    assert (project_dir / "02_PLC程序" / "工程资产" / "io_points.csv").exists()
+    assert (project_dir / "02_PLC程序" / "工程资产" / "program_blocks.yml").exists()
+    assert (project_dir / "02_PLC程序" / "工程资产" / "communications.yml").exists()
+    assert (project_dir / "02_PLC程序" / "PLC_ST" / ".plc.json").exists()
+
+    plc_json = json.loads(
+        (project_dir / "02_PLC程序" / "PLC_ST" / ".plc.json").read_text(encoding="utf-8")
+    )
+    assert plc_json["project_type"] == "single_machine"
+    assert plc_json["equipment_type"] == "conveyor"
+    assert plc_json["plc_vendor"] == "Siemens"
+    assert plc_json["plc_model"] == "S7-1200"
+    assert plc_json["libraries"] == ["../../../01_SharedLibraries/SysLib"]
+
+
 # ── project snapshot 命令测试（V0.3.2 独立 Spec Snapshot 刷新） ──
 
 # PM_SESSION 内容（含 Spec Snapshot 表格，版本号故意设旧）
