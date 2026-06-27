@@ -499,3 +499,170 @@ class TestProjectSnapshot:
         data = json.loads(result.output)
         assert data["drifts"] == []
         assert data["updated"] is False
+
+
+def _setup_doc_refresh_workspace(tmp_path: Path) -> Path:
+    """创建最小 doc refresh 测试工作空间"""
+    project_dir = tmp_path / "DJ-2026-041_文档刷新项目"
+    (project_dir / "02_PLC程序" / "工程资产").mkdir(parents=True)
+    (project_dir / "02_PLC程序" / "程序文档").mkdir(parents=True)
+    (project_dir / ".copier-answers.yml").write_text(
+        "\n".join(
+            [
+                "project_id: DJ-2026-041",
+                "project_name: 文档刷新项目",
+                "stack: plc",
+                "project_type: single_machine",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (project_dir / "02_PLC程序" / "工程资产" / "io_points.csv").write_text(
+        "\n".join(
+            [
+                "station,signal_type,address,tag,signal_name,device,comment",
+                "common,DI,I0.0,ESTOP_OK,急停回路正常,操作台,TRUE=安全链路闭合",
+                "conveyor,DO,Q0.0,CONVEYOR_RUN,输送带运行,变频器,TRUE=正转运行",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (project_dir / "02_PLC程序" / "工程资产" / "program_blocks.yml").write_text(
+        "blocks:\n"
+        '  - name: "OB1"\n'
+        '    type: "OB"\n'
+        '    path: "02_PLC程序/PLC_ST/OB1/OB1.scl"\n'
+        '    responsibility: "主循环"\n',
+        encoding="utf-8",
+    )
+    (project_dir / "02_PLC程序" / "工程资产" / "communications.yml").write_text(
+        "channels:\n"
+        '  - name: "HMI"\n'
+        '    protocol: "ethernet"\n'
+        '    role: "人机界面"\n'
+        '    endpoint: "Siemens S7-1200"\n'
+        '    notes: "补齐映射"\n',
+        encoding="utf-8",
+    )
+    (project_dir / "02_PLC程序" / "程序文档" / "016_DJ-2026-041_PLC程序设计总文档_PLC.md").write_text(
+        "\n".join(
+            [
+                "# PLC程序设计总文档",
+                "",
+                "## 4. 软件架构",
+                "",
+                "### 4.1 组件清单与职责",
+                "",
+                "<!-- AUTO_PM:BEGIN plc-program-components -->",
+                "旧内容",
+                "<!-- AUTO_PM:END plc-program-components -->",
+                "",
+                "## 8. 关联文档索引",
+                "",
+                "<!-- AUTO_PM:BEGIN plc-asset-index -->",
+                "旧索引",
+                "<!-- AUTO_PM:END plc-asset-index -->",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (project_dir / "02_PLC程序" / "程序文档" / "015_DJ-2026-041_IO分配表_IO.md").write_text(
+        "\n".join(
+            [
+                "# IO分配表",
+                "",
+                "## 2. IO 总览",
+                "",
+                "<!-- AUTO_PM:BEGIN plc-io-overview -->",
+                "旧IO概览",
+                "<!-- AUTO_PM:END plc-io-overview -->",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
+class TestDocRefresh:
+    """doc refresh 命令测试"""
+
+    def test_doc_refresh_dry_run_does_not_modify(self, cli_runner: CliRunner, tmp_path: Path) -> None:
+        workspace = _setup_doc_refresh_workspace(tmp_path)
+        target_doc = (
+            workspace
+            / "DJ-2026-041_文档刷新项目"
+            / "02_PLC程序"
+            / "程序文档"
+            / "016_DJ-2026-041_PLC程序设计总文档_PLC.md"
+        )
+        result = cli_runner.invoke(
+            cli,
+            ["-w", str(workspace), "doc", "refresh", "DJ-2026-041", "--dry-run"],
+            catch_exceptions=False,
+        )
+
+        assert result.exit_code == 0
+        assert "[DRY-RUN]" in result.output
+        assert "plc-program-components" in result.output
+        assert "旧内容" in target_doc.read_text(encoding="utf-8")
+
+    def test_doc_refresh_json_output(self, cli_runner: CliRunner, tmp_path: Path) -> None:
+        workspace = _setup_doc_refresh_workspace(tmp_path)
+        result = cli_runner.invoke(
+            cli,
+            ["-w", str(workspace), "doc", "refresh", "DJ-2026-041", "--dry-run", "--json"],
+            catch_exceptions=False,
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["project_id"] == "DJ-2026-041"
+        assert payload["dry_run"] is True
+        assert len(payload["refreshed_files"]) == 2
+
+    def test_doc_refresh_after_project_create(self, cli_runner: CliRunner, tmp_path: Path) -> None:
+        create_result = cli_runner.invoke(
+            cli,
+            [
+                "-w",
+                str(tmp_path),
+                "project",
+                "create",
+                "--stack",
+                "plc",
+                "--id",
+                "DJ-2026-042",
+                "--name",
+                "文档刷新集成",
+                "--project-type",
+                "single_machine",
+                "--equipment-type",
+                "conveyor",
+                "--plc-vendor",
+                "Siemens",
+                "--plc-model",
+                "S7-1200",
+            ],
+            catch_exceptions=False,
+        )
+        assert create_result.exit_code == 0
+
+        result = cli_runner.invoke(
+            cli,
+            ["-w", str(tmp_path), "doc", "refresh", "DJ-2026-042"],
+            catch_exceptions=False,
+        )
+        assert result.exit_code == 0
+        assert "文档自动区处理完成" in result.output
+
+        project_dir = tmp_path / "0100_PLC自动化" / "DJ-2026-042_文档刷新集成"
+        program_doc = next(
+            (project_dir / "02_PLC程序" / "程序文档").glob("*PLC程序设计总文档_PLC.md")
+        )
+        content = program_doc.read_text(encoding="utf-8")
+        assert "auto-pm doc refresh" in content
+        assert "program_blocks.yml" in content

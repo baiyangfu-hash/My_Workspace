@@ -5,7 +5,22 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased] - 2026-06-27
+## [Unreleased] - 2026-06-28
+
+### Added - V0.4.0 Week 4 文档自动区刷新
+
+- 新增 `auto_pm/core/doc_refresh_service.py`，基于 `io_points.csv`、`program_blocks.yml`、`communications.yml` 生成 PLC 文档自动区内容
+- 新增 `auto_pm/cli/doc.py`，提供 `auto-pm doc refresh <project_id> [--dry-run|--json]` 命令
+- 新增 `tests/core/test_doc_refresh_service.py`，覆盖自动区 dry-run 与实际刷新
+
+### Changed - Week 4 模板与 CLI 闭环
+
+- `auto_pm/cli/__main__.py` 注册 `doc` 顶层命令组
+- `templates/plc-standard-project/template/02_PLC程序/程序文档/016_PLC程序设计总文档_PLC.md.jinja` 新增 `plc-program-components`、`plc-asset-index` 自动区标记
+- `templates/plc-standard-project/template/02_PLC程序/程序文档/015_IO分配表_IO.md.jinja` 新增 `plc-io-overview` 自动区标记
+- `tests/cli/test_project.py` 新增 `doc refresh` 的 dry-run/json/创建后刷新集成测试
+- `00_项目基础信息/008_试运行报告_PILOT.md` 升级到 `V1.1.0`，归档 V0.4.0 Week 2~4 准真实项目闭环证据
+- 新增 `09_整改项/V0.4.0-glm5.2执行输入清单.md`，明确后续主线切换为 `V0.4.1 单项目交付闭环深化`
 
 ### Added - V0.4.0 Week 3 PLC 工程资产能力
 
@@ -22,6 +37,11 @@
 
 - `pytest --no-cov tests/core/test_asset_summary_service.py tests/core/test_project_scanner.py tests/cli/test_project.py tests/plc/test_template_generation.py tests/plc/test_repairer.py tests/plc/test_e2e_plc_workflow.py` → 68 passed
 - 真实命令验证：`auto-pm project create --stack plc ...` + `auto-pm project show DJ-2026-333` 可输出“工程资产: 健康 / IO点表: 4 条 / 程序块: 3 个 / 通讯对象: 3 个”
+
+### Verified - V0.4.0 Week 4 文档自动区刷新
+
+- `pytest --no-cov tests/core/test_doc_refresh_service.py tests/core/test_project_scanner.py tests/cli/test_project.py tests/plc/test_template_generation.py tests/plc/test_repairer.py tests/plc/test_e2e_plc_workflow.py` → 70 passed
+- 真实命令验证：`auto-pm project create --stack plc ...` + `auto-pm doc refresh DJ-2026-444 --dry-run` + `auto-pm doc refresh DJ-2026-444` 可预览并刷新 2 份 PLC 程序文档中的 3 个自动区
 
 ## [0.3.8] - 2026-06-27
 
