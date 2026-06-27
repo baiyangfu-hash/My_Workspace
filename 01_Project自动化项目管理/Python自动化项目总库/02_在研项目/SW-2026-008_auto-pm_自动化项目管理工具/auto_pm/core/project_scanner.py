@@ -17,6 +17,7 @@ from typing import Optional
 
 import yaml
 
+from auto_pm.core.asset_summary_service import AssetSummaryService
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
 from auto_pm.models.project import extract_business_line
@@ -37,6 +38,7 @@ class ProjectScanner:
 
     def __init__(self, workspace_root: str) -> None:
         self.workspace_root = os.path.abspath(workspace_root)
+        self._asset_summary_service = AssetSummaryService()
 
     # 来源优先级（数值越小优先级越高）
     _SOURCE_PRIORITY: dict[str, int] = {
@@ -223,7 +225,8 @@ class ProjectScanner:
         if not phase:
             phase = self._read_phase_from_pm_session(project_path, project_id)
 
-        return ProjectInfo(
+        extra = dict(answers)
+        info = ProjectInfo(
             project_id=project_id,
             name=project_name or answers.get("project_name", "") or os.path.basename(project_path),
             path=project_path,
@@ -237,8 +240,10 @@ class ProjectScanner:
             plc_vendor=plc_vendor,
             plc_model=plc_model,
             source="copier",
-            extra=answers,
+            extra=extra,
         )
+        self._attach_asset_summary(info)
+        return info
 
     def _read_version_from_pyproject(self, project_path: str) -> str:
         """从 pyproject.toml 读取版本号（Python 项目回退策略）"""
@@ -352,7 +357,7 @@ class ProjectScanner:
             return None
 
         name = cfg.get("name", "")
-        return ProjectInfo(
+        info = ProjectInfo(
             project_id=name or os.path.basename(project_path),
             name=name or os.path.basename(project_path),
             path=project_path,
@@ -365,8 +370,10 @@ class ProjectScanner:
             plc_vendor=cfg.get("plc_vendor", ""),
             plc_model=cfg.get("plc_model", ""),
             source="plc_json",
-            extra=cfg,
+            extra=dict(cfg),
         )
+        self._attach_asset_summary(info)
+        return info
 
     def _enrich_from_plc_json(self, info: ProjectInfo) -> ProjectInfo:
         """递归查找 .plc.json 补充项目元数据（不用于项目识别）
@@ -410,7 +417,18 @@ class ProjectScanner:
         plc_name = cfg.get("name", "")
         if plc_name and info.name == os.path.basename(info.path):
             info.name = plc_name
+        self._attach_asset_summary(info)
         return info
+
+    def _attach_asset_summary(self, info: ProjectInfo) -> None:
+        """向项目信息附加工程资产摘要"""
+        extra = dict(info.extra)
+        extra["asset_summary"] = self._asset_summary_service.build_summary(
+            project_path=info.path,
+            stack=info.stack,
+            project_type=info.project_type,
+        )
+        info.extra = extra
 
     @staticmethod
     def _find_plc_json_recursive(project_path: str, max_depth: int = 3) -> Optional[str]:

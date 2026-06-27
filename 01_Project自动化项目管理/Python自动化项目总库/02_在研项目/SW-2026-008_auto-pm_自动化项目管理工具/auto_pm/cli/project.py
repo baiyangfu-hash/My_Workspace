@@ -39,6 +39,53 @@ from auto_pm.core.template_service import TemplateService
 console = Console()
 
 
+def _format_asset_summary_status(status: str) -> str:
+    mapping = {
+        "healthy": "健康",
+        "warning": "需补齐",
+        "missing": "缺失",
+        "not_applicable": "不适用",
+    }
+    return mapping.get(status, status or "-")
+
+
+def _print_asset_summary(extra: dict[str, object]) -> None:
+    """输出工程资产摘要"""
+    asset_summary = extra.get("asset_summary")
+    if not isinstance(asset_summary, dict):
+        return
+
+    console.print(
+        f"[cyan]工程资产:[/cyan] {_format_asset_summary_status(str(asset_summary.get('status', '')))}"
+    )
+
+    if asset_summary.get("status") == "not_applicable":
+        messages = asset_summary.get("issue_messages") or []
+        if messages:
+            console.print(f"[cyan]资产说明:[/cyan] {messages[0]}")
+        return
+
+    console.print(
+        f"[cyan]资产目录:[/cyan] {'已就绪' if asset_summary.get('asset_dir_exists') else '缺失'}"
+    )
+
+    io_points = asset_summary.get("io_points") or {}
+    program_blocks = asset_summary.get("program_blocks") or {}
+    communications = asset_summary.get("communications") or {}
+    if isinstance(io_points, dict):
+        console.print(f"[cyan]IO点表:[/cyan] {io_points.get('count', 0)} 条")
+    if isinstance(program_blocks, dict):
+        console.print(f"[cyan]程序块:[/cyan] {program_blocks.get('count', 0)} 个")
+    if isinstance(communications, dict):
+        console.print(f"[cyan]通讯对象:[/cyan] {communications.get('count', 0)} 个")
+
+    issue_messages = asset_summary.get("issue_messages") or []
+    if isinstance(issue_messages, list) and issue_messages:
+        console.print(f"[cyan]资产问题:[/cyan] {len(issue_messages)} 项")
+        for message in issue_messages[:3]:
+            console.print(f"  - {message}")
+
+
 @click.group(name="project")
 @click.pass_context
 def project_group(ctx: click.Context) -> None:
@@ -355,6 +402,7 @@ def cmd_show(ctx: click.Context, project_id: str, output_json: bool) -> None:
         console.print(f"[cyan]描述:[/cyan]   {proj.description}")
         console.print(f"[cyan]来源:[/cyan]   {proj.source}")
         console.print(f"[cyan]路径:[/cyan]   {proj.path}")
+        _print_asset_summary(proj.extra)
 
 
 @project_group.command(name="edit")

@@ -5,6 +5,24 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased] - 2026-06-27
+
+### Added - V0.4.0 Week 3 PLC 工程资产能力
+
+- 新增 `auto_pm/core/asset_summary_service.py`，统一读取 `02_PLC程序/工程资产/` 下 `io_points.csv`、`program_blocks.yml`、`communications.yml` 三类结构化资产
+- 新增 `tests/core/test_asset_summary_service.py`，覆盖健康摘要、缺列/缺文件、非 PLC 不适用三类场景
+
+### Changed - Week 3 扫描与 CLI 消费面
+
+- `auto_pm/core/project_scanner.py` 扫描 PLC 项目时自动写入 `extra.asset_summary`
+- `auto_pm/cli/project.py` 的 `project show` 新增工程资产摘要输出，展示健康状态、目录状态、IO 点数、程序块数、通讯对象数与问题摘要
+- `tests/core/test_project_scanner.py`、`tests/cli/test_project.py` 新增工程资产摘要相关断言
+
+### Verified - Week 3 聚焦回归
+
+- `pytest --no-cov tests/core/test_asset_summary_service.py tests/core/test_project_scanner.py tests/cli/test_project.py tests/plc/test_template_generation.py tests/plc/test_repairer.py tests/plc/test_e2e_plc_workflow.py` → 68 passed
+- 真实命令验证：`auto-pm project create --stack plc ...` + `auto-pm project show DJ-2026-333` 可输出“工程资产: 健康 / IO点表: 4 条 / 程序块: 3 个 / 通讯对象: 3 个”
+
 ## [0.3.8] - 2026-06-27
 
 ### Added - V0.3.8 技术债偿还批次（TD-T10 + TD-T08）

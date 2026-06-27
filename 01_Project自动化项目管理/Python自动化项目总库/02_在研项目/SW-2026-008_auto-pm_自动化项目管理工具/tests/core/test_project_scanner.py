@@ -284,6 +284,56 @@ class TestReadCopierAnswers:
         assert info.plc_vendor == "Siemens"
         assert info.plc_model == "S7-1200"
 
+    def test_read_copier_answers_attaches_asset_summary(self, tmp_path: Path) -> None:
+        """PLC 项目扫描时附加工程资产摘要"""
+        project_dir = tmp_path / "DJ-2026-021_项目"
+        (project_dir / "02_PLC程序" / "工程资产").mkdir(parents=True)
+        (project_dir / ".copier-answers.yml").write_text(
+            yaml.safe_dump(
+                {
+                    "project_id": "DJ-2026-021",
+                    "project_name": "项目",
+                    "_src_path": "templates/plc-standard-project",
+                    "project_type": "single_machine",
+                },
+                allow_unicode=True,
+            ),
+            encoding="utf-8",
+        )
+        (project_dir / "02_PLC程序" / "工程资产" / "io_points.csv").write_text(
+            "station,signal_type,address,tag,signal_name,device,comment\n"
+            "common,DI,I0.0,ESTOP_OK,急停回路正常,操作台,TRUE=安全链路闭合\n",
+            encoding="utf-8",
+        )
+        (project_dir / "02_PLC程序" / "工程资产" / "program_blocks.yml").write_text(
+            "blocks:\n"
+            '  - name: "OB1"\n'
+            '    type: "OB"\n'
+            '    path: "02_PLC程序/PLC_ST/OB1/OB1.scl"\n'
+            '    responsibility: "主循环"\n',
+            encoding="utf-8",
+        )
+        (project_dir / "02_PLC程序" / "工程资产" / "communications.yml").write_text(
+            "channels:\n"
+            '  - name: "HMI"\n'
+            '    protocol: "ethernet"\n'
+            '    role: "人机界面"\n'
+            '    endpoint: "Siemens S7-1200"\n'
+            '    notes: "补齐映射"\n',
+            encoding="utf-8",
+        )
+
+        scanner = ProjectScanner(str(tmp_path))
+        info = scanner.read_copier_answers(str(project_dir))
+
+        assert info is not None
+        asset_summary = info.extra.get("asset_summary")
+        assert isinstance(asset_summary, dict)
+        assert asset_summary["status"] == "healthy"
+        assert asset_summary["io_points"]["count"] == 1
+        assert asset_summary["program_blocks"]["count"] == 1
+        assert asset_summary["communications"]["count"] == 1
+
     def test_read_copier_answers_handles_invalid_yaml(self, tmp_path: Path) -> None:
         """YAML 解析失败返回 None（不抛异常）"""
         project_dir = tmp_path / "坏项目"
