@@ -50,6 +50,22 @@ _PHASE_LABEL: dict[str, str] = {
     "": "未设置",
 }
 
+# 工程资产健康状态 → (中文标签, 背景色, 前景色)
+_ASSET_STATUS_BADGE: dict[str, tuple[str, str, str]] = {
+    "healthy": ("健康", "#27ae60", "#ffffff"),
+    "warning": ("警告", "#f39c12", "#ffffff"),
+    "missing": ("缺失", "#e74c3c", "#ffffff"),
+    "not_applicable": ("不适用", "#95a5a6", "#ffffff"),
+}
+
+# 工程资产健康状态 → 描述文案
+_ASSET_STATUS_TEXT: dict[str, str] = {
+    "healthy": "工程资产文件完整且校验通过",
+    "warning": "工程资产存在部分问题",
+    "missing": "缺少工程资产目录或文件",
+    "not_applicable": "此项目类型不需要工程资产目录",
+}
+
 # 变更状态分组：状态值 → 分组key
 _CHANGE_STATUS_GROUPS: dict[str, str] = {
     "draft": "draft",
@@ -126,6 +142,9 @@ _BG_TEXT_MAX_LEN = 200
 # 最近活动最大展示条数
 _ACTIVITY_MAX_ITEMS = 10
 
+# 工程资产问题摘要最大展示条数
+_ASSET_ISSUE_MAX_DISPLAY = 3
+
 
 class OverviewTab(QWidget):
     """概览 Tab
@@ -162,6 +181,14 @@ class OverviewTab(QWidget):
         self._meta_grid.setColumnStretch(1, 1)
         meta_content.addLayout(self._meta_grid)
         self._container_layout.addWidget(self._meta_card)
+
+        # 工程资产摘要
+        self._asset_summary_card, asset_summary_content = self._make_section_card("工程资产摘要")
+        self._asset_summary_layout = QVBoxLayout()
+        self._asset_summary_layout.setContentsMargins(14, 10, 14, 10)
+        self._asset_summary_layout.setSpacing(6)
+        asset_summary_content.addLayout(self._asset_summary_layout)
+        self._container_layout.addWidget(self._asset_summary_card)
 
         # 立项表信息
         self._proposal_card, proposal_content = self._make_section_card("立项表信息")
@@ -214,6 +241,7 @@ class OverviewTab(QWidget):
         """加载项目数据到概览 Tab"""
         self._project = project
         self._load_meta(project)
+        self._load_asset_summary(project)
         self._load_proposal(project)
         self._load_change_overview(project)
         self._load_recent_activity(project)
@@ -287,6 +315,113 @@ class OverviewTab(QWidget):
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()
+
+    # ── D2.1.1 工程资产摘要 ───────────────────────────────
+
+    def _load_asset_summary(self, project: ProjectInfo) -> None:
+        """加载工程资产摘要区块
+
+        数据来源：``project.extra.asset_summary``（由 ``ProjectScanner`` 注入）。
+        缺失时降级为"暂无资产摘要"；非 PLC 项目显示"工程资产不适用"。
+        """
+        self._clear_layout(self._asset_summary_layout)
+
+        asset_summary = project.extra.get("asset_summary") if project.extra else None
+        if not isinstance(asset_summary, dict):
+            hint = QLabel("暂无资产摘要")
+            hint.setObjectName("hintLabel")
+            self._asset_summary_layout.addWidget(hint)
+            return
+
+        status = str(asset_summary.get("status", "unknown"))
+        badge_label_text, badge_bg, badge_fg = _ASSET_STATUS_BADGE.get(
+            status, ("未知", "#95a5a6", "#ffffff")
+        )
+
+        # 健康状态徽标行
+        badge_row = QHBoxLayout()
+        badge_row.setSpacing(8)
+        badge_label = QLabel(badge_label_text)
+        badge_label.setStyleSheet(
+            f"background: {badge_bg}; color: {badge_fg}; "
+            f"padding: 2px 8px; border-radius: 3px; "
+            f"font-size: 12px; font-weight: bold;"
+        )
+        badge_row.addWidget(badge_label)
+
+        status_text = QLabel(_ASSET_STATUS_TEXT.get(status, status))
+        status_text.setObjectName("fieldValue")
+        badge_row.addWidget(status_text)
+        badge_row.addStretch(1)
+        self._asset_summary_layout.addLayout(badge_row)
+
+        # 不适用状态：显示原因并返回
+        if status == "not_applicable":
+            issue_messages = asset_summary.get("issue_messages", [])
+            if issue_messages:
+                reason_label = QLabel(str(issue_messages[0]))
+                reason_label.setObjectName("hintLabel")
+                reason_label.setWordWrap(True)
+                self._asset_summary_layout.addWidget(reason_label)
+            return
+
+        # 三类资产数量
+        io_count = self._extract_asset_count(asset_summary, "io_points")
+        block_count = self._extract_asset_count(asset_summary, "program_blocks")
+        comm_count = self._extract_asset_count(asset_summary, "communications")
+
+        counts_row = QHBoxLayout()
+        counts_row.setSpacing(24)
+        for label_text, count in (
+            ("IO 点数", io_count),
+            ("程序块", block_count),
+            ("通讯对象", comm_count),
+        ):
+            col = QVBoxLayout()
+            col.setSpacing(2)
+            l1 = QLabel(label_text)
+            l1.setObjectName("fieldLabel")
+            l2 = QLabel(str(count))
+            l2.setObjectName("changeCount")
+            col.addWidget(l1)
+            col.addWidget(l2)
+            counts_row.addLayout(col)
+        counts_row.addStretch(1)
+        self._asset_summary_layout.addLayout(counts_row)
+
+        # 问题摘要
+        issue_messages = asset_summary.get("issue_messages", [])
+        if issue_messages:
+            issues_title = QLabel("问题摘要")
+            issues_title.setObjectName("fieldLabel")
+            self._asset_summary_layout.addWidget(issues_title)
+
+            for msg in issue_messages[:_ASSET_ISSUE_MAX_DISPLAY]:
+                item = QLabel(f"• {msg}")
+                item.setObjectName("activityItem")
+                item.setWordWrap(True)
+                self._asset_summary_layout.addWidget(item)
+
+            remaining = len(issue_messages) - _ASSET_ISSUE_MAX_DISPLAY
+            if remaining > 0:
+                more_label = QLabel(f"+{remaining} 更多")
+                more_label.setObjectName("hintLabel")
+                self._asset_summary_layout.addWidget(more_label)
+        else:
+            no_issues = QLabel("无问题")
+            no_issues.setObjectName("hintLabel")
+            self._asset_summary_layout.addWidget(no_issues)
+
+    @staticmethod
+    def _extract_asset_count(asset_summary: dict[str, Any], key: str) -> int:
+        """从资产摘要中提取指定类别的数量"""
+        sub = asset_summary.get(key)
+        if isinstance(sub, dict):
+            try:
+                return int(sub.get("count", 0))
+            except (TypeError, ValueError):
+                return 0
+        return 0
 
     # ── D2.2 立项表解析展示 ───────────────────────────────
 
