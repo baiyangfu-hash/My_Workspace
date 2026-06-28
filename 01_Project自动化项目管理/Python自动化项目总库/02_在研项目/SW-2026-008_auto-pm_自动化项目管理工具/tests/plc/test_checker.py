@@ -374,3 +374,109 @@ class TestEdgeCases:
         # libraries 字段缺失应产生 warn
         lib_items = [i for i in result.items if "libraries" in i.item]
         assert any(i.status == "warn" for i in lib_items)
+
+
+# ── V0.4.1 Step 3: Python 项目不适用口径测试 ──────────────────
+
+
+class TestPythonProjectNotApplicable:
+    """V0.4.1 Step 3: Python 项目（无 .plc.json + 有 pyproject.toml）不适用 PLC 检查"""
+
+    def test_python_project_with_pyproject_no_plc_json(self, tmp_path: Path) -> None:
+        """有 pyproject.toml 无 .plc.json → not_applicable=True"""
+        project_dir = tmp_path / "SW-2026-001_Python项目"
+        project_dir.mkdir()
+        # Python 项目特征文件
+        (project_dir / "pyproject.toml").write_text(
+            '[project]\nname = "test"\nversion = "0.1.0"\n',
+            encoding="utf-8",
+        )
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        assert result.not_applicable is True
+        assert "Python 项目" in result.not_applicable_reason
+        assert "pyproject.toml" in result.not_applicable_reason
+        # 不跑 5 项检查，items 应为空
+        assert len(result.items) == 0
+        # fail_count 应为 0（未跑检查）
+        assert result.fail_count == 0
+
+    def test_python_project_no_checks_run(self, tmp_path: Path) -> None:
+        """not_applicable 时不跑任何检查（pass/warn/fail 计数全为 0）"""
+        project_dir = tmp_path / "SW-2026-002_测试项目"
+        project_dir.mkdir()
+        (project_dir / "pyproject.toml").write_text(
+            '[project]\nname = "test2"\n', encoding="utf-8"
+        )
+        # 故意不创建 PM_SESSION/PRD/标准目录，验证不会触发 fail
+        # （如果跑了检查这些应该全 fail）
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        assert result.not_applicable is True
+        assert result.pass_count == 0
+        assert result.warn_count == 0
+        assert result.fail_count == 0
+        assert len(result.items) == 0
+
+    def test_python_project_with_plc_json_still_checked(self, tmp_path: Path) -> None:
+        """有 .plc.json 即使有 pyproject.toml 也跑检查（不适用条件不满足）"""
+        project_dir = tmp_path / "SW-2026-003_混合项目"
+        project_dir.mkdir()
+        # 同时有 .plc.json 和 pyproject.toml（混合项目）
+        (project_dir / "pyproject.toml").write_text(
+            '[project]\nname = "test3"\n', encoding="utf-8"
+        )
+        (project_dir / ".plc.json").write_text(
+            json.dumps(
+                {"name": "SW-2026-003", "version": "V1.0.0", "description": "混合"},
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        (project_dir / "PM_SESSION_SW-2026-003.md").write_text(
+            "# PM_SESSION\n", encoding="utf-8"
+        )
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        # 有 .plc.json 时 not_applicable 应为 False
+        assert result.not_applicable is False
+        # 应该跑了 .plc.json 检查
+        assert any(item.item == ".plc.json" for item in result.items)
+
+    def test_python_project_no_pyproject_no_plc_json_runs_checks(
+        self, tmp_path: Path
+    ) -> None:
+        """既无 pyproject.toml 也无 .plc.json → 跑检查（不适用条件不满足）"""
+        project_dir = tmp_path / "DJ-2026-BARE_裸项目"
+        project_dir.mkdir()
+        # 既无 .plc.json 也无 pyproject.toml
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        # 应该跑检查（not_applicable=False）
+        assert result.not_applicable is False
+        # 应该有 fail 项（.plc.json 缺失）
+        assert result.fail_count >= 1
+
+    def test_not_applicable_reason_text(self, tmp_path: Path) -> None:
+        """not_applicable_reason 字符串包含 Python 项目说明"""
+        project_dir = tmp_path / "SW-2026-004_Python工具"
+        project_dir.mkdir()
+        (project_dir / "pyproject.toml").write_text(
+            '[project]\nname = "test4"\n', encoding="utf-8"
+        )
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        assert result.not_applicable is True
+        # reason 应该提到 Python 项目 + 不适用
+        assert "Python" in result.not_applicable_reason
+        assert "不适用" in result.not_applicable_reason

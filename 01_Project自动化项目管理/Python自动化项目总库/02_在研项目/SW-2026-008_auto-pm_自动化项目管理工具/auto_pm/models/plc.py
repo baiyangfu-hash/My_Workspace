@@ -29,6 +29,11 @@ class CheckResult(BaseModel):
     pass_count: int = Field(0, description="通过数")
     warn_count: int = Field(0, description="警告数")
     fail_count: int = Field(0, description="失败数")
+    # V0.4.1 Step 3: PLC 检查不适用口径
+    # 对 Python 项目（无 .plc.json + 有 pyproject.toml）直接返回 not_applicable=True，
+    # 不跑 5 项检查、不累加 fail_count；驾驶舱据此跳过该项目避免误报
+    not_applicable: bool = Field(False, description="是否不适用 PLC 检查（Python 项目）")
+    not_applicable_reason: str = Field("", description="不适用原因")
 
     model_config = ConfigDict()
 

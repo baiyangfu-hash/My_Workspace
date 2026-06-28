@@ -22,15 +22,32 @@ from auto_pm.models import ChangeSummary, ProjectRecord
 
 
 class _FakeCheckResult:
-    def __init__(self, fail_count: int) -> None:
+    def __init__(
+        self,
+        fail_count: int = 0,
+        not_applicable: bool = False,
+        not_applicable_reason: str = "",
+    ) -> None:
         self.fail_count = fail_count
+        self.not_applicable = not_applicable
+        self.not_applicable_reason = not_applicable_reason
 
 
 class _FakePlcService:
-    def __init__(self, fail_counts: dict[str, int] | None = None) -> None:
+    def __init__(
+        self,
+        fail_counts: dict[str, int] | None = None,
+        not_applicable_paths: set[str] | None = None,
+    ) -> None:
         self._fail_counts = fail_counts or {}
+        self._not_applicable_paths = not_applicable_paths or set()
 
     def check(self, project_path: str) -> _FakeCheckResult:
+        if project_path in self._not_applicable_paths:
+            return _FakeCheckResult(
+                not_applicable=True,
+                not_applicable_reason="Python 项目（无 .plc.json + 有 pyproject.toml），PLC 检查不适用",
+            )
         return _FakeCheckResult(self._fail_counts.get(project_path, 0))
 
 
@@ -178,3 +195,146 @@ class TestDashboardService:
         assert any("CHG-PLC-2026-002" in item for item in result.recent_activities)
         assert result.risk_hints[0] == "存在 2 条未关闭变更，建议优先清理实施中和待验收项"
         assert result.risk_hints[1] == "PLC 检查失败项目: DJ-2026-001"
+
+    # ── V0.4.1 Step 3: not_applicable 口径测试 ──────────────
+
+    def test_not_applicable_project_not_counted_as_failed(
+        self,
+        project_service: ProjectService,
+        change_service: ChangeService,
+    ) -> None:
+        """V0.4.1 Step 3: not_applicable 项目不计入 failed_check_project_count
+
+        场景：stack='plc' 但实际是 Python 项目（PlcService.check 返回 not_applicable=True）
+        应该：not_applicable_project_count=1, failed_check_project_count=0
+        """
+        # SW-2026-003 stack='plc' 但实际是 Python 项目（误标或扫描器误判）
+        records = [
+            _make_project_record(
+                "SW-2026-003", "Python工具", "plc", "developing", "SW"
+            ),
+        ]
+        for r in records:
+            project_service._repo.upsert(r)
+
+        fake_plc_service = _FakePlcService(
+            not_applicable_paths={"/tmp/SW-2026-003"}
+        )
+        service = DashboardService(
+            project_service, change_service, plc_service=fake_plc_service
+        )
+
+        result = service.get_summary()
+
+        # not_applicable 应被正确计数
+        assert result.not_applicable_project_count == 1
+        assert result.not_applicable_project_ids == ["SW-2026-003"]
+        # failed_check_project_count 应为 0（不适用 ≠ 失败）
+        assert result.failed_check_project_count == 0
+        assert result.failed_check_project_ids == []
+
+    def test_not_applicable_mixed_with_failed(
+        self,
+        project_service: ProjectService,
+        change_service: ChangeService,
+    ) -> None:
+        """V0.4.1 Step 3: not_applicable 与 failed 混合场景
+
+        场景：1 个 PLC 检查失败 + 1 个 Python 项目（not_applicable）
+        应该：failed_check_project_count=1, not_applicable_project_count=1
+        """
+        records = [
+            _make_project_record(
+                "DJ-2026-001", "PLC单机A", "plc", "developing", "DJ"
+            ),
+            _make_project_record(
+                "SW-2026-003", "Python工具", "plc", "developing", "SW"
+            ),
+        ]
+        for r in records:
+            project_service._repo.upsert(r)
+
+        fake_plc_service = _FakePlcService(
+            fail_counts={"/tmp/DJ-2026-001": 2},
+            not_applicable_paths={"/tmp/SW-2026-003"},
+        )
+        service = DashboardService(
+            project_service, change_service, plc_service=fake_plc_service
+        )
+
+        result = service.get_summary()
+
+        # failed + not_applicable 分离
+        assert result.failed_check_project_count == 1
+        assert result.failed_check_project_ids == ["DJ-2026-001"]
+        assert result.not_applicable_project_count == 1
+        assert result.not_applicable_project_ids == ["SW-2026-003"]
+
+    def test_risk_hints_not_applicable_only(
+        self,
+        project_service: ProjectService,
+        change_service: ChangeService,
+    ) -> None:
+        """V0.4.1 Step 3: 仅有 not_applicable 没 failed 时给出信息提示"""
+        records = [
+            _make_project_record(
+                "SW-2026-003", "Python工具", "plc", "developing", "SW"
+            ),
+        ]
+        for r in records:
+            project_service._repo.upsert(r)
+
+        fake_plc_service = _FakePlcService(
+            not_applicable_paths={"/tmp/SW-2026-003"}
+        )
+        service = DashboardService(
+            project_service, change_service, plc_service=fake_plc_service
+        )
+
+        result = service.get_summary()
+
+        # risk_hints 应包含 not_applicable 信息提示
+        not_applicable_hint = next(
+            (h for h in result.risk_hints if "PLC 检查不适用项目" in h), None
+        )
+        assert not_applicable_hint is not None
+        assert "1" in not_applicable_hint
+        assert "Python" in not_applicable_hint
+
+    def test_risk_hints_failed_overrides_not_applicable_hint(
+        self,
+        project_service: ProjectService,
+        change_service: ChangeService,
+    ) -> None:
+        """V0.4.1 Step 3: 有 failed 时不显示 not_applicable 信息提示（避免风险列表冗余）"""
+        records = [
+            _make_project_record(
+                "DJ-2026-001", "PLC单机A", "plc", "developing", "DJ"
+            ),
+            _make_project_record(
+                "SW-2026-003", "Python工具", "plc", "developing", "SW"
+            ),
+        ]
+        for r in records:
+            project_service._repo.upsert(r)
+
+        fake_plc_service = _FakePlcService(
+            fail_counts={"/tmp/DJ-2026-001": 2},
+            not_applicable_paths={"/tmp/SW-2026-003"},
+        )
+        service = DashboardService(
+            project_service, change_service, plc_service=fake_plc_service
+        )
+
+        result = service.get_summary()
+
+        # 有 failed 时不应该有 not_applicable 提示
+        not_applicable_hints = [
+            h for h in result.risk_hints if "PLC 检查不适用项目" in h
+        ]
+        assert len(not_applicable_hints) == 0
+        # 但应该有 failed 提示
+        failed_hints = [
+            h for h in result.risk_hints if "PLC 检查失败项目" in h
+        ]
+        assert len(failed_hints) == 1

@@ -53,8 +53,26 @@ class PlcChecker:
 
         Returns:
             CheckResult: 检查结果，包含所有检查项及其状态
+
+        V0.4.1 Step 3: Python 项目（无 .plc.json + 有 pyproject.toml）直接返回
+        not_applicable=True 的 CheckResult，不跑 5 项检查；规则与 _is_project_dir
+        的 pyproject.toml 排除逻辑保持一致，避免 --all 模式与单项目模式行为分歧。
         """
         result = CheckResult(project_path=project_path)
+
+        # V0.4.1 Step 3: Python 项目不适用 PLC 检查
+        if not self._find_plc_json(project_path) and os.path.isfile(
+            os.path.join(project_path, "pyproject.toml")
+        ):
+            result.not_applicable = True
+            result.not_applicable_reason = (
+                "Python 项目（无 .plc.json + 有 pyproject.toml），PLC 检查不适用"
+            )
+            log.info(
+                "Python 项目跳过 PLC 检查（not_applicable=True）: %s",
+                os.path.basename(project_path),
+            )
+            return result
 
         # 检测项目类型
         project_type = self._detect_project_type(project_path)

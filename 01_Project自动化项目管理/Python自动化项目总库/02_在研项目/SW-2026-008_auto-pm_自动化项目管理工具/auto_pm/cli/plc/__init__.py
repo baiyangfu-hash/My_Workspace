@@ -133,6 +133,21 @@ def cmd_check(
     else:
         result = svc.check(proj.path, fix=fix)
 
+    # V0.4.1 Step 3: Python 项目不适用 PLC 检查时输出友好提示
+    if result.not_applicable:
+        if output_json:
+            print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))  # noqa: T201
+        else:
+            console.print(
+                f"[blue]PLC 检查不适用: {project_id}[/blue]"
+            )
+            console.print(f"[dim]{result.not_applicable_reason}[/dim]")
+            console.print(
+                "[dim]提示: Python 项目（无 .plc.json + 有 pyproject.toml）"
+                "无需执行 PLC 检查；驾驶舱会自动跳过该项目。[/dim]"
+            )
+        return
+
     if output_json:
         print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))  # noqa: T201
     else:
@@ -214,8 +229,15 @@ def _print_check_summary(results: list[CheckResult]) -> None:
 
     V0.2.1-P2-4: 项目列使用 project_id（与 project show 一致），
     而非目录名。
+
+    V0.4.1 Step 3: not_applicable 项目（Python 项目）从 PASS/FAIL 统计中分离，
+    单独以「PLC 检查不适用」展示，避免计入 FAIL 误报。
     """
-    table = Table(title=f"PLC 项目检查摘要 ({len(results)} 个)")
+    # V0.4.1 Step 3: 分离 not_applicable 项目（Python 项目）
+    applicable = [r for r in results if not r.not_applicable]
+    not_applicable = [r for r in results if r.not_applicable]
+
+    table = Table(title=f"PLC 项目检查摘要 ({len(applicable)} 个)")
     table.add_column("项目", style="cyan")
     table.add_column("类型", style="dim")
     table.add_column("Pass", style="green", justify="right")
@@ -224,7 +246,7 @@ def _print_check_summary(results: list[CheckResult]) -> None:
     table.add_column("状态", style="bold")
 
     total_pass = 0
-    for r in results:
+    for r in applicable:
         status = "[green]PASS[/green]" if r.all_pass else "[red]FAIL[/red]"
         if r.all_pass:
             total_pass += 1
@@ -239,9 +261,18 @@ def _print_check_summary(results: list[CheckResult]) -> None:
 
     console.print(table)
     console.print(
-        f"\n合计: {len(results)} 个项目, {total_pass} 个 PASS, "
-        f"{len(results) - total_pass} 个 FAIL"
+        f"\n合计: {len(applicable)} 个项目, {total_pass} 个 PASS, "
+        f"{len(applicable) - total_pass} 个 FAIL"
     )
+
+    # V0.4.1 Step 3: not_applicable 项目单独展示
+    if not_applicable:
+        console.print(
+            f"\n[blue]PLC 检查不适用项目: {len(not_applicable)} 个（Python 项目，已跳过检查）[/blue]"
+        )
+        for r in not_applicable:
+            pid = PlcChecker.resolve_project_id(r.project_path)
+            console.print(f"  [dim]- {pid}: {r.not_applicable_reason}[/dim]")
 
 
 def _print_check_detail(result: CheckResult) -> None:

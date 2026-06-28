@@ -318,6 +318,57 @@ class TestDashboardBanner:
         view.deleteLater()
         qapp.processEvents()
 
+    # ── V0.4.1 Step 3: not_applicable UI 展示测试 ──────────
+
+    def test_not_applicable_label_displayed(self, qapp: QApplication) -> None:
+        """V0.4.1 Step 3: 横幅应展示「检查不适用: N（Python 项目）」"""
+        view = ProjectListView()
+        summary = DashboardSummaryDTO(
+            total_projects=2,
+            phase_counts={"developing": 2, "commissioning": 0, "production": 0, "archived": 0},
+            open_change_count=0,
+            failed_check_project_count=0,
+            failed_check_project_ids=[],
+            not_applicable_project_count=1,
+            not_applicable_project_ids=["SW-2026-003"],
+            recent_activities=[],
+            risk_hints=["PLC 检查不适用项目: 1 个（Python 项目，已跳过 PLC 检查）"],
+        )
+
+        view.set_dashboard_summary(summary)
+        qapp.processEvents()
+
+        # 检查不适用标签应可见且文本正确
+        label = view._dashboard_banner._not_applicable_label
+        assert label.text() == "检查不适用: 1（Python 项目）"
+        assert "SW-2026-003" in label.toolTip()
+        view.deleteLater()
+        qapp.processEvents()
+
+    def test_not_applicable_label_zero(self, qapp: QApplication) -> None:
+        """V0.4.1 Step 3: 无不适用项目时显示 0 且无工具提示"""
+        view = ProjectListView()
+        summary = DashboardSummaryDTO(
+            total_projects=1,
+            phase_counts={"developing": 1, "commissioning": 0, "production": 0, "archived": 0},
+            open_change_count=0,
+            failed_check_project_count=0,
+            failed_check_project_ids=[],
+            not_applicable_project_count=0,
+            not_applicable_project_ids=[],
+            recent_activities=[],
+            risk_hints=["当前未发现高优先级风险"],
+        )
+
+        view.set_dashboard_summary(summary)
+        qapp.processEvents()
+
+        label = view._dashboard_banner._not_applicable_label
+        assert label.text() == "检查不适用: 0（Python 项目）"
+        assert label.toolTip() == ""
+        view.deleteLater()
+        qapp.processEvents()
+
     def test_set_filter_empty_shows_all(self, qapp: QApplication) -> None:
         """set_filter('', '') → 不筛选，显示全部"""
         view = ProjectListView()

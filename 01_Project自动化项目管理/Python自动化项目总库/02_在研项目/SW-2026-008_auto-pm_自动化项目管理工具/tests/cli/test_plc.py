@@ -133,6 +133,137 @@ def test_plc_check_fix(cli_runner: CliRunner, tmp_path: Path) -> None:
     assert (project_dir / "00_项目管理").is_dir()
 
 
+# ── V0.4.1 Step 3: Python 项目不适用口径 CLI 集成测试 ──────
+
+
+def _make_python_project(
+    workspace: Path,
+    project_id: str,
+    name: str = "Python工具",
+) -> Path:
+    """创建一个 Python 项目（有 pyproject.toml 无 .plc.json）
+
+    V0.4.1 Step 3: 供 plc check Python 项目 CLI 集成测试使用。
+    项目通过 .copier-answers.yml 识别为 stack='python'，无 .plc.json，
+    PlcChecker.check_project 应返回 not_applicable=True。
+    """
+    project_dir = workspace / f"{project_id}_{name}"
+    project_dir.mkdir()
+    # .copier-answers.yml（stack='python'，让 ProjectScanner 识别为 Python 项目）
+    (project_dir / ".copier-answers.yml").write_text(
+        f"project_id: {project_id}\n"
+        f"project_name: {name}\n"
+        "stack: python\n"
+        "_src_path: templates/python-tool\n",
+        encoding="utf-8",
+    )
+    # pyproject.toml（让 PlcChecker 触发 not_applicable 分支）
+    (project_dir / "pyproject.toml").write_text(
+        f'[project]\nname = "{project_id.lower()}"\nversion = "0.1.0"\n',
+        encoding="utf-8",
+    )
+    # 不创建 .plc.json（关键：触发 not_applicable）
+    return project_dir
+
+
+def test_plc_check_python_project_friendly_output(
+    cli_runner: CliRunner, tmp_path: Path
+) -> None:
+    """V0.4.1 Step 3: plc check <Python 项目> 输出友好提示"""
+    project_id = "SW-2026-PYT"
+    _make_python_project(tmp_path, project_id)
+
+    result = cli_runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "plc", "check", project_id],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    # 输出应包含友好提示
+    assert "PLC 检查不适用" in result.output
+    assert project_id in result.output
+    assert "Python 项目" in result.output
+    # 不应该有「检查结果」表格（因为没跑检查）
+    assert "检查结果:" not in result.output
+    # 不应该有 FAIL 项
+    assert "FAIL" not in result.output
+
+
+def test_plc_check_python_project_json(
+    cli_runner: CliRunner, tmp_path: Path
+) -> None:
+    """V0.4.1 Step 3: plc check <Python 项目> --json 输出 not_applicable=True"""
+    project_id = "SW-2026-PYJ"
+    _make_python_project(tmp_path, project_id)
+
+    result = cli_runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "plc", "check", project_id, "--json"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    # 解析 JSON 输出
+    data = json.loads(result.output)
+    assert data["not_applicable"] is True
+    assert "Python 项目" in data["not_applicable_reason"]
+    assert data["fail_count"] == 0
+    assert len(data["items"]) == 0
+
+
+def test_plc_check_all_skips_python_project(
+    cli_runner: CliRunner, tmp_path: Path
+) -> None:
+    """V0.4.1 Step 3: plc check --all 不应将 Python 项目误报为 FAIL
+
+    场景：工作空间同时有 PLC 项目和 Python 项目
+    预期：--all 只扫描 PLC 项目（_is_project_dir 排除 pyproject.toml 项目），
+    Python 项目不出现在 PLC 检查摘要中
+    """
+    # PLC 项目（会被 _is_project_dir 识别）
+    _make_plc_project(tmp_path, "DJ-2026-001", "PLC项目")
+    # Python 项目（应被 _is_project_dir 排除，不出现在 --all 结果中）
+    _make_python_project(tmp_path, "SW-2026-PYT", "Python工具")
+
+    result = cli_runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "plc", "check", "--all"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    # PLC 项目应出现在检查摘要中
+    assert "DJ-2026-001" in result.output
+    # Python 项目不应出现在检查摘要中（_is_project_dir 已排除）
+    # 注意：SW-2026-PYT 是 project_id，目录名是 SW-2026-PYT_Python工具
+    # 如果误扫描到，会显示 project_id 或目录名
+    assert "SW-2026-PYT" not in result.output
+    # 不应该有 FAIL 标记（PLC 项目应通过检查，Python 项目被跳过）
+    # 注意：PLC 项目可能因缺少 PM_SESSION 等 fail，但 Python 项目不应是失败原因
+
+
+def test_plc_check_python_project_does_not_pollute_dashboard(
+    cli_runner: CliRunner, tmp_path: Path
+) -> None:
+    """V0.4.1 Step 3: Python 项目 PLC 检查不适用不应污染驾驶舱统计
+
+    场景：工作空间仅有 Python 项目（无 PLC 项目）
+    预期：plc check --all 应输出「未发现 PLC 项目」而非 FAIL
+    """
+    # 仅创建 Python 项目
+    _make_python_project(tmp_path, "SW-2026-ONLY", "仅Python项目")
+
+    result = cli_runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "plc", "check", "--all"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    # 应输出「未发现 PLC 项目」（_is_project_dir 已排除 Python 项目）
+    assert "未发现 PLC 项目" in result.output
+    # 不应误报 Python 项目为 FAIL
+    assert "SW-2026-ONLY" not in result.output
+    assert "FAIL" not in result.output
+
+
 # ── init 命令测试 ──────────────────────────────────────
 
 

@@ -143,6 +143,11 @@ QLabel#dashboardSection {
         self._check_label.setObjectName("dashboardMetric")
         layout.addWidget(self._check_label)
 
+        # V0.4.1 Step 3: PLC 检查不适用项目数（Python 项目）
+        self._not_applicable_label = QLabel("检查不适用: 0")
+        self._not_applicable_label.setObjectName("dashboardHint")
+        layout.addWidget(self._not_applicable_label)
+
         recent_title = QLabel("最近活动")
         recent_title.setObjectName("dashboardSection")
         layout.addWidget(recent_title)
@@ -178,6 +183,16 @@ QLabel#dashboardSection {
             self._check_label.setToolTip("失败项目: " + ", ".join(summary.failed_check_project_ids))
         else:
             self._check_label.setToolTip("")
+        # V0.4.1 Step 3: 检查不适用项目（Python 项目）
+        self._not_applicable_label.setText(
+            f"检查不适用: {summary.not_applicable_project_count}（Python 项目）"
+        )
+        if summary.not_applicable_project_ids:
+            self._not_applicable_label.setToolTip(
+                "不适用项目: " + ", ".join(summary.not_applicable_project_ids)
+            )
+        else:
+            self._not_applicable_label.setToolTip("")
         self._recent_label.setText("\n".join(summary.recent_activities) or "暂无最近活动")
         self._risk_label.setText("\n".join(summary.risk_hints) or "当前未发现高优先级风险")
         self.setVisible(True)

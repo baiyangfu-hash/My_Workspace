@@ -116,6 +116,14 @@ class DashboardSummaryDTO(BaseModel):
         default_factory=list,
         description="PLC 检查失败项目编号列表",
     )
+    # V0.4.1 Step 3: PLC 检查不适用项目数（Python 项目）
+    # 与 failed_check 区分：not_applicable 是「不适用 PLC 检查」的正常口径，
+    # 不计入 failed_check，避免驾驶舱误报
+    not_applicable_project_count: int = Field(0, description="PLC 检查不适用项目数（Python 项目）")
+    not_applicable_project_ids: list[str] = Field(
+        default_factory=list,
+        description="PLC 检查不适用项目编号列表",
+    )
     recent_activities: list[str] = Field(
         default_factory=list,
         description="最近活动摘要列表",

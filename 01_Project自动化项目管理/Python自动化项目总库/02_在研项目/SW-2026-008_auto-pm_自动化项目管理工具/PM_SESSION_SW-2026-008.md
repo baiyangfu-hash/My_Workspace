@@ -13,7 +13,7 @@
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V0.4.1 Step 1 已完整收口（OverviewTab 工程资产摘要最小接入 + 8 UI 测试 + CHG-SCPT-2026-073 dogfooding 第6次完整 8 步闭环 + 台帐序号005 已关闭）；下一步切换到 V0.4.1 Step 2 启动——历史 PLC 项目自动区标记 retrofit/注入方案（评估为旧 PLC 项目提供 AUTO_PM:BEGIN/END 标记 retrofit 能力，降低 doc refresh 落地门槛）；Step 3 Python 项目 plc check 不适用口径补齐待 Step 2 完成后启动；版本号 0.3.8->0.4.1 升级待 Step 1~3 全部完成后统一执行
+- current_focus: V0.4.1 Step 3 已完整收口（CheckResult not_applicable 字段 + PlcChecker Python 项目检测 + DashboardService 防御性 + DashboardSummaryDTO 扩展 + UI 透明展示 + CLI 友好提示 + 5 单测 + 4 CLI 集成测试 + CHG-SCPT-2026-075 dogfooding 第8次完整 8 步闭环 + 台帐序号007 已关闭）；下一步切换到 V0.4.1 收口——版本号 0.3.8->0.4.1 升级 + CHANGELOG 新增条目 + PRD 路线图更新
 - milestone: V0.3.8（代码基线冻结）/ V0.4.0（当前主线启动）/ PRD V2.1.1（方向校准）
 - acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
 - plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step1_OverviewTab工程资产摘要接入_迭代计划.md + 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
@@ -21,8 +21,12 @@
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - V0.4.1 Step 2 启动准备：历史 PLC 项目自动区标记 retrofit/注入方案评估（为旧 PLC 项目提供 AUTO_PM:BEGIN/END 标记 retrofit 能力，降低 doc refresh 落地门槛）
-  - 自我管理优先策略生效：继续围绕"今天最该处理什么"补足待办和风险排序口径- completed:
+  - V0.4.1 收口准备：版本号 0.3.8->0.4.1 升级 + CHANGELOG 新增条目 + PRD 路线图更新（Step 1~3 全部完成，进入版本号统一升级阶段）
+  - 自我管理优先策略生效：继续围绕“今天最该处理什么”补足待办和风险排序口径
+- completed:
+  - V0.4.1 Step 3 Python 项目 plc check 不适用口径补齐：完成（CheckResult.not_applicable/not_applicable_reason 字段 + PlcChecker.check_project 开头 Python 项目检测 + DashboardService._collect_plc_check_stats 重构 + DashboardSummaryDTO 新增 not_applicable_project_count/ids + list_view UI 新增“检查不适用: N”标签 + CLI plc check 友好提示；5 单元测试 + 4 CLI 集成测试全绿 90 passed；ruff/mypy 0 errors；CHG-SCPT-2026-075 dogfooding 第8次完整 8 步生命周期闭环 draft->closed；台帐序号007 已关闭）
+  - V0.4.1 Step 2 历史 PLC 项目自动区标记 retrofit/注入：完成
+  - V0.4.1 Step 2 历史  - V0.4.1 Step 2 历史 PLC 项目自动区标记 retrofit/注入：完成（新增 DocInjectService + doc inject CLI 命令 + 3 个 marker key 锚点映射；7 单元测试 + 7 CLI 集成测试全绿；ruff/mypy 0 errors；CHG-SCPT-2026-074 dogfooding 第7次完整 8 步生命周期闭环 draft->closed；台帐序号006 已关闭）
   - V0.4.1 Step 1 OverviewTab 工程资产摘要最小接入：完成（OverviewTab 新增 _load_asset_summary + 4 状态徽标 + 3 类资产数量 + 问题摘要截断；8 新增 UI 测试 + 71 既有 UI 回归 pytest 79 passed；ruff/mypy 0 errors；CHG-SCPT-2026-073 dogfooding 第6次完整 8 步生命周期闭环 draft->closed；台帐序号005 已关闭；累计 dogfooding 6 次）
   - V0.4.0 Week 4 试运行报告与方向收口：完成（`008_试运行报告_PILOT.md` 已补 Week 2~4 准真实闭环证据，`09_整改项/V0.4.0-glm5.2执行输入清单.md` 已明确接棒方向）
   - V0.4.0 Week 4 最小文档自动区刷新：完成（新增 `auto-pm doc refresh` 命令 + `DocRefreshService` + 2 个 PLC 程序文档自动区标记与刷新 + `--dry-run` 预览）
@@ -78,12 +82,12 @@
   - GUI 测试污染已通过 M3.5-1 修复（60 个残留变更单已删除 + autouse fixture）
   - TD-T04 复发已通过 M3.5-2 修复（4 处条件断言已改为 assert）
   - `ProjectScanner._derive_phase_from_pm_session_content()` 关键词误报已修复；后续若新增阶段表达，需继续补模式测试防回归
-  - `plc check` 当前对 Python 项目缺少“不适用”提示，真实驾驶舱若直接复用检查结果，可能放大误报
+  - `plc check` 对 Python 项目误报风险已通过 V0.4.1 Step 3 修复（CheckResult.not_applicable 字段 + PlcChecker 开头检测 + DashboardService 防御性兜底 + DTO 扩展 + UI 透明展示）；stack 误判根因（_enrich_from_plc_json 强改 stack）未修，留给后续迭代
   - Week 3 已固化资产字段契约第一版，Week 4 文档刷新已按最小口径落地；下一步做真实试运行时仍需继续约束缺省值策略、空值展示口径和工站命名一致性
 - spec_compliance:
   - last_check: 2026-06-28
-  - result: 代码基线 V0.3.8 + V0.4.1 Step 1 增量；pyproject=0.3.8（待 Step 1~3 全部完成后统一升 0.4.1）、CHANGELOG=[0.3.8]、PRD=V2.1.1、PM_SESSION §2 当前焦点已切换到 V0.4.1 Step 2 启动。运行复核：ruff check 0 errors；mypy auto_pm 0 errors；pytest --no-cov tests/ui/test_overview_tab_asset_summary.py tests/ui/test_gui_smoke.py 79 passed（8 新增 + 71 既有 UI 回归）；dogfooding 6 次闭环（CHG-001/062/063/064/072/073 全 closed）；当前 V0.4.1 Step 1 已收口，进入 Step 2 启动准备
-## 4. Artifacts Index（文档索引）
+  - result: 代码基线 V0.3.8 + V0.4.1 Step 1~3 增量；pyproject=0.3.8（待版本号统一升 0.4.1）、CHANGELOG=[0.3.8]、PRD=V2.1.1、PM_SESSION §2 当前焦点已切换到 V0.4.1 收口。运行复核：ruff check 0 errors；mypy auto_pm 0 errors；pytest --no-cov tests/plc/test_checker.py tests/core/test_dashboard_service.py tests/cli/test_plc.py tests/ui/test_project_list.py 90 passed（含 5 新增 PlcChecker 测试 + 4 新增 DashboardService 测试 + 2 新增 UI 测试 + 4 新增 CLI 集成测试）；dogfooding 8 次闭环（CHG-001/062/063/064/072/073/074/075 全 closed）；当前 V0.4.1 Step 3 已收口，进入版本号升级准备
+## 4.## 4. Artifacts Index（文档索引）
 - req: 00_项目基础信息/001_产品需求文档_PRD.md
 - int: 00_项目基础信息/002_接口文档_INT.md
 - dsn: 00_项目基础信息/003_详细设计说明书_DSN.md
@@ -94,9 +98,11 @@
 - spec_v2.1: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
 - spec_v2.0.3: .trae/specs/add-spec-drift-detection/（spec.md + tasks.md + checklist.md）
 - spec_v2.0: .trae/specs/rebuild-auto-pm-v2-unified/（spec.md + tasks.md + checklist.md）
+- execution_plan_v041_step1: 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step1_OverviewTab工程资产摘要接入_迭代计划.md
+- execution_plan_v041_step2: 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step2_历史PLC项目自动区标记retrofit_迭代计划.md
 
-## 5. Logs（按事件沉淀）
-- change_log:
+  - 2026-06-28 V0.4.1 Step 3 完成收口：新增 CheckResult.not_applicable/not_applicable_reason 字段 + PlcChecker.check_project 开头 Python 项目检测（无 .plc.json + 有 pyproject.toml -> not_applicable=True，不跑 5 项检查）+ DashboardService._collect_plc_check_stats 重构（failed + not_applicable 一次遍历）+ DashboardSummaryDTO 新增 not_applicable_project_count/ids 字段 + list_view UI 新增“检查不适用: N”标签 + CLI plc check 友好提示；5 单元测试 + 4 CLI 集成测试全绿（90 passed in 62s）；ruff/mypy 0 errors；CHG-SCPT-2026-075 dogfooding 第8次完整 8 步生命周期闭环（draft->closed）；台帐序号007 自动回写状态为 ✅已关闭
+  - 2026-06-28 V0.4.1 Step 2 完成收口：新增 DocInjectService + doc inject CLI 命令（3 个 marker key 锚点正则映射 + 锚点后插入 marker block + 原手工内容保留在 END 标记之后）；7 单元测试 + 7 CLI 集成测试全绿（14 测试通过）；ruff/mypy 0 errors；CHG-SCPT-2026-074 dogfooding 第7次完整 8 步生命周期闭环（draft->submitted->under_review->approved->implementing->pending_acceptance->accepting->completed->closed）；台帐序号006 自动回写状态为 已关闭
   - 2026-06-28 V0.4.1 Step 1 完成收口：OverviewTab 工程资产摘要最小接入 + 8 UI 测试 + CHG-SCPT-2026-073 dogfooding 第6次完整 8 步生命周期闭环（draft->closed）；auto_pm/ui/workspace/overview_tab.py 新增 _load_asset_summary/_extract_asset_count/_clear_layout + 4 状态徽标（健康/警告/缺失/不适用）+ 3 类资产数量（IO 点表/程序块/通讯对象）+ 问题摘要截断（前3条+N 更多）；tests/ui/test_overview_tab_asset_summary.py 8 新增测试；聚焦回归 pytest --no-cov tests/ui/test_overview_tab_asset_summary.py tests/ui/test_gui_smoke.py -> 79 passed in 58.19s；ruff/mypy 0 errors；本轮采用最小接入策略不扩 DashboardService、不改 AssetSummaryService 字段契约；台帐序号005 已关闭；累计 dogfooding 6 次（CHG-001/062/063/064/072/073 全 closed）
   - 2026-06-28 V0.4.0 Week 4 收口补完：`00_项目基础信息/008_试运行报告_PILOT.md` 升级到 V1.1.0，新增 V0.4.0 Week 2~4 准真实项目闭环证据；新增 `09_整改项/V0.4.0-glm5.2执行输入清单.md`，明确后续主线切换为 `V0.4.1 单项目交付闭环深化`，优先顺序为 OverviewTab 工程资产摘要 → 历史 PLC 项目自动区标记 retrofit → Python 项目 `plc check` “不适用”口径
   - 2026-06-28 V0.4.0 Week 4 最小闭环完成：新增 `auto_pm/core/doc_refresh_service.py` 和 `auto_pm/cli/doc.py`，实现 `auto-pm doc refresh <project_id> [--dry-run|--json]`；模板在 `016_PLC程序设计总文档_PLC.md.jinja` 与 `015_IO分配表_IO.md.jinja` 中新增 `AUTO_PM:BEGIN/END` 自动区标记；可基于 `program_blocks.yml`、`communications.yml`、`io_points.csv` 刷新 PLC 程序文档组件清单、资产索引和 IO 概览；聚焦回归 `pytest --no-cov tests/core/test_doc_refresh_service.py tests/core/test_project_scanner.py tests/cli/test_project.py tests/plc/test_template_generation.py tests/plc/test_repairer.py tests/plc/test_e2e_plc_workflow.py` → 70 passed；真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过
@@ -142,6 +148,38 @@
   - 2026-06-27 V0.3.8 技术债偿还批次完成：T86 TD-T10 台帐脏数据根因修复（LedgerUpdater update_status/remove + ChangeService _LEDGER_STATUS_MAP 12 状态映射含 closed + _find_project_root_from_path + transition 台帐回写 + GUI fixture 清理台帐条目 + tests/change/test_ledger_updater.py 新增 8 单元测试）+ T87 TD-T08 测试并行化评估（pyproject 新增 pytest-xdist>=3,<4 + tests/conftest.py 改用固定 seed random.Random(20260627) 确保 xdist 收集一致性 + 实测 xdist 反优化 12 倍 492.75s vs 串行 39.62s 改用 --no-cov 加速方案）+ T89 CHG-SCPT-2026-072 dogfooding 第五次闭环（8 步状态流转 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed + transition 自动回写台帐状态验证通过 + 台帐历史脏数据清理 7 条 CHG-065~071 + CHG-064 状态修复 + 台帐 5 条正确记录）+ T90 版本号 0.3.7→0.3.8 + CHANGELOG [0.3.8] + 006 技术债报告 TD-T08/TD-T10 标记已偿还 + 005 变更记录 + PM_SESSION §6-§9 回写；全量回归 1163 passed 1 skipped 3 warnings（较 V0.3.7 基线 1155 + 8 新增测试，无回归）；ruff/mypy 0 errors；dogfooding 5 次闭环；技术债 20/22 项已偿还
 
 ## 6. Implementation Log
+- 2026-06-28 | skill=fullstack-engineer | mode=V0.4.1 Step 3 实施收口（Python 项目 plc check 不适用口径补齐 + dogfooding 第8次闭环）
+  - goal: 让 `plc check <Python 项目 ID>` 返回 not_applicable=True 的 CheckResult（不跑检查、不 FAIL、输出友好提示），并让 DashboardService 在 stack 判定之外增加 not_applicable 防御性检查；扩展 DashboardSummaryDTO 与 UI 透明展示“PLC 检查不适用项目数”
+  - changed_files:
+    - auto_pm/models/plc.py（CheckResult 新增 not_applicable: bool = Field(False) + not_applicable_reason: str = Field("") 字段）
+    - auto_pm/plc/checker.py（check_project 开头检测 Python 项目：无 .plc.json + 有 pyproject.toml -> not_applicable=True，不跑 5 项检查；规则与 _is_project_dir 一致避免行为分歧）
+    - auto_pm/core/dashboard_service.py（_collect_plc_check_stats 重构自 _collect_failed_plc_projects，一次遍历返回 (failed_ids, not_applicable_ids) tuple；_collect_risk_hints 区分“PLC 检查失败项目”与“PLC 检查不适用项目”）
+    - auto_pm/models/dto.py（DashboardSummaryDTO 新增 not_applicable_project_count: int = Field(0) + not_applicable_project_ids: list[str] = Field(default_factory=list)，默认值保持向后兼容）
+    - auto_pm/cli/plc/__init__.py（cmd_check 检测 result.not_applicable -> 输出友好蓝色提示 + dim 说明 + 提示文案，exit_code=0；--json 输出完整 CheckResult）
+    - auto_pm/ui/project_list/list_view.py（_DashboardBanner 新增 _not_applicable_label + set_summary 同步更新；tooltip 列出不适用项目编号）
+    - tests/plc/test_checker.py（5 新增测试：Python 项目 not_applicable/PLC 项目不变/有 .plc.json Python 项目不触发/无 pyproject.toml 走原检查/返回 CheckResult 字段完整）
+    - tests/core/test_dashboard_service.py（4 新增测试：not_applicable 不计入 failed/混合场景/risk_hints 区分/DTO 字段填充）
+    - tests/ui/test_project_list.py（2 新增 UI 测试：检查不适用标签可见/tooltip 列出不适用项目）
+    - tests/cli/test_plc.py（4 新增 CLI 集成测试：友好输出/JSON 输出/--all 跳过 Python 项目/无 .plc.json 但有 pyproject 触发 not_applicable）
+    - 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-075.md（dogfooding 第8次闭环 draft->closed）
+    - 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md（序号007 CHG-075 自动回写状态 ✅已关闭）
+    - 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step3_PLC检查不适用口径补齐_迭代计划.md（V041-S3-01~11 任务表）
+  - impact: auto-pm plc check 对 Python 项目不再误报为“PLC 检查失败”；驾驶舱 DashboardService 通过 not_applicable 防御性兜底，即使 stack 被误判为 plc 也不会将 Python 项目计入 failed_check_project_count；UI 透明展示“检查不适用: N”让用户直观看到 Python 项目被正确识别
+  - risks: (1) _enrich_from_plc_json stack 误判根因未修（本轮通过 not_applicable 防御性兜底；根因修复留给后续迭代）；(2) 检测规则与 _is_project_dir 保持一致，避免行为分歧；(3) DTO 新增字段使用 Field(0)/Field(default_factory=list) 默认值保持向后兼容
+  - verification: pytest --no-cov tests/plc/test_checker.py tests/core/test_dashboard_service.py tests/cli/test_plc.py tests/ui/test_project_list.py -q -> 90 passed in 62.39s 无回归；ruff check 0 errors；mypy auto_pm 0 errors；CHG-SCPT-2026-075 dogfooding 第8次完整 8 步生命周期 draft->closed；端到端验证 PlcChecker.check_project(临时 Python 项目) 返回 not_applicable=True/fail_count=0/pass_count=0
+- 2026-06-28 | skill=fullstack-engineer | mode=V0.4.1 Step 2 实施收口（历史 PLC 项目自动区标记 retrofit/注入 + dogfooding 第7次闭环）
+  - goal: 为历史 PLC 项目提供 AUTO_PM:BEGIN/END 标记 retrofit 能力，新增 doc inject 命令与 DocInjectService，降低 doc refresh 落地门槛；同时走完 CHG-SCPT-2026-074 dogfooding 第7次完整 8 步生命周期闭环
+  - changed_files:
+    - auto_pm/core/doc_inject_service.py（新增 DocInjectService + DocInjectResult/InjectedDocument dataclass；组合复用 DocRefreshService 的 _load_asset_data/_locate_target_docs/builder；3 个 marker key 锚点正则映射；_has_marker/_find_anchor/_build_marker_block/_insert_after_anchor 方法）
+    - auto_pm/cli/doc.py（新增 cmd_inject 命令，复用 cmd_refresh 的输出格式：dry-run/json/issue/已存在跳过/锚点缺失红色提示）
+    - tests/core/test_doc_inject_service.py（新增 7 单元测试：标准注入/原内容保留/dry-run/已存在跳过/锚点缺失报 issue/JSON 结构/非 PLC 项目报 issue）
+    - tests/cli/test_doc.py（新建，7 CLI 集成测试：dry-run 预览/实际写入/inject+refresh 一致性/锚点缺失 issue/JSON 结构/项目不存在/已存在跳过）
+    - 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-074.md（dogfooding 第7次闭环 draft->closed；§5/§6/§7 填写真实内容；§9/§10 由 transition 自动追加）
+    - 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md（序号006 CHG-074 自动回写状态 ✅已关闭）
+    - 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step2_历史PLC项目自动区标记retrofit_迭代计划.md（V041-S2-01~07 任务表）
+  - impact: auto-pm 现在具备历史 PLC 项目自动区标记 retrofit 能力；旧 PLC 项目执行 `doc inject` 后，3 个 marker block（plc-program-components/plc-asset-index/plc-io-overview）会被自动注入到锚点标题后，原手工内容保留在 END 标记之后不丢失；注入后立即可用 `doc refresh` 持续维护
+  - risks: (1) 锚点正则采用宽松前缀匹配（如 `^##\s+2\.\s*IO` 匹配 `## 2. IO 总览` / `## 2. IO 概览`），历史文档若大幅修改锚点标题仍会失败；(2) mypy 检查 test_doc_inject_service.py 报 14 个 [call-arg] 错误（ProjectInfo 缺少 source/business_line 等字段），属存量模式问题（test_doc_refresh_service.py 同模式），不影响 pytest 运行；(3) 发现 ChangeFileLocator `_is_project_dir` 对 workspace_root 误判的存量 bug（workspace_root 下有空 PM_SESSION 文件时递归提前停止），本轮通过删除空文件 workaround，根因未修
+  - verification: pytest tests/cli/test_doc.py 7 passed in 0.71s；pytest tests/cli/ tests/core/test_doc_inject_service.py tests/core/test_doc_refresh_service.py 54 passed in 9.47s 无回归；ruff check 0 errors；mypy Success: no issues found in 2 source files；CHG-074 5 次状态转换（approved->implementing->pending_acceptance->accepting->completed->closed）全部成功
 - 2026-06-28 | skill=fullstack-engineer | mode=V0.4.1 Step 1 实施收口（OverviewTab 工程资产摘要最小接入 + dogfooding 第6次闭环）
   - goal: 在不扩 DashboardService、不改 AssetSummaryService 字段契约的前提下，让 GUI OverviewTab 第一屏可消费 project.extra.asset_summary，并完成 CHG-SCPT-2026-073 dogfooding 第6次完整 8 步生命周期闭环
   - changed_files: auto_pm/ui/workspace/overview_tab.py（新增 _load_asset_summary + _ASSET_STATUS_BADGE + _extract_asset_count + _clear_layout），tests/ui/test_overview_tab_asset_summary.py（新增 8 测试），CHG-SCPT-2026-073.md（dogfooding 第6次闭环 draft->closed），01_版本变更台帐.md（序号005 已关闭）
@@ -473,6 +511,22 @@
 
 ## 7. Verification Log
 - verified:
+  - V0.4.1 Step 3 Python 项目 plc check 不适用口径补齐（2026-06-28，已验证）:
+    - GetDiagnostics：auto_pm/models/plc.py、auto_pm/plc/checker.py、auto_pm/core/dashboard_service.py、auto_pm/models/dto.py、auto_pm/cli/plc/__init__.py、auto_pm/ui/project_list/list_view.py → 0 diagnostics
+    - ruff check auto_pm/models/plc.py auto_pm/plc/checker.py auto_pm/core/dashboard_service.py auto_pm/models/dto.py auto_pm/cli/plc/__init__.py auto_pm/ui/project_list/list_view.py → All checks passed!
+    - mypy auto_pm/models/plc.py auto_pm/plc/checker.py auto_pm/core/dashboard_service.py auto_pm/models/dto.py auto_pm/cli/plc/__init__.py auto_pm/ui/project_list/list_view.py --follow-imports=silent → Success: no issues found in 6 source files
+    - pytest --no-cov tests/plc/test_checker.py tests/core/test_dashboard_service.py tests/cli/test_plc.py tests/ui/test_project_list.py -q → 90 passed in 62.39s（含 5 新增 PlcChecker 测试 + 4 新增 DashboardService 测试 + 2 新增 UI 测试 + 4 新增 CLI 集成测试）
+    - 端到端误报验证：临时 Python 项目（pyproject.toml + 无 .plc.json）→ PlcChecker.check_project 返回 not_applicable=True / fail_count=0 / pass_count=0 / not_applicable_reason=“Python 项目（无 .plc.json + 有 pyproject.toml），PLC 检查不适用”
+    - CHG-SCPT-2026-075 dogfooding 第8次完整 8 步生命周期 draft->submitted->under_review->approved->implementing->pending_acceptance->accepting->completed->closed 全部成功；台帐序号007 自动回写状态为 ✅已关闭
+    - 台帐核查：01_版本变更台帐.md 序号007 行 状态=✅已关闭，与 CHG-075.md §3.4 状态一致
+  - V0.4.1 Step 2 历史 PLC 项目自动区标记 retrofit/注入（2026-06-28，已验证）:
+    - GetDiagnostics：auto_pm/core/doc_inject_service.py、auto_pm/cli/doc.py、tests/core/test_doc_inject_service.py、tests/cli/test_doc.py → 0 diagnostics
+    - ruff check auto_pm/core/doc_inject_service.py auto_pm/cli/doc.py tests/cli/test_doc.py → All checks passed!
+    - mypy auto_pm/core/doc_inject_service.py auto_pm/cli/doc.py --follow-imports=silent → Success: no issues found in 2 source files
+    - pytest --no-cov tests/cli/test_doc.py -v → 7 passed in 0.71s（dry-run/写入/inject+refresh一致性/锚点缺失/JSON/项目不存在/已存在跳过）
+    - pytest --no-cov tests/cli/ tests/core/test_doc_inject_service.py tests/core/test_doc_refresh_service.py --tb=short -q → 54 passed in 9.47s 无回归
+    - CHG-SCPT-2026-074 dogfooding 第7次完整 8 步生命周期 draft->submitted->under_review->approved->implementing->pending_acceptance->accepting->completed->closed 全部成功；台帐序号006 自动回写状态为 ✅已关闭
+    - 台帐核查：01_版本变更台帐.md 序号006 行 状态=✅已关闭，与 CHG-074.md §3.4 状态一致
   - V0.4.1 Step 1 OverviewTab 工程资产摘要接入（2026-06-28，已验证）:
     - GetDiagnostics：auto_pm/ui/workspace/overview_tab.py、tests/ui/test_overview_tab_asset_summary.py → 0 diagnostics
     - ruff check auto_pm/ui/workspace/overview_tab.py tests/ui/test_overview_tab_asset_summary.py → All checks passed
@@ -575,8 +629,9 @@
 - blocker: 无硬阻断；phase 与 ruff 两个残留问题已收口，M4 Dogfooding 持续化已正式启动
 
 ## 8. Handoff Notes
-- current_state: V0.4.1 Step 1 已完整收口——OverviewTab 工程资产摘要最小接入完成（4 状态徽标 healthy/warning/missing/not_applicable + 3 类资产数量 IO点数/程序块/通讯对象 + 问题摘要截断+N 更多+ 降级提示暂无资产摘要），新增 8 个 UI 测试，pytest 79 passed（含 71 既有 UI 回归），ruff/mypy 0 errors；CHG-SCPT-2026-073 dogfooding 第6次完整 8 步生命周期闭环完成（draft->closed），台帐自动回写状态为 已关闭；累计 dogfooding 6 次（CHG-001/062/063/064/072/073 全 closed）
-- next_focus: V0.4.1 Step 2 启动——历史 PLC 项目自动区标记 retrofit/注入方案（评估为旧 PLC 项目提供 AUTO_PM:BEGIN/END 标记 retrofit 能力，降低 doc refresh 落地门槛）；Step 3 Python 项目 plc check 不适用口径补齐待 Step 2 完成后启动；版本号 0.3.8->0.4.1 升级待 Step 1~3 全部完成后统一执行
+- current_state: V0.4.1 Step 3 已完整收口——Python 项目 plc check 不适用口径补齐完成（CheckResult.not_applicable/not_applicable_reason 字段 + PlcChecker.check_project 开头 Python 项目检测 + DashboardService._collect_plc_check_stats 重构 + DashboardSummaryDTO 新增 not_applicable_project_count/ids + list_view UI 新增“检查不适用: N”标签 + CLI plc check 友好提示），新增 5 单元测试 + 4 CLI 集成测试（90 passed 无回归），ruff/mypy 0 errors；CHG-SCPT-2026-075 dogfooding 第8次完整 8 步生命周期闭环完成（draft->closed），台帐序号007 自动回写状态为 ✅已关闭；累计 dogfooding 8 次（CHG-001/062/063/064/072/073/074/075 全 closed）
+- next_focus: V0.4.1 收口——版本号 0.3.8->0.4.1 升级 + CHANGELOG 新增条目 + PRD 路线图更新（Step 1~3 全部完成，进入版本号统一升级阶段）
+- skill_switch: 2026-06-28 PM 阶段完成（V0.4.1 Step 2 迭代计划已经用户批准）→ 软件域编码实施；目标技能=fullstack-engineer；切换原因=PM 流程推进到需要编码实施阶段，按 pm-workflow 跨技能切换规则强制切换；目标范围=V041-S2-01~07（CHG-074 dogfooding 第7次闭环 + DocInjectService 实现 + doc inject CLI 命令 + 单元测试 + CLI 集成测试 + CHG-074 流转 closed + PM_SESSION 回写）
 - watchouts:
   - V0.4.1 Step 1 收口专项：(1) OverviewTab 为单点接入，未扩 DashboardService，后续若驾驶舱要聚合多项目资产健康度，需另起 Step；(2) _extract_asset_count 对 asset_summary 字段缺失走 dict.get 兜底，不抛异常，但若 AssetSummaryService 后续改字段名需同步更新；(3) auto-pm transition 命令在 Windows GBK 终端输出 emoji 时会 UnicodeEncodeError，仅影响 stderr 日志，不影响文件写入；(4) 历史 PLC 项目尚无 AUTO_PM:BEGIN/END 标记，doc refresh 暂只能刷新新建项目，旧项目标记 retrofit 待 Step 2；(5) PM_SESSION 写入存在 VS Code buffer 竞态：Edit 工具走 VS Code 编辑器层会被 buffer 覆盖，必须用 PowerShell 直接写盘
   - 本轮为了最小改动没有迁移 `projects` 表 schema，4 个 Week 2 字段暂存于 `.copier-answers.yml` / `.plc.json` 与 DB `extra`；如果后续要做列表筛选或统计卡片，需再评估是否加列
@@ -670,8 +725,15 @@
 - ✅ [precondition: V041-S1-02 已完成] [已完成 2026-06-28] done_when: V041-S1-03 新增 8 个 UI 测试覆盖 healthy/warning/missing/not_applicable/无数据/截断/无回归；pytest 8 passed
 - ✅ [precondition: V041-S1-03 已完成] [已完成 2026-06-28] done_when: V041-S1-04 CHG-073 流转到 closed，8 步状态转换全部成功，台帐序号005 自动回写
 - ✅ [precondition: V041-S1-04 已完成] [已完成 2026-06-28] done_when: V041-S1-05 PM_SESSION §6/§7/§8/§9 回写完成
-- [precondition: V0.4.1 Step 1 已收口] [待启动] done_when: V0.4.1 Step 2 历史 PLC 项目自动区标记 retrofit/注入方案——为旧 PLC 项目提供 AUTO_PM:BEGIN/END 标记 retrofit 能力，降低 doc refresh 落地门槛
-- [precondition: V0.4.1 Step 2 已完成] [待启动] done_when: V0.4.1 Step 3 Python 项目 plc check 不适用口径补齐，避免驾驶舱误报
+- ✅ [precondition: V0.4.1 Step 1 已收口] [已完成 2026-06-28] done_when: V0.4.1 Step 2 历史 PLC 项目自动区标记 retrofit/注入方案——DocInjectService + doc inject CLI + 7 单测 + 7 CLI 集成测试 + CHG-074 dogfooding 第7次闭环 draft->closed
+  - ✅ [precondition: V0.4.1 Step 1 已收口] [已完成 2026-06-28] done_when: V041-S2-01 CHG-SCPT-2026-074 创建并流转到 approved（dogfooding 第7次闭环第1~4步）
+  - ✅ [precondition: V041-S2-01 已完成] [已完成 2026-06-28] done_when: V041-S2-02 DocInjectService 实现（组合复用 DocRefreshService builder/_locate_target_docs/_load_asset_data；3 个 marker key 锚点正则映射；_has_marker/_find_anchor/_build_marker_block/_insert_after_anchor；ruff/mypy 0 errors）
+  - ✅ [precondition: V041-S2-02 已完成] [已完成 2026-06-28] done_when: V041-S2-03 doc inject CLI 命令（cmd_inject 复用 cmd_refresh 输出格式 dry-run/json/issue/已存在跳过/锚点缺失红色提示）
+  - ✅ [precondition: V041-S2-03 已完成] [已完成 2026-06-28] done_when: V041-S2-04 单元测试 tests/core/test_doc_inject_service.py（7 测试用例全部通过 in 73.79s）
+  - ✅ [precondition: V041-S2-04 已完成] [已完成 2026-06-28] done_when: V041-S2-05 CLI 集成测试 tests/cli/test_doc.py（7 测试通过 in 0.71s；54 焦点回归通过 in 9.47s 无回归）
+  - ✅ [precondition: V041-S2-05 已完成] [已完成 2026-06-28] done_when: V041-S2-06 CHG-074 流转到 closed（5 次状态转换 approved->implementing->pending_acceptance->accepting->completed->closed；台帐序号006 自动回写 ✅已关闭）
+  - ✅ [precondition: V041-S2-06 已完成] [已完成 2026-06-28] done_when: V041-S2-07 PM_SESSION §2/§3/§5/§6/§7/§8/§9 回写完成
+- ✅ [precondition: V0.4.1 Step 2 已完成] [已完成 2026-06-28] done_when: V0.4.1 Step 3 Python 项目 plc check 不适用口径补齐（CheckResult.not_applicable + PlcChecker 开头检测 + DashboardService 防御性 + DTO 扩展 + UI 透明展示 + CLI 友好提示 + 5 单测 + 4 CLI 集成测试 + CHG-075 dogfooding 第8次闭环 draft->closed）
 - [precondition: V0.4.1 Step 1~3 全部完成] [待启动] done_when: 版本号 0.3.8->0.4.1 升级 + CHANGELOG 新增条目 + PRD 路线图更新
 - ✅ [precondition: Week 1 上下半场开发已完成] [已完成 2026-06-27] done_when: 明确首页挂载方式——继续保留项目列表页驾驶舱横幅，不升级为独立首页模块；PM_SESSION §2/§3/§8 已固化该决策
 - [precondition: 驾驶舱摘要已稳定] [待启动] done_when: 评估 `DashboardService` 中 PLC 实时检查的耗时，若样本工作空间 > 20 个 PLC 项目时仍可接受则保留同步计算，否则设计缓存或异步化方案
