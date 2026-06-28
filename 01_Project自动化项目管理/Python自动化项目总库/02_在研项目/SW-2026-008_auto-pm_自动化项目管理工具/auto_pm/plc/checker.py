@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import cast
 
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
+    NAMING_RULES,
     REQUIRED_PLC_JSON_FIELDS,
     SKIP_PLC_JSON_TYPES,
     STD_DIRS,
@@ -34,6 +36,16 @@ _KEY_FILES = [
     "counter/FB_CTU.scl",
     "edge/FB_R_TRIG.scl",
     "edge/FB_F_TRIG.scl",
+]
+
+# 真实历史 PLC 项目中常见的 PRD 文档落点。
+# 仅在这些已知目录中做兼容识别，避免把任意散落文档误判为标准 PRD。
+_LEGACY_PRD_DIRS = [
+    "00_项目管理/01_立项与需求",
+    "01_需求与设计",
+    "01_需求与设计/13_软件方案",
+    "02_PLC程序/PLC_ST/PRD",
+    "02_PLC程序/程序文档",
 ]
 
 
@@ -412,15 +424,25 @@ class PlcChecker:
     def _check_prd_docs(self, project_path: str, result: CheckResult) -> None:
         """检查 PRD 文档完整性"""
         prd_path = os.path.join(project_path, "PRD")
+        legacy_dirs = self._get_existing_legacy_prd_dirs(project_path)
         if not os.path.isdir(prd_path):
-            result.add("PRD 目录", "fail", "缺少 PRD/ 目录")
-            return
-
-        result.add("PRD 目录", "pass", "PRD/ 目录存在")
+            if legacy_dirs:
+                result.add(
+                    "PRD 目录",
+                    "warn",
+                    "未使用 root PRD/，检测到历史文档目录: "
+                    + ", ".join(legacy_dirs),
+                )
+            else:
+                result.add("PRD 目录", "fail", "缺少 PRD/ 目录")
+                return
+        else:
+            result.add("PRD 目录", "pass", "PRD/ 目录存在")
 
         existing: set[str] = set()
         try:
-            existing = {f for f in os.listdir(prd_path) if f.endswith(".md")}
+            if os.path.isdir(prd_path):
+                existing = {f for f in os.listdir(prd_path) if f.endswith(".md")}
         except OSError:
             pass
 
@@ -438,7 +460,57 @@ class PlcChecker:
                         f"命名不匹配，实际文件: {', '.join(matched)}",
                     )
                 else:
-                    result.add(f"PRD/{doc}", "fail", f"缺少 {doc}")
+                    legacy_matches = self._find_legacy_prd_docs(project_path, doc)
+                    if legacy_matches:
+                        result.add(
+                            f"PRD/{doc}",
+                            "warn",
+                            "历史路径存在: "
+                            + ", ".join(legacy_matches)
+                            + "，建议后续收口到 PRD/",
+                        )
+                    else:
+                        result.add(f"PRD/{doc}", "fail", f"缺少 {doc}")
+
+    @staticmethod
+    def _get_existing_legacy_prd_dirs(project_path: str) -> list[str]:
+        """返回存在的历史 PRD 目录（相对路径，使用 / 分隔）"""
+        existing_dirs: list[str] = []
+        for rel_dir in _LEGACY_PRD_DIRS:
+            abs_dir = os.path.join(project_path, rel_dir)
+            if os.path.isdir(abs_dir):
+                existing_dirs.append(rel_dir.replace(os.sep, "/"))
+        return existing_dirs
+
+    @staticmethod
+    def _find_legacy_prd_docs(project_path: str, doc_name: str) -> list[str]:
+        """在受控历史目录中查找等价 PRD 文档"""
+        rule = NAMING_RULES.get(doc_name, {})
+        patterns = [re.compile(p) for p in rule.get("patterns", [])]
+        prefix = doc_name.split("_")[0]
+        matches: list[str] = []
+
+        for rel_dir in _LEGACY_PRD_DIRS:
+            abs_dir = os.path.join(project_path, rel_dir)
+            if not os.path.isdir(abs_dir):
+                continue
+
+            try:
+                md_files = sorted(f for f in os.listdir(abs_dir) if f.endswith(".md"))
+            except OSError:
+                continue
+
+            for filename in md_files:
+                if filename == doc_name:
+                    matches.append(f"{rel_dir}/{filename}".replace(os.sep, "/"))
+                    continue
+
+                if filename.startswith(prefix) or any(
+                    pattern.search(filename) for pattern in patterns
+                ):
+                    matches.append(f"{rel_dir}/{filename}".replace(os.sep, "/"))
+
+        return matches
 
     def _check_directory_structure(self, project_path: str, result: CheckResult) -> None:
         """检查目录结构是否符合 LSP-907 §3.1"""

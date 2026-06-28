@@ -279,6 +279,55 @@ def test_inject_markers_missing_anchor_reports_issue(tmp_path: Path) -> None:
     assert "AUTO_PM:BEGIN plc-asset-index" in program_content
 
 
+def test_inject_markers_supports_real_project_heading_variants(tmp_path: Path) -> None:
+    """兼容真实项目中的章节编号与标题变体。"""
+    project, program_doc, io_doc = _setup_legacy_doc_project(tmp_path)
+    program_doc.write_text(
+        "\n".join(
+            [
+                "# PLC程序设计总文档",
+                "",
+                "## 5. 软件架构",
+                "",
+                "### 5.1 组件清单与职责",
+                "",
+                "手工组件清单内容",
+                "",
+                "## 13. 关联文档索引",
+                "",
+                "手工关联文档索引",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    io_doc.write_text(
+        "\n".join(
+            [
+                "# IO分配表",
+                "",
+                "## 2. 系统硬件配置总览",
+                "",
+                "手工IO总览内容",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    service = DocInjectService(str(tmp_path))
+
+    result = service.inject_markers(project, dry_run=False)
+
+    assert result.updated is True
+    program_content = program_doc.read_text(encoding="utf-8")
+    io_content = io_doc.read_text(encoding="utf-8")
+    assert "<!-- AUTO_PM:BEGIN plc-program-components -->" in program_content
+    assert "<!-- AUTO_PM:BEGIN plc-asset-index -->" in program_content
+    assert "<!-- AUTO_PM:BEGIN plc-io-overview -->" in io_content
+    assert "手工组件清单内容" in program_content
+    assert "手工IO总览内容" in io_content
+
+
 def test_inject_result_to_dict_structure(tmp_path: Path) -> None:
     """to_dict 返回正确 JSON 结构"""
     project, program_doc, io_doc = _setup_legacy_doc_project(tmp_path)

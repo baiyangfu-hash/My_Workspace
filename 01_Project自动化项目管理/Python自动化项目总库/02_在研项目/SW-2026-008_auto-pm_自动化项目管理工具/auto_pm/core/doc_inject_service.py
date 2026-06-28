@@ -7,9 +7,9 @@
 通过组合 DocRefreshService 复用其 builder 方法与 _locate_target_docs / _load_asset_data。
 
 锚点映射（marker key → 锚点正则，宽松前缀匹配）：
-- plc-program-components → ^###\\s+4\\.1\\s+组件清单
-- plc-asset-index        → ^##\\s+8\\.\\s+关联文档索引
-- plc-io-overview        → ^##\\s+2\\.\\s*IO
+- plc-program-components → `4.1/5.1 组件清单(与职责)`
+- plc-asset-index        → `8/13 关联文档索引`
+- plc-io-overview        → `2 IO总览/2 系统硬件配置总览`
 """
 
 from __future__ import annotations
@@ -27,11 +27,11 @@ from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_f
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
 
-# 锚点正则映射：宽松前缀匹配，避免锚点标题微调失效
+# 锚点正则映射：兼容模板文档与历史真实项目的章节编号差异。
 _ANCHOR_PATTERNS: dict[str, str] = {
-    "plc-program-components": r"^###\s+4\.1\s+组件清单",
-    "plc-asset-index": r"^##\s+8\.\s+关联文档索引",
-    "plc-io-overview": r"^##\s+2\.\s*IO",
+    "plc-program-components": r"^###\s+(?:4|5)\.1\s+组件清单(?:与职责)?",
+    "plc-asset-index": r"^##\s+(?:8|13)\.\s+关联文档索引",
+    "plc-io-overview": r"^##\s+2\.\s*(?:IO(?:\s*总览)?|系统硬件配置总览)",
 }
 
 

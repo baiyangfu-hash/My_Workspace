@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from auto_pm.plc.checker import PlcChecker
+from auto_pm.plc.models import STD_DIRS
 
 # ── Fixtures ──────────────────────────────────────────
 
@@ -239,6 +240,95 @@ class TestCheckProject:
             if item.item.startswith("PRD/") and item.status == "warn"
         ]
         assert len(warn_items) >= 1
+
+    def test_check_legacy_prd_docs_in_plc_st_prd(self, tmp_path: Path) -> None:
+        """历史项目把标准文档放在 PLC_ST/PRD 时应降级为 warn"""
+        project_dir = tmp_path / "DJ-2026-LEGACY_历史项目"
+        project_dir.mkdir()
+
+        (project_dir / ".plc.json").write_text(
+            json.dumps(
+                {
+                    "name": "DJ-2026-LEGACY",
+                    "version": "V1.0.0",
+                    "description": "历史项目",
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        (project_dir / "PM_SESSION_DJ-2026-LEGACY.md").write_text(
+            "# PM_SESSION\n", encoding="utf-8"
+        )
+        (project_dir / "PRD").mkdir()
+        legacy_prd = project_dir / "02_PLC程序" / "PLC_ST" / "PRD"
+        legacy_prd.mkdir(parents=True)
+        for doc in [
+            "需求分析文档_REQ.md",
+            "接口文档_INT.md",
+            "详细设计说明书_DSN.md",
+            "技术方案文档_TEC.md",
+        ]:
+            (legacy_prd / doc).write_text(f"# {doc}\n", encoding="utf-8")
+        for std_dir in STD_DIRS:
+            (project_dir / std_dir).mkdir(exist_ok=True, parents=True)
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        prd_items = {
+            item.item: item
+            for item in result.items
+            if item.item.startswith("PRD/")
+        }
+        assert result.fail_count == 0
+        assert result.warn_count >= 4
+        for doc in [
+            "需求分析文档_REQ.md",
+            "接口文档_INT.md",
+            "详细设计说明书_DSN.md",
+            "技术方案文档_TEC.md",
+        ]:
+            item = prd_items[f"PRD/{doc}"]
+            assert item.status == "warn"
+            assert "02_PLC程序/PLC_ST/PRD" in item.message
+
+    def test_check_legacy_project_without_root_prd_dir(self, tmp_path: Path) -> None:
+        """无 root PRD 但存在受控历史目录时，目录项应为 warn 而非 fail"""
+        project_dir = tmp_path / "DJ-2026-LEGACY2_历史项目"
+        project_dir.mkdir()
+
+        (project_dir / ".plc.json").write_text(
+            json.dumps(
+                {
+                    "name": "DJ-2026-LEGACY2",
+                    "version": "V1.0.0",
+                    "description": "历史项目2",
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        (project_dir / "PM_SESSION_DJ-2026-LEGACY2.md").write_text(
+            "# PM_SESSION\n", encoding="utf-8"
+        )
+        legacy_req_dir = project_dir / "00_项目管理" / "01_立项与需求"
+        legacy_req_dir.mkdir(parents=True)
+        (legacy_req_dir / "005_DJ-2026-LEGACY2_需求分析文档_REQ.md").write_text(
+            "# REQ\n", encoding="utf-8"
+        )
+        for std_dir in STD_DIRS:
+            (project_dir / std_dir).mkdir(exist_ok=True, parents=True)
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        prd_dir_item = next(item for item in result.items if item.item == "PRD 目录")
+        req_item = next(item for item in result.items if item.item == "PRD/需求分析文档_REQ.md")
+        assert prd_dir_item.status == "warn"
+        assert "00_项目管理/01_立项与需求" in prd_dir_item.message
+        assert req_item.status == "warn"
+        assert "005_DJ-2026-LEGACY2_需求分析文档_REQ.md" in req_item.message
 
     def test_check_invalid_plc_json(self, invalid_plc_json_project: Path) -> None:
         """检查 .plc.json 缺少必填字段应 fail"""
