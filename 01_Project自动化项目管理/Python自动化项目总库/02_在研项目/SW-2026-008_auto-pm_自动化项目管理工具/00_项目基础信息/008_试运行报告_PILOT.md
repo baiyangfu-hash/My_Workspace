@@ -1,7 +1,7 @@
 ---
 doc_id: PILOT-008
 title: 试运行报告
-version: "V1.3.0"
+version: "V1.4.0"
 status: "生效"
 created: "2026-06-26"
 updated: "2026-06-29"
@@ -147,6 +147,34 @@ project_id: "SW-2026-008"
 **新增的维护负担**：
 - `plc check` 现已兼容受控历史路径，但仍会以 `warn` 明确提示“建议后续收口到 PRD/”；这意味着工具从“直接误判 fail”改进为“兼容使用 + 保留标准化压力”，后续仍需持续维护兼容目录白名单
 - 当前真实项目 `DJ-2026-005` 仍缺 `02_PLC程序/工程资产`，因此自动区可注入、可刷新，但内容仍以“待补齐/自动统计为空”为主，后续还需评估如何从真实项目资料提取首版资产数据
+
+### 2.6 V0.4.2 Week1（第六次闭环 — 真实项目首版资产补齐）
+
+| 字段 | 内容 |
+|------|------|
+| 试运行编号 | PILOT-V0.4.2-W1-DJ-2026-005-ASSET |
+| 试运行日期 | 2026-06-29 |
+| 试运行对象 | `DJ-2026-005` 边框缓存机 PLC 项目（真实历史项目） |
+| 试运行方式 | 围绕真实 PLC 项目 `DJ-2026-005`，从 015 IO 分配表 + 016 PLC 程序设计总文档 + 真实 PLC_ST 目录提取首版工程资产，落地 `02_PLC程序/工程资产/` 三文件，验证 `doc refresh` 能否输出真实内容而非“待补齐”占位符 |
+| 关键命令 | `project show DJ-2026-005`、`doc refresh DJ-2026-005 --dry-run`、`doc refresh DJ-2026-005` |
+| 当前状态 | ✅ 已完成 |
+
+**验证结果**：
+- 工程资产三文件首版落地：`io_points.csv` 119 行（CPU DI 21 + CPU DO 18 + DI扩展 36 + DO扩展 24 + 远程IO 20），`program_blocks.yml` 7 块（对齐真实 PLC_ST 目录：OB1/GlobalVars/FB_2001/FB_1002/FB_ExternalDeviceInteraction/FB_1004/FB_1003），`communications.yml` 5 通道（HMI/Upstream/Downstream/RemoteIO/MES）
+- `project show DJ-2026-005` 工程资产状态 healthy，IO点表 119 条，程序块 7 个，通讯对象 5 个
+- `doc refresh DJ-2026-005 --dry-run`（首次）→ 2 文档 3 自动区全部标记“有变更”
+- `doc refresh DJ-2026-005`（实际刷新）→ 2 文档已刷新成功（015 plc-io-overview + 016 plc-program-components + plc-asset-index），自动区内容从“待补齐”变为真实数据
+- `doc refresh DJ-2026-005 --dry-run`（二次，幂等性）→ 2 文档 3 自动区全部标记“无变更”，证明刷新幂等
+- 回归测试：`pytest tests/core/test_doc_refresh_service.py` → 3 passed（含新增 `test_refresh_with_realistic_assets_emits_real_content_and_idempotent`，覆盖 19 IO/7 blocks/5 channels 真实规模 + 幂等性 + “待补齐”不出现断言）；ruff/mypy 0 errors
+
+**节省的人工作业**：
+- PLC 工程师不需要手工维护 015/016 文档中的 IO 概览表和程序块清单表——`doc refresh` 可基于工程资产自动生成，资产变更后一次刷新即可同步
+- 016 文档 §5.1 组件清单和 §8 关联文档索引无需手工核对 IO 点数/块数/通道数，自动区会实时统计
+
+**新增的维护负担**：
+- 工程资产三文件为半自动首版（从 015/016 文档人工提取），后续若 PLC_ST 目录结构或 IO 分配变化，需同步更新资产文件
+- 016 文档设计意图（5 块：PRG_MainControl/FB_1001/FB_1003/FB_1004/FB_2001）与真实 PLC_ST 目录（7 块：OB1/GlobalVars/FB_2001/FB_1002/FB_ExternalDeviceInteraction/FB_1004/FB_1003）存在差异，当前在 responsibility 字段标注，需在 V0.4.3 文档统一阶段收口
+- io_points.csv 119 行为人工从 015 文档提取，未与 EPLAN 原理图逐点交叉验证；015 §12 差异表（X14-X17 源程序用途不同、Y24-Y27/Y50 源程序定义）已在 comment 字段标注
 
 ## 3. 试运行发现的问题与修复
 

@@ -18,10 +18,10 @@ shang
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: V0.4.1 收口批次代码主线已完成，当前进入 Phase B `V0.4.2` 真实 PLC dogfood 第二轮验证，并以 `DJ-2026-005` 作为主样例项目。当前已完成两条真实兼容闭环：其一，`doc inject` 已从“找不到锚点”修复为可兼容真实章节编号（`5.1 组件清单与职责`、`13. 关联文档索引`、`2. 系统硬件配置总览`），并在真实项目中实际注入 3 个自动区；其二，`plc check` 已从“只认 root PRD 导致 4 个 fail”修复为“在受控历史目录中识别等价 PRD 文档并降级为 warn”，定向回归 `pytest --no-cov tests/plc/test_checker.py -q` → `21 passed in 3.26s`，真实复验 `auto-pm -w "<workspace>" plc check DJ-2026-005 --json` → `pass=17 warn=4 fail=0`。当前 Phase B 的剩余重点不再是路径兼容，而是评估真实项目缺少 `02_PLC程序/工程资产` 时如何补齐首版资产数据，并将第二轮 dogfood 证据同步回试运行文档
+- current_focus: V0.4.1 收口批次代码主线已完成，当前主线稳定在 Phase B `V0.4.2` 真实 PLC dogfood 第二轮之后的“价值闭环深化”。`DJ-2026-005` 已完成真实文档自动区落地与 `plc check` 历史 PRD 路径兼容收口（`pass=17 warn=4 fail=0`），当前剩余重点已收缩为：为真实项目补齐 `02_PLC程序/工程资产` 首版资产数据，让 `project show` / `doc refresh` 输出真实内容；同时，本轮已新增“未来 6 周滚动计划 + GLM 执行输入清单”，用于后续低上下文模型接力，避免再次回到 `V0.4.0` / `V0.4.1` 已完成主线或把 `V2.2~V2.5` backlog 拉回当前阶段
 - milestone: V0.3.8（代码基线冻结）/ V0.4.0（V0.4.1 Step 1~3 已完成）/ PRD V2.1.1（方向校准）
 - acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
-- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step1_OverviewTab工程资产摘要接入_迭代计划.md + 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step2_历史PLC项目自动区标记retrofit_迭代计划.md + 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step3_PLC检查不适用口径补齐_迭代计划.md + 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
+- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step1_OverviewTab工程资产摘要接入_迭代计划.md + 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step2_历史PLC项目自动区标记retrofit_迭代计划.md + 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step3_PLC检查不适用口径补齐_迭代计划.md + 00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md + 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md + 09_整改项/V0.4.2-glm执行输入清单.md
 - m3.5_insertion_reason: 三角色视角真实运行证据发现 6 项阻断项（GUI 测试污染生产数据 + TD-T04 复发 + spec/tasks 再次严重滞后 + CHG-SCPT-001 内容空白 + change show 信息缺失 + CLI 缺 edit 命令），直接推进 M3-3 会继续在失真基线上累积债务
 
 ## 3. Status Summary（当前状态摘要）
@@ -81,13 +81,13 @@ shang
   - V0.3.0 Phase 6 发布收口: 完成（T80 README 重写 8 项更新 + T81 CHANGELOG 整理补 Fixed 子章节 + T82 发布门禁规范 G1-G5 + T83 试运行报告归档 + T84 CHG-SCPT-2026-064 完整 8 步生命周期闭环 + T85 版本号 0.3.6→0.3.7 + PM_SESSION §6-§9 回写）；pyproject 0.3.7；复用 V0.3.6 glm5.2 基线 1155 passed 1 skipped 3 warnings 无回归；ruff/mypy 0 errors；dogfooding 4 次闭环
   - V0.3.0 V0.3.8 技术债偿还批次: 完成（T86 TD-T10 台帐脏数据根因修复：LedgerUpdater update_status/remove + ChangeService _LEDGER_STATUS_MAP 12 状态映射 + transition 台帐回写 + GUI fixture 清理台帐条目 + 8 单元测试；T87 TD-T08 测试并行化：xdist 实测反优化 12 倍改用 --no-cov 加速方案 + conftest.py 固定 seed；T89 CHG-SCPT-2026-072 dogfooding 第五次闭环 8 步生命周期 + transition 自动回写台帐状态验证 + 台帐历史脏数据清理 7 条；T90 版本号 0.3.7→0.3.8 + PM_SESSION §6-§9 回写 + 005/006 同步 + CHANGELOG）；pyproject 0.3.8；全量回归 1163 passed 1 skipped 3 warnings 无回归（+8 新增测试）；ruff/mypy 0 errors；dogfooding 5 次闭环（CHG-001/062/063/064/072 全 closed）；台帐 5 条正确记录；技术债 20/22 项已偿还（剩余 TD-A02/TD-TC01）
 - next_up:
-  - Phase B：执行 `V0.4.2` 真实/准真实 PLC 项目试运行（优先选择 1 个单机 PLC 项目样例，按 `project create/show → doc inject → doc refresh --dry-run/refresh → plc check → change list/show/transition` 全链路验证，并把人工节省与新增维护负担写入试运行证据）
-  - Phase C：执行 `V0.4.3` 版本收口（`pyproject.toml` 0.3.8→0.4.1、`CHANGELOG.md`、`005_变更记录_CHG.md`、PRD 路线图、PM_SESSION §2/§8 统一；只有在 TD-T14 与 V0.4.2 证据稳定后才启动）
-  - Phase D：在上述 3 个阶段稳定后，再评估 `TD-TC01` 沙箱路径限制与 `specmgr` 工具链口径
+  - 第1周：围绕 `DJ-2026-005` 明确真实资产补齐策略，补出 `02_PLC程序/工程资产/` 首版结构和最小真实内容，并让 `doc refresh --dry-run` 输出不再以空占位为主
+  - 第2~3周：把 `DJ-2026-005` 做成有真实价值的自动区刷新样例，再扩到第 2 个真实/准真实项目做兼容复核；问题一律先沉淀测试再修
+  - 第4~6周：完成 `V0.4.2` 试运行证据收口 → 启动 `V0.4.3` 版本与文档统一 → 最后评估 `TD-TC01` / `specmgr` / 单条全量 pytest 环境问题的归属与优先级
 - open_questions:
-  - 真实/准真实 PLC 试运行项目具体选型待确定
-  - Week 2 已确认继续沿用单模板；若 Week 4 真实试运行阶段因设备分型导致模板条件分支明显增多，再重新评估是否拆出独立 `plc-single-machine` 模板
-  - `tests/ui/test_vartable_tab.py` 仍保留 module 级 `qapp` fixture；若共享 `qapp` 后 `TD-T14` 仍未完全消失，需要继续评估是否一并收口
+  - `DJ-2026-005` 的真实资产资料来源是否足以支撑三类资产文件首版落地；若只能补一部分，需要先确定哪一类最值得优先落
+  - 第二个样本项目应优先选择“真实历史 PLC 项目”还是“准真实模板项目”；需要在第1周资产补齐收口后再最终拍板
+  - `tests/ui/test_vartable_tab.py` 仍保留 module 级 `qapp` fixture；若后续要追单条全量 pytest 的环境根因，它仍是第一优先观察点
 - risks_dependencies:
   - spec.md/tasks.md 滞后问题已通过 M3.5-3 修复（四端对齐 1087 passed）
   - **TD-T09 GUI 测试污染复发（2026-06-28 发现）**：CHG-SCPT-2026-076 残留证明 M3.5-1 修复不彻底，根因是 `_cleanup_test_changes` 的 `except Exception: pass` 静默吞错；本轮已改为 logging.warning 暴露清理失败，但 fixture 定位逻辑的健壮性仍需关注
@@ -111,6 +111,8 @@ shang
 - tec: 00_项目基础信息/004_技术方案文档_TEC.md
 - chg: 00_项目基础信息/005_变更记录_CHG.md
 - tech_debt: 00_项目基础信息/006_技术债评估报告.md
+- execution_plan_6week: 00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md
+- glm_handoff_v042: 09_整改项/V0.4.2-glm执行输入清单.md
 - execution_plan_week2_batch2: 00_项目管理/03_执行过程/2026-06-27_V0.4.0_Week2_单机设备模板PoC_第二批迭代计划.md
 - spec_v2.1: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）
 - spec_v2.0.3: .trae/specs/add-spec-drift-detection/（spec.md + tasks.md + checklist.md）
@@ -119,6 +121,7 @@ shang
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-06-29 V0.4.2 后续 6 周路线图与 GLM 接力收口：新增 `00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md`，把当前主线固定为“真实项目资产补齐 → 第二样本复核 → V0.4.2 试运行证据收口 → V0.4.3 版本与文档统一 → TD-TC01/specmgr/环境尾项判定”；同时新增 `09_整改项/V0.4.2-glm执行输入清单.md`，明确给后续低上下文模型的禁止事项、推荐顺序和第一周起步动作，防止再次重复 Week 1~4 / V0.4.1 Step 1~3 或把 V2.2~V2.5 backlog 拉回当前主线
   - 2026-06-29 V0.4.2 真实项目第二轮兼容收口：继续围绕 `DJ-2026-005` 处理 `plc check` 对历史 PRD 路径过严的问题，在 `auto_pm/plc/checker.py` 中新增受控历史目录识别，仅在 `00_项目管理/01_立项与需求`、`01_需求与设计`、`01_需求与设计/13_软件方案`、`02_PLC程序/PLC_ST/PRD`、`02_PLC程序/程序文档` 中查找等价 PRD 文档；root `PRD/` 下缺文档但历史路径存在时，由 fail 降级为 warn 并明确提示“建议后续收口到 PRD/”。新增 `tests/plc/test_checker.py` 两个回归场景覆盖“root PRD 空壳 + PLC_ST/PRD 有标准文档”和“无 root PRD 但历史目录存在”两种情况；定向回归 `pytest --no-cov tests/plc/test_checker.py -q` → `21 passed`。真实复验 `auto-pm -w "<workspace>" plc check DJ-2026-005 --json` 已从 `pass=17 warn=0 fail=4` 变为 `pass=17 warn=4 fail=0`，说明 Phase B 的真实阻塞点已从“路径兼容”收缩到“工程资产数据仍缺失”
   - 2026-06-29 V0.4.2 真实项目首轮 dogfood：选定 `DJ-2026-005` 作为真实 PLC 主样例，先做只读验证得到 `project show` 可读、`change list DJ-2026-005` 返回 8 条历史变更单、`plc check DJ-2026-005` 报 4 个 root PRD fail；随后对 `doc inject` 做最小真实兼容修复，将锚点匹配从模板固定编号放宽为兼容 `5.1 组件清单与职责`、`13. 关联文档索引`、`2. 系统硬件配置总览` 的历史真实写法，定向回归 `tests/core/test_doc_inject_service.py tests/cli/test_doc.py` → `15 passed`。修复后 `doc inject DJ-2026-005 --dry-run --json` 从 3 个 missing anchors 变为 3 个 injected_keys，实际执行 `doc inject DJ-2026-005 --json` 已成功写入 `015_DJ-2026-005_IO分配表_IO.md` 与 `016_DJ-2026-005_PLC程序设计总文档_PLC.md` 的 3 个 AUTO_PM 标记区块；`doc refresh DJ-2026-005 --dry-run --json` 已无 issue 并可识别这 3 个自动区。当前 Phase B 下一动作切换为：继续决定 `plc check` 对真实老项目 PRD 目录差异的兼容策略
   - 2026-06-29 TD-T14 最终签字完成：在 `tests/ui` 全集 `506 passed in 190.18s` 的基础上，继续将非 UI 主路径拆批验证，执行 `pytest --no-cov --timeout=60 tests/core tests/db tests/change tests/cli tests/plc tests/utils tests/models tests/config tests/logging tests/test_smoke.py tests/test_bug1_get_project_path.py tests/test_bug2_sync_changes.py tests/test_bug4_retrofit_src_path.py tests/test_bug5_scan_depth.py tests/test_fixture_health.py -vv --tb=short --maxfail=1` 得到 `636 passed, 5 warnings in 179.18s`；结合两批结果，确认 `TD-T14` 已从代码侧关闭，`tests/ui/test_template_page.py` 并非直接业务根因。保留的单条全量 `pytest --no-cov --timeout=60` 在 sandbox 终端环境中两次出现 `-1073741510`，归类为执行环境问题单独跟踪，不再阻塞 Phase B `V0.4.2`
@@ -175,6 +178,42 @@ shang
 
 ## 6. Implementation Log
 
+- 2026-06-29 | skill=pm-workflow | mode=项目推进 / V0.4.2 Week1 DJ-2026-005 资产补齐
+
+  - goal: 围绕真实 PLC 项目 `DJ-2026-005` 落地 `02_PLC程序/工程资产/` 首版资产补齐方案，让 `doc refresh --dry-run` 输出真实内容而非“待补齐”占位符
+  - changed_files:
+    - `0100_PLC自动化/DJ-2026-005/02_PLC程序/工程资产/io_points.csv`（新增：119 行真实 IO 点表，覆盖 cpu/di_ext_1/di_ext_3/di_ext_4/do_ext_1/do_ext_2/remote_io_1 共 7 工站）
+    - `0100_PLC自动化/DJ-2026-005/02_PLC程序/工程资产/program_blocks.yml`（新增：7 个程序块，对齐真实 PLC_ST 目录而非 016 文档设计意图）
+    - `0100_PLC自动化/DJ-2026-005/02_PLC程序/工程资产/communications.yml`（新增：5 个通讯对象 HMI/Upstream/Downstream/RemoteIO/MES）
+    - `0100_PLC自动化/DJ-2026-005/02_PLC程序/程序文档/015_DJ-2026-005_IO分配表_IO.md`（doc refresh 实际写入 plc-io-overview 自动区真实内容）
+    - `0100_PLC自动化/DJ-2026-005/02_PLC程序/程序文档/016_DJ-2026-005_PLC程序设计总文档_PLC.md`（doc refresh 实际写入 plc-program-components + plc-asset-index 自动区真实内容）
+    - `tests/core/test_doc_refresh_service.py`（新增 `_setup_realistic_doc_project` helper + `test_refresh_with_realistic_assets_emits_real_content_and_idempotent` 回归测试，覆盖 19 IO/7 blocks/5 channels 真实规模 + 幂等性 + “待补齐”不出现断言）
+    - `00_项目管理/03_执行过程/2026-06-29_V0.4.2_Week1_DJ-2026-005资产补齐方案.md`（新增：迭代方案文档，含字段映射/提取流程/验收口径/风险边界）
+  - impact: `DJ-2026-005` 工程资产从 0 到 119 IO/7 blocks/5 channels；`project show` 状态 healthy；`doc refresh` 实际刷新 2 文档 3 自动区写入真实内容；二次 dry-run 验证幂等性（3 自动区全部“无变更”）；回归测试 3 passed + ruff/mypy 0 errors
+  - decisions:
+    - 资产数据源以真实 PLC_ST 目录为单一真源，016 文档设计意图（5 块）与真实目录（7 块）的差异在 responsibility 字段标注
+    - 015 §12 差异表（X14-X17 源程序用途不同、Y24-Y27/Y50 源程序定义）在 io_points.csv comment 字段标注
+    - 采用 Write 工具直接写入资产文件，不创建临时脚本，避免一次性脚本残留
+    - 回归测试加入现有 `test_doc_refresh_service.py` 而非新建文件，保持测试聚集
+  - risks:
+    - 资产文件为半自动首版，后续若 PLC_ST 目录结构变化需同步更新
+    - 016 文档设计意图与真实目录差异需在 V0.4.3 文档统一阶段收口
+    - io_points.csv 119 行为人工从 015 文档提取，未与 EPLAN 原理图逐点交叉验证；后续若发现差异需补齐校验脚注
+
+- 2026-06-29 | skill=pm-workflow | mode=项目推进 / 未来 6 周路线图与 GLM 接力包
+
+  - goal: 在 `V0.4.2` 第二轮 dogfood 收口后，为后续低上下文模型准备可直接执行的 6 周主线，避免再次重复已完成迭代或错误拉起中长期 backlog
+  - changed_files:
+    - 00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md（新增 6 周滚动计划）
+    - 09_整改项/V0.4.2-glm执行输入清单.md（新增给 GLM 的接力输入）
+    - PM_SESSION_SW-2026-008.md（同步当前焦点、计划位置、交接摘要与下一动作）
+  - impact: 后续模型可直接围绕 `DJ-2026-005` 资产补齐与第二样本复核推进，不再需要从聊天上下文里重新拼主线；`V0.4.2 -> V0.4.3` 的顺序与门槛已被文档化
+  - decisions:
+    - 未来 6 周主线固定为“真实项目价值闭环深化”而不是“继续铺功能面”
+    - 版本与文档统一推迟到第 5 周，前提是 `V0.4.2` 的真实试运行证据先稳定
+    - `V2.2~V2.5` 继续保留为中长期 backlog，不重新拉回当前主线
+  - risks:
+    - 若 `DJ-2026-005` 缺少可提取的真实资产资料，第1周可能只能先补半结构化首版文件，需要严格控制范围，避免扩成大型解析器改造
 - 2026-06-29 | skill=fullstack-engineer | mode=真实项目兼容 / V0.4.2 dogfood 第二轮执行
 
   - goal: 收口 `plc check` 对真实老项目分散 PRD 路径的误判，让 PLC 电气工程师使用历史项目时不再因为文档放置位置而被直接判定 fail
@@ -682,6 +721,17 @@ shang
 ## 7. Verification Log
 
 - verified:
+  - V0.4.2 Week1 DJ-2026-005 资产补齐与 doc refresh 真实内容验证（2026-06-29，已验证）:
+    - `project show DJ-2026-005` → 工程资产状态 healthy，IO点表 119 条，程序块 7 个，通讯对象 5 个
+    - `doc refresh DJ-2026-005 --dry-run`（首次）→ 2 文档 3 自动区全部标记“有变更”
+    - `doc refresh DJ-2026-005`（实际刷新）→ 2 文档已刷新成功（015 plc-io-overview + 016 plc-program-components + plc-asset-index）
+    - `doc refresh DJ-2026-005 --dry-run`（二次，幂等性）→ 2 文档 3 自动区全部标记“无变更”
+    - 回归测试：`pytest tests/core/test_doc_refresh_service.py -v --tb=short --no-header -p no:randomly` → `3 passed in 10.97s`（含新增真实资产回归测试）
+    - 静态质量：`ruff check tests/core/test_doc_refresh_service.py` → All checks passed!；`mypy tests/core/test_doc_refresh_service.py --ignore-missing-imports` → Success: no issues found in 1 source file
+  - 2026-06-29 规划与交接文档同步（已验证）:
+    - 新增 `00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md`，明确未来 6 周主线、每周 gate、done_when 与暂停条件
+    - 新增 `09_整改项/V0.4.2-glm执行输入清单.md`，明确给后续 GLM 的读文件顺序、禁止事项和首个执行动作
+    - `PM_SESSION_SW-2026-008.md` 已同步更新当前焦点、计划位置、变更日志、交接摘要和下一动作
   - V0.4.2 真实项目 dogfood 第二轮（2026-06-29，已验证）:
     - 检查器定向回归：`pytest --no-cov tests/plc/test_checker.py -q` → `21 passed in 3.26s`
     - 真实项目结构检查复验：`auto-pm -w "c:\Users\fubai\Desktop\My_Workspace" plc check DJ-2026-005 --json` → `pass=17 warn=4 fail=0`
@@ -843,9 +893,8 @@ shang
 
 ## 8. Handoff Notes
 
-- current_state: V0.4.1 Step 1~3 与收口批次阶段 1/2/4 已完成，TD-T12/TD-A02/TD-T13/TD-T14 已收口；当前主线已实质推进到 `V0.4.2` 真实项目 dogfood。`DJ-2026-005` 已完成真实历史文档兼容的首轮闭环：`doc inject` 锚点兼容已修复并通过 `15 passed` 定向回归，实际对真实项目 2 份程序文档成功注入 3 个 AUTO_PM 自动区，随后 `doc refresh --dry-run` 已能无 issue 识别这些自动区。当前 Phase B 剩余的真实阻塞点主要集中在 `plc check` 对 root `PRD/` 的严格要求，与真实老项目分散文档结构存在落差。版本号仍为 0.3.8；dogfooding 有效闭环仍以 8 次 auto-pm 自身 CHG 闭环为基线，现补充了 1 次真实 PLC 项目文档链路验证证据。
-- current_state: V0.4.1 Step 1~3 与收口批次阶段 1/2/4 已完成，TD-T12/TD-A02/TD-T13/TD-T14 已收口；当前主线已推进到 `V0.4.2` 真实项目 dogfood 第二轮。`DJ-2026-005` 已完成两条真实兼容闭环：`doc inject/doc refresh` 已在真实程序文档上落地，`plc check` 也已完成受控历史 PRD 路径兼容，真实复验结果从 `fail=4` 收口到 `warn=4/fail=0`。Phase B 的主要问题不再是路径兼容，而是历史项目尚未补齐 `02_PLC程序/工程资产`，导致自动区内容仍偏空。版本号仍为 0.3.8；dogfooding 有效闭环仍以 8 次 auto-pm 自身 CHG 闭环为基线，现补充了 1 次真实 PLC 项目第二轮结构检查与文档链路验证证据。
-- next_focus: 延续 `DJ-2026-005` 继续评估真实项目资料向 `02_PLC程序/工程资产` 的首版提取策略，并把本轮 `plc check` 兼容收口结果同步到 `008_试运行报告_PILOT.md`；随后进入 Phase C `V0.4.3` 的版本与文档收口准备。低优先级尾项仍是 `TD-TC01`。
+- current_state: V0.4.2 Week1 `DJ-2026-005` 资产补齐已落地。`02_PLC程序/工程资产/` 三个文件首版完成（`io_points.csv` 119 行 / `program_blocks.yml` 7 块 / `communications.yml` 5 通道），`project show` 工程资产状态 healthy，`doc refresh` 实际刷新 2 文档 3 自动区写入真实内容（非“待补齐”），二次 dry-run 验证幂等性全“无变更”。回归测试 `test_refresh_with_realistic_assets_emits_real_content_and_idempotent` 已补，3 passed + ruff/mypy 0 errors。主阻塞已从“真实资产数据仍未补齐”收缩为“第2个真实样本项目复核 + PILOT 试运行报告产出”。`00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md` 和 `09_整改项/V0.4.2-glm执行输入清单.md` 仍是后续模型的执行入口。
+- next_focus: 第1优先级是产出 PILOT 试运行报告（记录 `doc refresh` 节省的人工作业和新增维护负担）并选择第 2 个真实/准真实样本项目复核兼容边界；第2优先级是只有这两步证据稳定后，才进入 `V0.4.3` 版本与文档统一（含 016 文档设计意图 5 块 vs 真实目录 7 块的差异收口）。低优先级尾项仍是 `TD-TC01`、`specmgr` 边界说明和单条全量 pytest 环境问题。
 - watchouts:
   - `tests/ui` 关键回归面已经恢复，但 `tests/ui/test_vartable_tab.py` 仍保留 module 级 `qapp`；若后续仍见 Qt teardown 异常，需要优先检查它是否继续放大会话状态污染
   - 单条全量 `pytest --no-cov --timeout=60` 的终端退出码仍可能是 `-1073741510`；这已不再阻塞代码推进，但若后续要做 CI/门禁式一把跑完验证，需单独处理 sandbox/终端执行环境
@@ -939,9 +988,11 @@ shang
 ## 9. Next Actions
 
 - ✅ [precondition: TD-T12/TD-A02/TD-T13 已完成且 `tests/ui/conftest.py` 共享 qapp 已建立] [已完成 2026-06-29] done_when: 完成 `TD-T14` 测试基线修复最终签字（`tests/ui` 全集 `506 passed` + 非 UI 主路径 `636 passed`；历史 `99%` 卡住路径未复现；单条全量命令的 `-1073741510` 改归执行环境问题跟踪）
-- [precondition: TD-T14 已完成并恢复可信回归基线] [进行中] done_when: V0.4.2 真实/准真实 PLC 项目试运行（当前真实样例固定为 `DJ-2026-005`；已完成 `project show`/`change list`/`doc inject` 实际注入/`doc refresh --dry-run`/`plc check` 历史 PRD 路径兼容，剩余动作是评估真实项目工程资产补齐策略，并在 `008_试运行报告_PILOT.md` 中明确记录节省的人工作业、暴露的新维护负担和是否需要拆独立模板）
-- [precondition: V0.4.2 试运行完成且 Week 2 单模板策略仍成立] [待启动] done_when: V0.4.3 版本号 0.3.8→0.4.1 升级 + `CHANGELOG.md` + `005_变更记录_CHG.md` + PRD 路线图 + PM_SESSION §2/§8 同步（版本口径完全一致，并把 V0.4.2 试运行结论吸收到正式版本说明中）
-- [precondition: V0.4.3 已完成且主线稳定] [待启动] done_when: 评估并处理 `TD-TC01` 沙箱路径限制/`specmgr` 工具链口径，明确哪些能力继续由 auto-pm 承担、哪些保持外部工具负责
+- ✅ [precondition: `DJ-2026-005` 的 `doc inject/doc refresh/plc check` 第二轮兼容已稳定] [已完成 2026-06-29] done_when: 第1周完成真实项目工程资产补齐策略与首版落地——`02_PLC程序/工程资产/` 三文件首版完成（`io_points.csv` 119 行 / `program_blocks.yml` 7 块 / `communications.yml` 5 通道）；`project show` 状态 healthy；`doc refresh` 实际刷新 2 文档 3 自动区写入真实内容；二次 dry-run 验证幂等性全“无变更”；回归测试 `test_refresh_with_realistic_assets_emits_real_content_and_idempotent` 已补（3 passed + ruff/mypy 0 errors）
+- [precondition: 第1周资产补齐策略已落地且 `DJ-2026-005` 自动区内容开始具备真实价值] [进行中] done_when: 第2~3周完成第二样本项目复核（再选 1 个真实或准真实 PLC 项目走 `project show -> change list -> plc check -> doc inject/doc refresh --dry-run` 最小链路；若发现兼容问题，先沉淀测试再做最小修复）
+- [precondition: 至少 1 个真实项目资产闭环 + 至少 1 个第二样本复核已完成] [待启动] done_when: 第4周完成 `V0.4.2` 试运行证据收口，并在 `008_试运行报告_PILOT.md` 中明确记录真实价值、兼容边界、剩余维护负担和是否进入 `V0.4.3`
+- [precondition: V0.4.2 证据已稳定且 Week 2 单模板策略仍成立] [待启动] done_when: 第5周启动 `V0.4.3` 版本号与文档统一（当前预期 `0.3.8 -> 0.4.1`，但以当时真源为准；同步 `pyproject.toml`、`CHANGELOG.md`、`005_变更记录_CHG.md`、PRD 路线图与 PM_SESSION §2/§8）
+- [precondition: V0.4.3 已完成且主线稳定] [待启动] done_when: 第6周评估并处理 `TD-TC01` / `specmgr` 工具链口径 / 单条全量 pytest 环境问题，明确哪些属于产品主线、哪些保持外部工具或环境问题单独跟踪
 - ✅ [precondition: V0.4.1 收口批次阶段 1 Critical 修复已完成] [已完成 2026-06-28] done_when: V0.4.1 收口批次阶段 2——创建 CHG-SCPT-2026-077 重走 Step 3 dogfooding 闭环（12 章节完整填写：§5 变更前后 / §6.1 五大约束 + §6.2 跨领域 + §6.3 传播链 / §7 实施计划 / §8.1 审批 8 步 + §8.2 结论 / §9 实施记录 / §10 三节验证 / §11 版本说明 / §12 附录；8 次状态流转 draft→closed；`change show CHG-SCPT-2026-077` parser 验证通过；替换内容不完整的 CHG-075 作为正式 dogfooding 证据）
 - ✅ [precondition: V0.4.1 收口批次阶段 1 Critical 修复已完成] [已完成 2026-06-28] done_when: V0.4.1 收口批次阶段 2——修复 M1 元测试 false positive（`tests/ui/test_overview_tab_asset_summary.py:41,63` 的 `if asset_summary is not None:` 改写为元测试正则 `test_no_conditional_assertion_skips` 不命中的写法，例如 `assert asset_summary is not None` 或反转条件提前 return；全量回归 0 failed）
 - ✅ [precondition: V0.4.1 收口批次阶段 2 已完成] [已完成 2026-06-28] done_when: p4 最终验证通过（ruff 0 errors + mypy 0 errors + CHG-077 parser 验证通过 + 全量回归 1237 passed 0 failed）
