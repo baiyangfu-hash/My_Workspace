@@ -167,9 +167,8 @@ class DashboardService:
             joined_ids = ", ".join(failed_project_ids[:3])
             suffix = " 等" if len(failed_project_ids) > 3 else ""
             hints.append(f"PLC 检查失败项目: {joined_ids}{suffix}")
-        # V0.4.1 Step 3: not_applicable 是信息提示，不是风险项
-        # （仅当存在 not_applicable 项目但无 failed 时给出说明，避免风险提示为空时的混淆）
-        if not_applicable_project_ids and not failed_project_ids:
+        # V0.4.1 收口批次阶段 4: not_applicable 始终展示口径说明（Python 项目，与 failed 独立）
+        if not_applicable_project_ids:
             count = len(not_applicable_project_ids)
             hints.append(
                 f"PLC 检查不适用项目: {count} 个（Python 项目，已跳过 PLC 检查）"

@@ -36,13 +36,6 @@ from auto_pm.ui.global_pages.template_page import (  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 def _make_template_dir(templates_root: Path, name: str, comment: str) -> Path:
     """创建一个模板目录（含 copier.yml）"""
     tpl_dir = templates_root / name

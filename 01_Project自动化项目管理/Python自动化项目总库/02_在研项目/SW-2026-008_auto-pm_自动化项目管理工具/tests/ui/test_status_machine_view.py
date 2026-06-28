@@ -33,13 +33,6 @@ from auto_pm.ui.dialogs.status_machine_view import (  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 # ── 测试用例 ─────────────────────────────────────────────
 
 

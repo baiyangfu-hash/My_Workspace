@@ -4,8 +4,17 @@ from __future__ import annotations
 
 import glob
 import os
+import time
 
-from auto_pm.utils.file_utils import get_mtime, read_file, write_file
+import pytest
+
+from auto_pm.utils.file_utils import (
+    StaleFileError,
+    get_mtime,
+    read_file,
+    read_file_snapshot,
+    write_file,
+)
 
 
 class TestReadFile:
@@ -120,6 +129,29 @@ class TestWriteFileAtomic:
         all_files = list(tmp.iterdir())
         assert len(all_files) == 1, f"目录中有额外文件: {all_files}"
 
+    def test_write_rejects_stale_mtime(self, tmp_path: object) -> None:
+        """expected_mtime 不匹配时拒绝覆盖外部更新"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "stale.txt"
+        write_file(str(f), "v1")
+        expected_mtime = get_mtime(str(f))
+        time.sleep(1.1)
+        write_file(str(f), "v2")
+
+        with pytest.raises(StaleFileError):
+            write_file(str(f), "v1+client", expected_mtime=expected_mtime)
+
+        assert f.read_text(encoding="utf-8") == "v2"
+
+    def test_write_allows_matching_expected_mtime(self, tmp_path: object) -> None:
+        """expected_mtime 匹配时允许写入"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "match.txt"
+        write_file(str(f), "v1")
+        expected_mtime = get_mtime(str(f))
+        write_file(str(f), "v2", expected_mtime=expected_mtime)
+        assert f.read_text(encoding="utf-8") == "v2"
+
 
 class TestGetMtime:
     """get_mtime 测试"""
@@ -135,3 +167,18 @@ class TestGetMtime:
         """获取不存在文件的修改时间返回 0"""
         tmp = tmp_path  # type: Path
         assert get_mtime(str(tmp / "nonexistent.txt")) == 0.0
+
+
+class TestReadFileSnapshot:
+    """read_file_snapshot 测试"""
+
+    def test_snapshot_returns_content_and_mtime(self, tmp_path: object) -> None:
+        """稳定文件应返回同一版本的内容和 mtime"""
+        tmp = tmp_path  # type: Path
+        f = tmp / "snapshot.txt"
+        f.write_text("hello", encoding="utf-8")
+
+        content, mtime = read_file_snapshot(str(f))
+
+        assert content == "hello"
+        assert mtime == get_mtime(str(f))

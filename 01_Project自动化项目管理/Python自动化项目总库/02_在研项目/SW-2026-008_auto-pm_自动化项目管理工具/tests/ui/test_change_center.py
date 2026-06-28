@@ -31,13 +31,6 @@ from auto_pm.ui.change_center import (  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture
 def change_workspace(tmp_path: Path) -> Path:
     """临时工作空间，含一个可被 ProjectService/ChangeService 识别的项目

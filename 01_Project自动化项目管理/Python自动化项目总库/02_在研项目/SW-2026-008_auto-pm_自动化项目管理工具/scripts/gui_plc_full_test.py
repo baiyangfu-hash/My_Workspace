@@ -48,7 +48,7 @@ from PySide6.QtWidgets import (
 
 # ── 全局配置 ──────────────────────────────────────────────
 
-WORKSPACE_ROOT = r"c:\Users\fubai\Desktop\My_Workspace"
+WORKSPACE_ROOT = str(Path(__file__).resolve().parents[5])
 SCREENSHOT_DIR = PROJECT_ROOT / "test_screenshots"
 TEST_PROJECT_ID = "DJ-2026-099"
 TEST_PROJECT_NAME = "GUI测试临时项目"

@@ -34,13 +34,6 @@ from auto_pm.ui.project_list.table_view import ProjectTableView  # noqa: E402
 from auto_pm.ui.project_list.view_controls import ViewControls  # noqa: E402
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 def _make_project(
     project_id: str,
     name: str,

@@ -27,13 +27,6 @@ from auto_pm.models import ProjectInfo  # noqa: E402
 from auto_pm.ui.navigation import NavigationTree, NavNode  # noqa: E402
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 def _make_project(
     project_id: str = "SW-2026-001",
     name: str = "测试项目",

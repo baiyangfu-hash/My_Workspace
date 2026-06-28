@@ -39,13 +39,6 @@ from auto_pm.ui.dialogs.transition_dialog import TransitionDialog  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> Iterator[QApplication]:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = cast(QApplication, QApplication.instance() or QApplication([]))
-    yield app
-
-
 @pytest.fixture
 def change_workspace(tmp_path: Path) -> Path:
     """临时工作空间，含一个可被 ProjectService/ChangeService 识别的项目

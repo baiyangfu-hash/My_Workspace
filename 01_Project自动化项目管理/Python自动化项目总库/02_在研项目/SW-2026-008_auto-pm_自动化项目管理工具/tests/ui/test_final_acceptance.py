@@ -60,13 +60,6 @@ from auto_pm.utils.file_utils import read_file, write_file  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture(autouse=True)
 def _patch_message_boxes() -> Any:
     """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试

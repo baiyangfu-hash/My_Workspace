@@ -12,7 +12,7 @@ import yaml
 
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
-from auto_pm.utils.file_utils import read_file, write_file
+from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_file
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -72,14 +72,14 @@ class DocRefreshService:
             result.issues.append("仅 PLC 项目支持 doc refresh")
             return result
 
-        asset_data = self._load_asset_data(project.path)
-        target_docs = self._locate_target_docs(project.path)
+        asset_data = self.load_asset_data(project.path)
+        target_docs = self.locate_target_docs(project.path)
         if not target_docs:
             result.issues.append("未找到可刷新的 PLC 文档")
             return result
 
         for doc_path, block_builders in target_docs:
-            content = read_file(doc_path)
+            content, original_mtime = read_file_snapshot(doc_path)
             if not content:
                 result.issues.append(f"读取文档失败: {doc_path}")
                 continue
@@ -109,14 +109,18 @@ class DocRefreshService:
                 )
             )
             if changed and not dry_run:
-                write_file(doc_path, content)
+                try:
+                    write_file(doc_path, content, expected_mtime=original_mtime)
+                except StaleFileError as exc:
+                    result.issues.append(f"文档已被外部修改，跳过写入: {doc_path} ({exc})")
+                    continue
                 result.updated = True
             elif changed and dry_run:
                 result.updated = False
 
         return result
 
-    def _load_asset_data(self, project_path: str) -> dict[str, Any]:
+    def load_asset_data(self, project_path: str) -> dict[str, Any]:
         asset_dir = os.path.join(project_path, "02_PLC程序", "工程资产")
         return {
             "asset_dir": asset_dir,
@@ -129,7 +133,7 @@ class DocRefreshService:
             ),
         }
 
-    def _locate_target_docs(self, project_path: str) -> list[tuple[str, list[tuple[str, str]]]]:
+    def locate_target_docs(self, project_path: str) -> list[tuple[str, list[tuple[str, str]]]]:
         doc_dir = os.path.join(project_path, "02_PLC程序", "程序文档")
         targets: list[tuple[str, list[tuple[str, str]]]] = []
         program_doc = self._find_doc_by_suffix(doc_dir, "PLC程序设计总文档_PLC.md")

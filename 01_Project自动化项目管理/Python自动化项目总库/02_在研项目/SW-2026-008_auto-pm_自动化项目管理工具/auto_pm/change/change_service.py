@@ -36,7 +36,12 @@ from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.models import ApprovalRecord
 from auto_pm.models.project import ProjectRecord
-from auto_pm.utils.file_utils import get_mtime, read_file, write_file
+from auto_pm.utils.file_utils import (
+    StaleFileError,
+    get_mtime,
+    read_file_snapshot,
+    write_file,
+)
 
 if TYPE_CHECKING:
     from auto_pm.change.generator import ChgGenerator
@@ -351,7 +356,7 @@ class ChangeService:
         )
 
         # 读取当前内容，获取当前状态
-        content = read_file(file_path)
+        content, original_mtime = read_file_snapshot(file_path)
         if not content:
             log.error("状态流转: 读取变更单内容失败 %s", file_path)
             return None
@@ -435,7 +440,11 @@ class ChangeService:
         # completed: §10 已在门禁前写入
         # pending_acceptance / accepting: 无额外章节需要写入
 
-        write_file(file_path, content)
+        try:
+            write_file(file_path, content, expected_mtime=original_mtime)
+        except StaleFileError as exc:
+            log.error("状态流转: 文件已被外部修改，取消写入 %s: %s", file_path, exc)
+            return None
 
         # M2-3 T52: 同步写入审批历史到 DB（每次流转追加一条记录）
         if self._repo is not None:
@@ -562,7 +571,7 @@ class ChangeService:
             validate_urgency(kwargs["urgency"])
 
         # 4. 读取文件内容
-        content = read_file(file_path)
+        content, original_mtime = read_file_snapshot(file_path)
         if not content:
             log.error("修改变更单: 读取文件失败 %s", file_path)
             return None
@@ -583,7 +592,11 @@ class ChangeService:
             return self._parser.parse(file_path)
 
         # 6. 写回文件
-        write_file(file_path, content)
+        try:
+            write_file(file_path, content, expected_mtime=original_mtime)
+        except StaleFileError as exc:
+            log.error("修改变更单: 文件已被外部修改，取消写入 %s: %s", file_path, exc)
+            return None
         log.info("变更单已修改: %s, 字段=%s", change_number, updated_fields)
 
         # 7. 重新解析

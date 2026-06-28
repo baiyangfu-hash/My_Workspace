@@ -22,7 +22,7 @@ from typing import Any
 from auto_pm.core.doc_refresh_service import DocRefreshService
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
-from auto_pm.utils.file_utils import read_file, write_file
+from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_file
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -96,14 +96,14 @@ class DocInjectService:
             result.issues.append("仅 PLC 项目支持 doc inject")
             return result
 
-        asset_data = self._refresh_service._load_asset_data(project.path)
-        target_docs = self._refresh_service._locate_target_docs(project.path)
+        asset_data = self._refresh_service.load_asset_data(project.path)
+        target_docs = self._refresh_service.locate_target_docs(project.path)
         if not target_docs:
             result.issues.append("未找到可注入标记的 PLC 文档")
             return result
 
         for doc_path, block_builders in target_docs:
-            content = read_file(doc_path)
+            content, original_mtime = read_file_snapshot(doc_path)
             if not content:
                 result.issues.append(f"读取文档失败: {doc_path}")
                 continue
@@ -153,7 +153,11 @@ class DocInjectService:
             result.injected_files.append(injected_doc)
 
             if injected_doc.changed and not dry_run:
-                write_file(doc_path, content)
+                try:
+                    write_file(doc_path, content, expected_mtime=original_mtime)
+                except StaleFileError as exc:
+                    result.issues.append(f"文档已被外部修改，跳过写入: {doc_path} ({exc})")
+                    continue
                 result.updated = True
 
         return result

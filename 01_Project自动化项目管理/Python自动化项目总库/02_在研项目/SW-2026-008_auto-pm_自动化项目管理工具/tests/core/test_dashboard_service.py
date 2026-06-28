@@ -301,12 +301,16 @@ class TestDashboardService:
         assert "1" in not_applicable_hint
         assert "Python" in not_applicable_hint
 
-    def test_risk_hints_failed_overrides_not_applicable_hint(
+    def test_risk_hints_failed_and_not_applicable_both_shown(
         self,
         project_service: ProjectService,
         change_service: ChangeService,
     ) -> None:
-        """V0.4.1 Step 3: 有 failed 时不显示 not_applicable 信息提示（避免风险列表冗余）"""
+        """V0.4.1 收口批次阶段 4: failed 与 not_applicable 同时存在时两者都展示
+
+        m2 修复: not_applicable 是口径说明（Python 项目正常情况），与 failed（真失败）
+        相互独立。始终展示 not_applicable 提示，让用户清楚看到 Python 项目口径。
+        """
         records = [
             _make_project_record(
                 "DJ-2026-001", "PLC单机A", "plc", "developing", "DJ"
@@ -328,12 +332,12 @@ class TestDashboardService:
 
         result = service.get_summary()
 
-        # 有 failed 时不应该有 not_applicable 提示
+        # failed 与 not_applicable 应同时展示（口径独立）
         not_applicable_hints = [
             h for h in result.risk_hints if "PLC 检查不适用项目" in h
         ]
-        assert len(not_applicable_hints) == 0
-        # 但应该有 failed 提示
+        assert len(not_applicable_hints) == 1
+        assert "1" in not_applicable_hints[0]
         failed_hints = [
             h for h in result.risk_hints if "PLC 检查失败项目" in h
         ]

@@ -26,7 +26,7 @@ from tests.gui.helpers.bug_recorder import BugRecorder  # noqa: E402
 
 # ── 常量 ──────────────────────────────────────────────────
 
-WORKSPACE_ROOT = r"c:\Users\fubai\Desktop\My_Workspace"
+WORKSPACE_ROOT = str(Path(__file__).resolve().parents[6])
 PLC_ROOT = Path(WORKSPACE_ROOT) / "0100_PLC自动化"
 TEST_PROJECT_ID = "DJ-2026-998"
 TEST_PROJECT_NAME = "auto_pm_gui_test"

@@ -44,13 +44,6 @@ from auto_pm.ui.main_window import MainWindow  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture
 def workspace_root(tmp_path: Path) -> Path:
     """临时工作空间根目录，含 5 个样本项目目录

@@ -28,6 +28,7 @@ from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo, ProjectRecord
 from auto_pm.models.dto import ProjectCardDTO
 from auto_pm.models.project import extract_business_line
+from auto_pm.utils.file_utils import StaleFileError, get_mtime, write_file
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -361,8 +362,15 @@ class ProjectService:
             if value is not None:
                 answers[key] = value
 
-        from auto_pm.utils.file_utils import write_file
-        write_file(answers_path, yaml.safe_dump(answers, allow_unicode=True, sort_keys=False))
+        original_mtime = get_mtime(answers_path)
+        try:
+            write_file(
+                answers_path,
+                yaml.safe_dump(answers, allow_unicode=True, sort_keys=False),
+                expected_mtime=original_mtime,
+            )
+        except StaleFileError as exc:
+            raise RuntimeError(f".copier-answers.yml 已被外部修改: {answers_path}") from exc
 
     def _update_plc_json(self, project_path: str, kwargs: dict[str, str]) -> None:
         """写入 .plc.json（保留原有字段，更新指定字段）"""
@@ -376,8 +384,15 @@ class ProjectService:
             if value is not None:
                 cfg[key] = value
 
-        from auto_pm.utils.file_utils import write_file
-        write_file(plc_json_path, json.dumps(cfg, ensure_ascii=False, indent=2))
+        original_mtime = get_mtime(plc_json_path)
+        try:
+            write_file(
+                plc_json_path,
+                json.dumps(cfg, ensure_ascii=False, indent=2),
+                expected_mtime=original_mtime,
+            )
+        except StaleFileError as exc:
+            raise RuntimeError(f".plc.json 已被外部修改: {plc_json_path}") from exc
 
     # ── 项目补全 ──────────────────────────────────────────
 
@@ -437,7 +452,6 @@ class ProjectService:
                 if value:
                     content[key] = value
 
-        from auto_pm.utils.file_utils import write_file
         write_file(answers_path, yaml.safe_dump(content, allow_unicode=True, sort_keys=False))
 
         log.info("已补全 .copier-answers.yml: %s", answers_path)

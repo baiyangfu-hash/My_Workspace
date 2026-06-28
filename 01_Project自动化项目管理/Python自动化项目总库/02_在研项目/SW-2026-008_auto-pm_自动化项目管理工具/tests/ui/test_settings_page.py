@@ -32,13 +32,6 @@ from auto_pm.ui.global_pages.settings_page import SettingsPage  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 def _make_project(workspace: Path, project_id: str, name: str) -> Path:
     """创建一个使用 copier 模板的项目"""
     proj_dir = workspace / f"{project_id}_{name}"

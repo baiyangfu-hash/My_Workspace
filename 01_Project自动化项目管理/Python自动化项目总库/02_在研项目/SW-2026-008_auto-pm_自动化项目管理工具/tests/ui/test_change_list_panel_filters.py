@@ -29,13 +29,6 @@ from auto_pm.ui.change_center.change_list_panel import ChangeListPanel  # noqa: 
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture
 def filter_workspace(tmp_path: Path) -> Path:
     """临时工作空间，含 2 个项目

@@ -36,13 +36,6 @@ from auto_pm.ui.project_list.list_view import ProjectListView  # noqa: E402
 from auto_pm.ui.project_list.project_card import ProjectCard  # noqa: E402
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 def _make_project(
     project_id: str,
     name: str,

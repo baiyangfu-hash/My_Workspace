@@ -21,6 +21,7 @@ import re
 from dataclasses import dataclass
 
 from auto_pm.logging.logging import setup_logger
+from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_file
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -279,11 +280,9 @@ def update_spec_snapshot(
         log.warning("PM_SESSION 文件不存在，无法更新: %s", pm_session_path)
         return False
 
-    try:
-        with open(pm_session_path, encoding="utf-8") as f:
-            content = f.read()
-    except OSError as e:
-        log.warning("读取 PM_SESSION 失败: %s (%s)", pm_session_path, e)
+    content, original_mtime = read_file_snapshot(pm_session_path)
+    if not content:
+        log.warning("读取 PM_SESSION 失败: %s", pm_session_path)
         return False
 
     # 正则替换每个漂移项的版本号
@@ -308,9 +307,8 @@ def update_spec_snapshot(
         return False
 
     try:
-        from auto_pm.utils.file_utils import write_file
-        write_file(pm_session_path, new_content)
-    except OSError as e:
+        write_file(pm_session_path, new_content, expected_mtime=original_mtime)
+    except (OSError, StaleFileError) as e:
         log.warning("写入 PM_SESSION 失败: %s (%s)", pm_session_path, e)
         return False
 

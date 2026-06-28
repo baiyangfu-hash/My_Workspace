@@ -37,13 +37,6 @@ from auto_pm.ui.global_pages.report_page import ReportPage  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture
 def db(tmp_path: Path) -> DatabaseManager:
     """临时 DB（已建表）"""

@@ -35,13 +35,6 @@ from auto_pm.ui.change_center.approval_timeline import (  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture
 def mock_service() -> MagicMock:
     """Mock ChangeService，list_approval_history 默认返回空列表"""

@@ -30,13 +30,6 @@ from auto_pm.ui.global_pages.spec_center import SpecCenterView  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 def _create_spec_file(spec_dir: Path, code: str, name_suffix: str) -> Path:
     """在指定目录创建模拟规范文件
 

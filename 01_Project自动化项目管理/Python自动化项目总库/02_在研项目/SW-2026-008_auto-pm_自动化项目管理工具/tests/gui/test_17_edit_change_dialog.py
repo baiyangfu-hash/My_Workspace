@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 
 # 必须在导入 PySide6 前设置离屏渲染（GUI_VISIBLE=1 时切换为可见窗口演示模式）
@@ -36,13 +37,20 @@ from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog  # noqa: E402
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
 from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
 
+logger = logging.getLogger(__name__)
+
 # ── 测试隔离：记录本模块创建的变更单，autouse fixture 在每个测试后清理 ──
 _created_change_numbers: list[str] = []
 
 
 @pytest.fixture(autouse=True)
 def _cleanup_test_changes(workspace_root: str):
-    """每个测试后清理本测试创建的变更单文件和台帐条目，避免污染生产数据（TD-T10 修复）"""
+    """每个测试后清理本测试创建的变更单文件和台帐条目，避免污染生产数据（TD-T10 修复）
+
+    V0.4.1 收口批次修复：原 `except Exception: pass` 静默吞掉所有清理异常，
+    导致 CHG-SCPT-2026-076 残留生产数据（TD-T09 复发）。改为 logging.warning
+    暴露清理失败，便于诊断 fixture 缺陷。
+    """
     yield
     cs = ChangeService(workspace_root)
     ledger_updater = cs._get_ledger_updater()
@@ -57,8 +65,18 @@ def _cleanup_test_changes(workspace_root: str):
                     if ledger_path:
                         ledger_updater.remove(ledger_path, change_number)
                 os.remove(file_path)
-        except Exception:
-            pass
+            else:
+                logger.warning(
+                    "清理变更单失败：找不到文件 %s（可能 fixture 定位逻辑有缺陷）",
+                    change_number,
+                )
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "清理变更单 %s 时抛异常: %s: %s",
+                change_number,
+                type(e).__name__,
+                e,
+            )
     _created_change_numbers.clear()
 
 

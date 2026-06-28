@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -132,6 +132,70 @@ class DashboardSummaryDTO(BaseModel):
         default_factory=list,
         description="交付风险/健康提示列表",
     )
+
+
+class AssetSummaryViewDTO(BaseModel):
+    """工程资产摘要视图 DTO（OverviewTab 展示用）"""
+
+    status: str = Field("unknown", description="资产健康状态")
+    badge_label: str = Field("未知", description="状态徽标文本")
+    badge_bg: str = Field("#95a5a6", description="徽标背景色")
+    badge_fg: str = Field("#ffffff", description="徽标前景色")
+    status_text: str = Field("未知", description="状态说明文案")
+    reason: str = Field("", description="不适用或降级原因")
+    io_count: int = Field(0, description="IO 点数")
+    program_block_count: int = Field(0, description="程序块数量")
+    communication_count: int = Field(0, description="通讯对象数量")
+    issue_messages: list[str] = Field(default_factory=list, description="问题摘要列表")
+
+    @classmethod
+    def from_asset_summary(
+        cls,
+        asset_summary: dict[str, Any] | None,
+        *,
+        status_badges: dict[str, tuple[str, str, str]],
+        status_texts: dict[str, str],
+    ) -> "AssetSummaryViewDTO":
+        """从 ProjectScanner 注入的原始 asset_summary 生成视图 DTO"""
+        if not isinstance(asset_summary, dict):
+            return cls(reason="暂无资产摘要")
+
+        status = str(asset_summary.get("status", "unknown"))
+        badge_label, badge_bg, badge_fg = status_badges.get(
+            status, ("未知", "#95a5a6", "#ffffff")
+        )
+        issue_messages = cls._normalize_issue_messages(asset_summary.get("issue_messages"))
+
+        return cls(
+            status=status,
+            badge_label=badge_label,
+            badge_bg=badge_bg,
+            badge_fg=badge_fg,
+            status_text=status_texts.get(status, status),
+            reason=issue_messages[0] if status == "not_applicable" and issue_messages else "",
+            io_count=cls._extract_count(asset_summary, "io_points"),
+            program_block_count=cls._extract_count(asset_summary, "program_blocks"),
+            communication_count=cls._extract_count(asset_summary, "communications"),
+            issue_messages=issue_messages,
+        )
+
+    @staticmethod
+    def _extract_count(asset_summary: dict[str, Any], key: str) -> int:
+        """从原始资产摘要中提取数量字段"""
+        sub = asset_summary.get(key)
+        if isinstance(sub, dict):
+            try:
+                return int(sub.get("count", 0))
+            except (TypeError, ValueError):
+                return 0
+        return 0
+
+    @staticmethod
+    def _normalize_issue_messages(value: object) -> list[str]:
+        """标准化问题列表，过滤空值和非字符串项"""
+        if not isinstance(value, list):
+            return []
+        return [str(item) for item in value if str(item).strip()]
 
 
 class ScanResult(BaseModel):

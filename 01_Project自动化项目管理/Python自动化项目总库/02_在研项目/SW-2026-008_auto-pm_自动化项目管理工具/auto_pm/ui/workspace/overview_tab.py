@@ -31,6 +31,7 @@ from auto_pm.core.constants import (
 )
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
+from auto_pm.models.dto import AssetSummaryViewDTO
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -326,56 +327,50 @@ class OverviewTab(QWidget):
         """
         self._clear_layout(self._asset_summary_layout)
 
-        asset_summary = project.extra.get("asset_summary") if project.extra else None
-        if not isinstance(asset_summary, dict):
+        summary_view = AssetSummaryViewDTO.from_asset_summary(
+            project.extra.get("asset_summary") if project.extra else None,
+            status_badges=_ASSET_STATUS_BADGE,
+            status_texts=_ASSET_STATUS_TEXT,
+        )
+        if not summary_view.issue_messages and summary_view.reason == "暂无资产摘要":
             hint = QLabel("暂无资产摘要")
             hint.setObjectName("hintLabel")
             self._asset_summary_layout.addWidget(hint)
             return
 
-        status = str(asset_summary.get("status", "unknown"))
-        badge_label_text, badge_bg, badge_fg = _ASSET_STATUS_BADGE.get(
-            status, ("未知", "#95a5a6", "#ffffff")
-        )
-
         # 健康状态徽标行
         badge_row = QHBoxLayout()
         badge_row.setSpacing(8)
-        badge_label = QLabel(badge_label_text)
+        badge_label = QLabel(summary_view.badge_label)
         badge_label.setStyleSheet(
-            f"background: {badge_bg}; color: {badge_fg}; "
+            f"background: {summary_view.badge_bg}; color: {summary_view.badge_fg}; "
             f"padding: 2px 8px; border-radius: 3px; "
             f"font-size: 12px; font-weight: bold;"
         )
         badge_row.addWidget(badge_label)
 
-        status_text = QLabel(_ASSET_STATUS_TEXT.get(status, status))
+        status_text = QLabel(summary_view.status_text)
         status_text.setObjectName("fieldValue")
         badge_row.addWidget(status_text)
         badge_row.addStretch(1)
         self._asset_summary_layout.addLayout(badge_row)
 
         # 不适用状态：显示原因并返回
-        if status == "not_applicable":
-            issue_messages = asset_summary.get("issue_messages", [])
-            if issue_messages:
-                reason_label = QLabel(str(issue_messages[0]))
+        if summary_view.status == "not_applicable":
+            if summary_view.reason:
+                reason_label = QLabel(summary_view.reason)
                 reason_label.setObjectName("hintLabel")
                 reason_label.setWordWrap(True)
                 self._asset_summary_layout.addWidget(reason_label)
             return
 
         # 三类资产数量
-        io_count = self._extract_asset_count(asset_summary, "io_points")
-        block_count = self._extract_asset_count(asset_summary, "program_blocks")
-        comm_count = self._extract_asset_count(asset_summary, "communications")
-
         counts_row = QHBoxLayout()
         counts_row.setSpacing(24)
         for label_text, count in (
-            ("IO 点数", io_count),
-            ("程序块", block_count),
-            ("通讯对象", comm_count),
+            ("IO 点数", summary_view.io_count),
+            ("程序块", summary_view.program_block_count),
+            ("通讯对象", summary_view.communication_count),
         ):
             col = QVBoxLayout()
             col.setSpacing(2)
@@ -390,19 +385,18 @@ class OverviewTab(QWidget):
         self._asset_summary_layout.addLayout(counts_row)
 
         # 问题摘要
-        issue_messages = asset_summary.get("issue_messages", [])
-        if issue_messages:
+        if summary_view.issue_messages:
             issues_title = QLabel("问题摘要")
             issues_title.setObjectName("fieldLabel")
             self._asset_summary_layout.addWidget(issues_title)
 
-            for msg in issue_messages[:_ASSET_ISSUE_MAX_DISPLAY]:
+            for msg in summary_view.issue_messages[:_ASSET_ISSUE_MAX_DISPLAY]:
                 item = QLabel(f"• {msg}")
                 item.setObjectName("activityItem")
                 item.setWordWrap(True)
                 self._asset_summary_layout.addWidget(item)
 
-            remaining = len(issue_messages) - _ASSET_ISSUE_MAX_DISPLAY
+            remaining = len(summary_view.issue_messages) - _ASSET_ISSUE_MAX_DISPLAY
             if remaining > 0:
                 more_label = QLabel(f"+{remaining} 更多")
                 more_label.setObjectName("hintLabel")
@@ -411,17 +405,6 @@ class OverviewTab(QWidget):
             no_issues = QLabel("无问题")
             no_issues.setObjectName("hintLabel")
             self._asset_summary_layout.addWidget(no_issues)
-
-    @staticmethod
-    def _extract_asset_count(asset_summary: dict[str, Any], key: str) -> int:
-        """从资产摘要中提取指定类别的数量"""
-        sub = asset_summary.get(key)
-        if isinstance(sub, dict):
-            try:
-                return int(sub.get("count", 0))
-            except (TypeError, ValueError):
-                return 0
-        return 0
 
     # ── D2.2 立项表解析展示 ───────────────────────────────
 

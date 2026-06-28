@@ -6,6 +6,10 @@ import os
 import tempfile
 
 
+class StaleFileError(RuntimeError):
+    """文件在读写之间被外部修改时抛出的异常"""
+
+
 def read_file(file_path: str, encoding: str = "utf-8") -> str:
     """读取文件内容，失败返回空字符串"""
     try:
@@ -15,19 +19,53 @@ def read_file(file_path: str, encoding: str = "utf-8") -> str:
         return ""
 
 
-def write_file(file_path: str, content: str, encoding: str = "utf-8") -> None:
+def read_file_snapshot(file_path: str, encoding: str = "utf-8", max_attempts: int = 3) -> tuple[str, float]:
+    """读取稳定文件快照，返回内容和 mtime
+
+    通过"读前/读后 mtime 一致"近似保证内容与 mtime 来自同一版本，
+    降低 read-modify-write 场景中的误判和漏判概率。
+    """
+    content = ""
+    mtime = 0.0
+    attempts = max(1, max_attempts)
+    for _ in range(attempts):
+        before = get_mtime(file_path)
+        content = read_file(file_path, encoding=encoding)
+        after = get_mtime(file_path)
+        if before == after:
+            return content, after
+        mtime = after
+    return content, mtime
+
+
+def write_file(
+    file_path: str,
+    content: str,
+    encoding: str = "utf-8",
+    expected_mtime: float | None = None,
+) -> None:
     """原子写入文件内容，自动创建父目录
 
     使用"写入临时文件 → os.replace 替换"模式确保原子性（TD-T11 修复）：
     - 写入过程中中断不会损坏原文件（原文件保持不变）
     - os.replace 在 Windows 和 POSIX 上都是原子操作
     - 临时文件与目标文件在同一目录（确保 os.replace 可用）
+    - 可选 expected_mtime 乐观锁，防止 read-modify-write lost update
 
     Args:
         file_path: 目标文件路径
         content: 文件内容
         encoding: 文件编码，默认 utf-8
+        expected_mtime: 期望的文件修改时间；不一致则拒绝写入
     """
+    if expected_mtime is not None:
+        current_mtime = get_mtime(file_path)
+        if current_mtime != expected_mtime:
+            raise StaleFileError(
+                f"文件已被外部修改: {file_path} "
+                f"(expected_mtime={expected_mtime}, current_mtime={current_mtime})"
+            )
+
     dir_path = os.path.dirname(file_path)
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)

@@ -31,13 +31,6 @@ from auto_pm.ui.workspace.doc_tab import DocTab  # noqa: E402
 # ── fixtures ─────────────────────────────────────────────
 
 
-@pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """提供全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
 @pytest.fixture
 def template_service(tmp_path: Path) -> TemplateService:
     """真实 TemplateService（指向临时模板目录）"""
