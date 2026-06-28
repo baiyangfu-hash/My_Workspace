@@ -338,3 +338,71 @@ class TestDashboardService:
             h for h in result.risk_hints if "PLC 检查失败项目" in h
         ]
         assert len(failed_hints) == 1
+
+    # ── P3 根源修复：stack="python" 正常项目 not_applicable 统计 ──────────────
+
+    def test_not_applicable_python_stack_project(
+        self,
+        project_service: ProjectService,
+        change_service: ChangeService,
+    ) -> None:
+        """P3 根源修复：stack='python' 的正常项目应被 PlcChecker 判定为 not_applicable
+
+        移除 DashboardService 第104行 stack 过滤后，所有项目都经过
+        PlcChecker.check() 统一判定。stack='python' 的项目由 PlcChecker
+        基于文件特征（无 .plc.json + 有 pyproject.toml）返回 not_applicable=True。
+        """
+        records = [
+            _make_project_record(
+                "SW-2026-003", "Python工具", "python", "developing", "SW"
+            ),
+        ]
+        for r in records:
+            project_service._repo.upsert(r)
+
+        fake_plc_service = _FakePlcService(
+            not_applicable_paths={"/tmp/SW-2026-003"}
+        )
+        service = DashboardService(
+            project_service, change_service, plc_service=fake_plc_service
+        )
+
+        result = service.get_summary()
+
+        assert result.not_applicable_project_count == 1
+        assert result.not_applicable_project_ids == ["SW-2026-003"]
+        assert result.failed_check_project_count == 0
+
+    def test_not_applicable_mixed_stacks(
+        self,
+        project_service: ProjectService,
+        change_service: ChangeService,
+    ) -> None:
+        """P3 根源修复：混合 stack 场景验证
+
+        PLC 项目(failed) + Python 项目(not_applicable) + PLC 项目(normal) + Python 项目(normal)
+        """
+        records = [
+            _make_project_record("DJ-2026-001", "PLC单机A", "plc", "developing", "DJ"),
+            _make_project_record("SW-2026-003", "Python工具A", "python", "developing", "SW"),
+            _make_project_record("DJ-2026-002", "PLC单机B", "plc", "production", "DJ"),
+            _make_project_record("SW-2026-004", "Python工具B", "python", "archived", "SW"),
+        ]
+        for r in records:
+            project_service._repo.upsert(r)
+
+        fake_plc_service = _FakePlcService(
+            fail_counts={"/tmp/DJ-2026-001": 2},
+            not_applicable_paths={"/tmp/SW-2026-003"},
+        )
+        service = DashboardService(
+            project_service, change_service, plc_service=fake_plc_service
+        )
+
+        result = service.get_summary()
+
+        assert result.total_projects == 4
+        assert result.failed_check_project_count == 1
+        assert result.failed_check_project_ids == ["DJ-2026-001"]
+        assert result.not_applicable_project_count == 1
+        assert result.not_applicable_project_ids == ["SW-2026-003"]

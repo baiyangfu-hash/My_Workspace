@@ -13,7 +13,7 @@
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
-- current_focus: V0.4.1 Step 3 已完整收口（CheckResult not_applicable 字段 + PlcChecker Python 项目检测 + DashboardService 防御性 + DashboardSummaryDTO 扩展 + UI 透明展示 + CLI 友好提示 + 5 单测 + 4 CLI 集成测试 + CHG-SCPT-2026-075 dogfooding 第8次完整 8 步闭环 + 台帐序号007 已关闭）；下一步切换到 V0.4.1 收口——版本号 0.3.8->0.4.1 升级 + CHANGELOG 新增条目 + PRD 路线图更新
+- current_focus: P2/P3根源修复已完成——P2在ChangeService.create_change_request增加终态文件覆盖防护+恢复CHG-074.md closed版本；P3移除DashboardService第104行stack过滤让PlcChecker统一判定；新增3个测试全部通过，ruff/mypy 0错误，全量回归978 passed（1预存失败无关）
 - milestone: V0.3.8（代码基线冻结）/ V0.4.0（当前主线启动）/ PRD V2.1.1（方向校准）
 - acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
 - plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step1_OverviewTab工程资产摘要接入_迭代计划.md + 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
@@ -509,6 +509,8 @@
   - impact: 09_整改项 当前执行主计划已与代码/PM_SESSION 对齐，新执行者可直接从 M3-3 审批时间线继续推进，不会被早期“Phase 0-2 优先”口径误导
   - risks: 无；本次仅同步文档，不涉及代码或测试行为变更
 
+- 2026-06-28 | skill=fullstack-engineer | mode=后端修复 | goal=P2/P3根源修复 | changed_files: change_service.py(+防护), dashboard_service.py(-stack过滤), test_dashboard_service.py(+2测试), test_change_service.py(+1测试), CHG-SCPT-2026-074.md(恢复closed) | impact: P2防止终态变更单被覆盖, P3让Python项目正确计入not_applicable | risks: 无（回归测试通过）
+
 ## 7. Verification Log
 - verified:
   - V0.4.1 Step 3 Python 项目 plc check 不适用口径补齐（2026-06-28，已验证）:
@@ -628,6 +630,8 @@
 - method: Week 4 采用服务层单测 + CLI/模板集成测试 + VS Code 诊断 + 真实 CLI 创建/刷新验证（`project create` + `doc refresh --dry-run` + `doc refresh`）+ PM_SESSION/PRD/CHG/CHANGELOG/PILOT/交接输入 文档对照复核
 - blocker: 无硬阻断；phase 与 ruff 两个残留问题已收口，M4 Dogfooding 持续化已正式启动
 
+- 2026-06-28 | verified: P2终态覆盖防护(test_create_refuses_overwrite_closed_change), P3 stack=python not_applicable统计(test_not_applicable_python_stack_project), P3混合stack场景(test_not_applicable_mixed_stacks), ruff 0错误, mypy 0错误, 全量回归978 passed | not_verified: 真实PlcChecker端到端集成测试（单元测试用_FakePlcService mock） | method: pytest -v + ruff check + mypy | blocker: 无
+
 ## 8. Handoff Notes
 - current_state: V0.4.1 Step 3 已完整收口——Python 项目 plc check 不适用口径补齐完成（CheckResult.not_applicable/not_applicable_reason 字段 + PlcChecker.check_project 开头 Python 项目检测 + DashboardService._collect_plc_check_stats 重构 + DashboardSummaryDTO 新增 not_applicable_project_count/ids + list_view UI 新增“检查不适用: N”标签 + CLI plc check 友好提示），新增 5 单元测试 + 4 CLI 集成测试（90 passed 无回归），ruff/mypy 0 errors；CHG-SCPT-2026-075 dogfooding 第8次完整 8 步生命周期闭环完成（draft->closed），台帐序号007 自动回写状态为 ✅已关闭；累计 dogfooding 8 次（CHG-001/062/063/064/072/073/074/075 全 closed）
 - next_focus: V0.4.1 收口——版本号 0.3.8->0.4.1 升级 + CHANGELOG 新增条目 + PRD 路线图更新（Step 1~3 全部完成，进入版本号统一升级阶段）
@@ -719,6 +723,12 @@
   - **pytest-xdist 已安装但未启用**：pyproject.toml dev 依赖含 pytest-xdist>=3,<4；tests/conftest.py 已用固定 seed random.Random(20260627) 确保 xdist 收集一致性；如需启用：`pytest -n auto`（建议先在 tests/change/ 单目录验证）
 - read_first: PM_SESSION §6 最新条目（2026-06-27 V0.3.8 技术债偿还批次）, 00_项目基础信息/007_发布门禁规范_REL.md, 00_项目基础信息/008_试运行报告_PILOT.md, 00_项目基础信息/006_技术债评估报告.md, .trae/specs/v2.1-change-management-enhancement/spec.md, 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md
 
+- skill_switch: 2026-06-28 PM Bug分析完成（P2/P3根源修复方案已制定并获用户确认）→ 软件域编码实施；目标技能=fullstack-engineer；切换原因=PM流程推进到需要编码修复阶段，按pm-workflow跨技能切换规则强制切换；目标范围=P2 ChangeService终态覆盖防护+CHG-074恢复+测试，P3移除DashboardService stack过滤+补充测试
+  - current_state: P2/P3根源修复已完成并验证通过，CHG-074.md已恢复closed版本
+  - next_focus: 版本号升级0.3.8->0.4.1，CHG-075闭环，全量回归确认无回归
+  - watchouts: (1)P2修改create_change_request不能影响transition/update正常写入路径；(2)P3移除stack过滤后所有项目都会调check()，需确认PlcService.check正确委托给PlcChecker；(3)修复后需全量回归确保1163 passed不回归
+  - read_first: auto_pm/change/change_service.py第229-234行write_file调用、auto_pm/core/dashboard_service.py第103-117行_collect_plc_check_stats、auto_pm/plc/checker.py第64-75行not_applicable检测、tests/core/test_dashboard_service.py所有not_applicable测试用例
+
 ## 9. Next Actions
 - ✅ [precondition: V0.4.0 Week 4 已收口] [已完成 2026-06-28] done_when: V041-S1-01 创建 CHG-SCPT-2026-073 并流转到 approved
 - ✅ [precondition: V041-S1-01 已完成] [已完成 2026-06-28] done_when: V041-S1-02 OverviewTab _load_asset_summary 实现 + _ASSET_STATUS_BADGE 表 + _extract_asset_count 助手；ruff/mypy 0 errors
@@ -795,3 +805,8 @@
 - [precondition: 方案 C 决策] done_when: 文档明确 auto-pm vs specmgr 分工边界——在 README/PM_SESSION 中补充架构定位说明：auto-pm=项目管理（骨架/变更/模板/GUI）+ Spec Snapshot 表格漂移检测（PLC 专属）；specmgr=规范健康检查（SHC-001~010 全局规范文件检查）；两者互补非替代
 - ✅ [precondition: PM_SESSION 基线确认] [已完成 2026-06-25] done_when: `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` 与 PM_SESSION 对齐到当前实际进度（Phase 0-2、M1、M2、M3-1 已完成；后续执行顺序明确为 M3-3→M3-2→M3-4→Phase 6），glm5.2 可直接从剩余 M3 工作继续推进
 - ✅ [precondition: M4 已启动 + glm5.1 收口完成] [已完成 2026-06-26] done_when: glm5.2 收尾——Trae 更新文件保存丢失诊断（11 核心文件核查，仅 005 丢失 glm5.1 条目）+ 台帐重复追加 bug 根因修复（`LedgerUpdater.update()` 添加去重检查防止重复追加 + `generate_change_number()` 添加台帐序号检查防止文件删除后编号回退）+ 台帐数据清理（185 条脏数据→3 条正确记录 001/062/063）+ 005 变更记录回写（V0.3.6-glm5.1 章节补全 + 标准变更单索引 +062/063 + frontmatter version V0.3.0→V0.3.6）；ruff 0 errors + mypy 0 errors + 焦点回归 53 passed（11 ledger + 42 change/scanner）；PM_SESSION §6/§7/§8/§9 全部回写
+
+- [NA-P2P3-001] 版本号升级0.3.8->0.4.1 | precondition: P2/P3修复完成(已满足) | done_when: pyproject.toml版本号=0.4.1, CHANGELOG新增0.4.1条目
+- [NA-P2P3-002] CHG-SCPT-2026-075闭环 | precondition: P3修复完成(已满足) | done_when: CHG-075状态=closed, 台帐更新
+- [NA-P2P3-003] 修复预存fixture health问题 | precondition: 无 | done_when: ui/test_overview_tab_asset_summary.py条件断言改为assert is not None
+- [NA-P2P3-004] 补充真实PlcChecker端到端集成测试 | precondition: P3修复完成(已满足) | done_when: tests/core/新增DashboardService+真实PlcChecker集成测试

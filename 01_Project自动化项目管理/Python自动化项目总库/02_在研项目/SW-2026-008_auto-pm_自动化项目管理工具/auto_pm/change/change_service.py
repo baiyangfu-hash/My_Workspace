@@ -228,6 +228,26 @@ class ChangeService:
         # 生成文件路径
         file_path = self._locator.get_change_file_path(project_path, change_number)
 
+        # 防护：禁止覆盖已存在且状态为终态的变更单
+        if os.path.isfile(file_path):
+            try:
+                existing_cr = self._parser.parse(file_path)
+                if existing_cr.status in ("closed", "archived"):
+                    raise ValueError(
+                        f"变更单文件已存在且状态为 {existing_cr.status}（终态），禁止覆盖: {file_path}"
+                    )
+                log.warning(
+                    "变更单文件已存在，将覆盖: %s (当前状态=%s)",
+                    file_path, existing_cr.status,
+                )
+            except ValueError:
+                raise
+            except Exception as exc:
+                log.warning(
+                    "变更单文件已存在但解析失败，将覆盖: %s: %s",
+                    file_path, exc,
+                )
+
         # 渲染并保存
         content = self._get_generator().render(cr)
         write_file(file_path, content)

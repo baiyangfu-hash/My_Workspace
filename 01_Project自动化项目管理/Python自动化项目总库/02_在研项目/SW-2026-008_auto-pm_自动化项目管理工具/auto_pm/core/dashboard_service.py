@@ -101,12 +101,10 @@ class DashboardService:
         failed_project_ids: list[str] = []
         not_applicable_project_ids: list[str] = []
         for project in projects:
-            if project.stack != "plc":
-                continue
             try:
                 result = self._plc_service.check(project.path)
             except Exception as exc:  # pragma: no cover - 防御性日志
-                log.warning("驾驶舱检查 PLC 项目失败，已跳过: %s: %s", project.project_id, exc)
+                log.warning("驾驶舱检查项目失败，已跳过: %s: %s", project.project_id, exc)
                 continue
             # V0.4.1 Step 3: not_applicable 项目（Python 项目）不计入 failed
             if result.not_applicable:

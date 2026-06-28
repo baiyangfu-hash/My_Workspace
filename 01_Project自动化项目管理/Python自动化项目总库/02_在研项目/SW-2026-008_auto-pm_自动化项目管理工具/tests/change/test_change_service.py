@@ -161,6 +161,49 @@ class TestChangeService:
         svc = ChangeService(str(tmp / "nonexistent"))
         assert svc._find_change_file("CHG-PLC-2026-001") is None
 
+    def test_create_refuses_overwrite_closed_change(
+        self, workspace_root: str, project_id: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """P2 根源修复：禁止覆盖已存在且状态为 closed 的变更单
+
+        场景：编号生成器回退到已用编号（如台帐被清理后），目标文件已存在且状态为 closed。
+        应抛出 ValueError，防止终态变更单被覆盖。
+        """
+        svc = ChangeService(workspace_root)
+
+        # 把已有的 CHG-DOCU-2026-001.md 状态改为 closed
+        chg_path = os.path.join(
+            workspace_root, project_id,
+            "00_项目管理", "04_变更管理", "01_变更单",
+            "CHG-DOCU", "CHG-DOCU-2026-001.md",
+        )
+        with open(chg_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        # 在 §3.4 部分插入"变更状态 | closed"行
+        content = content.replace(
+            "| 紧急程度 |",
+            "| 变更状态 | closed |\n| 紧急程度 |",
+        )
+        with open(chg_path, "w", encoding="utf-8") as f:
+            f.write(content)
+
+        # mock 编号生成器返回已存在的编号
+        monkeypatch.setattr(
+            svc._locator, "generate_change_number",
+            lambda *_args: "CHG-DOCU-2026-001",
+        )
+
+        with pytest.raises(ValueError, match="终态"):
+            svc.create_change_request(
+                project_id=project_id,
+                domain="DOCU",
+                business_nature="DEF",
+                impact_scope=["LOCAL"],
+                applicant="测试",
+                background="背景",
+                necessity="必要性",
+            )
+
 
 class TestValidationFunctions:
     """变更管理规范校验函数测试"""
