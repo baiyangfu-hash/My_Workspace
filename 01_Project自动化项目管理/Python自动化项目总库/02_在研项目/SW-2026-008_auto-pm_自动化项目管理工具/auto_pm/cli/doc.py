@@ -6,6 +6,7 @@ import json
 
 import click
 from rich.console import Console
+from rich.markup import escape
 
 from auto_pm.app_context import AppContext
 from auto_pm.core.doc_inject_service import DocInjectService
@@ -49,7 +50,9 @@ def cmd_refresh(
 
     if result.issues:
         for issue in result.issues:
-            console.print(f"[yellow]{issue}[/yellow]")
+            # 使用 escape + style= 避免 rich markup 吞噬 issue 文本中的 [block_key]
+            # 详见 V0.4.2 Week3 第二样本复核回归测试 TestDocIssueBracketPreservation
+            console.print(escape(issue), style="yellow")
 
     if not result.refreshed_files:
         console.print("[yellow]没有可刷新的文档自动区[/yellow]")
@@ -95,7 +98,9 @@ def cmd_inject(
 
     if result.issues:
         for issue in result.issues:
-            console.print(f"[yellow]{issue}[/yellow]")
+            # 使用 escape + style= 避免 rich markup 吞噬 issue 文本中的 [block_key]
+            # 详见 V0.4.2 Week3 第二样本复核回归测试 TestDocIssueBracketPreservation
+            console.print(escape(issue), style="yellow")
 
     if not result.injected_files:
         console.print("[yellow]没有可注入标记的 PLC 文档[/yellow]")

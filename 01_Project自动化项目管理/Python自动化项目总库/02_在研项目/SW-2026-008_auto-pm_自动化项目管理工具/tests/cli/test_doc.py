@@ -404,3 +404,75 @@ class TestDocInject:
         assert "已存在的组件内容" in program_content
         # plc-asset-index 无 marker → 注入
         assert "AUTO_PM:BEGIN plc-asset-index" in program_content
+
+
+class TestDocIssueBracketPreservation:
+    """回归测试（V0.4.2 Week3 第二样本复核发现）：
+
+    rich console 默认解析 markup，会把 issue 文本中的 `[block_key]`
+    当作未知 markup 标签吞噬，导致用户看不到具体的 block_key 信息。
+
+    场景来源：DJ-2026-099 真实样本复核时 `doc refresh --dry-run` 输出
+    "文档缺少自动区标记: 016_PLC程序设计总文档_PLC.md"（[plc-program-components] 被吞噬）。
+
+    修复后应保留 `[block_key]` 字面文本，便于用户定位缺失的具体标记。
+    """
+
+    def test_doc_refresh_issue_preserves_brackets_around_block_key(
+        self, cli_runner: CliRunner, tmp_path: Path
+    ) -> None:
+        """refresh issue 行应保留 [block_key] 字面文本（不被 rich markup 吞噬）"""
+        workspace = _setup_legacy_doc_workspace(tmp_path)
+
+        # 历史文档无 marker → refresh 应输出 "文档缺少自动区标记: ... [block_key]"
+        result = cli_runner.invoke(
+            cli,
+            ["-w", str(workspace), "doc", "refresh", "DJ-2026-051", "--dry-run"],
+            catch_exceptions=False,
+        )
+
+        assert result.exit_code == 0
+        # 关键断言：issue 行必须保留 [plc-program-components] 字面文本
+        assert "[plc-program-components]" in result.output, (
+            "issue 行的 [plc-program-components] 被 rich markup 吞噬，"
+            "应使用 rich.markup.escape 或 markup=False 保留字面方括号"
+        )
+        assert "[plc-asset-index]" in result.output
+        assert "[plc-io-overview]" in result.output
+
+    def test_doc_inject_issue_preserves_brackets_around_block_key(
+        self, cli_runner: CliRunner, tmp_path: Path
+    ) -> None:
+        """inject 锚点缺失 issue 行应保留 [block_key] 字面文本"""
+        workspace = _setup_legacy_doc_workspace(tmp_path)
+        program_doc = _program_doc_path(workspace)
+
+        # 移除 016 文档的所有锚点（4.1 和 8.），触发 inject 锚点缺失 issue
+        program_doc.write_text(
+            "\n".join(
+                [
+                    "# PLC程序设计总文档",
+                    "",
+                    "## 4. 软件架构",
+                    "",
+                    "（无组件清单锚点）",
+                    "",
+                    "（无关联文档索引锚点）",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        result = cli_runner.invoke(
+            cli,
+            ["-w", str(workspace), "doc", "inject", "DJ-2026-051"],
+            catch_exceptions=False,
+        )
+
+        assert result.exit_code == 0
+        # 关键断言：issue 行必须保留 [plc-program-components] 和 [plc-asset-index] 字面文本
+        assert "[plc-program-components]" in result.output, (
+            "inject issue 行的 [plc-program-components] 被 rich markup 吞噬"
+        )
+        assert "[plc-asset-index]" in result.output

@@ -178,6 +178,27 @@ shang
 
 ## 6. Implementation Log
 
+- 2026-06-29 | skill=pm-workflow | mode=项目推进 / V0.4.2 Week3 第二样本复核 + rich markup bug 修复
+
+  - goal: 选 1 个非 `DJ-2026-005` 的真实/准真实 PLC 项目走 `project show → change list → plc check → doc inject/doc refresh --dry-run` 最小链路，验证 auto-pm 在第二样本上的兼容边界；若发现兼容问题先沉淀测试再做最小修复
+  - changed_files:
+    - `auto_pm/cli/doc.py`（修复 rich markup 吞噬 issue 文本中 `[block_key]` 的 bug：`console.print(f"[yellow]{issue}[/yellow]")` → `console.print(escape(issue), style="yellow")`；新增 `from rich.markup import escape` 导入；2 处修改：cmd_refresh + cmd_inject 的 issue 循环）
+    - `tests/cli/test_doc.py`（新增 `TestDocIssueBracketPreservation` 测试类，2 个回归测试：`test_doc_refresh_issue_preserves_brackets_around_block_key` + `test_doc_inject_issue_preserves_brackets_around_block_key`，验证 issue 行保留 `[block_key]` 字面文本）
+  - impact: 第二样本复核完成（DJ-2026-000 边界兼容通过 + DJ-2026-099 真实链路通过）；发现并修复 1 个 CLI 显示 bug（rich markup 吞噬 `[block_key]`）；2 个回归测试 + 9 既有测试全绿 + ruff/mypy 0 errors；真实 CLI `doc refresh DJ-2026-099 --dry-run` 端到端验证 `[plc-program-components]` 等可见
+  - decisions:
+    - 选 DJ-2026-000（扁平结构，无 `02_PLC程序/` 包裹）作为边界样本，验证非标准项目不崩溃；追加 DJ-2026-099（标准模板项目，有 `02_PLC程序/程序文档/` + 016/015 目标文档）作为真实链路样本，验证 doc inject/refresh 在旧路径项目上的真实表现
+    - bug 修复采用 `rich.markup.escape(issue)` + `style="yellow"` 而非 `markup=False`，保留 yellow 颜色样式同时转义字面方括号
+    - 回归测试加入现有 `tests/cli/test_doc.py` 而非新建文件，保持测试聚集
+    - DJ-2026-000 的 doc refresh no-op 为正确行为（PRD/ 下无 `PLC程序设计总文档_PLC.md` / `IO分配表_IO.md` 目标文档），不算 bug
+  - risks: 无；修复仅影响 CLI 显示层（doc.py 2 处），核心服务层未改动；11 个 core 层 doc 测试 + 9 个 cli 层 doc 测试全绿确认无回归
+  - verification:
+    - DJ-2026-000 链路：`project show` ✅（识别 plc，资产目录缺失为正确行为）/ `change list` ✅（0 变更单）/ `plc check` ✅（Pass=8 Warn=1 Fail=0）/ `doc inject --dry-run` ✅（"未找到"为正确行为）/ `doc refresh --dry-run` ✅（"未找到"为正确行为）
+    - DJ-2026-099 链路：`project show` ✅（来源 copier）/ `change list` ✅（0 变更单）/ `plc check` ✅（Pass=20 Warn=1 Fail=0）/ `doc inject --dry-run` ✅（2 文档 3 标记计划注入）/ `doc refresh --dry-run` ✅（3 issue 报告缺失自动区标记，修复后 `[block_key]` 可见）
+    - 回归测试：`pytest tests/cli/test_doc.py -v --no-cov --tb=short` → 9 passed（7 既有 + 2 新增）
+    - 核心层回归：`pytest tests/core/test_doc_refresh_service.py tests/core/test_doc_inject_service.py --no-cov --tb=short` → 11 passed
+    - 静态质量：`ruff check auto_pm/cli/doc.py tests/cli/test_doc.py` → All checks passed!；`mypy auto_pm/cli/doc.py` → Success: no issues found in 1 source file
+    - 端到端验证：`doc refresh DJ-2026-099 --dry-run` 输出含 `[plc-program-components]` / `[plc-asset-index]` / `[plc-io-overview]` 字面文本
+
 - 2026-06-29 | skill=pm-workflow | mode=项目推进 / V0.4.2 Week1 DJ-2026-005 资产补齐
 
   - goal: 围绕真实 PLC 项目 `DJ-2026-005` 落地 `02_PLC程序/工程资产/` 首版资产补齐方案，让 `doc refresh --dry-run` 输出真实内容而非“待补齐”占位符
@@ -721,6 +742,14 @@ shang
 ## 7. Verification Log
 
 - verified:
+  - V0.4.2 Week3 第二样本复核 + rich markup bug 修复（2026-06-29，已验证）:
+    - DJ-2026-000 边界兼容: project show ✅ / change list ✅ / plc check Pass=8 Warn=1 Fail=0 / doc inject+refresh --dry-run "未找到"为正确行为
+    - DJ-2026-099 真实链路: project show ✅ / change list ✅ / plc check Pass=20 Warn=1 Fail=0 / doc inject --dry-run 2文档3标记 / doc refresh --dry-run 3 issue [block_key] 可见
+    - rich markup bug 诊断 (Step 3.5): 诊断脚本 `.tmp_diag_rich.py` 验证 `console.print(f"[yellow]{issue}[/yellow]")` 把 `[plc-program-components]` 当作未知 markup 标签吞噬；`markup=False` 保留方括号但失去黄色；最终方案 `console.print(escape(issue), style="yellow")` 同时保留两者
+    - 回归测试: `pytest --no-cov tests/cli/test_doc.py -v --tb=short` → 9 passed（含新增 `TestDocIssueBracketPreservation` 2 条）
+    - 核心层回归: `pytest --no-cov tests/core/test_doc_refresh_service.py tests/core/test_doc_inject_service.py -v --tb=short` → 11 passed
+    - 静态质量: `ruff check auto_pm/cli/doc.py tests/cli/test_doc.py` → 0 errors；`mypy auto_pm/cli/doc.py --ignore-missing-imports` → Success
+    - 端到端验证: `auto-pm doc refresh DJ-2026-099 --dry-run` 输出含 `[plc-program-components]`/`[plc-asset-index]`/`[plc-io-overview]` 全部可见
   - V0.4.2 Week1 DJ-2026-005 资产补齐与 doc refresh 真实内容验证（2026-06-29，已验证）:
     - `project show DJ-2026-005` → 工程资产状态 healthy，IO点表 119 条，程序块 7 个，通讯对象 5 个
     - `doc refresh DJ-2026-005 --dry-run`（首次）→ 2 文档 3 自动区全部标记“有变更”
@@ -893,8 +922,8 @@ shang
 
 ## 8. Handoff Notes
 
-- current_state: V0.4.2 Week1 `DJ-2026-005` 资产补齐已落地。`02_PLC程序/工程资产/` 三个文件首版完成（`io_points.csv` 119 行 / `program_blocks.yml` 7 块 / `communications.yml` 5 通道），`project show` 工程资产状态 healthy，`doc refresh` 实际刷新 2 文档 3 自动区写入真实内容（非“待补齐”），二次 dry-run 验证幂等性全“无变更”。回归测试 `test_refresh_with_realistic_assets_emits_real_content_and_idempotent` 已补，3 passed + ruff/mypy 0 errors。主阻塞已从“真实资产数据仍未补齐”收缩为“第2个真实样本项目复核 + PILOT 试运行报告产出”。`00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md` 和 `09_整改项/V0.4.2-glm执行输入清单.md` 仍是后续模型的执行入口。
-- next_focus: 第1优先级是产出 PILOT 试运行报告（记录 `doc refresh` 节省的人工作业和新增维护负担）并选择第 2 个真实/准真实样本项目复核兼容边界；第2优先级是只有这两步证据稳定后，才进入 `V0.4.3` 版本与文档统一（含 016 文档设计意图 5 块 vs 真实目录 7 块的差异收口）。低优先级尾项仍是 `TD-TC01`、`specmgr` 边界说明和单条全量 pytest 环境问题。
+- current_state: V0.4.2 Week3 第二样本复核已收口。两个样本链路验证通过：`DJ-2026-000`（SysLib FB 测试套件，扁平结构）边界兼容通过——`project show/change list/plc check/doc inject+refresh --dry-run` 全链路无崩溃，doc 操作"未找到"为正确行为；`DJ-2026-099`（P1 修复测试标准项目，标准模板带历史 `02_PLC程序/02_PLC程序` 旧路径）真实链路通过——`plc check` Pass=20 Warn=1 Fail=0，`doc inject --dry-run` 报告 2 文档 3 标记，`doc refresh --dry-run` 输出 3 条 issue。复核中发现并修复 1 个 CLI 显示 bug：`rich.console.print(f"[yellow]{issue}[/yellow]")` 把 issue 文本中的 `[block_key]` 当作未知 markup 标签吞噬，改用 `console.print(escape(issue), style="yellow")` 修复，新增 `TestDocIssueBracketPreservation` 2 条回归测试（9 passed + 11 passed + ruff/mypy 0 errors + 端到端 `[plc-program-components]` 可见）。`DJ-2026-005` Week1 资产补齐成果仍稳定（119 IO/7 blocks/5 channels，幂等性维持）。主阻塞已从"第2个真实样本项目复核"收缩为"Week4 PILOT 试运行报告产出 + V0.4.3 准入判断"。
+- next_focus: 第1优先级是 Week4 PILOT 报告收口——在 `00_项目基础信息/008_试运行报告_PILOT.md` 中区分"第一样本结论（DJ-2026-005 真实资产闭环）"与"第二样本结论（DJ-2026-000 边界兼容 + DJ-2026-099 真实链路 + rich markup bug 修复）"，明确记录真实价值、兼容边界、剩余维护负担，给出是否进入 V0.4.3 的明确判断；第2优先级是只有 PILOT 报告证据稳定后，才启动 Week5 `V0.4.3` 版本号与文档统一（含 016 文档设计意图 5 块 vs 真实目录 7 块的差异收口）。低优先级尾项仍是 `TD-TC01`、`specmgr` 边界说明和单条全量 pytest 环境问题。
 - watchouts:
   - `tests/ui` 关键回归面已经恢复，但 `tests/ui/test_vartable_tab.py` 仍保留 module 级 `qapp`；若后续仍见 Qt teardown 异常，需要优先检查它是否继续放大会话状态污染
   - 单条全量 `pytest --no-cov --timeout=60` 的终端退出码仍可能是 `-1073741510`；这已不再阻塞代码推进，但若后续要做 CI/门禁式一把跑完验证，需单独处理 sandbox/终端执行环境
@@ -903,6 +932,7 @@ shang
   - Week 2 已经通过真实创建验证确认“先扩现有模板”可行；只有当 Week 4 真实试运行阶段因设备分型引入大量条件分支时，才重新评估独立模板拆分
   - Week 3 的 `asset_summary` 当前是 Scanner/CLI 共享摘要，不是完整资产领域模型；Week 4 若要做文档刷新映射，需要在保持兼容的前提下继续细化字段语义
   - 当前 `doc refresh` 只处理带 `AUTO_PM:BEGIN/END` 标记的新模板文档；旧项目若没有标记，不会被强制修改，只会返回 issue，需要后续决定是否提供 retrofit/注入工具
+  - **rich markup escape 模式（V0.4.2 Week3 修复）**：CLI 输出含变量文本（如 `doc refresh/inject` 的 issue 文本）时，禁止用 `console.print(f"[yellow]{var}[/yellow]")`——`var` 中若含 `[xxx]` 会被 rich 当作未知 markup 标签吞噬。统一改用 `console.print(escape(var), style="yellow")`：`escape()` 转义字面 `[`/`]`，`style=` 仍可保留颜色。回归测试 `tests/cli/test_doc.py::TestDocIssueBracketPreservation` 已沉淀。后续新增任何把项目/issue 文本拼进 rich 颜色标签的代码，必须先检查文本是否含方括号
   - 后续 GUI 消费面已定方向：先接 `OverviewTab`，不先扩首页驾驶舱，以避免聚合层过早承载细粒度工程资产信息
   - `repairer` 已兼容 `02_PLC程序/PLC_ST/.plc.json`，后续不要再把标准项目新逻辑写回旧的 `02_PLC程序/02_PLC程序` 口径
   - 当前最重要的不是继续展开 V2.2~V2.5，而是防止多主线并行导致再次失焦；中长期能力吸收（specmgr/变量表/插件系统）在 V0.4.0 真实试运行之后再重新排优先级
@@ -989,8 +1019,8 @@ shang
 
 - ✅ [precondition: TD-T12/TD-A02/TD-T13 已完成且 `tests/ui/conftest.py` 共享 qapp 已建立] [已完成 2026-06-29] done_when: 完成 `TD-T14` 测试基线修复最终签字（`tests/ui` 全集 `506 passed` + 非 UI 主路径 `636 passed`；历史 `99%` 卡住路径未复现；单条全量命令的 `-1073741510` 改归执行环境问题跟踪）
 - ✅ [precondition: `DJ-2026-005` 的 `doc inject/doc refresh/plc check` 第二轮兼容已稳定] [已完成 2026-06-29] done_when: 第1周完成真实项目工程资产补齐策略与首版落地——`02_PLC程序/工程资产/` 三文件首版完成（`io_points.csv` 119 行 / `program_blocks.yml` 7 块 / `communications.yml` 5 通道）；`project show` 状态 healthy；`doc refresh` 实际刷新 2 文档 3 自动区写入真实内容；二次 dry-run 验证幂等性全“无变更”；回归测试 `test_refresh_with_realistic_assets_emits_real_content_and_idempotent` 已补（3 passed + ruff/mypy 0 errors）
-- [precondition: 第1周资产补齐策略已落地且 `DJ-2026-005` 自动区内容开始具备真实价值] [进行中] done_when: 第2~3周完成第二样本项目复核（再选 1 个真实或准真实 PLC 项目走 `project show -> change list -> plc check -> doc inject/doc refresh --dry-run` 最小链路；若发现兼容问题，先沉淀测试再做最小修复）
-- [precondition: 至少 1 个真实项目资产闭环 + 至少 1 个第二样本复核已完成] [待启动] done_when: 第4周完成 `V0.4.2` 试运行证据收口，并在 `008_试运行报告_PILOT.md` 中明确记录真实价值、兼容边界、剩余维护负担和是否进入 `V0.4.3`
+- ✅ [precondition: 第1周资产补齐策略已落地且 `DJ-2026-005` 自动区内容开始具备真实价值] [已完成 2026-06-29] done_when: 第2~3周完成第二样本项目复核——两个样本链路验证通过：`DJ-2026-000` 边界兼容（SysLib FB 测试套件，扁平结构，doc 操作"未找到"为正确行为）+ `DJ-2026-099` 真实链路（P1 修复测试标准项目，`plc check` Pass=20 Warn=1 Fail=0，`doc inject/refresh --dry-run` 完整链路通过）；复核中发现 rich markup 吞噬 `[block_key]` bug 已修复（`escape(issue)` + `style="yellow"`），沉淀 `TestDocIssueBracketPreservation` 2 条回归测试，9 passed + 11 passed + ruff/mypy 0 errors
+- [precondition: 至少 1 个真实项目资产闭环 + 至少 1 个第二样本复核已完成] [进行中] done_when: 第4周完成 `V0.4.2` 试运行证据收口，并在 `008_试运行报告_PILOT.md` 中明确记录真实价值、兼容边界、剩余维护负担和是否进入 `V0.4.3`（区分"第一样本结论（DJ-2026-005 真实资产闭环）"与"第二样本结论（DJ-2026-000 边界兼容 + DJ-2026-099 真实链路 + rich markup bug 修复）"）
 - [precondition: V0.4.2 证据已稳定且 Week 2 单模板策略仍成立] [待启动] done_when: 第5周启动 `V0.4.3` 版本号与文档统一（当前预期 `0.3.8 -> 0.4.1`，但以当时真源为准；同步 `pyproject.toml`、`CHANGELOG.md`、`005_变更记录_CHG.md`、PRD 路线图与 PM_SESSION §2/§8）
 - [precondition: V0.4.3 已完成且主线稳定] [待启动] done_when: 第6周评估并处理 `TD-TC01` / `specmgr` 工具链口径 / 单条全量 pytest 环境问题，明确哪些属于产品主线、哪些保持外部工具或环境问题单独跟踪
 - ✅ [precondition: V0.4.1 收口批次阶段 1 Critical 修复已完成] [已完成 2026-06-28] done_when: V0.4.1 收口批次阶段 2——创建 CHG-SCPT-2026-077 重走 Step 3 dogfooding 闭环（12 章节完整填写：§5 变更前后 / §6.1 五大约束 + §6.2 跨领域 + §6.3 传播链 / §7 实施计划 / §8.1 审批 8 步 + §8.2 结论 / §9 实施记录 / §10 三节验证 / §11 版本说明 / §12 附录；8 次状态流转 draft→closed；`change show CHG-SCPT-2026-077` parser 验证通过；替换内容不完整的 CHG-075 作为正式 dogfooding 证据）

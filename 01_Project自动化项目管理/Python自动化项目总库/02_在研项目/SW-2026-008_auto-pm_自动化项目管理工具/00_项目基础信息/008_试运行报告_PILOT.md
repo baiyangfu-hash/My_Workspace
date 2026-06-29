@@ -176,6 +176,56 @@ project_id: "SW-2026-008"
 - 016 文档设计意图（5 块：PRG_MainControl/FB_1001/FB_1003/FB_1004/FB_2001）与真实 PLC_ST 目录（7 块：OB1/GlobalVars/FB_2001/FB_1002/FB_ExternalDeviceInteraction/FB_1004/FB_1003）存在差异，当前在 responsibility 字段标注，需在 V0.4.3 文档统一阶段收口
 - io_points.csv 119 行为人工从 015 文档提取，未与 EPLAN 原理图逐点交叉验证；015 §12 差异表（X14-X17 源程序用途不同、Y24-Y27/Y50 源程序定义）已在 comment 字段标注
 
+### 2.7 V0.4.2 Week3（第七次闭环 — 第二样本复核 + rich markup bug 修复）
+
+| 字段 | 内容 |
+|------|------|
+| 试运行编号 | PILOT-V0.4.2-W3-SECOND-SAMPLE |
+| 试运行日期 | 2026-06-29 |
+| 试运行对象 | `DJ-2026-000`（SysLib FB 测试套件，扁平结构）+ `DJ-2026-099`（P1 修复测试标准项目，标准模板带历史 `02_PLC程序/02_PLC程序` 旧路径） |
+| 试运行方式 | 选 1 个非 `DJ-2026-005` 的真实/准真实 PLC 项目走 `project show → change list → plc check → doc inject/doc refresh --dry-run` 最小链路；先选 `DJ-2026-000` 作边界样本（验证非标准结构不会崩溃），再追加 `DJ-2026-099` 作真实链路样本（验证标准模板项目完整链路可走通） |
+| 关键命令 | `project show DJ-2026-000`、`change list DJ-2026-000`、`plc check DJ-2026-000`、`doc inject DJ-2026-000 --dry-run`、`doc refresh DJ-2026-000 --dry-run`、`project show DJ-2026-099`、`change list DJ-2026-099`、`plc check DJ-2026-099`、`doc inject DJ-2026-099 --dry-run`、`doc refresh DJ-2026-099 --dry-run` |
+| 当前状态 | ✅ 已完成 |
+
+**第一样本结论（DJ-2026-005 真实资产闭环，见 §2.6）**：
+- 真实历史 PLC 项目 `DJ-2026-005` 已完成工程资产首版补齐（119 IO/7 blocks/5 channels）+ `doc refresh` 实际刷新 + 幂等性验证，自动区内容从"待补齐"变为真实数据
+
+**第二样本结论（DJ-2026-000 边界兼容 + DJ-2026-099 真实链路 + rich markup bug 修复）**：
+
+1. **DJ-2026-000 边界兼容验证**（SysLib FB 测试套件，扁平结构，无 `02_PLC程序/` 包裹层）：
+   - `project show DJ-2026-000` ✅ 正常返回项目信息（V3.2.0）
+   - `change list DJ-2026-000` ✅ 返回 0 条变更单（项目本身无 CHG-*.md 历史，正确行为）
+   - `plc check DJ-2026-000` ✅ Pass=8 / Warn=1 / Fail=0（无崩溃，扁平结构被识别为 syslib_fb 类型）
+   - `doc inject DJ-2026-000 --dry-run` ✅ 报告"未找到可注入标记的 PLC 文档"（正确行为：扁平结构无 `02_PLC程序/程序文档/` 目录）
+   - `doc refresh DJ-2026-000 --dry-run` ✅ 报告"未找到可刷新的 PLC 文档"（正确行为，与 inject 一致）
+   - **边界结论**：`doc inject/refresh` 对非标准生产项目（SysLib 测试套件）优雅降级为"未找到"提示，不崩溃、不误改
+
+2. **DJ-2026-099 真实链路验证**（P1 修复测试标准项目，标准模板带历史 `02_PLC程序/02_PLC程序` 旧路径）：
+   - `project show DJ-2026-099` ✅ 正常返回项目信息（V1.0.0）
+   - `change list DJ-2026-099` ✅ 返回 0 条变更单（正确行为）
+   - `plc check DJ-2026-099` ✅ Pass=20 / Warn=1 / Fail=0（标准模板项目检查通过）
+   - `doc inject DJ-2026-099 --dry-run` ✅ 报告"2 文档 3 标记"（015 IO.md + 016 PLC.md，3 个 marker 全部可注入）
+   - `doc refresh DJ-2026-099 --dry-run` ✅ 输出 3 条 issue，每条 issue 中 `[block_key]` 可见
+   - **真实链路结论**：标准模板项目（即使带历史旧路径 `02_PLC程序/02_PLC程序`）的完整最小链路可走通
+
+3. **rich markup bug 发现与修复**（DJ-2026-099 复核时发现）：
+   - **症状**：`doc refresh DJ-2026-099 --dry-run` 输出 "文档缺少自动区标记: 016_PLC程序设计总文档_PLC.md"，但 `[plc-program-components]` 不可见（被吞）
+   - **根因**：`rich.console.print(f"[yellow]{issue}[/yellow]")` 中 issue 文本含 `[plc-program-components]`，被 rich 当作未知 markup 标签吞噬
+   - **诊断脚本验证**（`.tmp_diag_rich.py`）：`markup=False` 保留方括号但失去黄色；`style="yellow"` 单独用仍吞噬；`escape(issue) + style="yellow"` 两者兼得
+   - **修复**：`auto_pm/cli/doc.py` 中 `cmd_refresh` 和 `cmd_inject` 的 issue 输出改为 `console.print(escape(issue), style="yellow")`
+   - **回归测试沉淀**：`tests/cli/test_doc.py::TestDocIssueBracketPreservation` 新增 2 条测试（refresh + inject），先红后绿 TDD
+   - **全量回归**：`pytest --no-cov tests/cli/test_doc.py` → 9 passed；`pytest --no-cov tests/core/test_doc_refresh_service.py tests/core/test_doc_inject_service.py` → 11 passed；ruff/mypy 0 errors
+   - **端到端验证**：`auto-pm doc refresh DJ-2026-099 --dry-run` 输出含 `[plc-program-components]`/`[plc-asset-index]`/`[plc-io-overview]` 全部可见
+
+**节省的人工作业**：
+- 第二样本复核证明 `doc inject/refresh` 链路不仅适用于 `DJ-2026-005`（真实历史项目），也适用于 `DJ-2026-099`（标准模板项目），无需项目特殊适配
+- rich markup bug 修复后，PLC 工程师能直接看到具体哪个 `[block_key]` 缺失，不必再"猜"问题位置
+
+**新增的维护负担**：
+- 后续 CLI 输出含变量文本（项目名、issue 文本等）时，必须用 `escape()` + `style=` 模式，不能直接拼进 `[yellow]...[/yellow]` 颜色标签
+- `doc inject/refresh` 对扁平结构项目（如 SysLib FB 测试套件 `DJ-2026-000`）只输出"未找到"提示，不会主动 retrofit；若后续要让 SysLib 项目也用自动区，需单独评估是否引入"扁平结构 → 标准结构"转换器
+
+
 ## 3. 试运行发现的问题与修复
 
 ### 3.1 已修复（4 项）
@@ -217,6 +267,7 @@ project_id: "SW-2026-008"
 | PLC 文档自动区可预览并刷新 | ✅ | `doc refresh --dry-run` 与 `doc refresh` 已完成真实命令验证 |
 | 真实历史 PLC 文档可 retrofit 自动区 | ✅ | `DJ-2026-005` 已完成 `doc inject --json` 实际注入 3 个自动区，随后 `doc refresh --dry-run --json` 无 issue |
 | 真实历史 PLC 项目结构检查可兼容落地 | ✅ | `DJ-2026-005` 的 `plc check --json` 已从 `4 fail` 收口到 `4 warn / 0 fail`，并保留“建议后续收口到 PRD/”提示 |
+| 第二样本复核（非 `DJ-2026-005` 项目） | ✅ | `DJ-2026-000`（SysLib FB 测试套件，扁平结构）边界兼容通过——doc 操作"未找到"为正确行为；`DJ-2026-099`（P1 修复测试标准项目）真实链路通过——`plc check` Pass=20/Warn=1/Fail=0，`doc inject --dry-run` 2 文档 3 标记，`doc refresh --dry-run` 3 issue `[block_key]` 可见；复核中发现 rich markup 吞噬 `[block_key]` bug 已修复并沉淀 2 条回归测试 |
 
 ### 4.2 试运行结论
 
