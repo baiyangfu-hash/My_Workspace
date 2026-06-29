@@ -12,18 +12,7 @@ import pytest
 # 跳过 GUI 测试如果 PySide6 不可用
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication
-
 from auto_pm.ui.workspace.vartable_tab import VartableTab
-
-
-@pytest.fixture(scope="module")
-def qapp():
-    """QApplication 单例"""
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-    yield app
 
 
 class TestVartableTab:

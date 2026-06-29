@@ -288,6 +288,7 @@ project_id: "SW-2026-008"
 | 2026-06-28 | V1.1.0 | 新增 V0.4.0 Week 2~4 准真实闭环证据（单机模板 PoC + 资产台帐 + 文档自动区刷新）并明确 V0.4.1 后续方向 | TRAE |
 | 2026-06-29 | V1.2.0 | 新增 V0.4.2 真实历史项目 `DJ-2026-005` 首轮 dogfood 证据（真实文档锚点兼容修复 + 自动区实际注入 + `doc refresh --dry-run` 复验）并登记 `plc check` 对分散 PRD 路径的兼容问题 | TRAE |
 | 2026-06-29 | V1.3.0 | 补充 V0.4.2 第二轮 dogfood 证据（`PlcChecker` 受控历史 PRD 路径兼容 + `tests/plc/test_checker.py` 回归 + `DJ-2026-005` 结构检查从 `4 fail` 收口到 `4 warn / 0 fail`） | TRAE |
+| 2026-06-29 | V1.4.0 | 补充 V0.4.2 Week 1~3 dogfood 证据（DJ-2026-005 工程资产补齐 119 IO / 7 blocks / 5 channels + `doc refresh --dry-run` 输出真实内容 + 幂等性验证两次无变化 + 第二样本 DJ-2026-000 边界兼容与 DJ-2026-099 真实工作流复核 + rich markup bug 修复 + 新增 `tests/core/test_doc_refresh_service.py` 19 IO/7 blocks/5 channels 回归） | TRAE |
 
 ---
 

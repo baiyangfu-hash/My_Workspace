@@ -50,6 +50,9 @@ def _cleanup_test_changes(workspace_root: str):
     V0.4.1 收口批次修复：原 `except Exception: pass` 静默吞掉所有清理异常，
     导致 CHG-SCPT-2026-076 残留生产数据（TD-T09 复发）。改为 logging.warning
     暴露清理失败，便于诊断 fixture 缺陷。
+
+    TD-T09 收口（本次）：进一步缩小 except 范围为预期文件/数据异常，
+    让 AssertionError/TypeError 等非预期 fixture 缺陷向上抛出而非被吞掉。
     """
     yield
     cs = ChangeService(workspace_root)
@@ -70,9 +73,9 @@ def _cleanup_test_changes(workspace_root: str):
                     "清理变更单失败：找不到文件 %s（可能 fixture 定位逻辑有缺陷）",
                     change_number,
                 )
-        except Exception as e:  # noqa: BLE001
+        except (OSError, PermissionError, ValueError, KeyError) as e:
             logger.warning(
-                "清理变更单 %s 时抛异常: %s: %s",
+                "清理变更单 %s 时抛预期异常: %s: %s",
                 change_number,
                 type(e).__name__,
                 e,

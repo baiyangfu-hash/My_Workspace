@@ -1,8 +1,15 @@
+from __future__ import annotations
+
 import json
 import random
+from collections.abc import Generator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QApplication
 
 # botocore likes us-east-1
 TEST_AWS_REGION = "us-east-1"
@@ -17,6 +24,24 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
     """
     rng = random.Random(20260627)
     rng.shuffle(items)
+
+
+@pytest.fixture(scope="session")
+def qapp() -> Generator[QApplication, None, None]:
+    """全测试目录共享的 QApplication 实例（TD-T14 修复统一收口）。
+
+    tests/ui 和 tests/gui 共用同一 session 级 qapp，避免：
+    - tests/ui/test_vartable_tab.py 的 module 级 qapp 覆盖 session 级
+    - tests/gui/conftest.py 的本地 qapp 与 tests/ui/conftest.py 重复定义
+    两者均返回 QApplication.instance()，但作为两个独立 fixture 会被
+    pytest 分别管理，放大 Qt 会话 teardown 的不确定性。
+    """
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance() or QApplication([])
+    assert isinstance(app, QApplication)
+    yield app
 
 
 @pytest.fixture

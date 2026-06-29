@@ -56,13 +56,6 @@ def test_project_dir() -> Path:
 
 
 @pytest.fixture(scope="session")
-def qapp() -> QApplication:
-    """全局 QApplication 实例（session 级复用）"""
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
-@pytest.fixture(scope="session")
 def bug_recorder() -> BugRecorder:
     """Bug 记录器（session 级单例）"""
     recorder = BugRecorder(report_dir=REPORT_DIR)

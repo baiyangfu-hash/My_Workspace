@@ -19,7 +19,7 @@ shang
 ## 2. Current Focus（当前焦点）
 
 - current_focus: V0.4.1 收口批次代码主线已完成，当前主线稳定在 Phase B `V0.4.2` 真实 PLC dogfood 第二轮之后的“价值闭环深化”。`DJ-2026-005` 已完成真实文档自动区落地与 `plc check` 历史 PRD 路径兼容收口（`pass=17 warn=4 fail=0`），当前剩余重点已收缩为：为真实项目补齐 `02_PLC程序/工程资产` 首版资产数据，让 `project show` / `doc refresh` 输出真实内容；同时，本轮已新增“未来 6 周滚动计划 + GLM 执行输入清单”，用于后续低上下文模型接力，避免再次回到 `V0.4.0` / `V0.4.1` 已完成主线或把 `V2.2~V2.5` backlog 拉回当前阶段
-- milestone: V0.3.8（代码基线冻结）/ V0.4.0（V0.4.1 Step 1~3 已完成）/ PRD V2.1.1（方向校准）
+- milestone: 代码基线 0.3.8 冻结（pyproject.toml version=0.3.8 不升级；CHANGELOG [Unreleased] 累积 V0.4.0 Week 4 + V0.4.1 Step 1~3 + V0.4.2 Week 1~3 文档迭代证据，待后续版本统一收口）/ PRD V2.1.1（方向校准）
 - acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
 - plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step1_OverviewTab工程资产摘要接入_迭代计划.md + 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step2_历史PLC项目自动区标记retrofit_迭代计划.md + 00_项目管理/03_执行过程/2026-06-28_V0.4.1_Step3_PLC检查不适用口径补齐_迭代计划.md + 00_项目管理/03_执行过程/2026-06-29_V0.4.2-未来6周滚动计划.md + 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md + 09_整改项/V0.4.2-glm执行输入清单.md
 - m3.5_insertion_reason: 三角色视角真实运行证据发现 6 项阻断项（GUI 测试污染生产数据 + TD-T04 复发 + spec/tasks 再次严重滞后 + CHG-SCPT-001 内容空白 + change show 信息缺失 + CLI 缺 edit 命令），直接推进 M3-3 会继续在失真基线上累积债务
@@ -739,9 +739,34 @@ shang
   - impact: 09_整改项 当前执行主计划已与代码/PM_SESSION 对齐，新执行者可直接从 M3-3 审批时间线继续推进，不会被早期“Phase 0-2 优先”口径误导
   - risks: 无；本次仅同步文档，不涉及代码或测试行为变更
 
+- 2026-06-29 (pm-workflow, 项目深度审查 + dogfooding 闭环修复):
+  - goal: 修复审查发现的 5 项 dogfooding 闭环漏洞：PILOT 版本号漂移 + 台帐漏登 CHG-072 + 8 条死链 + qapp fixture 三处分叉 + TD-T09 except 宽泛 + §2 milestone 语义模糊
+  - changed_files:
+    - 00_项目基础信息/008_试运行报告_PILOT.md（§5 追加 V1.4.0 条目，消除 frontmatter V1.4.0 vs §5 V1.3.0 漂移）
+    - 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md（补登 CHG-072 为序号 005 + 原 005-008 重编号为 006-009 + 8 条死链路径从 `./01_变更单` 改为 `../01_变更单`）
+    - 00_项目基础信息/005_变更记录_CHG.md（标准变更单索引表补全 6 条：064/072/073/074/075/077 + CHG-001 性质修正为 DEF+OPT）
+    - tests/conftest.py（新增 session 级 qapp fixture + TYPE_CHECKING import QApplication + `from __future__ import annotations` + assert isinstance 收口类型安全）
+    - tests/ui/conftest.py（清空 qapp fixture，保留占位注释说明已移到 tests/conftest.py）
+    - tests/ui/test_vartable_tab.py（删除 module 级 qapp + 未使用的 QApplication import）
+    - tests/gui/conftest.py（删除本地 session 级 qapp fixture，改用 tests/conftest.py 共享 qapp）
+    - tests/gui/test_17_edit_change_dialog.py（_cleanup_test_changes except 范围从 `Exception` 缩小为 `(OSError, PermissionError, ValueError, KeyError)` + 更新 docstring）
+    - PM_SESSION_SW-2026-008.md（§2 milestone 语义澄清：明确代码基线 0.3.8 冻结 + Unreleased 累积文档迭代证据）
+  - impact: dogfooding 闭环 5 项漏洞全部收口；TD-T14 真正统一到 tests/conftest.py 单一 qapp 定义；TD-T09 except 范围缩小让非预期 fixture 缺陷可向上抛出
+  - risks: 无；仅文档与测试 fixture 修复，无生产代码变更；tests/ui + tests/gui 焦点回归全通过
+
 ## 7. Verification Log
 
 - verified:
+  - 2026-06-29 dogfooding 闭环审查 5 项漏洞批量修复（已验证）:
+    - PILOT 版本号修复: `008_试运行报告_PILOT.md` §5 已追加 V1.4.0 行（2026-06-29 / 补充 V0.4.2 Week 1~3 dogfood 证据 / TRAE），与 frontmatter `version: "V1.4.0"` 一致（满足 project-rule.md §3 版本号一致性）
+    - 台帐补登 + 死链修复: `01_版本变更台帐.md` 新增序号 005（CHG-SCPT-2026-072，原 005~008 顺延为 006~009）；8 条死链 `./01_变更单/...` → `../01_变更单/...`；现 9 条全部可解析
+    - 005 索引补全: `005_变更记录_CHG.md` 标准变更单索引表从 3 条扩展到 9 条（补 064/072/073/074/075/077），CHG-001 性质修正为 DEF+OPT
+    - TD-T14 真正统一收口: `tests/conftest.py` 新增 session 级 qapp（TYPE_CHECKING + `from __future__ import annotations` + `assert isinstance(app, QApplication)` 三段式避免运行时 NameError 与 mypy QCoreApplication 类型窄化问题）；`tests/ui/conftest.py` / `tests/gui/conftest.py` / `tests/ui/test_vartable_tab.py` 三处本地 qapp 全部移除
+    - TD-T09 复发预防: `tests/gui/test_17_edit_change_dialog.py` `_cleanup_test_changes` fixture except 范围从 `Exception` 收窄为 `(OSError, PermissionError, ValueError, KeyError)`，删除 `# noqa: BLE001`
+    - 静态质量: `ruff check tests/conftest.py tests/ui/conftest.py tests/ui/test_vartable_tab.py tests/gui/conftest.py tests/gui/test_17_edit_change_dialog.py` → All checks passed!；`mypy tests/conftest.py --ignore-missing-imports` → Success: no issues found
+    - 焦点回归: `pytest --no-cov tests/ui/test_vartable_tab.py tests/change/test_ledger_updater.py -v --tb=short` → 25 passed in 6.91s；`pytest --no-cov tests/gui/test_17_edit_change_dialog.py -v --tb=short` → 7 passed 1 skipped in 24.17s
+    - 链路核验: 临时脚本核验台帐 9 条记录全部 `OK`（序号 001~009）；005 索引表 9 条全部 `OK`（CHG-001/062/063/064/072/073/074/075/077）
+    - 全量回归: `pytest --no-cov --timeout=60 --tb=short -q` → **1246 passed, 1 skipped, 5 warnings in 468.03s（0:07:48），exit code 0**；较 V0.4.1 收口批次阶段 2 p4 基线（1237 passed 1 skipped）+9 测试（V0.4.2 Week1 真实资产 3 条 + Week3 rich markup 2 条 + 其他增量 4 条）；5 warnings 全部为 jinja2 `DeprecationWarning: invalid escape sequence '\d'`（与本次修复无关，预存问题）；历史 `-1073741510` sandbox 终端崩溃未复现，证明 TD-T14 qapp 统一收口确实消除了 Qt 会话状态污染
   - V0.4.2 Week3 第二样本复核 + rich markup bug 修复（2026-06-29，已验证）:
     - DJ-2026-000 边界兼容: project show ✅ / change list ✅ / plc check Pass=8 Warn=1 Fail=0 / doc inject+refresh --dry-run "未找到"为正确行为
     - DJ-2026-099 真实链路: project show ✅ / change list ✅ / plc check Pass=20 Warn=1 Fail=0 / doc inject --dry-run 2文档3标记 / doc refresh --dry-run 3 issue [block_key] 可见
@@ -922,10 +947,10 @@ shang
 
 ## 8. Handoff Notes
 
-- current_state: V0.4.2 Week3 第二样本复核已收口。两个样本链路验证通过：`DJ-2026-000`（SysLib FB 测试套件，扁平结构）边界兼容通过——`project show/change list/plc check/doc inject+refresh --dry-run` 全链路无崩溃，doc 操作"未找到"为正确行为；`DJ-2026-099`（P1 修复测试标准项目，标准模板带历史 `02_PLC程序/02_PLC程序` 旧路径）真实链路通过——`plc check` Pass=20 Warn=1 Fail=0，`doc inject --dry-run` 报告 2 文档 3 标记，`doc refresh --dry-run` 输出 3 条 issue。复核中发现并修复 1 个 CLI 显示 bug：`rich.console.print(f"[yellow]{issue}[/yellow]")` 把 issue 文本中的 `[block_key]` 当作未知 markup 标签吞噬，改用 `console.print(escape(issue), style="yellow")` 修复，新增 `TestDocIssueBracketPreservation` 2 条回归测试（9 passed + 11 passed + ruff/mypy 0 errors + 端到端 `[plc-program-components]` 可见）。`DJ-2026-005` Week1 资产补齐成果仍稳定（119 IO/7 blocks/5 channels，幂等性维持）。主阻塞已从"第2个真实样本项目复核"收缩为"Week4 PILOT 试运行报告产出 + V0.4.3 准入判断"。
+- current_state: 2026-06-29 dogfooding 闭环审查 5 项漏洞已批量修复并验证（PILOT §5 V1.4.0 版本号对齐 / 台帐补登 CHG-072 为序号 005 + 8 条死链修复 + 005 索引从 3 条补到 9 条 / TD-T14 qapp 真正统一到 `tests/conftest.py` 单一定义 / TD-T09 except 范围收窄为 4 类具体异常 / PM_SESSION §2 代码基线 0.3.8 冻结语义澄清；ruff + mypy + tests/ui 25 passed + tests/gui 7 passed 1 skipped + 临时脚本核验 9/9 OK，全量证据见 §7 最新条目）。V0.4.2 Week3 第二样本复核已收口：两个样本链路验证通过——`DJ-2026-000`（SysLib FB 测试套件，扁平结构）边界兼容通过（`project show/change list/plc check/doc inject+refresh --dry-run` 全链路无崩溃，doc 操作"未找到"为正确行为）；`DJ-2026-099`（P1 修复测试标准项目，标准模板带历史 `02_PLC程序/02_PLC程序` 旧路径）真实链路通过（`plc check` Pass=20 Warn=1 Fail=0，`doc inject --dry-run` 报告 2 文档 3 标记，`doc refresh --dry-run` 输出 3 条 issue）；复核中发现并修复 1 个 CLI 显示 bug：`rich.console.print(f"[yellow]{issue}[/yellow]")` 把 issue 文本中的 `[block_key]` 当作未知 markup 标签吞噬，改用 `console.print(escape(issue), style="yellow")` 修复，新增 `TestDocIssueBracketPreservation` 2 条回归测试。`DJ-2026-005` Week1 资产补齐成果仍稳定（119 IO/7 blocks/5 channels，幂等性维持）。主阻塞已从"第2个真实样本项目复核"收缩为"Week4 PILOT 试运行报告产出 + V0.4.3 准入判断"。
 - next_focus: 第1优先级是 Week4 PILOT 报告收口——在 `00_项目基础信息/008_试运行报告_PILOT.md` 中区分"第一样本结论（DJ-2026-005 真实资产闭环）"与"第二样本结论（DJ-2026-000 边界兼容 + DJ-2026-099 真实链路 + rich markup bug 修复）"，明确记录真实价值、兼容边界、剩余维护负担，给出是否进入 V0.4.3 的明确判断；第2优先级是只有 PILOT 报告证据稳定后，才启动 Week5 `V0.4.3` 版本号与文档统一（含 016 文档设计意图 5 块 vs 真实目录 7 块的差异收口）。低优先级尾项仍是 `TD-TC01`、`specmgr` 边界说明和单条全量 pytest 环境问题。
 - watchouts:
-  - `tests/ui` 关键回归面已经恢复，但 `tests/ui/test_vartable_tab.py` 仍保留 module 级 `qapp`；若后续仍见 Qt teardown 异常，需要优先检查它是否继续放大会话状态污染
+  - **TD-T14 已真正统一收口（2026-06-29）**：qapp fixture 单一定义位于 `tests/conftest.py`（session 级 + TYPE_CHECKING + `from __future__ import annotations` + `assert isinstance(app, QApplication)` 三段式）；`tests/ui/conftest.py` / `tests/gui/conftest.py` / `tests/ui/test_vartable_tab.py` 三处本地 qapp 已全部移除。后续禁止在子目录 conftest 或测试文件内重新定义 qapp；若需 Qt 会话，直接 `def test_xxx(qapp):` 即可
   - 单条全量 `pytest --no-cov --timeout=60` 的终端退出码仍可能是 `-1073741510`；这已不再阻塞代码推进，但若后续要做 CI/门禁式一把跑完验证，需单独处理 sandbox/终端执行环境
   - `DJ-2026-005` 的 `plc check` 路径兼容已收口为受控 warn；后续不要把受控目录搜索扩展成“全项目任意 `_REQ/_INT/_DSN/_TEC` 文件都算合规”，否则会稀释 LSP-907 约束
   - 本轮为了最小改动没有迁移 `projects` 表 schema，4 个 Week 2 字段暂存于 `.copier-answers.yml` / `.plc.json` 与 DB `extra`；如果后续要做列表筛选或统计卡片，需再评估是否加列
