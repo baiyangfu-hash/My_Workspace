@@ -8,6 +8,7 @@ canonical_path: 01_Project自动化项目管理/00_通用规范/Python开发/211
 tags:
 - Python
 - 代码审查
+aliases: ["CODE-211"]
 ---
 
 

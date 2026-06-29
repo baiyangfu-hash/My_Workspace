@@ -9,6 +9,7 @@ tags:
 - Python
 - 编程
 - 核心规范
+aliases: ["CODE-210"]
 ---
 
 

@@ -1,3 +1,15 @@
+---
+spec_id: DEV-801
+title: "PLC变量命名与功能块命名规范"
+version: "V1.0.5"
+domain: plc
+lifecycle: deprecated
+canonical_path: "00_Obsidian_Base全局规范文件仓库/_archive/deprecated/801_PLC变量命名与功能块命名规范_DEV.md"
+tags: ["命名", "PLC", "变量"]
+replaced_by: ["LSP-905"]
+drift_warning: "项目级副本DJ-2026-005/01_需求与设计/10_编程及变量规范/801_...版本已演化至V1.0.7，frontmatter版本需同步更新"
+---
+
 # 通用PLC变量命名与功能块命名规范
 
 ## 文档标识

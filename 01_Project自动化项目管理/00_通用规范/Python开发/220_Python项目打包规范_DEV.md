@@ -9,6 +9,7 @@ tags:
 - Python
 - 打包
 - 发布
+aliases: ["CODE-220"]
 ---
 
 
