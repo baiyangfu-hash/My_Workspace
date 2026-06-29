@@ -19,8 +19,6 @@ from __future__ import annotations
 import os
 from datetime import datetime
 
-import pytest
-
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 

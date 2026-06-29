@@ -5,7 +5,7 @@ project_id:
   type: str
   help: 项目编号（如 DJ-2026-000）
   validator: >-
-    {% if not (project_id | regex_search('^[A-Z]+-\d{4}-\d{3}$')) %}
+    {% if not (project_id | regex_search('^[A-Z]+-\\d{4}-\\d{3}$')) %}
     project_id 必须匹配格式: 字母-年份-序号（如 DJ-2026-000）
     {% endif %}
 

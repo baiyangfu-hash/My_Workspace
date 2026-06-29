@@ -5,7 +5,11 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased] - 2026-06-28
+## [Unreleased]
+
+_暂无未发布变更_
+
+## [0.4.1] - 2026-06-29
 
 ### Added - V0.4.0 Week 4 文档自动区刷新
 
@@ -42,6 +46,90 @@
 
 - `pytest --no-cov tests/core/test_doc_refresh_service.py tests/core/test_project_scanner.py tests/cli/test_project.py tests/plc/test_template_generation.py tests/plc/test_repairer.py tests/plc/test_e2e_plc_workflow.py` → 70 passed
 - 真实命令验证：`auto-pm project create --stack plc ...` + `auto-pm doc refresh DJ-2026-444 --dry-run` + `auto-pm doc refresh DJ-2026-444` 可预览并刷新 2 份 PLC 程序文档中的 3 个自动区
+
+### Added - V0.4.1 Step 1 OverviewTab 工程资产摘要接入
+
+- `auto_pm/ui/overview_tab.py` 接入 `AssetSummaryService`，首页驾驶舱可展示工程资产健康状态、IO 点数、程序块数、通讯对象数与问题摘要
+- 历史扫描结果通过 `extra.asset_summary` 字段透传，避免重复扫描
+- `tests/ui/test_overview_tab.py` 新增工程资产摘要展示断言
+
+### Added - V0.4.1 Step 2 历史 PLC 项目自动区标记 retrofit
+
+- 新增 `auto_pm/cli/doc.py::cmd_inject`，提供 `auto-pm doc inject <project_id> [--dry-run|--json]` 命令，向历史 PLC 文档注入 `AUTO_PM:BEGIN/END` 自动区标记
+- 兼容真实历史文档章节变体（`### 5.1 组件清单与职责`、`## 13. 关联文档索引`、`## 2. 系统硬件配置总览` 等），不再要求 PLC 工程师手工重排章节编号
+- `tests/core/test_doc_inject_service.py` 新增锚点匹配 + 章节变体识别 + dry-run/json 集成测试
+- `tests/cli/test_doc.py` 新增 `doc inject` 的 dry-run/json/实际注入集成测试
+
+### Changed - V0.4.1 Step 3 PLC 检查不适用口径补齐
+
+- `auto_pm/plc/checker.py` 识别受控历史路径（`00_项目管理/`、`01_需求与设计/`、`02_PLC程序/PLC_ST/PRD/` 等）中的等价 PRD 文档，从"直接误判 fail"改进为"兼容使用 + warn 提示建议后续收口到 PRD/"
+- Python 项目 `plc check` 不再因缺少 PLC 工程资产而被驾驶舱误报为失败（明确返回"不适用"语义）
+- `tests/plc/test_checker.py` 新增历史路径兼容 + Python 项目不适用两类场景测试
+
+### Verified - V0.4.1 Step 1~3 回归
+
+- `pytest --no-cov tests/ui/test_overview_tab.py tests/core/test_doc_inject_service.py tests/cli/test_doc.py tests/plc/test_checker.py` → 全部通过
+- 真实命令验证：`auto-pm doc inject DJ-2026-005 --json` 成功向 2 份真实程序文档注入 3 个自动区；`auto-pm plc check DJ-2026-005 --json` 从 `pass=17 warn=0 fail=4` 变为 `pass=17 warn=4 fail=0`
+
+### Added - V0.4.2 Week 1 DJ-2026-005 真实工程资产首版补齐
+
+- `DJ-2026-005/02_PLC程序/工程资产/io_points.csv` 落地 119 行（CPU DI 21 + CPU DO 18 + DI扩展 36 + DO扩展 24 + 远程IO 20），从 015 IO 分配表 + 016 PLC 程序设计总文档人工提取
+- `DJ-2026-005/02_PLC程序/工程资产/program_blocks.yml` 落地 7 块（对齐真实 PLC_ST 目录：OB1/GlobalVars/FB_2001/FB_1002/FB_ExternalDeviceInteraction/FB_1004/FB_1003）
+- `DJ-2026-005/02_PLC程序/工程资产/communications.yml` 落地 5 通道（HMI/Upstream/Downstream/RemoteIO/MES）
+- `tests/core/test_doc_refresh_service.py` 新增 `test_refresh_with_realistic_assets_emits_real_content_and_idempotent`，覆盖 19 IO/7 blocks/5 channels 真实规模 + 幂等性 + "待补齐"不出现断言
+
+### Verified - V0.4.2 Week 1 真实资产闭环
+
+- `auto-pm project show DJ-2026-005` 工程资产状态 healthy，IO点表 119 条，程序块 7 个，通讯对象 5 个
+- `auto-pm doc refresh DJ-2026-005 --dry-run`（首次）→ 2 文档 3 自动区全部标记"有变更"
+- `auto-pm doc refresh DJ-2026-005`（实际刷新）→ 2 文档已刷新成功，自动区内容从"待补齐"变为真实数据
+- `auto-pm doc refresh DJ-2026-005 --dry-run`（二次，幂等性）→ 2 文档 3 自动区全部标记"无变更"，证明刷新幂等
+
+### Added - V0.4.2 Week 3 第二样本复核
+
+- **DJ-2026-000（SysLib FB 测试套件，扁平结构）边界兼容验证**：`project show` / `change list` / `plc check` / `doc inject --dry-run` / `doc refresh --dry-run` 全链路无崩溃，扁平结构被识别为 syslib_fb 类型并优雅降级为"未找到"提示
+- **DJ-2026-099（P1 修复测试标准项目）真实链路验证**：标准模板项目（带历史 `02_PLC程序/02_PLC程序` 旧路径）的 `project show → change list → plc check → doc inject/doc refresh --dry-run` 完整最小链路可走通
+
+### Fixed - V0.4.2 Week 3 rich markup bug
+
+- **症状**：`doc refresh <pid> --dry-run` 输出 issue 时 `[plc-program-components]` 等 block_key 被 rich 当作未知 markup 标签吞噬
+- **根因**：`rich.console.print(f"[yellow]{issue}[/yellow]")` 中 issue 文本含 `[block_key]`，被 rich 解析为标签
+- **修复**：`auto_pm/cli/doc.py` 中 `cmd_refresh` 和 `cmd_inject` 的 issue 输出改为 `console.print(escape(issue), style="yellow")`
+- **回归沉淀**：`tests/cli/test_doc.py::TestDocIssueBracketPreservation` 新增 2 条测试（refresh + inject），先红后绿 TDD
+
+### Verified - V0.4.2 Week 3 回归
+
+- `pytest --no-cov tests/cli/test_doc.py` → 9 passed
+- `pytest --no-cov tests/core/test_doc_refresh_service.py tests/core/test_doc_inject_service.py` → 11 passed
+- ruff/mypy 0 errors
+- 端到端验证：`auto-pm doc refresh DJ-2026-099 --dry-run` 输出含 `[plc-program-components]`/`[plc-asset-index]`/`[plc-io-overview]` 全部可见
+
+### Added - V0.4.2 Week 4 dogfooding 闭环审查 5 项漏洞批量修复
+
+1. **PILOT 版本号与变更记录漂移**：`008_试运行报告_PILOT.md` §5 缺 V1.4.0 行 / frontmatter `version` 与 §5 最新行不一致 → §5 已补 V1.4.0 行 + frontmatter `version` 升至 V1.5.0（满足 project-rule.md §3 版本号一致性）
+2. **`01_版本变更台帐.md` 缺 CHG-SCPT-2026-072 序号 005 + 8 条死链**：新增序号 005（CHG-072，原 005~008 顺延为 006~009）；8 条死链 `./01_变更单/...` → `../01_变更单/...`；现 9 条全部可解析
+3. **`005_变更记录_CHG.md` 标准变更单索引表漂移**：从 3 条扩展到 9 条（补 064/072/073/074/075/077）+ CHG-001 性质修正为 DEF+OPT
+4. **TD-T14 qapp fixture 多处重复定义**：`tests/conftest.py` 新增 session 级 qapp（TYPE_CHECKING + `from __future__ import annotations` + `assert isinstance(app, QApplication)` 三段式）；`tests/ui/conftest.py` / `tests/gui/conftest.py` / `tests/ui/test_vartable_tab.py` 三处本地 qapp 全部移除
+5. **TD-T09 复发**：`tests/gui/test_17_edit_change_dialog.py::_cleanup_test_changes` 的 `except Exception: pass` 静默吞错 → except 范围收窄为 `(OSError, PermissionError, ValueError, KeyError)`，删除 noqa 注释
+6. **PM_SESSION §2 代码基线 0.3.8 冻结语义不清晰**：milestone 行补充"pyproject.toml version=0.3.8 不升级；CHANGELOG [Unreleased] 累积 V0.4.0 Week 4 + V0.4.1 Step 1~3 + V0.4.2 Week 1~3 文档迭代证据，待后续版本统一收口"明确语义
+
+### Fixed - V0.4.2 Week 4 TD-TC01 + jinja2 DeprecationWarning 收口
+
+- **TD-TC01 已规避**：Trae Sandbox 中文路径字符级拆分问题，工作方式约定使用 Write/Edit 工具替代 RunCommand 写文件（绕过沙箱对中文路径的字符级拆分），约定已沉淀到 `project_memory.md` "Engineering Conventions" 章节
+- **5 个 jinja2 `DeprecationWarning: invalid escape sequence '\d'` 已根除**：根因在 `templates/{plc-standard-project,python-tool,plc-test-suite,plc-standard}/copier.yml` 的 jinja2 字符串字面量 `'^[A-Z]+-\d{4}-\d{3}$'` 含 `\d`，触发 jinja2 lexer `decode("unicode-escape")` Python DeprecationWarning；4 个文件的 `\d` → `\\d`，jinja2 解码后保留 `\d` 字面量给 regex_search
+
+### Changed - V0.4.3 版本号与文档统一
+
+- `pyproject.toml` version 0.3.8 → 0.4.1（commitizen `version_provider = "pep621"` 从此文件读取版本号）
+- `CHANGELOG.md` [Unreleased] → [0.4.1]，单条版本条目汇总 V0.4.0 Week 3~4 + V0.4.1 Step 1~3 + V0.4.2 Week 1~4 全部迭代证据
+- 新增 `[Unreleased]` 空节占位，供后续版本累积
+
+### Verified - V0.4.3 全量回归基线
+
+- 全量回归：✅ 1246 passed, 1 skipped, 0 warnings in 468s（较 V0.3.8 基线 1163 + 83 新增测试，3 warnings → 0 warnings）
+- ruff 0 errors, mypy 0 errors
+- jinja2 DeprecationWarning 验证：`pytest tests/cli/test_plc.py::test_plc_init_default_mode -W "error::DeprecationWarning"` → 1 passed（警告转错误仍通过，证明已彻底消除）
+- 技术债：26/26 项全部关闭，剩余 0 项
 
 ## [0.3.8] - 2026-06-27
 
