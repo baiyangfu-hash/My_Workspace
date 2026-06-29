@@ -35,8 +35,9 @@ def setup_logger(
     logger.setLevel(normalised_log_level)
 
     # 幂等：已配置 handler 则不再重复添加，仅更新级别
+    # 日志统一输出到 stderr，避免污染 --json 等 stdout 机器可读输出
     if not logger.handlers:
-        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler = logging.StreamHandler(sys.stderr)
         formatter = logging.Formatter("%(asctime)s [%(levelname)8.8s] %(message)s")
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
