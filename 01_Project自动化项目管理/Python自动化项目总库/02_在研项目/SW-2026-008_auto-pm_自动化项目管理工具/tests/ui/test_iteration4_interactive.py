@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import gc
 import os
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -31,8 +32,10 @@ from PySide6.QtWidgets import (  # noqa: E402
     QLabel,
     QMessageBox,
     QProgressBar,
+    QWidget,
 )
 
+from auto_pm.db.connection import DatabaseManager  # noqa: E402
 from auto_pm.db.repository import ChangeRequestRepository  # noqa: E402
 from auto_pm.models import ChangeSummary  # noqa: E402
 from auto_pm.ui.global_pages.report_page import ReportPage  # noqa: E402
@@ -60,7 +63,7 @@ def workspace_root(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def main_window(qapp: QApplication, workspace_root: Path) -> MainWindow:
+def main_window(qapp: QApplication, workspace_root: Path) -> Iterator[MainWindow]:
     """创建 MainWindow 实例，指向临时工作空间
 
     自动同步项目到 DB 缓存并注入变更记录，刷新所有全局页。
@@ -71,6 +74,7 @@ def main_window(qapp: QApplication, workspace_root: Path) -> MainWindow:
     window._project_service.sync_to_cache(force_full=True)
 
     # 注入变更记录到 DB 缓存
+    assert window._db is not None
     _inject_sample_changes(window._db)
 
     # 刷新所有全局页（使其加载 DB 缓存数据）
@@ -139,7 +143,7 @@ def _create_sample_projects(workspace: Path) -> None:
         )
 
 
-def _inject_sample_changes(db) -> None:
+def _inject_sample_changes(db: DatabaseManager) -> None:
     """向 DB 缓存注入 2 条变更记录
 
     - CHG-PLC-2026-001: draft, PLC 领域
@@ -179,12 +183,12 @@ def _inject_sample_changes(db) -> None:
 # ── 辅助：widget 查找 ────────────────────────────────────
 
 
-def _find_progress_bars(parent) -> list[QProgressBar]:
+def _find_progress_bars(parent: QWidget) -> list[QProgressBar]:
     """获取 parent 下所有 objectName=statBar 的 QProgressBar"""
     return [b for b in parent.findChildren(QProgressBar) if b.objectName() == "statBar"]
 
 
-def _find_spec_codes(parent) -> list[str]:
+def _find_spec_codes(parent: QWidget) -> list[str]:
     """获取规范中心所有规范编号文本（objectName=specCode）"""
     labels = [lbl for lbl in parent.findChildren(QLabel) if lbl.objectName() == "specCode"]
     return [lbl.text() for lbl in labels]
@@ -570,7 +574,7 @@ class TestFullFlow:
         original_warning = QMessageBox.warning
 
         # 替换为不阻塞的版本
-        QMessageBox.question = staticmethod(  # type: ignore[assignment]
+        QMessageBox.question = staticmethod(  # type: ignore[method-assign]
             lambda *args, **kwargs: QMessageBox.StandardButton.Yes
         )
         QMessageBox.information = staticmethod(lambda *args, **kwargs: None)  # type: ignore[assignment]
@@ -605,6 +609,6 @@ class TestFullFlow:
             assert "项目记录: 5 条" in page.project_count_label.text()
         finally:
             # 恢复原始静态方法
-            QMessageBox.question = original_question  # type: ignore[assignment]
-            QMessageBox.information = original_information  # type: ignore[assignment]
-            QMessageBox.warning = original_warning  # type: ignore[assignment]
+            QMessageBox.question = original_question  # type: ignore[method-assign]
+            QMessageBox.information = original_information  # type: ignore[method-assign]
+            QMessageBox.warning = original_warning  # type: ignore[method-assign]

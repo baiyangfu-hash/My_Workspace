@@ -19,7 +19,7 @@ V2.2 Week3 T11-T14 重构：将原硬编码 7 规范 + 旧 SpecIndexService 的�
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 
@@ -129,13 +129,16 @@ class SpecCenterView(QWidget):
         placeholder = _PlaceholderAdapter()
 
         adapter = self._adapter if self._adapter is not None else placeholder
+        # _PlaceholderAdapter 与 SpecCenterAdapter 结构兼容（相同方法签名），
+        # 此处 cast 统一类型，避免每个 Tab 构造处加 type: ignore
+        typed_adapter = cast(SpecCenterAdapter, adapter)
 
-        self._overview_tab = OverviewTab(adapter)  # type: ignore[arg-type]
-        self._index_tab = IndexTab(adapter)  # type: ignore[arg-type]
-        self._check_tab = CheckTab(adapter)  # type: ignore[arg-type]
-        self._frontmatter_tab = FrontmatterTab(adapter)  # type: ignore[arg-type]
-        self._report_tab = ReportTab(adapter)  # type: ignore[arg-type]
-        self._compare_tab = CompareTab(adapter)  # type: ignore[arg-type]
+        self._overview_tab = OverviewTab(typed_adapter)
+        self._index_tab = IndexTab(typed_adapter)
+        self._check_tab = CheckTab(typed_adapter)
+        self._frontmatter_tab = FrontmatterTab(typed_adapter)
+        self._report_tab = ReportTab(typed_adapter)
+        self._compare_tab = CompareTab(typed_adapter)
 
         self._tab_widget.addTab(self._overview_tab, _TAB_LABELS[0])
         self._tab_widget.addTab(self._index_tab, _TAB_LABELS[1])

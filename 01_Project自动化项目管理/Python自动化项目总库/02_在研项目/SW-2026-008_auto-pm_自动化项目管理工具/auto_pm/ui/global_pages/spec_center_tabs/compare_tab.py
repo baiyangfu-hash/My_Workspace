@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from PySide6.QtWidgets import (
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -174,11 +175,11 @@ class CompareTab(QWidget):
     # ── 属性（便于测试访问） ─────────────────────────────
 
     @property
-    def left_combo(self):  # type: ignore[no-untyped-def]
+    def left_combo(self) -> QComboBox:
         return self._left_combo
 
     @property
-    def right_combo(self):  # type: ignore[no-untyped-def]
+    def right_combo(self) -> QComboBox:
         return self._right_combo
 
     @property

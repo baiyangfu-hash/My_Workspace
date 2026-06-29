@@ -1,4 +1,4 @@
-"""PLC 项目自动修复器（LSP-907 规范）
+"""PLC 项目自动修复器（LSP-907 907_项目配置规范_LSP）
 
 迁移自 SW-2026-005 的 PlcProjectService.repair_project/standardize_docs。
 修复规则：
@@ -18,6 +18,7 @@ from auto_pm.logging.logging import setup_logger
 from auto_pm.plc.checker import PlcChecker
 from auto_pm.plc.models import (
     NAMING_RULES,
+    CheckItem,
     RenamePlan,
     RepairResult,
     StandardizeResult,
@@ -558,17 +559,17 @@ class PlcRepairer:
     def _repair_rename(
         self,
         project_path: str,
-        item: object,
+        item: CheckItem,
         result: RepairResult,
         dry_run: bool,
     ) -> None:
         """执行文件重命名（破坏性操作）"""
         # 从检查项消息中解析实际文件名
-        message = item.message  # type: ignore[attr-defined]
+        message = item.message
         match = re.search(r"实际文件: (.+)", message)
         if not match:
             result.add(
-                item=item.item,  # type: ignore[attr-defined]
+                item=item.item,
                 action="重命名文件",
                 destructive=True,
                 status="failed",
@@ -589,7 +590,7 @@ class PlcRepairer:
 
         if std_name is None:
             result.add(
-                item=item.item,  # type: ignore[attr-defined]
+                item=item.item,
                 action="重命名文件",
                 destructive=True,
                 status="failed",
@@ -605,7 +606,7 @@ class PlcRepairer:
                 shutil.copy2(old_path, backup_path)
                 os.rename(old_path, new_path)
                 result.add(
-                    item=item.item,  # type: ignore[attr-defined]
+                    item=item.item,
                     action=f"重命名 {actual_filename} → {std_name}",
                     destructive=True,
                     status="fixed",
@@ -613,7 +614,7 @@ class PlcRepairer:
                 )
             except OSError as e:
                 result.add(
-                    item=item.item,  # type: ignore[attr-defined]
+                    item=item.item,
                     action="重命名文件",
                     destructive=True,
                     status="failed",
@@ -621,7 +622,7 @@ class PlcRepairer:
                 )
         else:
             result.add(
-                item=item.item,  # type: ignore[attr-defined]
+                item=item.item,
                 action=f"[DRY-RUN] 重命名 {actual_filename} → {std_name}",
                 destructive=True,
                 status="skipped",

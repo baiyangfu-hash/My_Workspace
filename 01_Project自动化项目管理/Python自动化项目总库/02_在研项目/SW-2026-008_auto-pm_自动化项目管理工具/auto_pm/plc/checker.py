@@ -1,4 +1,4 @@
-"""PLC 项目结构检查器（LSP-907 规范）
+"""PLC 项目结构检查器（LSP-907 907_项目配置规范_LSP）
 
 迁移自 SW-2026-005 的 PlcProjectService.check_project/check_workspace。
 检查项：.plc.json / PM_SESSION / PRD 文档 / 目录结构 / Spec Snapshot 规范漂移。

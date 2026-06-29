@@ -24,6 +24,7 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -43,6 +44,10 @@ from auto_pm.models.plc import (
     RepairResult,
     StandardizeResult,
 )
+
+if TYPE_CHECKING:
+    from auto_pm.plc.checker import PlcChecker
+    from auto_pm.plc.repairer import PlcRepairer
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -137,8 +142,8 @@ class CheckTab(QWidget):
         self._project_id: str | None = None
         self._project_path: str = ""
         self._workspace_root: str = ""
-        self._checker: object | None = None
-        self._repairer: object | None = None
+        self._checker: PlcChecker | None = None
+        self._repairer: PlcRepairer | None = None
         self._last_check_result: CheckResult | None = None
         self._build_ui()
 
@@ -243,7 +248,7 @@ class CheckTab(QWidget):
             log.warning("检查Tab: checker 未初始化或项目路径为空")
             return
         try:
-            result = self._checker.check_project(self._project_path)  # type: ignore[attr-defined]
+            result = self._checker.check_project(self._project_path)
         except Exception as e:
             log.error("检查Tab: 执行检查失败: %s", e, exc_info=True)
             return
@@ -330,7 +335,7 @@ class CheckTab(QWidget):
             log.warning("检查Tab: repairer 未初始化或项目路径为空")
             return
         try:
-            result = self._repairer.repair_project(  # type: ignore[attr-defined]
+            result = self._repairer.repair_project(
                 self._project_path, dry_run=True, rename_confirm=False
             )
         except Exception as e:
@@ -383,7 +388,7 @@ class CheckTab(QWidget):
             log.warning("检查Tab: repairer 未初始化或项目路径为空")
             return
         try:
-            result = self._repairer.standardize_docs(  # type: ignore[attr-defined]
+            result = self._repairer.standardize_docs(
                 self._project_path, apply=False
             )
         except Exception as e:
@@ -440,7 +445,7 @@ class CheckTab(QWidget):
             log.warning("检查Tab: repairer 未初始化或项目路径为空")
             return
         try:
-            self._repairer.repair_project(  # type: ignore[attr-defined]
+            self._repairer.repair_project(
                 self._project_path, dry_run=False, rename_confirm=False
             )
         except Exception as e:
@@ -449,7 +454,7 @@ class CheckTab(QWidget):
         # 修复后重新检查并渲染
         if self._checker is not None:
             try:
-                result = self._checker.check_project(self._project_path)  # type: ignore[attr-defined]
+                result = self._checker.check_project(self._project_path)
             except Exception as e:
                 log.error("检查Tab: 修复后重新检查失败: %s", e, exc_info=True)
                 return

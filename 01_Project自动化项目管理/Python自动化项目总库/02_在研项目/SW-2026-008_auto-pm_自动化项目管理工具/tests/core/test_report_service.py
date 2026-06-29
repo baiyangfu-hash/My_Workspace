@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -121,6 +122,7 @@ class TestGetProjectOverview:
         self, report_service: ReportService, project_service: ProjectService
     ) -> None:
         """单项目统计"""
+        assert project_service._repo is not None
         project_service._repo.upsert(
             _make_project_record(
                 "SW-2026-001", "项目A", stack="python", phase="developing", business_line="SW"
@@ -145,6 +147,7 @@ class TestGetProjectOverview:
             _make_project_record("XT-2026-001", "项目5", "unknown", "archived", "XT"),
             _make_project_record("WX-2026-001", "项目6", "python", "production", "WX"),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 
@@ -173,6 +176,7 @@ class TestGetProjectOverview:
         self, report_service: ReportService, project_service: ProjectService
     ) -> None:
         """未设置 phase/business_line 时计入空 key"""
+        assert project_service._repo is not None
         project_service._repo.upsert(
             _make_project_record("SW-2026-001", "项目A", stack="plc", phase="", business_line="")
         )
@@ -223,6 +227,7 @@ class TestGetChangeOverview:
     ) -> None:
         """单变更统计"""
         # 变更单外键约束：先插入项目记录
+        assert project_service._repo is not None
         project_service._repo.upsert(_make_project_record("SW-2026-001"))
         repo = ChangeRequestRepository(db)
         repo.upsert(_make_change_summary("CHG-PLC-2026-001", status="draft", domain="PLC"))
@@ -239,6 +244,7 @@ class TestGetChangeOverview:
     ) -> None:
         """多变更多维度统计"""
         # 变更单外键约束：先插入项目记录
+        assert project_service._repo is not None
         project_service._repo.upsert(_make_project_record("SW-2026-001"))
         repo = ChangeRequestRepository(db)
         changes = [
@@ -287,6 +293,7 @@ class TestReportServiceIntegration:
     ) -> None:
         """同时统计项目与变更"""
         # 预置项目
+        assert project_service._repo is not None
         project_service._repo.upsert(
             _make_project_record("SW-2026-001", "项目A", "python", "developing", "SW")
         )
@@ -320,7 +327,7 @@ class TestReportServiceIntegration:
 # ── get_spec_report 测试（V2.2 Week3：基于 spec_registry.json） ───
 
 
-_SAMPLE_SPECS: list[dict] = [
+_SAMPLE_SPECS: list[dict[str, Any]] = [
     {
         "spec_id": "LSP-905",
         "title": "SCL编程规范",
@@ -380,7 +387,7 @@ _SAMPLE_SPECS: list[dict] = [
 ]
 
 
-def _create_spec_registry(workspace: Path, specs: list[dict] | None = None) -> Path:
+def _create_spec_registry(workspace: Path, specs: list[dict[str, Any]] | None = None) -> Path:
     """在工作空间下创建 spec_registry.json
 
     Args:

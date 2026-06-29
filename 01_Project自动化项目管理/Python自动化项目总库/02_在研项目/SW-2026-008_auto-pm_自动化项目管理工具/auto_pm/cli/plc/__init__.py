@@ -1,4 +1,4 @@
-"""plc 子命令组 - PLC 项目管理（LSP-907）
+"""plc 子命令组 - PLC 项目管理（LSP-907 907_项目配置规范_LSP）
 
 Commands:
     init <ID>                    创建 PLC 项目骨架（Copier 模板）
