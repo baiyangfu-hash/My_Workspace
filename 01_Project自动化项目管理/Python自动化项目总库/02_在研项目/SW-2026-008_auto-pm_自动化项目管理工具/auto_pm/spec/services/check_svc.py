@@ -21,10 +21,10 @@ class CheckOutput:
 
 
 class CheckService:
-    def __init__(self, workspace: Path) -> None:
+    def __init__(self, workspace: Path, config: WorkspaceConfig | None = None) -> None:
         self.workspace = workspace
-        self.config = WorkspaceConfig(workspace=workspace)
-        self.registry = SpecRegistry(workspace)
+        self.config = config or WorkspaceConfig(workspace=workspace)
+        self.registry = SpecRegistry(workspace, registry_path=self.config.registry_path)
         self.registry_loaded = self.registry.load()
         self.checker = HealthChecker()
 

@@ -30,10 +30,10 @@ class FrontmatterOutput:
 
 
 class FrontmatterService:
-    def __init__(self, workspace: Path) -> None:
+    def __init__(self, workspace: Path, config: WorkspaceConfig | None = None) -> None:
         self.workspace = workspace
-        self.config = WorkspaceConfig(workspace=workspace)
-        self.registry = SpecRegistry(workspace)
+        self.config = config or WorkspaceConfig(workspace=workspace)
+        self.registry = SpecRegistry(workspace, registry_path=self.config.registry_path)
         if not self.registry.load():
             raise FileNotFoundError(f"注册表文件不存在或格式错误: {self.registry.path}")
 

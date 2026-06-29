@@ -15,7 +15,7 @@ import click
 from rich.console import Console
 
 from auto_pm.spec.core.checker_base import CheckResult, Severity
-from auto_pm.spec.core.config import CHECK_SCOPES
+from auto_pm.spec.core.config import CHECK_SCOPES, WorkspaceConfig, load_config
 from auto_pm.spec.services.check_svc import CheckService
 from auto_pm.spec.services.fix_svc import FixResult, can_auto_fix
 from auto_pm.spec.services.frontmatter_svc import FrontmatterService
@@ -52,6 +52,19 @@ def _resolve_workspace(workspace: str) -> Path:
     return ws
 
 
+def _load_ws_config(config_path: Path | None, workspace: Path) -> WorkspaceConfig | None:
+    """加载工作空间配置文件(YAML)。返回 None 表示用默认配置。"""
+    if config_path is None:
+        return None
+    if not config_path.exists():
+        console.print(f"[red]错误: 配置文件不存在: {config_path}[/red]")
+        raise SystemExit(1)
+    cfg = load_config(config_path)
+    # 用 -w 指定的 workspace 覆盖 config 中的 workspace(-w 优先)
+    cfg.workspace = workspace
+    return cfg
+
+
 @click.group(name="spec")
 def spec_group() -> None:
     """规范管理 - 检查/索引/frontmatter/报告（整合自 specmgr）"""
@@ -75,6 +88,14 @@ def spec_group() -> None:
     type=click.Path(path_type=Path),
     help="项目根目录，scope=project 时必填",
 )
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
+)
+@click.option("--quiet", is_flag=True, help="只输出 ERROR 级别结果 + 退出码")
 def cmd_check(
     workspace: str,
     auto_fix: bool,
@@ -84,9 +105,12 @@ def cmd_check(
     severity: str,
     scope: str,
     project_root: Path | None,
+    config_path: Path | None,
+    quiet: bool,
 ) -> None:
     """运行规范健康检查（SHC-001~010）"""
     ws = _resolve_workspace(workspace)
+    ws_config = _load_ws_config(config_path, ws)
 
     resolved_project_root: Path | None = None
     if scope == "project":
@@ -103,7 +127,7 @@ def cmd_check(
             console.print("[red]错误: 项目根目录必须位于工作空间内部[/red]")
             raise SystemExit(1)
 
-    svc = CheckService(ws)
+    svc = CheckService(ws, config=ws_config)
     output = svc.run(
         check_ids=list(check_id) or None,
         min_severity=Severity[severity.upper()],
@@ -113,7 +137,15 @@ def cmd_check(
         project_root=resolved_project_root,
     )
 
-    if fmt == "json":
+    if quiet:
+        # quiet 模式:只输出 ERROR 级别结果
+        error_results = [r for r in output.results if r.severity == Severity.ERROR]
+        if fmt == "json":
+            _output_check_json(error_results, None)
+        else:
+            for r in error_results:
+                console.print(f"[red]ERROR [{r.check_id}]: {r.message}[/red]")
+    elif fmt == "json":
         _output_check_json(output.results, output.fix_results)
     else:
         _output_check_table(output.results, output.fix_results, auto_fix)
@@ -208,36 +240,82 @@ def _output_check_table(
     default="all",
     help="只生成指定域（默认 all）",
 )
-def cmd_index(workspace: str, domain: str) -> None:
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
+)
+@click.option("--quiet", is_flag=True, help="只输出错误信息，不输出成功生成结果")
+def cmd_index(workspace: str, domain: str, config_path: Path | None, quiet: bool) -> None:
     """生成规范索引文件"""
     ws = _resolve_workspace(workspace)
-    svc = IndexService(ws)
+    ws_config = _load_ws_config(config_path, ws)
+    svc = IndexService(ws, config=ws_config)
     domains = None if domain == "all" else [domain]
     output = svc.run(domains=domains)
 
+    if quiet:
+        # quiet 模式:只输出错误
+        for err in output.errors:
+            console.print(f"[red]{err}[/red]")
+        return
+
+    unicode_output = _supports_unicode_output()
+    ok_icon = "✅" if unicode_output else "[OK]"
+    fail_icon = "❌" if unicode_output else "[FAIL]"
+
     for f in output.generated_files:
-        console.print(f"[green]✅ 已生成: {f}[/green]")
+        console.print(f"[green]{ok_icon} 已生成: {f}[/green]")
 
     for err in output.errors:
-        console.print(f"[red]❌ 生成失败: {err}[/red]")
+        console.print(f"[red]{fail_icon} 生成失败: {err}[/red]")
 
 
 @spec_group.command(name="frontmatter")
 @click.option("--workspace", "-w", required=True, help="工作空间根目录")
 @click.option("--fix", is_flag=True, help="实际执行写入（默认仅预览）")
 @click.option("--spec-id", default=None, help="只处理指定规范")
-def cmd_frontmatter(workspace: str, fix: bool, spec_id: str | None) -> None:
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
+)
+@click.option("--quiet", is_flag=True, help="只输出错误信息，不输出扫描/预览结果")
+def cmd_frontmatter(
+    workspace: str,
+    fix: bool,
+    spec_id: str | None,
+    config_path: Path | None,
+    quiet: bool,
+) -> None:
     """检查/同步规范 frontmatter
 
     默认仅预览将添加的 frontmatter；使用 --fix 实际写入。
     """
     ws = _resolve_workspace(workspace)
-    svc = FrontmatterService(ws)
+    ws_config = _load_ws_config(config_path, ws)
+    svc = FrontmatterService(ws, config=ws_config)
     items = svc.preview(spec_id=spec_id)
+
+    if quiet:
+        # quiet 模式:只输出 error 项
+        for item in items:
+            if item.status == "error":
+                console.print(f"[red]ERROR: {item.spec_id} 处理失败[/red]")
+        return
 
     if not items:
         console.print("[yellow]没有需要处理的规范文件[/yellow]")
         return
+
+    unicode_output = _supports_unicode_output()
+    warn_icon = "⚠️" if unicode_output else "[WARN]"
+    fail_icon = "❌" if unicode_output else "[FAIL]"
+    write_icon = "📝" if unicode_output else "[WRITE]"
 
     mode = "实际修改" if fix else "DRY-RUN（仅预览）"
     pending_count = sum(1 for i in items if i.status == "pending")
@@ -252,11 +330,11 @@ def cmd_frontmatter(workspace: str, fix: bool, spec_id: str | None) -> None:
             if item.has_frontmatter:
                 continue
             if not item.file_exists:
-                console.print(f"[yellow]  ⚠️ 文件不存在: {item.file_path}[/yellow]")
+                console.print(f"[yellow]  {warn_icon} 文件不存在: {item.file_path}[/yellow]")
             continue
 
         if item.status == "error":
-            console.print(f"[red]  ❌ 处理失败: {item.spec_id}[/red]")
+            console.print(f"[red]  {fail_icon} 处理失败: {item.spec_id}[/red]")
             continue
 
         if item.status == "pending":
@@ -265,7 +343,7 @@ def cmd_frontmatter(workspace: str, fix: bool, spec_id: str | None) -> None:
                 preview = item.new_frontmatter[:80]
                 console.print(f"    {preview}...")
             else:
-                console.print(f"[green]  📝 添加frontmatter到: {item.spec_id}[/green]")
+                console.print(f"[green]  {write_icon} 添加frontmatter到: {item.spec_id}[/green]")
 
     if fix and pending_count > 0:
         pending_items = [i for i in items if i.status == "pending"]
@@ -297,10 +375,31 @@ def cmd_frontmatter(workspace: str, fix: bool, spec_id: str | None) -> None:
     default="markdown",
     help="输出格式",
 )
-def cmd_report(workspace: str, output: str | None, fmt: str) -> None:
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
+)
+@click.option("--quiet", is_flag=True, help="成功时不输出，仅失败时输出错误")
+def cmd_report(
+    workspace: str,
+    output: str | None,
+    fmt: str,
+    config_path: Path | None,
+    quiet: bool,
+) -> None:
     """生成规范元数据汇总报告"""
     ws = _resolve_workspace(workspace)
-    svc = ReportService(ws)
+    ws_config = _load_ws_config(config_path, ws)
+    svc = ReportService(ws, config=ws_config)
     output_path = Path(output) if output else None
     result = svc.generate(fmt=fmt, output_path=output_path)
-    console.print(f"[green]✅ 报告已生成: {result.output_path}[/green]")
+
+    if quiet:
+        # quiet 模式:成功时无输出
+        return
+
+    ok_icon = "✅" if _supports_unicode_output() else "[OK]"
+    console.print(f"[green]{ok_icon} 报告已生成: {result.output_path}[/green]")

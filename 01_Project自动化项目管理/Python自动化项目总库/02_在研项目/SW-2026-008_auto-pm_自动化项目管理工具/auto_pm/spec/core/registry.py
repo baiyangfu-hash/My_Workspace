@@ -24,13 +24,16 @@ class SpecInfo:
 
 
 class SpecRegistry:
-    def __init__(self, workspace: Path) -> None:
+    def __init__(self, workspace: Path, registry_path: str | None = None) -> None:
         self.workspace = workspace
+        self._registry_path = registry_path
         self._specs: dict[str, SpecInfo] = {}
         self._raw: dict[str, Any] = {}
 
     @property
     def path(self) -> Path:
+        if self._registry_path is not None:
+            return self.workspace / self._registry_path
         from .config import DEFAULT_REGISTRY_PATH
         return self.workspace / DEFAULT_REGISTRY_PATH
 
