@@ -9,48 +9,20 @@
 
 用于报告中心全局页展示。不直接访问文件系统/DB 进行写入，
 数据来源完全依赖注入的 Service 和 Repository。
+
+V2.2 Week3：get_spec_report 改用 spec_registry.json（通过 SpecRegistry）
+动态加载规范列表，不再硬编码 _STACK_SPECS。
 """
 
 from __future__ import annotations
 
-import glob
 import os
+from pathlib import Path
 from typing import Any, Optional
 
 from auto_pm.logging.logging import setup_logger
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
-
-
-# ── 规范元数据（与 ui/global_pages/spec_center.py 保持一致） ────
-# M4-Iter3 将统一提取到 core/constants.py
-
-_PLC_SPECS: list[tuple[str, str]] = [
-    ("905", "SCL 编程规范"),
-    ("904", "SCL 注释规范"),
-    ("903", "定时器使用规范"),
-    ("906", "错误预防规则"),
-]
-
-_PYTHON_SPECS: list[tuple[str, str]] = [
-    ("210", "Python 编程规范"),
-    ("211", "Python 代码审查规范"),
-    ("220", "Python 项目打包规范"),
-]
-
-# 技术栈 → (分区标题, 规范目录相对路径, 规范列表)
-_STACK_SPECS: dict[str, tuple[str, str, list[tuple[str, str]]]] = {
-    "plc": (
-        "PLC 技术栈规范",
-        os.path.join("0100_PLC自动化", "00_通用规范", "PLC编程"),
-        _PLC_SPECS,
-    ),
-    "python": (
-        "Python 技术栈规范",
-        os.path.join("01_Project自动化项目管理", "00_通用规范", "Python开发"),
-        _PYTHON_SPECS,
-    ),
-}
 
 
 class ReportService:
@@ -175,19 +147,21 @@ class ReportService:
     def get_spec_report(self) -> dict[str, Any]:
         """规范覆盖报告
 
-        扫描 workspace_root 下的规范目录，统计每个技术栈的规范总数、
-        已存在数、缺失列表。
+        基于 spec_registry.json（通过 SpecRegistry）统计每个域的规范总数、
+        已存在数、缺失列表。V2.2 Week3 起不再硬编码规范列表。
 
         Returns:
             {
                 'total': int,                    # 规范总数
                 'found': int,                    # 已找到文件数
                 'missing': int,                  # 缺失文件数
-                'by_stack': {
+                'by_stack': {                    # 按域分组（保留 by_stack key 向后兼容）
                     'plc': {'total': int, 'found': int, 'missing': list[str]},
                     'python': {'total': int, 'found': int, 'missing': list[str]},
+                    'pm': {'total': int, 'found': int, 'missing': list[str]},
+                    ...（按 registry 中实际域）
                 },
-                'missing_codes': list[str],      # 所有缺失的规范编号
+                'missing_codes': list[str],      # 所有缺失的 spec_id
             }
 
         Raises:
@@ -196,37 +170,47 @@ class ReportService:
         if not self._workspace_root:
             raise RuntimeError("未注入 workspace_root，无法生成规范报告")
 
+        # 延迟导入避免循环依赖
+        from auto_pm.spec.core.config import DEFAULT_REGISTRY_PATH
+        from auto_pm.spec.core.registry import SpecRegistry
+
+        registry = SpecRegistry(Path(self._workspace_root), registry_path=DEFAULT_REGISTRY_PATH)
+        if not registry.load():
+            # 注册表不存在或格式错误时返回空报告
+            log.warning("spec_registry.json 不存在或格式错误: %s", registry.path)
+            return {
+                "total": 0,
+                "found": 0,
+                "missing": 0,
+                "by_stack": {},
+                "missing_codes": [],
+            }
+
         by_stack: dict[str, dict[str, Any]] = {}
         total = 0
         found = 0
         missing = 0
         all_missing_codes: list[str] = []
 
-        for stack_key, (_, rel_dir, specs) in _STACK_SPECS.items():
-            spec_dir = os.path.join(self._workspace_root, rel_dir)
-            stack_total = len(specs)
-            stack_found = 0
-            stack_missing: list[str] = []
+        for spec_info in registry.list_specs():
+            domain = spec_info.domain or "unknown"
+            if domain not in by_stack:
+                by_stack[domain] = {"total": 0, "found": 0, "missing": []}
 
-            for code, _name in specs:
-                pattern = os.path.join(spec_dir, f"{code}_*.md")
-                matches = glob.glob(pattern)
-                if matches:
-                    stack_found += 1
-                else:
-                    stack_missing.append(code)
-                    all_missing_codes.append(code)
+            by_stack[domain]["total"] += 1
+            total += 1
 
-            stack_missing_count = stack_total - stack_found
-            total += stack_total
-            found += stack_found
-            missing += stack_missing_count
-
-            by_stack[stack_key] = {
-                "total": stack_total,
-                "found": stack_found,
-                "missing": stack_missing,
-            }
+            canonical = spec_info.canonical_path or ""
+            file_exists = bool(canonical) and (
+                Path(self._workspace_root) / canonical
+            ).exists()
+            if file_exists:
+                found += 1
+                by_stack[domain]["found"] += 1
+            else:
+                missing += 1
+                all_missing_codes.append(spec_info.spec_id)
+                by_stack[domain]["missing"].append(spec_info.spec_id)
 
         log.info(
             "规范覆盖统计: total=%d, found=%d, missing=%d, missing_codes=%s",

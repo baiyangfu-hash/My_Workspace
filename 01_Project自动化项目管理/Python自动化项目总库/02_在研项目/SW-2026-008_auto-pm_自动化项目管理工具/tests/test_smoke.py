@@ -50,11 +50,6 @@ class TestCoreImports:
         from auto_pm.core.report_service import ReportService
         assert ReportService is not None
 
-    def test_import_spec_index_service(self) -> None:
-        """SpecIndexService 可导入"""
-        from auto_pm.core.spec_index_service import SpecIndexService
-        assert SpecIndexService is not None
-
     def test_import_plc_service(self) -> None:
         """PlcService 可导入"""
         from auto_pm.plc.service import PlcService
@@ -208,28 +203,6 @@ class TestReportServiceBasic:
         assert "spec" in types
         assert "scan" in types
         assert len(types) == 4
-
-
-# ── SpecIndexService 基础功能测试 ──────────────────────
-
-
-@pytest.mark.smoke
-class TestSpecIndexServiceBasic:
-    """SpecIndexService 基础功能测试"""
-
-    def test_instantiation(self) -> None:
-        """SpecIndexService 可实例化"""
-        from auto_pm.core.spec_index_service import SpecIndexService
-        svc = SpecIndexService()
-        assert svc is not None
-        assert svc.workspace_root == ""
-
-    def test_set_workspace_root(self, tmp_path: Path) -> None:
-        """set_workspace_root 正常工作"""
-        from auto_pm.core.spec_index_service import SpecIndexService
-        svc = SpecIndexService()
-        svc.set_workspace_root(str(tmp_path))
-        assert svc.workspace_root == str(tmp_path)
 
 
 # ── 数据库连接测试 ─────────────────────────────────────

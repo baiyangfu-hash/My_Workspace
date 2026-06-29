@@ -1,151 +1,78 @@
 """全局功能页 - 规范中心
 
-展示 PLC 和 Python 技术栈的规范目录列表，点击"打开"按钮调用系统默认程序打开规范文件。
+V2.2 Week3 T11-T14 重构：将原硬编码 7 规范 + 旧 SpecIndexService 的实现
+改造为 QTabWidget 6 Tab 结构，对接新 IndexService（基于 spec_registry.json）。
 
-布局：
-┌─────────────────────────────────────────────────────────┐
-│ 规范中心                                                  │
-├─────────────────────────────────────────────────────────┤
-│ [搜索框]                                  [刷新] [对比]  │
-├─────────────────────────────────────────────────────────┤
-│ ┌─ PLC 技术栈规范 ──────────────────────────────────┐  │
-│ │ 905  SCL 编程规范                          [打开] │  │
-│ │ 904  SCL 注释规范                          [打开] │  │
-│ │ 903  定时器使用规范                        [打开] │  │
-│ │ 906  错误预防规则                          [打开] │  │
-│ └────────────────────────────────────────────────────┘  │
-│ ┌─ Python 技术栈规范 ────────────────────────────────┐  │
-│ │ 210  Python 编程规范                       [打开] │  │
-│ │ 211  Python 代码审查规范                   [打开] │  │
-│ │ 220  Python 项目打包规范                   [打开] │  │
-│ └────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+6 Tab 结构：
+1. 概览（OverviewTab）：规范统计（总数/各域数/生命周期分布）+ 健康摘要
+2. 规范索引（IndexTab）：三域（PM/PLC/Python）规范列表 + 打开文件 + 搜索框
+3. 健康检查（CheckTab）：10 项 SHC 健康检查结果展示 + 自动修复按钮
+4. Frontmatter（FrontmatterTab）：批量预览/应用（dry-run/apply）
+5. 报告（ReportTab）：markdown/json 格式选择 + 生成 + 保存
+6. 对比（CompareTab）：保留旧对比功能（迁移到新 IndexService）
 
-M4-Iter3：增加搜索框（实时过滤）、刷新按钮（重建索引）、对比按钮（对比两个规范）。
+数据流：
+    Service 输出 → DTO 转换（spec_center_dto.py）→ QWidget 渲染
+    禁止 QWidget 直接调用 Service，必须经过 SpecCenterAdapter
 """
 
 from __future__ import annotations
 
-import glob
-import os
+from pathlib import Path
+from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QUrl
-from PySide6.QtGui import QDesktopServices
-from PySide6.QtWidgets import (
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QMessageBox,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
+from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
+
+from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.global_pages.spec_center_dto import (
+    CompareResultDTO,
+    FrontmatterPreviewDTO,
+    HealthCheckOutputDTO,
+    ReportOutputDTO,
+    SpecCenterAdapter,
+    SpecEntryDTO,
+    SpecOverviewDTO,
+)
+from auto_pm.ui.global_pages.spec_center_tabs import (
+    CheckTab,
+    CompareTab,
+    FrontmatterTab,
+    IndexTab,
+    OverviewTab,
+    ReportTab,
 )
 
-from auto_pm.core.spec_index_service import SpecDiffResult, SpecIndexService
-from auto_pm.logging.logging import setup_logger
+if TYPE_CHECKING:
+    from auto_pm.spec.core.registry import SpecRegistry
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
 __all__ = ["SpecCenterView"]
 
-# ── 规范数据（硬编码，规范目录结构固定） ──────────────
-
-# PLC 技术栈规范：(编号, 名称)
-_PLC_SPECS: list[tuple[str, str]] = [
-    ("905", "SCL 编程规范"),
-    ("904", "SCL 注释规范"),
-    ("903", "定时器使用规范"),
-    ("906", "错误预防规则"),
+# Tab 标识 → 中文标签
+_TAB_LABELS: list[str] = [
+    "概览",
+    "规范索引",
+    "健康检查",
+    "Frontmatter",
+    "报告",
+    "对比",
 ]
-
-# Python 技术栈规范：(编号, 名称)
-_PYTHON_SPECS: list[tuple[str, str]] = [
-    ("210", "Python 编程规范"),
-    ("211", "Python 代码审查规范"),
-    ("220", "Python 项目打包规范"),
-]
-
-# 技术栈 → (分区标题, 规范目录相对路径, 规范列表)
-_STACK_SPECS: dict[str, tuple[str, str, list[tuple[str, str]]]] = {
-    "plc": (
-        "PLC 技术栈规范",
-        os.path.join("0100_PLC自动化", "00_通用规范", "PLC编程"),
-        _PLC_SPECS,
-    ),
-    "python": (
-        "Python 技术栈规范",
-        os.path.join("01_Project自动化项目管理", "00_通用规范", "Python开发"),
-        _PYTHON_SPECS,
-    ),
-}
-
-# ── 样式 ─────────────────────────────────────────────────
-
-_PAGE_STYLE = """
-QWidget#specCenterPage { background: #fafafa; }
-QLabel#specTitle { font-size: 18px; font-weight: bold; color: #222; }
-QLabel#specSubtitle { font-size: 12px; color: #999; }
-QGroupBox#specGroup {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    margin-top: 14px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #333;
-}
-QGroupBox#specGroup::title {
-    subcontrol-origin: margin;
-    subcontrol-position: top left;
-    padding: 2px 8px;
-    color: #4a90d9;
-}
-QLabel#specCode { font-size: 13px; font-weight: bold; color: #4a90d9; }
-QLabel#specName { font-size: 13px; color: #333; }
-QPushButton#openBtn {
-    background: #4a90d9;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 12px;
-    font-size: 12px;
-}
-QPushButton#openBtn:hover { background: #3a7bc8; }
-QPushButton#openBtn:disabled { background: #cccccc; color: #888; }
-QPushButton#toolBtn {
-    background: #f5f5f5;
-    color: #333;
-    border: 1px solid #d0d0d0;
-    border-radius: 4px;
-    padding: 4px 12px;
-    font-size: 12px;
-}
-QPushButton#toolBtn:hover { background: #e8e8e8; }
-QPushButton#toolBtn:disabled { background: #f5f5f5; color: #aaa; }
-QLineEdit#searchBox {
-    border: 1px solid #d0d0d0;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 12px;
-}
-"""
 
 
 class SpecCenterView(QWidget):
-    """规范中心全局页
+    """规范中心全局页（QTabWidget 主容器）
 
-    展示 PLC 和 Python 技术栈的规范目录列表，点击"打开"按钮调用系统默认程序打开规范文件。
+    6 Tab 子页面通过 SpecCenterAdapter 获取 DTO 数据，
+    QWidget 不直接调用 Service。
 
-    规范文件路径查找：
-        - PLC: {workspace_root}/0100_PLC自动化/00_通用规范/PLC编程/{code}_*.md
-        - Python: {workspace_root}/01_Project自动化项目管理/00_通用规范/Python开发/{code}_*.md
-    若找不到规范文件，对应"打开"按钮禁用。
+    Args:
+        workspace_root: 工作空间根目录路径（字符串）
+        parent: 父窗口
 
-    M4-Iter3 扩展：
-        - 搜索框：实时过滤规范列表（按编号/名称/技术栈匹配，不区分大小写）
-        - 刷新按钮：重建规范索引
-        - 对比按钮：对比两个已选规范的文件内容
+    注意：
+        - workspace_root 为空时，所有 Tab 显示空数据，不抛异常
+        - 调用 set_workspace_root() 切换工作空间并刷新
     """
 
     def __init__(
@@ -154,270 +81,110 @@ class SpecCenterView(QWidget):
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
+        self.setObjectName("specCenterPage")
         self._workspace_root = workspace_root
-        self._open_buttons: dict[tuple[str, str], QPushButton] = {}
-        # M4-Iter3：规范行容器，用于搜索过滤
-        self._spec_rows: dict[tuple[str, str], QWidget] = {}
-        # M4-Iter3：规范选择状态（用于对比）
-        self._selected_for_compare: set[tuple[str, str]] = set()
-        # M4-Iter3：规范索引服务
-        self._index_service = SpecIndexService(workspace_root)
+        self._adapter: SpecCenterAdapter | None = None
+        if workspace_root:
+            try:
+                self._adapter = SpecCenterAdapter(workspace=Path(workspace_root))
+            except Exception as e:
+                log.warning("初始化 SpecCenterAdapter 失败（工作空间: %s）: %s", workspace_root, e)
+                self._adapter = None
         self._build_ui()
 
-    # ── UI 构建 ────────────────────────────────────────────
-
     def _build_ui(self) -> None:
-        self.setObjectName("specCenterPage")
-        self.setStyleSheet(_PAGE_STYLE)
-
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 12, 16, 12)
-        layout.setSpacing(10)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        # 标题
+        # 标题栏
+        title_bar = QWidget()
+        title_bar.setStyleSheet("background: #fafafa; padding: 8px 16px;")
+        tb_layout = QVBoxLayout(title_bar)
+        tb_layout.setContentsMargins(0, 0, 0, 0)
+        tb_layout.setSpacing(2)
+
         title = QLabel("规范中心")
-        title.setObjectName("specTitle")
-        layout.addWidget(title)
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #222;")
+        tb_layout.addWidget(title)
 
-        subtitle = QLabel("PLC 与 Python 技术栈规范目录")
-        subtitle.setObjectName("specSubtitle")
-        layout.addWidget(subtitle)
+        subtitle = QLabel("基于 spec_registry.json 的规范管理与健康检查中心")
+        subtitle.setStyleSheet("font-size: 12px; color: #999;")
+        tb_layout.addWidget(subtitle)
 
-        # M4-Iter3：工具栏（搜索框 + 刷新 + 对比）
-        toolbar = self._build_toolbar()
-        layout.addWidget(toolbar)
+        layout.addWidget(title_bar)
 
-        # 两个技术栈分区
-        for stack_key, (group_title, _, specs) in _STACK_SPECS.items():
-            group = self._build_spec_group(stack_key, group_title, specs)
-            layout.addWidget(group)
-
-        layout.addStretch(1)
-
-    def _build_toolbar(self) -> QWidget:
-        """构建工具栏：搜索框 + 刷新按钮 + 对比按钮"""
-        toolbar = QWidget()
-        h = QHBoxLayout(toolbar)
-        h.setContentsMargins(0, 0, 0, 0)
-        h.setSpacing(8)
-
-        # 搜索框
-        self._search_box = QLineEdit()
-        self._search_box.setObjectName("searchBox")
-        self._search_box.setPlaceholderText("搜索规范（编号/名称/技术栈）...")
-        self._search_box.textChanged.connect(self._on_search_changed)
-        h.addWidget(self._search_box, 1)
-
-        # 刷新按钮
-        self._refresh_btn = QPushButton("刷新")
-        self._refresh_btn.setObjectName("toolBtn")
-        self._refresh_btn.clicked.connect(self._on_refresh)
-        h.addWidget(self._refresh_btn)
-
-        # 对比按钮
-        self._compare_btn = QPushButton("对比")
-        self._compare_btn.setObjectName("toolBtn")
-        self._compare_btn.clicked.connect(self._on_compare)
-        self._compare_btn.setEnabled(False)  # 需选择 2 个规范后启用
-        h.addWidget(self._compare_btn)
-
-        return toolbar
-
-    def _build_spec_group(
-        self,
-        stack: str,
-        group_title: str,
-        specs: list[tuple[str, str]],
-    ) -> QGroupBox:
-        """构建单个技术栈规范分区"""
-        group = QGroupBox(group_title)
-        group.setObjectName("specGroup")
-        v = QVBoxLayout(group)
-        v.setContentsMargins(12, 16, 12, 12)
-        v.setSpacing(8)
-
-        for code, name in specs:
-            row = self._build_spec_row(stack, code, name)
-            v.addWidget(row)
-
-        return group
-
-    def _build_spec_row(self, stack: str, code: str, name: str) -> QWidget:
-        """构建单个规范行：[选择] [编号] [名称] ... [打开]"""
-        row = QWidget()
-        h = QHBoxLayout(row)
-        h.setContentsMargins(0, 0, 0, 0)
-        h.setSpacing(12)
-
-        # M4-Iter3：选择按钮（用于对比）
-        select_btn = QPushButton("选择")
-        select_btn.setObjectName("toolBtn")
-        select_btn.setCheckable(True)
-        select_btn.clicked.connect(
-            lambda checked=False, s=stack, c=code: self._on_select_for_compare(s, c)
+        # 6 Tab
+        self._tab_widget = QTabWidget()
+        self._tab_widget.setStyleSheet(
+            "QTabWidget::pane { border: 1px solid #e0e0e0; background: #ffffff; }"
+            "QTabBar::tab { background: #f5f5f5; padding: 6px 14px; margin-right: 2px; "
+            "border: 1px solid #d0d0d0; border-bottom: none; border-top-left-radius: 4px; "
+            "border-top-right-radius: 4px; }"
+            "QTabBar::tab:selected { background: #ffffff; color: #4a90d9; font-weight: bold; }"
+            "QTabBar::tab:hover { background: #e8e8e8; }"
         )
-        h.addWidget(select_btn)
 
-        code_label = QLabel(code)
-        code_label.setObjectName("specCode")
-        code_label.setMinimumWidth(40)
-        h.addWidget(code_label)
+        # 占位 adapter（workspace 为空时使用）
+        placeholder = _PlaceholderAdapter()
 
-        name_label = QLabel(name)
-        name_label.setObjectName("specName")
-        h.addWidget(name_label, 1)
+        adapter = self._adapter if self._adapter is not None else placeholder
 
-        open_btn = QPushButton("打开")
-        open_btn.setObjectName("openBtn")
-        open_btn.clicked.connect(
-            lambda checked=False, s=stack, c=code: self._on_open_spec(s, c)
-        )
-        h.addWidget(open_btn)
+        self._overview_tab = OverviewTab(adapter)  # type: ignore[arg-type]
+        self._index_tab = IndexTab(adapter)  # type: ignore[arg-type]
+        self._check_tab = CheckTab(adapter)  # type: ignore[arg-type]
+        self._frontmatter_tab = FrontmatterTab(adapter)  # type: ignore[arg-type]
+        self._report_tab = ReportTab(adapter)  # type: ignore[arg-type]
+        self._compare_tab = CompareTab(adapter)  # type: ignore[arg-type]
 
-        # 查找规范文件，若不存在则禁用按钮
-        spec_path = self._find_spec_file(stack, code)
-        if not spec_path:
-            open_btn.setEnabled(False)
-            open_btn.setToolTip("未找到规范文件")
+        self._tab_widget.addTab(self._overview_tab, _TAB_LABELS[0])
+        self._tab_widget.addTab(self._index_tab, _TAB_LABELS[1])
+        self._tab_widget.addTab(self._check_tab, _TAB_LABELS[2])
+        self._tab_widget.addTab(self._frontmatter_tab, _TAB_LABELS[3])
+        self._tab_widget.addTab(self._report_tab, _TAB_LABELS[4])
+        self._tab_widget.addTab(self._compare_tab, _TAB_LABELS[5])
 
-        self._open_buttons[(stack, code)] = open_btn
-        self._spec_rows[(stack, code)] = row
-        return row
+        layout.addWidget(self._tab_widget, 1)
 
-    # ── 文件查找 ──────────────────────────────────────────
+        # 工作空间有效时，首次刷新各 Tab
+        if self._adapter is not None:
+            self.refresh()
 
-    def _find_spec_file(self, stack: str, code: str) -> str:
-        """查找规范文件路径
+    # ── 公开 API ─────────────────────────────────────────
 
-        Args:
-            stack: 技术栈（plc/python）
-            code: 规范编号（如 905、210）
-
-        Returns:
-            规范文件绝对路径，未找到返回空字符串
-        """
-        if stack not in _STACK_SPECS:
-            return ""
-        _, rel_dir, _ = _STACK_SPECS[stack]
-        if not self._workspace_root:
-            return ""
-        spec_dir = os.path.join(self._workspace_root, rel_dir)
-        pattern = os.path.join(spec_dir, f"{code}_*.md")
-        matches = glob.glob(pattern)
-        if matches:
-            return matches[0]
-        return ""
-
-    # ── 交互 ─────────────────────────────────────────────
-
-    def _on_open_spec(self, stack: str, code: str) -> None:
-        """打开规范文件（调用系统默认程序）"""
-        path = self._find_spec_file(stack, code)
-        if not path:
-            log.warning("规范文件未找到: stack=%s, code=%s", stack, code)
+    def refresh(self) -> None:
+        """刷新所有 Tab 数据"""
+        if self._adapter is None:
+            log.warning("workspace_root 未注入，无法刷新")
             return
-        url = QUrl.fromLocalFile(path)
-        if not QDesktopServices.openUrl(url):
-            log.error("打开规范文件失败: %s", path)
+        # 概览与索引立即刷新（轻量）
+        self._overview_tab.refresh()
+        self._index_tab.refresh()
+        self._compare_tab.refresh()
+        # 健康检查/Frontmatter/报告 按需触发（用户点击对应按钮）
 
-    def _on_search_changed(self, text: str) -> None:
-        """搜索框文本变化时过滤规范行"""
-        keyword = text.strip().lower()
-        for (stack, code), row in self._spec_rows.items():
-            if not keyword:
-                row.setHidden(False)
-                continue
-            # 按编号/名称/技术栈匹配
-            name = dict(_STACK_SPECS[stack][2]).get(code, "")
-            match = (
-                keyword in code.lower()
-                or keyword in name.lower()
-                or keyword in stack.lower()
-            )
-            row.setHidden(not match)
-
-    def _on_refresh(self) -> None:
-        """刷新规范索引"""
+    def set_workspace_root(self, workspace_root: str) -> None:
+        """设置工作空间根目录并刷新所有 Tab"""
+        self._workspace_root = workspace_root
+        if not workspace_root:
+            self._adapter = None
+            log.warning("workspace_root 已清空")
+            return
         try:
-            if self._workspace_root:
-                index = self._index_service.build_index()
-                log.info("规范索引刷新完成: %d 条", len(index))
-                # 重新检查按钮启用状态
-                for entry in index:
-                    btn = self._open_buttons.get((entry.stack, entry.code))
-                    if btn is not None:
-                        btn.setEnabled(entry.exists)
-                        if not entry.exists:
-                            btn.setToolTip("未找到规范文件")
-                        else:
-                            btn.setToolTip("")
-            else:
-                log.warning("workspace_root 为空，无法刷新索引")
+            from auto_pm.ui.global_pages.spec_center_dto import SpecCenterAdapter as _Adapter
+
+            self._adapter = _Adapter(workspace=Path(workspace_root))
+            # 重新绑定到各 Tab
+            self._overview_tab._adapter = self._adapter
+            self._index_tab._adapter = self._adapter
+            self._check_tab._adapter = self._adapter
+            self._frontmatter_tab._adapter = self._adapter
+            self._report_tab._adapter = self._adapter
+            self._compare_tab._adapter = self._adapter
+            self.refresh()
         except Exception as e:
-            log.error("刷新规范索引失败: %s", e)
-
-    def _on_select_for_compare(self, stack: str, code: str) -> None:
-        """选择规范用于对比
-
-        通过查找对应的选择按钮状态判断选中与否，不依赖 sender()。
-        """
-        key = (stack, code)
-        select_btn = self.get_select_button(stack, code)
-        if select_btn is None:
-            return
-
-        if select_btn.isChecked():
-            if len(self._selected_for_compare) >= 2:
-                # 已选 2 个，取消新选择
-                select_btn.setChecked(False)
-                return
-            self._selected_for_compare.add(key)
-        else:
-            self._selected_for_compare.discard(key)
-
-        # 对比按钮仅在选择 2 个时启用
-        self._compare_btn.setEnabled(len(self._selected_for_compare) == 2)
-
-    def _on_compare(self) -> None:
-        """对比两个已选规范"""
-        if len(self._selected_for_compare) != 2:
-            return
-
-        keys = list(self._selected_for_compare)
-        (_stack1, code1), (_stack2, code2) = keys[0], keys[1]
-
-        try:
-            diff = self._index_service.compare(code1, code2)
-            self._show_diff_dialog(diff)
-        except FileNotFoundError as e:
-            QMessageBox.warning(self, "对比失败", f"规范文件不存在：\n{e}")
-        except Exception as e:
-            QMessageBox.critical(self, "对比失败", f"对比过程出错：\n{e}")
-
-    def _show_diff_dialog(self, diff: SpecDiffResult) -> None:
-        """展示对比结果对话框"""
-        msg = QMessageBox(self)
-        msg.setWindowTitle(f"规范对比: {diff.code1} vs {diff.code2}")
-        msg.setIcon(QMessageBox.Icon.Information)
-
-        if diff.same:
-            msg.setText(f"规范 {diff.code1} 与 {diff.code2} 内容完全相同。")
-        else:
-            text_parts = [
-                f"规范 {diff.code1} ({len(diff.lines1)} 行) vs {diff.code2} ({len(diff.lines2)} 行)",
-                "",
-                f"新增行（{diff.code2} 有而 {diff.code1} 无）：{len(diff.added)}",
-                f"删除行（{diff.code1} 有而 {diff.code2} 无）：{len(diff.removed)}",
-                "",
-                "— 新增行预览（前 10 行）—",
-                "\n".join(diff.added[:10]) if diff.added else "（无）",
-                "",
-                "— 删除行预览（前 10 行）—",
-                "\n".join(diff.removed[:10]) if diff.removed else "（无）",
-            ]
-            msg.setText("\n".join(text_parts))
-
-        msg.exec()
+            log.error("切换工作空间失败: %s", e)
+            self._adapter = None
 
     # ── 属性（便于测试访问） ─────────────────────────────
 
@@ -426,57 +193,108 @@ class SpecCenterView(QWidget):
         return self._workspace_root
 
     @property
-    def open_buttons(self) -> dict[tuple[str, str], QPushButton]:
-        """所有"打开"按钮：{(stack, code): QPushButton}"""
-        return self._open_buttons
-
-    def get_open_button(self, stack: str, code: str) -> QPushButton | None:
-        """获取指定规范项的"打开"按钮"""
-        return self._open_buttons.get((stack, code))
-
-    # M4-Iter3：新增属性
-    @property
-    def search_box(self) -> QLineEdit:
-        """搜索框"""
-        return self._search_box
+    def adapter(self) -> SpecCenterAdapter | None:
+        return self._adapter
 
     @property
-    def refresh_button(self) -> QPushButton:
-        """刷新按钮"""
-        return self._refresh_btn
+    def tab_widget(self) -> QTabWidget:
+        return self._tab_widget
 
     @property
-    def compare_button(self) -> QPushButton:
-        """对比按钮"""
-        return self._compare_btn
+    def overview_tab(self) -> OverviewTab:
+        return self._overview_tab
 
     @property
-    def spec_rows(self) -> dict[tuple[str, str], QWidget]:
-        """所有规范行：{(stack, code): QWidget}"""
-        return self._spec_rows
+    def index_tab(self) -> IndexTab:
+        return self._index_tab
 
     @property
-    def index_service(self) -> SpecIndexService:
-        """规范索引服务"""
-        return self._index_service
+    def check_tab(self) -> CheckTab:
+        return self._check_tab
 
-    def get_spec_row(self, stack: str, code: str) -> QWidget | None:
-        """获取指定规范项的行控件"""
-        return self._spec_rows.get((stack, code))
+    @property
+    def frontmatter_tab(self) -> FrontmatterTab:
+        return self._frontmatter_tab
 
-    def get_select_button(self, stack: str, code: str) -> QPushButton | None:
-        """获取指定规范项的"选择"按钮"""
-        row = self._spec_rows.get((stack, code))
-        if row is None:
-            return None
-        # 使用 findChildren 查找所有 QPushButton，返回文本为"选择"的第一个
-        for btn in row.findChildren(QPushButton):
-            if btn.text() == "选择":
-                return btn
-        return None
+    @property
+    def report_tab(self) -> ReportTab:
+        return self._report_tab
 
-    def set_workspace_root(self, workspace_root: str) -> None:
-        """设置工作空间根目录并刷新索引"""
-        self._workspace_root = workspace_root
-        self._index_service.set_workspace_root(workspace_root)
-        self._on_refresh()
+    @property
+    def compare_tab(self) -> CompareTab:
+        return self._compare_tab
+
+    def get_tab(self, index: int) -> QWidget | None:
+        """获取指定索引的 Tab（便于测试）"""
+        return self._tab_widget.widget(index)
+
+    @property
+    def tab_count(self) -> int:
+        return self._tab_widget.count()
+
+
+class _PlaceholderAdapter:
+    """workspace 为空时的占位 Adapter，所有方法返回空数据
+
+    避免在 workspace_root 未注入时初始化失败。
+    """
+
+    workspace: Path = Path()
+
+    def get_overview(self) -> SpecOverviewDTO:
+        from auto_pm.ui.global_pages.spec_center_dto import (
+            HealthSummaryDTO,
+            SpecOverviewDTO,
+        )
+        return SpecOverviewDTO(
+            spec_count=0,
+            domain_counts={},
+            lifecycle_counts={},
+            health_summary=HealthSummaryDTO(
+                error_count=0, warning_count=0, info_count=0, exit_code=0
+            ),
+        )
+
+    def list_entries(self, domain: str | None = None) -> list[SpecEntryDTO]:
+        return []
+
+    def preview_frontmatter(self, spec_id: str | None = None) -> list[FrontmatterPreviewDTO]:
+        return []
+
+    def run_checks(
+        self,
+        check_ids: list[str] | None = None,
+        auto_fix: bool = False,
+        dry_run: bool = False,
+    ) -> HealthCheckOutputDTO:
+        from auto_pm.ui.global_pages.spec_center_dto import HealthCheckOutputDTO
+        return HealthCheckOutputDTO(
+            results=[],
+            error_count=0,
+            warning_count=0,
+            info_count=0,
+            exit_code=0,
+            fix_results=[],
+        )
+
+    def generate_report(
+        self, fmt: str = "markdown", output_path: Path | None = None
+    ) -> ReportOutputDTO:
+        from auto_pm.ui.global_pages.spec_center_dto import ReportOutputDTO
+        return ReportOutputDTO(
+            fmt=fmt,
+            content="",
+            saved_path=Path(),
+        )
+
+    def compare_specs(
+        self, left_spec_id: str, right_spec_id: str
+    ) -> CompareResultDTO:
+        raise FileNotFoundError("workspace 未注入")
+
+    def read_spec_content(self, spec_id: str) -> str:
+        raise FileNotFoundError("workspace 未注入")
+
+    @property
+    def registry(self) -> "SpecRegistry":
+        raise FileNotFoundError("workspace 未注入")

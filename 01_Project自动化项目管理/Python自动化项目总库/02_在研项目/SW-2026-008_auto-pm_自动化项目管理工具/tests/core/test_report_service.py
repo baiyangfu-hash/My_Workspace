@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -318,22 +317,120 @@ class TestReportServiceIntegration:
             svc.get_project_overview()
 
 
-# ── get_spec_report 测试（M4-Iter2） ─────────────────────
+# ── get_spec_report 测试（V2.2 Week3：基于 spec_registry.json） ───
 
 
-def _create_spec_file(workspace: Path, stack: str, code: str, name: str = "规范") -> None:
-    """在工作空间下创建规范文件"""
-    if stack == "plc":
-        rel_dir = os.path.join("0100_PLC自动化", "00_通用规范", "PLC编程")
-    else:
-        rel_dir = os.path.join("01_Project自动化项目管理", "00_通用规范", "Python开发")
-    spec_dir = workspace / rel_dir
-    spec_dir.mkdir(parents=True, exist_ok=True)
-    (spec_dir / f"{code}_{name}.md").write_text(f"# {code} {name}", encoding="utf-8")
+_SAMPLE_SPECS: list[dict] = [
+    {
+        "spec_id": "LSP-905",
+        "title": "SCL编程规范",
+        "number": "905",
+        "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md",
+        "version": "V1.0.3",
+        "type_prefix": "LSP",
+        "domain": "plc",
+        "lifecycle": "stable",
+        "sub_domain": "PLC编程",
+        "tags": [],
+        "replaces": [],
+        "replaced_by": [],
+    },
+    {
+        "spec_id": "LSP-904",
+        "title": "SCL注释规范",
+        "number": "904",
+        "canonical_path": "0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP.md",
+        "version": "V1.2.0",
+        "type_prefix": "LSP",
+        "domain": "plc",
+        "lifecycle": "stable",
+        "sub_domain": "PLC编程",
+        "tags": [],
+        "replaces": [],
+        "replaced_by": [],
+    },
+    {
+        "spec_id": "CODE-210",
+        "title": "Python编程规范",
+        "number": "210",
+        "canonical_path": "01_Project自动化项目管理/00_通用规范/Python开发/210_Python编程规范_DEV.md",
+        "version": "V1.1.0",
+        "type_prefix": "CODE",
+        "domain": "python",
+        "lifecycle": "stable",
+        "sub_domain": "Python开发",
+        "tags": [],
+        "replaces": [],
+        "replaced_by": [],
+    },
+    {
+        "spec_id": "CODE-211",
+        "title": "Python代码审查规范",
+        "number": "211",
+        "canonical_path": "01_Project自动化项目管理/00_通用规范/Python开发/211_Python代码审查规范_DEV.md",
+        "version": "V1.0.0",
+        "type_prefix": "CODE",
+        "domain": "python",
+        "lifecycle": "stable",
+        "sub_domain": "Python开发",
+        "tags": [],
+        "replaces": [],
+        "replaced_by": [],
+    },
+]
+
+
+def _create_spec_registry(workspace: Path, specs: list[dict] | None = None) -> Path:
+    """在工作空间下创建 spec_registry.json
+
+    Args:
+        workspace: 工作空间根目录
+        specs: 规范列表（None 使用 _SAMPLE_SPECS）
+
+    Returns:
+        注册表文件路径
+    """
+    import json
+
+    registry_dir = workspace / "00_Obsidian_Base全局规范文件仓库"
+    registry_dir.mkdir(parents=True, exist_ok=True)
+    registry_path = registry_dir / "spec_registry.json"
+
+    specs_to_write = specs if specs is not None else _SAMPLE_SPECS
+    data = {
+        "version": "1.0.0",
+        "last_updated": "2026-06-30",
+        "workspace_root": str(workspace),
+        "domains": {
+            "pm": "项目管理域",
+            "plc": "PLC自动化域",
+            "python": "Python开发域",
+            "cross-domain": "跨域通用",
+        },
+        "lifecycle_states": {
+            "stable": "稳定",
+            "draft": "草稿",
+            "deprecated": "已废弃",
+            "archived": "已归档",
+        },
+        "specs": {s["spec_id"]: {k: v for k, v in s.items() if k != "spec_id"} for s in specs_to_write},
+    }
+    registry_path.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return registry_path
+
+
+def _create_spec_file_at(workspace: Path, canonical_path: str, content: str = "") -> Path:
+    """在 workspace 下按 canonical_path 创建规范文件"""
+    file_path = workspace / canonical_path
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(content or "# 规范\n\n测试内容\n", encoding="utf-8")
+    return file_path
 
 
 class TestGetSpecReport:
-    """get_spec_report() 测试"""
+    """get_spec_report() 测试（V2.2 Week3：基于 spec_registry.json）"""
 
     def test_raises_without_workspace_root(
         self, tmp_path: Path, db: DatabaseManager
@@ -345,78 +442,90 @@ class TestGetSpecReport:
         with pytest.raises(RuntimeError, match="未注入 workspace_root"):
             svc.get_spec_report()
 
-    def test_all_missing(self, tmp_path: Path, db: DatabaseManager) -> None:
-        """所有规范文件都不存在"""
+    def test_registry_not_found_returns_empty(self, tmp_path: Path, db: DatabaseManager) -> None:
+        """注册表不存在时返回空报告"""
         ps = ProjectService(str(tmp_path), db=db)
         cs = ChangeService(str(tmp_path), db=db)
         svc = ReportService(ps, cs, workspace_root=str(tmp_path), db=db)
 
         result = svc.get_spec_report()
-        assert result["total"] == 7  # 4 PLC + 3 Python
+        assert result["total"] == 0
         assert result["found"] == 0
-        assert result["missing"] == 7
-        assert len(result["missing_codes"]) == 7
-        assert "905" in result["missing_codes"]
-        assert "210" in result["missing_codes"]
+        assert result["missing"] == 0
+        assert result["missing_codes"] == []
+        assert result["by_stack"] == {}
 
-        # by_stack 结构
+    def test_all_missing(self, tmp_path: Path, db: DatabaseManager) -> None:
+        """注册表存在但规范文件都不存在"""
+        _create_spec_registry(tmp_path)  # 创建注册表，但不创建规范文件
+        ps = ProjectService(str(tmp_path), db=db)
+        cs = ChangeService(str(tmp_path), db=db)
+        svc = ReportService(ps, cs, workspace_root=str(tmp_path), db=db)
+
+        result = svc.get_spec_report()
+        # _SAMPLE_SPECS 共 4 个：2 PLC + 2 Python
+        assert result["total"] == 4
+        assert result["found"] == 0
+        assert result["missing"] == 4
+        assert len(result["missing_codes"]) == 4
+        # spec_id 格式为 LSP-XXX / CODE-XXX
+        assert "LSP-905" in result["missing_codes"]
+        assert "CODE-210" in result["missing_codes"]
+
+        # by_stack 按 domain 分组
         assert set(result["by_stack"].keys()) == {"plc", "python"}
-        assert result["by_stack"]["plc"]["total"] == 4
+        assert result["by_stack"]["plc"]["total"] == 2
         assert result["by_stack"]["plc"]["found"] == 0
-        assert len(result["by_stack"]["plc"]["missing"]) == 4
-        assert result["by_stack"]["python"]["total"] == 3
+        assert len(result["by_stack"]["plc"]["missing"]) == 2
+        assert result["by_stack"]["python"]["total"] == 2
         assert result["by_stack"]["python"]["found"] == 0
-        assert len(result["by_stack"]["python"]["missing"]) == 3
+        assert len(result["by_stack"]["python"]["missing"]) == 2
 
     def test_all_found(self, tmp_path: Path, db: DatabaseManager) -> None:
         """所有规范文件都存在"""
-        # 创建所有规范文件
-        _create_spec_file(tmp_path, "plc", "905", "SCL编程规范")
-        _create_spec_file(tmp_path, "plc", "904", "SCL注释规范")
-        _create_spec_file(tmp_path, "plc", "903", "定时器使用规范")
-        _create_spec_file(tmp_path, "plc", "906", "错误预防规则")
-        _create_spec_file(tmp_path, "python", "210", "Python编程规范")
-        _create_spec_file(tmp_path, "python", "211", "Python代码审查规范")
-        _create_spec_file(tmp_path, "python", "220", "Python项目打包规范")
+        _create_spec_registry(tmp_path)
+        # 按 canonical_path 创建所有规范文件
+        for spec in _SAMPLE_SPECS:
+            _create_spec_file_at(tmp_path, spec["canonical_path"])
 
         ps = ProjectService(str(tmp_path), db=db)
         cs = ChangeService(str(tmp_path), db=db)
         svc = ReportService(ps, cs, workspace_root=str(tmp_path), db=db)
 
         result = svc.get_spec_report()
-        assert result["total"] == 7
-        assert result["found"] == 7
+        assert result["total"] == 4
+        assert result["found"] == 4
         assert result["missing"] == 0
         assert result["missing_codes"] == []
-        assert result["by_stack"]["plc"]["found"] == 4
+        assert result["by_stack"]["plc"]["found"] == 2
         assert result["by_stack"]["plc"]["missing"] == []
-        assert result["by_stack"]["python"]["found"] == 3
+        assert result["by_stack"]["python"]["found"] == 2
         assert result["by_stack"]["python"]["missing"] == []
 
     def test_partial_found(self, tmp_path: Path, db: DatabaseManager) -> None:
         """部分规范文件存在"""
-        # 仅创建 PLC 905 和 Python 210
-        _create_spec_file(tmp_path, "plc", "905")
-        _create_spec_file(tmp_path, "python", "210")
+        _create_spec_registry(tmp_path)
+        # 仅创建 LSP-905 和 CODE-210
+        _create_spec_file_at(tmp_path, "0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md")
+        _create_spec_file_at(tmp_path, "01_Project自动化项目管理/00_通用规范/Python开发/210_Python编程规范_DEV.md")
 
         ps = ProjectService(str(tmp_path), db=db)
         cs = ChangeService(str(tmp_path), db=db)
         svc = ReportService(ps, cs, workspace_root=str(tmp_path), db=db)
 
         result = svc.get_spec_report()
-        assert result["total"] == 7
+        assert result["total"] == 4
         assert result["found"] == 2
-        assert result["missing"] == 5
-        assert "904" in result["missing_codes"]
-        assert "903" in result["missing_codes"]
-        assert "906" in result["missing_codes"]
-        assert "211" in result["missing_codes"]
-        assert "220" in result["missing_codes"]
-        assert "905" not in result["missing_codes"]
-        assert "210" not in result["missing_codes"]
+        assert result["missing"] == 2
+        # 缺失的是 LSP-904 和 CODE-211
+        assert "LSP-904" in result["missing_codes"]
+        assert "CODE-211" in result["missing_codes"]
+        assert "LSP-905" not in result["missing_codes"]
+        assert "CODE-210" not in result["missing_codes"]
 
     def test_return_structure_keys(self, tmp_path: Path, db: DatabaseManager) -> None:
         """返回结构包含所有必需 key"""
+        _create_spec_registry(tmp_path)
         ps = ProjectService(str(tmp_path), db=db)
         cs = ChangeService(str(tmp_path), db=db)
         svc = ReportService(ps, cs, workspace_root=str(tmp_path), db=db)
