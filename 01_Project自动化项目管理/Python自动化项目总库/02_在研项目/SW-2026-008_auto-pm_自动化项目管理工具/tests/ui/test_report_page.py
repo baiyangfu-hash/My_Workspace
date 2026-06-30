@@ -105,6 +105,7 @@ def _seed_data(
     changes: list[ChangeSummary] | None = None,
 ) -> None:
     """预置项目和变更数据到 DB"""
+    assert project_service._repo is not None
     for r in projects:
         project_service._repo.upsert(r)
     if changes:

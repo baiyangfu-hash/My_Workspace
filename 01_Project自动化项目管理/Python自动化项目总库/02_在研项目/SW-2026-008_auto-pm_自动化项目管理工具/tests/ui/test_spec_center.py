@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -54,7 +55,7 @@ from auto_pm.ui.global_pages.spec_center_tabs import (  # noqa: E402
 
 # ── 测试用样本数据 ───────────────────────────────────────
 
-_SAMPLE_SPECS: list[dict] = [
+_SAMPLE_SPECS: list[dict[str, Any]] = [
     {
         "spec_id": "LSP-905",
         "title": "SCL编程规范",
@@ -230,7 +231,7 @@ def _create_spec_file(spec_dir: Path, code: str, name_suffix: str, content: str 
     return file_path
 
 
-def _create_registry(workspace: Path, specs: list[dict] | None = None) -> Path:
+def _create_registry(workspace: Path, specs: list[dict[str, Any]] | None = None) -> Path:
     """在工作空间下创建 spec_registry.json"""
     registry_dir = workspace / "00_Obsidian_Base全局规范文件仓库"
     registry_dir.mkdir(parents=True, exist_ok=True)
@@ -388,7 +389,7 @@ class TestSpecCenterViewSetWorkspace:
     ) -> None:
         """set_workspace_root 应创建新 adapter"""
         view = SpecCenterView()
-        assert view.adapter is None
+        assert bool(view.adapter is None)
 
         view.set_workspace_root(str(spec_workspace))
         assert view.adapter is not None
@@ -401,7 +402,7 @@ class TestSpecCenterViewSetWorkspace:
     ) -> None:
         """set_workspace_root 传空字符串应清空 adapter"""
         view = SpecCenterView(str(spec_workspace))
-        assert view.adapter is not None
+        assert bool(view.adapter is not None)
 
         view.set_workspace_root("")
         assert view.adapter is None
@@ -484,8 +485,10 @@ class TestIndexTab:
         assert "LSP-905" in tab.spec_rows
         assert "CODE-210" in tab.spec_rows
         # 文件存在的按钮启用，不存在禁用
-        assert tab.get_open_button("LSP-905").isEnabled() is True
-        assert tab.get_open_button("CODE-210").isEnabled() is False
+        btn_905 = tab.get_open_button("LSP-905")
+        assert btn_905 is not None and btn_905.isEnabled() is True
+        btn_210 = tab.get_open_button("CODE-210")
+        assert btn_210 is not None and btn_210.isEnabled() is False
         tab.deleteLater()
         qapp.processEvents()
 
@@ -507,9 +510,12 @@ class TestIndexTab:
         tab.search_box.setText("905")
         qapp.processEvents()
 
-        assert tab.get_spec_row("LSP-905").isHidden() is False
-        assert tab.get_spec_row("LSP-904").isHidden() is True
-        assert tab.get_spec_row("CODE-210").isHidden() is True
+        row = tab.get_spec_row("LSP-905")
+        assert row is not None and row.isHidden() is False
+        row = tab.get_spec_row("LSP-904")
+        assert row is not None and row.isHidden() is True
+        row = tab.get_spec_row("CODE-210")
+        assert row is not None and row.isHidden() is True
         tab.deleteLater()
         qapp.processEvents()
 
@@ -528,12 +534,15 @@ class TestIndexTab:
 
         tab.search_box.setText("plc")
         qapp.processEvents()
-        assert tab.get_spec_row("CODE-210").isHidden() is True
+        row = tab.get_spec_row("CODE-210")
+        assert row is not None and row.isHidden() is True
 
         tab.search_box.setText("")
         qapp.processEvents()
-        assert tab.get_spec_row("LSP-905").isHidden() is False
-        assert tab.get_spec_row("CODE-210").isHidden() is False
+        row = tab.get_spec_row("LSP-905")
+        assert row is not None and row.isHidden() is False
+        row = tab.get_spec_row("CODE-210")
+        assert row is not None and row.isHidden() is False
         tab.deleteLater()
         qapp.processEvents()
 
@@ -555,9 +564,12 @@ class TestIndexTab:
         qapp.processEvents()
 
         # 两个 SCL 规范可见，Python 不可见
-        assert tab.get_spec_row("LSP-905").isHidden() is False
-        assert tab.get_spec_row("LSP-904").isHidden() is False
-        assert tab.get_spec_row("CODE-210").isHidden() is True
+        row = tab.get_spec_row("LSP-905")
+        assert row is not None and row.isHidden() is False
+        row = tab.get_spec_row("LSP-904")
+        assert row is not None and row.isHidden() is False
+        row = tab.get_spec_row("CODE-210")
+        assert row is not None and row.isHidden() is True
         tab.deleteLater()
         qapp.processEvents()
 
@@ -655,8 +667,10 @@ class TestFrontmatterTab:
         assert tab.total_label.text() == "总数: 3"
         assert tab.pending_label.text() == "待添加: 1"
         # 第一列应为 spec_id
-        assert tab.table.item(0, 0).text() == "LSP-905"
-        assert tab.table.item(1, 0).text() == "CODE-210"
+        item_0 = tab.table.item(0, 0)
+        assert item_0 is not None and item_0.text() == "LSP-905"
+        item_1 = tab.table.item(1, 0)
+        assert item_1 is not None and item_1.text() == "CODE-210"
         tab.deleteLater()
         qapp.processEvents()
 
@@ -836,7 +850,8 @@ class TestSpecCenterViewIntegration:
         assert "CODE-211" in index.spec_rows
         # 所有规范文件都存在，按钮应启用
         for spec_id in ["LSP-905", "LSP-904", "CODE-210", "CODE-211"]:
-            assert index.get_open_button(spec_id).isEnabled() is True
+            btn = index.get_open_button(spec_id)
+            assert btn is not None and btn.isEnabled() is True
         view.deleteLater()
         qapp.processEvents()
 

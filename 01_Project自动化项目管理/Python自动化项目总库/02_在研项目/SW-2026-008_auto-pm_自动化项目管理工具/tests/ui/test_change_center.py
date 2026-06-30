@@ -252,7 +252,7 @@ class TestChangeDetailPanel:
         qapp.processEvents()
 
         # 初始为空状态
-        assert panel._current_change is None
+        assert bool(panel._current_change is None)
         assert panel._empty_hint.isVisibleTo(panel) is True
 
         # 加载详情
@@ -273,7 +273,7 @@ class TestChangeDetailPanel:
         panel = ChangeDetailPanel(change_service)
         panel.load_change(num)
         qapp.processEvents()
-        assert panel._current_change is not None
+        assert bool(panel._current_change is not None)
         assert panel._empty_hint.isVisibleTo(panel) is False
 
         # 清空
@@ -454,7 +454,8 @@ class TestChangeCenterView:
 
         # 详情应重新加载，状态变为 submitted
         assert view._detail_panel._current_change is not None
-        assert view._detail_panel._current_change.status == "submitted"
+        current_status: str = view._detail_panel._current_change.status
+        assert current_status == "submitted"
         view.deleteLater()
         qapp.processEvents()
 

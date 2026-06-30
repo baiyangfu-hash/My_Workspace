@@ -295,6 +295,7 @@ class TestReworkFlow:
         # 走到 accepting 状态
         svc.transition_status(chg_number, "pending_acceptance", approver="张三")
         cr = svc.transition_status(chg_number, "accepting", approver="李四")
+        assert cr is not None
         assert cr.status == "accepting"
 
         # 验收不通过，返工
@@ -303,14 +304,17 @@ class TestReworkFlow:
             approver="李四",
             comment="验证不通过，需修改文档格式",
         )
+        assert cr is not None
         assert cr.status == "implementing"
 
         # 重新提交验收
         cr = svc.transition_status(chg_number, "pending_acceptance", approver="张三")
+        assert cr is not None
         assert cr.status == "pending_acceptance"
 
         # 重新验收
         cr = svc.transition_status(chg_number, "accepting", approver="李四")
+        assert cr is not None
         assert cr.status == "accepting"
 
         # 验收通过
@@ -319,6 +323,7 @@ class TestReworkFlow:
             approver="李四",
             verification_conclusion="全部通过",
         )
+        assert cr is not None
         assert cr.status == "completed"
 
     def test_rework_records_comment(self, acceptance_workspace: str) -> None:
@@ -357,6 +362,7 @@ class TestAcceptanceGuards:
         chg_number = "CHG-DOCU-2026-001"
 
         cr = svc.transition_status(chg_number, "pending_acceptance", approver="张三")
+        assert cr is not None
         assert cr.status == "pending_acceptance"
 
     def test_pending_acceptance_guard_fails_without_section9(
@@ -379,6 +385,7 @@ class TestAcceptanceGuards:
         svc.transition_status(chg_number, "pending_acceptance", approver="张三")
         # 无 approver/comment 也应通过
         cr = svc.transition_status(chg_number, "accepting")
+        assert cr is not None
         assert cr.status == "accepting"
 
     def test_completed_guard_requires_all_pass(
@@ -415,6 +422,7 @@ class TestAcceptanceGuards:
 
         # 无 comment 也应通过（返工无额外门禁）
         cr = svc.transition_status(chg_number, "implementing", approver="李四")
+        assert cr is not None
         assert cr.status == "implementing"
 
 

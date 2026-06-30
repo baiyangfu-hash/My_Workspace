@@ -16,8 +16,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 import pytest
 
@@ -67,7 +68,7 @@ def change_workspace(tmp_path: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def _patch_message_boxes() -> None:
+def _patch_message_boxes() -> Generator[None, None, None]:
     """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试
 
     MainWindow._on_new_change 创建 CreateChangeDialog 时会调用 _load_projects，
@@ -81,18 +82,18 @@ def _patch_message_boxes() -> None:
     QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
     QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
     QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
-    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+    QMessageBox.question = staticmethod(  # type: ignore[method-assign]
         lambda *a, **kw: QMessageBox.StandardButton.Yes
     )
     yield
-    QMessageBox.critical = orig_critical  # type: ignore[assignment]
-    QMessageBox.warning = orig_warning  # type: ignore[assignment]
-    QMessageBox.information = orig_information  # type: ignore[assignment]
-    QMessageBox.question = orig_question  # type: ignore[assignment]
+    QMessageBox.critical = orig_critical  # type: ignore[method-assign]
+    QMessageBox.warning = orig_warning  # type: ignore[method-assign]
+    QMessageBox.information = orig_information  # type: ignore[method-assign]
+    QMessageBox.question = orig_question  # type: ignore[method-assign]
 
 
 @pytest.fixture
-def main_window(qapp: QApplication, change_workspace: Path) -> MainWindow:
+def main_window(qapp: QApplication, change_workspace: Path) -> Generator[MainWindow, None, None]:
     """创建 MainWindow 实例，指向临时工作空间
 
     强制变更中心使用文件扫描（非 DB 缓存），因为测试环境中 DB 未同步。
@@ -176,7 +177,7 @@ def _find_new_button(window: MainWindow) -> QToolButton | None:
 def _schedule_dialog_interaction(
     qapp: QApplication,
     dialog_type: type,
-    callback: Callable,
+    callback: Callable[[Any], None],
     max_retries: int = 100,
 ) -> None:
     """调度在模态对话框出现时执行回调
@@ -237,6 +238,7 @@ class TestChangeTabInteractive:
 
         tab = main_window._workspace_view._change_tab
         assert tab is not None
+        assert tab is not None
         cards = _get_cards(tab)
         assert len(cards) == 2
         assert tab._empty_hint.isVisibleTo(tab) is False
@@ -255,6 +257,8 @@ class TestChangeTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._change_tab
+        assert tab is not None
+        assert tab is not None
         assert len(_get_cards(tab)) == 2
 
         # 切换到"草稿"（index=1）
@@ -289,6 +293,8 @@ class TestChangeTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._change_tab
+        assert tab is not None
+        assert tab is not None
         assert len(_get_cards(tab)) == 2
 
         # 找到 PLC 领域对应的下拉索引
@@ -319,6 +325,8 @@ class TestChangeTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._change_tab
+        assert tab is not None
+        assert tab is not None
         found: list[CreateChangeDialog] = []
 
         def on_dialog(dlg: CreateChangeDialog) -> None:
@@ -344,6 +352,7 @@ class TestChangeTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._change_tab
+        assert tab is not None
         cards = _get_cards(tab)
         assert len(cards) == 1
 
@@ -376,6 +385,7 @@ class TestChangeTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._change_tab
+        assert tab is not None
         cards = _get_cards(tab)
         assert len(cards) == 1
         card = cards[0]
@@ -407,6 +417,7 @@ class TestChangeTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._change_tab
+        assert tab is not None
         cards = _get_cards(tab)
         assert len(cards) == 0
         assert tab._empty_hint.isVisibleTo(tab) is True

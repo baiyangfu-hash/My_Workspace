@@ -20,11 +20,11 @@ from PySide6.QtWidgets import (
 
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
+from auto_pm.ui.vartable.vartable_tab import VartableTab
 from auto_pm.ui.workspace.change_tab import ChangeTab
 from auto_pm.ui.workspace.check_tab import CheckTab
 from auto_pm.ui.workspace.doc_tab import DocTab
 from auto_pm.ui.workspace.overview_tab import OverviewTab
-from auto_pm.ui.workspace.vartable_tab import VartableTab
 
 # 项目工作区 Tab 标识 → 中文标签
 WORKSPACE_TAB_LABELS: dict[str, str] = {
@@ -48,7 +48,7 @@ WORKSPACE_TAB_ORDER: list[str] = [
 WORKSPACE_TAB_VERSION: dict[str, str] = {
     "overview": "V2.0",
     "change": "V2.1",
-    "vartable": "V2.3",  # M4-Iter1: 已实现基础功能
+    "vartable": "V2.3",  # V2.3 Week4: 变量编辑器 + 项目工作区变量表 Tab
     "doc": "V2.0",
     "check": "V2.0",
 }
@@ -200,13 +200,13 @@ class ProjectWorkspaceView(QWidget):
             return None
 
     def _build_vartable_tab(self) -> VartableTab | None:
-        """构建变量表 Tab（M4-Iter1）
+        """构建变量表 Tab（V2.3 Week4）
 
         VartableTab 不依赖 workspace_root，但需要项目路径才能加载变量表。
         项目路径在 set_project() 时通过 set_project_path() 传入。
         """
         try:
-            tab = VartableTab(self)
+            tab = VartableTab(parent=self)
             # 如果已有项目路径，立即加载
             if self._project and self._project.path:
                 tab.set_project_path(self._project.path)
@@ -322,7 +322,7 @@ class ProjectWorkspaceView(QWidget):
             self._check_tab.load_project(project.project_id, project.path)
         if self._doc_tab is not None:
             self._doc_tab.load_project(project.project_id, project.path)
-        # M4-Iter1: 变量表 Tab 加载项目路径
+        # V2.3 Week4: 变量表 Tab 加载项目路径
         if self._vartable_tab is not None:
             self._vartable_tab.set_project_path(project.path)
         log.info("工作区加载项目: %s", project.project_id)

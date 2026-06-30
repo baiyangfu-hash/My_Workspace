@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import gc
 import os
+from collections.abc import Generator
 
 import pytest
 
@@ -19,7 +20,7 @@ from auto_pm.db.repository import ChangeRequestRepository
 
 
 @pytest.fixture
-def svc_with_db(workspace_root: str) -> tuple[ChangeService, DatabaseManager]:
+def svc_with_db(workspace_root: str) -> Generator[tuple[ChangeService, DatabaseManager], None, None]:
     """创建带 DB 的 ChangeService
 
     依赖 conftest.py 的 workspace_root fixture（创建 TEST-2026-001 项目结构）。
@@ -45,7 +46,9 @@ def svc_with_db(workspace_root: str) -> tuple[ChangeService, DatabaseManager]:
 
 
 @pytest.fixture
-def created_change(svc_with_db: tuple[ChangeService, DatabaseManager], project_id: str):
+def created_change(
+    svc_with_db: tuple[ChangeService, DatabaseManager], project_id: str
+) -> Generator[tuple[str, ChangeService, DatabaseManager], None, None]:
     """创建一个测试变更单并返回 (change_number, svc, db)
 
     测试结束后自动清理变更单文件。

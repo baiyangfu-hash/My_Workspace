@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import yaml
 from click.testing import CliRunner
@@ -62,7 +62,7 @@ class TestRetrofitPythonSrcPath:
 
     @patch("auto_pm.cli.project.ProjectService")
     def test_retrofit_python_writes_python_tool(
-        self, mock_svc_class, tmp_path: Path
+        self, mock_svc_class: MagicMock, tmp_path: Path
     ) -> None:
         """Python 项目 retrofit 应写入 templates/python-tool（而非 python-standard）"""
         workspace = tmp_path
@@ -99,7 +99,7 @@ class TestRetrofitPythonSrcPath:
 
     @patch("auto_pm.cli.project.ProjectService")
     def test_retrofit_python_not_python_standard(
-        self, mock_svc_class, tmp_path: Path
+        self, mock_svc_class: MagicMock, tmp_path: Path
     ) -> None:
         """Python 项目 retrofit 不应写入 templates/python-standard"""
         workspace = tmp_path

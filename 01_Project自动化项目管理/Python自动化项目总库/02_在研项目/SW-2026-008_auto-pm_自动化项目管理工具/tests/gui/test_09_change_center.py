@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -26,36 +27,41 @@ from PySide6.QtWidgets import QDialog  # noqa: E402
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
 from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
 
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QApplication
+
+    from auto_pm.ui.main_window import MainWindow
+
 
 @pytest.mark.gui
 class TestChangeCenter:
     """变更中心 GUI 集成测试"""
 
-    def test_switch_to_change_center(self, main_window, app):
+    def test_switch_to_change_center(self, main_window: MainWindow, app: QApplication) -> None:
         """点击导航切换到变更中心，验证页面栈索引为 3"""
         click_nav_page(main_window, "change_center", app)
         assert_stack_index(main_window, 3)
 
-    def test_change_center_initialized(self, main_window, app):
+    def test_change_center_initialized(self, main_window: MainWindow, app: QApplication) -> None:
         """验证变更中心视图已初始化"""
         click_nav_page(main_window, "change_center", app)
         assert main_window._change_center_view is not None, "变更中心视图未初始化"
 
-    def test_change_center_list_panel(self, main_window, app):
+    def test_change_center_list_panel(self, main_window: MainWindow, app: QApplication) -> None:
         """验证变更中心列表面板已初始化"""
         click_nav_page(main_window, "change_center", app)
         view = main_window._change_center_view
         assert view is not None
         assert view._list_panel is not None, "变更列表面板未初始化"
 
-    def test_change_center_detail_panel(self, main_window, app):
+    def test_change_center_detail_panel(self, main_window: MainWindow, app: QApplication) -> None:
         """验证变更中心详情面板已初始化"""
         click_nav_page(main_window, "change_center", app)
         view = main_window._change_center_view
         assert view is not None
         assert view._detail_panel is not None, "变更详情面板未初始化"
 
-    def test_status_tab_switch(self, main_window, app):
+    def test_status_tab_switch(self, main_window: MainWindow, app: QApplication) -> None:
         """遍历状态 Tab 按钮逐个点击，验证不崩溃"""
         click_nav_page(main_window, "change_center", app)
         view = main_window._change_center_view
@@ -69,7 +75,7 @@ class TestChangeCenter:
             app.processEvents()
             QTest.qWait(200)
 
-    def test_create_change_dialog_from_center(self, main_window, app):
+    def test_create_change_dialog_from_center(self, main_window: MainWindow, app: QApplication) -> None:
         """点击创建变更单按钮，验证对话框弹出后关闭
 
         注意：CreateChangeDialog 使用 dialog.exec() 模态阻塞，
@@ -108,7 +114,7 @@ class TestChangeCenter:
 
         assert found[0], "创建变更单对话框未弹出"
 
-    def test_refresh_change_center(self, main_window, app):
+    def test_refresh_change_center(self, main_window: MainWindow, app: QApplication) -> None:
         """调用变更中心 refresh()，验证不崩溃"""
         click_nav_page(main_window, "change_center", app)
         view = main_window._change_center_view

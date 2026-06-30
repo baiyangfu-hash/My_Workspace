@@ -88,8 +88,9 @@ class TestSpecRegistryAddUpdate:
             lifecycle="stable",
         )
         reg.add_spec("PY-2026-099", new_spec)
-        assert reg.get_spec("PY-2026-099") is not None
-        assert reg.get_spec("PY-2026-099").title == "测试规范"
+        spec = reg.get_spec("PY-2026-099")
+        assert spec is not None
+        assert spec.title == "测试规范"
 
     def test_update_spec(self, populated_workspace: Path) -> None:
         reg = SpecRegistry(populated_workspace)
@@ -103,8 +104,10 @@ class TestSpecRegistryAddUpdate:
             lifecycle="stable",
         )
         reg.update_spec("PM-2026-001", updated)
-        assert reg.get_spec("PM-2026-001").title == "更新后的项目管理规范"
-        assert reg.get_spec("PM-2026-001").version == "V2.0.0"
+        spec = reg.get_spec("PM-2026-001")
+        assert spec is not None
+        assert spec.title == "更新后的项目管理规范"
+        assert spec.version == "V2.0.0"
 
     def test_update_nonexistent_does_nothing(self, populated_workspace: Path) -> None:
         reg = SpecRegistry(populated_workspace)
@@ -131,8 +134,9 @@ class TestSpecRegistrySave:
 
         reg2 = SpecRegistry(populated_workspace)
         reg2.load()
-        assert reg2.get_spec("PY-2026-099") is not None
-        assert reg2.get_spec("PY-2026-099").title == "测试保存"
+        spec2 = reg2.get_spec("PY-2026-099")
+        assert spec2 is not None
+        assert spec2.title == "测试保存"
 
     def test_save_preserves_raw_fields(self, populated_workspace: Path) -> None:
         reg = SpecRegistry(populated_workspace)

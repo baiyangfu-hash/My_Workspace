@@ -236,12 +236,12 @@ class TestGroupHeader:
 
         # 模拟鼠标左键点击 → 折叠（使用带 globalPos 的非弃用构造函数）
         event = QMouseEvent(
-            QEvent.MouseButtonPress,
+            QEvent.Type.MouseButtonPress,
             QPointF(5, 5),
             QPointF(5, 5),
-            Qt.LeftButton,
-            Qt.LeftButton,
-            Qt.NoModifier,
+            Qt.MouseButton.LeftButton,
+            Qt.MouseButton.LeftButton,
+            Qt.KeyboardModifier.NoModifier,
         )
         header.mousePressEvent(event)
         assert received == [False]
@@ -686,7 +686,9 @@ class TestProjectTableView:
         table.set_projects([proj], {dto.project_id: dto.change_count})
 
         # 变更数列（index 6）应显示 7
-        assert table.item(0, 6).text() == "7"
+        change_item = table.item(0, 6)
+        assert change_item is not None
+        assert change_item.text() == "7"
         table.deleteLater()
         qapp.processEvents()
 

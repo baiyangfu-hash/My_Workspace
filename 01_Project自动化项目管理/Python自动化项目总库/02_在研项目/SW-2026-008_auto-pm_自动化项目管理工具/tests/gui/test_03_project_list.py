@@ -4,7 +4,10 @@
 项目查询等核心交互行为。
 """
 
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -17,12 +20,17 @@ from tests.gui.helpers.interactions import (
     switch_view_mode,
 )
 
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QApplication
+
+    from auto_pm.ui.main_window import MainWindow
+
 
 @pytest.mark.gui
 class TestProjectList:
     """项目列表交互测试"""
 
-    def test_search_by_id(self, main_window, app, test_project_id):
+    def test_search_by_id(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """按项目编号搜索，验证 _filtered_projects 中包含该项目"""
         search_projects(main_window, test_project_id, app)
         plv = main_window._project_list_view
@@ -31,7 +39,7 @@ class TestProjectList:
             f"搜索 {test_project_id} 后 _filtered_projects 未包含该项目，实际: {ids}"
         )
 
-    def test_search_no_result(self, main_window, app):
+    def test_search_no_result(self, main_window: MainWindow, app: QApplication) -> None:
         """搜索不存在的关键字 'ZZZZZ_NOT_EXIST'，验证 _filtered_projects 为空"""
         search_projects(main_window, "ZZZZZ_NOT_EXIST", app)
         plv = main_window._project_list_view
@@ -40,7 +48,7 @@ class TestProjectList:
             f"实际数量: {len(plv._filtered_projects)}"
         )
 
-    def test_search_clear(self, main_window, app, test_project_id):
+    def test_search_clear(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """清空搜索后，验证 _filtered_projects 恢复（包含测试项目或非空）"""
         # 先搜索缩小范围
         search_projects(main_window, test_project_id, app)
@@ -60,7 +68,7 @@ class TestProjectList:
             f"清空搜索后搜索框文本预期为空，实际 '{main_window._search_edit.text()}'"
         )
 
-    def test_filter_business_line(self, main_window, app):
+    def test_filter_business_line(self, main_window: MainWindow, app: QApplication) -> None:
         """切换 _business_combo，验证不崩溃且筛选状态更新"""
         combo = main_window._business_combo
 
@@ -83,13 +91,13 @@ class TestProjectList:
             "业务线切换后 _filtered_projects 为 None（不应发生）"
         )
 
-    def test_switch_to_list_view(self, main_window, app):
+    def test_switch_to_list_view(self, main_window: MainWindow, app: QApplication) -> None:
         """切换到列表视图，验证 _content_stack.currentIndex()==1"""
         switch_view_mode(main_window, "list", app)
         idx = main_window._project_list_view._content_stack.currentIndex()
         assert idx == 1, f"切换列表视图后 _content_stack 索引预期 1，实际 {idx}"
 
-    def test_switch_to_card_view(self, main_window, app):
+    def test_switch_to_card_view(self, main_window: MainWindow, app: QApplication) -> None:
         """先切 list 再切 card，验证 _content_stack.currentIndex()==0"""
         switch_view_mode(main_window, "list", app)
         idx_after_list = main_window._project_list_view._content_stack.currentIndex()
@@ -99,7 +107,7 @@ class TestProjectList:
         idx_after_card = main_window._project_list_view._content_stack.currentIndex()
         assert idx_after_card == 0, f"切 card 后索引预期 0，实际 {idx_after_card}"
 
-    def test_group_mode_switch(self, main_window, app):
+    def test_group_mode_switch(self, main_window: MainWindow, app: QApplication) -> None:
         """切换 4 种分组模式，验证不崩溃"""
         modes = ["总库+业务线", "总库+阶段", "业务线", "阶段"]
         for mode_text in modes:
@@ -114,7 +122,7 @@ class TestProjectList:
             "分组模式切换后 _filtered_projects 为 None（不应发生）"
         )
 
-    def test_get_test_project(self, main_window, app, test_project_id):
+    def test_get_test_project(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """验证 get_project(test_project_id) 返回非 None"""
         proj = main_window._project_list_view.get_project(test_project_id)
         assert proj is not None, (

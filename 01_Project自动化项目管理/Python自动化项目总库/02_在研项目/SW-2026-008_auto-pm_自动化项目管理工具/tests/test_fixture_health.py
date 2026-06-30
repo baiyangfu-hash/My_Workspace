@@ -98,7 +98,7 @@ def _body_contains_assert(stmts: list[ast.stmt]) -> bool:
 # ── AST 分析工具 ──────────────────────────────────────────
 
 
-def _extract_functions(source: str) -> dict[str, ast.FunctionDef]:
+def _extract_functions(source: str) -> dict[str, ast.FunctionDef | ast.AsyncFunctionDef]:
     """提取源码中所有函数定义，返回 {函数名: AST 节点}。"""
     try:
         tree = ast.parse(source)
@@ -118,6 +118,8 @@ def _extract_fixtures(source: str) -> list[tuple[str, ast.FunctionDef]]:
     # 排除创建规范文件/报告等非项目目录的辅助函数
     exclude_hints = ("spec_file", "spec_dir", "create_spec", "report", "scan_log")
     for name, node in funcs.items():
+        if not isinstance(node, ast.FunctionDef):
+            continue
         # 检查是否是 fixture（有 @pytest.fixture 装饰器）
         is_fixture = any(
             isinstance(d, ast.Attribute) and d.attr == "fixture"
@@ -137,7 +139,7 @@ def _extract_fixtures(source: str) -> list[tuple[str, ast.FunctionDef]]:
     return fixtures
 
 
-def _calls_mkdir(node: ast.FunctionDef) -> bool:
+def _calls_mkdir(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     """检查函数 AST 是否包含 mkdir/makedirs 调用（创建目录）。"""
     for child in ast.walk(node):
         if isinstance(child, ast.Attribute) and child.attr in ("mkdir", "makedirs"):
@@ -159,7 +161,7 @@ def _extract_strings_from_node(node: ast.AST) -> list[str]:
     return strings
 
 
-def _creates_marker_file(node: ast.FunctionDef) -> bool:
+def _creates_marker_file(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     """检查函数 AST 是否创建项目标志文件。
 
     检测 write_text/open 调用中是否包含标志文件名模式（包括 f-string）。
@@ -187,7 +189,7 @@ def _creates_marker_file(node: ast.FunctionDef) -> bool:
     return False
 
 
-def _get_called_functions(node: ast.FunctionDef) -> list[str]:
+def _get_called_functions(node: ast.FunctionDef | ast.AsyncFunctionDef) -> list[str]:
     """提取函数 AST 中调用的所有函数名（用于递归检查辅助函数）。"""
     called: list[str] = []
     for child in ast.walk(node):
@@ -201,8 +203,8 @@ def _get_called_functions(node: ast.FunctionDef) -> list[str]:
 
 
 def _fixture_creates_dir_with_marker(
-    node: ast.FunctionDef,
-    all_funcs: dict[str, ast.FunctionDef],
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    all_funcs: dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
     depth: int = 0,
     max_depth: int = 2,
 ) -> tuple[bool, bool]:

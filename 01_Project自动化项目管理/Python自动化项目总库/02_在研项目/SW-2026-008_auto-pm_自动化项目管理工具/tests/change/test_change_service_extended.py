@@ -167,7 +167,7 @@ def workspace_with_chg(tmp_path: Path) -> str:
 
 
 @pytest.fixture
-def workspace_and_db(tmp_path: Path):
+def workspace_and_db(tmp_path: Path) -> tuple[str, DatabaseManager, str]:
     """工作空间 + DB，变更单文件和 DB 缓存均已就绪
 
     Returns:
@@ -371,7 +371,7 @@ class TestUpdateChangeRequest:
         # change_number 是位置参数，通过 kwargs 传入会触发 TypeError
         with pytest.raises(TypeError, match="multiple values"):
             svc.update_change_request(
-                "CHG-DOCU-2026-001", change_number="CHG-DOCU-2026-999"
+                "CHG-DOCU-2026-001", change_number="CHG-DOCU-2026-999"  # type: ignore[misc]
             )
 
     def test_update_protected_project_id_raises(
@@ -427,7 +427,7 @@ class TestUpdateChangeRequest:
         # 必要性未被破坏
         assert cr.necessity == "测试变更必要性描述"
 
-    def test_update_syncs_db_cache(self, workspace_and_db) -> None:
+    def test_update_syncs_db_cache(self, workspace_and_db: tuple[str, DatabaseManager, str]) -> None:
         """修改后 DB 缓存同步更新"""
         workspace, db, _ = workspace_and_db
         svc = ChangeService(workspace, db=db)
@@ -472,7 +472,7 @@ class TestDeleteChangeRequest:
         result = svc.delete_change_request("CHG-DOCU-9999-999")
         assert result is False
 
-    def test_delete_removes_db_cache(self, workspace_and_db) -> None:
+    def test_delete_removes_db_cache(self, workspace_and_db: tuple[str, DatabaseManager, str]) -> None:
         """删除后 DB 缓存也清除"""
         workspace, db, chg_file = workspace_and_db
         svc = ChangeService(workspace, db=db)
@@ -491,7 +491,7 @@ class TestDeleteChangeRequest:
         assert not os.path.isfile(chg_file)
 
     def test_delete_only_db_record_when_file_missing(
-        self, workspace_and_db
+        self, workspace_and_db: tuple[str, DatabaseManager, str]
     ) -> None:
         """文件已不存在但 DB 有记录 → 仍可删除 DB 缓存"""
         workspace, db, chg_file = workspace_and_db

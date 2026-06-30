@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -19,9 +20,14 @@ import pytest
 if not os.environ.get("GUI_VISIBLE"):
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from typing import TYPE_CHECKING
+
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from tests.gui.helpers.bug_recorder import BugRecorder  # noqa: E402
+
+if TYPE_CHECKING:
+    from auto_pm.ui.main_window import MainWindow
 
 # ── 常量 ──────────────────────────────────────────────────
 
@@ -71,7 +77,7 @@ def test_project_dir(test_workspace_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def bug_recorder() -> BugRecorder:
+def bug_recorder() -> Generator[BugRecorder, None, None]:
     """Bug 记录器（session 级单例）"""
     recorder = BugRecorder(report_dir=REPORT_DIR)
     yield recorder
@@ -83,7 +89,7 @@ def bug_recorder() -> BugRecorder:
 def setup_test_project(
     qapp: QApplication,
     test_project_dir: Path,
-):
+) -> Generator[None, None, None]:
     """session 级：在隔离 tmp 工作空间创建测试项目，session 结束 pytest 自动清理。
 
     R-C06 修复：不再在真实工作空间 0100_PLC自动化/DJ-2026-998 下创建项目，
@@ -140,7 +146,7 @@ def _create_minimal_project(project_dir: Path) -> None:
 
 
 @pytest.fixture
-def main_window(qapp: QApplication, workspace_root: str):
+def main_window(qapp: QApplication, workspace_root: str) -> Generator[MainWindow, None, None]:
     """每个测试函数创建独立 MainWindow，避免状态污染"""
     from auto_pm.ui.main_window import MainWindow
 

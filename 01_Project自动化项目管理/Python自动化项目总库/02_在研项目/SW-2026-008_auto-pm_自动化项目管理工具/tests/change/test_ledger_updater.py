@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from auto_pm.change.ledger_updater import LedgerUpdater
 
 
 class TestLedgerUpdaterUpdate:
     """LedgerUpdater.update 测试"""
 
-    def test_update_appends_row(self, tmp_path: object) -> None:
+    def test_update_appends_row(self, tmp_path: Path) -> None:
         """update 在台帐变更单索引中追加一行"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "01_版本变更台帐.md"
+        ledger = tmp_path / "01_版本变更台帐.md"
         ledger.write_text(
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -27,10 +28,9 @@ class TestLedgerUpdaterUpdate:
         assert "CHG-PLC-2026-001" in content
         assert "修复阀门时序" in content
 
-    def test_update_empty_file(self, tmp_path: object) -> None:
+    def test_update_empty_file(self, tmp_path: Path) -> None:
         """update 对空文件不写入"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "empty.md"
+        ledger = tmp_path / "empty.md"
         ledger.write_text("", encoding="utf-8")
 
         updater = LedgerUpdater()
@@ -39,17 +39,15 @@ class TestLedgerUpdaterUpdate:
         content = ledger.read_text(encoding="utf-8")
         assert content == ""
 
-    def test_update_nonexistent_file(self, tmp_path: object) -> None:
+    def test_update_nonexistent_file(self, tmp_path: Path) -> None:
         """update 对不存在的文件不抛异常"""
-        tmp = tmp_path  # type: Path
         updater = LedgerUpdater()
         # read_file 对不存在的文件返回空字符串，update 应安全退出
-        updater.update(str(tmp / "nonexistent.md"), "CHG-PLC-2026-001", "测试")
+        updater.update(str(tmp_path / "nonexistent.md"), "CHG-PLC-2026-001", "测试")
 
-    def test_update_no_index_table(self, tmp_path: object) -> None:
+    def test_update_no_index_table(self, tmp_path: Path) -> None:
         """update 对无变更单索引表格的台帐不写入"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "no_index.md"
+        ledger = tmp_path / "no_index.md"
         ledger.write_text("# 版本变更台帐\n\n无索引表格\n", encoding="utf-8")
 
         updater = LedgerUpdater()
@@ -58,10 +56,9 @@ class TestLedgerUpdaterUpdate:
         content = ledger.read_text(encoding="utf-8")
         assert "CHG-PLC-2026-001" not in content
 
-    def test_update_sequential_numbering(self, tmp_path: object) -> None:
+    def test_update_sequential_numbering(self, tmp_path: Path) -> None:
         """update 连续追加时序号递增"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         ledger.write_text(
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -155,10 +152,9 @@ class TestInsertRowToIndexTable:
 class TestLedgerUpdaterUpdateStatus:
     """LedgerUpdater.update_status 测试（TD-T10 修复）"""
 
-    def test_update_status_updates_last_column(self, tmp_path: object) -> None:
+    def test_update_status_updates_last_column(self, tmp_path: Path) -> None:
         """update_status 更新指定变更单的状态列（最后一列）"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         ledger.write_text(
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -178,10 +174,9 @@ class TestLedgerUpdaterUpdateStatus:
         assert "CHG-SCPT-2026-001" in content
         assert "fubai" in content
 
-    def test_update_status_not_found(self, tmp_path: object) -> None:
+    def test_update_status_not_found(self, tmp_path: Path) -> None:
         """update_status 未找到 change_number 时不修改内容"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         original = (
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -197,10 +192,9 @@ class TestLedgerUpdaterUpdateStatus:
         content = ledger.read_text(encoding="utf-8")
         assert content == original
 
-    def test_update_status_empty_file(self, tmp_path: object) -> None:
+    def test_update_status_empty_file(self, tmp_path: Path) -> None:
         """update_status 对空文件不抛异常"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "empty.md"
+        ledger = tmp_path / "empty.md"
         ledger.write_text("", encoding="utf-8")
 
         updater = LedgerUpdater()
@@ -209,10 +203,9 @@ class TestLedgerUpdaterUpdateStatus:
         content = ledger.read_text(encoding="utf-8")
         assert content == ""
 
-    def test_update_status_multiple_rows_only_updates_target(self, tmp_path: object) -> None:
+    def test_update_status_multiple_rows_only_updates_target(self, tmp_path: Path) -> None:
         """update_status 多行时只更新目标行"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         ledger.write_text(
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -236,10 +229,9 @@ class TestLedgerUpdaterUpdateStatus:
 class TestLedgerUpdaterRemove:
     """LedgerUpdater.remove 测试（TD-T10 修复）"""
 
-    def test_remove_deletes_row(self, tmp_path: object) -> None:
+    def test_remove_deletes_row(self, tmp_path: Path) -> None:
         """remove 删除指定变更单的行"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         ledger.write_text(
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -257,10 +249,9 @@ class TestLedgerUpdaterRemove:
         assert "CHG-SCPT-2026-001" not in content
         assert "CHG-SCPT-2026-002" in content
 
-    def test_remove_not_found(self, tmp_path: object) -> None:
+    def test_remove_not_found(self, tmp_path: Path) -> None:
         """remove 未找到 change_number 时不修改内容"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         original = (
             "# 版本变更台帐\n\n"
             "## 变更单索引\n\n"
@@ -276,10 +267,9 @@ class TestLedgerUpdaterRemove:
         content = ledger.read_text(encoding="utf-8")
         assert content == original
 
-    def test_remove_empty_file(self, tmp_path: object) -> None:
+    def test_remove_empty_file(self, tmp_path: Path) -> None:
         """remove 对空文件不抛异常"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "empty.md"
+        ledger = tmp_path / "empty.md"
         ledger.write_text("", encoding="utf-8")
 
         updater = LedgerUpdater()
@@ -288,10 +278,9 @@ class TestLedgerUpdaterRemove:
         content = ledger.read_text(encoding="utf-8")
         assert content == ""
 
-    def test_remove_preserves_non_table_lines(self, tmp_path: object) -> None:
+    def test_remove_preserves_non_table_lines(self, tmp_path: Path) -> None:
         """remove 只删除表格行，保留非表格行（如标题、说明）"""
-        tmp = tmp_path  # type: Path
-        ledger = tmp / "ledger.md"
+        ledger = tmp_path / "ledger.md"
         ledger.write_text(
             "# 版本变更台帐\n\n"
             "> 记录项目所有变更单的索引与状态\n\n"

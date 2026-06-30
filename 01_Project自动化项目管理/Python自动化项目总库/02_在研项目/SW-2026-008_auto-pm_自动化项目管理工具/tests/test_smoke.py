@@ -252,7 +252,7 @@ class TestCLIEntry:
         from auto_pm.cli.__main__ import cli
         assert callable(cli)
 
-    def test_cli_help(self, capsys) -> None:
+    def test_cli_help(self, capsys: pytest.CaptureFixture[str]) -> None:
         """CLI --help 正常工作"""
         from click.testing import CliRunner
 

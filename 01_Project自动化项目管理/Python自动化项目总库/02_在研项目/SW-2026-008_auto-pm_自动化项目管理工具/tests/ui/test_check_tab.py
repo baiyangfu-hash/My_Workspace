@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -27,6 +28,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton  # noqa: E402
 
+from auto_pm.models.plc import CheckResult  # noqa: E402
 from auto_pm.ui.workspace.check_tab import CheckTab  # noqa: E402
 
 # ── fixtures ─────────────────────────────────────────────
@@ -121,7 +123,7 @@ def empty_project_dir(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def check_tab(qapp: QApplication, mixed_project_dir: Path) -> CheckTab:
+def check_tab(qapp: QApplication, mixed_project_dir: Path) -> Generator[CheckTab, None, None]:
     """已加载 mixed 项目的 CheckTab"""
     tab = CheckTab()
     tab.load_project(PROJECT_ID, str(mixed_project_dir))
@@ -156,7 +158,7 @@ def _run_check(tab: CheckTab, qapp: QApplication) -> None:
     qapp.processEvents()
 
 
-def _get_last_check_result(tab: CheckTab) -> object:
+def _get_last_check_result(tab: CheckTab) -> CheckResult:
     """返回最近一次检查结果，便于复用真实计数。"""
     assert tab._last_check_result is not None
     return tab._last_check_result

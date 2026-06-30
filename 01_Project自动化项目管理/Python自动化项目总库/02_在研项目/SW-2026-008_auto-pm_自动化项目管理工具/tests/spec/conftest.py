@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -34,7 +35,7 @@ def registry_dir(workspace: Path) -> Path:
     return d
 
 
-SAMPLE_REGISTRY = {
+SAMPLE_REGISTRY: dict[str, Any] = {
     "version": "1.0.0",
     "last_updated": "2026-05-25",
     "workspace_root": "/test",

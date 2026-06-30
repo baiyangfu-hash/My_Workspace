@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -55,7 +56,7 @@ def change_workspace(tmp_path: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def _patch_message_boxes() -> None:
+def _patch_message_boxes() -> Generator[None, None, None]:
     """自动 patch QMessageBox 静态方法，避免模态对话框阻塞测试"""
     orig_critical = QMessageBox.critical
     orig_warning = QMessageBox.warning
@@ -64,14 +65,14 @@ def _patch_message_boxes() -> None:
     QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
     QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
     QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
-    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+    QMessageBox.question = staticmethod(  # type: ignore[method-assign]
         lambda *a, **kw: QMessageBox.StandardButton.Yes
     )
     yield
-    QMessageBox.critical = orig_critical  # type: ignore[assignment]
-    QMessageBox.warning = orig_warning  # type: ignore[assignment]
-    QMessageBox.information = orig_information  # type: ignore[assignment]
-    QMessageBox.question = orig_question  # type: ignore[assignment]
+    QMessageBox.critical = orig_critical  # type: ignore[method-assign]
+    QMessageBox.warning = orig_warning  # type: ignore[method-assign]
+    QMessageBox.information = orig_information  # type: ignore[method-assign]
+    QMessageBox.question = orig_question  # type: ignore[method-assign]
 
 
 @pytest.fixture

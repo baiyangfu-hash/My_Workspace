@@ -24,6 +24,7 @@ import gc
 import json
 import os
 import re
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any, Callable
 
@@ -44,6 +45,7 @@ from PySide6.QtWidgets import (  # noqa: E402
 )
 
 from auto_pm.change.change_service import ChangeService  # noqa: E402
+from auto_pm.db.connection import DatabaseManager  # noqa: E402
 from auto_pm.db.repository import ChangeRequestRepository  # noqa: E402
 from auto_pm.models import ChangeSummary, ProjectInfo  # noqa: E402
 from auto_pm.ui.change_center.center_view import ChangeCenterView  # noqa: E402
@@ -72,17 +74,17 @@ def _patch_message_boxes() -> Any:
     orig_warning = QMessageBox.warning
     orig_information = QMessageBox.information
     orig_question = QMessageBox.question
-    QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
-    QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
-    QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment]
-    QMessageBox.question = staticmethod(  # type: ignore[assignment]
+    QMessageBox.critical = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment, method-assign]
+    QMessageBox.warning = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment, method-assign]
+    QMessageBox.information = staticmethod(lambda *a, **kw: None)  # type: ignore[assignment, method-assign]
+    QMessageBox.question = staticmethod(  # type: ignore[method-assign]
         lambda *a, **kw: QMessageBox.StandardButton.Yes
     )
     yield
-    QMessageBox.critical = orig_critical  # type: ignore[assignment]
-    QMessageBox.warning = orig_warning  # type: ignore[assignment]
-    QMessageBox.information = orig_information  # type: ignore[assignment]
-    QMessageBox.question = orig_question  # type: ignore[assignment]
+    QMessageBox.critical = orig_critical  # type: ignore[method-assign]
+    QMessageBox.warning = orig_warning  # type: ignore[method-assign]
+    QMessageBox.information = orig_information  # type: ignore[method-assign]
+    QMessageBox.question = orig_question  # type: ignore[method-assign]
 
 
 @pytest.fixture
@@ -101,7 +103,7 @@ def workspace_root(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def main_window(qapp: QApplication, workspace_root: Path) -> MainWindow:
+def main_window(qapp: QApplication, workspace_root: Path) -> Generator[MainWindow, None, None]:
     """创建 MainWindow 实例，指向临时工作空间
 
     自动同步项目到 DB 缓存并注入变更记录，刷新所有全局页。
@@ -112,6 +114,7 @@ def main_window(qapp: QApplication, workspace_root: Path) -> MainWindow:
     window._project_service.sync_to_cache(force_full=True)
 
     # 注入变更记录到 DB 缓存
+    assert window._db is not None
     _inject_sample_changes(window._db)
 
     # 刷新所有全局页（使其加载 DB 缓存数据）
@@ -143,7 +146,7 @@ def change_workspace(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def change_window(qapp: QApplication, change_workspace: Path) -> MainWindow:
+def change_window(qapp: QApplication, change_workspace: Path) -> Generator[MainWindow, None, None]:
     """创建 MainWindow 实例用于变更流程测试（强制文件扫描）"""
     window = MainWindow(workspace_root=str(change_workspace))
     # 测试环境强制文件扫描，避免 DB 缓存为空导致变更中心列表为空
@@ -161,7 +164,7 @@ def check_workspace(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def check_window(qapp: QApplication, check_workspace: Path) -> MainWindow:
+def check_window(qapp: QApplication, check_workspace: Path) -> Generator[MainWindow, None, None]:
     """创建 MainWindow 实例用于检查流程测试"""
     window = MainWindow(workspace_root=str(check_workspace))
     yield window
@@ -221,7 +224,7 @@ def _create_sample_projects(workspace: Path) -> None:
         )
 
 
-def _inject_sample_changes(db) -> None:
+def _inject_sample_changes(db: DatabaseManager) -> None:
     """向 DB 缓存注入 2 条变更记录"""
     repo = ChangeRequestRepository(db)
     changes = [
@@ -397,7 +400,7 @@ def _create_change(
 def _schedule_dialog_interaction(
     qapp: QApplication,
     dialog_type: type,
-    callback: Callable,
+    callback: Callable[[Any], None],
     max_retries: int = 100,
 ) -> None:
     """调度在模态对话框出现时执行回调"""
@@ -446,7 +449,7 @@ def _find_new_button(window: MainWindow) -> QToolButton | None:
     return None
 
 
-def _patch_message_boxes() -> tuple[dict, object]:
+def _patch_message_boxes_manual() -> tuple[dict[str, Any], object]:
     """patch QMessageBox 静态方法以避免模态对话框阻塞
 
     返回 (patch_info, restore_func)，调用 restore_func() 恢复。
@@ -455,20 +458,20 @@ def _patch_message_boxes() -> tuple[dict, object]:
     orig_information = QMessageBox.information
     orig_warning = QMessageBox.warning
 
-    def _question(*args, **kwargs):
+    def _question(*args: Any, **kwargs: Any) -> Any:
         return QMessageBox.StandardButton.Yes
 
-    def _noop(*args, **kwargs):
+    def _noop(*args: Any, **kwargs: Any) -> None:
         return None
 
-    QMessageBox.question = _question  # type: ignore[assignment]
-    QMessageBox.information = _noop  # type: ignore[assignment]
-    QMessageBox.warning = _noop  # type: ignore[assignment]
+    QMessageBox.question = _question  # type: ignore[method-assign]
+    QMessageBox.information = _noop  # type: ignore[assignment, method-assign]
+    QMessageBox.warning = _noop  # type: ignore[assignment, method-assign]
 
     def restore() -> None:
-        QMessageBox.question = orig_question  # type: ignore[assignment]
-        QMessageBox.information = orig_information  # type: ignore[assignment]
-        QMessageBox.warning = orig_warning  # type: ignore[assignment]
+        QMessageBox.question = orig_question  # type: ignore[method-assign]
+        QMessageBox.information = orig_information  # type: ignore[method-assign]
+        QMessageBox.warning = orig_warning  # type: ignore[method-assign]
 
     return ({}, restore)
 
@@ -846,7 +849,8 @@ class TestFlowChangeCenter:
         first_item = list_panel._list_widget.item(0)
         list_panel._on_item_clicked(first_item)
         qapp.processEvents()
-        assert detail_panel._current_change.status == "submitted"
+        current_status: str = detail_panel._current_change.status
+        assert current_status == "submitted"
 
 
 class TestFlowReportView:
@@ -948,11 +952,11 @@ class TestFlowSettingsCacheRebuild:
         original_question = QMessageBox.question
         original_information = QMessageBox.information
         original_warning = QMessageBox.warning
-        QMessageBox.question = staticmethod(  # type: ignore[assignment]
+        QMessageBox.question = staticmethod(  # type: ignore[method-assign]
             lambda *args, **kwargs: QMessageBox.StandardButton.Yes
         )
-        QMessageBox.information = staticmethod(lambda *args, **kwargs: None)  # type: ignore[assignment]
-        QMessageBox.warning = staticmethod(lambda *args, **kwargs: None)  # type: ignore[assignment]
+        QMessageBox.information = staticmethod(lambda *args, **kwargs: None)  # type: ignore[assignment, method-assign]
+        QMessageBox.warning = staticmethod(lambda *args, **kwargs: None)  # type: ignore[assignment, method-assign]
 
         try:
             # 强制垃圾回收，关闭未显式关闭的 SQLite 连接，避免 Windows 文件锁定
@@ -978,9 +982,9 @@ class TestFlowSettingsCacheRebuild:
             qapp.processEvents()
             assert "5" in page._project_count_label.text()
         finally:
-            QMessageBox.question = original_question  # type: ignore[assignment]
-            QMessageBox.information = original_information  # type: ignore[assignment]
-            QMessageBox.warning = original_warning  # type: ignore[assignment]
+            QMessageBox.question = original_question  # type: ignore[method-assign]
+            QMessageBox.information = original_information  # type: ignore[method-assign]
+            QMessageBox.warning = original_warning  # type: ignore[method-assign]
 
 
 # ══════════════════════════════════════════════════════════

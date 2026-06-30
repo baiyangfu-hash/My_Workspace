@@ -23,7 +23,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QUrl  # noqa: E402
-from PySide6.QtWidgets import QApplication  # noqa: E402
+from PySide6.QtWidgets import QApplication, QTreeWidgetItem  # noqa: E402
 
 from auto_pm.core.template_service import TemplateService  # noqa: E402
 from auto_pm.ui.workspace.doc_tab import DocTab  # noqa: E402
@@ -103,7 +103,7 @@ def _get_category_labels(tab: DocTab) -> list[str]:
     return [item.text(0) for item in tab._get_category_items()]
 
 
-def _find_category(tab: DocTab, keyword: str):
+def _find_category(tab: DocTab, keyword: str) -> QTreeWidgetItem | None:
     """按关键字查找分类节点"""
     for item in tab._get_category_items():
         if keyword in item.text(0):

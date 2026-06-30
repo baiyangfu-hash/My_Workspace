@@ -44,10 +44,10 @@ class TestVartableParseCommand:
     def test_parse_json_format(
         self, cli_runner: CliRunner, sample_csv: Path
     ) -> None:
-        """vartable parse --format json 输出有效 JSON"""
+        """vartable parse --output-format json 输出有效 JSON"""
         result = cli_runner.invoke(
             vartable_group,
-            ["parse", str(sample_csv), "--format", "json"],
+            ["parse", str(sample_csv), "--output-format", "json"],
         )
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -58,14 +58,14 @@ class TestVartableParseCommand:
     def test_parse_table_format(
         self, cli_runner: CliRunner, sample_csv: Path
     ) -> None:
-        """vartable parse --format table 输出表格
+        """vartable parse --output-format table 输出表格
 
         注意: Rich Table 在 CliRunner 默认 80 列宽度下会截断长 Tag,
         故断言改用稳定非截断字段(概要行 + 地址列)。
         """
         result = cli_runner.invoke(
             vartable_group,
-            ["parse", str(sample_csv), "--format", "table"],
+            ["parse", str(sample_csv), "--output-format", "table"],
         )
         assert result.exit_code == 0
         # 概要行:解析计数 + 站点列表 + 信号类型

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from auto_pm.plc.spec_snapshot import (
     DriftItem,
@@ -98,7 +99,7 @@ def _write_pm_session(tmp_path: Path, content: str, filename: str = "PM_SESSION.
     return str(path)
 
 
-def _write_registry(tmp_path: Path, data: dict) -> str:
+def _write_registry(tmp_path: Path, data: dict[str, Any]) -> str:
     """在工作空间根目录下写入 spec_registry.json，返回工作空间根路径"""
     registry_dir = tmp_path / "00_Obsidian_Base全局规范文件仓库"
     registry_dir.mkdir(parents=True, exist_ok=True)

@@ -133,6 +133,7 @@ class TestListProjectsFiltered:
                 last_scanned="2026-01-01",
             ),
         ]
+        assert svc._repo is not None
         for r in records:
             svc._repo.upsert(r)
         return svc
@@ -209,6 +210,7 @@ class TestListProjectsWithChangeCount:
         db = DatabaseManager(str(tmp_workspace))
         db.init_schema()
         svc = ProjectService(str(tmp_workspace), db=db)
+        assert svc._repo is not None
         svc._repo.upsert(
             ProjectRecord(
                 project_id="SW-2026-001",
@@ -267,6 +269,7 @@ class TestListProjectsWithChangeCount:
         db = DatabaseManager(str(tmp_workspace))
         db.init_schema()
         svc = ProjectService(str(tmp_workspace), db=db)
+        assert svc._repo is not None
         svc._repo.upsert(
             ProjectRecord(
                 project_id="SW-2026-001",

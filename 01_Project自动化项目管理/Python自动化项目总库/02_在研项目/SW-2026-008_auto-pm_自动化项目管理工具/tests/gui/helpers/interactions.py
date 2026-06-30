@@ -12,42 +12,41 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QMessageBox,
-    QWidget,
 )
 
 if TYPE_CHECKING:
-    pass
+    from auto_pm.ui.main_window import MainWindow
 
 
-def click_nav_page(window: QWidget, page_id: str, app: QApplication) -> None:
+def click_nav_page(window: MainWindow, page_id: str, app: QApplication) -> None:
     """通过导航树切换页面"""
     window._on_page_switch(page_id)
     app.processEvents()
     QTest.qWait(200)
 
 
-def click_nav_filter(window: QWidget, stack: str, phase: str, app: QApplication) -> None:
+def click_nav_filter(window: MainWindow, stack: str, phase: str, app: QApplication) -> None:
     """通过导航树筛选项目"""
     window._nav_tree.project_filter_requested.emit(stack, phase)
     app.processEvents()
     QTest.qWait(200)
 
 
-def search_projects(window: QWidget, text: str, app: QApplication) -> None:
+def search_projects(window: MainWindow, text: str, app: QApplication) -> None:
     """搜索项目"""
     window._search_edit.setText(text)
     app.processEvents()
     QTest.qWait(300)
 
 
-def clear_search(window: QWidget, app: QApplication) -> None:
+def clear_search(window: MainWindow, app: QApplication) -> None:
     """清空搜索"""
     window._search_edit.clear()
     app.processEvents()
     QTest.qWait(200)
 
 
-def switch_view_mode(window: QWidget, mode: str, app: QApplication) -> None:
+def switch_view_mode(window: MainWindow, mode: str, app: QApplication) -> None:
     """切换视图模式（card / list）"""
     vc = window._project_list_view._view_controls
     if mode == "card":
@@ -58,7 +57,7 @@ def switch_view_mode(window: QWidget, mode: str, app: QApplication) -> None:
     QTest.qWait(200)
 
 
-def switch_group_mode(window: QWidget, mode_text: str, app: QApplication) -> None:
+def switch_group_mode(window: MainWindow, mode_text: str, app: QApplication) -> None:
     """切换分组模式"""
     vc = window._project_list_view._view_controls
     combo = vc._group_combo
@@ -69,21 +68,21 @@ def switch_group_mode(window: QWidget, mode_text: str, app: QApplication) -> Non
     QTest.qWait(200)
 
 
-def enter_workspace(window: QWidget, project_id: str, app: QApplication) -> None:
+def enter_workspace(window: MainWindow, project_id: str, app: QApplication) -> None:
     """进入项目工作区"""
     window._on_project_selected(project_id)
     app.processEvents()
     QTest.qWait(500)
 
 
-def back_to_list(window: QWidget, app: QApplication) -> None:
+def back_to_list(window: MainWindow, app: QApplication) -> None:
     """返回项目列表"""
     window._on_back_to_list()
     app.processEvents()
     QTest.qWait(300)
 
 
-def switch_workspace_tab(window: QWidget, tab_id: str, app: QApplication) -> None:
+def switch_workspace_tab(window: MainWindow, tab_id: str, app: QApplication) -> None:
     """切换工作区 Tab"""
     wv = window._workspace_view
     idx = wv._tab_indices.get(tab_id, -1)
@@ -109,7 +108,7 @@ def find_dialog(app: QApplication, title_contains: str, timeout_ms: int = 2000) 
 
 def accept_dialog(dialog: QDialog, app: QApplication) -> None:
     """点击对话框的 OK/确定按钮"""
-    ok_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Ok)
+    ok_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Ok)  # type: ignore[attr-defined]
     ok_btn.click()
     app.processEvents()
     QTest.qWait(500)
@@ -117,7 +116,7 @@ def accept_dialog(dialog: QDialog, app: QApplication) -> None:
 
 def reject_dialog(dialog: QDialog, app: QApplication) -> None:
     """点击对话框的 Cancel/取消按钮"""
-    cancel_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Cancel)
+    cancel_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Cancel)  # type: ignore[attr-defined]
     cancel_btn.click()
     app.processEvents()
     QTest.qWait(300)
@@ -135,14 +134,14 @@ def dismiss_message_boxes(app: QApplication) -> list[str]:
     return texts
 
 
-def refresh_list(window: QWidget, app: QApplication) -> None:
+def refresh_list(window: MainWindow, app: QApplication) -> None:
     """刷新项目列表"""
     window._on_refresh()
     app.processEvents()
     QTest.qWait(800)
 
 
-def sync_cache(window: QWidget, app: QApplication) -> None:
+def sync_cache(window: MainWindow, app: QApplication) -> None:
     """同步缓存"""
     window._on_sync()
     app.processEvents()

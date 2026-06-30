@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import pytest
 
@@ -155,10 +156,9 @@ class TestChangeService:
         svc = ChangeService(workspace_root)
         assert svc._find_change_file("X") is None
 
-    def test_find_change_file_nonexistent_workspace(self, tmp_path: object) -> None:
+    def test_find_change_file_nonexistent_workspace(self, tmp_path: Path) -> None:
         """_find_change_file 对不存在的工作空间目录返回 None"""
-        tmp = tmp_path  # type: Path
-        svc = ChangeService(str(tmp / "nonexistent"))
+        svc = ChangeService(str(tmp_path / "nonexistent"))
         assert svc._find_change_file("CHG-PLC-2026-001") is None
 
     def test_create_refuses_overwrite_closed_change(

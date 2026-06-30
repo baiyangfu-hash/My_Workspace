@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PySide6.QtWidgets import QWidget
+    from PySide6.QtWidgets import QApplication, QWidget
 
 
 @dataclass
@@ -86,7 +86,7 @@ class BugRecorder:
 
     def capture_all_windows(
         self,
-        app: object,
+        app: QApplication,
         test_name: str,
         step: str,
         expected: str,
@@ -152,14 +152,15 @@ class BugRecorder:
         md_path = self.report_dir / "bug_report.md"
 
         # JSON 报告
-        data = {
+        by_severity: dict[str, int] = {
+            "critical": sum(1 for b in self.bugs if b.severity == "critical"),
+            "major": sum(1 for b in self.bugs if b.severity == "major"),
+            "minor": sum(1 for b in self.bugs if b.severity == "minor"),
+        }
+        data: dict[str, object] = {
             "test_session": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "total_bugs": len(self.bugs),
-            "by_severity": {
-                "critical": sum(1 for b in self.bugs if b.severity == "critical"),
-                "major": sum(1 for b in self.bugs if b.severity == "major"),
-                "minor": sum(1 for b in self.bugs if b.severity == "minor"),
-            },
+            "by_severity": by_severity,
             "failed_projects": sorted(self._failed_projects),
             "bugs": [asdict(b) for b in self.bugs],
         }
@@ -171,9 +172,9 @@ class BugRecorder:
             "",
             f"**测试时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
             f"**Bug 总数**: {len(self.bugs)}",
-            f"- 严重: {data['by_severity']['critical']}",
-            f"- 主要: {data['by_severity']['major']}",
-            f"- 次要: {data['by_severity']['minor']}",
+            f"- 严重: {by_severity['critical']}",
+            f"- 主要: {by_severity['major']}",
+            f"- 次要: {by_severity['minor']}",
             "",
         ]
         if self._failed_projects:

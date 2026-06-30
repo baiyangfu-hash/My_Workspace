@@ -144,6 +144,7 @@ class TestDashboardService:
             _make_project_record("SW-2026-003", "软件A", "python", "developing", "SW", file_mtime=1782535000.0),
             _make_project_record("SW-2026-004", "软件B", "python", "archived", "SW", file_mtime=1750800000.0),
         ]
+        assert project_service._repo is not None
         for record in projects:
             project_service._repo.upsert(record)
 
@@ -214,6 +215,7 @@ class TestDashboardService:
                 "SW-2026-003", "Python工具", "plc", "developing", "SW"
             ),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 
@@ -251,6 +253,7 @@ class TestDashboardService:
                 "SW-2026-003", "Python工具", "plc", "developing", "SW"
             ),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 
@@ -281,6 +284,7 @@ class TestDashboardService:
                 "SW-2026-003", "Python工具", "plc", "developing", "SW"
             ),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 
@@ -319,6 +323,7 @@ class TestDashboardService:
                 "SW-2026-003", "Python工具", "plc", "developing", "SW"
             ),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 
@@ -361,6 +366,7 @@ class TestDashboardService:
                 "SW-2026-003", "Python工具", "python", "developing", "SW"
             ),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 
@@ -392,6 +398,7 @@ class TestDashboardService:
             _make_project_record("DJ-2026-002", "PLC单机B", "plc", "production", "DJ"),
             _make_project_record("SW-2026-004", "Python工具B", "python", "archived", "SW"),
         ]
+        assert project_service._repo is not None
         for r in records:
             project_service._repo.upsert(r)
 

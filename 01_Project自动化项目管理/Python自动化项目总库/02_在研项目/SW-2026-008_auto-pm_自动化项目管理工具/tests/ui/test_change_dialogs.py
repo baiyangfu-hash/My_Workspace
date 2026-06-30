@@ -338,8 +338,8 @@ class TestTransitionDialog:
         cs = ChangeService(str(change_workspace))
         dlg = TransitionDialog("CHG-PLC-2026-001", "accepting", "completed", cs)
 
-        assert dlg._requires_verification is True
-        assert dlg._verification_edit.isVisibleTo(dlg) is True
+        assert dlg._requires_verification
+        assert dlg._verification_edit.isVisibleTo(dlg)
         assert dlg._verification_edit.toPlainText() == "全部通过"
         dlg.deleteLater()
         qapp.processEvents()
@@ -351,7 +351,7 @@ class TestTransitionDialog:
         cs = ChangeService(str(change_workspace))
         dlg = TransitionDialog("CHG-PLC-2026-001", "draft", "submitted", cs)
 
-        assert dlg._requires_verification is False
+        assert not dlg._requires_verification
         assert dlg._verification_edit.isVisibleTo(dlg) is False
         dlg.deleteLater()
         qapp.processEvents()
@@ -480,14 +480,14 @@ class TestTransitionDialogStateMachine:
         cs = ChangeService(str(change_workspace))
         # accepting 可达 {completed, implementing}
         dlg = TransitionDialog("CHG-PLC-2026-001", "accepting", "implementing", cs)
-        assert dlg._requires_verification is False
+        assert not dlg._requires_verification
         assert not dlg._verification_edit.isVisibleTo(dlg)
 
         # 模拟点击 completed 节点
         dlg._on_target_selected("completed")
         assert dlg._target_status == "completed"
-        assert dlg._requires_verification is True
-        assert dlg._verification_edit.isVisibleTo(dlg) is True
+        assert bool(dlg._requires_verification)
+        assert bool(dlg._verification_edit.isVisibleTo(dlg))
         dlg.deleteLater()
         qapp.processEvents()
 
@@ -498,14 +498,14 @@ class TestTransitionDialogStateMachine:
         cs = ChangeService(str(change_workspace))
         # accepting → completed 初始显示验证结论
         dlg = TransitionDialog("CHG-PLC-2026-001", "accepting", "completed", cs)
-        assert dlg._requires_verification is True
-        assert dlg._verification_edit.isVisibleTo(dlg) is True
+        assert dlg._requires_verification
+        assert dlg._verification_edit.isVisibleTo(dlg)
 
         # 模拟点击 implementing 节点（返工）
         dlg._on_target_selected("implementing")
         assert dlg._target_status == "implementing"
-        assert dlg._requires_verification is False
-        assert not dlg._verification_edit.isVisibleTo(dlg)
+        assert not bool(dlg._requires_verification)
+        assert not bool(dlg._verification_edit.isVisibleTo(dlg))
         dlg.deleteLater()
         qapp.processEvents()
 

@@ -121,7 +121,7 @@ class TestNavigationTreeStructure:
         tree = NavigationTree()
         for stack in ("plc", "python"):
             item = tree._stack_nodes[stack]
-            node = item.data(0, Qt.UserRole)
+            node = item.data(0, Qt.ItemDataRole.UserRole)
             assert node is not None
             assert node.node_type == "stack"
             assert node.filter_stack == stack
@@ -137,7 +137,7 @@ class TestNavigationTreeStructure:
         for stack in ("plc", "python"):
             for phase in expected_phases:
                 item = tree._phase_nodes[(stack, phase)]
-                node = item.data(0, Qt.UserRole)
+                node = item.data(0, Qt.ItemDataRole.UserRole)
                 assert node is not None
                 assert node.node_type == "phase"
                 assert node.filter_stack == stack
@@ -159,7 +159,7 @@ class TestNavigationTreeStructure:
         assert set(tree._function_nodes.keys()) == set(expected_pages)
         for page_id in expected_pages:
             item = tree._function_nodes[page_id]
-            node = item.data(0, Qt.UserRole)
+            node = item.data(0, Qt.ItemDataRole.UserRole)
             assert node is not None
             assert node.node_type == "function"
             assert node.page_id == page_id
@@ -173,8 +173,9 @@ class TestNavigationTreeStructure:
         tree = NavigationTree()
         # 分隔线是第 3 个顶层节点（index 2）
         sep_item = tree.topLevelItem(2)
-        assert sep_item.data(0, Qt.UserRole) is None
-        assert sep_item.flags() == Qt.NoItemFlags
+        assert sep_item is not None
+        assert sep_item.data(0, Qt.ItemDataRole.UserRole) is None
+        assert sep_item.flags() == Qt.ItemFlag.NoItemFlags
         tree.deleteLater()
         qapp.processEvents()
 
@@ -294,6 +295,7 @@ class TestNavigationTreeSignals:
         tree.page_switch_requested.connect(lambda p: page_received.append(p))
 
         sep_item = tree.topLevelItem(2)
+        assert sep_item is not None
         tree._on_item_clicked(sep_item, 0)
         assert filter_received == []
         assert page_received == []

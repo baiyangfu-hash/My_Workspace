@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -27,12 +28,17 @@ from tests.gui.helpers.interactions import (  # noqa: E402
     switch_workspace_tab,
 )
 
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QApplication
+
+    from auto_pm.ui.main_window import MainWindow
+
 
 @pytest.mark.gui
 class TestCheckTab:
     """检查 Tab GUI 集成测试"""
 
-    def test_switch_to_check_tab(self, main_window, app, test_project_id):
+    def test_switch_to_check_tab(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """进入工作区后切换到检查 Tab，验证 _check_tab 已初始化"""
         enter_workspace(main_window, test_project_id, app)
         switch_workspace_tab(main_window, "check", app)
@@ -40,7 +46,7 @@ class TestCheckTab:
         check_tab = main_window._workspace_view._check_tab
         assert check_tab is not None, "检查 Tab 未初始化"
 
-    def test_run_check(self, main_window, app, test_project_id):
+    def test_run_check(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """点击执行检查按钮，验证摘要栏显示通过/失败/警告计数"""
         enter_workspace(main_window, test_project_id, app)
         switch_workspace_tab(main_window, "check", app)
@@ -58,7 +64,7 @@ class TestCheckTab:
             kw in summary for kw in ["通过", "失败", "警告"]
         ), f"检查摘要未包含状态关键词: {summary}"
 
-    def test_check_renders_groups(self, main_window, app, test_project_id):
+    def test_check_renders_groups(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """执行检查后验证分组卡片已渲染（至少 1 个分组）"""
         enter_workspace(main_window, test_project_id, app)
         switch_workspace_tab(main_window, "check", app)
@@ -73,7 +79,7 @@ class TestCheckTab:
         cards = check_tab._get_group_cards()
         assert len(cards) >= 1, f"分组卡片数预期 >=1，实际 {len(cards)}"
 
-    def test_auto_repair_preview(self, main_window, app, test_project_id):
+    def test_auto_repair_preview(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """点击自动修复按钮，验证不崩溃并清理弹窗"""
         enter_workspace(main_window, test_project_id, app)
         switch_workspace_tab(main_window, "check", app)
@@ -88,7 +94,7 @@ class TestCheckTab:
         # 清理可能出现的消息框（验证不崩溃为主）
         dismiss_message_boxes(app)
 
-    def test_standardize_preview(self, main_window, app, test_project_id):
+    def test_standardize_preview(self, main_window: MainWindow, app: QApplication, test_project_id: str) -> None:
         """点击标准化命名按钮，验证不崩溃"""
         enter_workspace(main_window, test_project_id, app)
         switch_workspace_tab(main_window, "check", app)

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import os
 import tempfile
+from collections.abc import Generator
 
 import pytest
 
 
 @pytest.fixture
-def tmp_dir() -> str:
+def tmp_dir() -> Generator[str, None, None]:
     """临时目录"""
     with tempfile.TemporaryDirectory() as d:
         yield d

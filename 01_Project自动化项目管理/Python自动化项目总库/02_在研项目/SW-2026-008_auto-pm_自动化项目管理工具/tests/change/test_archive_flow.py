@@ -269,9 +269,10 @@ class TestArchiveGuards:
         chg_number = "CHG-DOCU-2026-001"
 
         cr = svc.transition_status(chg_number, "archived", approver="管理员")
+        assert cr is not None
         assert cr.status == "archived"
 
-    def test_archive_guard_rejects_non_completed(
+    def test_archive_from_implementing_fails(
         self, implementing_workspace: str
     ) -> None:
         """非 completed 状态归档门禁失败"""
@@ -298,14 +299,17 @@ class TestFullFlowToArchive:
 
         # 初始状态：implementing
         cr = svc.get_change_request(chg_number)
+        assert cr is not None
         assert cr.status == "implementing"
 
         # Step 1: implementing → pending_acceptance
         cr = svc.transition_status(chg_number, "pending_acceptance", approver="张三")
+        assert cr is not None
         assert cr.status == "pending_acceptance"
 
         # Step 2: pending_acceptance → accepting
         cr = svc.transition_status(chg_number, "accepting", approver="李四")
+        assert cr is not None
         assert cr.status == "accepting"
 
         # Step 3: accepting → completed
@@ -314,10 +318,12 @@ class TestFullFlowToArchive:
             approver="李四",
             verification_conclusion="全部通过",
         )
+        assert cr is not None
         assert cr.status == "completed"
 
         # Step 4: completed → archived
         cr = svc.transition_status(chg_number, "archived", approver="管理员")
+        assert cr is not None
         assert cr.status == "archived"
 
 

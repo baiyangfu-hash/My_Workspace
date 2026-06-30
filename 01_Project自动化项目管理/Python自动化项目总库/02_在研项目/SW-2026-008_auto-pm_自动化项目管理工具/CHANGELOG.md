@@ -7,7 +7,36 @@
 
 ## [Unreleased]
 
-_暂无未发布变更_
+### Added - V2.3 变量表解析整合（Week1-Week3）
+
+- V2.3 Week1（T01-T07）：变量表数据模型 + IoPointsParser + 编码检测 + CLI vartable 命令组 + 38 测试
+  - 新增 `auto_pm/vartable/models.py`：VarEntry/VarTable/ParseResult/ParseError 四个 frozen dataclass
+  - 新增 `auto_pm/vartable/parsers/io_points_parser.py`：IoPointsParser 深化 AssetSummaryService，处理 io_points.csv 多格式地址
+  - 新增 `auto_pm/vartable/utils/encoding.py`：detect_encoding BOM 检测 + fallback（无 chardet 依赖）
+  - 新增 `auto_pm/cli/vartable.py`：parse/detect-encoding/list-encodings 三子命令 + Rich Table + Unicode 输出兼容
+- V2.3 Week2（T08-T11）：多格式解析器 + 格式自动识别 + CLI 集成 + 35 测试
+  - 新增 `auto_pm/vartable/parsers/program_blocks_parser.py`：ProgramBlocksParser 解析 YAML → BlockEntry
+  - 新增 `auto_pm/vartable/parsers/communications_parser.py`：CommunicationsParser 解析 YAML → ChannelEntry
+  - 新增 `auto_pm/vartable/parsers/base_parser.py` + 5 格式 Parser 骨架（Autoshop/Work3/Codesys/SCL/IntDoc）
+  - 新增 `auto_pm/vartable/parsers/format_detector.py`：三级识别（文件名→扩展名→内容特征）+ 工厂模式
+  - 扩展 CLI：parse --format/--output-format + list-formats + detect-format 子命令
+  - DJ-2026-005 端到端验证 6 项全通过（7 block + 5 channel + 自动识别）
+- V2.3 Week3（T12-T14）：5 格式 Parser 深化 + 转换器重建 + 批量解析 + 35 测试
+  - 深化 5 格式 Parser（Autoshop/Work3/Codesys/SCL/IntDoc）：添加 detect_format 方法委托 format_detector
+  - 新增 `auto_pm/vartable/converter.py`：VariableConverter 统一中间模型导出 CSV/YAML/JSON
+  - 新增 `auto_pm/vartable/batch_parser.py`：BatchParser 批量解析目录/文件列表
+  - 扩展 CLI：convert + batch-parse 子命令
+  - DJ-2026-005 端到端验证 4 项全通过（SCL 解析 + 批量解析 6 文件 278 条变量 + JSON 转换）
+- V2.3 Week4（T15-T16）：GUI 变量编辑器 + 项目工作区变量表 Tab + 33 测试
+  - 新增 `auto_pm/ui/vartable/variable_table_editor.py`：VariableTableModel（QAbstractTableModel 8 列）+ VariableTableEditor（QTableView + 工具栏 + 右键菜单 + 导入导出 + data_changed 信号）
+  - 新增 `auto_pm/ui/vartable/vartable_tab.py`：VartableTab（QSplitter 文件列表 + 编辑器 + 批量解析 + 角色权限 PLCEngineer/SpecEditor 可编辑）
+  - 修改 `auto_pm/ui/workspace/workspace_view.py`：Tab 列表接入 VartableTab
+  - mypy unreachable 修复（3 处）：用方法调用替代 bool 属性窄化
+
+### Fixed - TD-C10 治理
+
+- 治理 mypy tests/ 381→0 errors（11 测试文件类型标注修复 + 32/32 技术债全部关闭）
+  - 关键技术：bool() 包装打破 mypy 属性 narrowing / str 变量打破 Literal 收窄 / Generator 返回类型 / Callable[[Any],None] 逆变 / PySide6 枚举完整路径
 
 ## [0.4.2] - 2026-06-30
 

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Generator
 
 # 必须在导入 PySide6 前设置离屏渲染（GUI_VISIBLE=1 时切换为可见窗口演示模式）
 if not os.environ.get("GUI_VISIBLE"):
@@ -25,6 +26,7 @@ import pytest  # noqa: E402
 from PySide6.QtCore import Qt, QTimer  # noqa: E402
 from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import (  # noqa: E402
+    QApplication,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -34,7 +36,9 @@ from PySide6.QtWidgets import (  # noqa: E402
 from auto_pm.change.change_service import ChangeService  # noqa: E402
 from auto_pm.change.path_resolver import find_ledger_file  # noqa: E402
 from auto_pm.ui.dialogs.edit_change_dialog import EditChangeDialog  # noqa: E402
+from auto_pm.ui.main_window import MainWindow  # noqa: E402
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
+from tests.gui.helpers.bug_recorder import BugRecorder  # noqa: E402
 from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -49,7 +53,7 @@ _TEST_PROJECT_ID = "DJ-2026-998"
 
 
 @pytest.fixture(autouse=True)
-def _cleanup_test_changes(workspace_root: str):
+def _cleanup_test_changes(workspace_root: str) -> Generator[None, None, None]:
     """每个测试后清理本测试创建的变更单文件和台帐条目，避免污染生产数据（TD-T10 修复）
 
     V0.4.1 收口批次修复：原 `except Exception: pass` 静默吞掉所有清理异常，
@@ -109,7 +113,7 @@ def _create_test_change(change_service: ChangeService, project_id: str) -> str:
     return cr.change_number
 
 
-def _find_edit_dialog(app, timeout_ms: int = 2000) -> QDialog | None:
+def _find_edit_dialog(app: QApplication, timeout_ms: int = 2000) -> QDialog | None:
     """查找已弹出的 EditChangeDialog"""
     import time
 
@@ -135,8 +139,8 @@ class TestEditChangeDialogGUI:
     """EditChangeDialog GUI 集成测试"""
 
     def test_edit_dialog_popup_from_detail_panel(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试从详情面板点击编辑按钮弹出 EditChangeDialog
 
         步骤：
@@ -260,8 +264,8 @@ class TestEditChangeDialogGUI:
             raise
 
     def test_edit_dialog_tab_structure(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试 EditChangeDialog 的 Tab 结构（基本信息 + 影响分析）"""
         try:
             click_nav_page(main_window, "change_center", app)
@@ -320,8 +324,8 @@ class TestEditChangeDialogGUI:
             raise
 
     def test_tab_switching(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试 Tab 切换功能（基本信息 ↔ 影响分析）"""
         try:
             click_nav_page(main_window, "change_center", app)
@@ -387,8 +391,8 @@ class TestEditChangeDialogGUI:
             raise
 
     def test_form_fields_loaded(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试表单字段正确加载变更单数据"""
         try:
             click_nav_page(main_window, "change_center", app)
@@ -453,8 +457,8 @@ class TestEditChangeDialogGUI:
             raise
 
     def test_form_interaction(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试表单交互（输入文本、切换下拉框、编辑表格）"""
         try:
             click_nav_page(main_window, "change_center", app)
@@ -547,8 +551,8 @@ class TestEditChangeDialogGUI:
             raise
 
     def test_save_button_emits_signal(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试保存按钮发射 change_updated 信号"""
         try:
             click_nav_page(main_window, "change_center", app)
@@ -605,8 +609,8 @@ class TestEditChangeDialogGUI:
             raise
 
     def test_cancel_button_closes_dialog(
-        self, main_window, app, bug_recorder, workspace_root
-    ):
+        self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str
+    ) -> None:
         """测试取消按钮关闭弹窗"""
         try:
             click_nav_page(main_window, "change_center", app)
@@ -659,7 +663,7 @@ class TestEditChangeDialogGUI:
         not os.environ.get("GUI_VISIBLE"),
         reason="可见 GUI 演示模式，需设置 GUI_VISIBLE=1 环境变量启用",
     )
-    def test_visible_demo(self, main_window, app, bug_recorder, workspace_root):
+    def test_visible_demo(self, main_window: MainWindow, app: QApplication, bug_recorder: BugRecorder, workspace_root: str) -> None:
         """可见 GUI 演示：弹出 EditChangeDialog 并自动切换 Tab，让用户看到真实界面
 
         运行方式（PowerShell）：
@@ -696,13 +700,13 @@ class TestEditChangeDialogGUI:
                     # 切换到影响分析 Tab
                     dlg = _find_visible_edit_dialog(app)
                     assert dlg is not None, "演示步骤1: 未找到弹窗"
-                    dlg._tab_widget.setCurrentIndex(1)
+                    dlg._tab_widget.setCurrentIndex(1)  # type: ignore[attr-defined]
                     demo_steps.append("切换到影响分析 Tab")
                 elif step == 2:
                     # 切换回基本信息 Tab
                     dlg = _find_visible_edit_dialog(app)
                     assert dlg is not None, "演示步骤2: 未找到弹窗"
-                    dlg._tab_widget.setCurrentIndex(0)
+                    dlg._tab_widget.setCurrentIndex(0)  # type: ignore[attr-defined]
                     demo_steps.append("切换回基本信息 Tab")
                 elif step == 3:
                     # 关闭弹窗
@@ -763,7 +767,7 @@ class TestEditChangeDialogGUI:
             raise
 
 
-def _find_visible_edit_dialog(app, timeout_ms: int = 100) -> QDialog | None:
+def _find_visible_edit_dialog(app: QApplication, timeout_ms: int = 100) -> QDialog | None:
     """查找已弹出的可见 EditChangeDialog"""
     for w in app.topLevelWidgets():
         if (

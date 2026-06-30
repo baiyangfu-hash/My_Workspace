@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, cast
 
 from auto_pm.plc.checker import PlcChecker
+from auto_pm.plc.models import CheckItem
 
 # ── 辅助常量 ──────────────────────────────────────────
 
@@ -76,7 +78,7 @@ def _create_project(
     return project_dir
 
 
-def _write_registry(tmp_path: Path, specs: dict) -> None:
+def _write_registry(tmp_path: Path, specs: dict[str, Any]) -> None:
     """在工作空间根目录下写入 spec_registry.json（dict 形式 specs）"""
     registry_dir = tmp_path / "00_Obsidian_Base全局规范文件仓库"
     registry_dir.mkdir(parents=True, exist_ok=True)
@@ -86,11 +88,11 @@ def _write_registry(tmp_path: Path, specs: dict) -> None:
     )
 
 
-def _get_spec_snapshot_item(result) -> object:
+def _get_spec_snapshot_item(result: Any) -> CheckItem:
     """从 CheckResult 中提取 Spec Snapshot 检查项"""
     items = [i for i in result.items if i.item == "Spec Snapshot"]
     assert items, "未找到 Spec Snapshot 检查项"
-    return items[0]
+    return cast(CheckItem, items[0])
 
 
 # ── 测试用例 ──────────────────────────────────────────

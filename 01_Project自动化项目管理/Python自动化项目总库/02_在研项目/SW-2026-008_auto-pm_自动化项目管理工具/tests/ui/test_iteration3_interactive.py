@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Generator
 from pathlib import Path
 from unittest.mock import patch
 
@@ -25,10 +26,18 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QUrl  # noqa: E402
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton  # noqa: E402
+from PySide6.QtWidgets import (  # noqa: E402
+    QApplication,
+    QLabel,
+    QPushButton,
+    QTreeWidgetItem,
+    QWidget,
+)
 
 from auto_pm.models import ProjectInfo  # noqa: E402
 from auto_pm.ui.main_window import MainWindow  # noqa: E402
+from auto_pm.ui.workspace.check_tab import CheckTab  # noqa: E402
+from auto_pm.ui.workspace.doc_tab import DocTab  # noqa: E402
 
 # ── fixtures ─────────────────────────────────────────────
 
@@ -40,7 +49,7 @@ def workspace_root(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def main_window(qapp: QApplication, workspace_root: Path) -> MainWindow:
+def main_window(qapp: QApplication, workspace_root: Path) -> Generator[MainWindow, None, None]:
     """创建 MainWindow 实例，指向临时工作空间"""
     window = MainWindow(workspace_root=str(workspace_root))
     yield window
@@ -217,29 +226,29 @@ def _make_project(
 # ── 辅助：widget 查找 ────────────────────────────────────
 
 
-def _get_item_buttons(tab) -> list[QPushButton]:
+def _get_item_buttons(tab: QWidget) -> list[QPushButton]:
     """获取所有"修复"按钮（objectName == itemBtn）"""
     return [b for b in tab.findChildren(QPushButton) if b.objectName() == "itemBtn"]
 
 
-def _get_item_labels(tab) -> list[QLabel]:
+def _get_item_labels(tab: QWidget) -> list[QLabel]:
     """获取所有检查项文本标签（objectName == itemText）"""
     return [lbl for lbl in tab.findChildren(QLabel) if lbl.objectName() == "itemText"]
 
 
-def _get_group_titles(tab) -> list[str]:
+def _get_group_titles(tab: QWidget) -> list[str]:
     """获取所有分组标题文本"""
     titles = [lbl for lbl in tab.findChildren(QLabel) if lbl.objectName() == "groupTitle"]
     return [lbl.text() for lbl in titles]
 
 
-def _run_check(tab, qapp: QApplication) -> None:
+def _run_check(tab: CheckTab, qapp: QApplication) -> None:
     """执行检查并处理事件"""
     tab._on_run_check()
     qapp.processEvents()
 
 
-def _assert_check_summary_matches_result(tab) -> None:
+def _assert_check_summary_matches_result(tab: CheckTab) -> None:
     """断言摘要栏与真实检查结果一致。"""
     assert tab._last_check_result is not None
     summary = tab._summary_label.text()
@@ -248,7 +257,7 @@ def _assert_check_summary_matches_result(tab) -> None:
     assert f"{tab._last_check_result.fail_count} 失败" in summary
 
 
-def _find_category(tab, keyword: str):
+def _find_category(tab: DocTab, keyword: str) -> QTreeWidgetItem | None:
     """按关键字查找分类节点"""
     for item in tab._get_category_items():
         if keyword in item.text(0):
@@ -294,6 +303,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         # 真实点击"执行检查"按钮
         tab._check_btn.click()
         qapp.processEvents()
@@ -320,6 +330,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         _run_check(tab, qapp)
 
         titles = _get_group_titles(tab)
@@ -342,6 +353,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         _run_check(tab, qapp)
 
         item_labels = _get_item_labels(tab)
@@ -375,6 +387,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         _run_check(tab, qapp)
 
         item_btns = _get_item_buttons(tab)
@@ -395,6 +408,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         # 真实点击"自动修复"按钮
         tab._repair_btn.click()
         qapp.processEvents()
@@ -425,6 +439,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         # 真实点击"标准化命名"按钮
         tab._standardize_btn.click()
         qapp.processEvents()
@@ -455,6 +470,7 @@ class TestCheckTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
         # 初始摘要应为 "检查结果: —"
         assert tab._summary_label.text() == "检查结果: —"
 
@@ -500,6 +516,7 @@ class TestDocTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._doc_tab
+        assert tab is not None
         cats = tab._get_category_items()
         labels = [item.text(0) for item in cats]
 
@@ -552,6 +569,7 @@ class TestDocTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._doc_tab
+        assert tab is not None
         # 找到 PM_SESSION 分类下的文档
         cat = _find_category(tab, "PM_SESSION")
         assert cat is not None
@@ -581,6 +599,7 @@ class TestDocTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._doc_tab
+        assert tab is not None
         # 模板名称应从 _src_path 提取
         assert "plc-standard" in tab._template_name_label.text()
         # 版本应显示 _commit
@@ -598,6 +617,7 @@ class TestDocTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._doc_tab
+        assert tab is not None
         assert tab._update_btn is not None
         assert tab._update_btn.text() == "🔄 模板更新"
         # 检查更新按钮也应存在
@@ -614,6 +634,7 @@ class TestDocTabInteractive:
         qapp.processEvents()
 
         tab = main_window._workspace_view._doc_tab
+        assert tab is not None
         cats = tab._get_category_items()
         assert len(cats) == 0
         # 空状态提示应可见
@@ -645,6 +666,7 @@ class TestFullFlow:
         qapp.processEvents()
 
         tab = main_window._workspace_view._check_tab
+        assert tab is not None
 
         # ── Step 1: 执行检查 → 发现问题 ──
         tab._check_btn.click()
