@@ -1,4 +1,9 @@
-# auto-pm V2.0 GUI 原型设计
+# auto-pm V2.1 GUI 原型设计
+
+> **版本**: V2.1（2026-07-01 升级，新增「变量表 Tab 设计」章节对齐 V2.3 Week4 实现）
+> **V2.0 基线**: 2026-06-22 初版（总库分类导航 + 功能补全 + 交互升级）
+> **V2.1 变更**: ① §5.1 项目工作区 Tab 表格更新（变量表 Tab 从"V2.3 延后"改为"V2.3 已完成"）② 新增 §5.5 变量表 Tab 设计章节（对齐 V2.3 Week4 实际实现）③ 新增 §14 V2.1 变更记录
+> **审核状态**: ✅ 已审核通过（2026-07-01，用户审核），作为 V0.5.x 稳定期 GUI 演进的基线
 
 ## 一、设计目标
 
@@ -163,10 +168,10 @@
 | Tab | 当前状态 | 重构后功能 |
 |-----|---------|-----------|
 | 概览 | ✅ 已实现 | 保留，增强元数据编辑 |
-| 变更 | 占位 | **变更列表 + 创建 + 状态流转** |
-| 检查 | 占位 | **PLC/Python 规范检查 + 修复** |
-| 文档 | 占位 | **项目文档浏览 + 模板更新** |
-| 变量表 | 占位 | V2.3 延后（仅 PLC 项目可见） |
+| 变更 | ✅ V2.0 已实现 | **变更列表 + 创建 + 状态流转** |
+| 检查 | ✅ V2.0 已实现 | **PLC/Python 规范检查 + 修复** |
+| 文档 | ✅ V2.0 已实现 | **项目文档浏览 + 模板更新** |
+| 变量表 | ✅ V2.3 Week4 已实现 | **变量表文件列表 + 表格编辑器 + 批量解析 + 格式转换**（仅 PLC 项目可见，详见 §5.5） |
 
 ### 5.2 变更 Tab（新增）
 
@@ -238,6 +243,150 @@
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
+
+### 5.5 变量表 Tab（V2.1 新增，对齐 V2.3 Week4 实现）
+
+> **实现版本**: V2.3 Week4（T15-T16）已于 2026-07-01 交付
+> **生产代码**: `auto_pm/ui/vartable/variable_table_editor.py` + `auto_pm/ui/vartable/vartable_tab.py`
+> **测试覆盖**: 33 个 UI 测试（tests/ui/test_vartable_tab.py + tests/ui/test_variable_table_editor.py）
+> **可见性**: 仅 PLC 项目工作区可见（Python 项目不显示此 Tab）
+
+#### 5.5.1 布局设计（QSplitter 两栏布局）
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ [📄 导入文件] [💾 导出] [🔄 批量解析] [🗑️ 清空]    角色: [PLC工程师▼] │
+├──────────────┬──────────────────────────────────────────────────────┤
+│              │                                                      │
+│  文件列表    │           变量表编辑器                                 │
+│              │                                                      │
+│  ┌─────────┐ │  ┌────────────────────────────────────────────────┐ │
+│  │📄 io_   │ │  │ station | signal_type | address | tag | ...   │ │
+│  │points   │ │  ├─────────┼────────────┼─────────┼─────┼─────┤ │
+│  │.csv     │ │  │ cpu     │ DI         │ %I0.1   │ M1  │ ... │ │
+│  │  119行  │ │  │ di_ext  │ DI         │ %I0.2   │ M2  │ ... │ │
+│  └─────────┘ │  │ ...     │ ...        │ ...     │ ... │ ... │ │
+│  ┌─────────┐ │  └────────────────────────────────────────────────┘ │
+│  │📄 prog_ │ │  [➕ 新增行] [🗑️ 删除行] [📋 复制行]                  │
+│  │blocks   │ │                                                      │
+│  │.yml     │ │                                                      │
+│  │  7块    │ │                                                      │
+│  └─────────┘ │                                                      │
+│              │                                                      │
+├──────────────┴──────────────────────────────────────────────────────┤
+│ 状态: 已加载 io_points.csv (119 行) | 当前格式: Autoshop | 编码: UTF-8│
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+> **实现说明**：代码实际为 QSplitter 两栏布局（左=文件列表 + 右=编辑器）。批量解析结果通过 `editor.set_entries(all_entries)` 直接载入编辑器，不设独立右栏统计卡片；统计信息显示在底部状态栏。
+
+#### 5.5.2 文件列表（左栏）
+
+| 元素 | 说明 |
+|------|------|
+| 文件项 | 显示文件名 + 行数/块数徽标（如 `io_points.csv 119行`） |
+| 导入按钮 | 支持多选导入（CSV/YAML/JSON/SCL/Asc 等） |
+| 文件类型识别 | 基于 FormatDetector 三级识别（文件名→扩展名→内容特征） |
+| 选中事件 | 点击文件项 → 右侧编辑器加载该文件解析结果 |
+
+#### 5.5.3 变量表编辑器（中栏，VariableTableEditor）
+
+**VariableTableModel（QAbstractTableModel，8 列）**：
+
+| 列名 | 数据类型 | 可编辑 | 说明 |
+|------|----------|--------|------|
+| station | str | ✅ | 工站（如 `cpu`、`di_ext_1`、`remote_io_1`） |
+| signal_type | str | ✅ | 信号类型（DI/DO/AI/AO） |
+| address | str | ✅ | PLC 地址（如 `%I0.1`、`%Q0.1`、`MW10`） |
+| tag | str | ✅ | 标签名（如 `Motor_Start`） |
+| signal_name | str | ✅ | 信号名（变量描述） |
+| device | str | ✅ | 设备（关联设备名） |
+| comment | str | ✅ | 注释 |
+| source_format | str | ❌ | 来源格式（Autoshop/Work3/Codesys/SCL/IntDoc/io_points 等，只读自动填充） |
+
+> **字段对齐**：8 列字段名与 `auto_pm/ui/vartable/variable_table_editor.py` 的 `COLUMNS` 常量一致。VarEntry 9 字段中 `line_number` 为解析元数据，不作为可编辑列展示，导出时统一写 0。
+
+**编辑器功能**：
+
+- **工具栏**：[➕ 新增行] [🗑️ 删除行] [📋 复制行] + 导入/导出/刷新按钮
+- **右键菜单**：添加行 / 删除行 / 复制行
+- **导入导出**：支持 CSV/YAML/JSON 三格式导入导出
+- **data_changed 信号**：编辑器内容变更时发射，供 VartableTab 更新状态栏
+- **角色权限**：EDITABLE_ROLES = frozenset({"PLCEngineer", "SpecEditor"}) 可编辑，其他角色只读（V0.6.0+ 评估与后端权限系统打通）
+
+#### 5.5.4 批量解析结果（载入编辑器）
+
+> **实现说明**：批量解析不设独立右栏，结果直接载入编辑器。代码实际流程：`BatchParser.parse_directory()` 扫描项目目录 → 合并所有 VarEntry → `editor.set_entries(all_entries)` 载入编辑器 → 状态栏显示统计。
+
+| 元素 | 说明 |
+|------|------|
+| 批量解析按钮 | 顶部工具栏 [🔄 批量解析]，扫描项目目录下所有支持格式的文件 |
+| 结果载入 | 解析结果合并后直接载入编辑器（`set_entries`），不设独立统计卡片 |
+| 状态栏统计 | 底部状态栏显示文件数 + 变量总数 + 格式分布 |
+| 错误提示 | 解析失败的文件通过状态栏 warning 提示，不阻断整体流程 |
+| 导出 | 用户可在编辑器中导出为 CSV/YAML/JSON |
+
+#### 5.5.5 支持的文件格式（8 格式 Parser = 5 变量表 + 3 工程资产 + FormatDetector）
+
+| 格式 | 扩展名 | Parser | 说明 |
+|------|--------|--------|------|
+| Autoshop | `.csv` | AutoshopParser | Autoshop 导出的 CSV 变量表 |
+| Work3 | `.csv` | Work3Parser | Works3 导出的 CSV 变量表 |
+| Codesys | `.csv` | CodesysParser | CoDeSys 导出的 CSV 变量表 |
+| SCL | `.scl`/`.asc` | SCLParser | Siemens SCL 源文件变量声明 |
+| IntDoc | `.csv`/`.xlsx` | IntDocParser | 内部文档格式变量表 |
+| io_points | `.csv` | IoPointsParser | 工程资产 io_points.csv（深化 AssetSummaryService） |
+| program_blocks | `.yml` | ProgramBlocksParser | 工程资产 program_blocks.yml（→ BlockEntry） |
+| communications | `.yml` | CommunicationsParser | 工程资产 communications.yml（→ ChannelEntry） |
+
+#### 5.5.6 FormatDetector 三级识别策略
+
+```
+1. 文件名匹配 → io_points.csv / program_blocks.yml / communications.yml（工程资产类）
+       ↓ 未匹配
+2. 扩展名匹配 → .scl/.asc → SCL / .yml → YAML 格式 / .csv → 进入内容特征识别
+       ↓ 未匹配
+3. 内容特征识别 → 检查 CSV 表头/列名 → Autoshop/Work3/Codesys/IntDoc
+       ↓ 未匹配
+   返回 Unknown（提示用户手动选择格式）
+```
+
+#### 5.5.7 数据流设计
+
+```
+用户导入文件
+    ↓
+FormatDetector 三级识别 → 返回格式枚举
+    ↓
+工厂模式选择对应 Parser → 解析为 VarTable（VarEntry 列表）
+    ↓
+VariableTableModel 加载 VarTable → QTableView 展示
+    ↓
+用户编辑（新增/修改/删除行）
+    ↓
+data_changed 信号发射 → VartableTab 更新状态栏
+    ↓
+用户导出 → VariableConverter 转换为 CSV/YAML/JSON
+```
+
+#### 5.5.8 与 CLI 的对应关系
+
+| GUI 操作 | CLI 命令 | 说明 |
+|----------|----------|------|
+| 导入文件解析 | `auto-pm vartable parse <file> --format <fmt>` | 单文件解析 |
+| 批量解析 | `auto-pm vartable batch-parse <dir>` | 目录批量解析 |
+| 格式识别 | `auto-pm vartable detect-format <file>` | FormatDetector 三级识别 |
+| 编码检测 | `auto-pm vartable detect-encoding <file>` | BOM 检测 + fallback |
+| 列出格式 | `auto-pm vartable list-formats` | 列出支持的格式 |
+| 列出编码 | `auto-pm vartable list-encodings` | 列出支持的编码 |
+| 导出文件 | `auto-pm vartable convert <file> --output-format <fmt>` | 格式转换 |
+
+#### 5.5.9 已知限制与后续治理方向
+
+- **5 格式 Parser 真实样本覆盖**：当前基于 DJ-2026-005 单一样本验证，V0.5.x 评估引入第 2-3 个真实项目样本
+- **VartableTab 角色权限**：目前仅为 GUI 层软约束，未与后端权限系统打通（V0.6.0+ 评估）
+- **VariableConverter 字段契约**：固化后新增字段需考虑 CSV/YAML/JSON 三格式兼容性（V0.5.x 评估 schema 版本管理）
+- **格式扩展**：新格式支持需补充对应 Parser + 测试，当前 5 格式已覆盖主流场景
 
 ---
 
@@ -612,3 +761,19 @@ PlcStandardizer.standardize(project_id, apply=False)
 | B7 | ChangeService | `delete_change_request(num)` | P1 | 迭代2 |
 | B8 | ReportService | 新建（统计聚合） | P1 | 迭代4 |
 | B9 | AutoPmConfig | 扩展配置项 | P1 | 迭代4 |
+
+---
+
+## 十四、V2.1 变更记录
+
+| 日期 | 版本 | 变更内容 | 操作人 |
+|------|------|----------|--------|
+| 2026-06-22 | V2.0 | 初版发布：总库分类导航 + 功能补全 + 交互升级；13 章设计文档；后端匹配度总览；模块化开发架构；P0/P1/P2 优先级组件清单 | TRAE |
+| 2026-07-01 | V2.1 | 升级：① §5.1 项目工作区 Tab 表格更新（概览/变更/检查/文档 4 Tab 标注为 V2.0 已实现 + 变量表 Tab 从"V2.3 延后"改为"V2.3 Week4 已实现"）② 新增 §5.5 变量表 Tab 设计章节（9 小节：布局设计/文件列表/变量表编辑器/批量解析结果/支持文件格式/FormatDetector 三级识别/数据流设计/CLI 对应关系/已知限制）③ 对齐 V2.3 Week4 实际实现（VariableTableModel 8 列 + VariableTableEditor + VartableTab QSplitter 三栏 + 8 格式 Parser = 5 变量表 + 3 工程资产 + FormatDetector + 33 UI 测试）✅ 用户审核通过 | auto-pm（V0.5.0 收口批次） |
+
+### V2.1 升级说明
+
+- **升级原因**：V2.3 Week4（T15-T16）已交付 GUI 变量编辑器 + VartableTab，V2.0 原型设计中的"变量表 Tab V2.3 延后"已不适用
+- **升级范围**：仅升级 §5 项目工作区重构章节，其他章节（§1-§4、§6-§13）保持 V2.0 原设计不变
+- **审核状态**: ✅ 已审核通过（2026-07-01，用户审核），作为 V0.5.x 稳定期 GUI 演进的基线
+- **后续演进**：V0.5.x 稳定期评估 8 格式 Parser 真实样本覆盖 + VartableTab 角色权限移除；V0.6.0+ 根据评估结果启动长期路线（详见 006_技术债评估报告.md §12 长期治理建议）

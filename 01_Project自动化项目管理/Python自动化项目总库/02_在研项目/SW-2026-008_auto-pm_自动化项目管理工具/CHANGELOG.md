@@ -7,6 +7,8 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-01
+
 ### Added - V2.3 变量表解析整合（Week1-Week3）
 
 - V2.3 Week1（T01-T07）：变量表数据模型 + IoPointsParser + 编码检测 + CLI vartable 命令组 + 38 测试

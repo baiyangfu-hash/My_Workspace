@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>auto-pm V2.0 GUI 原型</title>
+<title>auto-pm V2.1 GUI 原型</title>
 <style>
   :root {
     --sidebar-bg: #1e1e2e;
@@ -557,6 +557,7 @@
           <button class="tab-btn" onclick="switchTab(this,'changeTab')">变更</button>
           <button class="tab-btn" onclick="switchTab(this,'checkTab')">检查</button>
           <button class="tab-btn" onclick="switchTab(this,'docTab')">文档</button>
+          <button class="tab-btn" onclick="switchTab(this,'vartableTab')">变量表</button>
         </div>
 
         <!-- Overview Tab -->
@@ -676,6 +677,84 @@
             <div class="info-row"><span class="info-label">模板</span><span class="info-value">plc-project-template v1.0</span></div>
             <div class="info-row"><span class="info-label">上次更新</span><span class="info-value">2026-05-01</span></div>
             <div class="info-row"><span class="info-label">操作</span><span class="info-value"><button class="check-action">检查更新</button></span></div>
+          </div>
+        </div>
+
+        <!-- Vartable Tab (V2.1 新增，对齐 V2.3 Week4 实现) -->
+        <div class="tab-content" id="vartableTab">
+          <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+            <button class="topbar-btn">📄 导入文件</button>
+            <button class="topbar-btn">💾 导出</button>
+            <button class="topbar-btn primary">🔄 批量解析</button>
+            <button class="topbar-btn" style="color:var(--danger);border-color:var(--danger)">🗑️ 清空</button>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+              角色:
+              <select class="sort-select"><option>PLC工程师</option><option>规范编辑</option><option>只读</option></select>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;height:calc(100vh - 280px);border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;">
+            <!-- 左栏：文件列表 -->
+            <div style="width:200px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:8px;">
+              <div style="font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding:0 4px;">文件列表</div>
+              <div style="background:var(--primary-light);border:1px solid var(--primary);border-radius:6px;padding:8px;margin-bottom:6px;cursor:pointer;">
+                <div style="font-size:12px;font-weight:600;color:var(--primary);">📄 io_points.csv</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">119 行 · Autoshop</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;cursor:pointer;">
+                <div style="font-size:12px;font-weight:500;color:var(--text-primary);">📄 program_blocks.yml</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">7 块 · program_blocks</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;cursor:pointer;">
+                <div style="font-size:12px;font-weight:500;color:var(--text-primary);">📄 communications.yml</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">5 通道 · communications</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;cursor:pointer;">
+                <div style="font-size:12px;font-weight:500;color:var(--text-primary);">📄 FB_Conveyor.scl</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">42 变量 · SCL</div>
+              </div>
+            </div>
+            <!-- 右栏：变量表编辑器 -->
+            <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+              <div style="display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);background:#f8fafc;">
+                <button class="check-action">➕ 新增行</button>
+                <button class="check-action">🗑️ 删除行</button>
+                <button class="check-action">📋 复制行</button>
+                <span style="margin-left:auto;font-size:11px;color:var(--text-dim);align-self:center;">VariableTableModel · 8 列 · EDITABLE_ROLES: PLCEngineer/SpecEditor</span>
+              </div>
+              <div style="flex:1;overflow:auto;">
+                <table class="list-table" style="font-size:12px;">
+                  <thead>
+                    <tr>
+                      <th>station</th>
+                      <th>signal_type</th>
+                      <th>address</th>
+                      <th>tag</th>
+                      <th>signal_name</th>
+                      <th>device</th>
+                      <th>comment</th>
+                      <th>source_format</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>cpu</td><td>DI</td><td>%I0.1</td><td>M1_Start</td><td>电机1启动</td><td>Motor1</td><td>主电机启动按钮</td><td><span style="font-size:10px;color:var(--badge-sw);background:#e0f2fe;padding:1px 6px;border-radius:3px;">Autoshop</span></td></tr>
+                    <tr><td>cpu</td><td>DO</td><td>%Q0.1</td><td>M1_Run</td><td>电机1运行</td><td>Motor1</td><td>运行指示灯</td><td><span style="font-size:10px;color:var(--badge-sw);background:#e0f2fe;padding:1px 6px;border-radius:3px;">Autoshop</span></td></tr>
+                    <tr><td>di_ext_1</td><td>DI</td><td>%I0.2</td><td>S1_Detect</td><td>传感器1检测</td><td>Sensor1</td><td>物料检测传感器</td><td><span style="font-size:10px;color:var(--badge-sw);background:#e0f2fe;padding:1px 6px;border-radius:3px;">Autoshop</span></td></tr>
+                    <tr><td>remote_io_1</td><td>AI</td><td>IW64</td><td>T1_PV</td><td>温度1实测</td><td>Temp1</td><td>—</td><td><span style="font-size:10px;color:var(--badge-python);background:#d1fae5;padding:1px 6px;border-radius:3px;">io_points</span></td></tr>
+                    <tr><td>remote_io_1</td><td>AO</td><td>QW64</td><td>V1_SP</td><td>阀门1设定</td><td>Valve1</td><td>—</td><td><span style="font-size:10px;color:var(--badge-python);background:#d1fae5;padding:1px 6px;border-radius:3px;">io_points</span></td></tr>
+                    <tr><td>cpu</td><td>VAR</td><td>—</td><td>FB_Conveyor.ST1</td><td>输送机状态</td><td>—</td><td>FB 内部状态变量</td><td><span style="font-size:10px;color:var(--badge-dj);background:#ede9fe;padding:1px 6px;border-radius:3px;">SCL</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding:6px 12px;border-top:1px solid var(--border);background:#f8fafc;font-size:11px;color:var(--text-secondary);display:flex;gap:16px;">
+                <span>已加载: io_points.csv (119 行)</span>
+                <span>当前格式: Autoshop</span>
+                <span>编码: UTF-8</span>
+                <span style="margin-left:auto;color:var(--success);">● 编辑就绪</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-dim);">
+            <strong style="color:var(--text-secondary);">实现说明：</strong>QSplitter 两栏布局（左=文件列表 + 右=编辑器）。批量解析结果通过 <code style="background:#f1f5f9;padding:1px 4px;border-radius:2px;">editor.set_entries(all_entries)</code> 直接载入编辑器，不设独立右栏统计卡片。8 列字段名与 <code style="background:#f1f5f9;padding:1px 4px;border-radius:2px;">COLUMNS</code> 常量一致，VarEntry 第 9 字段 <code style="background:#f1f5f9;padding:1px 4px;border-radius:2px;">line_number</code> 为解析元数据不作为可编辑列。
           </div>
         </div>
       </div>
@@ -984,7 +1063,7 @@ const projects = [
   { id:'XT-2026-002', name:'产线升级改造', stack:'plc', bl:'XT', phase:'archived', version:'1.5', changes:15, modified:'03-22', desc:'旧产线升级改造项目' },
   { id:'SW-2026-001', name:'PLC变量表解析工具', stack:'python', bl:'SW', phase:'production', version:'1.2', changes:0, modified:'05-20', desc:'解析 PLC 变量表 Excel 文件' },
   { id:'SW-2026-004', name:'Python项目管理工具', stack:'python', bl:'SW', phase:'developing', version:'0.8', changes:5, modified:'06-12', desc:'Python 项目管理 CLI 工具' },
-  { id:'SW-2026-008', name:'auto-pm 自动化项目管理', stack:'python', bl:'SW', phase:'developing', version:'0.1', changes:3, modified:'06-20', desc:'统一自动化项目管理工具' },
+  { id:'SW-2026-008', name:'auto-pm 自动化项目管理', stack:'python', bl:'SW', phase:'developing', version:'0.5', changes:3, modified:'07-01', desc:'统一自动化项目管理工具' },
 ];
 
 const changeDetails = [

@@ -1,10 +1,10 @@
 ---
 doc_id: PILOT-008
 title: 试运行报告
-version: "V1.7.0"
+version: "V1.8.0"
 status: "生效"
 created: "2026-06-26"
-updated: "2026-06-30"
+updated: "2026-07-01"
 owner: "fubai"
 project_id: "SW-2026-008"
 ---
@@ -23,8 +23,8 @@ project_id: "SW-2026-008"
 |------|------|
 | 试运行对象 | auto-pm 自身（SW-2026-008） |
 | 试运行方式 | auto-pm 使用自己的 `change create/list/show/transition/edit` 命令管理自身迭代 |
-| 试运行周期 | 2026-06-25 ~ 2026-06-30（M0 收尾 ~ V2.2 Week3 GUI 改造收口） |
-| 闭环次数 | 9 次（CHG-SCPT-2026-001 / 062 / 063 + V0.4.0 W2-W4 + V0.4.2 DJ-2026-005 首轮 + V0.4.2 W1 资产补齐 + V0.4.2 W3 第二样本复核 + V0.4.2 W4 dogfooding 审查收口 + V2.2 W3 GUI 改造 + CHG-078 第 9 次闭环） |
+| 试运行周期 | 2026-06-25 ~ 2026-07-01（M0 收尾 ~ V0.5.0 版本统一收口） |
+| 闭环次数 | 10 次（CHG-SCPT-2026-001 / 062 / 063 + V0.4.0 W2-W4 + V0.4.2 DJ-2026-005 首轮 + V0.4.2 W1 资产补齐 + V0.4.2 W3 第二样本复核 + V0.4.2 W4 dogfooding 审查收口 + V2.2 W3 GUI 改造 + CHG-078 第 9 次闭环 + V2.3 W1-W4 变量表解析整合第 10 次闭环） |
 
 ### 1.2 试运行目标
 
@@ -326,9 +326,81 @@ project_id: "SW-2026-008"
 - LSP-907 通过 `spec_registry.json` 集成，后续新增规范需先注册到 registry 再到 GUI
 - 17 处 mypy 技术债中 1 处（type:ignore）评估后保留，后续需在 TD-C10 单独跟踪（若立项）
 
+### 2.10 V2.3 Week1-4（第十次闭环 — 变量表解析整合主线 + TD-C10 治理 + V0.5.0 收口）
+
+| 字段 | 内容 |
+|------|------|
+| 试运行编号 | PILOT-V2.3-W1-W4-VARTABLE-TDC10 |
+| 试运行日期 | 2026-06-30 ~ 2026-07-01 |
+| 试运行对象 | auto-pm 自身（SW-2026-008）—— V2.3 Week1-4 变量表解析整合主线 + TD-C10 mypy tests/ 治理 + V0.5.0 版本统一收口 |
+| 试运行方式 | 沿用 dogfooding 流程（CHG-*.md 变更单 + 9 步状态流转），四周连续迭代：Week1 数据模型 + IoPointsParser + CLI vartable 命令组；Week2 多格式解析器 + 格式自动识别；Week3 5 格式 Parser 深化 + 转换器重建 + 批量解析；Week4 GUI 变量编辑器 + VartableTab。每周交付均通过 `pytest --no-cov <相关模块>` + ruff + mypy 三重门禁 |
+| 关键命令 | `auto-pm vartable parse` / `detect-encoding` / `list-encodings` / `convert` / `batch-parse`（CLI-28~32）；`auto-pm vartable detect-format` / `list-formats`；GUI 端 `VartableTab` 文件列表 + 编辑器 + 批量解析 |
+| 当前状态 | ✅ V0.5.0 已发布（pyproject 0.4.2 → 0.5.0；CHANGELOG [0.5.0] - 2026-07-01） |
+
+**变更内容（T01-T16 + TD-C10 治理）**：
+
+1. **Week1（T01-T07）变量表数据模型 + IoPointsParser + CLI 命令组**：
+   - 新增 `auto_pm/vartable/models.py`：VarEntry/VarTable/ParseResult/ParseError 四个 frozen dataclass
+   - 新增 `auto_pm/vartable/parsers/io_points_parser.py`：IoPointsParser 深化 AssetSummaryService，处理 io_points.csv 多格式地址
+   - 新增 `auto_pm/vartable/utils/encoding.py`：detect_encoding BOM 检测 + fallback（无 chardet 依赖）
+   - 新增 `auto_pm/cli/vartable.py`：parse/detect-encoding/list-encodings 三子命令 + Rich Table + Unicode 输出兼容
+   - 38 测试新增（tests/vartable/ + tests/cli/test_vartable.py）
+
+2. **Week2（T08-T11）多格式解析器 + 格式自动识别 + CLI 集成**：
+   - 新增 `auto_pm/vartable/parsers/program_blocks_parser.py`：ProgramBlocksParser 解析 YAML → BlockEntry
+   - 新增 `auto_pm/vartable/parsers/communications_parser.py`：CommunicationsParser 解析 YAML → ChannelEntry
+   - 新增 `auto_pm/vartable/parsers/base_parser.py` + 5 格式 Parser 骨架（Autoshop/Work3/Codesys/SCL/IntDoc）
+   - 新增 `auto_pm/vartable/parsers/format_detector.py`：三级识别（文件名→扩展名→内容特征）+ 工厂模式
+   - 扩展 CLI：parse --format/--output-format + list-formats + detect-format 子命令
+   - DJ-2026-005 端到端验证 6 项全通过（7 block + 5 channel + 自动识别）
+   - 35 测试新增
+
+3. **Week3（T12-T14）5 格式 Parser 深化 + 转换器重建 + 批量解析**：
+   - 深化 5 格式 Parser（Autoshop/Work3/Codesys/SCL/IntDoc）：添加 detect_format 方法委托 format_detector
+   - 新增 `auto_pm/vartable/converter.py`：VariableConverter 统一中间模型导出 CSV/YAML/JSON
+   - 新增 `auto_pm/vartable/batch_parser.py`：BatchParser 批量解析目录/文件列表
+   - 扩展 CLI：convert + batch-parse 子命令
+   - DJ-2026-005 端到端验证 4 项全通过（SCL 解析 + 批量解析 6 文件 278 条变量 + JSON 转换）
+   - 35 测试新增
+
+4. **Week4（T15-T16）GUI 变量编辑器 + 项目工作区变量表 Tab**：
+   - 新增 `auto_pm/ui/vartable/variable_table_editor.py`：VariableTableModel（QAbstractTableModel 8 列）+ VariableTableEditor（QTableView + 工具栏 + 右键菜单 + 导入导出 + data_changed 信号）
+   - 新增 `auto_pm/ui/vartable/vartable_tab.py`：VartableTab（QSplitter 文件列表 + 编辑器 + 批量解析 + 角色权限 PLCEngineer/SpecEditor 可编辑）
+   - 修改 `auto_pm/ui/workspace/workspace_view.py`：Tab 列表接入 VartableTab
+   - mypy unreachable 修复（3 处）：用方法调用替代 bool 属性窄化
+   - 33 测试新增
+
+5. **TD-C10 mypy tests/ 治理**：381→0 errors（11 测试文件类型标注修复）
+   - 关键技术：bool() 包装打破 mypy 属性 narrowing / str 变量打破 Literal 收窄 / Generator 返回类型 / Callable[[Any],None] 逆变 / PySide6 枚举完整路径
+
+**验证结果**：
+
+- 全量回归 1477 passed 6 skipped 0 failed（较 V0.4.2 收口基线 1332 passed 5 skipped +145 测试 +1 skipped）
+- 141 测试新增（Week1 38 + Week2 35 + Week3 35 + Week4 33）
+- ruff 0 errors, mypy 0 errors（生产代码 + tests/ 全部清零，TD-C10 治理完成）
+- DJ-2026-005 端到端 10 项全通过（Week2 6 项 + Week3 4 项）
+- 32/32 项技术债全部关闭（剩余 0 项）
+- pyproject.toml version 0.4.2 → 0.5.0；CHANGELOG [0.5.0] - 2026-07-01 完整章节
+- 00_项目基础信息 8 文档全部对齐 V0.5.0/V2.2.0；02_设计 GUI 原型 V2.1 + 里程碑迭代计划更新；09_整改项归档整理
+
+**节省的人工作业**：
+
+- 变量表从人工抄写到工具解析：io_points.csv 119 行可一键解析为 VarTable，并支持 CSV/YAML/JSON 三格式导出
+- 5 格式 Parser 覆盖 Autoshop/Work3/Codesys/SCL/IntDoc，减少工程师手动整理变量表的工作量
+- 批量解析支持目录递归扫描，DJ-2026-005 6 文件 278 条变量一次性解析完成
+- GUI 变量编辑器支持表格化编辑 + 导入导出 + 角色权限控制，PLC 工程师可在 GUI 内直接修改变量表
+- TD-C10 治理完成后，tests/ 不再有 mypy errors，后续测试代码类型标注基线可信
+
+**新增的维护负担**：
+
+- 5 格式 Parser 需持续维护真实项目样本（当前基于 DJ-2026-005），新格式支持需补充对应 Parser + 测试
+- FormatDetector 三级识别策略需在真实项目中持续校准，避免误识别
+- VariableConverter 中间模型字段契约固化后，新增字段需考虑 CSV/YAML/JSON 三格式兼容性
+- VartableTab 角色权限（PLCEngineer/SpecEditor 可编辑）目前仅为 GUI 层软约束，未与后端权限系统打通
+
 ## 3. 试运行发现的问题与修复
 
-### 3.1 已修复（14 项）
+### 3.1 已修复（15 项）
 
 | 问题 | 严重程度 | 发现于 | 修复于 | 修复方式 |
 |------|----------|--------|--------|----------|
@@ -346,6 +418,7 @@ project_id: "SW-2026-008"
 | TD-T09 复发（`tests/gui/test_17_edit_change_dialog.py::_cleanup_test_changes` 的 `except Exception: pass` 静默吞错） | 🟡 中 | V0.4.2 Week4 dogfooding 闭环审查 | 2026-06-29 | except 范围从 `Exception`（含 `# noqa: BLE001`）收窄为 `(OSError, PermissionError, ValueError, KeyError)`，删除 noqa 注释 |
 | PM_SESSION §2 代码基线 0.3.8 冻结语义不清晰（"冻结"是否含 CHANGELOG `[Unreleased]` 累积不明） | 🟢 低 | V0.4.2 Week4 dogfooding 闭环审查 | 2026-06-29 | PM_SESSION §2 milestone 行补充"pyproject.toml version=0.3.8 不升级；CHANGELOG [Unreleased] 累积 V0.4.0 Week 4 + V0.4.1 Step 1~3 + V0.4.2 Week 1~3 文档迭代证据，待后续版本统一收口"明确语义 |
 | 5 个 jinja2 `DeprecationWarning: invalid escape sequence '\d'`（4 个 copier.yml 的 `'^[A-Z]+-\d{4}-\d{3}$'` jinja2 字符串字面量含 `\d`，触发 lexer `decode("unicode-escape")`） | 🟢 低 | V0.4.2 Week4 全量回归（1246 passed 5 warnings） | 2026-06-29 | `templates/plc-standard-project/copier.yml` + `templates/python-tool/copier.yml` + `templates/plc-test-suite/copier.yml` + `templates/plc-standard/copier.yml` 共 4 个文件的 `\d` → `\\d`；验证 `pytest tests/cli/test_plc.py::test_plc_init_default_mode -W "error::DeprecationWarning"` PASSED（jinja2 警告彻底消除） |
+| TD-C10 mypy tests/ 381 errors（11 测试文件类型标注缺失/不准确） | 🔴 高 | V2.3 Week1 收口前 mypy tests/ 扫描 | 2026-07-01 V2.3 Week4 | 11 测试文件类型标注修复：bool() 包装打破 mypy 属性 narrowing / str 变量打破 Literal 收窄 / Generator 返回类型 / Callable[[Any],None] 逆变 / PySide6 枚举完整路径；mypy tests/ 381→0 errors；32/32 项技术债全部关闭 |
 
 ### 3.2 已知限制（不视为缺陷）
 
@@ -381,6 +454,9 @@ project_id: "SW-2026-008"
 | dogfooding 闭环审查漏洞批量修复 | ✅ | 5 项漏洞全部修复：PILOT 版本号对齐 + 台帐补登 CHG-072 序号 005 + 8 条死链修复 + 005 索引表 3→9 条 + TD-T14 qapp 真正统一 + TD-T09 except 收窄 + PM_SESSION §2 语义澄清；ruff + mypy + tests/ui 25 passed + tests/gui 7 passed 1 skipped + 临时脚本核验 9/9 OK |
 | TD-TC01 + jinja2 DeprecationWarning 收口 | ✅ | TD-TC01 已规避（workaround 沉淀到 `project_memory.md`）；5 个 jinja2 `DeprecationWarning: invalid escape sequence '\d'` 已根除（4 个 copier.yml `\d` → `\\d`，`pytest -W "error::DeprecationWarning"` PASSED）；技术债报告 26/26 项全部关闭，剩余 0 项 |
 | V0.4.2 Week4 收口 + V0.4.3 准入判断 | ✅ | 全量回归 1246 passed 1 skipped 0 warnings exit code 0；准入门槛三项全部达成；用户决策"Yes，准入"——可解除冻结进入 V0.4.3 版本与文档统一 |
+| V2.3 Week1-4 变量表解析整合主线 | ✅ | T01-T16 全部交付：vartable 模块（models/parsers/converter/batch_parser/utils）+ CLI vartable 命令组（CLI-28~32）+ 5 格式 Parser + FormatDetector 三级识别 + GUI VartableTab；141 测试新增（38+35+35+33）；DJ-2026-005 端到端 10 项全通过 |
+| TD-C10 mypy tests/ 治理 + 32/32 技术债全部关闭 | ✅ | mypy tests/ 381→0 errors（11 文件类型标注修复）；32/32 项技术债全部关闭，剩余 0 项 |
+| V0.5.0 版本统一收口 | ✅ | pyproject 0.4.2→0.5.0；CHANGELOG [0.5.0] - 2026-07-01 完整章节；00_项目基础信息 8 文档 V2.2.0/V0.5.0 对齐；02_设计 GUI 原型 V2.1；09_整改项归档整理；全量回归 1477 passed 6 skipped 0 failed |
 
 ### 4.2 试运行结论
 
@@ -413,6 +489,7 @@ project_id: "SW-2026-008"
 | 2026-06-29 | V1.5.0 | V0.4.2 Week4 收口 + V0.4.3 准入判断（dogfooding 闭环审查 5 项漏洞批量修复：PILOT 版本号对齐 + 台帐补登 CHG-072 序号 005 + 8 条死链修复 + 005 索引表 3→9 条 + TD-T14 qapp 真正统一 + TD-T09 except 收窄 + PM_SESSION §2 语义澄清；TD-TC01 已规避 + 5 个 jinja2 DeprecationWarning 根除；技术债 26/26 项全部关闭；全量回归 1246 passed 1 skipped 0 warnings exit code 0；V0.4.3 准入通过） | TRAE |
 | 2026-06-29 | V1.6.0 | V0.4.3 版本号与文档统一收口（pyproject 0.3.8→0.4.1 + CHANGELOG [0.4.1] 单条汇总 V0.4.0~V0.4.3 全部证据 + 005 V0.4.3 章节 + PRD V2.1.2 V0.4.1 路线图 + 016 文档 5 块 vs 7 块差异收口 §5.1.1/§5.1.2 + DJ-2026-005 工程资产提取策略评估保持人工首版 + PM_SESSION §2/§7/§8/§9 同步 + PILOT V1.6.0；ruff 0 errors + mypy 0 errors + jinja2 PASSED + tests/ui 76 passed + 全量回归基线 1246 passed 1 skipped 0 warnings） | TRAE |
 | 2026-06-30 | V1.7.0 | V2.2 Week3 第 9 次 dogfooding 闭环（CHG-SCPT-2026-078 完整 9 步状态流转 draft→closed）：GUI 规范中心页改造（T11 spec_center.py 482→300 行 + T12 6 Tab 类 + T13 服务集成 IndexService/CheckService/FrontmatterService/ReportService + T14 LSP-907 集成 14 规范）+ 技术债清理（TD-C07 mypy 17 errors 修复 + TD-C08 8 文件 docstring 规范化 + TD-C09 19 处 type:ignore 18 处清理 + TD-A03 第 9 次闭环）；33 个新 UI 测试 + ruff/mypy 0 errors + 全量回归 1332 passed 5 skipped；§1.1 试运行周期延伸到 2026-06-30 + 闭环次数 8→9 | auto-pm（V0.4.2 整改批次）|
+| 2026-07-01 | V1.8.0 | V2.3 Week1-4 第 10 次 dogfooding 闭环（变量表解析整合主线 + TD-C10 治理 + V0.5.0 收口）：Week1 VarEntry/VarTable/ParseResult/ParseError 4 个 frozen dataclass + IoPointsParser + 编码检测 + CLI vartable 命令组（38 测试）；Week2 ProgramBlocksParser/CommunicationsParser + 5 格式 Parser 骨架 + FormatDetector 三级识别 + DJ-2026-005 端到端 6 项全通过（35 测试）；Week3 5 格式 Parser 深化 + VariableConverter + BatchParser + DJ-2026-005 端到端 4 项全通过（35 测试）；Week4 VariableTableModel + VariableTableEditor + VartableTab GUI 变量编辑器（33 测试）；TD-C10 mypy tests/ 381→0 errors（11 文件类型标注修复）；141 测试新增 + ruff/mypy 0 errors + 全量回归 1477 passed 6 skipped；32/32 项技术债全部关闭；§1.1 试运行周期延伸到 2026-07-01 + 闭环次数 9→10；pyproject 0.4.2→0.5.0 + CHANGELOG [0.5.0] - 2026-07-01 + 00_项目基础信息 8 文档 V2.2.0/V0.5.0 对齐 | auto-pm（V0.5.0 收口批次）|
 
 ---
 
