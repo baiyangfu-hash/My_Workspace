@@ -52,6 +52,49 @@ def _find_test_files(tests_dir: Path) -> list[Path]:
     ]
 
 
+def _test_contains_none_compare(node: ast.expr) -> bool:
+    """递归检查表达式 AST 中是否包含 `is None` 或 `is not None` 比较。
+
+    覆盖以下变体（R-C05 升级）：
+    - 直接比较：`x is None` / `x is not None`
+    - BoolOp 组合：`x is not None and y` / `x is None or z`
+    - 属性访问：`obj.attr is not None`（left 为 Attribute）
+    - 一元否定：`not (x is not None)`
+
+    不误判的合理用法：
+    - `if x:` / `if not x:`（真值比较，无 is/is not None）
+    - `assert x is not None`（断言，非 if/IfExp 的 test）
+    """
+    if isinstance(node, ast.Compare):
+        has_none_check = False
+        for op, comparator in zip(node.ops, node.comparators, strict=False):
+            if isinstance(op, (ast.Is, ast.IsNot)) and isinstance(
+                comparator, ast.Constant
+            ) and comparator.value is None:
+                has_none_check = True
+        return has_none_check
+    if isinstance(node, ast.BoolOp):
+        # `x is not None and y` / `x is None or z` 等组合
+        return any(_test_contains_none_compare(v) for v in node.values)
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+        # `not (x is not None)`
+        return _test_contains_none_compare(node.operand)
+    return False
+
+
+def _body_contains_assert(stmts: list[ast.stmt]) -> bool:
+    """检查 if 语句的 body/orelse 是否含 assert 语句（fake-pass 模式判定）。
+
+    fake-pass 模式：`if cr is not None: assert ...` —— 当 cr 为 None 时
+    断言被跳过，测试假通过。仅当 body 含 assert 才标记为违规。
+    """
+    for stmt in stmts:
+        for n in ast.walk(stmt):
+            if isinstance(n, ast.Assert):
+                return True
+    return False
+
+
 # ── AST 分析工具 ──────────────────────────────────────────
 
 
@@ -264,24 +307,50 @@ class TestFixtureHealth:
             )
 
     def test_no_conditional_assertion_skips(self, tests_dir: Path) -> None:
-        """检查是否存在 `if cr is not None:` 类条件断言跳过（假通过模式）。
+        """检查是否存在 `if cr is not None: assert ...` 类条件断言跳过（假通过模式）。
 
         本测试为 FAIL 级别（TD-T07 已升级）：发现问题时阻断测试套件，
         防止假通过模式再次出现。依赖 TD-T04 已偿还（0 violations）。
+
+        V2.1.0 升级（R-C05）：从正则字符串匹配改为 AST 分析，
+        精准定位 fake-pass 模式——`ast.If` 语句且 test 含
+        `is None`/`is not None` 比较且 body 含 `assert` 语句。
+
+        AST walk 覆盖以下 test 变体（满足"能检测"要求）：
+        - `if x is not None:`（基础）
+        - `if x is not None and y:` / `if x is None or y:`（BoolOp 组合）
+        - `if x is None:`（反向 None 比较）
+        - `if obj.attr is not None:`（属性访问）
+        - `x if x is not None else y`（三元表达式 IfExp，AST walk 访问）
+
+        不误判的合理用法（不 FLAG）：
+        - `if x is None: return/continue/skip`（无 assert 的合理控制流）
+        - `if x:` / `if not x:`（真值比较）
+        - `x if x is not None else y`（三元数据构造，IfExp 无法含 assert）
+        - `assert x is not None`（断言本身，非 if 语句）
         """
         test_files = _find_test_files(tests_dir)
         violations: list[str] = []
 
-        pattern = re.compile(r"if\s+\w+\s+is\s+not\s+None\s*:", re.MULTILINE)
-
         for file_path in test_files:
             rel_path = file_path.relative_to(tests_dir)
             source = file_path.read_text(encoding="utf-8")
-            matches = pattern.findall(source)
-            if matches:
-                violations.append(
-                    f"  - {rel_path}（{len(matches)}处）"
-                )
+            try:
+                tree = ast.parse(source, filename=str(file_path))
+            except SyntaxError:
+                continue  # 跳过无法解析的文件
+
+            count = 0
+            for node in ast.walk(tree):
+                # 仅检查 ast.If（语句）的 test 字段；IfExp（三元）无法含 assert，
+                # 数据构造用法不构成 fake-pass，不标记
+                if isinstance(node, ast.If) and _test_contains_none_compare(node.test):
+                    # body 含 assert 才是 fake-pass 模式
+                    if _body_contains_assert(node.body) or _body_contains_assert(node.orelse):
+                        count += 1
+
+            if count:
+                violations.append(f"  - {rel_path}（{count}处）")
 
         if violations:
             msg = "\n".join(violations)

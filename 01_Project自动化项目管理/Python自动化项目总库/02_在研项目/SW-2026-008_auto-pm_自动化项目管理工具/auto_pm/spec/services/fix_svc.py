@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,6 +8,8 @@ from pathlib import Path
 from auto_pm.spec.core.checker_base import CheckResult
 from auto_pm.spec.core.registry import SpecRegistry
 from auto_pm.spec.core.scanner import SpecScanner
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -165,6 +168,7 @@ class FixService:
                     import yaml
                     existing = yaml.safe_load(fm_text) or {}
                 except Exception:
+                    log.warning("解析 frontmatter YAML 失败", exc_info=True)
                     existing = {}
                 missing_fields = []
                 for field_name in ("spec_id", "title", "version", "lifecycle"):

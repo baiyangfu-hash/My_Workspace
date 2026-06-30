@@ -50,6 +50,10 @@ dist/
 .pytest_cache/
 .coverage
 coverage/
+*.log
+
+# auto-pm runtime
+.auto-pm/
 
 # Python
 __pycache__/

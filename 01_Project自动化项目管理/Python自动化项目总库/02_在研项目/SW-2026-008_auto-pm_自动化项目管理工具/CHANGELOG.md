@@ -9,6 +9,55 @@
 
 _暂无未发布变更_
 
+## [0.4.2] - 2026-06-30
+
+### Added - V2.2 Week 1 specmgr 吸收（T02/T03）
+
+- **T02 specmgr 代码迁移**：`auto_pm/spec/` 新增 `core/`（checker_base/config/registry）+ `services/`（IndexService/CheckService/FrontmatterService/ReportService/FixService）+ `models`，吸收 SW-2026-006 specmgr 工具核心能力
+- **T03 关键问题修复**：`SpecInfo` 新增 `aliases` 字段（防止 `SpecRegistry.load()` 丢弃 aliases）；10 项健康检查（SHC-001~010）全部迁移；`WorkspaceConfig` 完整迁移
+- **dogfooding**：auto-pm 自身可使用 `auto-pm spec check/index/frontmatter/report` 管理自身规范
+
+### Added - V2.2 Week 2 CLI 规范命令（T06-T10）
+
+- **T06 删除死代码**：删除 `auto_pm/spec/commands/index.py`、`frontmatter.py`、`report.py`（cli/spec.py 已有自己的 `_resolve_workspace`）
+- **T07 emoji 编码修复**：修复 Windows GBK 终端下 emoji 输出 `UnicodeEncodeError`（`_supports_unicode_output()` 检测 + ASCII fallback icons）
+- **T08 新增测试**：tests/spec 从 80 增至 118 passed
+- **T09 CLI 选项**：spec 命令新增 `--config`/`--quiet` 选项
+- **T10 全量回归**：1246→1364 passed，2 skipped
+
+### Added - V2.2 Week 3 GUI 规范中心页改造（T11-T14）
+
+- **T11 spec_center.py 重构**：从 482 行单文件改为 QTabWidget + DTO 层架构（`spec_center_dto.py` 8 个 frozen dataclass + SpecCenterAdapter），生产代码降至 300 行
+- **T12 6 Tab 类**：`spec_center_tabs/` 目录下 6 个 Tab 类（概览/索引/检查/frontmatter/报告/对比）
+- **T13 服务集成**：所有 Tab 集成新 IndexService/CheckService/FrontmatterService/ReportService（从旧 SpecIndexService 迁移到 DTO/adapter 模式）
+- **T14 LSP-907 集成**：通过 `spec_registry.json` 集成 LSP-907，GUI 规范中心页可查看 14 个规范（PM/PLC/Python 域）
+
+### Fixed - V0.4.2 整改批次 P0 Critical（R-C01~R-C09）
+
+- **R-C01 DSN §9 废弃 API 标注**：标注 `SpecIndexService` 为废弃（被 `IndexService` 替代）
+- **R-C02 DSN §11 状态机对齐**：`STATUS_FLOW` 对齐 9 步状态流转
+- **R-C03 DSN §10.2 DB 表补全**：补全到 5 表（变更单/审批记录/影响分析/资产摘要/工作空间配置）
+- **R-C04 005_CHG 补 CHG-078 索引行**：标准变更单索引表补登 CHG-SCPT-2026-078（第 9 次 dogfooding 闭环）
+- **R-C05 ~ R-C09**：其他 Critical 项（已在前一会话完成）
+
+### Changed - V0.4.2 整改批次 P1 Major（R-M01~R-M07）
+
+- **R-M01 文档版本号对齐**：INT/DSN/TEC/REL 4 文档统一升级到 V2.1.0（与 PRD V2.1.2 对齐）
+- **R-M02 INT CLI 命令清单补全**：补全 7 行 CLI-21~27（doc refresh/inject + spec check/index/frontmatter/report + change edit）
+- **R-M03 INT Service 层补全**：补全 8 行 SVC-22~29（spec 服务族 4 + core 服务族 4）
+- **R-M04 005_CHG 补 V2.2 Week1-3 章节**：3 个新章节（Week1 specmgr 吸收 + Week2 CLI 规范命令 + Week3 GUI 改造 + CHG-078 技术债清理）
+- **R-M05 008_PILOT 补 CHG-078 第 9 次闭环**：§1.1 试运行周期延伸到 2026-06-30 + 闭环次数 8→9 + 新增 §2.9 闭环证据章节
+- **R-M06 006_TD §0.1 总览表更新**：更新到 31 项并补分类（TD-C07/C08/C09/A03）
+- **R-M07 007_REL 门禁数据修正**：G3 期望 1 skipped → 2 skipped（L25 + L65）；§4.4 "8 步生命周期" → "9 步状态流转"
+
+### Verified - V0.4.2 全量回归
+
+- 全量回归：1332 passed, 5 skipped, 0 failed（较 V0.4.1 收口基线 1246 passed 1 skipped +86 测试 +4 skipped）
+- ruff 0 errors, mypy 0 errors（8 生产文件）
+- 33 个新 UI 测试覆盖 6 Tab + DTO 层 + 真实工作空间集成
+- dogfooding：CHG-SCPT-2026-078 完整 9 步状态流转 draft→closed（第 9 次闭环）
+- 技术债：TD-C07/C08/C09/A03 已清理（17 mypy errors 修复 + 8 文件 docstring + 18 处 type:ignore 清理 + 第 9 次闭环）
+
 ## [0.4.1] - 2026-06-29
 
 ### Added - V0.4.0 Week 4 文档自动区刷新

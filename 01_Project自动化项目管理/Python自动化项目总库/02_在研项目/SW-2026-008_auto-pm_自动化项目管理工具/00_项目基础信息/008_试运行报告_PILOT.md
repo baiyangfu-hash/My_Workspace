@@ -1,10 +1,10 @@
 ---
 doc_id: PILOT-008
 title: 试运行报告
-version: "V1.6.0"
+version: "V1.7.0"
 status: "生效"
 created: "2026-06-26"
-updated: "2026-06-29"
+updated: "2026-06-30"
 owner: "fubai"
 project_id: "SW-2026-008"
 ---
@@ -23,8 +23,8 @@ project_id: "SW-2026-008"
 |------|------|
 | 试运行对象 | auto-pm 自身（SW-2026-008） |
 | 试运行方式 | auto-pm 使用自己的 `change create/list/show/transition/edit` 命令管理自身迭代 |
-| 试运行周期 | 2026-06-25 ~ 2026-06-29（M0 收尾 ~ V0.4.2 Week4 收口） |
-| 闭环次数 | 8 次（CHG-SCPT-2026-001 / 062 / 063 + V0.4.0 W2-W4 + V0.4.2 DJ-2026-005 首轮 + V0.4.2 W1 资产补齐 + V0.4.2 W3 第二样本复核 + V0.4.2 W4 dogfooding 审查收口） |
+| 试运行周期 | 2026-06-25 ~ 2026-06-30（M0 收尾 ~ V2.2 Week3 GUI 改造收口） |
+| 闭环次数 | 9 次（CHG-SCPT-2026-001 / 062 / 063 + V0.4.0 W2-W4 + V0.4.2 DJ-2026-005 首轮 + V0.4.2 W1 资产补齐 + V0.4.2 W3 第二样本复核 + V0.4.2 W4 dogfooding 审查收口 + V2.2 W3 GUI 改造 + CHG-078 第 9 次闭环） |
 
 ### 1.2 试运行目标
 
@@ -286,6 +286,46 @@ project_id: "SW-2026-008"
 - 4 个 copier.yml 修复后，新增模板若使用 regex_search 含 `\d` 等转义字符，必须用 `\\d` 双反斜杠（jinja2 lexer 会 decode unicode-escape 一次）
 - TD-TC01 workaround 沉淀到 `project_memory.md` 后，后续模型/会话必须遵守"写文件用 Write/Edit 工具，不用 Python `Path.write_text()`"硬约束
 
+### 2.9 V2.2 Week3（第九次闭环 — GUI 规范中心页改造 + CHG-078 技术债清理）
+
+| 字段 | 内容 |
+|------|------|
+| 试运行编号 | PILOT-V2.2-W3-GUI-CHG-078 |
+| 试运行日期 | 2026-06-30 |
+| 试运行对象 | auto-pm 自身（SW-2026-008）—— V2.2 Week3 GUI 规范中心页改造 + 技术债批量清理（CHG-SCPT-2026-078） |
+| 试运行方式 | 用 `change create --pid SW-2026-008 --domain SCPT --nature OPT --scope PLC+Python+GUI --urgency high` 创建 CHG-078 变更单，再用 `change transition CHG-SCPT-2026-078 --to <STATUS>` 走完整 9 步状态流转（draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed）；同时用 `change edit` 填充 §4/§6 字段 |
+| 关键命令 | `change create`、`change transition --to <STATUS>`（× 8 次）、`change edit --background/--necessity/--risk-level/--mitigation`、`change show CHG-SCPT-2026-078` |
+| 当前状态 | ✅ 已关闭（closed，9 步状态流转完成） |
+
+**变更内容（T11-T14 + 技术债清理）**：
+
+1. **T11 spec_center.py 重构**：从 482 行单文件改为 QTabWidget + DTO 层架构（`spec_center_dto.py` 8 个 frozen dataclass + SpecCenterAdapter），生产代码降至 300 行
+2. **T12 6 Tab 类**：`spec_center_tabs/` 目录下 6 个 Tab 类（概览/索引/检查/frontmatter/报告/对比）
+3. **T13 服务集成**：所有 Tab 集成新 IndexService/CheckService/FrontmatterService/ReportService（从旧 SpecIndexService 迁移到 DTO/adapter 模式）
+4. **T14 LSP-907 集成**：通过 `spec_registry.json` 集成 LSP-907，GUI 规范中心页可查看 14 个规范（PM/PLC/Python 域）
+5. **TD-C07 mypy 17 errors 修复**：8 个生产文件 ruff/mypy 0 errors（基线失真 Week3 已修复）
+6. **TD-C08 8 文件 docstring 规范化**：补全模块/类/方法 docstring
+7. **TD-C09 19 处 type:ignore 评估**：18 处 Week3 已清理（剩 1 处评估后保留）
+8. **TD-A03 dogfooding 第 9 次闭环**：CHG-SCPT-2026-078 走完整 9 步状态流转（draft→closed）
+
+**验证结果**：
+- 33 个新 UI 测试覆盖 6 Tab + DTO 层 + 真实工作空间集成
+- 8 生产文件 ruff + mypy 0 errors（TD-C07 基线失真修复）
+- 全量回归 1332 passed 5 skipped 0 failed（较 V0.4.3 收口基线 1246 passed 1 skipped +86 测试 +4 skipped）
+- GUI 规范中心页可查看 14 规范（PM/PLC/Python 域），10 项健康检查（SHC-001~010）、Frontmatter 批量管理、报告生成、规范对比全部可用
+- `change show CHG-SCPT-2026-078` parser 验证通过（status=closed，§6/§8/§9/§10 全部可渲染）
+- `change list SW-2026-008` 返回 11 条记录（001/062/063/064/072/073/074/075/077/078/079，10 条 closed + 1 条 draft CHG-079）
+
+**节省的人工作业**：
+- GUI 规范中心页从单文件 482 行改为 DTO/adapter 模式后，新增 Tab 的边际成本从"再写一遍 service 调用 + 数据结构"降为"定义 DTO + 复用 adapter"
+- TD-C07 修复后，后续模型/会话不再被 17 个 mypy errors 误导为"代码质量问题"（实际为基线失真）
+- TD-C08/C09 清理后，生产代码 docstring 覆盖率与 type:ignore 评估透明度提升
+
+**新增的维护负担**：
+- 6 Tab 类 + DTO 层 + SpecCenterAdapter 形成"接口契约"，新增规范时需同步更新 DTO dataclass（否则 adapter 无法转换）
+- LSP-907 通过 `spec_registry.json` 集成，后续新增规范需先注册到 registry 再到 GUI
+- 17 处 mypy 技术债中 1 处（type:ignore）评估后保留，后续需在 TD-C10 单独跟踪（若立项）
+
 ## 3. 试运行发现的问题与修复
 
 ### 3.1 已修复（14 项）
@@ -372,6 +412,7 @@ project_id: "SW-2026-008"
 | 2026-06-29 | V1.4.0 | 补充 V0.4.2 Week 1~3 dogfood 证据（DJ-2026-005 工程资产补齐 119 IO / 7 blocks / 5 channels + `doc refresh --dry-run` 输出真实内容 + 幂等性验证两次无变化 + 第二样本 DJ-2026-000 边界兼容与 DJ-2026-099 真实工作流复核 + rich markup bug 修复 + 新增 `tests/core/test_doc_refresh_service.py` 19 IO/7 blocks/5 channels 回归） | TRAE |
 | 2026-06-29 | V1.5.0 | V0.4.2 Week4 收口 + V0.4.3 准入判断（dogfooding 闭环审查 5 项漏洞批量修复：PILOT 版本号对齐 + 台帐补登 CHG-072 序号 005 + 8 条死链修复 + 005 索引表 3→9 条 + TD-T14 qapp 真正统一 + TD-T09 except 收窄 + PM_SESSION §2 语义澄清；TD-TC01 已规避 + 5 个 jinja2 DeprecationWarning 根除；技术债 26/26 项全部关闭；全量回归 1246 passed 1 skipped 0 warnings exit code 0；V0.4.3 准入通过） | TRAE |
 | 2026-06-29 | V1.6.0 | V0.4.3 版本号与文档统一收口（pyproject 0.3.8→0.4.1 + CHANGELOG [0.4.1] 单条汇总 V0.4.0~V0.4.3 全部证据 + 005 V0.4.3 章节 + PRD V2.1.2 V0.4.1 路线图 + 016 文档 5 块 vs 7 块差异收口 §5.1.1/§5.1.2 + DJ-2026-005 工程资产提取策略评估保持人工首版 + PM_SESSION §2/§7/§8/§9 同步 + PILOT V1.6.0；ruff 0 errors + mypy 0 errors + jinja2 PASSED + tests/ui 76 passed + 全量回归基线 1246 passed 1 skipped 0 warnings） | TRAE |
+| 2026-06-30 | V1.7.0 | V2.2 Week3 第 9 次 dogfooding 闭环（CHG-SCPT-2026-078 完整 9 步状态流转 draft→closed）：GUI 规范中心页改造（T11 spec_center.py 482→300 行 + T12 6 Tab 类 + T13 服务集成 IndexService/CheckService/FrontmatterService/ReportService + T14 LSP-907 集成 14 规范）+ 技术债清理（TD-C07 mypy 17 errors 修复 + TD-C08 8 文件 docstring 规范化 + TD-C09 19 处 type:ignore 18 处清理 + TD-A03 第 9 次闭环）；33 个新 UI 测试 + ruff/mypy 0 errors + 全量回归 1332 passed 5 skipped；§1.1 试运行周期延伸到 2026-06-30 + 闭环次数 8→9 | auto-pm（V0.4.2 整改批次）|
 
 ---
 

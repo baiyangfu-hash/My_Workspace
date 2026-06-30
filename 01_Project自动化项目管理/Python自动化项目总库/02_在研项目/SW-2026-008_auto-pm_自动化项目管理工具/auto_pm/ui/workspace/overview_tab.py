@@ -293,7 +293,7 @@ class OverviewTab(QWidget):
             value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             if is_link and project.path and os.path.isdir(project.path):
                 value.setCursor(Qt.CursorShape.PointingHandCursor)
-                value.mousePressEvent = self._make_open_dir_handler(project.path)  # type: ignore[method-assign]
+                value.mousePressEvent = self._make_open_dir_handler(project.path)  # type: ignore[method-assign]  # PySide6 动态重写 C++ 虚方法，mypy 无法识别
             self._meta_grid.addWidget(value, row_idx, 1)
 
     @staticmethod

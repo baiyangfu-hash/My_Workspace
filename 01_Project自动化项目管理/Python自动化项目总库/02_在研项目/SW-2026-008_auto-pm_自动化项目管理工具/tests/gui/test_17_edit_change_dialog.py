@@ -42,6 +42,11 @@ logger = logging.getLogger(__name__)
 # ── 测试隔离：记录本模块创建的变更单，autouse fixture 在每个测试后清理 ──
 _created_change_numbers: list[str] = []
 
+# R-C06（V0.4.2）：原 dogfooding 设计用真实 auto-pm 项目 SW-2026-008 作为变更单宿主项目，
+# 但 conftest 改用 tmp_path_factory 隔离后，tmp 工作空间内只有 DJ-2026-998 一个测试项目。
+# 改用 DJ-2026-998 作为变更单宿主，保持测试隔离 + 不依赖真实工作空间。
+_TEST_PROJECT_ID = "DJ-2026-998"
+
 
 @pytest.fixture(autouse=True)
 def _cleanup_test_changes(workspace_root: str):
@@ -151,8 +156,8 @@ class TestEditChangeDialogGUI:
 
             # 2. 创建测试变更单
             cs = ChangeService(workspace_root)
-            # 使用 SW-2026-008 项目（auto-pm 自身）作为测试项目
-            change_number = _create_test_change(cs, "SW-2026-008")
+            # R-C06：使用隔离 tmp 工作空间内的 _TEST_PROJECT_ID（DJ-2026-998）作为测试项目
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
             assert change_number.startswith("CHG-SCPT-"), f"变更单号异常: {change_number}"
 
             # 3. 加载变更单到详情面板
@@ -264,7 +269,7 @@ class TestEditChangeDialogGUI:
 
             # 创建测试变更单
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
 
             # 直接构造 EditChangeDialog（绕过详情面板点击）
             dlg = EditChangeDialog(
@@ -323,7 +328,7 @@ class TestEditChangeDialogGUI:
             _view = main_window._change_center_view
 
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
 
             dlg = EditChangeDialog(
                 change_number=change_number,
@@ -389,7 +394,7 @@ class TestEditChangeDialogGUI:
             click_nav_page(main_window, "change_center", app)
 
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
 
             dlg = EditChangeDialog(
                 change_number=change_number,
@@ -455,7 +460,7 @@ class TestEditChangeDialogGUI:
             click_nav_page(main_window, "change_center", app)
 
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
 
             dlg = EditChangeDialog(
                 change_number=change_number,
@@ -549,7 +554,7 @@ class TestEditChangeDialogGUI:
             click_nav_page(main_window, "change_center", app)
 
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
 
             dlg = EditChangeDialog(
                 change_number=change_number,
@@ -607,7 +612,7 @@ class TestEditChangeDialogGUI:
             click_nav_page(main_window, "change_center", app)
 
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
 
             dlg = EditChangeDialog(
                 change_number=change_number,
@@ -674,7 +679,7 @@ class TestEditChangeDialogGUI:
 
             # 2. 创建测试变更单并加载到详情面板
             cs = ChangeService(workspace_root)
-            change_number = _create_test_change(cs, "SW-2026-008")
+            change_number = _create_test_change(cs, _TEST_PROJECT_ID)
             view._detail_panel.load_change(change_number)
             app.processEvents()
             QTest.qWait(500)

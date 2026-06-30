@@ -27,8 +27,10 @@ from auto_pm.ui.workspace.overview_tab import OverviewTab  # noqa: E402
 def _make_plc_project(asset_summary: dict[str, Any] | None) -> ProjectInfo:
     """构造带 asset_summary 的 PLC ProjectInfo
 
-    注意：使用三元表达式而非条件语句块，避免触发
-    test_no_conditional_assertion_skips 元测试正则误判。
+    V2.1.0 备注（R-C05）：test_no_conditional_assertion_skips 元测试已升级为
+    AST 分析，精准定位 fake-pass 模式（ast.If + test 含 is None/is not None
+    + body 含 assert）。三元表达式数据构造不含 assert，不会被误判，
+    此处保留 `is not None` 以精确区分 None 与空 dict 语义。
     """
     extra: dict[str, Any] = (
         {"asset_summary": asset_summary} if asset_summary is not None else {}
@@ -53,8 +55,10 @@ def _make_plc_project(asset_summary: dict[str, Any] | None) -> ProjectInfo:
 def _make_python_project(asset_summary: dict[str, Any] | None) -> ProjectInfo:
     """构造带 asset_summary 的 Python ProjectInfo
 
-    注意：使用三元表达式而非条件语句块，避免触发
-    test_no_conditional_assertion_skips 元测试正则误判。
+    V2.1.0 备注（R-C05）：test_no_conditional_assertion_skips 元测试已升级为
+    AST 分析，精准定位 fake-pass 模式（ast.If + test 含 is None/is not None
+    + body 含 assert）。三元表达式数据构造不含 assert，不会被误判，
+    此处保留 `is not None` 以精确区分 None 与空 dict 语义。
     """
     extra: dict[str, Any] = (
         {"asset_summary": asset_summary} if asset_summary is not None else {}

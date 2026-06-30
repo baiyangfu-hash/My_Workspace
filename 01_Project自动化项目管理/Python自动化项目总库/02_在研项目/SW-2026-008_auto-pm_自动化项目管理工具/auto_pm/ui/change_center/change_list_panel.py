@@ -321,6 +321,7 @@ class ChangeListPanel(QWidget):
                 urgency=self._current_urgency,
             )
         except Exception:
+            log.warning("加载变更列表失败，回退到本地缓存", exc_info=True)
             all_changes = self._summaries
 
         # 提取去重的项目选项（project_id + project_name）
