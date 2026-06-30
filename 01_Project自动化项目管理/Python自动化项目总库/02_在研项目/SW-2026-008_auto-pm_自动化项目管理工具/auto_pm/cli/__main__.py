@@ -58,6 +58,7 @@ from auto_pm.cli.project import project_group  # noqa: E402
 from auto_pm.cli.python import python_group  # noqa: E402
 from auto_pm.cli.spec import spec_group  # noqa: E402
 from auto_pm.cli.template import template_group  # noqa: E402
+from auto_pm.cli.vartable import vartable_group  # noqa: E402
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -93,6 +94,7 @@ cli.add_command(plc_group)
 cli.add_command(python_group)
 cli.add_command(spec_group)
 cli.add_command(template_group)
+cli.add_command(vartable_group)
 cli.add_command(gui_command)
 
 
