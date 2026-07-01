@@ -4,11 +4,12 @@
 - 切换到变更中心页面
 - 变更中心视图及子面板初始化
 - 状态 Tab 切换（不崩溃）
-- 创建变更单对话框弹出与关闭
+- 创建变更单对话框弹出与关闭（复用修复后的 find_dialog 支持嵌套）
 - 变更中心刷新（不崩溃）
 
-使用 tests/gui/conftest.py 提供的 main_window / app fixture，
-通过 helpers 辅助函数操作 GUI。
+V3 升级（2026-07-01）：
+  - test_create_change_dialog_from_center 改用 helpers.find_dialog（支持嵌套 QDialog）
+  - 所有 error 分支调用 close_all_modal_widgets 防止残留弹窗阻塞
 """
 
 from __future__ import annotations
@@ -17,15 +18,18 @@ import os
 from typing import TYPE_CHECKING
 
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# V0.5.2: 默认可见模式（用户要求）；offscreen 仅通过 QT_QPA_PLATFORM=offscreen 环境变量设置
 
 import pytest  # noqa: E402
 from PySide6.QtCore import QTimer  # noqa: E402
 from PySide6.QtTest import QTest  # noqa: E402
-from PySide6.QtWidgets import QDialog  # noqa: E402
 
 from tests.gui.helpers.assertions import assert_stack_index  # noqa: E402
-from tests.gui.helpers.interactions import click_nav_page  # noqa: E402
+from tests.gui.helpers.interactions import (  # noqa: E402
+    click_nav_page,
+    close_all_modal_widgets,
+    find_dialog,
+)
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QApplication
@@ -78,8 +82,8 @@ class TestChangeCenter:
     def test_create_change_dialog_from_center(self, main_window: MainWindow, app: QApplication) -> None:
         """点击创建变更单按钮，验证对话框弹出后关闭
 
-        注意：CreateChangeDialog 使用 dialog.exec() 模态阻塞，
-        需通过 QTimer.singleShot 在模态事件循环中调度关闭。
+        V3 升级：改用 helpers.find_dialog（支持嵌套 QDialog，findChildren 递归查找），
+        替代原 topLevelWidgets 遍历（找不到有 parent 的 QWizard）。
         """
         click_nav_page(main_window, "change_center", app)
         view = main_window._change_center_view
@@ -87,30 +91,22 @@ class TestChangeCenter:
 
         found: list[bool] = [False]
 
-        def find_and_reject(retries: int = 100) -> None:
-            """在模态事件循环中查找并关闭对话框
+        def _verify_and_close() -> None:
+            dlg = find_dialog(app, "创建变更单", timeout_ms=2000)
+            if dlg is not None:
+                found[0] = True
+                # 直接 reject 避免 reject_dialog 内 qWait 嵌套事件循环吞掉 done()
+                dlg.reject()
+                app.processEvents()
+                return
+            # 兜底：关闭可能残留的弹窗
+            close_all_modal_widgets(app)
 
-            注意：QWizard 改造后，reject_dialog 内的 QTest.qWait(300) 嵌套事件循环
-            会吞掉 wizard.done() 的退出请求，导致 exec() 不退出。改为直接调用
-            wizard.reject() 规避此问题。
-            """
-            for w in app.topLevelWidgets():
-                if (
-                    isinstance(w, QDialog)
-                    and w.isVisible()
-                    and "创建变更单" in w.windowTitle()
-                ):
-                    found[0] = True
-                    w.reject()
-                    app.processEvents()
-                    return
-            if retries > 0:
-                QTimer.singleShot(10, lambda: find_and_reject(retries - 1))
-
-        # 在 click() 触发 exec() 阻塞前调度对话框关闭
-        QTimer.singleShot(0, find_and_reject)
+        QTimer.singleShot(100, _verify_and_close)
         view._create_btn.click()
         app.processEvents()
+        # 确保 exec() 退出后清理残留
+        close_all_modal_widgets(app)
 
         assert found[0], "创建变更单对话框未弹出"
 

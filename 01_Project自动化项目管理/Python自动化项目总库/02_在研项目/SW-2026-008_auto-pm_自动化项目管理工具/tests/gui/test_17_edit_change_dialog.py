@@ -18,9 +18,10 @@ import logging
 import os
 from collections.abc import Generator
 
-# 必须在导入 PySide6 前设置离屏渲染（GUI_VISIBLE=1 时切换为可见窗口演示模式）
-if not os.environ.get("GUI_VISIBLE"):
-    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# V0.5.2: 默认可见模式（用户要求）；offscreen 仅通过 QT_QPA_PLATFORM=offscreen 环境变量设置
+# 旧逻辑（默认 offscreen + GUI_VISIBLE 切换可见）已废弃
+# if not os.environ.get("GUI_VISIBLE"):
+#     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest  # noqa: E402
 from PySide6.QtCore import Qt, QTimer  # noqa: E402

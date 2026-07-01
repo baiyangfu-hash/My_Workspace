@@ -83,6 +83,7 @@ testpaths = [
 ]
 markers = [
     "gui: GUI 全功能自动化测试",
+    "cli: CLI 命令测试",
     "smoke: 冒烟测试（核心功能快速验证）",
     "unit: 单元测试",
     "integration: 集成测试",

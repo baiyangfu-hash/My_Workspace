@@ -480,14 +480,4 @@ def test_plc_standardize_not_found(cli_runner: CliRunner, tmp_workspace: Path) -
     assert result.exit_code == 1
 
 
-# ── template list 命令测试 ──────────────────────────────
-
-
-def test_template_list(cli_runner: CliRunner, tmp_workspace: Path) -> None:
-    """测试 template list"""
-    result = cli_runner.invoke(
-        cli,
-        ["template", "list"],
-        catch_exceptions=False,
-    )
-    assert result.exit_code == 0
+# 注：test_template_list 已迁移到 tests/cli/test_template.py（V0.5.2 步骤2 统一组织）

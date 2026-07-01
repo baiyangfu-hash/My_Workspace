@@ -207,21 +207,22 @@ class ProjectScanner:
 
         # 业务线：优先从 answers 读取，否则从 project_id 提取
         business_line = answers.get("business_line", "") or extract_business_line(project_id)
-        project_type = answers.get("project_type", "")
-        equipment_type = answers.get("equipment_type", "")
-        plc_vendor = answers.get("plc_vendor", "")
-        plc_model = answers.get("plc_model", "")
+        # V0.3.7: 防 None（copier 模板未填字段会写 null，Pydantic str 字段拒绝 None）
+        project_type = answers.get("project_type", "") or ""
+        equipment_type = answers.get("equipment_type", "") or ""
+        plc_vendor = answers.get("plc_vendor", "") or ""
+        plc_model = answers.get("plc_model", "") or ""
 
         # V0.3.0-M0.5-Phase1: description 兼容 project_description（copier-python-template 标准）
-        description = answers.get("project_description", "") or answers.get("description", "")
+        description = answers.get("project_description", "") or answers.get("description", "") or ""
 
         # V0.3.0-M0.5-Phase1: version 回退到 pyproject.toml
-        version = answers.get("version", "")
+        version = answers.get("version", "") or ""
         if not version:
             version = self._read_version_from_pyproject(project_path)
 
         # V0.3.0-M0.5-Phase1: phase 回退到 PM_SESSION frontmatter
-        phase = answers.get("phase", "")
+        phase = answers.get("phase", "") or ""
         if not phase:
             phase = self._read_phase_from_pm_session(project_path, project_id)
 

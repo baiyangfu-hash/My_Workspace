@@ -1,8 +1,0 @@
-# Copier answers - 请勿手动修改
-project_id: DJ-2026-099
-project_name: P1修复测试标准项目
-description: 测试P1-3/P1-7修复
-version: V1.0.0
-stack: plc
-mode: standard-project
-business_line: DJ

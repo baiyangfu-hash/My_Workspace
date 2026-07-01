@@ -12,13 +12,15 @@ from __future__ import annotations
 
 import os
 from collections.abc import Generator
+from datetime import datetime
 from pathlib import Path
 
 import pytest
 
-# 必须在导入 PySide6 前设置离屏渲染（GUI_VISIBLE=1 时切换为可见窗口演示模式）
-if not os.environ.get("GUI_VISIBLE"):
-    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# V0.5.2: 默认可见模式（用户要求）；offscreen 仅通过 QT_QPA_PLATFORM=offscreen 环境变量设置
+# 旧逻辑（默认 offscreen + GUI_VISIBLE 切换可见）已废弃
+# if not os.environ.get("GUI_VISIBLE"):
+#     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from typing import TYPE_CHECKING
 
@@ -147,18 +149,32 @@ def _create_minimal_project(project_dir: Path) -> None:
 
 @pytest.fixture
 def main_window(qapp: QApplication, workspace_root: str) -> Generator[MainWindow, None, None]:
-    """每个测试函数创建独立 MainWindow，避免状态污染"""
-    from auto_pm.ui.main_window import MainWindow
+    """每个测试函数创建独立 MainWindow，避免状态污染
 
+    注意：MainWindow.show() 会触发 _do_refresh，若刷新失败会弹 QMessageBox.warning
+    模态阻塞 QTest.qWait。需预注册 singleShot 清理弹窗，否则 fixture 卡死。
+    """
+    from PySide6.QtCore import QTimer
+
+    from auto_pm.ui.main_window import MainWindow
+    from tests.gui.helpers.interactions import dismiss_message_boxes
+
+    # 预注册：关闭 MainWindow 初始化时可能触发的刷新失败 QMessageBox
+    QTimer.singleShot(200, lambda: dismiss_message_boxes(qapp))
     window = MainWindow(workspace_root=workspace_root)
     window.show()
     qapp.processEvents()
     QTest.qWait(500)
+    # 清理可能残留的弹窗（二次保险）
+    dismiss_message_boxes(qapp)
+    qapp.processEvents()
     yield window
     window.close()
     window.deleteLater()
     qapp.processEvents()
     QTest.qWait(100)
+    # teardown 后也清理弹窗
+    dismiss_message_boxes(qapp)
 
 
 @pytest.fixture
@@ -168,3 +184,73 @@ def app(qapp: QApplication) -> QApplication:
 
 
 from PySide6.QtTest import QTest  # noqa: E402
+
+
+# ── 失败/超时自动截图 ──────────────────────────────────────
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call):
+    """捕获每个阶段的测试结果，供 teardown 阶段判断是否需要截图"""
+    outcome = yield
+    report = outcome.get_result()
+    setattr(item, f"_report_{report.when}", report)
+
+
+def pytest_runtest_teardown(item: pytest.Item, nextitem) -> None:
+    """测试 teardown：失败/超时时自动截图当前 GUI 状态 + 关闭残留弹窗
+
+    截图保存到 test_reports/gui/failure_screenshots/，文件名格式：
+      {FAIL|TIMEOUT}_{test_name}_{timestamp}_w{idx}.png
+    """
+    # 检查 setup/call 阶段是否失败
+    failed = False
+    timeout = False
+    for when in ("setup", "call"):
+        report = getattr(item, f"_report_{when}", None)
+        if report is None:
+            continue
+        if report.failed:
+            failed = True
+            longrepr = str(report.longrepr)
+            if "Timeout" in longrepr or "timeout" in longrepr.lower():
+                timeout = True
+            break
+
+    if not failed:
+        return
+
+    # 截图当前所有可见顶层窗口
+    try:
+        app = QApplication.instance()
+        if app is None:
+            return
+        screenshot_dir = REPORT_DIR / "failure_screenshots"
+        screenshot_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now().strftime("%H%M%S_%f")[:-3]
+        test_name = item.name.replace("[", "_").replace("]", "_").replace("/", "_")
+        prefix = "TIMEOUT" if timeout else "FAIL"
+        captured = 0
+        for i, widget in enumerate(app.topLevelWidgets()):
+            if not widget.isVisible():
+                continue
+            try:
+                pixmap = widget.grab()
+                path = screenshot_dir / f"{prefix}_{test_name}_{ts}_w{i}.png"
+                pixmap.save(str(path))
+                captured += 1
+            except Exception:
+                pass
+        # 同步写入操作日志（便于追溯）
+        log_path = screenshot_dir / "failure_log.txt"
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(
+                f"[{datetime.now().isoformat()}] {prefix} {item.nodeid} "
+                f"-> captured {captured} screenshot(s)\n"
+            )
+        # 关闭残留模态弹窗（防止阻塞后续测试）
+        from tests.gui.helpers.interactions import close_all_modal_widgets
+        close_all_modal_widgets(app)
+        app.processEvents()
+    except Exception:
+        pass

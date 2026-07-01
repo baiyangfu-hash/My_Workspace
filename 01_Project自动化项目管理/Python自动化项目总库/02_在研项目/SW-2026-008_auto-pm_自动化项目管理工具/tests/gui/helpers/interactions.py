@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QDialogButtonBox,
+    QMenu,
     QMessageBox,
 )
 
@@ -93,16 +94,39 @@ def switch_workspace_tab(window: MainWindow, tab_id: str, app: QApplication) -> 
 
 
 def find_dialog(app: QApplication, title_contains: str, timeout_ms: int = 2000) -> QDialog | None:
-    """查找已弹出的对话框"""
+    """查找已弹出的对话框（包括有 parent 的嵌套对话框）
+
+    TransitionDialog/NewProjectDialog/CreateChangeDialog 都有 parent（非 top-level），
+    app.topLevelWidgets() 找不到它们，必须用 findChildren 递归查找。
+
+    Args:
+        timeout_ms: 超时毫秒数。0 表示只检查一次立即返回（用于 singleShot 回调中
+                    对话框已弹出的场景，避免阻塞）。
+    """
     import time
 
     deadline = time.time() + timeout_ms / 1000
-    while time.time() < deadline:
-        for w in app.topLevelWidgets():
-            if isinstance(w, QDialog) and w.isVisible() and title_contains in w.windowTitle():
-                return w
+    while True:
+        for top in app.topLevelWidgets():
+            if isinstance(top, QDialog) and top.isVisible() and title_contains in top.windowTitle():
+                return top
+            for dlg in top.findChildren(QDialog):
+                if dlg.isVisible() and title_contains in dlg.windowTitle():
+                    return dlg
+        if time.time() >= deadline:
+            return None
         app.processEvents()
         QTest.qWait(50)
+
+
+def find_message_box(app: QApplication) -> QMessageBox | None:
+    """查找可见的 QMessageBox（包括有 parent 的）"""
+    for top in app.topLevelWidgets():
+        if isinstance(top, QMessageBox) and top.isVisible():
+            return top
+        for mb in top.findChildren(QMessageBox):
+            if mb.isVisible():
+                return mb
     return None
 
 
@@ -123,15 +147,55 @@ def reject_dialog(dialog: QDialog, app: QApplication) -> None:
 
 
 def dismiss_message_boxes(app: QApplication) -> list[str]:
-    """关闭所有 QMessageBox，返回弹窗文本列表"""
+    """关闭所有 QMessageBox，返回弹窗文本列表
+
+    循环关闭嵌套 QMessageBox（最多 5 个），每个关闭后 processEvents 让后续弹出。
+    """
     texts: list[str] = []
-    for w in app.topLevelWidgets():
-        if isinstance(w, QMessageBox) and w.isVisible():
-            texts.append(w.text())
-            w.accept()
-    app.processEvents()
-    QTest.qWait(200)
+    for _ in range(5):
+        mb = find_message_box(app)
+        if mb is None:
+            break
+        texts.append(mb.text())
+        mb.accept()
+        app.processEvents()
+        QTest.qWait(200)
     return texts
+
+
+def close_all_modal_widgets(app: QApplication) -> None:
+    """关闭所有可见的 QMenu/QMessageBox/QDialog，防止残留弹窗阻塞测试
+
+    在 singleShot 回调找不到目标对话框、或流转/创建失败时调用，
+    确保不会有遗留的模态对话框阻塞后续测试步骤。
+    """
+    # 1. 关闭所有 QMessageBox
+    dismiss_message_boxes(app)
+    # 2. 关闭所有可见的 QMenu（多目标流转时弹出）
+    for top in app.topLevelWidgets():
+        for menu in top.findChildren(QMenu):
+            if menu.isVisible():
+                menu.close()
+                app.processEvents()
+                QTest.qWait(100)
+    # 3. reject 所有可见的 QDialog（先关子对话框再关父对话框）
+    for _ in range(3):
+        closed_any = False
+        for top in app.topLevelWidgets():
+            if isinstance(top, QDialog) and top.isVisible():
+                top.reject()
+                closed_any = True
+                app.processEvents()
+                QTest.qWait(100)
+            for dlg in top.findChildren(QDialog):
+                if dlg.isVisible():
+                    dlg.reject()
+                    closed_any = True
+                    app.processEvents()
+                    QTest.qWait(100)
+        if not closed_any:
+            break
+        dismiss_message_boxes(app)  # reject 可能触发新的 QMessageBox
 
 
 def refresh_list(window: MainWindow, app: QApplication) -> None:

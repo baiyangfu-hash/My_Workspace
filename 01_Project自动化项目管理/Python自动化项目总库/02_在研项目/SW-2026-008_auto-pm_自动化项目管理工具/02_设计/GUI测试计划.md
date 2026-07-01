@@ -1,9 +1,13 @@
-# GUI 测试计划 V0.5.0
+# GUI 测试计划 V0.5.1
 
 > **项目**: SW-2026-008 auto-pm（自动化项目管理工具）
-> **版本**: V0.5.0（基于 GUI 原型 V2.1 + V2.3 Week4 实际交付）
+> **版本**: V0.5.1（V0.5.0 测试整合升级：helpers 复用 + 超时截图 + 边界用例完善）
 > **创建日期**: 2026-07-01
-> **执行脚本**: `scripts/gui_plc_full_test.py`（项目内既有端到端 GUI 自动化驱动）
+> **最后更新**: 2026-07-01（GUI 测试脚本整合）
+> **执行脚本**:
+> - L2 集成层：`tests/gui/`（pytest，104 passed / 2 skipped）
+> - L3 端到端层：`scripts/gui_plc_full_test.py`（15 场景，0 功能 bug，85 截图）
+> - 统一入口：`scripts/run_tests.py gui`
 > **关联文档**:
 > - [GUI原型设计.md](GUI原型设计.md)（V2.1 已审核通过）
 > - [GUI测试整改报告.md](../09_整改项/GUI测试整改报告.md)
@@ -36,43 +40,54 @@
 
 ### 2.1 测试覆盖矩阵
 
-| 模块 | GUI 原型章节 | 测试脚本覆盖 | 截图数 | V0.5.0 实际状态 |
-|------|-------------|-------------|--------|----------------|
-| 主窗口启动 | §2 | ✅ step_01 | 1 | 已验证 |
-| 侧边栏导航 | §3 | ✅ step_02 | 6 | 已验证 |
-| 项目列表 | §4 | ✅ step_03 | 5 | 已验证 |
-| 新建项目 | §7.2 | ✅ step_04 | 0 | ⚠️ Bug：对话框未弹出 |
-| 项目工作区·概览 | §5.1 概览 | ✅ step_05 | 2 | 已验证（用现有项目） |
-| 项目工作区·变更 | §5.2 变更 | ✅ step_06 | 1 | ⚠️ Bug：创建变更单对话框未弹出 |
-| 项目工作区·检查 | §5.3 检查 | ✅ step_07 | 4 | 已验证 |
-| 项目工作区·文档 | §5.4 文档 | ✅ step_08 | 2 | 已验证 |
-| **项目工作区·变量表** | **§5.5 变量表** | **❌ 未覆盖** | 0 | **V2.3 Week4 新增，原脚本未扩展** |
-| 变更中心 | §6 | ✅ step_09 | 2 | 已验证 |
-| 报告中心 | §10 | ✅ step_10 | 1 | 已验证 |
-| **规范中心页** | **§8（V2.2 Week3 重构）** | **❌ 未覆盖** | 0 | **V2.2 Week3 重构，原脚本未扩展** |
-| 系统设置 | §11 | ✅ step_11 | 2 | 已验证 |
-| 工具栏操作 | §12 | ✅ step_12 | 2 | 已验证 |
-| 最终状态 | — | ✅ step_13 | 1 | 已验证 |
-| **合计** | — | **13/15** | **29** | **覆盖 86%，2 个模块待扩展** |
+| 模块 | GUI 原型章节 | L3 脚本覆盖 | L2 pytest 覆盖 | 截图数 | V0.5.1 实际状态 |
+|------|-------------|-------------|---------------|--------|----------------|
+| 主窗口启动 | §2 | ✅ step_01 | ✅ test_01_launch | 1 | 已验证 |
+| 侧边栏导航 | §3 | ✅ step_02 | ✅ test_02_navigation | 6 | 已验证 |
+| 项目列表 | §4 | ✅ step_03 | ✅ test_03_project_list | 5 | 已验证 |
+| 新建项目 | §7.2 | ✅ step_03 | ✅ test_04_project_crud | 2 | 已验证（V0.5.1 修复） |
+| 项目工作区·概览 | §5.1 概览 | ✅ step_04 | ✅ test_05_workspace_overview | 2 | 已验证 |
+| 项目工作区·变更 | §5.2 变更 | ✅ step_05/06 | ✅ test_06_change_tab | 8 | 已验证（V0.5.1 修复） |
+| 项目工作区·检查 | §5.3 检查 | ✅ step_07 | ✅ test_07_check_tab | 4 | 已验证 |
+| 项目工作区·文档 | §5.4 文档 | ✅ step_08 | ✅ test_08_doc_tab | 2 | 已验证 |
+| 项目工作区·变量表 | §5.5 变量表 | ✅ step_09 | — | 4 | 已验证（V0.5.1 扩展） |
+| 变更中心 | §6 | ✅ step_10 | ✅ test_09_change_center | 2 | 已验证 |
+| 报告中心 | §10 | ✅ step_12 | ✅ test_10_report_center | 1 | 已验证 |
+| 规范中心页 | §8（V2.2 Week3 重构） | ✅ step_11 | ✅ test_12_spec_center | 3 | 已验证（V0.5.1 扩展） |
+| 系统设置 | §11 | ✅ step_13 | ✅ test_13_settings | 2 | 已验证 |
+| 工具栏操作 | §12 | ✅ step_14 | ✅ test_14_toolbar | 2 | 已验证 |
+| 最终状态 | — | ✅ step_15 | — | 1 | 已验证 |
+| **合计** | — | **15/15** | **14/15** | **45** | **覆盖 100%** |
+
+> **说明**：L2 pytest 层变量表 Tab 未单独建测试文件（仅 L3 端到端覆盖），后续可补齐 test_09_vartable_tab.py。
 
 ### 2.2 测试方法
 
-- **运行模式**：默认 offscreen（`QT_QPA_PLATFORM=offscreen`，CI 兼容）；可选 visible（设置环境变量 `GUI_VISIBLE=1`）
+- **运行模式（V0.5.2 变更）**：默认 **visible 可见窗口模式**（不设置 `QT_QPA_PLATFORM=offscreen`，或设置 `GUI_VISIBLE=1`）；offscreen 模式仅在用户特别要求时使用（如 CI 无显示器环境、批量回归）
+- **可见模式理由**：offscreen 模式无法验证真实字体渲染/DPI 缩放/多显示器场景，且会掩盖部分交互问题；按真实使用场景测试更接近用户实际体验
 - **驱动方式**：QTest 程序化驱动（不依赖真实鼠标键盘）
-- **截图方式**：`QApplication.activeWindow().grab()` 保存为 PNG，输出到 `test_screenshots/`
+- **截图方式**：`QApplication.activeWindow().grab()` 保存为 PNG
+- **截图目录**：
+  - L3 端到端：`test_reports/gui/full_test_screenshots/`（含 `_desktop/_tablet/_mobile` 视口后缀）
+  - L2 失败截图：`test_reports/gui/failure_screenshots/`（`FAIL_` / `TIMEOUT_` 前缀 + 测试名 + 时间戳）
+- **超时截图机制**（V0.5.1 新增）：
+  - L2 pytest：`conftest.py` 的 `pytest_runtest_teardown` hook，测试失败/超时时自动截图所有可见顶层窗口 + 关闭残留模态弹窗
+  - L3 scripts：`threading` 看门狗（5 分钟总超时，写日志 + `os._exit(2)` 强制退出）
 - **Bug 记录**：`record_bug()` 函数，按 critical/major/minor 三级分类
 - **操作日志**：`log_op()` 函数，时间戳精确到毫秒
+- **弹窗处理**：统一复用 `tests/gui/helpers/interactions.py`（find_dialog/dismiss_message_boxes/close_all_modal_widgets），L3 scripts 薄包装复用，避免两套实现
 
 ### 2.3 测试环境
 
 | 项 | 值 |
 |----|-----|
-| 工作空间 | `c:\Users\fubai\Desktop\My_Workspace` |
-| 测试项目 ID | `DJ-2026-099`（脚本自动创建） |
+| 工作空间 | L2：`tmp_path_factory` 隔离工作空间；L3：`c:\Users\fubai\Desktop\My_Workspace` |
+| 测试项目 ID | L2：`DJ-2026-998`（fixture 创建）；L3：`DJ-2026-099`（脚本自动创建） |
 | Python 环境 | `.venv`（必须激活） |
 | PySide6 版本 | 6.7+ |
-| 屏幕渲染 | offscreen（无显示器环境兼容） |
-| 截图目录 | `<项目根>/test_screenshots/` |
+| 屏幕渲染 | **visible 可见窗口（默认）**；`QT_QPA_PLATFORM=offscreen` 切换离屏模式（仅用户特别要求时） |
+| L3 截图目录 | `<项目根>/test_reports/gui/full_test_screenshots/` |
+| L2 失败截图目录 | `<项目根>/test_reports/gui/failure_screenshots/` |
 
 ---
 
@@ -109,7 +124,7 @@
 | TC-03-04 | 视图切换·卡片视图 | 切换回卡片视图正常 | `03_card_view.png` |
 | TC-03-05 | 分组模式切换（4 种） | 总库+业务线 / 总库+阶段 / 业务线 / 阶段 均可切换 | `03_group_mode.png` |
 
-### 3.4 新建项目（TC-04）⚠️ 已知缺陷
+### 3.4 新建项目（TC-04）
 
 | 用例 ID | 步骤 | 期望 | 截图 |
 |---------|------|------|------|
@@ -118,8 +133,10 @@
 | TC-04-03 | 勾选 dry-run 后确定 | 预览弹窗弹出 | — |
 | TC-04-04 | 取消重新创建（实际） | 项目创建成功 | `04_project_created.png` |
 | TC-04-05 | 处理「已存在」错误弹窗 | 弹窗可正常关闭 | — |
+| TC-04-06 | ID 为空时点 OK | 弹出"请输入项目编号"警告（V0.5.1 边界用例） | — |
+| TC-04-07 | 点取消按钮 | 对话框正确关闭（V0.5.1 边界用例） | — |
 
-> **⚠️ V0.5.0 测试结果**：TC-04-01 失败，对话框未弹出。根因详见 [整改报告 §3.1](../09_整改项/GUI测试整改报告-V0.5.0.md#31-bug-1新建项目对话框未弹出major)。
+> **V0.5.1 修复**：TC-04-01 对话框未弹出问题已修复（根因：`_on_new_project` 调用方式错误）。新增 TC-04-06/07 边界用例验证表单验证和对话框生命周期。
 
 ### 3.5 项目工作区·概览（TC-05）
 
@@ -128,17 +145,19 @@
 | TC-05-01 | 点击项目卡片 | 进入项目工作区，显示概览 Tab | `05_workspace_overview.png` |
 | TC-05-02 | 测试项目未找到时回退 | 使用已有 PLC 项目 | `05_workspace_existing.png` |
 
-### 3.6 项目工作区·变更 Tab（TC-06）⚠️ 已知缺陷
+### 3.6 项目工作区·变更 Tab（TC-06）
 
 | 用例 ID | 步骤 | 期望 | 截图 |
 |---------|------|------|------|
 | TC-06-01 | 切换到变更 Tab | 显示变更单列表 | `06_change_tab.png` |
-| TC-06-02 | 点击「创建变更单」按钮 | CreateChangeDialog 弹出 | — |
+| TC-06-02 | 点击「创建变更单」按钮 | CreateChangeWizard 弹出 | — |
 | TC-06-03 | 填写领域/性质/范围/申请人/背景 | 表单字段可填写 | `06_create_change_form.png` |
-| TC-06-04 | 点击确定 | 变更单创建成功 | `06_change_created.png` |
-| TC-06-05~11 | 7 步状态流转（submitted→completed） | 每步流转成功 | `06_transition_*.png` + `06_after_*.png` |
+| TC-06-04 | 点击完成 | 变更单创建成功（监听 change_created 信号） | `06_change_created.png` |
+| TC-06-05~11 | 7 步状态流转（submitted→completed） | 每步流转成功（监听 transition_completed 信号） | `06_transition_*.png` + `06_after_*.png` |
+| TC-06-12 | 空状态提示与变更单数量一致性 | 无变更单时显示"暂无变更单"（V0.5.1 边界用例） | — |
+| TC-06-13 | 取消 wizard 按钮 | wizard 正确关闭（V0.5.1 边界用例） | — |
 
-> **⚠️ V0.5.0 测试结果**：TC-06-02 失败，对话框未弹出。根因详见 [整改报告 §3.2](../09_整改项/GUI测试整改报告-V0.5.0.md#32-bug-2创建变更单对话框未弹出major)。
+> **V0.5.1 修复**：TC-06-02 对话框未弹出问题已修复（根因：`_on_create_change` 调用方式错误）。改用 QWizard + 信号驱动成功检测（change_created/transition_completed），新增 TC-06-12/13 边界用例。
 
 ### 3.7 项目工作区·检查 Tab（TC-07）
 
@@ -158,13 +177,10 @@
 | TC-08-03 | 检查模板信息 | 显示模板名称和版本 | — |
 | TC-08-04 | 点击「检查模板更新」 | 显示更新预览 | `08_doc_tab_final.png` |
 
-### 3.9 项目工作区·变量表 Tab（TC-09）⏳ 待扩展
+### 3.9 项目工作区·变量表 Tab（TC-09）
 
-> **未覆盖模块**：V2.3 Week4 新增的变量表 Tab，原 `gui_plc_full_test.py` 未扩展。
-> 需要扩展测试脚本覆盖 §5.5 的 9 小节功能。
-
-| 用例 ID（计划） | 步骤 | 期望 | 截图（计划） |
-|----------------|------|------|--------------|
+| 用例 ID | 步骤 | 期望 | 截图 |
+|---------|------|------|------|
 | TC-09-01 | 切换到变量表 Tab | 显示 QSplitter 三栏布局 | `09_vartable_tab.png` |
 | TC-09-02 | 导入 io_points.csv | FormatDetector 识别为 io_points 格式，文件列表显示 | `09_import_io_points.png` |
 | TC-09-03 | 导入 program_blocks.yml | FormatDetector 识别为 program_blocks 格式 | `09_import_program_blocks.png` |
@@ -172,6 +188,8 @@
 | TC-09-05 | 新增行/删除行 | VariableTableModel 数据更新 | `09_edit_row.png` |
 | TC-09-06 | 点击「批量解析」 | 右侧批量解析结果统计卡片显示 | `09_batch_parse_result.png` |
 | TC-09-07 | 导出为 CSV/YAML/JSON | 文件生成成功 | `09_export_csv.png` |
+
+> **V0.5.1 扩展**：新增 step_09_vartable_tab 覆盖变量表 Tab 三栏布局、文件列表、批量解析、编辑器加载。
 
 ### 3.10 变更中心（TC-10）
 
@@ -187,19 +205,18 @@
 |---------|------|------|------|
 | TC-11-01 | 切换到报告中心 | 显示统计卡片 | `10_report_center.png` |
 
-### 3.12 规范中心页（TC-12）⏳ 待扩展
+### 3.12 规范中心页（TC-12）
 
-> **未覆盖模块**：V2.2 Week3 重构的规范中心页，原 `gui_plc_full_test.py` 未扩展。
-> 需要扩展测试脚本覆盖 6 Tab（概览/索引/检查/Frontmatter/报告/对比）。
-
-| 用例 ID（计划） | 步骤 | 期望 | 截图（计划） |
-|----------------|------|------|--------------|
+| 用例 ID | 步骤 | 期望 | 截图 |
+|---------|------|------|------|
 | TC-12-01 | 切换到规范中心 | 显示 6 Tab 布局 | `12_spec_center.png` |
 | TC-12-02 | 切换到「索引」Tab | 显示 14 规范列表 | `12_spec_index.png` |
 | TC-12-03 | 切换到「检查」Tab | 显示 10 健康检查项 | `12_spec_check.png` |
 | TC-12-04 | 切换到「Frontmatter」Tab | 显示规范文件 frontmatter 列表 | `12_spec_frontmatter.png` |
 | TC-12-05 | 切换到「报告」Tab | 显示规范报告生成 | `12_spec_report.png` |
 | TC-12-06 | 切换到「对比」Tab | 显示规范对比界面 | `12_spec_diff.png` |
+
+> **V0.5.1 扩展**：新增 step_11_spec_center 覆盖规范中心页 6 Tab 切换 + 视口截图。
 
 ### 3.13 系统设置（TC-13）
 
@@ -234,13 +251,15 @@
 - 格式：`<步骤号>_<功能描述>.png`（如 `01_main_window.png`、`07_check_result.png`）
 - 时间戳：通过操作日志记录，不嵌入文件名
 - 编号规则：
-  - `01-13`：13 个主要步骤
+  - `01-15`：15 个主要步骤
   - `99`：最终状态
   - `06_transition_<status>`：状态流转中间步骤
+  - L2 失败截图：`FAIL_<测试名>_<时间戳>_w<序号>.png` / `TIMEOUT_<测试名>_<时间戳>_w<序号>.png`
 
 ### 4.2 截图存储
 
-- 目录：`<项目根>/test_screenshots/`
+- L3 端到端目录：`<项目根>/test_reports/gui/full_test_screenshots/`
+- L2 失败截图目录：`<项目根>/test_reports/gui/failure_screenshots/`
 - 格式：PNG
 - 文件大小：约 50-200KB/张（取决于窗口内容复杂度）
 
@@ -275,9 +294,9 @@
 
 每次执行后，生成 3 类产物：
 
-1. **截图目录** `test_screenshots/`：所有 PNG 截图
-2. **Bug 报告** `test_screenshots/bug_report.txt`：自动生成的 Bug 清单
-3. **操作日志** `test_screenshots/operation_log.txt`：完整的操作时间线
+1. **截图目录** `test_reports/gui/full_test_screenshots/`：所有 PNG 截图
+2. **Bug 报告** `test_reports/gui/full_test_screenshots/bug_report.txt`：自动生成的 Bug 清单
+3. **操作日志** `test_reports/gui/full_test_screenshots/operation_log.txt`：完整的操作时间线
 
 基于这 3 类产物，输出人工整改报告：`09_整改项/GUI测试整改报告-V<版本>.md`
 
@@ -285,7 +304,7 @@
 
 ## 6. 执行命令
 
-### 6.1 标准执行（offscreen 模式）
+### 6.1 L2 集成层（pytest）
 
 ```powershell
 # 激活虚拟环境
@@ -294,24 +313,38 @@
 # 切换到项目目录
 cd "c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具"
 
-# 执行测试
+# 全量 GUI 测试（visible 可见模式，默认）
+python scripts/run_tests.py gui
+
+# 或直接用 pytest（默认可见模式）
+pytest tests/gui/ -v --timeout=90
+
+# offscreen 模式（仅用户特别要求时，如 CI 无显示器环境）
+$env:QT_QPA_PLATFORM = "offscreen"
+pytest tests/gui/ -v --timeout=90
+
+# 单个测试文件
+pytest tests/gui/test_04_project_crud.py -v
+```
+
+### 6.2 L3 端到端层（scripts）
+
+```powershell
+# 标准执行（visible 可见模式，默认）
+python scripts/gui_plc_full_test.py
+
+# offscreen 模式（仅用户特别要求时，如 CI 无显示器环境）
+$env:QT_QPA_PLATFORM = "offscreen"
 python scripts/gui_plc_full_test.py
 ```
 
-### 6.2 可见模式（人工观察）
+### 6.3 冒烟测试
 
 ```powershell
-$env:GUI_VISIBLE = "1"
-python scripts/gui_plc_full_test.py
-```
-
-### 6.3 单元测试（冒烟测试）
-
-```powershell
-# GUI 冒烟测试（offscreen，不调用 show）
+# GUI 冒烟测试（visible 可见模式，默认）
 pytest tests/ui/test_gui_smoke.py -v
 
-# 启动测试（offscreen，不调用 show）
+# 启动测试（visible 可见模式，默认）
 pytest tests/gui/test_01_launch.py -v
 ```
 
@@ -321,9 +354,8 @@ pytest tests/gui/test_01_launch.py -v
 
 ### 7.1 测试脚本覆盖缺口
 
-- ❌ 变量表 Tab（V2.3 Week4 新增）未覆盖
-- ❌ 规范中心页（V2.2 Week3 重构）未覆盖
-- ⚠️ 新建项目对话框与创建变更单对话框未弹出（详见 [整改报告 §3](../09_整改项/GUI测试整改报告-V0.5.0.md)）
+- ⚠️ L2 pytest 层变量表 Tab 未单独建测试文件（仅 L3 端到端覆盖），后续可补齐 test_09_vartable_tab.py
+- ✅ V0.5.0 时期的"新建项目对话框未弹出"和"创建变更单对话框未弹出"问题已在 V0.5.1 修复
 
 ### 7.2 测试环境限制
 
@@ -333,29 +365,34 @@ pytest tests/gui/test_01_launch.py -v
 
 ### 7.3 测试项目残留
 
-- 脚本创建的 `DJ-2026-099` 项目不会自动删除，需手动清理
+- L3 脚本创建的 `DJ-2026-099` 项目不会自动删除，需手动清理
 - 路径：`c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-099_P1修复测试标准项目`
+- L2 测试使用 `tmp_path_factory` 隔离工作空间，测试结束自动清理，无残留
 
 ---
 
 ## 8. 后续迭代计划
 
-### 8.1 V0.5.x 稳定期整改（Week 1-2）
+### 8.1 V0.5.1 已完成（2026-07-01）
 
-1. 修复 `gui_plc_full_test.py` 中 `_on_new_project` 和 `_on_create_change` 的调用方式
-2. 扩展脚本覆盖变量表 Tab（§5.5 的 9 小节）
-3. 扩展脚本覆盖规范中心页（6 Tab）
+1. ✅ 修复 helpers/interactions.py + assertions.py 嵌套 QDialog 查找 bug
+2. ✅ scripts/gui_plc_full_test.py 复用 tests/gui/helpers/ 实现
+3. ✅ 升级 tests/gui/test_04/06/09 为实际提交模式（QWizard FinishButton + 信号驱动成功检测）
+4. ✅ 补超时截图机制（conftest teardown 失败截图 + scripts 看门狗）
+5. ✅ 清理重叠 + 统一入口（run_tests.py gui）+ 更新文档
+6. ✅ 新增 4 个边界用例（空 ID 提交、取消按钮、空状态显示、取消 wizard）
 
-### 8.2 V0.5.x 稳定期回归（Week 3-4）
+### 8.2 V0.5.x 后续优化
 
-- 重跑测试，验证整改后所有用例通过
-- 建立 V0.5.0 截图基线，作为后续版本回归对比基准
+- 补齐 L2 pytest 层变量表 Tab 测试文件（test_09_vartable_tab.py）
+- 建立 V0.5.1 截图基线，作为后续版本回归对比基准
+- 评估 visible 模式下的真实交互测试
 
 ### 8.3 V0.6.0+ 长期演进
 
 - 引入 GUI 视觉回归测试工具（如 pytest-qt + 图像对比）
-- 评估 visible 模式下的真实交互测试
 - 测试规模超过 2000 时重新评估 pytest-xdist 并行化
+- 评估可见窗口模式下的真实用户交互路径测试
 
 ---
 
@@ -365,29 +402,58 @@ pytest tests/gui/test_01_launch.py -v
 
 ```
 scripts/
-└── gui_plc_full_test.py    # 端到端 GUI 自动化测试
-    ├── step_01_launch_gui       # 启动
-    ├── step_02_navigation_tree   # 导航
-    ├── step_03_project_list      # 项目列表
-    ├── step_04_create_plc_project # 新建项目 ⚠️
-    ├── step_05_enter_workspace   # 进入工作区
-    ├── step_06_change_tab        # 变更 Tab ⚠️
-    ├── step_07_check_tab         # 检查 Tab
-    ├── step_08_doc_tab           # 文档 Tab
-    ├── step_09_change_center     # 变更中心
-    ├── step_10_report_center     # 报告中心
-    ├── step_11_settings          # 系统设置
-    ├── step_12_toolbar_actions   # 工具栏
-    └── step_13_cleanup           # 清理
+├── gui_plc_full_test.py    # L3 端到端 GUI 自动化测试（15 步）
+│   ├── step_01_launch_gui          # 启动
+│   ├── step_02_navigation          # 导航
+│   ├── step_03_create_project      # 新建项目
+│   ├── step_04_enter_workspace     # 进入工作区
+│   ├── step_05_create_change       # 变更 Tab·创建变更单
+│   ├── step_06_change_transitions  # 变更 Tab·状态流转
+│   ├── step_07_check_tab           # 检查 Tab
+│   ├── step_08_doc_tab             # 文档 Tab
+│   ├── step_09_vartable_tab        # 变量表 Tab（V0.5.1 扩展）
+│   ├── step_10_change_center       # 变更中心
+│   ├── step_11_spec_center         # 规范中心页（V0.5.1 扩展）
+│   ├── step_12_report_center       # 报告中心
+│   ├── step_13_settings            # 系统设置
+│   ├── step_14_toolbar             # 工具栏
+│   └── step_15_cleanup             # 清理
+└── run_tests.py                    # 统一测试入口（smoke/unit/gui/all/coverage）
+
+tests/gui/                          # L2 集成层（17 个测试文件）
+├── helpers/                        # 共享 helpers（interactions/assertions/bug_recorder）
+├── conftest.py                     # fixture + 失败截图 hooks
+├── test_01_launch.py               # 启动
+├── test_02_navigation.py           # 导航
+├── test_03_project_list.py         # 项目列表
+├── test_04_project_crud.py         # 新建项目（含边界用例）
+├── test_05_workspace_overview.py   # 概览
+├── test_06_change_tab.py           # 变更 Tab（含实际提交+状态流转+边界用例）
+├── test_07_check_tab.py            # 检查 Tab
+├── test_08_doc_tab.py              # 文档 Tab
+├── test_09_change_center.py        # 变更中心
+├── test_10_report_center.py        # 报告中心
+├── test_11_template_page.py        # 模板页
+├── test_12_spec_center.py          # 规范中心页
+├── test_13_settings.py             # 系统设置
+├── test_14_toolbar.py              # 工具栏
+├── test_15_edge_cases.py           # 边界用例
+├── test_16_regression.py           # 回归测试
+└── test_17_edit_change_dialog.py   # 编辑变更单对话框
 ```
 
-### 9.2 截图清单（V0.5.0 实际产出 29 张）
+### 9.2 V0.5.1 测试执行结果
 
-详见 [GUI测试整改报告-V0.5.0.md §2](../09_整改项/GUI测试整改报告-V0.5.0.md#2-测试执行结果)。
+- **L2 集成层**：104 passed, 2 skipped in 176.55s（17 个测试文件）
+- **L3 端到端层**：15 场景全部完成，0 功能 bug，85 截图
+- **超时截图机制验证**：conftest hooks 不影响正常测试（12 passed in 30.38s）
 
 ### 9.3 关键代码引用
 
-- 测试脚本入口：[scripts/gui_plc_full_test.py](../scripts/gui_plc_full_test.py)
+- L3 测试脚本：[scripts/gui_plc_full_test.py](../scripts/gui_plc_full_test.py)
+- L2 helpers：[tests/gui/helpers/interactions.py](../tests/gui/helpers/interactions.py)
+- L2 conftest（含失败截图 hooks）：[tests/gui/conftest.py](../tests/gui/conftest.py)
+- 统一测试入口：[scripts/run_tests.py](../scripts/run_tests.py)
 - 主窗口实现：[auto_pm/ui/main_window.py](../auto_pm/ui/main_window.py)
 - 变更 Tab：[auto_pm/ui/workspace/change_tab.py](../auto_pm/ui/workspace/change_tab.py)
 - 变量表 Tab（V2.3 新增）：[auto_pm/ui/vartable/](../auto_pm/ui/vartable/)

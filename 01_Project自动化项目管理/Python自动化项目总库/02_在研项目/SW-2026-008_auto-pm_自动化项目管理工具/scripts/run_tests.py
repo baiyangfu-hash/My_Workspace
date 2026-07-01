@@ -109,6 +109,17 @@ TEST_MODES = {
         ],
         "timeout": 300,
     },
+    "cli": {
+        "desc": "CLI 命令测试（tests/cli/ + tests/spec/test_cli.py）",
+        "cmd": [
+            sys.executable, "-m", "pytest",
+            "tests/cli/",
+            "tests/spec/test_cli.py",
+            "--tb=short", "-q",
+            "--no-cov",
+        ],
+        "timeout": 300,
+    },
     "all": {
         "desc": "全量测试（含 GUI）",
         "cmd": [

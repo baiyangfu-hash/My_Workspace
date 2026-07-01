@@ -1,8 +1,0 @@
-{
-  "name": "DJ-2026-099",
-  "description": "测试P1-3/P1-7修复",
-  "version": "V1.0.0",
-  "libraries": [
-    "../../../01_SharedLibraries/SysLib"
-  ]
-}

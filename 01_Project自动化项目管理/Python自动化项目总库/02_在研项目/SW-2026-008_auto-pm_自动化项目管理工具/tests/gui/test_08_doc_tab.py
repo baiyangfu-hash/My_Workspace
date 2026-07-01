@@ -17,7 +17,7 @@ import os
 from typing import TYPE_CHECKING
 
 # 必须在导入 PySide6 前设置离屏渲染，避免无显示环境报错
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# V0.5.2: 默认可见模式（用户要求）；offscreen 仅通过 QT_QPA_PLATFORM=offscreen 环境变量设置
 
 import pytest  # noqa: E402
 from PySide6.QtTest import QTest  # noqa: E402

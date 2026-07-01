@@ -21,8 +21,11 @@ V3 升级（2026-07-01）：
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
+import threading
+import time
 import traceback
 from datetime import datetime
 from pathlib import Path
@@ -39,10 +42,18 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QLabel,
-    QMenu,
     QMessageBox,
     QPushButton,
     QWidget,
+    QWizard,
+)
+
+# 复用 tests/gui/helpers 的弹窗处理工具，避免两套实现导致 bug 修复遗漏
+from tests.gui.helpers.interactions import (  # noqa: E402
+    close_all_modal_widgets as _close_all_modal_widgets,
+    dismiss_message_boxes as _dismiss_message_boxes,
+    find_dialog as _find_dialog,
+    find_message_box as _find_message_box,
 )
 
 # ── 全局配置 ──────────────────────────────────────────────
@@ -245,81 +256,27 @@ def run_visual_checks(app: QApplication, window: QWidget, page_name: str) -> Non
         _check_color_contrast(w)
 
 
-# ── 弹窗处理工具 ──────────────────────────────────────────
+# ── 弹窗处理工具（薄包装，复用 tests/gui/helpers/interactions.py） ──
+# singleShot 回调中对话框已弹出，用 timeout_ms=0 即时返回避免阻塞
 
 def find_dialog(app: QApplication, title_contains: str) -> QDialog | None:
-    """查找可见的 QDialog（包括有 parent 的嵌套对话框），标题包含指定文本。
-
-    TransitionDialog/NewProjectDialog/CreateChangeDialog 都有 parent（非 top-level），
-    app.topLevelWidgets() 找不到它们，必须用 findChildren 递归查找。
-    """
-    for top in app.topLevelWidgets():
-        if isinstance(top, QDialog) and top.isVisible() and title_contains in top.windowTitle():
-            return top
-        for dlg in top.findChildren(QDialog):
-            if dlg.isVisible() and title_contains in dlg.windowTitle():
-                return dlg
-    return None
+    """即时查找可见的 QDialog（包括嵌套），找不到立即返回 None"""
+    return _find_dialog(app, title_contains, timeout_ms=0)
 
 
 def find_message_box(app: QApplication) -> QMessageBox | None:
-    """查找可见的 QMessageBox（包括有 parent 的）"""
-    for top in app.topLevelWidgets():
-        if isinstance(top, QMessageBox) and top.isVisible():
-            return top
-        for mb in top.findChildren(QMessageBox):
-            if mb.isVisible():
-                return mb
-    return None
+    """即时查找可见的 QMessageBox（包括嵌套）"""
+    return _find_message_box(app)
 
 
 def dismiss_message_boxes(app: QApplication) -> list[str]:
     """关闭所有 QMessageBox，返回文本列表"""
-    texts: list[str] = []
-    for _ in range(5):  # 最多处理 5 个嵌套弹窗
-        mb = find_message_box(app)
-        if mb is None:
-            break
-        texts.append(mb.text())
-        mb.accept()
-        app.processEvents()
-        QTest.qWait(200)
-    return texts
+    return _dismiss_message_boxes(app)
 
 
 def close_all_modal_widgets(app: QApplication) -> None:
-    """关闭所有可见的 QMenu/QMessageBox/QDialog，防止残留弹窗阻塞测试。
-
-    在 singleShot 回调找不到目标对话框、或流转/创建失败时调用，
-    确保不会有遗留的模态对话框阻塞后续测试步骤。
-    """
-    # 1. 关闭所有 QMessageBox
-    dismiss_message_boxes(app)
-    # 2. 关闭所有可见的 QMenu（多目标流转时弹出）
-    for top in app.topLevelWidgets():
-        for menu in top.findChildren(QMenu):
-            if menu.isVisible():
-                menu.close()
-                app.processEvents()
-                QTest.qWait(100)
-    # 3. reject 所有可见的 QDialog（先关子对话框再关父对话框）
-    for _ in range(3):
-        closed_any = False
-        for top in app.topLevelWidgets():
-            if isinstance(top, QDialog) and top.isVisible():
-                top.reject()
-                closed_any = True
-                app.processEvents()
-                QTest.qWait(100)
-            for dlg in top.findChildren(QDialog):
-                if dlg.isVisible():
-                    dlg.reject()
-                    closed_any = True
-                    app.processEvents()
-                    QTest.qWait(100)
-        if not closed_any:
-            break
-        dismiss_message_boxes(app)  # reject 可能触发新的 QMessageBox
+    """关闭所有可见的 QMenu/QMessageBox/QDialog，防止残留弹窗阻塞测试"""
+    _close_all_modal_widgets(app)
 
 
 def set_combo_by_data(combo: QComboBox, data_value: str, label: str = "") -> None:
@@ -650,6 +607,8 @@ def step_05_create_change(app: QApplication, window) -> None:
             created["error"] = "向导未弹出"
             close_all_modal_widgets(app)  # 关闭可能残留的弹窗
             return
+        # 监听 change_created 信号（_on_create 成功时 emit，不弹 QMessageBox）
+        wizard.change_created.connect(lambda pid: created.__setitem__("success", True))  # type: ignore[attr-defined]
         try:
             # 等待 _load_projects 完成（最多 2 秒）
             for _ in range(20):
@@ -699,24 +658,24 @@ def step_05_create_change(app: QApplication, window) -> None:
             process_events(app, 500)
             screenshot(app, "05_create_change_confirm")
 
-            # 点击完成（触发 validatePage → _on_create）
-            wizard.next()
-            process_events(app, 1000)
-
-            # 处理可能的 QMessageBox
+            # 预注册 QMessageBox 处理（在 Finish 点击之前注册，
+            # 因为 validatePage → _on_create 失败时弹 QMessageBox 阻塞）
             def _handle_msg():
                 texts = dismiss_message_boxes(app)
                 for t in texts:
-                    if "成功" in t or "创建" in t:
-                        created["success"] = True
-                    else:
+                    if "失败" in t or "错误" in t:
                         created["error"] = t
-                # 如果创建失败，wizard 可能还在显示，关闭它防止阻塞
-                if not created["success"] and wizard is not None and wizard.isVisible():
+                # 失败时关闭 wizard 防止阻塞（成功时 wizard 已被 QWizard.accept 关闭）
+                if not created.get("success") and wizard is not None and wizard.isVisible():
                     wizard.reject()
                     process_events(app, 300)
                 process_events(app, 500)
             QTimer.singleShot(300, _handle_msg)
+            # 点 Finish 按钮（不是 next()！QWizard.next() 在最后一页只调 validatePage 不 accept，
+            # 必须用 FinishButton.click() 触发 done(Accepted) 让 wizard.exec() 退出）
+            finish_btn = wizard.button(QWizard.WizardButton.FinishButton)  # type: ignore[attr-defined]
+            finish_btn.click()
+            process_events(app, 1000)
         except Exception as e:
             created["error"] = f"向导填写异常: {e}"
             try:
@@ -800,6 +759,8 @@ def step_06_change_transitions(app: QApplication, window) -> None:
                     res["error"] = "流转对话框未弹出"
                     close_all_modal_widgets(app)  # 关闭可能残留的 QMenu/Dialog
                     return
+                # 监听 transition_completed 信号（流转成功时不弹 QMessageBox，只 emit + accept）
+                dlg.transition_completed.connect(lambda cn: res.__setitem__("success", True))  # type: ignore[attr-defined]
                 try:
                     dlg._approver_edit.setText("auto_test")
                     process_events(app, 100)
@@ -812,12 +773,10 @@ def step_06_change_transitions(app: QApplication, window) -> None:
                     def _handle_msg():
                         texts = dismiss_message_boxes(app)
                         for t in texts:
-                            if "成功" in t:
-                                res["success"] = True
-                            else:
+                            if "失败" in t or "错误" in t:
                                 res["error"] = t
                         # 如果流转失败，对话框可能还在显示，关闭它防止阻塞
-                        if not res["success"] and dlg is not None and dlg.isVisible():
+                        if not res.get("success") and dlg is not None and dlg.isVisible():
                             dlg.reject()
                             process_events(app, 300)
                             dismiss_message_boxes(app)
@@ -1351,15 +1310,49 @@ def _group_visual_by_type() -> dict[str, int]:
 # ── 主流程 ────────────────────────────────────────────────
 
 def main() -> None:
+    # Windows 控制台默认 GBK，emoji 会崩溃；强制 utf-8 输出
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
     print("=" * 60, flush=True)
-    print("PLC 全功能 GUI 自动化测试 V3（电气工程师视角，visible 模式）", flush=True)
+    print("PLC 全功能 GUI 自动化测试 V3（电气工程师视角）", flush=True)
     print("=" * 60, flush=True)
 
-    # 清除 offscreen 环境变量，使用可见窗口
-    import os
-    if "QT_QPA_PLATFORM" in os.environ:
-        del os.environ["QT_QPA_PLATFORM"]
-        log_op("  清除 QT_QPA_PLATFORM，使用可见窗口模式")
+    # 看门狗：5 分钟总超时，防止模态阻塞导致脚本永久卡住
+    _WATCHDOG_TIMEOUT = 300
+    _watchdog_fired = {"value": False}
+
+    def _watchdog() -> None:
+        time.sleep(_WATCHDOG_TIMEOUT)
+        if _watchdog_fired["value"]:
+            return
+        _watchdog_fired["value"] = True
+        # 超时后写日志 + 强制退出（不访问 Qt 对象，线程安全）
+        try:
+            REPORT_DIR.mkdir(parents=True, exist_ok=True)
+            with open(REPORT_DIR / "watchdog_timeout.txt", "w", encoding="utf-8") as f:
+                f.write(f"Watchdog timeout at {datetime.now().isoformat()}\n")
+                f.write(f"Last 10 operations:\n")
+                for line in op_log[-10:]:
+                    f.write(f"  {line}\n")
+        except Exception:
+            pass
+        print(f"\n*** 看门狗超时（{_WATCHDOG_TIMEOUT}s），强制退出", flush=True)
+        os._exit(2)
+
+    threading.Thread(target=_watchdog, daemon=True).start()
+
+    # 支持 offscreen（默认，CI 兼容）和 visible（GUI_VISIBLE=1）两种模式
+    if os.environ.get("GUI_VISIBLE", "0") == "1":
+        if "QT_QPA_PLATFORM" in os.environ:
+            del os.environ["QT_QPA_PLATFORM"]
+            log_op("  清除 QT_QPA_PLATFORM，使用可见窗口模式（GUI_VISIBLE=1）")
+    else:
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+        log_op("  使用 offscreen 模式（默认；设置 GUI_VISIBLE=1 切换可见窗口）")
 
     app = QApplication.instance() or QApplication(sys.argv)
 

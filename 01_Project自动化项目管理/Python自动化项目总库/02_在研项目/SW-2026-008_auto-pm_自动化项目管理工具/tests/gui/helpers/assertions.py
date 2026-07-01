@@ -66,25 +66,37 @@ def assert_statusbar_contains(window: MainWindow, key: str, expected: str) -> No
 
 
 def assert_dialog_open(app: QApplication, title_contains: str) -> QDialog:
-    """验证对话框已弹出并返回，未找到则断言失败"""
+    """验证对话框已弹出并返回，未找到则断言失败
+
+    支持有 parent 的嵌套对话框（TransitionDialog/NewProjectDialog 等），
+    通过 findChildren 递归查找。
+    """
     for _ in range(20):  # 最多等待 1 秒
-        for w in app.topLevelWidgets():
-            if isinstance(w, QDialog) and w.isVisible() and title_contains in w.windowTitle():
-                return w
+        for top in app.topLevelWidgets():
+            if isinstance(top, QDialog) and top.isVisible() and title_contains in top.windowTitle():
+                return top
+            for dlg in top.findChildren(QDialog):
+                if dlg.isVisible() and title_contains in dlg.windowTitle():
+                    return dlg
         app.processEvents()
         QTest.qWait(50)
     assert False, f"对话框 '{title_contains}' 未弹出"
 
 
 def assert_no_error_dialog(app: QApplication) -> None:
-    """验证当前无错误弹窗（QMessageBox）"""
+    """验证当前无错误弹窗（QMessageBox，包括有 parent 的）"""
     from PySide6.QtWidgets import QMessageBox
 
-    for w in app.topLevelWidgets():
-        if isinstance(w, QMessageBox) and w.isVisible():
-            text = w.text()
-            w.accept()
+    for top in app.topLevelWidgets():
+        if isinstance(top, QMessageBox) and top.isVisible():
+            text = top.text()
+            top.accept()
             assert False, f"出现错误弹窗: {text}"
+        for mb in top.findChildren(QMessageBox):
+            if mb.isVisible():
+                text = mb.text()
+                mb.accept()
+                assert False, f"出现错误弹窗: {text}"
 
 
 def assert_change_card_count(change_tab: ChangeTab, expected: int) -> None:

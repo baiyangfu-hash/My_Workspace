@@ -1,0 +1,1 @@
+[2026-07-01T09:43:44.301892] FAIL tests/gui/test_06_change_tab.py::test_change_tab_empty_state -> captured 1 screenshot(s)
