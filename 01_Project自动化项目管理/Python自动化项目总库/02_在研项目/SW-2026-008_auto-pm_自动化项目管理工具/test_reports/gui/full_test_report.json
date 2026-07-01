@@ -1,0 +1,158 @@
+{
+  "test_session": "2026-07-01T08:08:05.193867",
+  "test_project_id": "DJ-2026-099",
+  "workspace": "isolated_tmp",
+  "viewports": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "desktop"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "name": "tablet"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "name": "mobile"
+    }
+  ],
+  "screenshot_dir": "C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\test_reports\\gui\\full_test_screenshots",
+  "screenshot_count": 85,
+  "bugs": {
+    "total": 1,
+    "critical": 0,
+    "major": 1,
+    "minor": 0,
+    "items": [
+      {
+        "step": "新建项目",
+        "error": "3 validation errors for Project\nequipment_type\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nplc_vendor\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nplc_model\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+        "severity": "major",
+        "timestamp": "2026-07-01T08:06:54.784430",
+        "screenshot": ""
+      }
+    ]
+  },
+  "visual_issues": {
+    "total": 12,
+    "major": 12,
+    "minor": 0,
+    "by_type": {
+      "out_of_bounds": 3,
+      "zero_size": 9
+    },
+    "items": [
+      {
+        "type": "out_of_bounds",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "控件(1098,1245)超出父控件(1098,676)",
+        "severity": "major",
+        "viewport": "desktop",
+        "timestamp": "2026-07-01T08:06:58.689204",
+        "screenshot": ""
+      },
+      {
+        "type": "out_of_bounds",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "控件(694,1261)超出父控件(694,676)",
+        "severity": "major",
+        "viewport": "tablet",
+        "timestamp": "2026-07-01T08:06:59.290820",
+        "screenshot": ""
+      },
+      {
+        "type": "out_of_bounds",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "控件(694,1261)超出父控件(694,608)",
+        "severity": "major",
+        "viewport": "mobile",
+        "timestamp": "2026-07-01T08:06:59.796937",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x541",
+        "severity": "major",
+        "viewport": "desktop",
+        "timestamp": "2026-07-01T08:07:31.985400",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x541",
+        "severity": "major",
+        "viewport": "desktop",
+        "timestamp": "2026-07-01T08:07:31.985400",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x24",
+        "severity": "major",
+        "viewport": "desktop",
+        "timestamp": "2026-07-01T08:07:31.985400",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x541",
+        "severity": "major",
+        "viewport": "tablet",
+        "timestamp": "2026-07-01T08:07:32.651274",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x541",
+        "severity": "major",
+        "viewport": "tablet",
+        "timestamp": "2026-07-01T08:07:32.652280",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x24",
+        "severity": "major",
+        "viewport": "tablet",
+        "timestamp": "2026-07-01T08:07:32.652572",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x473",
+        "severity": "major",
+        "viewport": "mobile",
+        "timestamp": "2026-07-01T08:07:33.184147",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x473",
+        "severity": "major",
+        "viewport": "mobile",
+        "timestamp": "2026-07-01T08:07:33.184147",
+        "screenshot": ""
+      },
+      {
+        "type": "zero_size",
+        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
+        "detail": "可见控件尺寸0x24",
+        "severity": "major",
+        "viewport": "mobile",
+        "timestamp": "2026-07-01T08:07:33.184147",
+        "screenshot": ""
+      }
+    ]
+  }
+}

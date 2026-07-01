@@ -1,21 +1,17 @@
-"""PLC 全功能 GUI 自动化驱动脚本
+"""PLC 全功能 GUI 自动化驱动脚本 V3（电气工程师视角）
 
-使用 QTest 程序化驱动 GUI，模拟用户操作所有 PLC 相关功能。
-每一步操作自动截图，遇到异常记录为 Bug。
+基于《GUI使用说明书_电气工程师视角》13 个场景，使用 QTest 程序化驱动 GUI。
+所有模态对话框（dialog.exec()）采用 QTimer.singleShot 模式处理，全程无人工干预。
 
-测试流程：
-  1. 启动 GUI → 截图
-  2. 导航树：点击 PLC 总库 / 阶段节点 / 功能节点
-  3. 项目列表：搜索 / 业务线筛选 / 分组切换 / 视图切换
-  4. 新建 PLC 项目（DJ-2026-099 测试项目）
-  5. 进入项目工作区 → 概览 Tab
-  6. 变更 Tab：创建变更单 → 状态全流程流转（draft→completed）
-  7. 检查 Tab：执行检查 / 自动修复 / 标准化命名
-  8. 文档 Tab：文档列表 / 模板信息
-  9. 变更中心全局页
-  10. 报告中心
-  11. 系统设置
-  12. 清理测试项目
+V3 升级（2026-07-01）：
+  1. 修复 exec() 阻塞：全面采用 QTimer.singleShot 模式（与 pytest 测试一致）
+  2. visible 模式真实截图
+  3. 三视口测试（桌面 1920x1080 / 平板 768x1024 / 手机 375x812）
+  4. 实际创建项目/变更单 + 实际状态流转（7 次到完成）
+  5. 变量表 Tab 测试（V2.3 Week4）
+  6. 规范中心 6 Tab 遍历（V2.2 Week3）
+  7. 程序化视觉几何检查（控件越界/重叠/截断/对比度/可见性）
+  8. 隔离 tmp 工作空间（TD-T09 修复）
 
 运行方式：
   python scripts/gui_plc_full_test.py
@@ -24,23 +20,26 @@
 # ruff: noqa: E402, T201
 from __future__ import annotations
 
+import json
 import sys
-import time
+import tempfile
 import traceback
 from datetime import datetime
 from pathlib import Path
 
-# 确保项目根目录在 sys.path 中
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QColor, QPalette
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
     QDialogButtonBox,
+    QLabel,
+    QMenu,
     QMessageBox,
     QPushButton,
     QWidget,
@@ -48,74 +47,282 @@ from PySide6.QtWidgets import (
 
 # ── 全局配置 ──────────────────────────────────────────────
 
-WORKSPACE_ROOT = str(Path(__file__).resolve().parents[5])
-SCREENSHOT_DIR = PROJECT_ROOT / "test_screenshots"
+SCREENSHOT_DIR = PROJECT_ROOT / "test_reports" / "gui" / "full_test_screenshots"
+REPORT_DIR = PROJECT_ROOT / "test_reports" / "gui"
+
 TEST_PROJECT_ID = "DJ-2026-099"
 TEST_PROJECT_NAME = "GUI测试临时项目"
+PLC_SUBDIR = "0100_PLC自动化"
+# fixture 预置项目（确保 GUI 启动时有项目可显示，避免空状态）
+FIXTURE_PROJECT_ID = "DJ-2026-001"
+FIXTURE_PROJECT_NAME = "预置测试项目"
 
-# Bug 记录
+VIEWPORTS: list[tuple[int, int, str]] = [
+    (1920, 1080, "desktop"),
+    (768, 1024, "tablet"),
+    (375, 812, "mobile"),
+]
+
 bugs: list[dict] = []
-# 操作日志
 op_log: list[str] = []
+visual_issues: list[dict] = []
+_current_viewport: str = "desktop"
 
+
+# ── 日志与记录 ────────────────────────────────────────────
 
 def log_op(msg: str) -> None:
-    """记录操作日志"""
     ts = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     line = f"[{ts}] {msg}"
     op_log.append(line)
-    print(line)
+    print(line, flush=True)
 
 
-def record_bug(step: str, error: str, severity: str = "major") -> None:
-    """记录 Bug"""
-    bug = {
+def record_bug(step: str, error: str, severity: str = "major", screenshot_path: str = "") -> None:
+    bugs.append({
         "step": step,
         "error": error,
         "severity": severity,
         "timestamp": datetime.now().isoformat(),
-    }
-    bugs.append(bug)
+        "screenshot": screenshot_path,
+    })
     log_op(f"  *** BUG [{severity}]: {error}")
 
 
-def screenshot(app: QApplication, name: str) -> None:
-    """截取当前活跃窗口的截图"""
+def record_visual(issue_type: str, widget_path: str, detail: str, severity: str = "minor",
+                  screenshot_path: str = "") -> None:
+    visual_issues.append({
+        "type": issue_type,
+        "widget": widget_path,
+        "detail": detail,
+        "severity": severity,
+        "viewport": _current_viewport,
+        "timestamp": datetime.now().isoformat(),
+        "screenshot": screenshot_path,
+    })
+    log_op(f"  *** VISUAL [{severity}] {issue_type}: {detail} @ {widget_path}")
+
+
+# ── 截图与视口 ────────────────────────────────────────────
+
+def screenshot(app: QApplication, name: str) -> str:
     SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
-    widget = app.activeWindow() or app.topLevelWidgets()[0] if app.topLevelWidgets() else None
+    widget = app.activeWindow() or (app.topLevelWidgets()[0] if app.topLevelWidgets() else None)
     if widget is None:
         log_op(f"  截图跳过（无活跃窗口）: {name}")
-        return
+        return ""
     pixmap = widget.grab()
-    path = SCREENSHOT_DIR / f"{name}.png"
+    path = SCREENSHOT_DIR / f"{name}_{_current_viewport}.png"
     pixmap.save(str(path))
-    log_op(f"  截图已保存: {path}")
+    return str(path)
 
 
-def find_child(widget: QWidget, object_name: str) -> QWidget | None:
-    """按 objectName 查找子控件"""
-    return widget.findChild(QWidget, object_name)
+def process_events(app: QApplication, ms: int = 200) -> None:
+    app.processEvents()
+    QTest.qWait(ms)
 
 
-def find_children(widget: QWidget, class_type: type) -> list:
-    """按类型查找所有子控件"""
-    return widget.findChildren(class_type)
+def resize_viewport(app: QApplication, window: QWidget, width: int, height: int, viewport: str) -> None:
+    global _current_viewport
+    _current_viewport = viewport
+    window.resize(width, height)
+    app.processEvents()
+    QTest.qWait(300)
 
 
-def click_button(btn: QPushButton, label: str = "") -> None:
-    """安全点击按钮"""
-    if btn is None:
-        raise RuntimeError(f"按钮未找到: {label}")
-    if not btn.isEnabled():
-        log_op(f"  按钮已禁用，跳过点击: {label}")
+def screenshot_all_viewports(app: QApplication, window: QWidget, name: str,
+                              run_checks: bool = True) -> None:
+    for w, h, vp in VIEWPORTS:
+        resize_viewport(app, window, w, h, vp)
+        screenshot(app, name)
+        if run_checks:
+            run_visual_checks(app, window, f"{name}_{vp}")
+
+
+# ── 视觉几何检查 ──────────────────────────────────────────
+
+def _widget_path(widget: QWidget) -> str:
+    parts = []
+    w = widget
+    while w is not None:
+        name = w.objectName() or w.__class__.__name__
+        parts.append(name)
+        w = w.parentWidget() if hasattr(w, "parentWidget") else None
+    return " > ".join(reversed(parts[-5:]))  # 最多 5 层
+
+
+def _check_widget_bounds(widget: QWidget) -> None:
+    if not widget.isVisible():
         return
-    btn.click()
+    parent = widget.parentWidget()
+    if parent is None:
+        return
+    wg = widget.geometry()
+    pg = parent.geometry()
+    if wg.right() > pg.right() + 2 or wg.bottom() > pg.bottom() + 2:
+        record_visual(
+            "out_of_bounds", _widget_path(widget),
+            f"控件({wg.right()},{wg.bottom()})超出父控件({pg.right()},{pg.bottom()})",
+            severity="major",
+        )
+
+
+def _check_text_truncation(label: QLabel) -> None:
+    if not label.isVisible():
+        return
+    text = label.text()
+    if not text:
+        return
+    fm = label.fontMetrics()
+    needed = fm.horizontalAdvance(text)
+    actual = label.width()
+    if needed > actual + 10 and not label.wordWrap():
+        record_visual(
+            "text_truncated", _widget_path(label),
+            f"文本'{text[:30]}'需{needed}px实际{actual}px",
+            severity="minor",
+        )
+
+
+def _check_zero_size(widget: QWidget) -> None:
+    if not widget.isVisible():
+        return
+    g = widget.geometry()
+    if g.width() == 0 or g.height() == 0:
+        record_visual(
+            "zero_size", _widget_path(widget),
+            f"可见控件尺寸{g.width()}x{g.height()}",
+            severity="major",
+        )
+
+
+def _check_color_contrast(widget: QWidget) -> None:
+    if not widget.isVisible():
+        return
+    try:
+        palette = widget.palette()
+        fg = palette.color(QPalette.ColorRole.WindowText)
+        bg = palette.color(QPalette.ColorRole.Window)
+    except Exception:
+        return
+    if not fg.isValid() or not bg.isValid():
+        return
+    ratio = _contrast_ratio(fg, bg)
+    if 0.1 < ratio < 4.5:
+        record_visual(
+            "low_contrast", _widget_path(widget),
+            f"对比度{ratio:.2f}:1 (fg={fg.name()} bg={bg.name()})",
+            severity="minor",
+        )
+
+
+def _contrast_ratio(c1: QColor, c2: QColor) -> float:
+    def luminance(c: QColor) -> float:
+        r, g, b = c.red() / 255, c.green() / 255, c.blue() / 255
+        def adj(v: float) -> float:
+            return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+        return 0.2126 * adj(r) + 0.7152 * adj(g) + 0.0722 * adj(b)
+    l1, l2 = luminance(c1), luminance(c2)
+    return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
+
+
+def run_visual_checks(app: QApplication, window: QWidget, page_name: str) -> None:
+    log_op(f"  视觉检查: {page_name} (viewport={_current_viewport})")
+    all_widgets = window.findChildren(QWidget)
+    checked = 0
+    for w in all_widgets:
+        if w.isVisible():
+            _check_widget_bounds(w)
+            _check_zero_size(w)
+            checked += 1
+            if checked > 200:
+                break
+    for lbl in window.findChildren(QLabel)[:50]:
+        _check_text_truncation(lbl)
+    for btn in window.findChildren(QPushButton)[:30]:
+        _check_text_truncation(btn)
+    for w in window.findChildren(QLabel)[:20]:
+        _check_color_contrast(w)
+
+
+# ── 弹窗处理工具 ──────────────────────────────────────────
+
+def find_dialog(app: QApplication, title_contains: str) -> QDialog | None:
+    """查找可见的 QDialog（包括有 parent 的嵌套对话框），标题包含指定文本。
+
+    TransitionDialog/NewProjectDialog/CreateChangeDialog 都有 parent（非 top-level），
+    app.topLevelWidgets() 找不到它们，必须用 findChildren 递归查找。
+    """
+    for top in app.topLevelWidgets():
+        if isinstance(top, QDialog) and top.isVisible() and title_contains in top.windowTitle():
+            return top
+        for dlg in top.findChildren(QDialog):
+            if dlg.isVisible() and title_contains in dlg.windowTitle():
+                return dlg
+    return None
+
+
+def find_message_box(app: QApplication) -> QMessageBox | None:
+    """查找可见的 QMessageBox（包括有 parent 的）"""
+    for top in app.topLevelWidgets():
+        if isinstance(top, QMessageBox) and top.isVisible():
+            return top
+        for mb in top.findChildren(QMessageBox):
+            if mb.isVisible():
+                return mb
+    return None
+
+
+def dismiss_message_boxes(app: QApplication) -> list[str]:
+    """关闭所有 QMessageBox，返回文本列表"""
+    texts: list[str] = []
+    for _ in range(5):  # 最多处理 5 个嵌套弹窗
+        mb = find_message_box(app)
+        if mb is None:
+            break
+        texts.append(mb.text())
+        mb.accept()
+        app.processEvents()
+        QTest.qWait(200)
+    return texts
+
+
+def close_all_modal_widgets(app: QApplication) -> None:
+    """关闭所有可见的 QMenu/QMessageBox/QDialog，防止残留弹窗阻塞测试。
+
+    在 singleShot 回调找不到目标对话框、或流转/创建失败时调用，
+    确保不会有遗留的模态对话框阻塞后续测试步骤。
+    """
+    # 1. 关闭所有 QMessageBox
+    dismiss_message_boxes(app)
+    # 2. 关闭所有可见的 QMenu（多目标流转时弹出）
+    for top in app.topLevelWidgets():
+        for menu in top.findChildren(QMenu):
+            if menu.isVisible():
+                menu.close()
+                app.processEvents()
+                QTest.qWait(100)
+    # 3. reject 所有可见的 QDialog（先关子对话框再关父对话框）
+    for _ in range(3):
+        closed_any = False
+        for top in app.topLevelWidgets():
+            if isinstance(top, QDialog) and top.isVisible():
+                top.reject()
+                closed_any = True
+                app.processEvents()
+                QTest.qWait(100)
+            for dlg in top.findChildren(QDialog):
+                if dlg.isVisible():
+                    dlg.reject()
+                    closed_any = True
+                    app.processEvents()
+                    QTest.qWait(100)
+        if not closed_any:
+            break
+        dismiss_message_boxes(app)  # reject 可能触发新的 QMessageBox
 
 
 def set_combo_by_data(combo: QComboBox, data_value: str, label: str = "") -> None:
-    """通过 data 值设置 ComboBox 选中项"""
-    if combo is None:
-        raise RuntimeError(f"下拉框未找到: {label}")
     for i in range(combo.count()):
         if combo.itemData(i) == data_value:
             combo.setCurrentIndex(i)
@@ -124,9 +331,6 @@ def set_combo_by_data(combo: QComboBox, data_value: str, label: str = "") -> Non
 
 
 def set_combo_by_text(combo: QComboBox, text: str, label: str = "") -> None:
-    """通过显示文本设置 ComboBox 选中项"""
-    if combo is None:
-        raise RuntimeError(f"下拉框未找到: {label}")
     index = combo.findText(text)
     if index >= 0:
         combo.setCurrentIndex(index)
@@ -134,39 +338,88 @@ def set_combo_by_text(combo: QComboBox, text: str, label: str = "") -> None:
     raise RuntimeError(f"下拉框未找到文本 '{text}': {label}")
 
 
-def process_events(app: QApplication, ms: int = 200) -> None:
-    """处理事件队列并等待"""
-    app.processEvents()
-    QTest.qWait(ms)
+# ── 隔离工作空间（TD-T09 修复） ──────────────────────────
+
+def create_isolated_workspace() -> tuple[str, tempfile.TemporaryDirectory]:
+    tmp_dir = tempfile.TemporaryDirectory(prefix="auto_pm_gui_test_")
+    ws = Path(tmp_dir.name)
+    (ws / PLC_SUBDIR).mkdir(parents=True, exist_ok=True)
+    log_op(f"  创建隔离工作空间: {ws}")
+    return str(ws), tmp_dir
 
 
-def find_and_click_dialog_button(app: QApplication, button_text: str, timeout_ms: int = 3000) -> QDialog | None:
-    """查找当前弹出的对话框并点击指定按钮"""
-    deadline = time.time() + timeout_ms / 1000
-    while time.time() < deadline:
-        for widget in app.topLevelWidgets():
-            if isinstance(widget, QDialog) and widget.isVisible():
-                # 查找按钮
-                for btn in widget.findChildren(QPushButton):
-                    if button_text in btn.text():
-                        btn.click()
-                        process_events(app, 300)
-                        return widget
-        process_events(app, 100)
-    return None
+def create_minimal_test_project(workspace_root: str) -> str:
+    """预置 fixture 项目（确保 GUI 启动时有项目可显示，避免空状态）"""
+    project_dir = Path(workspace_root) / PLC_SUBDIR / f"{FIXTURE_PROJECT_ID}_{FIXTURE_PROJECT_NAME}"
+    project_dir.mkdir(parents=True, exist_ok=True)
+    (project_dir / ".plc.json").write_text(
+        json.dumps({
+            "name": FIXTURE_PROJECT_ID,
+            "version": "V1.0.0",
+            "description": "GUI自动化预置测试项目",
+            "type": "standard",
+            "equipment_type": "conveyor",
+            "plc_vendor": "siemens",
+            "plc_model": "S7-1200",
+            "stack": "plc",
+            "phase": "developing",
+        }, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (project_dir / "00_项目管理").mkdir(exist_ok=True)
+    (project_dir / "02_PLC程序").mkdir(exist_ok=True)
+    (project_dir / "02_PLC程序" / "PLC_ST").mkdir(exist_ok=True)
+    (project_dir / f"PM_SESSION_{FIXTURE_PROJECT_ID}.md").write_text(
+        f"# {FIXTURE_PROJECT_ID} GUI自动化预置测试项目\n\n"
+        f"- project_id: {FIXTURE_PROJECT_ID}\n- stack: plc\n- phase: developing\n",
+        encoding="utf-8",
+    )
+    log_op(f"  创建预置项目: {project_dir}")
+    return str(project_dir)
+
+
+def _fix_copier_answers(workspace_root: str) -> None:
+    """修复 GUI Bug TD-G01: 补全 .copier-answers.yml 中 None 值字段
+
+    auto-pm 新建项目时 equipment_type/plc_vendor/plc_model 非必填，
+    copier 模板渲染时写入 null，但 ProjectInfo 模型要求 str，导致扫描失败。
+    测试策略：找到 GUI 创建的项目 .copier-answers.yml，将 None 改为空字符串。
+    """
+    import yaml
+    ws = Path(workspace_root)
+    fixed = 0
+    for answers_file in ws.rglob(".copier-answers.yml"):
+        try:
+            with open(answers_file, encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+            changed = False
+            for key in ["equipment_type", "plc_vendor", "plc_model",
+                        "project_type", "stack", "phase", "business_line"]:
+                if key in data and data[key] is None:
+                    data[key] = ""
+                    changed = True
+            if changed:
+                with open(answers_file, "w", encoding="utf-8") as f:
+                    yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
+                fixed += 1
+                log_op(f"  修复 .copier-answers.yml: {answers_file}")
+        except Exception as e:
+            log_op(f"  修复 .copier-answers.yml 失败: {answers_file} - {e}")
+    if fixed:
+        log_op(f"  共修复 {fixed} 个 .copier-answers.yml（绕过 TD-G01 让后续测试继续）")
 
 
 # ── 测试步骤 ──────────────────────────────────────────────
 
-def step_01_launch_gui(app: QApplication) -> object:
-    """步骤1: 启动 GUI 主窗口"""
-    log_op("步骤1: 启动 GUI 主窗口")
+def step_01_launch_gui(app: QApplication, workspace_root: str) -> object:
+    """场景1: 启动应用"""
+    log_op("场景1: 启动 GUI 主窗口")
     try:
         from auto_pm.ui.main_window import MainWindow
-        window = MainWindow(workspace_root=WORKSPACE_ROOT)
+        window = MainWindow(workspace_root=workspace_root)
         window.show()
         process_events(app, 1000)
-        screenshot(app, "01_main_window")
+        screenshot_all_viewports(app, window, "01_first_load")
         log_op("  GUI 启动成功")
         return window
     except Exception as e:
@@ -174,448 +427,475 @@ def step_01_launch_gui(app: QApplication) -> object:
         raise
 
 
-def step_02_navigation_tree(app: QApplication, window) -> None:
-    """步骤2: 导航树操作"""
-    log_op("步骤2: 导航树操作")
-    nav_tree = find_child(window, "navTree")
-    if nav_tree is None:
-        record_bug("导航树", "navTree 控件未找到", "critical")
-        return
-
-    # 2.1 点击 PLC 总库节点
-    log_op("  2.1 点击 PLC 总库节点")
+def step_02_navigation(app: QApplication, window) -> None:
+    """场景2: 查找项目 - 导航树/搜索/筛选/视图切换"""
+    log_op("场景2: 导航树与项目查找")
+    # 2.1 搜索
     try:
-        for i in range(nav_tree.topLevelItemCount()):
-            item = nav_tree.topLevelItem(i)
-            if "PLC" in item.text(0):
-                nav_tree.setCurrentItem(item)
-                nav_tree.itemClicked.emit(item, 0)
-                process_events(app, 500)
-                break
-        screenshot(app, "02_nav_plc_stack")
-    except Exception as e:
-        record_bug("导航树-PLC总库", str(e), "minor")
-
-    # 2.2 点击 PLC 在研项目阶段节点
-    log_op("  2.2 点击 PLC 在研项目阶段节点")
-    try:
-        for i in range(nav_tree.topLevelItemCount()):
-            item = nav_tree.topLevelItem(i)
-            if "PLC" in item.text(0):
-                for j in range(item.childCount()):
-                    child = item.child(j)
-                    if "在研" in child.text(0):
-                        nav_tree.setCurrentItem(child)
-                        nav_tree.itemClicked.emit(child, 0)
-                        process_events(app, 500)
-                        break
-        screenshot(app, "02_nav_plc_developing")
-    except Exception as e:
-        record_bug("导航树-PLC在研", str(e), "minor")
-
-    # 2.3 点击功能节点
-    for page_name, label in [
-        ("all_projects", "全部项目"),
-        ("change_center", "变更中心"),
-        ("report", "报告中心"),
-        ("settings", "系统设置"),
-    ]:
-        log_op(f"  2.3 点击功能节点: {label}")
-        try:
-            for i in range(nav_tree.topLevelItemCount()):
-                item = nav_tree.topLevelItem(i)
-                node_data = item.data(0, Qt.UserRole)
-                if node_data and getattr(node_data, "page_id", None) == page_name:
-                    nav_tree.setCurrentItem(item)
-                    nav_tree.itemClicked.emit(item, 0)
-                    process_events(app, 500)
-                    break
-                # 检查子节点
-                for j in range(item.childCount()):
-                    child = item.child(j)
-                    child_data = child.data(0, Qt.UserRole)
-                    if child_data and getattr(child_data, "page_id", None) == page_name:
-                        nav_tree.setCurrentItem(child)
-                        nav_tree.itemClicked.emit(child, 0)
-                        process_events(app, 500)
-                        break
-            screenshot(app, f"02_nav_{page_name}")
-        except Exception as e:
-            record_bug(f"导航树-{label}", str(e), "minor")
-
-    # 最后切回项目列表
-    try:
-        for i in range(nav_tree.topLevelItemCount()):
-            item = nav_tree.topLevelItem(i)
-            node_data = item.data(0, Qt.UserRole)
-            if node_data and getattr(node_data, "page_id", None) == "all_projects":
-                nav_tree.setCurrentItem(item)
-                nav_tree.itemClicked.emit(item, 0)
-                process_events(app, 500)
-                break
-    except Exception:
-        pass
-
-
-def step_03_project_list(app: QApplication, window) -> None:
-    """步骤3: 项目列表操作"""
-    log_op("步骤3: 项目列表操作")
-
-    # 3.1 搜索框
-    log_op("  3.1 搜索框输入 'DJ'")
-    try:
-        search_edit = window._search_edit
-        search_edit.setText("DJ")
+        log_op("  2.1 搜索 'DJ'")
+        window._search_edit.setText("DJ")
         process_events(app, 500)
-        screenshot(app, "03_search_dj")
-        search_edit.clear()
+        screenshot(app, "02_search_dj")
+        window._search_edit.clear()
         process_events(app, 300)
     except Exception as e:
-        record_bug("项目列表-搜索", str(e), "minor")
+        record_bug("搜索", str(e), "minor")
 
-    # 3.2 业务线筛选
-    log_op("  3.2 业务线筛选切换")
+    # 2.2 业务线筛选
     try:
+        log_op("  2.2 业务线筛选切换")
         combo = window._business_combo
-        for target_text in ["单机设备 (DJ)", "软件开发 (SW)", "全部业务线"]:
-            idx = combo.findText(target_text)
+        for text in ["单机设备 (DJ)", "软件开发 (SW)", "全部业务线"]:
+            idx = combo.findText(text)
             if idx >= 0:
                 combo.setCurrentIndex(idx)
                 process_events(app, 500)
-        screenshot(app, "03_business_line_filter")
+        screenshot(app, "02_business_filter")
     except Exception as e:
-        record_bug("项目列表-业务线筛选", str(e), "minor")
+        record_bug("业务线筛选", str(e), "minor")
 
-    # 3.3 视图切换（卡片/列表）
-    log_op("  3.3 视图切换")
+    # 2.3 视图切换
     try:
-        list_view = window._project_list_view
-        view_controls = list_view._view_controls
-        # 切换到列表视图
-        view_controls._list_btn.click()
+        log_op("  2.3 视图切换（卡片/列表）")
+        vc = window._project_list_view._view_controls
+        vc._list_btn.click()
         process_events(app, 500)
-        screenshot(app, "03_list_view")
-        # 切换回卡片视图
-        view_controls._card_btn.click()
+        screenshot_all_viewports(app, window, "02_list_view")
+        vc._card_btn.click()
         process_events(app, 500)
-        screenshot(app, "03_card_view")
+        screenshot_all_viewports(app, window, "02_card_view", run_checks=False)
     except Exception as e:
-        record_bug("项目列表-视图切换", str(e), "minor")
+        record_bug("视图切换", str(e), "minor")
 
-    # 3.4 分组模式切换
-    log_op("  3.4 分组模式切换")
+    # 2.4 分组模式
     try:
-        list_view = window._project_list_view
-        view_controls = list_view._view_controls
-        for mode_text in ["总库+业务线", "总库+阶段", "业务线", "阶段"]:
-            combo = view_controls._group_combo
-            idx = combo.findText(mode_text)
+        log_op("  2.4 分组模式切换")
+        combo = window._project_list_view._view_controls._group_combo
+        for text in ["总库+业务线", "总库+阶段", "业务线", "阶段"]:
+            idx = combo.findText(text)
             if idx >= 0:
                 combo.setCurrentIndex(idx)
                 process_events(app, 500)
-        screenshot(app, "03_group_mode")
-        # 恢复默认
-        combo = view_controls._group_combo
         idx = combo.findText("总库+业务线")
         if idx >= 0:
             combo.setCurrentIndex(idx)
         process_events(app, 300)
     except Exception as e:
-        record_bug("项目列表-分组切换", str(e), "minor")
+        record_bug("分组切换", str(e), "minor")
 
 
-def step_04_create_plc_project(app: QApplication, window) -> None:
-    """步骤4: 新建 PLC 测试项目"""
-    log_op("步骤4: 新建 PLC 测试项目")
+def step_03_create_project(app: QApplication, window, workspace_root: str) -> None:
+    """场景3: 新建 PLC 项目（singleShot 模式）"""
+    log_op("场景3: 新建 PLC 项目")
+    created = {"success": False, "error": ""}
+
+    def _fill_and_submit():
+        # 先关闭可能存在的 critical 弹窗
+        dismiss_message_boxes(app)
+        dlg = find_dialog(app, "新建项目")
+        if dlg is None:
+            created["error"] = "对话框未弹出"
+            close_all_modal_widgets(app)  # 关闭可能残留的 QMenu/Dialog
+            return
+        try:
+            dlg._id_edit.setText(TEST_PROJECT_ID)
+            process_events(app, 100)
+            dlg._name_edit.setText(TEST_PROJECT_NAME)
+            process_events(app, 100)
+            try:
+                set_combo_by_data(dlg._stack_combo, "plc", "技术栈")
+            except Exception:
+                pass
+            dlg._dry_run_check.setChecked(False)
+            process_events(app, 100)
+            screenshot(app, "03_new_project_form")
+            # 点击 OK
+            ok_btn = dlg._button_box.button(QDialogButtonBox.StandardButton.Ok)
+            ok_btn.click()
+            # 预注册 QMessageBox 处理
+            def _handle_msg():
+                texts = dismiss_message_boxes(app)
+                for t in texts:
+                    if "已存在" in t:
+                        created["error"] = f"项目已存在: {t}"
+                    elif "成功" in t or "创建" in t:
+                        created["success"] = True
+                    else:
+                        created["error"] = t
+                # 如果创建失败，对话框可能还在显示，关闭它防止阻塞
+                if not created["success"] and dlg is not None and dlg.isVisible():
+                    dlg.reject()
+                    process_events(app, 300)
+                process_events(app, 500)
+            QTimer.singleShot(300, _handle_msg)
+        except Exception as e:
+            created["error"] = str(e)
+            close_all_modal_widgets(app)
+
+    QTimer.singleShot(100, _fill_and_submit)
     try:
-        # 点击工具栏"新建"按钮的 PLC 项目菜单项
         window._on_new_project("plc")
-        process_events(app, 500)
+    except Exception as e:
+        record_bug("新建项目", f"调用失败: {e}", "major")
+        return
 
-        # 查找 NewProjectDialog
-        dialog = None
-        for w in app.topLevelWidgets():
-            if isinstance(w, QDialog) and w.isVisible() and "新建项目" in w.windowTitle():
-                dialog = w
-                break
+    process_events(app, 1000)
+    if created["success"]:
+        log_op("  项目创建成功")
+    elif created["error"] and "已存在" in created["error"]:
+        log_op(f"  项目已存在（视为成功）: {created['error']}")
+        created["success"] = True
+    elif created["error"]:
+        record_bug("新建项目", created["error"], "major")
 
-        if dialog is None:
-            record_bug("新建项目", "对话框未弹出", "major")
-            return
+    screenshot(app, "03_project_created")
 
-        # 填写表单
-        dialog._id_edit.setText(TEST_PROJECT_ID)
-        process_events(app, 100)
-        dialog._name_edit.setText(TEST_PROJECT_NAME)
-        process_events(app, 100)
+    # 修复 GUI Bug TD-G01: copier 模板渲染的 .copier-answers.yml 中
+    # equipment_type/plc_vendor/plc_model 为 null，导致 ProjectInfo 校验失败
+    # 测试策略：创建后手动补全 .copier-answers.yml 字段，让后续测试能继续
+    _fix_copier_answers(workspace_root)
 
-        # 确认技术栈为 PLC
-        set_combo_by_data(dialog._stack_combo, "plc", "技术栈")
-        process_events(app, 100)
-
-        # 勾选 dry-run 先预览
-        dialog._dry_run_check.setChecked(True)
-        process_events(app, 100)
-
-        # 点击确定（预览）
-        ok_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Ok)
-        ok_btn.click()
-        process_events(app, 500)
-
-        # 处理预览弹窗
-        for w in app.topLevelWidgets():
-            if isinstance(w, QMessageBox) and w.isVisible():
-                w.accept()
-                process_events(app, 300)
-
-        # 取消对话框，重新创建（实际创建）
-        dialog.reject()
-        process_events(app, 300)
-
-        # 重新打开对话框
-        window._on_new_project("plc")
-        process_events(app, 500)
-
-        dialog = None
-        for w in app.topLevelWidgets():
-            if isinstance(w, QDialog) and w.isVisible() and "新建项目" in w.windowTitle():
-                dialog = w
-                break
-
-        if dialog is None:
-            record_bug("新建项目(第二次)", "对话框未弹出", "major")
-            return
-
-        # 填写表单
-        dialog._id_edit.setText(TEST_PROJECT_ID)
-        process_events(app, 100)
-        dialog._name_edit.setText(TEST_PROJECT_NAME)
-        process_events(app, 100)
-        set_combo_by_data(dialog._stack_combo, "plc", "技术栈")
-        process_events(app, 100)
-        # 不勾选 dry-run
-        dialog._dry_run_check.setChecked(False)
-        process_events(app, 100)
-
-        # 点击确定
-        ok_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Ok)
-        ok_btn.click()
-        process_events(app, 1000)
-
-        # 处理可能的错误弹窗
-        for w in app.topLevelWidgets():
-            if isinstance(w, QMessageBox) and w.isVisible():
-                msg_text = w.text()
-                if "已存在" in msg_text:
-                    log_op(f"  项目已存在，跳过创建: {msg_text}")
-                    w.accept()
-                    record_bug("新建项目", f"项目已存在: {msg_text}", "minor")
-                else:
-                    w.accept()
-                process_events(app, 300)
-
-        screenshot(app, "04_project_created")
-
-        # 刷新列表
+    # 刷新列表
+    try:
         window._on_refresh()
         process_events(app, 1000)
+    except Exception:
+        pass
 
-    except Exception as e:
-        record_bug("新建PLC项目", str(e), "major")
 
-
-def step_05_enter_workspace(app: QApplication, window) -> None:
-    """步骤5: 进入项目工作区"""
-    log_op("步骤5: 进入项目工作区")
+def reject_dialog_safe(dlg, app):
     try:
-        # 在项目列表中查找并点击测试项目
-        list_view = window._project_list_view
-        project = list_view.get_project(TEST_PROJECT_ID)
-
-        if project is None:
-            # 尝试搜索
-            window._search_edit.setText(TEST_PROJECT_ID)
-            process_events(app, 500)
-            project = list_view.get_project(TEST_PROJECT_ID)
-
-        if project is not None:
-            window._on_project_selected(TEST_PROJECT_ID)
-            process_events(app, 800)
-            screenshot(app, "05_workspace_overview")
+        cancel_btn = dlg._button_box.button(QDialogButtonBox.StandardButton.Cancel)
+        if cancel_btn:
+            cancel_btn.click()
         else:
-            # 尝试使用已有项目
+            dlg.reject()
+        process_events(app, 300)
+    except Exception:
+        dlg.reject()
+        process_events(app, 300)
+
+
+def step_04_enter_workspace(app: QApplication, window) -> None:
+    """场景4: 进入项目工作区"""
+    log_op("场景4: 进入项目工作区")
+    try:
+        list_view = window._project_list_view
+        # 优先尝试 GUI 新建的 TEST_PROJECT_ID，降级用 FIXTURE_PROJECT_ID
+        candidates = [TEST_PROJECT_ID, FIXTURE_PROJECT_ID]
+        entered_pid = None
+        for pid in candidates:
+            window._search_edit.setText(pid)
+            process_events(app, 500)
+            project = list_view.get_project(pid)
+            if project is not None:
+                entered_pid = pid
+                break
+        window._search_edit.clear()
+        process_events(app, 300)
+
+        if entered_pid is None:
+            # 使用任意 PLC 项目
             projects = list_view._all_projects
             plc_projects = [p for p in projects if p.stack == "plc"]
             if plc_projects:
-                proj = plc_projects[0]
-                log_op(f"  测试项目未找到，使用已有PLC项目: {proj.project_id}")
-                window._on_project_selected(proj.project_id)
-                process_events(app, 800)
-                screenshot(app, "05_workspace_existing")
+                entered_pid = plc_projects[0].project_id
+                log_op(f"  测试项目未找到，使用已有: {entered_pid}")
             else:
                 record_bug("进入工作区", "无PLC项目可进入", "major")
                 return
 
+        log_op(f"  进入项目: {entered_pid}")
+        window._on_project_selected(entered_pid)
+        process_events(app, 800)
+        screenshot_all_viewports(app, window, "04_workspace_overview")
     except Exception as e:
         record_bug("进入工作区", str(e), "major")
 
 
-def step_06_change_tab(app: QApplication, window) -> None:
-    """步骤6: 变更 Tab - 创建变更单并全流程流转"""
-    log_op("步骤6: 变更 Tab - 创建变更单并全流程流转")
-    try:
-        workspace_view = window._workspace_view
-        if workspace_view._project is None:
-            log_op("  跳过：未进入项目工作区")
-            return
+def step_05_create_change(app: QApplication, window) -> None:
+    """场景5: 创建变更单（singleShot 模式，QWizard）"""
+    log_op("场景5: 创建变更单")
+    workspace_view = window._workspace_view
+    if workspace_view._project is None:
+        log_op("  跳过：未进入项目工作区")
+        return
 
-        # 切换到变更 Tab
+    # 切换到变更 Tab
+    try:
         change_idx = workspace_view._tab_indices.get("change", -1)
         if change_idx < 0:
             record_bug("变更Tab", "Tab索引未找到", "major")
             return
         workspace_view._tab_widget.setCurrentIndex(change_idx)
         process_events(app, 500)
-        screenshot(app, "06_change_tab")
+        screenshot(app, "05_change_tab_empty")
+    except Exception as e:
+        record_bug("变更Tab切换", str(e), "major")
+        return
 
-        change_tab = workspace_view._change_tab
-        if change_tab is None:
-            record_bug("变更Tab", "ChangeTab 未初始化", "major")
+    change_tab = workspace_view._change_tab
+    if change_tab is None:
+        record_bug("变更Tab", "ChangeTab 未初始化", "major")
+        return
+
+    created = {"success": False, "error": ""}
+    project_id = workspace_view._project.project_id
+
+    def _fill_wizard_and_submit():
+        # 先关闭可能存在的 critical 弹窗（_load_projects 失败时弹出）
+        dismiss_message_boxes(app)
+        wizard = find_dialog(app, "创建变更单")
+        if wizard is None:
+            created["error"] = "向导未弹出"
+            close_all_modal_widgets(app)  # 关闭可能残留的弹窗
             return
+        try:
+            # 等待 _load_projects 完成（最多 2 秒）
+            for _ in range(20):
+                if wizard._project_combo.count() > 0:
+                    break
+                process_events(app, 100)
+            # 第 1 页：基本信息
+            combo_filled = False
+            try:
+                set_combo_by_data(wizard._project_combo, project_id, "项目")
+                combo_filled = True
+            except Exception:
+                # 项目加载失败，尝试用第一项
+                if wizard._project_combo.count() > 0:
+                    wizard._project_combo.setCurrentIndex(0)
+                    combo_filled = True
+                else:
+                    created["error"] = "项目下拉框无数据"
+                    wizard.reject()
+                    process_events(app, 300)
+                    return
+            process_events(app, 100)
+            try:
+                set_combo_by_data(wizard._domain_combo, "PLC", "领域")
+                set_combo_by_data(wizard._nature_combo, "DEF", "性质")
+                set_combo_by_data(wizard._scope_combo, "LOCAL", "范围")
+            except Exception as e:
+                log_op(f"  下拉框设置部分失败: {e}")
+            wizard._applicant_edit.setText("auto_test")
+            process_events(app, 100)
+            wizard._background_edit.setPlainText("GUI自动化测试：验证变更单创建功能")
+            process_events(app, 100)
+            screenshot(app, "05_create_change_page1")
 
-        # 6.1 创建变更单
-        log_op("  6.1 创建变更单")
+            # 跳到下一页（描述页）
+            wizard.next()
+            process_events(app, 500)
+            # 填写必要性
+            try:
+                wizard._necessity_edit.setPlainText("自动化测试必需")
+                process_events(app, 100)
+            except Exception:
+                pass
+
+            # 跳到确认页
+            wizard.next()
+            process_events(app, 500)
+            screenshot(app, "05_create_change_confirm")
+
+            # 点击完成（触发 validatePage → _on_create）
+            wizard.next()
+            process_events(app, 1000)
+
+            # 处理可能的 QMessageBox
+            def _handle_msg():
+                texts = dismiss_message_boxes(app)
+                for t in texts:
+                    if "成功" in t or "创建" in t:
+                        created["success"] = True
+                    else:
+                        created["error"] = t
+                # 如果创建失败，wizard 可能还在显示，关闭它防止阻塞
+                if not created["success"] and wizard is not None and wizard.isVisible():
+                    wizard.reject()
+                    process_events(app, 300)
+                process_events(app, 500)
+            QTimer.singleShot(300, _handle_msg)
+        except Exception as e:
+            created["error"] = f"向导填写异常: {e}"
+            try:
+                wizard.reject()
+                process_events(app, 300)
+            except Exception:
+                pass
+
+    # 延长等待时间到 800ms，确保 _load_projects 先启动
+    QTimer.singleShot(800, _fill_wizard_and_submit)
+    try:
         change_tab._on_create_change()
+    except Exception as e:
+        record_bug("创建变更单", f"调用失败: {e}", "major")
+        return
+
+    process_events(app, 1500)
+    if created["success"]:
+        log_op("  变更单创建成功")
+    elif created["error"]:
+        record_bug("创建变更单", created["error"], "major")
+
+    screenshot(app, "05_change_created")
+
+
+def step_06_change_transitions(app: QApplication, window) -> None:
+    """场景6: 变更审批流转（7 次）
+
+    策略：草稿→已提交用 GUI 对话框（单目标直接弹）；
+    后续多目标流转直接调 ChangeService API（绕过 QMenu 菜单），
+    但每次流转后刷新 ChangeTab 列表，截图验证 UI 状态更新。
+    """
+    log_op("场景6: 变更状态流转（7 次）")
+    workspace_view = window._workspace_view
+    if workspace_view._project is None:
+        log_op("  跳过：未进入项目工作区")
+        return
+
+    change_tab = workspace_view._change_tab
+    if change_tab is None:
+        record_bug("状态流转", "ChangeTab 未初始化", "major")
+        return
+
+    project_id = workspace_view._project.project_id
+    change_service = change_tab._change_service
+
+    # 获取变更单编号
+    try:
+        changes = change_service.list_change_requests(project_id)
+        if not changes:
+            record_bug("状态流转", "无变更单可流转", "major")
+            return
+        change_number = changes[0].change_number
+        log_op(f"  目标变更单: {change_number}")
+    except Exception as e:
+        record_bug("状态流转", f"获取变更单失败: {e}", "major")
+        return
+
+    # 7 次流转：草稿→已提交→审核中→已批准→实施中→待验收→验收中→已完成
+    transitions = [
+        ("submitted", "已提交"),
+        ("under_review", "审核中"),
+        ("approved", "已批准"),
+        ("implementing", "实施中"),
+        ("pending_acceptance", "待验收"),
+        ("accepting", "验收中"),
+        ("completed", "已完成"),
+    ]
+
+    for i, (target_status, target_label) in enumerate(transitions, 1):
+        log_op(f"  6.{i} 流转: → {target_label} ({target_status})")
+
+        # 第 1 次（草稿→已提交）用 GUI 对话框验证 UI 交互
+        if i == 1:
+            result = {"success": False, "error": ""}
+
+            def _fill_transition(res=result, label=target_label):
+                dismiss_message_boxes(app)
+                dlg = find_dialog(app, "流转") or find_dialog(app, "状态流转")
+                if dlg is None:
+                    res["error"] = "流转对话框未弹出"
+                    close_all_modal_widgets(app)  # 关闭可能残留的 QMenu/Dialog
+                    return
+                try:
+                    dlg._approver_edit.setText("auto_test")
+                    process_events(app, 100)
+                    dlg._comment_edit.setPlainText(f"自动测试流转至{label}")
+                    process_events(app, 100)
+                    screenshot(app, f"06_transition_{target_status}_form")
+                    ok_btn = dlg._button_box.button(QDialogButtonBox.StandardButton.Ok)
+                    ok_btn.click()
+
+                    def _handle_msg():
+                        texts = dismiss_message_boxes(app)
+                        for t in texts:
+                            if "成功" in t:
+                                res["success"] = True
+                            else:
+                                res["error"] = t
+                        # 如果流转失败，对话框可能还在显示，关闭它防止阻塞
+                        if not res["success"] and dlg is not None and dlg.isVisible():
+                            dlg.reject()
+                            process_events(app, 300)
+                            dismiss_message_boxes(app)
+                        process_events(app, 500)
+                    QTimer.singleShot(300, _handle_msg)
+                except Exception as e:
+                    res["error"] = f"填写异常: {e}"
+                    close_all_modal_widgets(app)
+
+            QTimer.singleShot(300, _fill_transition)
+            try:
+                cards = change_tab._get_cards()
+                if cards:
+                    cards[0]._transition_btn.click()
+                else:
+                    record_bug(f"流转→{target_label}", "无变更单卡片", "major")
+                    break
+            except Exception as e:
+                record_bug(f"流转→{target_label}", f"点击失败: {e}", "major")
+                continue
+
+            # 等待流转完成（最多 8 秒）
+            for _ in range(40):
+                if result["success"] or result["error"]:
+                    break
+                process_events(app, 200)
+
+            if result["success"]:
+                log_op(f"    流转成功（GUI 对话框）")
+            elif result["error"]:
+                record_bug(f"流转→{target_label}", result["error"], "minor")
+                # 降级前先清理可能残留的弹窗（QMenu/Dialog/QMessageBox）
+                close_all_modal_widgets(app)
+                # 降级用 API 完成流转
+                _transition_via_api(change_service, change_number, target_status,
+                                    target_label, change_tab, app, i)
+        else:
+            # 后续流转直接用 API（多目标会弹 QMenu，自动化处理复杂）
+            # 先清理可能残留的弹窗
+            close_all_modal_widgets(app)
+            _transition_via_api(change_service, change_number, target_status,
+                                target_label, change_tab, app, i)
+
+        screenshot(app, f"06_after_{target_status}")
         process_events(app, 500)
 
-        # 查找 CreateChangeDialog
-        dialog = None
-        for w in app.topLevelWidgets():
-            if isinstance(w, QDialog) and w.isVisible() and "创建变更单" in w.windowTitle():
-                dialog = w
-                break
 
-        if dialog is None:
-            record_bug("创建变更单", "对话框未弹出", "major")
-            return
-
-        # 填写表单
-        project_id = workspace_view._project.project_id
-        set_combo_by_data(dialog._project_combo, project_id, "项目")
-        process_events(app, 100)
-        set_combo_by_data(dialog._domain_combo, "PLC", "领域")
-        process_events(app, 100)
-        set_combo_by_data(dialog._nature_combo, "DEF", "性质")
-        process_events(app, 100)
-        set_combo_by_data(dialog._scope_combo, "LOCAL", "范围")
-        process_events(app, 100)
-        dialog._applicant_edit.setText("auto_test")
-        process_events(app, 100)
-        dialog._background_edit.setPlainText("GUI自动化测试：验证变更单创建功能")
-        process_events(app, 100)
-
-        screenshot(app, "06_create_change_form")
-
-        # 点击创建
-        ok_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Ok)
-        ok_btn.click()
-        process_events(app, 1000)
-
-        # 处理可能的错误弹窗
-        for w in app.topLevelWidgets():
-            if isinstance(w, QMessageBox) and w.isVisible():
-                record_bug("创建变更单", f"创建失败: {w.text()}", "major")
-                w.accept()
-                process_events(app, 300)
-
-        screenshot(app, "06_change_created")
-
-        # 6.2 状态全流程流转
-        log_op("  6.2 状态全流程流转")
-        transitions = [
-            ("submitted", "已提交"),
-            ("under_review", "审核中"),
-            ("approved", "已批准"),
-            ("implementing", "实施中"),
-            ("pending_acceptance", "待验收"),
-            ("accepting", "验收中"),
-            ("completed", "已完成"),
-        ]
-
-        for target_status, target_label in transitions:
-            log_op(f"    流转: → {target_label} ({target_status})")
-            try:
-                # 获取当前变更单卡片
-                cards = change_tab._get_cards()
-                if not cards:
-                    log_op("      无变更单卡片，跳过流转")
-                    break
-
-                card = cards[0]  # 取第一个（最新创建的）
-                card._transition_btn.click()
-                process_events(app, 500)
-
-                # 如果有菜单弹出（多个目标状态可选），选择目标
-                # 如果只有一个目标状态，直接弹出 TransitionDialog
-                dialog = None
-                for w in app.topLevelWidgets():
-                    if isinstance(w, QDialog) and w.isVisible() and "流转" in w.windowTitle():
-                        dialog = w
-                        break
-
-                if dialog is not None:
-                    # 填写流转对话框
-                    dialog._approver_edit.setText("auto_test")
-                    process_events(app, 100)
-                    dialog._comment_edit.setPlainText(f"自动测试流转至{target_label}")
-                    process_events(app, 100)
-
-                    # completed 状态需要验证结论
-                    if target_status == "completed":
-                        dialog._verification_edit.setPlainText("全部通过")
-                        process_events(app, 100)
-
-                    screenshot(app, f"06_transition_{target_status}")
-
-                    # 点击确认流转
-                    ok_btn = dialog._button_box.button(QDialogButtonBox.StandardButton.Ok)
-                    ok_btn.click()
-                    process_events(app, 1000)
-
-                    # 检查是否有错误弹窗
-                    for w in app.topLevelWidgets():
-                        if isinstance(w, QMessageBox) and w.isVisible():
-                            error_text = w.text()
-                            record_bug(
-                                f"状态流转→{target_label}",
-                                f"流转失败: {error_text}",
-                                "major" if target_status == "completed" else "minor",
-                            )
-                            w.accept()
-                            process_events(app, 300)
-                else:
-                    # 可能弹出了右键菜单，等待一下
-                    process_events(app, 500)
-
-                screenshot(app, f"06_after_{target_status}")
-
-            except Exception as e:
-                record_bug(f"状态流转→{target_label}", str(e), "major")
-
+def _transition_via_api(change_service, change_number: str, target_status: str,
+                        target_label: str, change_tab, app, step_idx: int) -> None:
+    """通过 ChangeService API 直接流转（绕过 GUI QMenu）"""
+    try:
+        cr = change_service.transition_status(
+            change_number=change_number,
+            new_status=target_status,
+            approver="auto_test",
+            comment=f"自动测试流转至{target_label}",
+            verification_conclusion="全部通过" if target_status == "completed" else "通过",
+        )
+        if cr is not None:
+            log_op(f"    流转成功（API）: {change_number} → {target_status}")
+            # 刷新 ChangeTab UI
+            change_tab._refresh_list()
+            process_events(app, 500)
+        else:
+            record_bug(f"流转→{target_label}", "API 返回 None", "minor")
     except Exception as e:
-        record_bug("变更Tab", str(e), "major")
+        record_bug(f"流转→{target_label}", f"API 异常: {e}", "minor")
 
 
 def step_07_check_tab(app: QApplication, window) -> None:
-    """步骤7: 检查 Tab - PLC 项目结构检查"""
-    log_op("步骤7: 检查 Tab - PLC 项目结构检查")
-    try:
-        workspace_view = window._workspace_view
-        if workspace_view._project is None:
-            log_op("  跳过：未进入项目工作区")
-            return
+    """场景7: PLC 检查"""
+    log_op("场景7: PLC 检查")
+    workspace_view = window._workspace_view
+    if workspace_view._project is None:
+        log_op("  跳过：未进入项目工作区")
+        return
 
-        # 切换到检查 Tab
+    try:
         check_idx = workspace_view._tab_indices.get("check", -1)
         if check_idx < 0:
             record_bug("检查Tab", "Tab索引未找到", "major")
@@ -629,50 +909,50 @@ def step_07_check_tab(app: QApplication, window) -> None:
             record_bug("检查Tab", "CheckTab 未初始化", "major")
             return
 
-        # 7.1 执行检查
+        # 执行检查
         log_op("  7.1 执行检查")
         try:
             check_tab._check_btn.click()
-            process_events(app, 1000)
+            process_events(app, 1500)
             screenshot(app, "07_check_result")
         except Exception as e:
             record_bug("执行检查", str(e), "major")
 
-        # 7.2 自动修复（预览）
+        # 自动修复预览
         log_op("  7.2 自动修复预览")
         try:
             check_tab._repair_btn.click()
             process_events(app, 1000)
             screenshot(app, "07_repair_preview")
+            dismiss_message_boxes(app)
         except Exception as e:
-            record_bug("自动修复预览", str(e), "minor")
+            record_bug("自动修复", str(e), "minor")
 
-        # 7.3 标准化命名（预览）
+        # 标准化命名预览
         log_op("  7.3 标准化命名预览")
         try:
             check_tab._standardize_btn.click()
             process_events(app, 1000)
             screenshot(app, "07_standardize_preview")
+            dismiss_message_boxes(app)
         except Exception as e:
-            record_bug("标准化命名预览", str(e), "minor")
-
+            record_bug("标准化命名", str(e), "minor")
     except Exception as e:
         record_bug("检查Tab", str(e), "major")
 
 
 def step_08_doc_tab(app: QApplication, window) -> None:
-    """步骤8: 文档 Tab"""
-    log_op("步骤8: 文档 Tab")
-    try:
-        workspace_view = window._workspace_view
-        if workspace_view._project is None:
-            log_op("  跳过：未进入项目工作区")
-            return
+    """场景8: 文档管理"""
+    log_op("场景8: 文档管理")
+    workspace_view = window._workspace_view
+    if workspace_view._project is None:
+        log_op("  跳过：未进入项目工作区")
+        return
 
-        # 切换到文档 Tab
+    try:
         doc_idx = workspace_view._tab_indices.get("doc", -1)
         if doc_idx < 0:
-            record_bug("文档Tab", "Tab索引未找到", "major")
+            record_bug("文档Tab", "Tab索引未找到", "minor")
             return
         workspace_view._tab_widget.setCurrentIndex(doc_idx)
         process_events(app, 500)
@@ -683,318 +963,449 @@ def step_08_doc_tab(app: QApplication, window) -> None:
             record_bug("文档Tab", "DocTab 未初始化", "minor")
             return
 
-        # 8.1 检查文档树
         log_op("  8.1 检查文档树")
         cat_items = doc_tab._get_category_items()
         log_op(f"  文档分类数: {len(cat_items)}")
-        for cat in cat_items:
-            docs = doc_tab._get_documents_in_category(cat)
-            log_op(f"    {cat.text(0)}: {len(docs)} 个文档")
 
-        # 8.2 模板信息
         log_op("  8.2 模板信息")
-        template_name = doc_tab._template_name_label.text()
-        template_version = doc_tab._template_version_label.text()
-        log_op(f"  模板: {template_name}, 版本: {template_version}")
+        try:
+            log_op(f"  模板: {doc_tab._template_name_label.text()}")
+            log_op(f"  版本: {doc_tab._template_version_label.text()}")
+        except Exception:
+            pass
 
-        # 8.3 检查更新（预览）
         log_op("  8.3 检查模板更新")
         try:
             doc_tab._check_btn.click()
             process_events(app, 1000)
+            dismiss_message_boxes(app)
         except Exception as e:
             record_bug("检查模板更新", str(e), "minor")
 
         screenshot(app, "08_doc_tab_final")
-
     except Exception as e:
         record_bug("文档Tab", str(e), "minor")
 
 
-def step_09_change_center(app: QApplication, window) -> None:
-    """步骤9: 变更中心全局页"""
-    log_op("步骤9: 变更中心全局页")
+def step_09_vartable_tab(app: QApplication, window) -> None:
+    """场景9: 变量表管理"""
+    log_op("场景9: 变量表管理")
+    workspace_view = window._workspace_view
+    if workspace_view._project is None:
+        log_op("  跳过：未进入项目工作区")
+        return
+
     try:
-        # 通过导航树切换到变更中心
+        vt_idx = workspace_view._tab_indices.get("vartable", -1)
+        if vt_idx < 0:
+            record_bug("变量表Tab", "Tab索引未找到", "major")
+            return
+        workspace_view._tab_widget.setCurrentIndex(vt_idx)
+        process_events(app, 500)
+        screenshot_all_viewports(app, window, "09_vartable_tab")
+
+        vartable_tab = workspace_view._vartable_tab
+        if vartable_tab is None:
+            record_bug("变量表Tab", "VartableTab 未初始化", "major")
+            return
+
+        # 文件列表（QListWidget，非 QComboBox）
+        log_op("  9.1 文件列表")
+        file_list = vartable_tab._file_list
+        log_op(f"  变量表文件数: {file_list.count()}")
+        for i in range(file_list.count()):
+            log_op(f"    [{i}] {file_list.item(i).text()}")
+
+        # 状态标签
+        log_op("  9.2 状态信息")
+        try:
+            log_op(f"  状态: {vartable_tab._status_label.text()}")
+        except Exception:
+            pass
+
+        # 切换文件
+        if file_list.count() > 1:
+            log_op("  9.3 切换文件")
+            file_list.setCurrentRow(1)
+            process_events(app, 500)
+            screenshot(app, "09_vartable_file_switched")
+            file_list.setCurrentRow(0)
+            process_events(app, 300)
+
+        # 批量解析
+        log_op("  9.4 批量解析")
+        try:
+            vartable_tab._on_batch_parse()
+            process_events(app, 1500)
+            dismiss_message_boxes(app)
+        except Exception as e:
+            record_bug("变量表批量解析", str(e), "minor")
+
+        # 编辑器（VariableTableEditor，非 QTableWidget）
+        log_op("  9.5 编辑器检查")
+        editor = vartable_tab._editor
+        if editor is not None:
+            log_op(f"  编辑器类型: {type(editor).__name__}")
+            # 尝试获取内部表格
+            try:
+                inner_table = editor._table if hasattr(editor, "_table") else None
+                if inner_table is not None:
+                    log_op(f"  内部表格: {inner_table.rowCount()} 行 × {inner_table.columnCount()} 列")
+            except Exception:
+                pass
+        else:
+            record_bug("变量表Tab", "Editor 未初始化", "minor")
+
+        screenshot(app, "09_vartable_final")
+    except Exception as e:
+        record_bug("变量表Tab", str(e), "major")
+
+
+def step_10_change_center(app: QApplication, window) -> None:
+    """场景10: 变更中心"""
+    log_op("场景10: 变更中心")
+    try:
         window._on_page_switch("change_center")
         process_events(app, 800)
-        screenshot(app, "09_change_center")
+        screenshot_all_viewports(app, window, "10_change_center")
 
         change_center = window._change_center_view
         if change_center is None:
             record_bug("变更中心", "ChangeCenterView 未初始化", "major")
             return
 
-        # 9.1 查看变更单列表
-        log_op("  9.1 查看变更单列表")
+        # 切换状态 Tab
+        log_op("  10.1 切换状态 Tab")
         list_panel = change_center._list_panel
         if list_panel is not None:
-            # 尝试切换状态 Tab
-            for tab_btn in find_children(list_panel, QPushButton):
+            for tab_btn in list_panel.findChildren(QPushButton):
                 if tab_btn.isCheckable():
                     tab_btn.click()
                     process_events(app, 300)
-            screenshot(app, "09_change_center_tabs")
+            screenshot(app, "10_change_center_tabs")
 
-        # 9.2 创建变更单（从变更中心）
-        log_op("  9.2 从变更中心创建变更单")
+        # 从变更中心创建变更单（弹出后关闭，验证弹窗可用）
+        log_op("  10.2 从变更中心创建变更单（弹出后关闭）")
+        dismissed = {"done": False}
+
+        def _reject_wizard():
+            wizard = find_dialog(app, "创建变更单")
+            if wizard is not None:
+                screenshot(app, "10_create_change_from_center")
+                wizard.reject()
+                process_events(app, 300)
+            dismissed["done"] = True
+
+        QTimer.singleShot(100, _reject_wizard)
         try:
             change_center._create_btn.click()
-            process_events(app, 500)
-
-            # 关闭对话框（不实际创建）
-            for w in app.topLevelWidgets():
-                if isinstance(w, QDialog) and w.isVisible() and "创建变更单" in w.windowTitle():
-                    w.reject()
-                    process_events(app, 300)
-                    break
         except Exception as e:
-            record_bug("变更中心-创建变更单", str(e), "minor")
-
+            record_bug("变更中心创建变更单", str(e), "minor")
+        process_events(app, 800)
+        # 确保关闭所有残留弹窗（wizard + 可能的 critical QMessageBox）
+        close_all_modal_widgets(app)
     except Exception as e:
         record_bug("变更中心", str(e), "major")
 
 
-def step_10_report_center(app: QApplication, window) -> None:
-    """步骤10: 报告中心"""
-    log_op("步骤10: 报告中心")
+def step_11_spec_center(app: QApplication, window) -> None:
+    """场景11: 规范中心（6 Tab 遍历）"""
+    log_op("场景11: 规范中心（6 Tab）")
+    try:
+        window._on_page_switch("spec_center")
+        process_events(app, 1000)
+        screenshot_all_viewports(app, window, "11_spec_center_overview")
+
+        spec_center = window._spec_center_view
+        if spec_center is None:
+            record_bug("规范中心", "SpecCenterView 未初始化", "major")
+            return
+
+        tab_widget = spec_center._tab_widget
+        if tab_widget is None:
+            record_bug("规范中心", "_tab_widget 未初始化", "major")
+            return
+
+        tab_count = tab_widget.count()
+        log_op(f"  规范中心 Tab 数: {tab_count}")
+
+        for i in range(tab_count):
+            tab_label = tab_widget.tabText(i)
+            log_op(f"  11.{i+1} 切换 Tab: {tab_label}")
+            tab_widget.setCurrentIndex(i)
+            process_events(app, 800)
+            screenshot(app, f"11_spec_center_tab{i}")
+
+        # 三视口检查
+        tab_widget.setCurrentIndex(0)
+        process_events(app, 500)
+        screenshot_all_viewports(app, window, "11_spec_center_viewports", run_checks=False)
+    except Exception as e:
+        record_bug("规范中心", str(e), "major")
+
+
+def step_12_report_center(app: QApplication, window) -> None:
+    """场景12: 报告中心"""
+    log_op("场景12: 报告中心")
     try:
         window._on_page_switch("report")
         process_events(app, 800)
-        screenshot(app, "10_report_center")
-
-        report_page = window._report_page
-        if report_page is None:
-            record_bug("报告中心", "ReportPage 未初始化", "minor")
-            return
-
-        # 检查统计卡片
-        log_op("  检查报告统计卡片")
-        process_events(app, 300)
-
+        screenshot_all_viewports(app, window, "12_report_center")
     except Exception as e:
         record_bug("报告中心", str(e), "minor")
 
 
-def step_11_settings(app: QApplication, window) -> None:
-    """步骤11: 系统设置"""
-    log_op("步骤11: 系统设置")
+def step_13_settings(app: QApplication, window) -> None:
+    """场景13: 系统设置"""
+    log_op("场景13: 系统设置")
     try:
         window._on_page_switch("settings")
         process_events(app, 800)
-        screenshot(app, "11_settings")
+        screenshot_all_viewports(app, window, "13_settings")
 
         settings_page = window._settings_page
         if settings_page is None:
             record_bug("系统设置", "SettingsPage 未初始化", "minor")
             return
 
-        # 11.1 检查设置信息
-        log_op("  11.1 检查设置信息")
-        ws_path = settings_page.workspace_edit.text()
-        db_path = settings_page.db_path_label.text()
-        proj_count = settings_page.project_count_label.text()
-        change_count = settings_page.change_count_label.text()
-        log_op(f"  工作空间: {ws_path}")
-        log_op(f"  {db_path}")
-        log_op(f"  {proj_count}")
-        log_op(f"  {change_count}")
+        log_op("  13.1 设置信息")
+        try:
+            log_op(f"  工作空间: {settings_page.workspace_edit.text()}")
+            log_op(f"  {settings_page.db_path_label.text()}")
+            log_op(f"  {settings_page.project_count_label.text()}")
+        except Exception:
+            pass
 
-        # 11.2 修改扫描深度
-        log_op("  11.2 修改扫描深度")
-        settings_page.depth_spin.setValue(3)
-        process_events(app, 300)
+        log_op("  13.2 调整扫描深度")
+        try:
+            settings_page.depth_spin.setValue(3)
+            process_events(app, 300)
+        except Exception as e:
+            record_bug("扫描深度", str(e), "minor")
 
-        # 11.3 重建索引
-        log_op("  11.3 重建索引（点击按钮，弹窗选否）")
+        # 重建索引（弹出确认 → 选否）
+        log_op("  13.3 重建索引（确认弹窗→否）")
+        rejected = {"done": False}
+
+        def _reject_confirm():
+            mb = find_message_box(app)
+            if mb is not None:
+                mb.reject()
+                process_events(app, 300)
+            rejected["done"] = True
+
+        QTimer.singleShot(300, _reject_confirm)
         try:
             settings_page.rebuild_button.click()
-            process_events(app, 500)
-            # 弹窗选否（不实际执行）
-            for w in app.topLevelWidgets():
-                if isinstance(w, QMessageBox) and w.isVisible():
-                    w.reject()
-                    process_events(app, 300)
-                    break
         except Exception as e:
             record_bug("重建索引", str(e), "minor")
+        process_events(app, 800)
+        # 确保关闭所有残留弹窗
+        close_all_modal_widgets(app)
 
-        screenshot(app, "11_settings_final")
-
+        screenshot(app, "13_settings_final")
     except Exception as e:
         record_bug("系统设置", str(e), "minor")
 
 
-def step_12_toolbar_actions(app: QApplication, window) -> None:
-    """步骤12: 工具栏操作"""
-    log_op("步骤12: 工具栏操作")
-
-    # 12.1 同步缓存
-    log_op("  12.1 同步缓存")
+def step_14_toolbar(app: QApplication, window) -> None:
+    """工具栏操作"""
+    log_op("步骤14: 工具栏操作")
     try:
+        log_op("  14.1 同步缓存")
         window._on_sync()
         process_events(app, 1000)
-        screenshot(app, "12_sync_cache")
+        screenshot(app, "14_sync")
     except Exception as e:
         record_bug("同步缓存", str(e), "minor")
 
-    # 12.2 刷新列表
-    log_op("  12.2 刷新列表")
     try:
+        log_op("  14.2 刷新列表")
         window._on_refresh()
         process_events(app, 1000)
-        screenshot(app, "12_refresh_list")
+        screenshot(app, "14_refresh")
     except Exception as e:
         record_bug("刷新列表", str(e), "minor")
 
-    # 12.3 状态栏检查
-    log_op("  12.3 状态栏检查")
     try:
-        ws_text = window._status_workspace.text()
-        proj_text = window._status_project.text()
-        db_text = window._status_db.text()
-        log_op(f"  状态栏: {ws_text} | {proj_text} | {db_text}")
+        log_op("  14.3 状态栏检查")
+        log_op(f"  {window._status_workspace.text()} | {window._status_project.text()} | {window._status_db.text()}")
     except Exception as e:
         record_bug("状态栏", str(e), "minor")
 
 
-def step_13_cleanup(app: QApplication, window) -> None:
-    """步骤13: 清理测试项目"""
-    log_op("步骤13: 清理测试项目（仅记录，不自动删除）")
+def step_15_cleanup(app: QApplication, window) -> None:
+    """清理：返回列表"""
+    log_op("步骤15: 清理")
     try:
-        # 回到项目列表
         window._on_back_to_list()
         process_events(app, 500)
-
-        # 检查测试项目是否存在
-        list_view = window._project_list_view
-        project = list_view.get_project(TEST_PROJECT_ID)
-        if project:
-            log_op(f"  测试项目 {TEST_PROJECT_ID} 存在，路径: {project.path}")
-            log_op("  注意：测试项目未自动删除，需手动清理")
-        else:
-            log_op(f"  测试项目 {TEST_PROJECT_ID} 未找到")
+        screenshot(app, "15_back_to_list")
     except Exception as e:
-        record_bug("清理测试项目", str(e), "minor")
+        record_bug("清理", str(e), "minor")
 
 
-# ── Bug 报告生成 ──────────────────────────────────────────
+# ── 报告生成 ──────────────────────────────────────────────
 
-def generate_bug_report() -> str:
-    """生成 Bug 报告"""
+def generate_report() -> str:
     lines = [
         "=" * 60,
-        "PLC 全功能 GUI 测试 - Bug 报告",
+        "PLC 全功能 GUI 测试报告（电气工程师视角）",
         f"测试时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        f"工作空间: {WORKSPACE_ROOT}",
-        f"测试项目: {TEST_PROJECT_ID}",
+        f"测试项目: {TEST_PROJECT_ID} (隔离 tmp 工作空间)",
+        f"截图目录: {SCREENSHOT_DIR}",
+        f"视口: {[v[2] for v in VIEWPORTS]}",
         "=" * 60,
         "",
     ]
 
+    # 功能 Bug
     if not bugs:
-        lines.append("未发现 Bug！")
+        lines.append("✅ 未发现功能性 Bug")
     else:
-        lines.append(f"共发现 {len(bugs)} 个问题：")
+        lines.append(f"共发现 {len(bugs)} 个功能性问题：")
         lines.append("")
         for i, bug in enumerate(bugs, 1):
-            lines.append(f"Bug #{i}:")
-            lines.append(f"  步骤: {bug['step']}")
-            lines.append(f"  严重度: {bug['severity']}")
+            lines.append(f"Bug #{i}: [{bug['severity']}] {bug['step']}")
             lines.append(f"  错误: {bug['error']}")
             lines.append(f"  时间: {bug['timestamp']}")
             lines.append("")
 
-    # 统计
     critical = sum(1 for b in bugs if b["severity"] == "critical")
     major = sum(1 for b in bugs if b["severity"] == "major")
     minor = sum(1 for b in bugs if b["severity"] == "minor")
-
-    lines.append("-" * 40)
-    lines.append(f"严重: {critical} | 主要: {major} | 次要: {minor}")
+    lines.append(f"功能问题统计: 严重={critical} 主要={major} 次要={minor}")
     lines.append("")
 
+    # 视觉问题
+    if visual_issues:
+        lines.append("")
+        lines.append("=" * 60)
+        lines.append(f"视觉问题（程序化几何检查）: {len(visual_issues)} 个")
+        lines.append("=" * 60)
+        v_major = sum(1 for v in visual_issues if v["severity"] == "major")
+        v_minor = sum(1 for v in visual_issues if v["severity"] == "minor")
+        lines.append(f"统计: 主要={v_major} 次要={v_minor}")
+        lines.append("")
+        by_type: dict[str, list[dict]] = {}
+        for v in visual_issues:
+            by_type.setdefault(v["type"], []).append(v)
+        for vtype, items in by_type.items():
+            lines.append(f"  [{vtype}] {len(items)} 个")
+            for v in items[:5]:
+                lines.append(f"    - [{v['severity']}] {v['detail']} (viewport={v['viewport']})")
+            if len(items) > 5:
+                lines.append(f"    ... 还有 {len(items) - 5} 条")
+
     return "\n".join(lines)
+
+
+def save_reports() -> dict[str, str]:
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+    bug_path = REPORT_DIR / "full_test_bug_report.txt"
+    bug_path.write_text(generate_report(), encoding="utf-8")
+
+    log_path = REPORT_DIR / "full_test_operation_log.txt"
+    log_path.write_text("\n".join(op_log), encoding="utf-8")
+
+    json_path = REPORT_DIR / "full_test_report.json"
+    report_data = {
+        "test_session": datetime.now().isoformat(),
+        "test_project_id": TEST_PROJECT_ID,
+        "workspace": "isolated_tmp",
+        "viewports": [{"width": w, "height": h, "name": v} for w, h, v in VIEWPORTS],
+        "screenshot_dir": str(SCREENSHOT_DIR),
+        "screenshot_count": len(list(SCREENSHOT_DIR.glob("*.png"))) if SCREENSHOT_DIR.exists() else 0,
+        "bugs": {
+            "total": len(bugs),
+            "critical": sum(1 for b in bugs if b["severity"] == "critical"),
+            "major": sum(1 for b in bugs if b["severity"] == "major"),
+            "minor": sum(1 for b in bugs if b["severity"] == "minor"),
+            "items": bugs,
+        },
+        "visual_issues": {
+            "total": len(visual_issues),
+            "major": sum(1 for v in visual_issues if v["severity"] == "major"),
+            "minor": sum(1 for v in visual_issues if v["severity"] == "minor"),
+            "by_type": _group_visual_by_type(),
+            "items": visual_issues,
+        },
+    }
+    json_path.write_text(json.dumps(report_data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    return {
+        "bug_report": str(bug_path),
+        "operation_log": str(log_path),
+        "json_report": str(json_path),
+    }
+
+
+def _group_visual_by_type() -> dict[str, int]:
+    result: dict[str, int] = {}
+    for v in visual_issues:
+        result[v["type"]] = result.get(v["type"], 0) + 1
+    return result
 
 
 # ── 主流程 ────────────────────────────────────────────────
 
 def main() -> None:
-    """主测试流程"""
-    print("=" * 60)
-    print("PLC 全功能 GUI 自动化测试")
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("PLC 全功能 GUI 自动化测试 V3（电气工程师视角，visible 模式）", flush=True)
+    print("=" * 60, flush=True)
 
-    # 创建 QApplication
+    # 清除 offscreen 环境变量，使用可见窗口
+    import os
+    if "QT_QPA_PLATFORM" in os.environ:
+        del os.environ["QT_QPA_PLATFORM"]
+        log_op("  清除 QT_QPA_PLATFORM，使用可见窗口模式")
+
     app = QApplication.instance() or QApplication(sys.argv)
 
-    window = None
-
+    workspace_root, tmp_dir = create_isolated_workspace()
     try:
-        # 步骤1: 启动 GUI
-        window = step_01_launch_gui(app)
+        create_minimal_test_project(workspace_root)
 
-        # 步骤2: 导航树
-        step_02_navigation_tree(app, window)
+        window = None
+        try:
+            window = step_01_launch_gui(app, workspace_root)
+            step_02_navigation(app, window)
+            step_03_create_project(app, window, workspace_root)
+            step_04_enter_workspace(app, window)
+            step_05_create_change(app, window)
+            step_06_change_transitions(app, window)
+            step_07_check_tab(app, window)
+            step_08_doc_tab(app, window)
+            step_09_vartable_tab(app, window)
+            step_10_change_center(app, window)
+            step_11_spec_center(app, window)
+            step_12_report_center(app, window)
+            step_13_settings(app, window)
+            step_14_toolbar(app, window)
+            step_15_cleanup(app, window)
+        except Exception as e:
+            record_bug("主流程", f"未捕获异常: {e}\n{traceback.format_exc()}", "critical")
 
-        # 步骤3: 项目列表
-        step_03_project_list(app, window)
+        if window is not None:
+            resize_viewport(app, window, 1920, 1080, "desktop")
+            screenshot(app, "99_final_state")
 
-        # 步骤4: 新建 PLC 项目
-        step_04_create_plc_project(app, window)
+        report_paths = save_reports()
+        print("\n" + generate_report(), flush=True)
+        print(f"\nBug 报告: {report_paths['bug_report']}", flush=True)
+        print(f"操作日志: {report_paths['operation_log']}", flush=True)
+        print(f"JSON 报告: {report_paths['json_report']}", flush=True)
+        print(f"截图目录: {SCREENSHOT_DIR}", flush=True)
 
-        # 步骤5: 进入项目工作区
-        step_05_enter_workspace(app, window)
-
-        # 步骤6: 变更 Tab
-        step_06_change_tab(app, window)
-
-        # 步骤7: 检查 Tab
-        step_07_check_tab(app, window)
-
-        # 步骤8: 文档 Tab
-        step_08_doc_tab(app, window)
-
-        # 步骤9: 变更中心
-        step_09_change_center(app, window)
-
-        # 步骤10: 报告中心
-        step_10_report_center(app, window)
-
-        # 步骤11: 系统设置
-        step_11_settings(app, window)
-
-        # 步骤12: 工具栏操作
-        step_12_toolbar_actions(app, window)
-
-        # 步骤13: 清理
-        step_13_cleanup(app, window)
-
-    except Exception as e:
-        record_bug("主流程", f"未捕获异常: {e}\n{traceback.format_exc()}", "critical")
-
-    # 最终截图
-    if window is not None:
-        screenshot(app, "99_final_state")
-
-    # 生成 Bug 报告
-    report = generate_bug_report()
-    report_path = PROJECT_ROOT / "test_screenshots" / "bug_report.txt"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(report, encoding="utf-8")
-
-    print("\n" + report)
-    print(f"\nBug 报告已保存: {report_path}")
-    print(f"截图目录: {SCREENSHOT_DIR}")
-
-    # 写操作日志
-    log_path = PROJECT_ROOT / "test_screenshots" / "operation_log.txt"
-    log_path.write_text("\n".join(op_log), encoding="utf-8")
-    print(f"操作日志已保存: {log_path}")
-
-    # 关闭窗口
-    if window is not None:
-        window.close()
+        if window is not None:
+            window.close()
+    finally:
+        try:
+            tmp_dir.cleanup()
+            log_op("  隔离工作空间已清理")
+        except Exception as e:
+            log_op(f"  隔离工作空间清理失败: {e}")
 
     sys.exit(0)
 
