@@ -372,6 +372,16 @@ QStatusBar QLabel { padding: 0 8px; color: #555; }
 
     def _on_project_created(self, project_id: str) -> None:
         log.info("项目已创建: %s", project_id)
+        # TD-G02 修复：新建项目后 sync DB 缓存，确保 _load_projects_cached 能发现新项目
+        # （_on_refresh 不 sync，DB 缓存过时时 _load_projects_cached 非空不回退到文件系统扫描）
+        if self._db is not None:
+            try:
+                from auto_pm.core.project_service import ProjectService
+
+                svc = ProjectService(self._workspace_root, db=self._db)
+                svc.sync_to_cache(force_full=False)
+            except Exception as e:
+                log.warning("同步缓存失败: %s", e)
         self._on_refresh()
 
     def _on_edit_project(self, project_id: str) -> None:
