@@ -162,11 +162,33 @@ def _widget_path(widget: QWidget) -> str:
     return " > ".join(reversed(parts[-5:]))  # 最多 5 层
 
 
+def _is_inside_scrollarea(widget: QWidget) -> bool:
+    """判断 widget 是否位于 QScrollArea 的 viewport 内
+
+    QScrollArea 的内容 widget 设计上可以大于 viewport（由滚动条裁剪），
+    这种"溢出"是预期行为，不应视为视觉缺陷。
+    """
+    from PySide6.QtWidgets import QScrollArea
+    w = widget.parentWidget()
+    while w is not None:
+        if isinstance(w, QScrollArea):
+            return True
+        # qt_scrollarea_viewport 是 QScrollArea 的内部 viewport
+        if w.objectName() == "qt_scrollarea_viewport":
+            return True
+        w = w.parentWidget()
+    return False
+
+
 def _check_widget_bounds(widget: QWidget) -> None:
     if not widget.isVisible():
         return
     parent = widget.parentWidget()
     if parent is None:
+        return
+    # V0.5.1 V-01~V-03 修复：跳过 QScrollArea 内部内容
+    # QScrollArea 的内容 widget 可以合法地大于 viewport，由滚动条裁剪
+    if _is_inside_scrollarea(widget):
         return
     wg = widget.geometry()
     pg = parent.geometry()

@@ -7,6 +7,26 @@
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-07-01
+
+### Fixed - CHG-SCPT-2026-081 GUI 测试三报告整合修复
+
+- **TD-G01 P0 修复**：`auto_pm/core/project_scanner.py` `read_copier_answers` 增加 `or ""` 保底，防止 `.copier-answers.yml` 中 `equipment_type`/`plc_vendor`/`plc_model` 字段为 null 时 Pydantic `ProjectInfo` 校验失败导致新建项目"消失"（a5e8b3cb commit，本版本追溯登记 CHG 流程）
+- **V-04~V-12 修复**：`auto_pm/ui/vartable/variable_table_editor.py` `_build_ui` 增加 `verticalHeader().setVisible(False)` + `setCornerButtonEnabled(False)`，消除 QTableView 在 Stretch 模式下 verticalHeader/cornerButton 0 宽度但 visible 导致的 9 个 zero_size 视觉告警
+- **V-01~V-03 修复（测试误报）**：`scripts/gui_plc_full_test.py` `_check_widget_bounds` 增加 `_is_inside_scrollarea` 检查，跳过 QScrollArea viewport 内部 widget 的越界检查（QScrollArea 内容设计上可大于 viewport，由滚动条裁剪，属合法溢出）
+- **附带防御性修复**：`auto_pm/ui/workspace/workspace_view.py` `ProjectWorkspaceView._build_ui` 设置 `QSizePolicy(Expanding, Expanding)`，改善 QStackedWidget 中的填充行为
+
+### Docs - 三份 GUI 测试报告整合
+
+- `09_整改项/GUI测试整改报告.md`：头部标注"已过时"（2 个 major bug 已在 V0.5.1 修复）
+- `test_reports/gui/2026-07-01_完整GUI测试报告.md`：保留为主报告，修正交付物表路径
+- `test_screenshots/GUI诊断报告_V0.5.2.md`：补登 TD-G01 P0 bug 详情 + 修正版本号 + 视觉问题补充代码引用
+
+### Test - gui_plc_full_test.py 截图基线
+
+- 重跑 `python scripts/gui_plc_full_test.py`（GUI_VISIBLE=1 可见模式 + 三视口）
+- 结果：67 截图 + 0 bugs + 0 visual_issues（V-01~V-12 全部解决）
+
 ## [0.5.0] - 2026-07-01
 
 ### Added - V2.3 变量表解析整合（Week1-Week3）

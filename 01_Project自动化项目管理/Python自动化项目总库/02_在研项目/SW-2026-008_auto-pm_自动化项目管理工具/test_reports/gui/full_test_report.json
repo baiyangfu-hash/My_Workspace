@@ -1,5 +1,5 @@
 {
-  "test_session": "2026-07-01T10:50:02.006171",
+  "test_session": "2026-07-01T23:37:43.685989",
   "test_project_id": "DJ-2026-099",
   "workspace": "isolated_tmp",
   "viewports": [
@@ -20,7 +20,7 @@
     }
   ],
   "screenshot_dir": "C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\test_reports\\gui\\full_test_screenshots",
-  "screenshot_count": 85,
+  "screenshot_count": 67,
   "bugs": {
     "total": 0,
     "critical": 0,
@@ -29,122 +29,10 @@
     "items": []
   },
   "visual_issues": {
-    "total": 12,
-    "major": 12,
+    "total": 0,
+    "major": 0,
     "minor": 0,
-    "by_type": {
-      "out_of_bounds": 3,
-      "zero_size": 9
-    },
-    "items": [
-      {
-        "type": "out_of_bounds",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "控件(1577,1090)超出父控件(1577,891)",
-        "severity": "major",
-        "viewport": "desktop",
-        "timestamp": "2026-07-01T10:49:17.275274",
-        "screenshot": ""
-      },
-      {
-        "type": "out_of_bounds",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "控件(915,1104)超出父控件(915,835)",
-        "severity": "major",
-        "viewport": "tablet",
-        "timestamp": "2026-07-01T10:49:17.593913",
-        "screenshot": ""
-      },
-      {
-        "type": "out_of_bounds",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "控件(915,1104)超出父控件(915,623)",
-        "severity": "major",
-        "viewport": "mobile",
-        "timestamp": "2026-07-01T10:49:17.907586",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x786",
-        "severity": "major",
-        "viewport": "desktop",
-        "timestamp": "2026-07-01T10:49:37.449741",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x786",
-        "severity": "major",
-        "viewport": "desktop",
-        "timestamp": "2026-07-01T10:49:37.449741",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x16",
-        "severity": "major",
-        "viewport": "desktop",
-        "timestamp": "2026-07-01T10:49:37.449741",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x730",
-        "severity": "major",
-        "viewport": "tablet",
-        "timestamp": "2026-07-01T10:49:37.764706",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x730",
-        "severity": "major",
-        "viewport": "tablet",
-        "timestamp": "2026-07-01T10:49:37.764706",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x16",
-        "severity": "major",
-        "viewport": "tablet",
-        "timestamp": "2026-07-01T10:49:37.764706",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x518",
-        "severity": "major",
-        "viewport": "mobile",
-        "timestamp": "2026-07-01T10:49:38.076066",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x518",
-        "severity": "major",
-        "viewport": "mobile",
-        "timestamp": "2026-07-01T10:49:38.076066",
-        "screenshot": ""
-      },
-      {
-        "type": "zero_size",
-        "widget": "MainWindow > QSplitter > QStackedWidget > ProjectWorkspaceView > QTabWidget",
-        "detail": "可见控件尺寸0x16",
-        "severity": "major",
-        "viewport": "mobile",
-        "timestamp": "2026-07-01T10:49:38.076066",
-        "screenshot": ""
-      }
-    ]
+    "by_type": {},
+    "items": []
   }
 }

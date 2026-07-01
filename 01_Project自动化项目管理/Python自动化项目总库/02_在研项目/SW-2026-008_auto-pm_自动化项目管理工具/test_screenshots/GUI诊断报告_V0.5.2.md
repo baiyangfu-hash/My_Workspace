@@ -1,9 +1,11 @@
-# GUI 诊断报告 V0.5.2
+# GUI 诊断报告 V0.5.1
 
 > **项目**: SW-2026-008 auto-pm（自动化项目管理工具）
 > **诊断日期**: 2026-07-01
-> **截图来源**: `test_reports/gui/full_test_screenshots/`（V0.5.2 可见模式 L3 端到端测试生成，85 张）
-> **参考文档**: [09_整改项/GUI测试整改报告.md](file:///c:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/09_整改项/GUI测试整改报告.md)
+> **版本说明**: 本报告版本号 V0.5.1 对齐测试脚本迭代版本（gui_plc_full_test.py V3）；生产代码基线仍为 pyproject 0.5.0，本轮修复后升级到 0.5.1
+> **截图说明**: 原截图 85 张（test_reports/gui/full_test_screenshots/，三视口）已由用户主动删除——多模态模型分析已完成，主项目模型 glm5.2 非多模态无需图片，仅保留分析结论。本报告的所有结论均基于已删除截图的多模态分析结果
+> **参考文档**: [09_整改项/GUI测试整改报告.md](file:///c:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/09_整改项/GUI测试整改报告.md)（V0.5.0 初版，2 个 major bug 已在 V0.5.1 修复，**已过时**）
+> **主报告**: [test_reports/gui/2026-07-01_完整GUI测试报告.md](file:///c:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/test_reports/gui/2026-07-01_完整GUI测试报告.md)（本报告为视觉问题诊断补充，主报告以该文档为准）
 > **关联文档**: [02_设计/GUI测试计划.md](file:///c:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_设计/GUI测试计划.md)
 
 ---
@@ -15,18 +17,37 @@
 | 维度 | 评估 | 说明 |
 |------|------|------|
 | **功能完整性** | ✅ 完整 | 15/15 模块覆盖，变量表 Tab/规范中心页已扩展 |
-| **Bug 状态** | ✅ 已修复 | 2 个 major bug（对话框未弹出）已在 V0.5.1 修复，可见模式验证通过 |
-| **视觉质量** | 🟡 部分问题 | 可见模式下发现 12 个视觉问题（3 个超出边界 + 9 个零尺寸控件） |
-| **截图覆盖** | ✅ 完整 | 85 张截图（desktop/tablet/mobile 三视口），覆盖全部 15 个步骤 |
+| **Bug 状态（对话框）** | ✅ 已修复 | 2 个 major bug（对话框未弹出）已在 V0.5.1 测试脚本迭代中修复（QWizard FinishButton + 信号驱动），可见模式验证通过 |
+| **Bug 状态（生产代码）** | 🔴 **遗漏 TD-G01 P0** | 本报告初版遗漏 TD-G01 P0 bug（新建项目后 .copier-answers.yml 字段为 null 导致项目"消失"），详见 §0.3 补登说明。主报告已识别此 bug |
+| **视觉质量** | 🟡 部分问题 | 可见模式下发现 12 个视觉问题（3 个超出边界 + 9 个零尺寸控件），代码根因详见 §3 |
+| **截图覆盖** | ⚠️ 截图已删除 | 原 85 张截图（desktop/tablet/mobile 三视口）已由用户主动删除，分析结论见报告正文 |
 | **测试项目残留** | ✅ 已清理 | DJ-2026-099 已删除 |
 
 ### 0.2 关键发现
 
 1. **✅ 已修复并验证**：新建项目对话框/创建变更单对话框未弹出（V0.5.1 通过 QWizard FinishButton + 信号驱动修复，可见模式验证通过）
 2. **✅ 已扩展**：变量表 Tab（V2.3 Week4 新增）和规范中心页（V2.2 Week3 重构）已添加端到端测试覆盖
-3. **🟡 视觉问题**：可见模式下发现 12 个视觉问题（3 个控件超出父控件边界 + 9 个可见控件尺寸为零）
+3. **🟡 视觉问题**：可见模式下发现 12 个视觉问题（3 个控件超出父控件边界 + 9 个可见控件尺寸为零），代码根因详见 §3
 4. **⚠️ 响应式布局问题**：mobile/tablet 视口下控件超出边界，需优化响应式布局
-5. **✅ 截图基线**：85 张可见模式截图已生成，可作为 V0.5.2 基线
+5. **⚠️ 截图基线**：原 85 张可见模式截图已由用户主动删除（多模态分析已完成），后续可在 V0.5.1 修复后重跑测试生成新基线
+
+### 0.3 遗漏 Bug 补登说明（TD-G01 P0）
+
+**本报告初版遗漏了主报告（test_reports/gui/2026-07-01_完整GUI测试报告.md）识别的 P0 生产代码 Bug TD-G01**，现补登如下：
+
+#### TD-G01 - 新建项目后 .copier-answers.yml 字段为 null
+
+| 属性 | 值 |
+|------|-----|
+| **Bug ID** | TD-G01 |
+| **严重程度** | 高（P0，影响核心功能） |
+| **影响范围** | 所有通过 GUI 新建项目且未选设备类型/PLC 供应商/型号的场景 |
+| **代码位置** | [auto_pm/ui/dialogs/new_project_dialog.py:317-324](file:///c:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/ui/dialogs/new_project_dialog.py#L317-L324) |
+| **根因** | `for key, value in (...): if value: data[key] = value` 守卫导致未选字段（equipment_type/plc_vendor/plc_model）被省略，`.copier-answers.yml` 渲染为 null，`ProjectInfo` Pydantic 校验失败（要求 str 不接受 None） |
+| **复现步骤** | 1. 工具栏新建 PLC 项目；2. 填编号+名称，不选设备类型/PLC 供应商/型号；3. 提交创建；4. 刷新项目列表 → 新项目不显示；5. 查看日志：Pydantic ValidationError: equipment_type Input should be a valid string, input_value=None |
+| **建议修复** | 方案 A（推荐）：移除 `if value:` 守卫，改为 `data.update({...})` 始终写入（value 已通过 `or ""` 保证为空字符串而非 None） |
+| **优先级** | P0（影响核心功能：新建项目后无法识别） |
+| **状态** | 待修复（CHG-SCPT-2026-081 Phase 1） |
 
 ---
 

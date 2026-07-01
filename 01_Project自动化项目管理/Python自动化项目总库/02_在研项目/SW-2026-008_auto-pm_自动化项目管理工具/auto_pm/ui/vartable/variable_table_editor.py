@@ -315,6 +315,12 @@ class VariableTableEditor(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch
         )
+        # V0.5.1 V-04~V-12 修复：隐藏行号列与左上角按钮
+        # 行号（line_number）是解析元数据不作为可编辑列展示；默认显示的
+        # verticalHeader 在 Stretch 模式下宽度被压缩为 0 但仍 visible，
+        # 会触发 zero_size 视觉检查告警。cornerButton 同理。
+        self._table.verticalHeader().setVisible(False)
+        self._table.setCornerButtonEnabled(False)
         self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._table.customContextMenuRequested.connect(self._on_context_menu)
         layout.addWidget(self._table, 1)

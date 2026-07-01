@@ -1,6 +1,6 @@
 ============================================================
 PLC 全功能 GUI 测试报告（电气工程师视角）
-测试时间: 2026-07-01 10:50:02
+测试时间: 2026-07-01 23:37:43
 测试项目: DJ-2026-099 (隔离 tmp 工作空间)
 截图目录: C:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具\test_reports\gui\full_test_screenshots
 视口: ['desktop', 'tablet', 'mobile']
@@ -8,21 +8,3 @@ PLC 全功能 GUI 测试报告（电气工程师视角）
 
 ✅ 未发现功能性 Bug
 功能问题统计: 严重=0 主要=0 次要=0
-
-
-============================================================
-视觉问题（程序化几何检查）: 12 个
-============================================================
-统计: 主要=12 次要=0
-
-  [out_of_bounds] 3 个
-    - [major] 控件(1577,1090)超出父控件(1577,891) (viewport=desktop)
-    - [major] 控件(915,1104)超出父控件(915,835) (viewport=tablet)
-    - [major] 控件(915,1104)超出父控件(915,623) (viewport=mobile)
-  [zero_size] 9 个
-    - [major] 可见控件尺寸0x786 (viewport=desktop)
-    - [major] 可见控件尺寸0x786 (viewport=desktop)
-    - [major] 可见控件尺寸0x16 (viewport=desktop)
-    - [major] 可见控件尺寸0x730 (viewport=tablet)
-    - [major] 可见控件尺寸0x730 (viewport=tablet)
-    ... 还有 4 条

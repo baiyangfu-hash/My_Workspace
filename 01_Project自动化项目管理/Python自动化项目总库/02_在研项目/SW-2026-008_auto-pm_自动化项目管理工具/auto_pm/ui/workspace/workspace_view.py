@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QSizePolicy,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -125,6 +126,12 @@ class ProjectWorkspaceView(QWidget):
         self._build_ui()
 
     def _build_ui(self) -> None:
+        # V0.5.1 V-01~V-03 防御性修复：明确 Expanding 策略
+        # 默认 QWidget 为 Preferred，在 QStackedWidget 中可能无法正确约束
+        # 子控件 QTabWidget 的几何，导致 QTabWidget 溢出父容器底部。
+        # 设置为 Expanding/Expanding 确保父控件充分填充可用空间并约束子布局。
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(10)
