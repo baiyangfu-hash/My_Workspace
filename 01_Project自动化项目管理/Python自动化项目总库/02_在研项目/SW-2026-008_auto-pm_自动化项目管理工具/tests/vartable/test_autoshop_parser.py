@@ -100,3 +100,105 @@ class TestAutoshopParserErrorHandling:
         assert result.error_count == 1
         assert result.errors[0].field == "name"
         assert result.errors[0].line_number == 3
+
+
+# 真实样例 fixture 路径（tests/vartable/samples/Autoshop-FB变量表导出.csv）
+_AUTOSHOP_REAL_SAMPLE = (
+    Path(__file__).parent / "samples" / "Autoshop-FB变量表导出.csv"
+)
+
+
+class TestAutoshopParserRealSample:
+    """W1-S05：真实样例（02_设计/Autoshop-FB变量表导出.csv）端到端测试
+
+    样例特征：GBK 编码 + 逗号分隔 + 9 列中文表头（序号/类别/名称/数据类型/...）
+    预期：90 entries, 0 errors（W1-S02 _AUTOSHOP_HEADER 第二分支识别）
+    """
+
+    def test_autoshop_parse_real_sample_gbk(self) -> None:
+        """真实样例端到端解析：success + 90 entries + 0 errors + GBK 编码"""
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        result = AutoshopParser().parse(_AUTOSHOP_REAL_SAMPLE)
+        assert result.success
+        assert result.var_table is not None
+        assert result.error_count == 0
+        assert result.var_table.total_count == 90
+        # 编码检测应识别 GBK（chardet 可能返回 gbk 或 gb2312）
+        assert result.var_table.encoding.lower() in ("gbk", "gb2312")
+
+    def test_autoshop_parse_real_sample_entries_count(self) -> None:
+        """验证真实样例解析出 90 个条目"""
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        result = AutoshopParser().parse(_AUTOSHOP_REAL_SAMPLE)
+        assert result.var_table is not None
+        assert result.var_table.total_count == 90
+        assert result.var_table.metadata["total_rows_read"] == 90
+
+    def test_autoshop_parse_real_sample_in_scope(self) -> None:
+        """验证 station 字段含 IN/OUT/INOUT/VAR 等 scope（来自"类别"列）"""
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        result = AutoshopParser().parse(_AUTOSHOP_REAL_SAMPLE)
+        assert result.var_table is not None
+        # 真实样例"类别"列值：IN/OUT/INOUT/VAR + 数组展开行的 autoshop 默认值
+        stations = set(result.var_table.stations)
+        assert "IN" in stations
+        assert "OUT" in stations
+        assert "INOUT" in stations
+        assert "VAR" in stations
+        # 第 1 个条目（第 2 行）类别为 IN
+        first = result.var_table.entries[0]
+        assert first.station == "IN"
+        assert first.source_format == "autoshop"
+
+    def test_autoshop_parse_real_sample_i_start(self) -> None:
+        """验证具体变量名 i_Start/i_Stop/i_Reset 等被正确提取"""
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        result = AutoshopParser().parse(_AUTOSHOP_REAL_SAMPLE)
+        assert result.var_table is not None
+        tags = {e.tag for e in result.var_table.entries}
+        # 真实样例前几行的变量名
+        assert "i_Start" in tags
+        assert "i_Stop" in tags
+        assert "i_Reset" in tags
+        assert "i_DriveAlarm" in tags
+        # 第 1 个条目（第 2 行）应为 i_Start
+        first = result.var_table.entries[0]
+        assert first.tag == "i_Start"
+        assert first.line_number == 2  # 表头第 1 行，数据从第 2 行开始
+
+    def test_autoshop_parse_real_sample_comment_extraction(self) -> None:
+        """验证 comment 字段正确提取中文注释（来自"注释"列）"""
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        result = AutoshopParser().parse(_AUTOSHOP_REAL_SAMPLE)
+        assert result.var_table is not None
+        # 第 1 个条目注释 = 启动按钮信号
+        first = result.var_table.entries[0]
+        assert first.comment == "启动按钮信号"
+        # 第 2 个条目注释 = 停止按钮信号
+        second = result.var_table.entries[1]
+        assert second.comment == "停止按钮信号"
+        # 按 tag 查找 i_DriveAlarm 的注释
+        alarm_entry = next(
+            e for e in result.var_table.entries if e.tag == "i_DriveAlarm"
+        )
+        assert alarm_entry.comment == "驱动器报警信号"
+
+    def test_autoshop_parse_real_sample_data_types(self) -> None:
+        """验证数据类型含 BOOL/INT/REAL/DINT 等真实类型"""
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        result = AutoshopParser().parse(_AUTOSHOP_REAL_SAMPLE)
+        assert result.var_table is not None
+        types = set(result.var_table.signal_types)
+        # 真实样例覆盖的信号类型
+        assert "BOOL" in types
+        assert "INT" in types
+        assert "REAL" in types
+        assert "DINT" in types
+        # 数组类型（i_tTimer1: BOOL[10] 等）
+        assert "BOOL[10]" in types
+        assert "DINT[10]" in types
+        # i_SpeedFrequency 是 REAL 类型
+        speed_entry = next(
+            e for e in result.var_table.entries if e.tag == "i_SpeedFrequency"
+        )
+        assert speed_entry.signal_type == "REAL"

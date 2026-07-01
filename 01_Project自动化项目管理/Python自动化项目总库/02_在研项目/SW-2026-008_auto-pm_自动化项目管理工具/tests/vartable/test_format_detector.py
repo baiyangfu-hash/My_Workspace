@@ -160,3 +160,75 @@ class TestListSupportedFormats:
             assert isinstance(f, FormatType)
             assert isinstance(desc, str) and desc
             assert isinstance(exts, tuple) and len(exts) > 0
+
+
+# 真实样例 fixture 目录（tests/vartable/samples/）
+_SAMPLES_DIR = Path(__file__).parent / "samples"
+_WORK3_REAL_SAMPLE = _SAMPLES_DIR / "Work-FB变量表导出.csv"
+_AUTOSHOP_REAL_SAMPLE = _SAMPLES_DIR / "Autoshop-FB变量表导出.csv"
+
+
+class TestDetectFormatRealSamples:
+    """W1-S05：真实样例（UTF-16 LE / GBK 编码）格式识别回归测试
+
+    真实样例特征：
+    - Work-FB变量表导出.csv：UTF-16 LE + tab 分隔 + 中文表头（类/标签名/数据类型）
+    - Autoshop-FB变量表导出.csv：GBK + 逗号分隔 + 中文表头（序号/类别/名称/数据类型）
+    回归 W1-S01（中文表头识别）+ W1-S02（收紧 AUTOSHOP 误判）
+    """
+
+    def test_detect_format_real_work3_sample_utf16_le(self) -> None:
+        """真实 Work3 样例（UTF-16 LE）→ 识别为 WORK3，不误判为 AUTOSHOP
+
+        W1-S01 修复：_WORK3_HEADER_CN 支持中文表头 + 第 2 行嗅探
+        """
+        assert _WORK3_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        fmt = detect_format(_WORK3_REAL_SAMPLE)
+        # 回归 W1-S02：Work3 中文表头不得误判为 AUTOSHOP（先于正向断言，避免类型收窄）
+        assert fmt != FormatType.AUTOSHOP
+        assert fmt == FormatType.WORK3
+
+    def test_detect_format_real_autoshop_sample_gbk(self) -> None:
+        """真实 Autoshop 样例（GBK 编码）→ 识别为 AUTOSHOP
+
+        W1-S02 修复：_AUTOSHOP_HEADER 第二分支匹配 类别+名称+数据类型 组合
+        """
+        assert _AUTOSHOP_REAL_SAMPLE.exists(), "真实样例 fixture 缺失"
+        fmt = detect_format(_AUTOSHOP_REAL_SAMPLE)
+        assert fmt == FormatType.AUTOSHOP
+
+    def test_detect_format_work3_with_chinese_header(self, tmp_path: Path) -> None:
+        """合成中文表头 + tab 分隔的 Work3 文件 → 识别为 WORK3
+
+        验证 _WORK3_HEADER_CN 正则匹配 "类"/"标签名"/"数据类型" 组合
+        """
+        f = tmp_path / "fb_var.csv"
+        # 第 1 行 FB 名称占位（1 列）+ 第 2 行中文表头（tab 分隔）模拟真实结构
+        f.write_text(
+            '"边框缓存机"\n'
+            '"类"\t"标签名"\t"数据类型"\t"常数"\t"初始值"\t"分配(软元件/标签)"'
+            '\t"地址"\t"注释"\n'
+            '"VAR_INPUT"\t"阻挡前到位传感器"\t"BOOL"\t""\t""\t""\t""\t""\n',
+            encoding="utf-8",
+        )
+        assert detect_format(f) == FormatType.WORK3
+
+    def test_detect_format_autoshop_not_misidentify_work3(
+        self, tmp_path: Path
+    ) -> None:
+        """回归 W1-S02：Work3 中文表头（含"类"+"数据类型"但无"类别"/"名称"）不误判为 AUTOSHOP
+
+        原 OR 逻辑 `变量名|数据类型|作用域|类别` 因含"数据类型"把 Work3 误判为 Autoshop；
+        收紧后要求"变量名"或"类别+名称+数据类型"组合，单"类"不匹配。
+        """
+        f = tmp_path / "work3_like.csv"
+        # Work3 真实表头特征：含"类"和"数据类型"但无"类别"也无"名称"
+        f.write_text(
+            '"类"\t"标签名"\t"数据类型"\t"常数"\t"初始值"\t"分配"\t"地址"\t"注释"\n'
+            '"VAR_INPUT"\t"i_bStart"\t"BOOL"\t""\t""\t""\t"X0"\t"启动"\n',
+            encoding="utf-8",
+        )
+        fmt = detect_format(f)
+        # 不得误判为 AUTOSHOP，应识别为 WORK3
+        assert fmt != FormatType.AUTOSHOP
+        assert fmt == FormatType.WORK3

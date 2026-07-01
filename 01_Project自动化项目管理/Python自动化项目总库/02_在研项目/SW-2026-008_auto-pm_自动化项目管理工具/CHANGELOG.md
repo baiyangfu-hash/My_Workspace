@@ -7,6 +7,30 @@
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-07-02
+
+### Fixed - CHG-SCPT-2026-082 V0.5.x 稳定期 Week 1 5 格式 Parser 真实样例覆盖
+
+- **W1-S01 format_detector 中文表头识别**：`auto_pm/vartable/parsers/format_detector.py` 新增 `_WORK3_HEADER_CN` 正则（支持 `"类"\t"标签名"\t"数据类型"` 中文表头），§3.4 改为前 2 行任一行匹配 Work3 表头特征（真实样例第 1 行 FB 名称占位、第 2 行才是表头），消除真实 Work3 样例（UTF-16 LE + 中文表头）被误判为 UNKNOWN 的问题
+- **W1-S02 _AUTOSHOP_HEADER 正则收紧**：从 `变量名|数据类型|作用域|类别` OR 逻辑过宽（误把 Work3 中文表头识别为 AUTOSHOP）改为 `变量名|(?=.*类别)(?=.*名称)(?=.*数据类型)` 组合逻辑——SW-2026-001 合成样例表头含"变量名"匹配第 1 分支；真实 Autoshop 样例表头 `序号,类别,名称,数据类型` 匹配第 2 分支；Work3 真实样例表头含"类"但不含"类别"/"名称"不匹配
+- **W1-S03 work3_parser address 字段 strip 引号**：`auto_pm/vartable/parsers/work3_parser.py` L121 `address = fields[_ADDRESS_IDX].strip().strip('"')` 添加 `.strip('"')` 剥离真实样例空字段值 `""`（两个引号字符）的引号残留；同步对 scope/name/data_type/description 字段统一调用 `.strip('"')`
+
+### Test - W1-S04/W1-S05 真实样例覆盖 26 个新测试
+
+- **W1-S04 SCL 真实样例**：`tests/vartable/test_scl_parser.py` 新增 `TestSclParserRealSamples` 类 10 个测试，覆盖 DJ-2026-005 真实 .scl 文件（OB1/FB_2001/FB_1002/FB_External/FB_1004/FB_1003）FB 名提取、VAR 块识别、复杂类型字段、中文注释处理；含 `skip_if_real_samples_missing` 标记
+- **W1-S05 真实样例 fixture + 16 个新测试**：
+  - `tests/vartable/samples/Work-FB变量表导出.csv`（UTF-16 LE BOM + 27 列中文表头 + 53 行含 7 空行，9608 字节）
+  - `tests/vartable/samples/Autoshop-FB变量表导出.csv`（GBK 编码 + 逗号分隔 + 90 entries）
+  - 4 个测试文件新增 16 个真实样例测试：test_format_detector 4（Work3/Autoshop 真实样例格式识别 + 中文表头合成样例 + Work3 不误判为 AUTOSHOP 回归）+ test_work3_parser 6（UTF-16 LE 编码 + 44 entries + address 无引号 + VAR_INPUT/VAR_OUTPUT scope + FB 名 metadata + 真实数据类型）+ test_autoshop_parser 6（GBK 编码 + 90 entries + in scope + i_start + comment 提取 + 真实数据类型）
+  - samples/ 目录加入 .gitignore 避免大文件入库
+
+### Verified - V0.5.2 全量回归
+
+- 全量回归：1542 passed, 7 skipped, 0 failed（较 V0.5.1 基线 1477 passed 6 skipped 增加 65 个测试 + 1 skipped）
+- ruff 0 errors, mypy 0 errors（145 source files）
+- 真实样例端到端：Work3 44 entries 0 errors + Autoshop 90 entries 0 errors + SCL DJ-2026-005 6 文件端到端通过
+- dogfooding：CHG-SCPT-2026-082 完整 9 步状态流转 draft→closed（第 13 次闭环）
+
 ## [0.5.1] - 2026-07-01
 
 ### Fixed - CHG-SCPT-2026-081 GUI 测试三报告整合修复

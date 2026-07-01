@@ -117,7 +117,8 @@ class Work3Parser(BaseParser):
             scope = fields[_SCOPE_IDX].strip().strip('"')
             name = fields[_NAME_IDX].strip().strip('"')
             data_type = fields[_TYPE_IDX].strip().strip('"')
-            address = fields[_ADDRESS_IDX].strip()
+            # W1-S03 修复：address 同样需要 strip('"')，真实样例空字段值为 ""（两个引号字符）
+            address = fields[_ADDRESS_IDX].strip().strip('"')
             description = fields[_DESC_IDX].strip().strip('"')
 
             if not name:

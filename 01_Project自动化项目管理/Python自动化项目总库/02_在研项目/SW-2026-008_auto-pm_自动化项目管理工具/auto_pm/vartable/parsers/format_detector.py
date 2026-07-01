@@ -54,15 +54,31 @@ _INTDOC_SECTION = re.compile(
 )
 
 # Autoshop CSV 中文列名特征
+# W1-S02 收紧：原 `变量名|数据类型|作用域|类别` OR 逻辑过于宽泛，
+#   误把 Work3 中文表头（含"类"+"数据类型"）识别为 Autoshop。
+#   修复为：要求"变量名"必须出现，OR 同时出现"类别"+"名称"+"数据类型"组合。
+#   - SW-2026-001 合成样例：表头含"变量名" → 第 1 分支匹配
+#   - 真实 Autoshop 样例：表头 `序号,类别,名称,数据类型,...` → 第 2 分支匹配
+#   - Work3 真实样例：表头 `"类"\t"标签名"\t"数据类型"` 含"类"但不含"类别"也不含"名称" → 不匹配
 _AUTOSHOP_HEADER = re.compile(
-    r"变量名|数据类型|作用域|类别", re.IGNORECASE
+    r"变量名|(?=.*类别)(?=.*名称)(?=.*数据类型)", re.IGNORECASE
 )
 
 # Codesys CSV 英文列名特征（必须有 Name + Type 同时出现）
 _CODESYS_HEADER = re.compile(r"Name.*Type|Type.*Name", re.IGNORECASE)
 
-# Work3 文件特征：第 1 行通常含 "Name" "Type" "Address"（tab 分隔）
-_WORK3_HEADER = re.compile(r"Name\t.*Type\t|Scope\t.*Name\t", re.IGNORECASE)
+# Work3 文件特征
+# W1-S01 扩展：支持中文表头识别
+#   - 英文表头：Name/Type/Address (tab 分隔，SW-2026-001 合成样例)
+#   - 中文表头："类"/"标签名"/"数据类型" (tab 分隔 + 双引号包裹，真实样例)
+#   两种表头都需 tab 分隔强信号 + Work3 标志性列名组合
+_WORK3_HEADER_EN = re.compile(r"Name\t.*Type\t|Scope\t.*Name\t", re.IGNORECASE)
+_WORK3_HEADER_CN = re.compile(
+    r'"?类"?\t.*"?标签名"?\t.*"?数据类型"?|类\t.*标签名\t.*数据类型',
+    re.IGNORECASE,
+)
+# Work3 文件特征：tab 分隔（强信号，区分于逗号分隔的 Autoshop/Codesys CSV）
+_WORK3_TAB_INDICATOR = re.compile(r"\t")
 
 
 def detect_format(file_path: str | Path) -> FormatType:
@@ -138,14 +154,19 @@ def _detect_by_content(content: str, ext: str) -> FormatType:
         if "channels:" in head and "protocol:" in head:
             return FormatType.COMMUNICATIONS_YML
 
-    # 3.4 Autoshop CSV 中文列名识别
+    # 3.4 Work3 tab 分隔特征（W1-S01 提前到 Autoshop 之前，防止中文表头误判）
+    # 真实 Work3 文件结构：第 1 行 FB 名称占位（1 列）+ 第 2 行才是表头（多列 tab 分隔）
+    # 因此检查前 2 行任一行匹配 Work3 表头特征即识别
+    if len(head_lines) >= 2:
+        for hdr_line in head_lines[:2]:
+            if "\t" in hdr_line and (
+                _WORK3_HEADER_EN.search(hdr_line) or _WORK3_HEADER_CN.search(hdr_line)
+            ):
+                return FormatType.WORK3
+
+    # 3.5 Autoshop CSV 中文列名识别（W1-S02 收紧后，仅匹配"变量名"或"类别+名称+数据类型"组合）
     if _AUTOSHOP_HEADER.search(head):
         return FormatType.AUTOSHOP
-
-    # 3.5 Work3 tab 分隔特征（前 2 行表头）
-    if len(head_lines) >= 2:
-        if "\t" in head_lines[0] and _WORK3_HEADER.search(head_lines[0]):
-            return FormatType.WORK3
 
     # 3.6 Codesys CSV 英文列名特征
     if _CODESYS_HEADER.search(head):
