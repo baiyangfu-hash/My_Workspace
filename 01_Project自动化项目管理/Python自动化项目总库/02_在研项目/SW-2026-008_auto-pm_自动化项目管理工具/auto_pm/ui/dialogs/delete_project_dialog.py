@@ -24,10 +24,11 @@ from PySide6.QtWidgets import (
 
 from auto_pm.core.project_service import ProjectService
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.styles import BASE_WIDGET_STYLE
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
-_DIALOG_STYLE = """
+_DIALOG_STYLE = BASE_WIDGET_STYLE + """
 QDialog { background: #fafafa; }
 QLabel#deleteTitle { font-size: 16px; font-weight: bold; color: #c0392b; }
 QLabel#deleteWarning {

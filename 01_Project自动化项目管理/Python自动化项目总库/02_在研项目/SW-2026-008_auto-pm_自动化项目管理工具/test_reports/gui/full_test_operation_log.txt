@@ -1,105 +1,105 @@
-[23:36:22.736]   创建隔离工作空间: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_3kv23q9z
-[23:36:22.740]   创建预置项目: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_3kv23q9z\0100_PLC自动化\DJ-2026-001_预置测试项目
-[23:36:22.740] 场景1: 启动 GUI 主窗口
-[23:36:26.855]   视觉检查: 01_first_load_desktop (viewport=desktop)
-[23:36:27.769]   视觉检查: 01_first_load_tablet (viewport=tablet)
-[23:36:28.444]   视觉检查: 01_first_load_mobile (viewport=mobile)
-[23:36:28.445]   GUI 启动成功
-[23:36:28.445] 场景2: 导航树与项目查找
-[23:36:28.445]   2.1 搜索 'DJ'
-[23:36:29.458]   2.2 业务线筛选切换
-[23:36:31.181]   2.3 视图切换（卡片/列表）
-[23:36:32.275]   视觉检查: 02_list_view_desktop (viewport=desktop)
-[23:36:32.810]   视觉检查: 02_list_view_tablet (viewport=tablet)
-[23:36:33.297]   视觉检查: 02_list_view_mobile (viewport=mobile)
-[23:36:35.762]   2.4 分组模式切换
-[23:36:38.218] 场景3: 新建 PLC 项目
-[23:36:46.388]   修复 .copier-answers.yml: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_3kv23q9z\02_在研项目\DJ-2026-099_GUI测试临时项目\.copier-answers.yml
-[23:36:46.404]   共修复 1 个 .copier-answers.yml（绕过 TD-G01 让后续测试继续）
-[23:36:47.613] 场景4: 进入项目工作区
-[23:36:48.502]   进入项目: DJ-2026-099
-[23:36:50.001]   视觉检查: 04_workspace_overview_desktop (viewport=desktop)
-[23:36:50.557]   视觉检查: 04_workspace_overview_tablet (viewport=tablet)
-[23:36:51.048]   视觉检查: 04_workspace_overview_mobile (viewport=mobile)
-[23:36:51.052] 场景5: 创建变更单
-[23:36:56.579]   变更单创建成功
-[23:36:56.700] 场景6: 变更状态流转（7 次）
-[23:36:56.704]   目标变更单: CHG-PLC-2026-001
-[23:36:56.704]   6.1 流转: → 已提交 (submitted)
-[23:36:57.332]     流转成功（GUI 对话框）
-[23:36:58.136]   6.2 流转: → 审核中 (under_review)
-[23:36:58.206]     流转成功（API）: CHG-PLC-2026-001 → under_review
-[23:36:59.372]   6.3 流转: → 已批准 (approved)
-[23:36:59.444]     流转成功（API）: CHG-PLC-2026-001 → approved
-[23:37:00.597]   6.4 流转: → 实施中 (implementing)
-[23:37:00.676]     流转成功（API）: CHG-PLC-2026-001 → implementing
-[23:37:01.836]   6.5 流转: → 待验收 (pending_acceptance)
-[23:37:01.902]     流转成功（API）: CHG-PLC-2026-001 → pending_acceptance
-[23:37:03.050]   6.6 流转: → 验收中 (accepting)
-[23:37:03.127]     流转成功（API）: CHG-PLC-2026-001 → accepting
-[23:37:04.288]   6.7 流转: → 已完成 (completed)
-[23:37:04.365]     流转成功（API）: CHG-PLC-2026-001 → completed
-[23:37:05.505] 场景7: PLC 检查
-[23:37:06.157]   7.1 执行检查
-[23:37:07.870]   7.2 自动修复预览
-[23:37:09.011]   7.3 标准化命名预览
-[23:37:10.135] 场景8: 文档管理
-[23:37:10.768]   8.1 检查文档树
-[23:37:10.768]   文档分类数: 2
-[23:37:10.768]   8.2 模板信息
-[23:37:10.768]   模板: 模板: —
-[23:37:10.768]   版本: 版本: —
-[23:37:10.768]   8.3 检查模板更新
-[23:37:11.904] 场景9: 变量表管理
-[23:37:12.993]   视觉检查: 09_vartable_tab_desktop (viewport=desktop)
-[23:37:13.523]   视觉检查: 09_vartable_tab_tablet (viewport=tablet)
-[23:37:14.004]   视觉检查: 09_vartable_tab_mobile (viewport=mobile)
-[23:37:14.006]   9.1 文件列表
-[23:37:14.006]   变量表文件数: 4
-[23:37:14.006]     [0] 02_PLC程序\PLC_ST\OB1\OB1.scl
-[23:37:14.006]     [1] 02_PLC程序\工程资产\communications.yml
-[23:37:14.006]     [2] 02_PLC程序\工程资产\io_points.csv
-[23:37:14.006]     [3] 02_PLC程序\工程资产\program_blocks.yml
-[23:37:14.006]   9.2 状态信息
-[23:37:14.006]   状态: OB1.scl: 已加载 0 条变量
-[23:37:14.006]   9.3 切换文件
-[23:37:14.943]   9.4 批量解析
-[23:37:16.457]   9.5 编辑器检查
-[23:37:16.457]   编辑器类型: VariableTableEditor
-[23:37:16.582] 场景10: 变更中心
-[23:37:17.940]   视觉检查: 10_change_center_desktop (viewport=desktop)
-[23:37:18.456]   视觉检查: 10_change_center_tablet (viewport=tablet)
-[23:37:18.924]   视觉检查: 10_change_center_mobile (viewport=mobile)
-[23:37:18.927]   10.1 切换状态 Tab
-[23:37:21.177]   10.2 从变更中心创建变更单（弹出后关闭）
-[23:37:22.435] 场景11: 规范中心（6 Tab）
-[23:37:24.005]   视觉检查: 11_spec_center_overview_desktop (viewport=desktop)
-[23:37:24.524]   视觉检查: 11_spec_center_overview_tablet (viewport=tablet)
-[23:37:24.988]   视觉检查: 11_spec_center_overview_mobile (viewport=mobile)
-[23:37:24.991]   规范中心 Tab 数: 6
-[23:37:24.991]   11.1 切换 Tab: 概览
-[23:37:25.910]   11.2 切换 Tab: 规范索引
-[23:37:26.834]   11.3 切换 Tab: 健康检查
-[23:37:27.765]   11.4 切换 Tab: Frontmatter
-[23:37:28.690]   11.5 切换 Tab: 报告
-[23:37:29.616]   11.6 切换 Tab: 对比
-[23:37:32.597] 场景12: 报告中心
-[23:37:33.972]   视觉检查: 12_report_center_desktop (viewport=desktop)
-[23:37:34.487]   视觉检查: 12_report_center_tablet (viewport=tablet)
-[23:37:34.962]   视觉检查: 12_report_center_mobile (viewport=mobile)
-[23:37:34.964] 场景13: 系统设置
-[23:37:36.328]   视觉检查: 13_settings_desktop (viewport=desktop)
-[23:37:36.848]   视觉检查: 13_settings_tablet (viewport=tablet)
-[23:37:37.316]   视觉检查: 13_settings_mobile (viewport=mobile)
-[23:37:37.318]   13.1 设置信息
-[23:37:37.318]   工作空间: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_3kv23q9z
-[23:37:37.318]   缓存路径: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_3kv23q9z\.auto-pm\index.db
-[23:37:37.318]   项目记录: 0 条
-[23:37:37.318]   13.2 调整扫描深度
-[23:37:37.622]   13.3 重建索引（确认弹窗→否）
-[23:37:39.233] 步骤14: 工具栏操作
-[23:37:39.233]   14.1 同步缓存
-[23:37:40.837]   14.2 刷新列表
-[23:37:42.237]   14.3 状态栏检查
-[23:37:42.237]   工作空间: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_3kv23q9z | 项目: 2 | DB: 已连接
-[23:37:42.237] 步骤15: 清理
+[10:41:02.376]   创建隔离工作空间: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_r4wnzd5_
+[10:41:02.404]   创建预置项目: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_r4wnzd5_\0100_PLC自动化\DJ-2026-001_预置测试项目
+[10:41:02.404] 场景1: 启动 GUI 主窗口
+[10:41:09.708]   视觉检查: 01_first_load_desktop (viewport=desktop)
+[10:41:10.590]   视觉检查: 01_first_load_tablet (viewport=tablet)
+[10:41:11.263]   视觉检查: 01_first_load_mobile (viewport=mobile)
+[10:41:11.266]   GUI 启动成功
+[10:41:11.266] 场景2: 导航树与项目查找
+[10:41:11.266]   2.1 搜索 'DJ'
+[10:41:12.355]   2.2 业务线筛选切换
+[10:41:14.161]   2.3 视图切换（卡片/列表）
+[10:41:15.369]   视觉检查: 02_list_view_desktop (viewport=desktop)
+[10:41:15.978]   视觉检查: 02_list_view_tablet (viewport=tablet)
+[10:41:16.503]   视觉检查: 02_list_view_mobile (viewport=mobile)
+[10:41:19.265]   2.4 分组模式切换
+[10:41:21.780] 场景3: 新建 PLC 项目
+[10:41:34.774]   修复 .copier-answers.yml: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_r4wnzd5_\02_在研项目\DJ-2026-099_GUI测试临时项目\.copier-answers.yml
+[10:41:34.784]   共修复 1 个 .copier-answers.yml（绕过 TD-G01 让后续测试继续）
+[10:41:36.085] 场景4: 进入项目工作区
+[10:41:36.998]   进入项目: DJ-2026-099
+[10:41:38.663]   视觉检查: 04_workspace_overview_desktop (viewport=desktop)
+[10:41:39.320]   视觉检查: 04_workspace_overview_tablet (viewport=tablet)
+[10:41:39.890]   视觉检查: 04_workspace_overview_mobile (viewport=mobile)
+[10:41:39.893] 场景5: 创建变更单
+[10:41:45.594]   变更单创建成功
+[10:41:45.769] 场景6: 变更状态流转（7 次）
+[10:41:45.775]   目标变更单: CHG-PLC-2026-001
+[10:41:45.775]   6.1 流转: → 已提交 (submitted)
+[10:41:46.586]     流转成功（GUI 对话框）
+[10:41:47.403]   6.2 流转: → 审核中 (under_review)
+[10:41:47.553]     流转成功（API）: CHG-PLC-2026-001 → under_review
+[10:41:48.749]   6.3 流转: → 已批准 (approved)
+[10:41:48.871]     流转成功（API）: CHG-PLC-2026-001 → approved
+[10:41:50.069]   6.4 流转: → 实施中 (implementing)
+[10:41:50.198]     流转成功（API）: CHG-PLC-2026-001 → implementing
+[10:41:51.397]   6.5 流转: → 待验收 (pending_acceptance)
+[10:41:51.547]     流转成功（API）: CHG-PLC-2026-001 → pending_acceptance
+[10:41:52.757]   6.6 流转: → 验收中 (accepting)
+[10:41:52.897]     流转成功（API）: CHG-PLC-2026-001 → accepting
+[10:41:54.103]   6.7 流转: → 已完成 (completed)
+[10:41:54.229]     流转成功（API）: CHG-PLC-2026-001 → completed
+[10:41:55.417] 场景7: PLC 检查
+[10:41:56.110]   7.1 执行检查
+[10:41:57.922]   7.2 自动修复预览
+[10:41:59.124]   7.3 标准化命名预览
+[10:42:00.308] 场景8: 文档管理
+[10:42:01.037]   8.1 检查文档树
+[10:42:01.037]   文档分类数: 2
+[10:42:01.037]   8.2 模板信息
+[10:42:01.037]   模板: 模板: —
+[10:42:01.037]   版本: 版本: —
+[10:42:01.037]   8.3 检查模板更新
+[10:42:02.231] 场景9: 变量表管理
+[10:42:03.472]   视觉检查: 09_vartable_tab_desktop (viewport=desktop)
+[10:42:04.110]   视觉检查: 09_vartable_tab_tablet (viewport=tablet)
+[10:42:04.684]   视觉检查: 09_vartable_tab_mobile (viewport=mobile)
+[10:42:04.688]   9.1 文件列表
+[10:42:04.688]   变量表文件数: 4
+[10:42:04.688]     [0] 02_PLC程序\PLC_ST\OB1\OB1.scl
+[10:42:04.688]     [1] 02_PLC程序\工程资产\communications.yml
+[10:42:04.688]     [2] 02_PLC程序\工程资产\io_points.csv
+[10:42:04.688]     [3] 02_PLC程序\工程资产\program_blocks.yml
+[10:42:04.688]   9.2 状态信息
+[10:42:04.688]   状态: OB1.scl: 已加载 0 条变量
+[10:42:04.688]   9.3 切换文件
+[10:42:05.684]   9.4 批量解析
+[10:42:07.207]   9.5 编辑器检查
+[10:42:07.207]   编辑器类型: VariableTableEditor
+[10:42:07.394] 场景10: 变更中心
+[10:42:08.904]   视觉检查: 10_change_center_desktop (viewport=desktop)
+[10:42:09.552]   视觉检查: 10_change_center_tablet (viewport=tablet)
+[10:42:10.100]   视觉检查: 10_change_center_mobile (viewport=mobile)
+[10:42:10.103]   10.1 切换状态 Tab
+[10:42:12.422]   10.2 从变更中心创建变更单（弹出后关闭）
+[10:42:13.690] 场景11: 规范中心（6 Tab）
+[10:42:15.390]   视觉检查: 11_spec_center_overview_desktop (viewport=desktop)
+[10:42:16.022]   视觉检查: 11_spec_center_overview_tablet (viewport=tablet)
+[10:42:16.569]   视觉检查: 11_spec_center_overview_mobile (viewport=mobile)
+[10:42:16.571]   规范中心 Tab 数: 6
+[10:42:16.571]   11.1 切换 Tab: 概览
+[10:42:17.542]   11.2 切换 Tab: 规范索引
+[10:42:18.543]   11.3 切换 Tab: 健康检查
+[10:42:19.528]   11.4 切换 Tab: Frontmatter
+[10:42:20.509]   11.5 切换 Tab: 报告
+[10:42:21.492]   11.6 切换 Tab: 对比
+[10:42:24.852] 场景12: 报告中心
+[10:42:26.399]   视觉检查: 12_report_center_desktop (viewport=desktop)
+[10:42:27.042]   视觉检查: 12_report_center_tablet (viewport=tablet)
+[10:42:27.600]   视觉检查: 12_report_center_mobile (viewport=mobile)
+[10:42:27.603] 场景13: 系统设置
+[10:42:29.126]   视觉检查: 13_settings_desktop (viewport=desktop)
+[10:42:29.753]   视觉检查: 13_settings_tablet (viewport=tablet)
+[10:42:30.301]   视觉检查: 13_settings_mobile (viewport=mobile)
+[10:42:30.305]   13.1 设置信息
+[10:42:30.305]   工作空间: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_r4wnzd5_
+[10:42:30.305]   缓存路径: C:\Users\fubai\AppData\Local\Temp\auto_pm_gui_test_r4wnzd5_\.auto-pm\index.db
+[10:42:30.305]   项目记录: 2 条
+[10:42:30.305]   13.2 调整扫描深度
+[10:42:30.608]   13.3 重建索引（确认弹窗→否）
+[10:42:32.198] 步骤14: 工具栏操作
+[10:42:32.198]   14.1 同步缓存
+[10:42:33.826]   14.2 刷新列表
+[10:42:35.359]   14.3 状态栏检查
+[10:42:35.359]   工作空间: C:\Users\fubai\AppDa...auto_pm_gui_test_r4wnzd5_ | 项目: 2 | DB: 已连接
+[10:42:35.359] 步骤15: 清理

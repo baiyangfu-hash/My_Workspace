@@ -119,6 +119,13 @@ def record_visual(issue_type: str, widget_path: str, detail: str, severity: str 
 def screenshot(app: QApplication, name: str) -> str:
     SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
     widget = app.activeWindow() or (app.topLevelWidgets()[0] if app.topLevelWidgets() else None)
+    # 保护：如果活跃窗口尺寸过小（可能是残留的 QMenu/Dialog），
+    # 回退到第一个正常尺寸的 topLevelWidget（通常是主窗口）
+    if widget is not None and (widget.width() < 100 or widget.height() < 100):
+        for w in app.topLevelWidgets():
+            if w.width() >= 100 and w.height() >= 100:
+                widget = w
+                break
     if widget is None:
         log_op(f"  截图跳过（无活跃窗口）: {name}")
         return ""

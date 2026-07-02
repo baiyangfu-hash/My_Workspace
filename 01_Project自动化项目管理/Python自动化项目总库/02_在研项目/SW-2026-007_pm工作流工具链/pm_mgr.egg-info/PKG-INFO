@@ -1,6 +1,0 @@
-Metadata-Version: 2.4
-Name: pm-mgr
-Version: 0.1.0
-Summary: pm-workflow 项目工作流工具链 CLI
-Requires-Python: >=3.11
-Requires-Dist: click>=8.0

@@ -42,12 +42,13 @@ from auto_pm.change.models import (
 )
 from auto_pm.core.project_service import ProjectService
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.styles import BASE_WIDGET_STYLE
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
 __all__ = ["CreateChangeWizard", "CreateChangeDialog"]
 
-_WIZARD_STYLE = """
+_WIZARD_STYLE = BASE_WIDGET_STYLE + """
 QWizard { background: #fafafa; }
 QWizardPage { background: #fafafa; }
 QLabel#pageHint { font-size: 12px; color: #888; }

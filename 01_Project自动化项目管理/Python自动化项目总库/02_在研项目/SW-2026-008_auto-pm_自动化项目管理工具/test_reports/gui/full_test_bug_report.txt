@@ -1,6 +1,6 @@
 ============================================================
 PLC 全功能 GUI 测试报告（电气工程师视角）
-测试时间: 2026-07-01 23:37:43
+测试时间: 2026-07-02 10:42:36
 测试项目: DJ-2026-099 (隔离 tmp 工作空间)
 截图目录: C:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具\test_reports\gui\full_test_screenshots
 视口: ['desktop', 'tablet', 'mobile']

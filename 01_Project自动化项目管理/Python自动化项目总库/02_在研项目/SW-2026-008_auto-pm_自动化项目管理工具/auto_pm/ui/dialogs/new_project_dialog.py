@@ -35,6 +35,7 @@ from auto_pm.core.constants import (
 from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.template_service import TemplateService
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.styles import BASE_WIDGET_STYLE
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -51,7 +52,7 @@ _PROJECT_ID_RE = re.compile(r"^[A-Z]+-\d{4}-\d{3}$")
 # M3-Iter6: 从 core.paths 读取，消除硬编码
 _PROJECTS_SUBDIR = WORKSPACE_PROJECTS_SUBDIR
 
-_DIALOG_STYLE = """
+_DIALOG_STYLE = BASE_WIDGET_STYLE + """
 QDialog { background: #fafafa; }
 QLabel#dialogTitle { font-size: 16px; font-weight: bold; color: #222; }
 QLabel#pathPreview {

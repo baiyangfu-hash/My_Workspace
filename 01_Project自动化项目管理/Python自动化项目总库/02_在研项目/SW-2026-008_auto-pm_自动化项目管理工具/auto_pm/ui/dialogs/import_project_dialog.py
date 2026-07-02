@@ -32,6 +32,7 @@ from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.project_service import ProjectService
 from auto_pm.logging.logging import setup_logger
 from auto_pm.ui.project_list.project_card import extract_business_line
+from auto_pm.ui.styles import BASE_WIDGET_STYLE
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
@@ -42,7 +43,7 @@ _PROJECTS_SUBDIR = WORKSPACE_PROJECTS_SUBDIR
 # 业务线选项：(value, label)（M3-Iter7: 从 core.constants 读取）
 _BUSINESS_LINE_OPTIONS = BUSINESS_LINE_OPTIONS
 
-_DIALOG_STYLE = """
+_DIALOG_STYLE = BASE_WIDGET_STYLE + """
 QDialog { background: #fafafa; }
 QLabel#dialogTitle { font-size: 16px; font-weight: bold; color: #222; }
 QLabel#pathDisplay {

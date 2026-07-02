@@ -101,7 +101,7 @@ class NavigationTree(QTreeWidget):
             stack_item = QTreeWidgetItem(self)
             stack_item.setData(0, Qt.ItemDataRole.UserRole, stack_node)
             stack_item.setText(0, f"{stack_icon} {stack_label} (0)")
-            stack_item.setForeground(0, QColor("#2c3e50"))
+            stack_item.setForeground(0, QColor("#ecf0f1"))
 
             # 阶段子节点
             for phase_value, phase_label, phase_icon, phase_color in _PHASE_DEFS:

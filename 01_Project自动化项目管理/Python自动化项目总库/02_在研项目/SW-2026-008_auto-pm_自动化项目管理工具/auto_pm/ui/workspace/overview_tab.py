@@ -278,7 +278,7 @@ class OverviewTab(QWidget):
             ),
             ("PLC 品牌", project.plc_vendor or "—", False),
             ("PLC 型号", project.plc_model or "—", False),
-            ("项目路径", project.path or "—", True),
+            ("项目路径", self._abbreviate_path(project.path), True),
             ("描述", desc_text, False),
         ]
 
@@ -291,10 +291,22 @@ class OverviewTab(QWidget):
             value.setObjectName("fieldValueLink" if is_link else "fieldValue")
             value.setWordWrap(True)
             value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-            if is_link and project.path and os.path.isdir(project.path):
-                value.setCursor(Qt.CursorShape.PointingHandCursor)
-                value.mousePressEvent = self._make_open_dir_handler(project.path)  # type: ignore[method-assign]  # PySide6 动态重写 C++ 虚方法，mypy 无法识别
+            if is_link and project.path:
+                # 完整路径作为 tooltip，点击打开目录
+                value.setToolTip(project.path)
+                if os.path.isdir(project.path):
+                    value.setCursor(Qt.CursorShape.PointingHandCursor)
+                    value.mousePressEvent = self._make_open_dir_handler(project.path)  # type: ignore[method-assign]  # PySide6 动态重写 C++ 虚方法，mypy 无法识别
             self._meta_grid.addWidget(value, row_idx, 1)
+
+    @staticmethod
+    def _abbreviate_path(path: str | None, max_len: int = 60) -> str:
+        """长路径缩略：保留首尾关键部分，中间用 ... 替代"""
+        if not path:
+            return "—"
+        if len(path) <= max_len:
+            return path
+        return path[:25] + "..." + path[-30:]
 
     @staticmethod
     def _make_open_dir_handler(path: str) -> Any:

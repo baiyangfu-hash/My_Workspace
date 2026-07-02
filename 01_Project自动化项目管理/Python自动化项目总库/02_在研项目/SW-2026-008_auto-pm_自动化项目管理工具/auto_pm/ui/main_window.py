@@ -45,6 +45,7 @@ from auto_pm.ui.global_pages.spec_center import SpecCenterView
 from auto_pm.ui.global_pages.template_page import TemplatePage
 from auto_pm.ui.navigation.nav_tree import NavigationTree
 from auto_pm.ui.project_list.list_view import ProjectListView
+from auto_pm.ui.styles import BASE_WIDGET_STYLE
 from auto_pm.ui.workspace.workspace_view import ProjectWorkspaceView
 
 if TYPE_CHECKING:
@@ -267,7 +268,8 @@ class MainWindow(QMainWindow):
 
     def _apply_stylesheet(self) -> None:
         self.setStyleSheet(
-            """
+            BASE_WIDGET_STYLE
+            + """
 QMainWindow { background: #fafafa; }
 QTreeWidget#navTree {
     background: #2c3e50;
@@ -497,15 +499,31 @@ QStatusBar QLabel { padding: 0 8px; color: #555; }
 
     def _update_statusbar(self, projects: list[ProjectInfo]) -> None:
         total = len(projects)
-        self._status_workspace.setText(f"工作空间: {self._workspace_root}")
+        self._status_workspace.setText(f"工作空间: {self._abbreviate_path(self._workspace_root)}")
         self._status_workspace.setToolTip(self._workspace_root)
         self._status_project.setText(f"项目: {total}")
-        self._status_change.setText("变更: 0")
+        self._status_change.setText(f"变更: {self._count_changes()}")
         if self._db is not None:
             self._status_db.setText("DB: 已连接")
         else:
             self._status_db.setText("DB: 未连接")
         self._status_scan.setText(f"上次扫描: {self._get_latest_scan_time()}")
+
+    @staticmethod
+    def _abbreviate_path(path: str, max_len: int = 50) -> str:
+        """长路径缩略：保留首尾关键部分，中间用 ... 替代"""
+        if len(path) <= max_len:
+            return path
+        # 保留前 20 字符 + ... + 后 25 字符
+        return path[:20] + "..." + path[-25:]
+
+    def _count_changes(self) -> int:
+        """统计当前工作空间未关闭的变更单数量"""
+        try:
+            summary = self._dashboard_service.get_summary()
+            return summary.open_change_count
+        except Exception:
+            return 0
 
     def _update_dashboard_summary(self) -> None:
         """刷新首页驾驶舱摘要（失败时不阻断主列表加载）"""

@@ -1,5 +1,0 @@
-[2026-07-01T09:43:44.301892] FAIL tests/gui/test_06_change_tab.py::test_change_tab_empty_state -> captured 1 screenshot(s)
-[2026-07-01T23:44:36.868168] FAIL tests/gui/test_04_project_crud.py::test_new_project_actual_create -> captured 1 screenshot(s)
-[2026-07-01T23:50:23.435522] FAIL tests/gui/test_04_project_crud.py::test_new_project_actual_create -> captured 1 screenshot(s)
-[2026-07-02T00:02:35.315340] FAIL tests/gui/test_04_project_crud.py::test_new_project_actual_create -> captured 1 screenshot(s)
-[2026-07-02T01:05:22.864351] FAIL tests/gui/test_04_project_crud.py::test_new_project_actual_create -> captured 1 screenshot(s)

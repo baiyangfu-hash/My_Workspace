@@ -40,12 +40,13 @@ from auto_pm.change.models import (
     ChangeRequest,
 )
 from auto_pm.logging.logging import setup_logger
+from auto_pm.ui.styles import BASE_WIDGET_STYLE
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
 __all__ = ["EditChangeDialog"]
 
-_DIALOG_STYLE = """
+_DIALOG_STYLE = BASE_WIDGET_STYLE + """
 QDialog { background: #fafafa; }
 QLabel#dialogTitle { font-size: 16px; font-weight: bold; color: #222; }
 QLabel#tabHeader {
