@@ -182,6 +182,10 @@ class MainWindow(QMainWindow):
         self._project_list_view.projectSelected.connect(self._on_project_selected)
         self._project_list_view.projectEditRequested.connect(self._on_edit_project)
         self._project_list_view.projectDeleteRequested.connect(self._on_delete_project)
+        # V0.5.3 Fix 4: 空状态"新建项目"按钮 → 默认弹 PLC 新建对话框
+        self._project_list_view.newProjectRequested.connect(
+            lambda: self._on_new_project("plc")
+        )
         self._workspace_view.backRequested.connect(self._on_back_to_list)
         self._workspace_view.editRequested.connect(self._on_edit_project)
         self._workspace_view.deleteRequested.connect(self._on_delete_project)
@@ -222,14 +226,26 @@ class MainWindow(QMainWindow):
 
         toolbar.addSeparator()
         new_btn = QToolButton()
-        new_btn.setText("新建")
+        # V0.5.3 Fix 4: 强化"新建"入口可视化
+        # - 添加 ➕ 图标前缀让按钮在工具栏中视觉突出
+        # - 设置 tooltip 引导用户点击
+        # - 应用醒目样式（蓝色背景 + 白字 + 加粗）区别于其他工具栏按钮
+        new_btn.setText("➕ 新建项目")
+        new_btn.setToolTip("点击新建 PLC 项目 / Python 项目 / 变更单")
         new_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         new_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
+        new_btn.setStyleSheet(
+            "QToolButton { background: #4a90d9; color: white; "
+            "font-weight: bold; padding: 4px 12px; border-radius: 3px; }"
+            "QToolButton:hover { background: #357abd; }"
+            "QToolButton::menu-indicator { image: none; }"
+            "QToolButton::menu-button { border: none; }"
+        )
         new_menu = QMenu(new_btn)
-        act_plc = new_menu.addAction("PLC 项目")
-        act_py = new_menu.addAction("Python 项目")
+        act_plc = new_menu.addAction("🏭 PLC 项目")
+        act_py = new_menu.addAction("🐍 Python 项目")
         new_menu.addSeparator()
-        act_change = new_menu.addAction("变更单")
+        act_change = new_menu.addAction("📝 变更单")
         act_plc.triggered.connect(lambda: self._on_new_project("plc"))
         act_py.triggered.connect(lambda: self._on_new_project("python"))
         act_change.triggered.connect(self._on_new_change)
@@ -319,7 +335,8 @@ QStatusBar QLabel { padding: 0 8px; color: #555; }
         """
         if page_id == "all_projects":
             self._stack.setCurrentIndex(0)
-            self._project_list_view.set_filter("all", "")
+            # V0.5.3 Fix 1: phase 用 'all' 而非 ''（'' 现在表示仅未设置阶段）
+            self._project_list_view.set_filter("all", "all")
         elif page_id == "change_center":
             self._stack.setCurrentIndex(3)
         elif page_id == "report":

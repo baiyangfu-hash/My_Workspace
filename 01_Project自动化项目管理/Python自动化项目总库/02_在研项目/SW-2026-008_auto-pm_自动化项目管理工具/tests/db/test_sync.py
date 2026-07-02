@@ -248,3 +248,66 @@ class TestSyncErrors:
 
         assert result["status"] == "failed"
         assert "测试异常" in result["message"]
+
+
+# ── CHG-085 scanner_version 增量同步测试 ──────────────
+
+
+class TestScannerVersionChg085:
+    """CHG-085: scanner_version 机制测试（P1 缺陷根源修复）
+
+    原 P1 缺陷：增量同步仅看 marker 文件 mtime，scanner 逻辑变更
+    （如 stack/phase 推断规则修改）不触发已缓存项目重扫。
+    修复：DB 增加 scanner_version 列，版本不匹配时强制重扫。
+    """
+
+    def test_scanner_version_persisted_after_full_sync(
+        self, sync_service: SyncService
+    ) -> None:
+        """全量同步后 DB 记录的 scanner_version 应等于当前 scanner 版本"""
+        sync_service._sync_projects(force_full=True)
+
+        records = sync_service.project_repo.list_all()
+        assert len(records) >= 1
+        for record in records:
+            assert record.scanner_version == sync_service.scanner_version
+
+    def test_incremental_rescan_when_scanner_version_mismatch(
+        self, db: DatabaseManager, workspace_with_project: Path
+    ) -> None:
+        """DB 中 scanner_version 不匹配时增量同步强制重扫"""
+        from auto_pm.db.sync import SCANNER_VERSION
+
+        project_service = ProjectService(str(workspace_with_project))
+        # 用 v1 版本同步（模拟旧版 scanner 缓存）
+        sync_v1 = SyncService(db, project_service, scanner_version="v1")
+        sync_v1._sync_projects(force_full=True)
+
+        # 确认 DB 中记录的 scanner_version == "v1"
+        record = sync_v1.project_repo.get_by_id("DJ-2026-001")
+        assert record is not None
+        assert record.scanner_version == "v1"
+
+        # 用当前版本（v2）增量同步，应强制重扫
+        sync_v2 = SyncService(db, project_service, scanner_version=SCANNER_VERSION)
+        count = sync_v2._sync_projects(force_full=False)
+
+        # 应该重扫了至少 1 个项目（scanner_version 不匹配）
+        assert count >= 1
+        # 重扫后 DB 中 scanner_version 应更新为 v2
+        record = sync_v2.project_repo.get_by_id("DJ-2026-001")
+        assert record is not None
+        assert record.scanner_version == SCANNER_VERSION
+
+    def test_incremental_skip_when_scanner_version_match(
+        self, sync_service: SyncService
+    ) -> None:
+        """DB 中 scanner_version 匹配且 mtime 无变化时增量同步跳过"""
+        # 全量同步
+        sync_service._sync_projects(force_full=True)
+
+        # 增量同步（scanner_version 一致 + mtime 无变化）
+        count = sync_service._sync_projects(force_full=False)
+
+        # 应跳过所有项目
+        assert count == 0

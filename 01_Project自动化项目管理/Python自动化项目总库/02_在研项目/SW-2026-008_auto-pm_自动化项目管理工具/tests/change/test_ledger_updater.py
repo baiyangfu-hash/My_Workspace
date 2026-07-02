@@ -301,3 +301,106 @@ class TestLedgerUpdaterRemove:
         assert "# 版本变更台帐" in content
         assert "记录项目所有变更单的索引与状态" in content
         assert "## 变更单索引" in content
+
+
+class TestLedgerUpdaterChg085:
+    """CHG-085 新增：台账字段完整性（applicant/apply_date/complete_date）"""
+
+    def test_update_with_applicant_and_date(self, tmp_path: Path) -> None:
+        """update 调用时传入 applicant/apply_date，新行第 4/5 列非空"""
+        ledger = tmp_path / "ledger.md"
+        ledger.write_text(
+            "# 版本变更台帐\n\n"
+            "## 变更单索引\n\n"
+            "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
+            "|------|----------|------|--------|----------|----------|----------|------|\n",
+            encoding="utf-8",
+        )
+
+        updater = LedgerUpdater()
+        updater.update(
+            str(ledger),
+            "CHG-SCPT-2026-085",
+            "深度审查整改V0.5.4",
+            applicant="fubai",
+            apply_date="2026-07-03",
+        )
+
+        content = ledger.read_text(encoding="utf-8")
+        assert "CHG-SCPT-2026-085" in content
+        # 申请人列非空
+        assert "fubai" in content
+        # 申请日期列非空
+        assert "2026-07-03" in content
+        # 验证列顺序：解析新行，第 4 列=申请人，第 5 列=申请日期
+        for line in content.split("\n"):
+            if "CHG-SCPT-2026-085" in line and line.strip().startswith("|"):
+                cells = [c.strip() for c in line.split("|")]
+                # cells: ['', '001', 'CHG-...', 'SCPT', 'fubai', '2026-07-03', '深度...', '', '🔄待处理', '']
+                assert cells[4] == "fubai", f"申请人列应为 fubai，实际: {cells[4]}"
+                assert cells[5] == "2026-07-03", f"申请日期列应为 2026-07-03，实际: {cells[5]}"
+                break
+
+    def test_update_status_writes_complete_date(self, tmp_path: Path) -> None:
+        """update_status 流转到 ✅已关闭 时回写完成日期列"""
+        ledger = tmp_path / "ledger.md"
+        ledger.write_text(
+            "# 版本变更台帐\n\n"
+            "## 变更单索引\n\n"
+            "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
+            "|------|----------|------|--------|----------|----------|----------|------|\n"
+            "| 001 | CHG-SCPT-2026-085 | SCPT | fubai | 2026-07-03 | 测试 | | 🔄待处理 |\n",
+            encoding="utf-8",
+        )
+
+        updater = LedgerUpdater()
+        updater.update_status(
+            str(ledger),
+            "CHG-SCPT-2026-085",
+            "✅已关闭",
+            complete_date="2026-07-03",
+        )
+
+        content = ledger.read_text(encoding="utf-8")
+        # 状态列已更新
+        assert "✅已关闭" in content
+        # 完成日期列已回写
+        for line in content.split("\n"):
+            if "CHG-SCPT-2026-085" in line and line.strip().startswith("|"):
+                cells = [c.strip() for c in line.split("|")]
+                # cells[7] = 完成日期列，cells[8] = 状态列
+                assert cells[7] == "2026-07-03", f"完成日期列应为 2026-07-03，实际: {cells[7]}"
+                assert cells[8] == "✅已关闭", f"状态列应为 ✅已关闭，实际: {cells[8]}"
+                break
+
+    def test_update_status_no_complete_date_for_non_closed(self, tmp_path: Path) -> None:
+        """update_status 流转到非 closed/archived 状态时不写完成日期"""
+        ledger = tmp_path / "ledger.md"
+        ledger.write_text(
+            "# 版本变更台帐\n\n"
+            "## 变更单索引\n\n"
+            "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
+            "|------|----------|------|--------|----------|----------|----------|------|\n"
+            "| 001 | CHG-SCPT-2026-085 | SCPT | fubai | 2026-07-03 | 测试 | | 🔄待处理 |\n",
+            encoding="utf-8",
+        )
+
+        updater = LedgerUpdater()
+        # 流转到 implementing（🔄实施中），传入 complete_date 应被忽略
+        updater.update_status(
+            str(ledger),
+            "CHG-SCPT-2026-085",
+            "🔄实施中",
+            complete_date="2026-07-03",
+        )
+
+        content = ledger.read_text(encoding="utf-8")
+        # 状态列已更新为实施中
+        assert "🔄实施中" in content
+        # 完成日期列应保持空（非 closed/archived 不写）
+        for line in content.split("\n"):
+            if "CHG-SCPT-2026-085" in line and line.strip().startswith("|"):
+                cells = [c.strip() for c in line.split("|")]
+                assert cells[7] == "", f"完成日期列应为空，实际: {cells[7]}"
+                assert cells[8] == "🔄实施中", f"状态列应为 🔄实施中，实际: {cells[8]}"
+                break

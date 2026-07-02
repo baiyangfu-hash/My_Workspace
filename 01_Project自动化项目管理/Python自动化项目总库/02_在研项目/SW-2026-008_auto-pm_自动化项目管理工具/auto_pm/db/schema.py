@@ -15,18 +15,19 @@ import sqlite3
 # 项目索引缓存表
 DDL_PROJECTS = """
 CREATE TABLE IF NOT EXISTS projects (
-    project_id     TEXT PRIMARY KEY,
-    name           TEXT NOT NULL,
-    path           TEXT NOT NULL,
-    stack          TEXT NOT NULL DEFAULT 'unknown',
-    version        TEXT NOT NULL DEFAULT '',
-    description    TEXT NOT NULL DEFAULT '',
-    source         TEXT NOT NULL DEFAULT '',
-    phase          TEXT NOT NULL DEFAULT '',
-    business_line  TEXT NOT NULL DEFAULT '',
-    extra          TEXT NOT NULL DEFAULT '{}',
-    file_mtime     REAL NOT NULL DEFAULT 0,
-    last_scanned   TEXT NOT NULL DEFAULT ''
+    project_id       TEXT PRIMARY KEY,
+    name             TEXT NOT NULL,
+    path             TEXT NOT NULL,
+    stack            TEXT NOT NULL DEFAULT 'unknown',
+    version          TEXT NOT NULL DEFAULT '',
+    description      TEXT NOT NULL DEFAULT '',
+    source           TEXT NOT NULL DEFAULT '',
+    phase            TEXT NOT NULL DEFAULT '',
+    business_line    TEXT NOT NULL DEFAULT '',
+    extra            TEXT NOT NULL DEFAULT '{}',
+    file_mtime       REAL NOT NULL DEFAULT 0,
+    last_scanned     TEXT NOT NULL DEFAULT '',
+    scanner_version  TEXT NOT NULL DEFAULT ''
 );
 """
 
@@ -152,7 +153,10 @@ def migrate_schema(conn: sqlite3.Connection) -> None:
 
     处理旧版 DB 升级到新版的列变更：
     - projects 表新增 business_line 列（V2.0 阶段 F 引入）
+    - projects 表新增 scanner_version 列（CHG-085：scanner 逻辑变更时强制重扫）
     """
     if not _column_exists(conn, "projects", "business_line"):
         conn.execute("ALTER TABLE projects ADD COLUMN business_line TEXT NOT NULL DEFAULT ''")
+    if not _column_exists(conn, "projects", "scanner_version"):
+        conn.execute("ALTER TABLE projects ADD COLUMN scanner_version TEXT NOT NULL DEFAULT ''")
     conn.commit()

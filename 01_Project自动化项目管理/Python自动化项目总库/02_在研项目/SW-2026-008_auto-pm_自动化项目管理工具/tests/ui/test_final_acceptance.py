@@ -519,7 +519,9 @@ class TestFullTraversal:
             nav._on_item_clicked(phase_item, 0)
             qapp.processEvents()
             assert main_window._project_list_view._filter_stack == stack
-            assert main_window._project_list_view._filter_phase == phase
+            # V0.5.3: "未设置" 节点（phase=''）发射 'unset'，set_filter 保留为 'unset'
+            expected_phase = "unset" if phase == "" else phase
+            assert main_window._project_list_view._filter_phase == expected_phase
 
         # 功能节点（全部项目/变更中心/规范中心/模板管理/报告中心/系统设置）
         expected_indices = {
@@ -1014,22 +1016,26 @@ class TestRegression:
         qapp.processEvents()
 
     def test_navigation_tree_exists(self, qapp: QApplication, tmp_path: Path) -> None:
-        """NavigationTree 存在且结构完整"""
+        """NavigationTree 存在且结构完整
+
+        V0.5.3 Fix 1: 新增 unknown "未分类" 兜底总库节点 + "" "未设置" 兜底阶段节点。
+        """
         window = MainWindow(workspace_root=str(tmp_path))
         nav = window._nav_tree
 
         # 类型验证
         assert isinstance(nav, NavigationTree)
 
-        # 总库节点：plc + python
+        # 总库节点：plc + python + unknown
         assert "plc" in nav._stack_nodes
         assert "python" in nav._stack_nodes
-        assert len(nav._stack_nodes) == 2
+        assert "unknown" in nav._stack_nodes
+        assert len(nav._stack_nodes) == 3
 
-        # 阶段节点：每个总库 4 个阶段
-        assert len(nav._phase_nodes) == 8  # 2 总库 × 4 阶段
-        for stack in ("plc", "python"):
-            for phase in ("developing", "commissioning", "production", "archived"):
+        # 阶段节点：每个总库 5 个阶段（含 "" 未设置兜底）
+        assert len(nav._phase_nodes) == 15  # 3 总库 × 5 阶段
+        for stack in ("plc", "python", "unknown"):
+            for phase in ("developing", "commissioning", "production", "archived", ""):
                 assert (stack, phase) in nav._phase_nodes
 
         # 功能节点：6 个

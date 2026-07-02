@@ -7,6 +7,57 @@
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-07-03
+
+### Fixed - CHG-SCPT-2026-085 V0.5.4 深度审查整改（台账字段根源修复+闭环门禁强化+DB 增量同步 P1 修复）
+
+- **Task A 台账字段空缺根源修复**：`auto_pm/change/ledger_updater.py` `update()` 新增 applicant/apply_date 参数写入"申请人/申请日期"列 + `update_status()` 新增 complete_date 参数写入"完成日期"列；`auto_pm/change/change_service.py` `create_change_request()` / `transition_status()` 调用点自动回填字段；`01_版本变更台帐.md` 7 条历史记录回填申请人/申请日期/完成日期字段
+- **Task B CHG 闭环门禁强化**：`auto_pm/change/change_service.py` 新增 `_check_all_verification_items_passed()` 方法解析 §10.1 验证项清单表格检测未通过项 + `transition_status()` completed 分支新增门禁：未通过项存在且未显式标注部分验证时抛 `TransitionGuardError` 阻断流转 + 新增 `allow_partial_verification` 参数支持显式标注部分验证闭环；`auto_pm/cli/change.py` `cmd_transition` 新增 `--allow-partial-verification` 选项；`CHG-SCPT-2026-084.md` §10.1 验收项 4-6 状态标注"➡移至 CHG-085 跟踪"避免重复验收
+- **Task C DB 增量同步 P1 缺陷根源修复**：`auto_pm/db/schema.py` DDL_PROJECTS 增加 `scanner_version` 列 + `migrate_schema()` ALTER TABLE 迁移；`auto_pm/models/project.py` `ProjectRecord` 增加 `scanner_version` 字段；`auto_pm/db/sync.py` 新增 `SCANNER_VERSION="v2"` 常量 + `SyncService.__init__()` 增加 `scanner_version` 参数 + `_sync_projects()` 增量模式增加 scanner_version 一致性检查（版本不匹配时强制重扫）；`auto_pm/db/repository.py` `upsert()` + `_row_to_record()` 读写 scanner_version（向后兼容）。原 P1 缺陷：增量同步仅看 marker 文件 mtime，scanner 逻辑变更（如 stack/phase 推断规则修改）不触发已缓存项目重扫，导致 DB 缓存陈旧
+
+### Test - V0.5.4 新增 9 个单元测试（3 个测试类）
+
+- `tests/change/test_ledger_updater.py` 新增 `TestLedgerUpdaterChg085` 类 3 测试（applicant/apply_date/complete_date 回填验证）
+- `tests/change/test_change_service.py` 新增 `TestChg085VerificationGate` 类 3 测试（§10.1 门禁：无章节不校验/全通过放行/有未通过项返回编号列表）
+- `tests/db/test_sync.py` 新增 `TestScannerVersionChg085` 类 3 测试（全量同步持久化 scanner_version + 版本不匹配强制重扫 + 版本匹配增量跳过）
+
+### Verified - V0.5.4 全量回归
+
+- 全量回归：1569 passed, 7 skipped, 0 failed in 231.52s（较 V0.5.3 基线 1560 passed 7 skipped 增加 9 个测试，0 回归）
+- mypy 0 errors (147 文件), ruff CHG-085 相关文件 0 errors（tests/gui/ 40 errors 为 V0.5.2 预存在遗留，非本轮引入）
+- dogfooding：CHG-SCPT-2026-085 完整 9 步状态流转 draft→closed（第 16 次闭环）
+
+### Resolved Issues - V0.5.4 已解决问题
+
+- **DB 增量同步 P1 缺陷已修复（CHG-085 Task C）**：scanner_version 机制确保 scanner 逻辑变更时自动触发已缓存项目重扫，DB 缓存不再陈旧，无需删除 `index.db` 强制全量重扫
+
+## [0.5.3] - 2026-07-03
+
+### Fixed - CHG-SCPT-2026-084 V0.5.3 GUI 阻断修复（电气工程师试用反馈）
+
+- **Fix 1 nav_tree.py 导航树项目计数丢失**：`auto_pm/ui/navigation/nav_tree.py` 修复 stack=unknown 的 Python 项目丢失问题 + phase 为空的项目丢失问题；引入 "unset" 哨兵值用于"仅显示未设置阶段的项目"语义（区别于 "all" 不筛选阶段 和 "" 历史兼容别名）
+- **Fix 2 project_scanner.py stack 推断缺失**：`auto_pm/core/project_scanner.py` 新增 `_infer_stack_from_path` 方法从项目路径推断 stack（plc/python）；新增 `read_pm_session` phase reader 从 PM_SESSION 读取实际 phase
+- **Fix 3 project_scanner.py phase 读取缺陷 + 默认值**：修复 phase 字段读取缺陷，developing 作为默认 phase
+- **Fix 4 main_window.py + list_view.py 新建项目入口不可见**：`auto_pm/ui/main_window.py` "新建"按钮强化 + 空状态按钮信号连接；`auto_pm/ui/project_list/list_view.py` phase 语义修复（"unset" 特判）
+- **预存缺陷修复**：`tests/ui/test_iteration1_interactive.py` toolTip 检查修复
+
+### Test - V0.5.3 新增 18 个单元测试
+
+- `tests/core/test_project_scanner.py` 新增 11 个测试（_infer_stack_from_path + developing default + read_pm_session phase reader）
+- `tests/ui/test_project_list.py` 新增 5 个测试（phase 语义 + "unset" 特判）
+- `tests/ui/test_navigation.py` + `tests/ui/test_final_acceptance.py` + `tests/ui/test_iteration2_interactive.py` 测试更新（期望 "unset" + 按钮文本/菜单项更新）
+
+### Verified - V0.5.3 全量回归
+
+- 全量回归：1560 passed, 7 skipped, 0 failed（较 V0.5.2 基线 1542 passed 7 skipped 增加 18 个测试）
+- ruff 0 errors, mypy 0 errors
+- 扫描验证：13 项目 stack/phase 正确（plc=6, python=6, unknown=1）
+- dogfooding：CHG-SCPT-2026-084 完整 9 步状态流转 draft→closed（第 15 次闭环）
+
+### Known Issues - V0.5.3 open_questions
+
+- **DB 增量同步 P1 缺陷**：GUI 启动使用已有 DB 缓存时，已缓存项目的 stack/phase 不会被增量同步更新（显示错误数据）。临时修复：删除 `index.db` 强制全量重扫。待后续修复。
+
 ## [0.5.2] - 2026-07-02
 
 ### Fixed - CHG-SCPT-2026-082 V0.5.x 稳定期 Week 1 5 格式 Parser 真实样例覆盖

@@ -30,6 +30,11 @@ from auto_pm.models.project import extract_business_line
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
 
+# CHG-085: 扫描器版本号。scanner 逻辑变更（如 stack/phase 推断规则修改）时递增，
+# 增量同步检测到 DB 缓存的 scanner_version 与当前不一致时强制重扫该项目。
+# 历史：v1=初始版本（仅 mtime 增量判据，存在 scanner 逻辑变更不触发重扫的 P1 缺陷）
+SCANNER_VERSION = "v2"
+
 
 class SyncService:
     """增量扫描同步服务
@@ -43,10 +48,12 @@ class SyncService:
         db: DatabaseManager,
         project_service: ProjectService,
         change_service: ChangeService | None = None,
+        scanner_version: str = SCANNER_VERSION,
     ) -> None:
         self.db = db
         self.project_service = project_service
         self.change_service = change_service
+        self.scanner_version = scanner_version
         self.project_repo = ProjectRepository(db)
         self.change_repo = ChangeRequestRepository(db)
         self.scan_log_repo = ScanLogRepository(db)
@@ -137,6 +144,8 @@ class SyncService:
         # 从 DB 获取现有项目
         db_projects = self.project_repo.list_all()
         db_ids = {p.project_id for p in db_projects}
+        # CHG-085: 构建 project_id → DB 记录映射，用于增量模式检查 scanner_version
+        db_records = {p.project_id: p for p in db_projects}
 
         synced = 0
         now = datetime.now().isoformat()
@@ -146,9 +155,17 @@ class SyncService:
             mtime = self._get_project_mtime(proj.path)
 
             if not force_full:
-                db_mtime = self.project_repo.get_mtime(proj.project_id)
-                if proj.project_id in db_ids and mtime <= db_mtime:
-                    continue  # 无变化，跳过
+                db_record = db_records.get(proj.project_id)
+                db_mtime = db_record.file_mtime if db_record else 0.0
+                db_scanner_version = db_record.scanner_version if db_record else ""
+                # CHG-085: 增量跳过需同时满足：mtime 无变化 + scanner_version 一致
+                # 原 P1 缺陷：仅看 mtime，scanner 逻辑变更不触发已缓存项目重扫
+                if (
+                    proj.project_id in db_ids
+                    and mtime <= db_mtime
+                    and db_scanner_version == self.scanner_version
+                ):
+                    continue  # 无变化且 scanner 版本一致，跳过
 
             # 有变化或新项目，UPSERT
             # P1-② 修复：优先使用项目元数据中的 business_line 字段（用户创建时显式指定），
@@ -167,6 +184,7 @@ class SyncService:
                 extra=proj.extra,
                 file_mtime=mtime,
                 last_scanned=now,
+                scanner_version=self.scanner_version,
             )
             self.project_repo.upsert(record)
             synced += 1

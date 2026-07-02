@@ -33,17 +33,21 @@ from auto_pm.models import ProjectInfo
 from auto_pm.ui.navigation.nav_model import NavNode
 
 # 总库定义：(stack_value, label, icon)
+# V0.5.3 Fix 1: 增加 unknown 兜底节点，避免 stack='unknown' 项目被导航树丢失
 _STACK_DEFS: list[tuple[str, str, str]] = [
     ("plc", "PLC 总库", "📂"),
     ("python", "Python 总库", "📂"),
+    ("unknown", "未分类", "📁"),
 ]
 
 # 阶段定义：(phase_value, label, icon, color)
+# V0.5.3 Fix 1: 增加 "" 空字符串兜底节点，避免 phase 为空项目被导航树丢失
 _PHASE_DEFS: list[tuple[str, str, str, str]] = [
     ("developing", "在研项目", "🟦", "#3498db"),
     ("commissioning", "调试中", "🟨", "#f1c40f"),
     ("production", "生产中", "🟩", "#2ecc71"),
     ("archived", "已归档", "⬜", "#95a5a6"),
+    ("", "未设置", "⚪", "#7f8c8d"),
 ]
 
 # 功能节点定义：(page_id, label)
@@ -142,22 +146,25 @@ class NavigationTree(QTreeWidget):
     def update_counts(self, projects: list[ProjectInfo]) -> None:
         """接收项目列表，更新计数徽标
 
-        - 按 stack 分组计数 → 总库节点
-        - 按 stack+phase 分组计数 → 阶段子节点
+        - 按 stack 分组计数 → 总库节点（含 unknown 兜底）
+        - 按 stack+phase 分组计数 → 阶段子节点（含 "" 空字符串兜底为"未设置"）
 
         Args:
-            projects: 项目列表（仅统计 stack 为 plc/python 的项目）
+            projects: 项目列表（含 stack 为 plc/python/unknown 三类）
         """
         stack_counts: dict[str, int] = {}
         phase_counts: dict[tuple[str, str], int] = {}
 
         for proj in projects:
-            stack = proj.stack
-            phase = proj.phase
+            # V0.5.3 Fix 1: stack 是 Literal["plc","python","unknown"] 永不为空，
+            # 但保留 or 兜底防御性编程（万一未来 stack 类型变更）
+            stack: str = proj.stack if proj.stack else "unknown"
+            phase = proj.phase if proj.phase else ""
             if stack not in self._stack_nodes:
                 continue
             stack_counts[stack] = stack_counts.get(stack, 0) + 1
-            if phase and (stack, phase) in self._phase_nodes:
+            # V0.5.3 Fix 1: phase 为空时计入 ("", stack) "未设置" 节点
+            if (stack, phase) in self._phase_nodes:
                 phase_counts[(stack, phase)] = phase_counts.get((stack, phase), 0) + 1
 
         # 更新总库节点
@@ -180,18 +187,24 @@ class NavigationTree(QTreeWidget):
     def _on_item_clicked(self, item: QTreeWidgetItem, column: int) -> None:
         """点击节点处理
 
-        - 总库节点 → 发射 project_filter_requested(stack, '')
+        - 总库节点 → 发射 project_filter_requested(stack, 'all')（显示该 stack 所有阶段）
         - 阶段子节点 → 发射 project_filter_requested(stack, phase)
+          其中 "未设置" 节点（filter_phase=''）发射 'unset'，区别于 '' 的"不筛选"语义
         - 功能节点 → 发射 page_switch_requested(page_id)
+
+        V0.5.3 Fix 1: 总库节点 phase 参数从 '' 改为 'all'，避免与 "未设置" 阶段节点
+        的 '' 语义冲突。"未设置" 节点点击时发射 'unset'（set_filter 中特判为"仅空阶段"）。
         """
         node: NavNode | None = item.data(0, Qt.ItemDataRole.UserRole)
         if node is None:
             return
         if node.node_type == "stack":
-            self.project_filter_requested.emit(node.filter_stack or "", "")
+            # V0.5.3 Fix 1: 'all' 表示该 stack 下所有阶段
+            self.project_filter_requested.emit(node.filter_stack or "", "all")
         elif node.node_type == "phase":
-            self.project_filter_requested.emit(
-                node.filter_stack or "", node.filter_phase or ""
-            )
+            # V0.5.3: "未设置" 节点（filter_phase=''）发射 'unset'，
+            # 区别于 '' 在 set_filter 中的"不筛选"历史语义
+            phase_to_emit = "unset" if node.filter_phase == "" else (node.filter_phase or "")
+            self.project_filter_requested.emit(node.filter_stack or "", phase_to_emit)
         elif node.node_type == "function":
             self.page_switch_requested.emit(node.page_id or "")

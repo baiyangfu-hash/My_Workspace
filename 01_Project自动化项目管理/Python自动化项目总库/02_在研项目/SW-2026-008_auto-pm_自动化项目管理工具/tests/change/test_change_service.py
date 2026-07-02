@@ -261,3 +261,61 @@ class TestValidationFunctions:
         """非法目标状态抛异常"""
         with pytest.raises(SpecViolationError, match="状态流转"):
             validate_status_transition("draft", "completed")
+
+
+class TestChg085VerificationGate:
+    """CHG-085 §10.1 验证项清单门禁测试"""
+
+    def _make_service(self, tmp_path: Path) -> ChangeService:
+        """构造 ChangeService（_check_all_verification_items_passed 不依赖 workspace）"""
+        return ChangeService(str(tmp_path))
+
+    def _make_content(self, items: list[tuple[int, str]]) -> str:
+        """构造含 §10.1 验证项清单的 CHG 内容
+
+        Args:
+            items: [(序号, 状态), ...]，状态如 "☑通过"/"□待验证"/"不通过"/""
+        """
+        rows = "\n".join(
+            f"| {seq} | 验证项{seq} | 标准 | 预期 | 实际 | {status} | 验证人 | 日期 |"
+            for seq, status in items
+        )
+        return (
+            "# CHG-SCPT-2026-085\n\n"
+            "## §3 变更基本信息\n\n"
+            "状态: accepting\n\n"
+            "### 10.1 验证项清单\n\n"
+            "| # | 验证项 | 验证标准 | 预期结果 | 实际结果 | 状态 | 验证人 | 验证日期 |\n"
+            "|---|--------|----------|----------|----------|------|--------|----------|\n"
+            f"{rows}\n\n"
+            "### 10.2 跨领域联动验证\n\n"
+            "### 10.3 验证结论\n"
+        )
+
+    def test_no_section_returns_empty(self, tmp_path: Path) -> None:
+        """无 §10.1 章节时返回空列表（向后兼容旧变更单）"""
+        svc = self._make_service(tmp_path)
+        content = "# CHG\n\n## §3 基本信息\n\n状态: accepting\n"
+        assert svc._check_all_verification_items_passed(content) == []
+
+    def test_all_passed_returns_empty(self, tmp_path: Path) -> None:
+        """§10.1 全部通过时返回空列表"""
+        svc = self._make_service(tmp_path)
+        content = self._make_content([
+            (1, "☑通过"),
+            (2, "☑通过"),
+            (3, "☑全部通过"),
+        ])
+        assert svc._check_all_verification_items_passed(content) == []
+
+    def test_has_pending_returns_pending_items(self, tmp_path: Path) -> None:
+        """§10.1 存在未通过项时返回未通过项序号列表"""
+        svc = self._make_service(tmp_path)
+        content = self._make_content([
+            (1, "☑通过"),
+            (2, "□待验证"),   # 状态为"待验证"→ 未通过
+            (3, "不通过"),     # 明确不通过
+            (4, ""),           # 空状态 → 未通过
+        ])
+        pending = svc._check_all_verification_items_passed(content)
+        assert pending == [2, 3, 4]

@@ -101,25 +101,31 @@ class TestNavigationTreeStructure:
         qapp.processEvents()
 
     def test_top_level_item_count(self, qapp: QApplication) -> None:
-        """顶层节点数：2 总库 + 1 分隔线 + 6 功能 = 9"""
+        """顶层节点数：3 总库 + 1 分隔线 + 6 功能 = 10
+
+        V0.5.3 Fix 1: 新增 unknown "未分类" 兜底总库节点。
+        """
         tree = NavigationTree()
-        assert tree.topLevelItemCount() == 9
+        assert tree.topLevelItemCount() == 10
         tree.deleteLater()
         qapp.processEvents()
 
     def test_stack_nodes_have_phase_children(self, qapp: QApplication) -> None:
-        """每个总库节点应有 4 个阶段子节点"""
+        """每个总库节点应有 5 个阶段子节点
+
+        V0.5.3 Fix 1: 新增 "" "未设置" 兜底阶段节点。
+        """
         tree = NavigationTree()
-        for stack in ("plc", "python"):
+        for stack in ("plc", "python", "unknown"):
             item = tree._stack_nodes[stack]
-            assert item.childCount() == 4
+            assert item.childCount() == 5
         tree.deleteLater()
         qapp.processEvents()
 
     def test_stack_node_nav_data(self, qapp: QApplication) -> None:
         """总库节点的 NavNode 应正确设置 filter_stack"""
         tree = NavigationTree()
-        for stack in ("plc", "python"):
+        for stack in ("plc", "python", "unknown"):
             item = tree._stack_nodes[stack]
             node = item.data(0, Qt.ItemDataRole.UserRole)
             assert node is not None
@@ -131,10 +137,13 @@ class TestNavigationTreeStructure:
         qapp.processEvents()
 
     def test_phase_node_nav_data(self, qapp: QApplication) -> None:
-        """阶段子节点的 NavNode 应正确设置 filter_stack 和 filter_phase"""
+        """阶段子节点的 NavNode 应正确设置 filter_stack 和 filter_phase
+
+        V0.5.3 Fix 1: 新增 "" "未设置" 兜底阶段节点。
+        """
         tree = NavigationTree()
-        expected_phases = ["developing", "commissioning", "production", "archived"]
-        for stack in ("plc", "python"):
+        expected_phases = ["developing", "commissioning", "production", "archived", ""]
+        for stack in ("plc", "python", "unknown"):
             for phase in expected_phases:
                 item = tree._phase_nodes[(stack, phase)]
                 node = item.data(0, Qt.ItemDataRole.UserRole)
@@ -169,10 +178,13 @@ class TestNavigationTreeStructure:
         qapp.processEvents()
 
     def test_separator_is_non_interactive(self, qapp: QApplication) -> None:
-        """分隔线节点应无 UserRole 数据且 flags 为 NoItemFlags"""
+        """分隔线节点应无 UserRole 数据且 flags 为 NoItemFlags
+
+        V0.5.3 Fix 1: 分隔线现在位于 index 3（3 个总库节点之后）。
+        """
         tree = NavigationTree()
-        # 分隔线是第 3 个顶层节点（index 2）
-        sep_item = tree.topLevelItem(2)
+        # 分隔线是第 4 个顶层节点（index 3，在 plc/python/unknown 之后）
+        sep_item = tree.topLevelItem(3)
         assert sep_item is not None
         assert sep_item.data(0, Qt.ItemDataRole.UserRole) is None
         assert sep_item.flags() == Qt.ItemFlag.NoItemFlags
@@ -182,7 +194,7 @@ class TestNavigationTreeStructure:
     def test_stack_items_expanded_by_default(self, qapp: QApplication) -> None:
         """总库节点默认应展开"""
         tree = NavigationTree()
-        for stack in ("plc", "python"):
+        for stack in ("plc", "python", "unknown"):
             item = tree._stack_nodes[stack]
             index = tree.indexFromItem(item)
             assert tree.isExpanded(index) is True
@@ -192,7 +204,7 @@ class TestNavigationTreeStructure:
     def test_initial_count_is_zero(self, qapp: QApplication) -> None:
         """初始构建后所有节点计数应为 0"""
         tree = NavigationTree()
-        for stack in ("plc", "python"):
+        for stack in ("plc", "python", "unknown"):
             assert "(0)" in tree._stack_nodes[stack].text(0)
         for item in tree._phase_nodes.values():
             assert "(0)" in item.text(0)
@@ -209,16 +221,19 @@ class TestNavigationTreeSignals:
     def test_click_stack_node_emits_filter(
         self, qapp: QApplication
     ) -> None:
-        """点击总库节点 → project_filter_requested(stack, '')"""
+        """点击总库节点 → project_filter_requested(stack, 'all')
+
+        V0.5.3 Fix 1: 总库节点 phase 参数从 '' 改为 'all'（区别于 "未设置" 的 ''）。
+        """
         tree = NavigationTree()
         received: list[tuple[str, str]] = []
         tree.project_filter_requested.connect(lambda s, p: received.append((s, p)))
 
         tree._on_item_clicked(tree._stack_nodes["plc"], 0)
-        assert received == [("plc", "")]
+        assert received == [("plc", "all")]
 
         tree._on_item_clicked(tree._stack_nodes["python"], 0)
-        assert received == [("plc", ""), ("python", "")]
+        assert received == [("plc", "all"), ("python", "all")]
 
         tree.deleteLater()
         qapp.processEvents()
@@ -273,7 +288,11 @@ class TestNavigationTreeSignals:
     def test_all_phase_nodes_emit_correct_filter(
         self, qapp: QApplication
     ) -> None:
-        """所有阶段子节点点击都应发射正确的 (stack, phase)"""
+        """所有阶段子节点点击都应发射正确的 (stack, phase)
+
+        V0.5.3: "未设置" 节点（filter_phase=''）发射 'unset' 而非 ''，
+        以区别于 set_filter 中 '' 的"不筛选"历史语义。
+        """
         tree = NavigationTree()
         received: list[tuple[str, str]] = []
         tree.project_filter_requested.connect(lambda s, p: received.append((s, p)))
@@ -281,20 +300,25 @@ class TestNavigationTreeSignals:
         for (stack, phase), item in tree._phase_nodes.items():
             received.clear()
             tree._on_item_clicked(item, 0)
-            assert received == [(stack, phase)]
+            # "未设置" 节点发射 'unset'，其他节点发射原 phase
+            expected_phase = "unset" if phase == "" else phase
+            assert received == [(stack, expected_phase)]
 
         tree.deleteLater()
         qapp.processEvents()
 
     def test_click_separator_no_signal(self, qapp: QApplication) -> None:
-        """点击分隔线不应发射任何信号"""
+        """点击分隔线不应发射任何信号
+
+        V0.5.3 Fix 1: 分隔线现在位于 index 3（3 个总库节点之后）。
+        """
         tree = NavigationTree()
         filter_received: list[tuple[str, str]] = []
         page_received: list[str] = []
         tree.project_filter_requested.connect(lambda s, p: filter_received.append((s, p)))
         tree.page_switch_requested.connect(lambda p: page_received.append(p))
 
-        sep_item = tree.topLevelItem(2)
+        sep_item = tree.topLevelItem(3)
         assert sep_item is not None
         tree._on_item_clicked(sep_item, 0)
         assert filter_received == []
@@ -306,14 +330,17 @@ class TestNavigationTreeSignals:
     def test_item_clicked_signal_triggers_handler(
         self, qapp: QApplication
     ) -> None:
-        """itemClicked 信号应触发 _on_item_clicked 处理器（集成测试）"""
+        """itemClicked 信号应触发 _on_item_clicked 处理器（集成测试）
+
+        V0.5.3 Fix 1: 总库节点 phase 参数从 '' 改为 'all'。
+        """
         tree = NavigationTree()
         received: list[tuple[str, str]] = []
         tree.project_filter_requested.connect(lambda s, p: received.append((s, p)))
 
         # 通过 emit 模拟点击
         tree.itemClicked.emit(tree._stack_nodes["plc"], 0)
-        assert received == [("plc", "")]
+        assert received == [("plc", "all")]
 
         tree.deleteLater()
         qapp.processEvents()
@@ -378,10 +405,13 @@ class TestNavigationTreeCounts:
         tree.deleteLater()
         qapp.processEvents()
 
-    def test_update_counts_unknown_stack_ignored(
+    def test_update_counts_unknown_stack_counted(
         self, qapp: QApplication
     ) -> None:
-        """unknown 技术栈的项目不应计入任何总库"""
+        """unknown 技术栈的项目应计入"未分类"总库节点
+
+        V0.5.3 Fix 1: 原 unknown 项目被忽略，现新增 "未分类" 兜底节点。
+        """
         tree = NavigationTree()
         projects = [
             _make_project("SW-2026-001", "A", "unknown", "developing"),
@@ -390,14 +420,19 @@ class TestNavigationTreeCounts:
 
         assert tree._stack_nodes["plc"].text(0) == "📂 PLC 总库 (0)"
         assert tree._stack_nodes["python"].text(0) == "📂 Python 总库 (0)"
+        assert tree._stack_nodes["unknown"].text(0) == "📁 未分类 (1)"
+        assert tree._phase_nodes[("unknown", "developing")].text(0) == "🟦 在研项目 (1)"
 
         tree.deleteLater()
         qapp.processEvents()
 
-    def test_update_counts_empty_phase_counted_in_stack_only(
+    def test_update_counts_empty_phase_counted_in_unset_bucket(
         self, qapp: QApplication
     ) -> None:
-        """phase 为空的项目应计入总库但不计入任何阶段"""
+        """phase 为空的项目应计入"未设置"阶段节点
+
+        V0.5.3 Fix 1: 原 phase="" 项目不计入任何阶段，现新增 "未设置" 兜底节点。
+        """
         tree = NavigationTree()
         projects = [
             _make_project("SW-2026-001", "A", "plc", ""),
@@ -407,6 +442,8 @@ class TestNavigationTreeCounts:
         assert tree._stack_nodes["plc"].text(0) == "📂 PLC 总库 (1)"
         for phase in ("developing", "commissioning", "production", "archived"):
             assert "(0)" in tree._phase_nodes[("plc", phase)].text(0)
+        # V0.5.3 Fix 1: phase="" 计入 "未设置" 节点
+        assert tree._phase_nodes[("plc", "")].text(0) == "⚪ 未设置 (1)"
 
         tree.deleteLater()
         qapp.processEvents()
@@ -449,6 +486,51 @@ class TestNavigationTreeCounts:
         assert tree._stack_nodes["plc"].text(0) == "📂 PLC 总库 (3)"
         assert tree._phase_nodes[("plc", "developing")].text(0) == "🟦 在研项目 (2)"
         assert tree._phase_nodes[("plc", "production")].text(0) == "🟩 生产中 (1)"
+
+        tree.deleteLater()
+        qapp.processEvents()
+
+    def test_update_counts_unknown_stack_with_empty_phase(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 1: unknown stack + 空 phase 应计入"未分类/未设置"节点"""
+        tree = NavigationTree()
+        projects = [
+            _make_project("SYS-2026-001", "跨域项目", "unknown", ""),
+        ]
+        tree.update_counts(projects)
+
+        assert tree._stack_nodes["unknown"].text(0) == "📁 未分类 (1)"
+        assert tree._phase_nodes[("unknown", "")].text(0) == "⚪ 未设置 (1)"
+
+        tree.deleteLater()
+        qapp.processEvents()
+
+    def test_update_counts_mixed_stack_and_phase(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 1: 混合 stack + phase 的计数验证"""
+        tree = NavigationTree()
+        projects = [
+            _make_project("DJ-2026-001", "PLC1", "plc", "developing"),
+            _make_project("DJ-2026-002", "PLC2", "plc", ""),
+            _make_project("SW-2026-001", "PY1", "python", "developing"),
+            _make_project("SYS-2026-001", "跨域", "unknown", "developing"),
+            _make_project("SYS-2026-002", "跨域2", "unknown", ""),
+        ]
+        tree.update_counts(projects)
+
+        # 总库计数
+        assert tree._stack_nodes["plc"].text(0) == "📂 PLC 总库 (2)"
+        assert tree._stack_nodes["python"].text(0) == "📂 Python 总库 (1)"
+        assert tree._stack_nodes["unknown"].text(0) == "📁 未分类 (2)"
+
+        # 阶段计数
+        assert tree._phase_nodes[("plc", "developing")].text(0) == "🟦 在研项目 (1)"
+        assert tree._phase_nodes[("plc", "")].text(0) == "⚪ 未设置 (1)"
+        assert tree._phase_nodes[("python", "developing")].text(0) == "🟦 在研项目 (1)"
+        assert tree._phase_nodes[("unknown", "developing")].text(0) == "🟦 在研项目 (1)"
+        assert tree._phase_nodes[("unknown", "")].text(0) == "⚪ 未设置 (1)"
 
         tree.deleteLater()
         qapp.processEvents()

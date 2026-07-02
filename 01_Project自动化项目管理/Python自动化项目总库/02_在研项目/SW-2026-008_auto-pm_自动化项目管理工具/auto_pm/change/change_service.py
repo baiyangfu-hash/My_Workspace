@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import datetime
 import os
+import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from auto_pm.change.file_locator import ChangeFileLocator
@@ -265,10 +266,16 @@ class ChangeService:
 
         # 更新台帐
         # V0.2.1-P2-8: 台帐文件不存在时自动创建（含变更单索引表格骨架）
+        # CHG-085：调用 update() 时传入 applicant/apply_date，避免台账字段空缺
         ledger_path = get_or_create_ledger_file(project_path)
         if ledger_path:
+            apply_date = planned_date or datetime.date.today().isoformat()
             self._get_ledger_updater().update(
-                ledger_path, change_number, background[:50]
+                ledger_path,
+                change_number,
+                background[:50],
+                applicant=applicant,
+                apply_date=apply_date,
             )
             log.info("台帐已更新: %s", ledger_path)
         else:
@@ -332,6 +339,78 @@ class ChangeService:
         log.debug("获取变更单: %s, 文件=%s", change_number, file_path)
         return self._parser.parse(file_path)
 
+    def _check_all_verification_items_passed(self, content: str) -> list[int]:
+        """检查 §10.1 验证项清单是否全部通过（CHG-085 门禁强化）
+
+        解析 §10.1 表格所有数据行，返回未通过项的序号列表。
+        空行（序号为空或非数字）跳过，不视为未通过。
+
+        列结构（generator.py §10.1 模板）:
+            | # | 验证项 | 验证标准 | 预期结果 | 实际结果 | 状态 | 验证人 | 验证日期 |
+        状态列位于 parts[6]，移除 ☑/☐ 标记后判定：
+            - 空 → 未填写，视为未通过
+            - 含"不通过"/"未通过" → 未通过
+            - 不含"通过" → 未通过
+            - 含"通过"且不含否定关键词 → 通过
+
+        Args:
+            content: CHG 文件完整内容
+
+        Returns:
+            未通过项的序号列表（空列表表示全部通过或无 §10.1 章节）
+        """
+        # 定位 §10.1 起始位置（兼容 ### 10.1 / ### §10.1）
+        sec_match = re.search(r"^###\s*§?\s*10\.1\b", content, re.MULTILINE)
+        if not sec_match:
+            return []  # 无 §10.1 章节，不强制校验（向后兼容旧变更单）
+
+        # §10.1 区域：从章节头结束到下一个 ## 标题
+        start = sec_match.end()
+        next_sec = re.search(r"^##\s", content[start:], re.MULTILINE)
+        end = start + next_sec.start() if next_sec else len(content)
+        section = content[start:end]
+
+        pending: list[int] = []
+        for line in section.split("\n"):
+            line = line.rstrip()
+            if not line.startswith("|"):
+                continue
+            # 跳过分隔行
+            if "---" in line:
+                continue
+            parts = line.split("|")
+            if len(parts) < 7:
+                continue
+            seq_str = parts[1].strip()
+            # 跳过表头行
+            if seq_str in ("#", "序号", "No", "no"):
+                continue
+            # 跳过空序号行（模板占位符）
+            if not seq_str:
+                continue
+            # 跳过非数字序号
+            try:
+                seq = int(seq_str)
+            except ValueError:
+                continue
+            # 检查状态列（parts[6]）
+            status = parts[6].strip() if len(parts) > 6 else ""
+            # 移除 ☑/☐ 等标记后判断
+            status_clean = status.replace("☑", "").replace("☐", "").strip()
+            # 空状态视为未填写（未通过）
+            if not status_clean:
+                pending.append(seq)
+                continue
+            # 包含"不通过"/"未通过"视为未通过
+            if "不通过" in status_clean or "未通过" in status_clean:
+                pending.append(seq)
+                continue
+            # 必须包含"通过"才视为通过
+            if "通过" not in status_clean:
+                pending.append(seq)
+
+        return pending
+
     def transition_status(
         self,
         change_number: str,
@@ -339,6 +418,7 @@ class ChangeService:
         approver: str = "",
         comment: str = "",
         verification_conclusion: str = "全部通过",
+        allow_partial_verification: bool = False,
     ) -> ChangeRequest | None:
         """状态流转（PM-042 V2.2.0 §5.2 状态机）
 
@@ -380,7 +460,7 @@ class ChangeService:
 
         if new_status == "completed":
             # [PM-042 §5.2] accepting → completed: 验证通过路径
-            # 门禁: verification_conclusion 必须包含"通过"且不包含"不通过"（V0.3.0-M0.5-Phase1 BUG-001 修复）
+            # 门禁1: verification_conclusion 必须包含"通过"且不包含"不通过"（V0.3.0-M0.5-Phase1 BUG-001 修复）
             # 允许自然表达：全部通过 / 全部通过（附说明）/ 通过，存在观察项 等
             # 拒绝：不通过 / 部分不通过 / 未通过 等
             if not _is_verification_passed(verification_conclusion):
@@ -390,13 +470,30 @@ class ChangeService:
                     "如验证不通过请使用「退回返工」(accepting → implementing)"
                 )
 
+            # [CHG-085 门禁2] §10.1 验证项清单必须全部通过，禁止只填 §10.3 验证结论就流转到 completed
+            pending_items = self._check_all_verification_items_passed(content)
+            if pending_items and not allow_partial_verification:
+                raise TransitionGuardError(
+                    f"变更单 {change_number} §10.1 验证项清单存在未通过项（编号：{pending_items}），"
+                    "禁止仅凭 §10.3 验证结论流转到 completed；"
+                    "请补全 §10.1 验证项或使用 --allow-partial-verification 显式标注部分验证闭环"
+                )
+            final_conclusion = verification_conclusion
+            if pending_items and allow_partial_verification:
+                # 部分验证闭环：在验证结论中标注待验证项
+                pending_str = ",".join(str(i) for i in pending_items)
+                final_conclusion = (
+                    f"{verification_conclusion} [部分验证闭环] "
+                    f"待验证项：{pending_str}；其余项已验证通过"
+                )
+
             # 门禁通过：写入验证行和验证结论到§10
             verify_row = (
                 f"| 1 | 实施完成验证 | 所有变更项已实施 | 通过 | 通过 "
-                f"| ☑{verification_conclusion} | {approver} | {today} |\n"
+                f"| ☑{final_conclusion} | {approver} | {today} |\n"
             )
             content = self._editor.append_to_verification_table(content, verify_row)
-            content = self._editor.update_verification_conclusion(content, verification_conclusion)
+            content = self._editor.update_verification_conclusion(content, final_conclusion)
             # 注意：§3.4 状态字段更新统一在下方第 299 行执行，避免时序 bug（KNOWN-1 修复）
 
         elif new_status == "archived":
@@ -467,7 +564,16 @@ class ChangeService:
             ledger_path = find_ledger_file(project_path)
             if ledger_path:
                 status_label = _LEDGER_STATUS_MAP.get(new_status, "🔄进行中")
-                self._get_ledger_updater().update_status(ledger_path, change_number, status_label)
+                # CHG-085：流转到 completed/closed/archived 时回写完成日期
+                complete_date = ""
+                if new_status in ("completed", "closed", "archived"):
+                    complete_date = datetime.date.today().isoformat()
+                self._get_ledger_updater().update_status(
+                    ledger_path,
+                    change_number,
+                    status_label,
+                    complete_date=complete_date,
+                )
                 log.debug("台帐状态已同步: %s → %s", change_number, status_label)
 
         # 重新解析返回

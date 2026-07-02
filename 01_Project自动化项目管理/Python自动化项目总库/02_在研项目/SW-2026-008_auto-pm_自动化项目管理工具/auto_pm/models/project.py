@@ -73,6 +73,7 @@ class ProjectRecord(Project):
     """
 
     last_scanned: str = Field("", description="最后扫描时间 ISO8601")
+    scanner_version: str = Field("", description="扫描器版本（CHG-085：版本不匹配时强制重扫）")
 
 
 # 兼容别名：现有代码中 ProjectInfo 仍可使用，指向 Project

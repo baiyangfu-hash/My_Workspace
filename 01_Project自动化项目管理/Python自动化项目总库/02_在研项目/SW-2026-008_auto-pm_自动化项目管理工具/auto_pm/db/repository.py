@@ -33,9 +33,10 @@ class ProjectRepository:
                 """
                 INSERT INTO projects
                     (project_id, name, path, stack, version, description,
-                     source, phase, business_line, extra, file_mtime, last_scanned)
+                     source, phase, business_line, extra, file_mtime, last_scanned,
+                     scanner_version)
                 VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(project_id) DO UPDATE SET
                     name=excluded.name,
                     path=excluded.path,
@@ -47,7 +48,8 @@ class ProjectRepository:
                     business_line=excluded.business_line,
                     extra=excluded.extra,
                     file_mtime=excluded.file_mtime,
-                    last_scanned=excluded.last_scanned
+                    last_scanned=excluded.last_scanned,
+                    scanner_version=excluded.scanner_version
                 """,
                 (
                     project.project_id,
@@ -62,6 +64,7 @@ class ProjectRepository:
                     json.dumps(project.extra, ensure_ascii=False),
                     project.file_mtime,
                     project.last_scanned,
+                    project.scanner_version,
                 ),
             )
             conn.commit()
@@ -156,6 +159,7 @@ class ProjectRepository:
         extra: dict[str, Any] = json.loads(row["extra"]) if row["extra"] else {}
         columns = row.keys()
         business_line = row["business_line"] if "business_line" in columns else ""
+        scanner_version = row["scanner_version"] if "scanner_version" in columns else ""
         return ProjectRecord(
             project_id=row["project_id"],
             name=row["name"],
@@ -169,6 +173,7 @@ class ProjectRepository:
             extra=extra,
             file_mtime=row["file_mtime"],
             last_scanned=row["last_scanned"],
+            scanner_version=scanner_version,
         )
 
 

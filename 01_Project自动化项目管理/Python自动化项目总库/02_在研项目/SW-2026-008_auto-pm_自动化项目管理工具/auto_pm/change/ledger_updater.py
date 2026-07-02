@@ -13,13 +13,22 @@ log = get_logger(log_level="INFO", app_name="auto_pm")
 class LedgerUpdater:
     """版本变更台帐更新器"""
 
-    def update(self, ledger_path: str, change_number: str, desc: str) -> None:
+    def update(
+        self,
+        ledger_path: str,
+        change_number: str,
+        desc: str,
+        applicant: str = "",
+        apply_date: str = "",
+    ) -> None:
         """在台帐的变更单索引部分追加一条记录
 
         Args:
             ledger_path: 台帐文件路径
             change_number: 变更编号 (如 CHG-DOCU-2026-001)
             desc: 变更描述
+            applicant: 变更申请人（CHG-085 新增，写入"申请人"列）
+            apply_date: 申请日期（CHG-085 新增，写入"申请日期"列，格式 YYYY-MM-DD）
         """
         content = read_file(ledger_path)
         if not content:
@@ -43,8 +52,12 @@ class LedgerUpdater:
         # 生成变更单链接
         link = f"[→ {change_number}](./01_变更单/CHG-{domain}/{change_number}.md)"
 
-        # 构造新行
-        new_row = f"| {seq:03d} | {link} | {domain} | | | {desc} | | 🔄待处理 |\n"
+        # 构造新行（CHG-085：填入申请人/申请日期列，原 L47 留空导致台账字段缺失）
+        # 列结构：| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |
+        new_row = (
+            f"| {seq:03d} | {link} | {domain} | {applicant} | {apply_date} "
+            f"| {desc} | | 🔄待处理 |\n"
+        )
 
         # 在变更单索引表格中插入
         updated = self._insert_row_to_index_table(content, new_row)
@@ -54,13 +67,21 @@ class LedgerUpdater:
         else:
             log.warning("台帐更新失败: 未找到变更单索引表格 %s", ledger_path)
 
-    def update_status(self, ledger_path: str, change_number: str, status: str) -> None:
-        """更新台帐中指定变更单的状态行（TD-T10 修复）
+    def update_status(
+        self,
+        ledger_path: str,
+        change_number: str,
+        status: str,
+        complete_date: str = "",
+    ) -> None:
+        """更新台帐中指定变更单的状态行（TD-T10 修复 + CHG-085 完成日期回写）
 
         Args:
             ledger_path: 台帐文件路径
             change_number: 变更编号（如 CHG-SCPT-2026-064）
             status: 新状态文案（如"✅已关闭"、"✅已归档"、"🔄实施中"）
+            complete_date: 完成日期（CHG-085 新增，status 为"✅已关闭"/"✅已归档"时
+                写入"完成日期"列，格式 YYYY-MM-DD；其他状态忽略）
         """
         content = read_file(ledger_path)
         if not content:
@@ -72,9 +93,18 @@ class LedgerUpdater:
         for i, line in enumerate(lines):
             if change_number in line and line.strip().startswith("|"):
                 parts = line.split("|")
+                # 列结构：| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |
+                # split 后：['', ' 序号 ', ' 变更编号 ', ..., ' 状态 ', '']
+                # 状态列 = parts[-2]，完成日期列 = parts[-3]
                 if len(parts) >= 4:  # 至少有内容列（首尾空字符串 + 至少 2 列）
                     # 状态列是最后一个内容列 = parts[-2]（parts[-1] 是行尾空字符串）
                     parts[-2] = f" {status} "
+                    # CHG-085：closed/archived 时回写完成日期列（parts[-3]）
+                    if complete_date and status in ("✅已关闭", "✅已归档"):
+                        parts[-3] = f" {complete_date} "
+                        log.info(
+                            "台帐完成日期已回写: %s → %s", change_number, complete_date
+                        )
                     lines[i] = "|".join(parts)
                     updated = True
                     log.info("台帐状态已更新: %s → %s", change_number, status)

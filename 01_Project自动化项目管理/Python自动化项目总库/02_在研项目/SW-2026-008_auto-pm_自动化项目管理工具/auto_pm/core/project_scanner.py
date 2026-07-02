@@ -20,6 +20,7 @@ import yaml
 from auto_pm.core.asset_summary_service import AssetSummaryService
 from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
+from auto_pm.models.enums import Stack
 from auto_pm.models.project import extract_business_line
 
 log = setup_logger(log_level="INFO", app_name="auto_pm")
@@ -150,17 +151,23 @@ class ProjectScanner:
 
         V0.2.1-P2-11: 当项目通过 PM_SESSION 识别但 stack=unknown 时，
         递归查找子目录的 .plc.json 补充元数据（适配 02_PLC程序/PLC_ST/.plc.json 嵌套结构）。
+
+        V0.5.3 Fix 2: 当所有识别手段都无法确定 stack 时，根据项目路径兜底推断
+        （路径含 `01_Project自动化项目管理\Python自动化项目总库\` → python；
+         路径含 `0100_PLC自动化\` → plc；其他 → unknown）。
         """
         # 1. Copier 答案文件（最可靠）
         info = self.read_copier_answers(project_path)
         if info is not None:
             info.file_mtime = self.get_project_mtime(project_path)
+            self._apply_stack_fallback(info)
             return info
 
         # 2. .plc.json（PLC 项目，仅检查根目录）
         info = self.read_plc_json(project_path)
         if info is not None:
             info.file_mtime = self.get_project_mtime(project_path)
+            self._apply_stack_fallback(info)
             return info
 
         # 3. PM_SESSION_*.md
@@ -169,9 +176,51 @@ class ProjectScanner:
             info.file_mtime = self.get_project_mtime(project_path)
             # V0.2.1-P2-11: 递归查找 .plc.json 补充元数据
             info = self._enrich_from_plc_json(info)
+            # V0.5.3 Fix 2: 仍为 unknown 时按路径兜底推断
+            self._apply_stack_fallback(info)
             return info
 
         return None
+
+    def _apply_stack_fallback(self, info: ProjectInfo) -> None:
+        """V0.5.3 Fix 2: stack 兜底推断
+
+        当 ProjectInfo.stack 仍为 "unknown" 时，根据项目路径推断 stack：
+        - 路径含 `01_Project自动化项目管理\\Python自动化项目总库\\` → "python"
+        - 路径含 `0100_PLC自动化\\` → "plc"
+        - 其他 → 保持 "unknown"
+
+        Args:
+            info: ProjectInfo 原地修改（仅在 stack=unknown 时生效）
+        """
+        if info.stack != "unknown":
+            return
+        inferred = self._infer_stack_from_path(info.path)
+        if inferred != "unknown":
+            info.stack = inferred
+
+    @staticmethod
+    def _infer_stack_from_path(project_path: str) -> Stack:
+        """V0.5.3 Fix 2: 从项目路径推断 stack
+
+        依赖工作空间目录结构稳定：
+        - `01_Project自动化项目管理\\Python自动化项目总库\\` → "python"
+        - `0100_PLC自动化\\` → "plc"
+        - 其他 → "unknown"（如 SYS-2026-001 跨域项目）
+
+        Args:
+            project_path: 项目绝对路径
+
+        Returns:
+            推断的 stack 值（"python" / "plc" / "unknown"）
+        """
+        # 统一路径分隔符为 os.sep，再小写化做包含判断
+        norm_path = project_path.replace("/", os.sep)
+        if "01_Project自动化项目管理" + os.sep + "Python自动化项目总库" + os.sep in norm_path:
+            return "python"
+        if "0100_PLC自动化" + os.sep in norm_path:
+            return "plc"
+        return "unknown"
 
     def read_copier_answers(self, project_path: str) -> Optional[ProjectInfo]:
         """从 .copier-answers.yml 读取项目元数据
@@ -299,7 +348,10 @@ class ProjectScanner:
         解析 §2 Current Focus 的 current_focus 字段和 §8 Handoff Notes 的
         current_state 字段，根据关键词映射到标准阶段
         （archived/production/commissioning/developing）。
-        无法识别时返回空字符串。
+
+        V0.5.3 Fix 3: 当 PM_SESSION 存在 current_focus/current_state 字段但
+        关键词未匹配任何标准阶段时，默认返回 "developing"（项目存在 PM_SESSION
+        且字段有内容 = 项目在研）。仅当字段完全不存在时返回空字符串。
         """
         # 收集 current_focus 和 current_state 文本
         texts: list[str] = []
@@ -333,7 +385,8 @@ class ProjectScanner:
             (r"developing", r"开发中", r"开发", r"待启动", r"进行中", r"迭代", r"里程碑", r"启动"),
         ):
             return "developing"
-        return ""
+        # V0.5.3 Fix 3: PM_SESSION 有字段但关键词未匹配 → 默认在研
+        return "developing"
 
     @staticmethod
     def _matches_phase_patterns(text: str, patterns: tuple[str, ...]) -> bool:
@@ -476,7 +529,13 @@ class ProjectScanner:
         return _search_dir(project_path, 1)
 
     def read_pm_session(self, project_path: str) -> Optional[ProjectInfo]:
-        """从 PM_SESSION_*.md 文件名提取项目编号"""
+        """从 PM_SESSION_*.md 提取项目编号 + phase 元数据
+
+        V0.5.3 Fix 3.5: 补全 phase 读取调用链。原实现仅从文件名提取 project_id，
+        phase 字段保持默认空字符串，导致 source=pm_session 的项目在导航树阶段节点
+        全部丢失（即使 _read_phase_from_pm_session 已能正确推导阶段）。
+        现在调用 _read_phase_from_pm_session 填充 phase 字段。
+        """
         try:
             entries = os.listdir(project_path)
         except OSError:
@@ -486,11 +545,14 @@ class ProjectScanner:
             if entry.startswith(self.PM_SESSION_PREFIX) and entry.endswith(".md"):
                 # PM_SESSION_DJ-2026-010.md -> DJ-2026-010
                 project_id = entry[len(self.PM_SESSION_PREFIX) : -len(".md")]
+                # V0.5.3 Fix 3.5: 读取 phase（frontmatter + §2/§8 关键词推导 + developing 兜底）
+                phase = self._read_phase_from_pm_session(project_path, project_id)
                 return ProjectInfo(
                     project_id=project_id,
                     name=os.path.basename(project_path),
                     path=project_path,
                     stack="unknown",
+                    phase=phase,
                     source="pm_session",
                 )
         return None

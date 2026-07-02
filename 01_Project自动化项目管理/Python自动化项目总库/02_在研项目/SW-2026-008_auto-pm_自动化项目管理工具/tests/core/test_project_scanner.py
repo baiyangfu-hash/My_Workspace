@@ -441,3 +441,161 @@ class TestBackwardCompatibility:
         assert svc._extract_id_from_dirname(str(project_dir)) == "SW-2026-001"
         assert svc._infer_stack("templates/plc-standard") == "plc"
         assert svc._get_project_mtime(str(project_dir)) > 0
+
+
+class TestStackFallback:
+    """V0.5.3 Fix 2: 路径兜底推断 stack 测试"""
+
+    def test_infer_stack_from_python_path(self, tmp_path: Path) -> None:
+        """路径含 Python自动化项目总库 → python"""
+        scanner = ProjectScanner(str(tmp_path))
+        path = r"C:\workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008"
+        assert scanner._infer_stack_from_path(path) == "python"
+
+    def test_infer_stack_from_plc_path(self, tmp_path: Path) -> None:
+        """路径含 0100_PLC自动化 → plc"""
+        scanner = ProjectScanner(str(tmp_path))
+        path = r"C:\workspace\0100_PLC自动化\DJ-2026-001"
+        assert scanner._infer_stack_from_path(path) == "plc"
+
+    def test_infer_stack_from_unknown_path(self, tmp_path: Path) -> None:
+        """其他路径 → unknown"""
+        scanner = ProjectScanner(str(tmp_path))
+        path = r"C:\workspace\SYS-2026-001_WorkspaceGovernance"
+        assert scanner._infer_stack_from_path(path) == "unknown"
+
+    def test_infer_stack_forward_slash_normalized(self, tmp_path: Path) -> None:
+        """正斜杠路径应被归一化后匹配"""
+        scanner = ProjectScanner(str(tmp_path))
+        path = "C:/workspace/01_Project自动化项目管理/Python自动化项目总库/SW-2026-001"
+        assert scanner._infer_stack_from_path(path) == "python"
+
+    def test_apply_stack_fallback_skips_when_already_set(
+        self, tmp_path: Path
+    ) -> None:
+        """stack 已为 plc/python 时不应被路径推断覆盖"""
+        from auto_pm.models import ProjectInfo
+
+        scanner = ProjectScanner(str(tmp_path))
+        info = ProjectInfo(
+            project_id="SW-2026-001",
+            name="test",
+            path=r"C:\workspace\0100_PLC自动化\DJ-2026-001",
+            stack="python",
+            source="copier",
+        )
+        scanner._apply_stack_fallback(info)
+        assert info.stack == "python"  # 不被覆盖
+
+    def test_apply_stack_fallback_infers_when_unknown(
+        self, tmp_path: Path
+    ) -> None:
+        """stack=unknown 时应按路径推断"""
+        from auto_pm.models import ProjectInfo
+
+        scanner = ProjectScanner(str(tmp_path))
+        info = ProjectInfo(
+            project_id="SW-2026-001",
+            name="test",
+            path=r"C:\workspace\01_Project自动化项目管理\Python自动化项目总库\SW-2026-001",
+            stack="unknown",
+            source="pm_session",
+        )
+        scanner._apply_stack_fallback(info)
+        assert info.stack == "python"
+
+
+class TestPhaseDerivationV053:
+    """V0.5.3 Fix 3 + 3.5: 阶段推导兜底 + read_pm_session 调用链补全"""
+
+    def test_derive_phase_returns_developing_when_field_present_no_keyword(
+        self, tmp_path: Path
+    ) -> None:
+        """V0.5.3 Fix 3: current_focus 存在但关键词未匹配 → developing"""
+        scanner = ProjectScanner(str(tmp_path))
+        content = """
+- current_focus: V0.5.3 修复 GUI 可用性阻断 bug，正在实施
+- current_state: 当前进行 Fix 1-4 实施
+"""
+        # Fix 3: 字段存在但关键词不匹配任何标准阶段 → 默认 developing
+        assert scanner._derive_phase_from_pm_session_content(content) == "developing"
+
+    def test_derive_phase_returns_empty_when_no_fields(
+        self, tmp_path: Path
+    ) -> None:
+        """V0.5.3 Fix 3: 无 current_focus/current_state 字段 → 空字符串"""
+        scanner = ProjectScanner(str(tmp_path))
+        content = """
+# PM_SESSION_SW-2026-008
+
+## 1. 项目基础信息
+这里没有任何 current_focus 或 current_state 字段
+"""
+        # 无字段 → 返回空字符串（不假设在研）
+        assert scanner._derive_phase_from_pm_session_content(content) == ""
+
+    def test_read_pm_session_populates_phase(
+        self, tmp_path: Path
+    ) -> None:
+        """V0.5.3 Fix 3.5: read_pm_session 应调用 _read_phase_from_pm_session 填充 phase"""
+        project_dir = tmp_path / "SW-2026-001_项目"
+        project_dir.mkdir()
+        # PM_SESSION 含 current_focus 但无标准阶段关键词 → 应推导为 developing
+        (project_dir / "PM_SESSION_SW-2026-001.md").write_text(
+            """# PM_SESSION
+
+- current_focus: V0.5.3 修复 GUI 可用性阻断 bug
+- current_state: 正在实施 Fix 1-4
+""",
+            encoding="utf-8",
+        )
+
+        scanner = ProjectScanner(str(tmp_path))
+        info = scanner.read_pm_session(str(project_dir))
+
+        assert info is not None
+        assert info.project_id == "SW-2026-001"
+        assert info.source == "pm_session"
+        # Fix 3.5: phase 应被填充为 developing（而非默认空字符串）
+        assert info.phase == "developing"
+
+    def test_read_pm_session_phase_empty_when_no_derivation_fields(
+        self, tmp_path: Path
+    ) -> None:
+        """V0.5.3 Fix 3.5: PM_SESSION 无推导字段时 phase 为空"""
+        project_dir = tmp_path / "DJ-2026-099_项目"
+        project_dir.mkdir()
+        (project_dir / "PM_SESSION_DJ-2026-099.md").write_text(
+            "# PM_SESSION\n\n仅标题，无任何字段",
+            encoding="utf-8",
+        )
+
+        scanner = ProjectScanner(str(tmp_path))
+        info = scanner.read_pm_session(str(project_dir))
+
+        assert info is not None
+        assert info.project_id == "DJ-2026-099"
+        # 无 current_focus/current_state → phase 为空
+        assert info.phase == ""
+
+    def test_scan_pm_session_project_has_phase(
+        self, tmp_path: Path
+    ) -> None:
+        """V0.5.3 Fix 3.5: 完整扫描流程下 PM_SESSION 项目 phase 不丢失"""
+        project_dir = tmp_path / "SW-2026-001_项目"
+        project_dir.mkdir()
+        (project_dir / "PM_SESSION_SW-2026-001.md").write_text(
+            """# PM_SESSION
+
+- current_focus: 项目正在开发中，尚未进入调试
+- current_state: V0.5.3 迭代进行中
+""",
+            encoding="utf-8",
+        )
+
+        scanner = ProjectScanner(str(tmp_path))
+        results = scanner.scan(scan_depth=2)
+
+        assert len(results) == 1
+        assert results[0].project_id == "SW-2026-001"
+        assert results[0].phase == "developing"

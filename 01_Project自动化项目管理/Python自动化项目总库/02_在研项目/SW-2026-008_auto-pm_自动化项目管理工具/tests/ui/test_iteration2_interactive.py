@@ -160,16 +160,18 @@ def _find_new_button(window: MainWindow) -> QToolButton | None:
 
     通过 QToolBar.actions() + widgetForAction() 遍历查找，
     避免 findChild(QToolButton) 在 QToolBar 内部容器中查找不可靠的问题。
+
+    V0.5.3 Fix 4: 按钮文本从"新建"改为"➕ 新建项目"，用包含匹配。
     """
     toolbars = window.findChildren(QToolBar)
     for toolbar in toolbars:
         for action in toolbar.actions():
             widget = toolbar.widgetForAction(action)
-            if isinstance(widget, QToolButton) and widget.text() == "新建":
+            if isinstance(widget, QToolButton) and "新建" in widget.text():
                 return widget
     # 兜底：直接遍历所有 QToolButton
     for btn in window.findChildren(QToolButton):
-        if btn.text() == "新建":
+        if "新建" in btn.text():
             return btn
     return None
 
@@ -587,10 +589,13 @@ class TestNewButtonDropdown:
     def test_new_button_dropdown(
         self, qapp: QApplication, main_window: MainWindow
     ) -> None:
-        """新建按钮是 QToolButton 下拉（InstantPopup 模式）"""
+        """新建按钮是 QToolButton 下拉（InstantPopup 模式）
+
+        V0.5.3 Fix 4: 按钮文本改为"➕ 新建项目"。
+        """
         new_btn = _find_new_button(main_window)
         assert new_btn is not None
-        assert new_btn.text() == "新建"
+        assert "新建" in new_btn.text()
         assert (
             new_btn.popupMode()
             == QToolButton.ToolButtonPopupMode.InstantPopup
@@ -599,25 +604,32 @@ class TestNewButtonDropdown:
     def test_new_button_has_change_option(
         self, qapp: QApplication, main_window: MainWindow
     ) -> None:
-        """菜单含"变更单"选项"""
+        """菜单含"变更单"选项
+
+        V0.5.3 Fix 4: 菜单项含 emoji 前缀，用包含匹配。
+        """
         new_btn = _find_new_button(main_window)
         assert new_btn is not None
         menu = new_btn.menu()
         assert menu is not None
 
         actions = [a.text() for a in menu.actions()]
-        assert "变更单" in actions
-        assert "PLC 项目" in actions
-        assert "Python 项目" in actions
+        # V0.5.3 Fix 4: 菜单项改为"📝 变更单"/"🏭 PLC 项目"/"🐍 Python 项目"
+        assert any("变更单" in a for a in actions)
+        assert any("PLC 项目" in a for a in actions)
+        assert any("Python 项目" in a for a in actions)
 
     def test_new_button_change_dialog(
         self, qapp: QApplication, main_window: MainWindow
     ) -> None:
-        """点击"变更单" → CreateChangeDialog 弹出"""
+        """点击"变更单" → CreateChangeDialog 弹出
+
+        V0.5.3 Fix 4: 菜单项文本含 emoji 前缀，用包含匹配。
+        """
         new_btn = _find_new_button(main_window)
         assert new_btn is not None
         menu = new_btn.menu()
-        change_action = next(a for a in menu.actions() if a.text() == "变更单")
+        change_action = next(a for a in menu.actions() if "变更单" in a.text())
         assert change_action is not None
 
         found: list[CreateChangeDialog] = []

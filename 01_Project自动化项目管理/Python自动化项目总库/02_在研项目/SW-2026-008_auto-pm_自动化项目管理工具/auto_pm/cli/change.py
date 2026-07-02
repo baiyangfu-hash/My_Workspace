@@ -463,6 +463,12 @@ def cmd_create(
 @click.option("--approver", default="", help="审批人/实施人")
 @click.option("--comment", default="", help="审批意见/返工原因")
 @click.option("--verification-conclusion", default="全部通过", help="验证结论（completed 状态必填）")
+@click.option(
+    "--allow-partial-verification",
+    is_flag=True,
+    default=False,
+    help="允许部分验证闭环（CHG-085：§10.1 存在未通过项时，标注待验证项后允许流转到 completed）",
+)
 @click.pass_context
 def cmd_transition(
     ctx: click.Context,
@@ -471,6 +477,7 @@ def cmd_transition(
     approver: str,
     comment: str,
     verification_conclusion: str,
+    allow_partial_verification: bool,
 ) -> None:
     """状态流转（更新变更单章节并持久化状态）"""
     app_ctx: AppContext = ctx.obj
@@ -483,6 +490,7 @@ def cmd_transition(
             approver=approver,
             comment=comment,
             verification_conclusion=verification_conclusion,
+            allow_partial_verification=allow_partial_verification,
         )
         if cr is None:
             console.print(f"[red]错误: 变更单不存在: {change_number}[/red]")

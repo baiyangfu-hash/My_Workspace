@@ -469,8 +469,9 @@ class TestStatusBar:
 
         text = window._status_workspace.text()
         assert "工作空间" in text
-        # _update_statusbar 后应包含 tmp_path
-        assert str(tmp_path) in text
+        # V0.5.3: _abbreviate_path 会缩略长路径，完整路径存在 toolTip 中
+        tip = window._status_workspace.toolTip()
+        assert str(tmp_path) == tip or str(tmp_path) in tip
         window.deleteLater()
         qapp.processEvents()
 

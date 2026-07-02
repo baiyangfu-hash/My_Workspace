@@ -765,3 +765,73 @@ class TestProjectListViewCompat:
         assert view._progress.isHidden()
         view.deleteLater()
         qapp.processEvents()
+
+
+class TestProjectListViewNewProjectButton:
+    """V0.5.3 Fix 4: 空状态"新建项目"按钮测试"""
+
+    def test_empty_state_no_filter_shows_new_button(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 4: 空状态 + 无筛选 → 新建按钮可见"""
+        view = ProjectListView()
+        view.set_projects([])  # 空项目列表
+
+        assert view._state == "empty"
+        assert not view._empty_new_btn.isHidden()
+        view.deleteLater()
+        qapp.processEvents()
+
+    def test_empty_state_with_filter_hides_new_button(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 4: 空状态 + 有筛选 → 新建按钮隐藏"""
+        view = ProjectListView()
+        # 先加载项目，再设置筛选使结果为空
+        view.set_projects(_make_sample_projects())
+        view.set_filter("python", "production")  # 无匹配 → 空状态
+
+        assert view._state == "empty"
+        assert view._empty_new_btn.isHidden()
+        view.deleteLater()
+        qapp.processEvents()
+
+    def test_loading_state_hides_new_button(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 4: 加载状态 → 新建按钮隐藏"""
+        view = ProjectListView()
+        view.set_loading()
+
+        assert view._state == "loading"
+        assert view._empty_new_btn.isHidden()
+        view.deleteLater()
+        qapp.processEvents()
+
+    def test_ready_state_hides_new_button(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 4: ready 状态 → 新建按钮隐藏"""
+        view = ProjectListView()
+        view.set_projects(_make_sample_projects())
+
+        assert view._state == "ready"
+        assert view._empty_new_btn.isHidden()
+        view.deleteLater()
+        qapp.processEvents()
+
+    def test_new_project_button_emits_signal(
+        self, qapp: QApplication
+    ) -> None:
+        """V0.5.3 Fix 4: 点击新建按钮 → 发射 newProjectRequested 信号"""
+        view = ProjectListView()
+        view.set_projects([])  # 空状态
+
+        received: list[None] = []
+        view.newProjectRequested.connect(lambda: received.append(None))
+
+        view._empty_new_btn.click()
+
+        assert len(received) == 1
+        view.deleteLater()
+        qapp.processEvents()

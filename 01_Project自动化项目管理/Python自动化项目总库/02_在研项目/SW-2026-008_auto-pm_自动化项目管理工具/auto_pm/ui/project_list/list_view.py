@@ -18,8 +18,10 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import (
     QGridLayout,
+    QHBoxLayout,
     QLabel,
     QProgressBar,
+    QPushButton,
     QScrollArea,
     QStackedWidget,
     QVBoxLayout,
@@ -217,6 +219,8 @@ class ProjectListView(QWidget):
     projectSelected = Signal(str)
     projectEditRequested = Signal(str)
     projectDeleteRequested = Signal(str)
+    # V0.5.3 Fix 4: 空状态"新建项目"按钮触发的信号
+    newProjectRequested = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -261,6 +265,24 @@ class ProjectListView(QWidget):
         self._status_label.setStyleSheet("color: #999; font-size: 13px; padding: 40px;")
         layout.addWidget(self._status_label)
 
+        # V0.5.3 Fix 4: 空状态"新建项目"主操作按钮
+        # 当项目列表为空时，显示醒目的 CTA 引导用户创建第一个项目
+        self._empty_new_btn = QPushButton("➕ 新建项目")
+        self._empty_new_btn.setToolTip("点击新建 PLC 项目 / Python 项目")
+        self._empty_new_btn.setStyleSheet(
+            "QPushButton { background: #4a90d9; color: white; "
+            "font-size: 14px; font-weight: bold; padding: 10px 24px; "
+            "border-radius: 4px; min-width: 160px; }"
+            "QPushButton:hover { background: #357abd; }"
+        )
+        self._empty_new_btn.setVisible(False)
+        self._empty_new_btn.clicked.connect(self.newProjectRequested.emit)
+        empty_btn_layout = QHBoxLayout()
+        empty_btn_layout.addStretch()
+        empty_btn_layout.addWidget(self._empty_new_btn)
+        empty_btn_layout.addStretch()
+        layout.addLayout(empty_btn_layout)
+
         # 加载进度
         self._progress = QProgressBar()
         self._progress.setRange(0, 0)
@@ -302,22 +324,33 @@ class ProjectListView(QWidget):
             self._progress.setVisible(True)
             self._status_label.setVisible(False)
             self._content_stack.setVisible(False)
+            self._empty_new_btn.setVisible(False)
         elif state == "error":
             self._progress.setVisible(False)
             self._status_label.setText(message or "加载失败")
             self._status_label.setStyleSheet("color: #e74c3c; font-size: 13px; padding: 40px;")
             self._status_label.setVisible(True)
             self._content_stack.setVisible(False)
+            self._empty_new_btn.setVisible(False)
         elif state == "empty":
             self._progress.setVisible(False)
             self._status_label.setText(message or "暂无项目")
             self._status_label.setStyleSheet("color: #999; font-size: 13px; padding: 40px;")
             self._status_label.setVisible(True)
             self._content_stack.setVisible(False)
+            # V0.5.3 Fix 4: 空状态显示"新建项目"主操作按钮（仅当无筛选时显示）
+            show_new_btn = (
+                self._filter_stack == "all"
+                and self._filter_phase == "all"
+                and self._filter_bl == "all"
+                and not self._search_text
+            )
+            self._empty_new_btn.setVisible(show_new_btn)
         else:  # ready
             self._progress.setVisible(False)
             self._status_label.setVisible(False)
             self._content_stack.setVisible(True)
+            self._empty_new_btn.setVisible(False)
 
     def set_loading(self, message: str = "正在扫描项目...") -> None:
         """进入加载中状态"""
@@ -386,11 +419,17 @@ class ProjectListView(QWidget):
     def set_filter(self, stack: str, phase: str) -> None:
         """响应 NavigationTree 信号筛选
 
+        V0.5.3 Fix 1: phase 语义
+        - 'all' 或 '' → 不筛选阶段（显示所有阶段），'' 为历史兼容别名
+        - 'unset' → 仅显示未设置阶段的项目（phase 字段为空）
+        - 'developing'/'commissioning'/'production'/'archived' → 按对应阶段筛选
+
         Args:
             stack: 技术栈，'all' 或 '' 表示不筛选
-            phase: 阶段，'' 表示不筛选
+            phase: 阶段，'all' 或 '' 表示不筛选，'unset' 表示仅未设置
         """
         self._filter_stack = stack if stack and stack != "all" else "all"
+        # V0.5.3: '' 保留为 "不筛选阶段"（历史兼容），'unset' 表示"仅未设置阶段"
         self._filter_phase = phase if phase else "all"
         self._refresh()
 
@@ -411,7 +450,11 @@ class ProjectListView(QWidget):
         for proj in self._all_projects:
             if self._filter_stack != "all" and proj.stack != self._filter_stack:
                 continue
-            if self._filter_phase != "all" and proj.phase != self._filter_phase:
+            # V0.5.3: 'unset' 表示仅显示未设置阶段（phase 为空）的项目
+            if self._filter_phase == "unset":
+                if proj.phase:
+                    continue
+            elif self._filter_phase != "all" and proj.phase != self._filter_phase:
                 continue
             if self._filter_bl != "all":
                 bl = proj.business_line or extract_business_line(proj.project_id)
