@@ -487,6 +487,14 @@ def cmd_transition(
         if cr is None:
             console.print(f"[red]错误: 变更单不存在: {change_number}[/red]")
             ctx.exit(1)
+        # 审计日志：记录变更单状态流转（关键流程操作追溯）
+        from auto_pm.logging.audit import audit_log
+        audit_log(
+            "change_transition",
+            change_number=change_number,
+            new_status=new_status,
+            approver=approver or "",
+        )
         console.print(f"[green]状态流转成功: {change_number}[/green]")
         console.print(f"  新状态: {STATUS_LABELS.get(cr.status, cr.status)}")
         if cr.file_path:

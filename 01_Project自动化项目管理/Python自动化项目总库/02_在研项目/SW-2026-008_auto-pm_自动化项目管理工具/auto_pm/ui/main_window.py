@@ -441,6 +441,18 @@ QStatusBar QLabel { padding: 0 8px; color: #555; }
     def _do_refresh(self) -> None:
         """实际执行刷新（延迟调用以让加载状态先显示）"""
         try:
+            # P1-① 修复：刷新前先增量同步 DB 缓存，确保文件系统变更（如 CLI 创建的项目、
+            # 外部工具修改的元数据）能被 GUI 发现。原缺陷：_load_projects 在 DB 缓存非空时
+            # 不回退文件系统扫描，导致 GUI 外部创建的项目不可见。
+            if self._db is not None:
+                try:
+                    from auto_pm.core.project_service import ProjectService
+
+                    sync_svc = ProjectService(self._workspace_root, db=self._db)
+                    sync_svc.sync_to_cache(force_full=False)
+                except Exception as e:
+                    log.warning("刷新时增量同步缓存失败，将使用现有缓存: %s", e)
+
             projects = self._load_projects()
             self._project_list_view.set_projects(projects)
             self._update_dashboard_summary()

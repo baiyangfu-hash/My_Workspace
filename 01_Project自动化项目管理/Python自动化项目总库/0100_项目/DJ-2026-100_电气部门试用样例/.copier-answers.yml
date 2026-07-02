@@ -1,0 +1,12 @@
+# Copier answers - 请勿手动修改
+project_id: DJ-2026-100
+project_name: 电气部门试用样例
+description: V0.5.2发布前冒烟测试项目
+version: V1.0.0
+stack: plc
+mode: standard-project
+business_line: 
+project_type: single_machine
+equipment_type: 
+plc_vendor: 
+plc_model: 

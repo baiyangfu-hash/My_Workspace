@@ -248,9 +248,13 @@ class ChangeService:
             except ValueError:
                 raise
             except Exception as exc:
-                log.warning(
+                # P1-③ 修复：原缺陷仅 log.warning 后跳过，异常信息不足且行为静默。
+                # 现改为 log.error + exc_info=True 完整记录 traceback，便于试用期间追溯。
+                # 保留覆盖行为：文件解析失败可能为损坏，用户显式创建新变更单时应允许覆盖。
+                log.error(
                     "变更单文件已存在但解析失败，将覆盖: %s: %s",
                     file_path, exc,
+                    exc_info=True,
                 )
 
         # 渲染并保存

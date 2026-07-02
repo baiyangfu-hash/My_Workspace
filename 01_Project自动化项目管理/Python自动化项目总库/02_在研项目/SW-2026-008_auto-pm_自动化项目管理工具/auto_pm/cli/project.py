@@ -348,6 +348,17 @@ def cmd_create(
         # 确保目标根目录存在
         os.makedirs(dest_root, exist_ok=True)
         tpl_svc.copy_template(template_name, dest_path, data)
+        # 审计日志：记录项目创建操作（电气部门试用期间操作追溯）
+        from auto_pm.logging.audit import audit_log
+        audit_log(
+            "project_create",
+            project_id=project_id,
+            project_name=project_name,
+            stack=stack,
+            mode=mode if stack == "plc" else "",
+            business_line=business_line,
+            path=dest_path,
+        )
         console.print(f"[green]项目创建成功: {dest_path}[/green]")
         console.print(f"  项目编号: {project_id}")
         console.print(f"  项目名称: {project_name}")
@@ -476,6 +487,14 @@ def cmd_delete(ctx: click.Context, project_id: str, confirm: bool) -> None:
 
     try:
         shutil.rmtree(proj.path)
+        # 审计日志：记录项目删除操作（破坏性操作必须审计）
+        from auto_pm.logging.audit import audit_log
+        audit_log(
+            "project_delete",
+            project_id=project_id,
+            project_name=proj.name,
+            path=proj.path,
+        )
         console.print(f"[green]项目已删除: {proj.path}[/green]")
     except OSError as e:
         console.print(f"[red]删除失败: {e}[/red]")

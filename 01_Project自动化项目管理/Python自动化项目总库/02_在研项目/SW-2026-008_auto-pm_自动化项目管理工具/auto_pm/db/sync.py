@@ -151,6 +151,9 @@ class SyncService:
                     continue  # 无变化，跳过
 
             # 有变化或新项目，UPSERT
+            # P1-② 修复：优先使用项目元数据中的 business_line 字段（用户创建时显式指定），
+            # 仅在该字段为空时从项目编号前缀推断。原缺陷：始终用 extract_business_line()
+            # 覆盖，会丢失用户显式指定的业务线（如编号前缀与实际业务线不一致的场景）。
             record = ProjectRecord(
                 project_id=proj.project_id,
                 name=proj.name,
@@ -160,7 +163,7 @@ class SyncService:
                 description=proj.description,
                 source=proj.source,
                 phase=proj.phase,
-                business_line=extract_business_line(proj.project_id),
+                business_line=proj.business_line or extract_business_line(proj.project_id),
                 extra=proj.extra,
                 file_mtime=mtime,
                 last_scanned=now,

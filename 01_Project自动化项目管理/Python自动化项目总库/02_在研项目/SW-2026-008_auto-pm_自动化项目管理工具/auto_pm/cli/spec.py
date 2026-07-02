@@ -2,7 +2,8 @@
 
 提供规范检查、索引生成、frontmatter 同步、健康报告能力。
 
-每个子命令独立接收 --workspace 参数，不依赖顶层 -w。
+每个子命令的 --workspace/-w 参数为可选，未指定时回退到全局 auto-pm -w
+（通过 ctx.obj/AppContext 继承），统一 -w 语义。
 """
 
 from __future__ import annotations
@@ -43,8 +44,22 @@ def _supports_unicode_output() -> bool:
     return True
 
 
-def _resolve_workspace(workspace: str) -> Path:
-    """解析工作空间路径并校验存在性。"""
+def _resolve_workspace(workspace: str | None, ctx: click.Context | None = None) -> Path:
+    """解析工作空间路径并校验存在性。
+
+    支持从 ctx.obj (AppContext) 回退全局 -w，统一 -w 语义：
+    spec 子命令 -w 优先 > 全局 -w > 报错。
+    """
+    if workspace is None and ctx is not None:
+        # spec 子命令未指定 -w 时，回退到全局 -w（通过 AppContext）
+        app_ctx = ctx.obj
+        if app_ctx is not None and hasattr(app_ctx, "workspace_root"):
+            workspace = app_ctx.workspace_root
+    if workspace is None:
+        console.print(
+            "[red]错误: 必须通过 -w 指定工作空间根目录（全局 auto-pm -w 或 spec 子命令 -w）[/red]"
+        )
+        raise SystemExit(1)
     ws = Path(workspace).resolve()
     if not ws.exists():
         console.print(f"[red]错误: 工作空间路径不存在: {workspace}[/red]")
@@ -71,7 +86,7 @@ def spec_group() -> None:
 
 
 @spec_group.command(name="check")
-@click.option("--workspace", "-w", required=True, help="工作空间根目录")
+@click.option("--workspace", "-w", default=None, help="工作空间根目录（未指定时回退全局 -w）")
 @click.option("--fix", "auto_fix", is_flag=True, help="自动修复可修复的问题（SHC-002/007）")
 @click.option("--dry-run", is_flag=True, help="仅预览修复操作，不实际修改文件")
 @click.option("--format", "fmt", type=click.Choice(["table", "json"]), default="table", help="输出格式")
@@ -96,8 +111,10 @@ def spec_group() -> None:
     help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
 )
 @click.option("--quiet", is_flag=True, help="只输出 ERROR 级别结果 + 退出码")
+@click.pass_context
 def cmd_check(
-    workspace: str,
+    ctx: click.Context,
+    workspace: str | None,
     auto_fix: bool,
     dry_run: bool,
     fmt: str,
@@ -109,7 +126,7 @@ def cmd_check(
     quiet: bool,
 ) -> None:
     """运行规范健康检查（SHC-001~010）"""
-    ws = _resolve_workspace(workspace)
+    ws = _resolve_workspace(workspace, ctx)
     ws_config = _load_ws_config(config_path, ws)
 
     resolved_project_root: Path | None = None
@@ -233,7 +250,7 @@ def _output_check_table(
 
 
 @spec_group.command(name="index")
-@click.option("--workspace", "-w", required=True, help="工作空间根目录")
+@click.option("--workspace", "-w", default=None, help="工作空间根目录（未指定时回退全局 -w）")
 @click.option(
     "--domain",
     type=click.Choice(["pm", "plc", "python", "all"]),
@@ -248,9 +265,12 @@ def _output_check_table(
     help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
 )
 @click.option("--quiet", is_flag=True, help="只输出错误信息，不输出成功生成结果")
-def cmd_index(workspace: str, domain: str, config_path: Path | None, quiet: bool) -> None:
+@click.pass_context
+def cmd_index(
+    ctx: click.Context, workspace: str | None, domain: str, config_path: Path | None, quiet: bool
+) -> None:
     """生成规范索引文件"""
-    ws = _resolve_workspace(workspace)
+    ws = _resolve_workspace(workspace, ctx)
     ws_config = _load_ws_config(config_path, ws)
     svc = IndexService(ws, config=ws_config)
     domains = None if domain == "all" else [domain]
@@ -274,7 +294,7 @@ def cmd_index(workspace: str, domain: str, config_path: Path | None, quiet: bool
 
 
 @spec_group.command(name="frontmatter")
-@click.option("--workspace", "-w", required=True, help="工作空间根目录")
+@click.option("--workspace", "-w", default=None, help="工作空间根目录（未指定时回退全局 -w）")
 @click.option("--fix", is_flag=True, help="实际执行写入（默认仅预览）")
 @click.option("--spec-id", default=None, help="只处理指定规范")
 @click.option(
@@ -285,8 +305,10 @@ def cmd_index(workspace: str, domain: str, config_path: Path | None, quiet: bool
     help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
 )
 @click.option("--quiet", is_flag=True, help="只输出错误信息，不输出扫描/预览结果")
+@click.pass_context
 def cmd_frontmatter(
-    workspace: str,
+    ctx: click.Context,
+    workspace: str | None,
     fix: bool,
     spec_id: str | None,
     config_path: Path | None,
@@ -296,7 +318,7 @@ def cmd_frontmatter(
 
     默认仅预览将添加的 frontmatter；使用 --fix 实际写入。
     """
-    ws = _resolve_workspace(workspace)
+    ws = _resolve_workspace(workspace, ctx)
     ws_config = _load_ws_config(config_path, ws)
     svc = FrontmatterService(ws, config=ws_config)
     items = svc.preview(spec_id=spec_id)
@@ -366,7 +388,7 @@ def cmd_frontmatter(
 
 
 @spec_group.command(name="report")
-@click.option("--workspace", "-w", required=True, help="工作空间根目录")
+@click.option("--workspace", "-w", default=None, help="工作空间根目录（未指定时回退全局 -w）")
 @click.option("--output", "-o", default=None, help="输出文件路径")
 @click.option(
     "--format",
@@ -383,15 +405,17 @@ def cmd_frontmatter(
     help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
 )
 @click.option("--quiet", is_flag=True, help="成功时不输出，仅失败时输出错误")
+@click.pass_context
 def cmd_report(
-    workspace: str,
+    ctx: click.Context,
+    workspace: str | None,
     output: str | None,
     fmt: str,
     config_path: Path | None,
     quiet: bool,
 ) -> None:
     """生成规范元数据汇总报告"""
-    ws = _resolve_workspace(workspace)
+    ws = _resolve_workspace(workspace, ctx)
     ws_config = _load_ws_config(config_path, ws)
     svc = ReportService(ws, config=ws_config)
     output_path = Path(output) if output else None
