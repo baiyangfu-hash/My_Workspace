@@ -56,6 +56,9 @@ from tests.gui.helpers.interactions import (  # noqa: E402
     find_message_box as _find_message_box,
 )
 
+# V1 新增：GUI 视觉报告生成器（流水线中间件：截图 → AI 分析 → 回传修改）
+from scripts.gui_visual_reporter import VisualReporter  # noqa: E402
+
 # ── 全局配置 ──────────────────────────────────────────────
 
 SCREENSHOT_DIR = PROJECT_ROOT / "test_reports" / "gui" / "full_test_screenshots"
@@ -77,6 +80,7 @@ VIEWPORTS: list[tuple[int, int, str]] = [
 bugs: list[dict] = []
 op_log: list[str] = []
 visual_issues: list[dict] = []
+widget_snapshot: list[dict] = []
 _current_viewport: str = "desktop"
 
 
@@ -266,14 +270,90 @@ def _contrast_ratio(c1: QColor, c2: QColor) -> float:
     return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
 
 
+# V1 新增检查项 ────────────────────────────────────────────
+
+def _check_z_overlap(widget: QWidget) -> None:
+    """检查可见控件是否被兄弟控件遮挡（z-order 重叠）"""
+    if not widget.isVisible():
+        return
+    parent = widget.parentWidget()
+    if parent is None:
+        return
+    if _is_inside_scrollarea(widget):
+        return
+    wg = widget.geometry()
+    # 检查同级兄弟控件
+    for sibling in parent.findChildren(QWidget):
+        if sibling is widget or not sibling.isVisible():
+            continue
+        sg = sibling.geometry()
+        # 检查是否有有效的几何重叠（不仅仅是小边框重叠）
+        overlap_x = min(wg.right(), sg.right()) - max(wg.left(), sg.left())
+        overlap_y = min(wg.bottom(), sg.bottom()) - max(wg.top(), sg.top())
+        if overlap_x > 20 and overlap_y > 20:
+            # sibling 在 widget 之上（z-order 更高）
+            sibling_index = parent.children().index(sibling) if hasattr(parent, 'children') else -1
+            widget_index = parent.children().index(widget) if hasattr(parent, 'children') else -1
+            if sibling_index > widget_index:
+                record_visual(
+                    "z_overlap", _widget_path(widget),
+                    f"被 {sibling.__class__.__name__} "
+                    f"({sibling.geometry().x()},{sibling.geometry().y()},"
+                    f"{sibling.geometry().width()}x{sibling.geometry().height()}) 遮挡 "
+                    f"(重叠 {overlap_x}x{overlap_y}px)",
+                    severity="major",
+                )
+
+
+def _check_scrollbar_missing(widget: QWidget) -> None:
+    """检查内容溢出但父控件缺少滚动条"""
+    if not widget.isVisible():
+        return
+    # 跳过已经是 QScrollArea 内部的控件（已有滚动条）
+    if _is_inside_scrollarea(widget):
+        return
+    parent = widget.parentWidget()
+    if parent is None:
+        return
+    wg = widget.geometry()
+    pg = parent.geometry()
+    # 内容超出父控件且未在 ScrollArea 中
+    if (wg.right() > pg.right() + 50 or wg.bottom() > pg.bottom() + 50):
+        record_visual(
+            "scrollbar_missing", _widget_path(widget),
+            f"内容({wg.right()},{wg.bottom()})超出父控件({pg.right()},{pg.bottom()})"
+            f"且无 QScrollArea 包裹（溢出 {wg.bottom() - pg.bottom()}px）",
+            severity="major",
+        )
+
+
 def run_visual_checks(app: QApplication, window: QWidget, page_name: str) -> None:
     log_op(f"  视觉检查: {page_name} (viewport={_current_viewport})")
     all_widgets = window.findChildren(QWidget)
     checked = 0
+    # V1 新增：收集 widget_snapshot 供 AI 分析消费
+    snapshot_limit = 100
+    snapshot_count = 0
     for w in all_widgets:
         if w.isVisible():
             _check_widget_bounds(w)
             _check_zero_size(w)
+            # 收集 widget 快照（限流避免 JSON 过大）
+            if snapshot_count < snapshot_limit:
+                try:
+                    g = w.geometry()
+                    widget_snapshot.append({
+                        "path": _widget_path(w),
+                        "class": w.__class__.__name__,
+                        "objectName": w.objectName(),
+                        "geometry": {"x": g.x(), "y": g.y(), "w": g.width(), "h": g.height()},
+                        "visible": w.isVisible(),
+                        "viewport": _current_viewport,
+                        "page": page_name,
+                    })
+                    snapshot_count += 1
+                except Exception:
+                    pass
             checked += 1
             if checked > 200:
                 break
@@ -283,6 +363,11 @@ def run_visual_checks(app: QApplication, window: QWidget, page_name: str) -> Non
         _check_text_truncation(btn)
     for w in window.findChildren(QLabel)[:20]:
         _check_color_contrast(w)
+    # V1 新增检查：z_overlap + scrollbar_missing
+    for w in all_widgets[:80]:
+        _check_z_overlap(w)
+    for w in all_widgets[:80]:
+        _check_scrollbar_missing(w)
 
 
 # ── 弹窗处理工具（薄包装，复用 tests/gui/helpers/interactions.py） ──
@@ -1339,6 +1424,19 @@ def _group_visual_by_type() -> dict[str, int]:
 # ── 主流程 ────────────────────────────────────────────────
 
 def main() -> None:
+    # V1 新增：命令行参数解析
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="PLC 全功能 GUI 自动化测试 V3（电气工程师视角）",
+    )
+    parser.add_argument(
+        "--real-workspace",
+        action="store_true",
+        help="使用真实工作空间（只读模式，不创建/修改项目），"
+             "截图+检查+AI分析，适用于多模态分析流水线",
+    )
+    args, _ = parser.parse_known_args()
+
     # Windows 控制台默认 GBK，emoji 会崩溃；强制 utf-8 输出
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
@@ -1375,7 +1473,7 @@ def main() -> None:
     threading.Thread(target=_watchdog, daemon=True).start()
 
     # 支持 offscreen（默认，CI 兼容）和 visible（GUI_VISIBLE=1）两种模式
-    if os.environ.get("GUI_VISIBLE", "0") == "1":
+    if os.environ.get("GUI_VISIBLE", "0") == "1" or args.real_workspace:
         if "QT_QPA_PLATFORM" in os.environ:
             del os.environ["QT_QPA_PLATFORM"]
             log_op("  清除 QT_QPA_PLATFORM，使用可见窗口模式（GUI_VISIBLE=1）")
@@ -1385,18 +1483,36 @@ def main() -> None:
 
     app = QApplication.instance() or QApplication(sys.argv)
 
-    workspace_root, tmp_dir = create_isolated_workspace()
+    # V1 新增：真实工作空间模式（只读，不创建/修改项目）
+    tmp_dir = None
+    if args.real_workspace:
+        log_op("  *** 真实工作空间模式（只读）：截图 + 检查 + AI 分析 ***")
+        workspace_root = PROJECT_ROOT.parent.parent  # auto-pm -> Python自动化项目总库 -> 01_Project自动化项目管理 -> workspace root
+        # 验证：确认是真实 workspace
+        pm_file = workspace_root / "00_项目基础信息" / ".pm_manifest.json"
+        if not pm_file.exists():
+            print(f"[ERROR] 未找到真实工作空间: {pm_file}", flush=True)
+            print("       请确认在 auto-pm 项目目录下运行此脚本。", flush=True)
+            sys.exit(1)
+        log_op(f"  工作空间: {workspace_root}")
+        # 不创建 test project、不修改任何内容
+        log_op("  只读模式：跳过项目创建/修改步骤")
+    else:
+        workspace_root, tmp_dir = create_isolated_workspace()
     try:
-        create_minimal_test_project(workspace_root)
+        if not args.real_workspace:
+            create_minimal_test_project(workspace_root)
 
         window = None
         try:
             window = step_01_launch_gui(app, workspace_root)
             step_02_navigation(app, window)
-            step_03_create_project(app, window, workspace_root)
+            if not args.real_workspace:
+                step_03_create_project(app, window, workspace_root)
             step_04_enter_workspace(app, window)
-            step_05_create_change(app, window)
-            step_06_change_transitions(app, window)
+            if not args.real_workspace:
+                step_05_create_change(app, window)
+                step_06_change_transitions(app, window)
             step_07_check_tab(app, window)
             step_08_doc_tab(app, window)
             step_09_vartable_tab(app, window)
@@ -1405,7 +1521,8 @@ def main() -> None:
             step_12_report_center(app, window)
             step_13_settings(app, window)
             step_14_toolbar(app, window)
-            step_15_cleanup(app, window)
+            if not args.real_workspace:
+                step_15_cleanup(app, window)
         except Exception as e:
             record_bug("主流程", f"未捕获异常: {e}\n{traceback.format_exc()}", "critical")
 
@@ -1420,14 +1537,32 @@ def main() -> None:
         print(f"JSON 报告: {report_paths['json_report']}", flush=True)
         print(f"截图目录: {SCREENSHOT_DIR}", flush=True)
 
+        # V1 新增：生成多模态 AI 可消费的结构化分析输入
+        try:
+            reporter = VisualReporter(
+                project_root=PROJECT_ROOT,
+                screenshot_dir=SCREENSHOT_DIR,
+            )
+            reporter.add_bugs(bugs)
+            reporter.add_visual_issues(visual_issues)
+            reporter.add_op_log(op_log)
+            reporter.add_screenshots(SCREENSHOT_DIR)
+            reporter.add_widget_snapshot(widget_snapshot)
+            ai_paths = reporter.generate(REPORT_DIR)
+            print(f"\nAI 分析输入: {ai_paths['ai_input']}", flush=True)
+            print(f"AI 修复模板: {ai_paths['fix_template']}", flush=True)
+        except Exception as e:
+            log_op(f"  AI 报告生成失败（非阻塞）: {e}")
+
         if window is not None:
             window.close()
     finally:
-        try:
-            tmp_dir.cleanup()
-            log_op("  隔离工作空间已清理")
-        except Exception as e:
-            log_op(f"  隔离工作空间清理失败: {e}")
+        if tmp_dir is not None:
+            try:
+                tmp_dir.cleanup()
+                log_op("  隔离工作空间已清理")
+            except Exception as e:
+                log_op(f"  隔离工作空间清理失败: {e}")
 
     sys.exit(0)
 
