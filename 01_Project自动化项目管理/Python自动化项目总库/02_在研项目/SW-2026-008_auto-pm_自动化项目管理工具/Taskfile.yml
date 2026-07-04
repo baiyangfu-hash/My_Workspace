@@ -53,9 +53,9 @@ tasks:
       - python -m pytest -vv --no-cov {{.CLI_ARGS}}
 
   test-gui:
-    desc: "Run GUI tests only"
+    desc: "Run QML GUI tests only"
     cmds:
-      - python -m pytest -vv tests/gui/ tests/ui/ {{.CLI_ARGS}}
+      - python -m pytest -vv tests/qml/ {{.CLI_ARGS}}
 
   test-unit:
     desc: "Run unit tests only (exclude GUI)"
@@ -63,11 +63,10 @@ tasks:
       - python -m pytest -vv tests/change/ tests/cli/ tests/core/ tests/db/ tests/models/ tests/plc/ tests/utils/ tests/logging/ tests/config/ {{.CLI_ARGS}}
 
   smoke:
-    desc: "Run smoke tests (CLI --help + GUI startup)"
+    desc: "Run smoke tests (CLI --help)"
     cmds:
       - python -m auto_pm --help
       - python -m auto_pm project --help
       - python -m auto_pm change --help
       - python -m auto_pm plc --help
       - python -m auto_pm template --help
-      - python -c "from auto_pm.ui.main_window import MainWindow; from PySide6.QtWidgets import QApplication; import os; os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen'); app = QApplication([]); w = MainWindow(); print('GUI SMOKE OK')"

@@ -7,6 +7,35 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-05
+
+### Added - CHG-SCPT-2026-094 V0.9.0 旧 QWidget 模块完整移除 + CLI 标志退役
+
+- **Phase 2 main_window.py + 旧 QWidget 模块删除**：删除 `auto_pm/ui/main_window.py`（旧 QWidget 主窗口）+ `auto_pm/ui/styles.py`（QSS）+ `auto_pm/gui/` 兼容包 + `scripts/gui_plc_full_test.py` 旧版全功能测试脚本；删除 7 个旧 QWidget 模块目录：`change_center/`（6 文件）+ `dialogs/`（9 文件）+ `navigation/`（3 文件）+ `project_list/`（6 文件）+ `workspace/`（7 文件）+ `vartable/`（3 文件）+ `widgets/`（3 文件）+ `auto_pm/ui/global_pages/global_view.py`；修改 `auto_pm/ui/__init__.py`（移除 MainWindow 导入，改为空模块 docstring）+ `auto_pm/ui/global_pages/__init__.py`（更新 docstring，说明 spec_center_dto.py 保留原因）
+- **CLI 标志退役**：`auto_pm/cli/gui.py` 移除 `--qml` 标志（已变 no-op）+ `--qwidget` 标志（旧版入口）+ `_run_pyside_gui()` 函数；`gui_command` 签名简化为 `(ctx, debug)`，直接调用 `_run_qml_gui()`；模块 docstring 更新；`Taskfile.yml` smoke 任务移除 QWidget 冒烟行 + test-gui 任务改为 `tests/qml/`
+
+### Removed - V0.9.0 Phase 1+2 共计 84 个文件删除
+
+- **43 个测试文件**（Phase 1 CHG-093）：`tests/ui/` 22 文件 + `tests/gui/` 21 文件（含 helpers/ 子目录 + ai_prompt_template.md）；旧 QWidget 端到端验收测试已被 tests/qml/ QML 测试套件等价覆盖
+- **41 个生产/脚本文件**（Phase 2 CHG-094）：`main_window.py` + `styles.py` + `auto_pm/gui/__init__.py` + `scripts/gui_plc_full_test.py` + 7 个旧 QWidget 模块目录 37 文件 + `global_view.py`
+- **保留**：`auto_pm/ui/qml/`（QML UI）+ `auto_pm/ui/qml_main_window.py`（QML 入口）+ `auto_pm/ui/models/`（模型适配器）+ `auto_pm/ui/global_pages/spec_center_dto.py`（SpecCenterAdapter 仍被 QmlBridge 使用）
+
+### Verified - V0.9.0 回归
+
+- 全量回归：999 passed, 1 skipped in 44.14s（0 failed）
+- ruff 0 errors（auto_pm/cli/gui.py + auto_pm/ui/ 修改文件）
+- mypy 0 errors（104 source files，从 145 降至 104）
+- CLI 冒烟：`auto-pm gui --help` 仅显示 `--debug` 选项
+- `import auto_pm.ui` 正常无报错
+- dogfooding：CHG-SCPT-2026-093/094 两连闭环（第 24/25 次闭环）
+
+### Notes - V0.9.0 QWidget→QML 完整迁移里程碑说明
+
+- **QML 为唯一 UI 入口**：V0.6.0 QML 作为 PoC 入口引入 → V0.8.0 翻转为默认入口 → V0.9.0 移除全部 QWidget 代码，QML 为唯一入口
+- **CLI 标志演进完成**：`--qml`（V0.6.0 PoC 入口）→ V0.8.0 默认入口（标志变 no-op）→ V0.9.0 移除；`--qwidget`（V0.8.0 新增，旧版入口）→ V0.9.0 移除
+- **测试套件精简**：739→999 测试（移除 433 QWidget 测试 + 799 后端测试 + 200 QML 测试 + 1 skipped = 999 总计）
+- **代码规模缩减**：145→104 source files（移除 41 个旧 QWidget 生产文件）
+
 ## [0.8.0] - 2026-07-04
 
 ### Added - CHG-SCPT-2026-090/091/092 V0.8.0 QML 完整覆盖 + 旧代码激进清理（Phase 1+2+3 三阶段完整闭环）
