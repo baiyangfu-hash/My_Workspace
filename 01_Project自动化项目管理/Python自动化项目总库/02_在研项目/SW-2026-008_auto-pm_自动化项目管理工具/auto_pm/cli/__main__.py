@@ -56,6 +56,7 @@ from auto_pm.cli.gui import gui_command  # noqa: E402
 from auto_pm.cli.plc import plc_group  # noqa: E402
 from auto_pm.cli.project import project_group  # noqa: E402
 from auto_pm.cli.python import python_group  # noqa: E402
+from auto_pm.cli.session import pm_session_group  # noqa: E402
 from auto_pm.cli.spec import spec_group  # noqa: E402
 from auto_pm.cli.template import template_group  # noqa: E402
 from auto_pm.cli.vartable import vartable_group  # noqa: E402
@@ -96,6 +97,7 @@ cli.add_command(spec_group)
 cli.add_command(template_group)
 cli.add_command(vartable_group)
 cli.add_command(gui_command)
+cli.add_command(pm_session_group)
 
 
 if __name__ == "__main__":

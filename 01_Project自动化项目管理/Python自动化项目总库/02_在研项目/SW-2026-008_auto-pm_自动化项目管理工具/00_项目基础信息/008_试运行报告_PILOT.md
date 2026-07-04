@@ -1,15 +1,30 @@
 ---
 doc_id: PILOT-008
 title: 试运行报告
-version: "V1.8.0"
-status: "生效"
+version: "V1.9.0"
+status: "已归档"
 created: "2026-06-26"
-updated: "2026-07-01"
+updated: "2026-07-04"
 owner: "fubai"
 project_id: "SW-2026-008"
+archived_reason: "CHG-089 Stage 3：试运行报告退役，功能已由 CHG-*.md §9/§10 完全覆盖"
 ---
 
-# 试运行报告
+# 试运行报告【已归档，停止维护】
+
+> **⚠️ 本文件已归档，停止维护（CHG-089 Stage 3，2026-07-04）**
+>
+> **新真源**：
+> - Dogfooding 闭环证据 → 每个 CHG-*.md 文件的 §9 变更实施记录 + §10 变更验证
+> - 变更单索引 → `auto-pm change list -w <workspace>`
+> - 版本变更摘要 → `CHANGELOG.md`
+>
+> **历史内容**：下方保留 V1.0.0~V1.8.0 的 10 次 Dogfooding 闭环证据作为历史参考，不再追加新闭环记录。
+> 第 11~19 次闭环证据请见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-080~088.md`。
+
+---
+
+## 历史内容（V1.0.0~V1.8.0，10 次闭环，已停止维护）
 
 > 本文件归档 auto-pm (SW-2026-008) 自身使用 CHG-*.md 变更单流程的 Dogfooding 试运行证据。
 > 试运行目的：验证 auto-pm 的变更管理能力能否支撑真实项目迭代，发现并修复产品缺陷。

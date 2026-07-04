@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QSizePolicy, QTreeWidget, QTreeWidgetItem, QWidget
 
 from auto_pm.models import ProjectInfo
 from auto_pm.ui.navigation.nav_model import NavNode
@@ -82,8 +82,13 @@ class NavigationTree(QTreeWidget):
         super().__init__(parent)
         self.setObjectName("navTree")
         self.setHeaderHidden(True)
-        self.setIndentation(16)
-        self.setFixedWidth(180)
+        self.setIndentation(12)
+        self.setMinimumWidth(120)
+        self.setMaximumWidth(200)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Fixed,
+            QSizePolicy.Policy.Expanding,
+        )
         # 节点引用，便于更新计数和测试
         self._stack_nodes: dict[str, QTreeWidgetItem] = {}
         self._phase_nodes: dict[tuple[str, str], QTreeWidgetItem] = {}

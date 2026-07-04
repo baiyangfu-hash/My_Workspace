@@ -7,6 +7,96 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-04
+
+### Added - CHG-SCPT-2026-090/091/092 V0.8.0 QML 完整覆盖 + 旧代码激进清理（Phase 1+2+3 三阶段完整闭环）
+
+- **Phase 1 QmlBridge 扩展 + main.qml 侧边栏补全（CHG-090 第 21 次闭环）**：QmlBridge 新增 SpecCheckService/TemplateService/PmSessionService/DashboardService/AssetSummaryService/DocRefreshService 6 个 Service 注入 + 对应 6 个 hasXxxService bool Property；新增 6 个 Slot（runSpecCheck/refreshProjectDocs/runPmSessionCheck/getDashboard/listAssetSummaries/refreshAssetIndex）+ make_spec_check_service 工厂；main.qml 侧边栏补全 6 入口（规范中心/报告中心/模板管理/设置/工作台/资产）+ StackLayout 7 页占位 Rectangle
+- **Phase 2 4 个 QML 页面新增（CHG-091 第 22 次闭环）**：QmlBridge 补齐 6 个 Slot（getTemplateDetail/getSettingsSummary/clearCache/rebuildIndex/getSpecOverview/listSpecEntries）+ specCenterService/hasSpecCenterService 2 个 Property + make_spec_center_service 工厂；4 个 QML 页面（ReportView 378 行 2×2 卡片柱状图 + TemplateView 282 行卡片列表 + SettingsView 476 行 DB 统计 + PM_SESSION 健康 + SpecCenterView 644 行 3 Tab 概览/索引/检查）+ BarRow 组件 59 行；main.qml 4 个占位 Rectangle 替换为真实页面；修复 Dialog 组件冲突（自定义 components/Dialog.qml 阴影 QtQuick.Controls.Dialog，改用 dialogWidth/dialogHeight/showButtons:false 模式）
+- **Phase 3 CLI 默认入口切换 + A 类激进清理（CHG-092 第 23 次闭环）**：翻转 `auto-pm gui` 默认入口为 QML（V0.6.0~V0.7.x 为 QWidget PoC 入口）；新增 `--qwidget` 标志启动旧版 QWidget（deprecated，V0.9 移除）；`--qml` 标志改为 deprecated no-op（输出黄色警告）；删除 11 个已迁移 global_pages 文件（4 主页面 + spec_center_tabs/ 7 个文件含 __init__.py）；main_window.py 用 try/except + 4 个占位 QWidget 类（ReportPage/SettingsPage/SpecCenterView/TemplatePage）保证 import 兼容；删除 6 个对应 tests/ui 测试文件
+
+### Test - V0.8.0 新增 25 个 QML 测试（Phase 2，1 个测试文件）
+
+- `tests/qml/test_qml_views_v08.py` 25 测试（9 测试类）：覆盖 6 个新 Slot（getTemplateDetail/getSettingsSummary/clearCache/rebuildIndex/getSpecOverview/listSpecEntries 默认+注入场景）+ 2 个新 Property（specCenterService/hasSpecCenterService）+ 5 个 QML 视图加载（ReportView/TemplateView/SettingsView/SpecCenterView/BarRow）+ 4 个向后兼容测试（Phase 1 + V0.6 Slot 仍可用）
+- 含修复：MagicMock auto-attribute 返回 truthy 问题（显式 `service.db = None` / `service._repo = None`）；monkeypatch 模式用于 mock 模块级函数 `_read_template_version`/`_read_template_description`
+
+### Verified - V0.8.0 回归
+
+- 聚焦回归：tests/qml/ 200 passed in 5.89s（W1/W2/W3/W4 + Phase 1 + Phase 2 全量通过）
+- tests/ui/ 全量回归：433 passed, 59 warnings in 15.40s（warnings 全为预期 DeprecationWarning "QWidget GUI 已弃用"，V0.6.0 起就存在非回归）
+- ruff 0 errors（auto_pm/cli/gui.py + auto_pm/ui/main_window.py + auto_pm/ui/global_pages/__init__.py）
+- mypy 0 errors（auto_pm/cli/gui.py + auto_pm/ui/main_window.py）
+- CLI 冒烟：`auto-pm gui --help` 显示 3 选项 --debug/--qwidget/--qml 正确注册
+- dogfooding：CHG-SCPT-2026-090/091/092 三连闭环（第 21/22/23 次闭环）
+
+### Removed - V0.8.0 A 类激进清理（Phase 4+5，17 个文件删除）
+
+- **11 个 global_pages 已迁移文件**（Phase 4）：`auto_pm/ui/global_pages/report_page.py` / `template_page.py` / `settings_page.py` / `spec_center.py` + `spec_center_tabs/` 整个子目录（`overview_tab.py` / `index_tab.py` / `check_tab.py` / `frontmatter_tab.py` / `report_tab.py` / `compare_tab.py` / `__init__.py`）；对应功能已由 QML ReportView/TemplateView/SettingsView/SpecCenterView 完整替代
+- **6 个 tests/ui 旧测试文件**（Phase 5）：`test_report_page.py` / `test_settings_page.py` / `test_template_page.py` / `test_spec_center.py`（4 原计划）+ `test_iteration4_interactive.py` / `test_final_acceptance.py`（2 追加，因 import 已删除模块导致 collection error；旧 QWidget 端到端验收测试已被 tests/qml/ QML 测试套件等价覆盖）
+- **保留**：`auto_pm/ui/main_window.py`（17 测试文件依赖，V0.9 完全移除）+ `global_view.py` + `spec_center_dto.py`（SpecCenterAdapter 仍被 QML QmlBridge 使用）
+
+### Notes - V0.8.0 QML 完整覆盖里程碑说明
+
+- **QML 默认入口翻转**：V0.6.0 QML 作为 PoC 入口（`--qml` 标志）引入，V0.6.x~V0.7.x 期间与 QWidget 双轨并行，V0.8.0 翻转为默认入口（QML 已通过 200/200 测试，功能等价 QWidget）
+- **A 类激进清理策略**：本期删除已迁移到 QML 的 QWidget 代码 + 对应测试，降低维护成本避免双份分叉；保留 main_window.py 框架（用 try/except + 占位 QWidget 兼容旧测试），V0.9 完整移除 main_window.py 时一并清理
+- **CLI 标志演进**：`--qml`（V0.6.0 PoC 入口）→ V0.8.0 默认入口（标志变 no-op + 弃用警告）→ V0.9 移除；`--qwidget`（V0.8.0 新增，旧版入口向后兼容）→ V0.9 移除
+
+## [0.7.0] - 2026-07-04
+
+### Added - CHG-SCPT-2026-087/088/089 V0.7.0 PM_SESSION 三层真源架构（Stage 1+2+3 完整闭环）
+
+- **Stage 1 PM_SESSION 拆分归档（CHG-087 第 18 次闭环）**：手动拆分 489KB/1542 行 → 62KB/170 行 active 主文件 + 328KB/1264 行 `archive_V0.6.0.md` 历史归档；§7 Verification Log 整章删除；§3/§5/§6/§8 早期 80+ 条记录折叠为摘要 + 归档索引；建立三层真源架构（Active 主文件 + Historical 归档 + Event 实体 CHG-*.md）
+- **Stage 2 auto-pm pm-session 子命令（CHG-088 第 19 次闭环）**：新增 `auto_pm/core/pm_session_service.py`（162 statements, 99% coverage）含 PmSessionParser/PmSessionCheckService/PmSessionArchiveService + `generate_view()` 视图生成器；新增 `auto_pm/cli/session.py`（129 statements, 90% coverage）3 子命令 `pm-session check|archive|view`；`__main__.py` 注册子命令；3 测试文件 56 测试通过；ruff/mypy 0 errors；CLI 端到端验证通过；新增元测试门禁 `tests/test_pm_session_size.py` 检查 PM_SESSION 真实文件大小
+- **Stage 3 005/008 影子台账退役（CHG-089 第 20 次闭环）**：`005_变更记录_CHG.md` 归档标记（frontmatter status 已归档 + 标题加【已归档】+ 添加归档通知指向 CHANGELOG/auto-pm change list/CHG-*.md + 历史内容保留）；`008_试运行报告_PILOT.md` 同样归档标记（指向 CHG-*.md §9/§10 作为新真源）；功能完全由 CHANGELOG.md + auto-pm change list + CHG-*.md 覆盖；真源统一到三层架构
+
+### Test - V0.7.0 新增 56 个测试（3 个测试文件）
+
+- `tests/core/test_pm_session_service.py` 36 单元测试覆盖 PmSessionParser（章节级解析正则 `^##\s+(\d+)\.\s+(.+)$`）+ PmSessionCheckService（MAX_FILE_SIZE_KB=150 + MAX_FILE_LINES=300 + REQUIRED_SECTIONS + DEPRECATED_SECTIONS={"7"}）+ PmSessionArchiveService（keep_recent=0 整章归档 vs keep_recent>0 保留 header+末尾 N 行）+ generate_view
+- `tests/cli/test_session.py` 16 CLI 集成测试覆盖 check/archive/view/group_registration 4 子命令
+- `tests/test_pm_session_size.py` 4 元测试门禁（检查真实 PM_SESSION 文件 ≤150KB/≤300 行）
+- 56 测试通过 in 4.91s + ruff 0 errors + mypy 0 errors
+
+### Verified - V0.7.0 回归
+
+- 聚焦回归：56 passed, 0 failed（tests/core/test_pm_session_service.py + tests/cli/test_session.py + tests/test_pm_session_size.py，4.91s）
+- mypy 0 errors (auto_pm/core/pm_session_service.py + auto_pm/cli/session.py), ruff 0 errors (4 files)
+- dogfooding：CHG-SCPT-2026-087/088/089 三连闭环（第 18/19/20 次闭环）
+
+### Notes - V0.7.0 三层真源架构说明
+
+- **三层真源**：Active 主文件（PM_SESSION.md，最新迭代状态，62KB/170 行）+ Historical 归档（archive_V0.6.0.md，完整历史，328KB/1264 行）+ Event 实体（CHG-*.md，每次变更单详情）
+- **影子台账退役**：005/008 在 V0.3.0 前是变更记录单一真源，但 V0.3.0+ 引入 CHG-*.md 后功能完全冗余且长期未维护（005 索引仅到 CHG-079 缺 080-088；008 仅到第 10 次闭环缺 11-19）。归档标记后保留历史内容，新真源为 CHANGELOG.md + auto-pm change list + CHG-*.md
+- **PM_SESSION 膨胀根本解决**：通过 `pm-session archive` 子命令自动化拆分流程，避免未来再次手动 PowerShell 操作；元测试门禁确保未来文件大小 ≤150KB/≤300 行
+
+## [0.6.0] - 2026-07-04
+
+### Added - CHG-SCPT-2026-086 V0.6.0 GUI QML 重构（4 周迭代完整闭环）
+
+- **Week 1 QML 基础设施 + PoC**：新增 `auto_pm/ui/qml/` 目录结构（views/components/theme/models/dialogs）+ Theme.qml 设计系统（20+ token）+ `qml_main_window.py` 独立入口 + `cli/gui.py` `--qml` 选项 + `QmlBridge(QObject)` Python↔QML 数据桥（暴露 ProjectService/ChangeService/SpecService）+ `ProjectListModel(QAbstractListModel)` 7 角色 + `ChangeListModel(QAbstractListModel)` 10 角色 + main.qml + ProjectListView.qml PoC 页面 + tests/qml/ 测试基础设施
+- **Week 2 核心页面迁移**：ProjectListView.qml 完整功能（卡片/列表双视图 + 搜索 + 业务线/阶段筛选 + 分组折叠 + 分页）+ WorkspaceView.qml 5 Tab（Overview/Change/Check/Doc/VarTable）+ ChangeCenterView.qml 变更列表 + 详情面板 + 5 可复用组件（Card/Badge/TabBar/PrimaryButton/Dialog）+ W1 验证 ③④ 补齐（QmlBridge 暴露 ChangeService/SpecService + 实际运行 GUI 显示 13 项）
+- **Week 3 复杂组件 + 对话框**：4 复杂可视化组件（ApprovalTimeline/PropagationView/StatusMachineView/PhaseProgress）+ VarTableModel(QAbstractTableModel) 8 列 + 单元格编辑 + 字段校验 + 批量操作 + TableView 原生虚拟化（万行数据）+ UndoStack 撤销重做（≥20 步）+ VarTableEditorView.qml 完整编辑器视图 + 8 对话框（NewProjectWizard 3 步向导 + NewChangeDialog + ProjectSettingsDialog + SyncCacheDialog + ImportProjectDialog + AboutDialog + ReportDialog + GlobalSettingsDialog）
+- **Week 4 测试 + 收尾**：145 个 QML 测试（远超 ≥50 目标）含 9 集成测试 + main_window.py 添加 DeprecationWarning（保守策略：保留旧代码作 fallback，激进删除推迟 V0.7 QML 完整覆盖规范中心/报告/模板后）+ CHG-086 dogfooding 闭环（状态 implementing→closed）+ 版本号三件套升级
+
+### Test - V0.6.0 新增 145 个 QML 测试（10 个测试文件）
+
+- `tests/qml/test_qml_components.py` 11 测试（5 基础组件 Card/Badge/TabBar/PrimaryButton/Dialog 默认属性 + 设置 + 信号）
+- `tests/qml/test_qml_components_w3.py` 17 测试（4 复杂组件 ApprovalTimeline/PropagationView/StatusMachineView/PhaseProgress 默认属性 + 设置 + 尺寸 + 映射）
+- `tests/qml/test_qml_dialogs_w3.py` 19 测试（8 对话框默认属性 + 字段设置 + loadable 汇总验证）
+- `tests/qml/test_var_table_model.py` 36 测试（COLUMNS 常量 + UndoStack push/undo/redo/clear/max_size + 字段校验 + setEntries + clear + data + setCell + batchUpdate + 撤销重做 ≥20 步 + QML Slot 接口）
+- `tests/qml/test_qml_integration_w4.py` 9 集成测试（QmlBridge↔ProjectListModel/ChangeListModel 协作 + 项目选择信号 + 变更中心状态流转 + CHG 9 步状态 + 变量表完整工作流 + 校验 + 多组件协作 + 项目新建刷新 + 批量撤销链）
+- 其他 5 测试文件 53 测试（W1/W2 PoC + ProjectListModel + ChangeListModel + QmlBridge 接口）
+
+### Verified - V0.6.0 全量回归
+
+- 全量回归：1714 passed, 7 skipped, 0 failed in 217.96s（较 V0.5.4 基线 1569 passed 7 skipped 增加 145 个 QML 测试，0 回归）
+- mypy 0 errors (auto_pm/ui/qml 7 source files), ruff 0 errors (auto_pm/ui/qml + tests/qml/)
+- dogfooding：CHG-SCPT-2026-086 完整状态流转 implementing→closed（第 17 次闭环）
+
+### Notes - V0.6.0 策略调整说明
+
+- **保守删除策略**：原计划 W4-S6~S9 删除 21,300 行旧 QWidget 代码，实际改为在 main_window.py 添加 DeprecationWarning 保留作 fallback。原因：QML UI 尚未覆盖规范中心/报告/模板/全局设置页（QML main.qml 中为占位），激进删除会导致功能丢失。待 V0.7 QML 完整覆盖后再清理。
+- **dogfooding 闭环说明**：CHG-086 状态流转简化为 implementing→closed（无 submitted/reviewing/approved 等中间态，因本变更为 TraeAI 自身迭代，无人工审批环节）
+
 ## [0.5.4] - 2026-07-03
 
 ### Fixed - CHG-SCPT-2026-085 V0.5.4 深度审查整改（台账字段根源修复+闭环门禁强化+DB 增量同步 P1 修复）

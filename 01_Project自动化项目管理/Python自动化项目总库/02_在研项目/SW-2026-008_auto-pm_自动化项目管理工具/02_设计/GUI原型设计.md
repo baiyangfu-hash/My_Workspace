@@ -777,3 +777,200 @@ PlcStandardizer.standardize(project_id, apply=False)
 - **升级范围**：仅升级 §5 项目工作区重构章节，其他章节（§1-§4、§6-§13）保持 V2.0 原设计不变
 - **审核状态**: ✅ 已审核通过（2026-07-01，用户审核），作为 V0.5.x 稳定期 GUI 演进的基线
 - **后续演进**：V0.5.x 稳定期评估 8 格式 Parser 真实样本覆盖 + VartableTab 角色权限移除；V0.6.0+ 根据评估结果启动长期路线（详见 006_技术债评估报告.md §12 长期治理建议）
+
+---
+
+## 十五、V0.6.0 QML 重构方案（2026-07-04 新增）
+
+### 15.1 触发背景
+
+V0.5.x 稳定期深度审查与稳定性加固完成后（V0.5.4 第 16 次 dogfooding 闭环），PySide6 QWidget 方案的 GUI 长期维护痛点显现：
+
+1. **资产规模庞大但低复用**：UI 层 53 文件 11,300 行 + pytest-qt 测试 28 文件 10,000 行，PySide6 特有代码 21,300 行（占 77%），QSS 样式与 Python 逻辑深度耦合
+2. **AI 主力维护成本高**：QWidget 每次界面微调需修改 .py 文件 + 调整布局代码 + 跑 pytest-qt 回归，单页改动平均 5-8 次迭代才能稳定
+3. **复杂组件实现吃力**：ApprovalTimeline / PropagationView / StatusMachineView 等可视化组件需手写 QPainter 或嵌 QWebEngineView
+4. **离线场景适配不足**：用户 90% 离线使用（PLC 工程师同时做 PLC + Python 脚本 + 项目管理），无法依赖浏览器方案（NiceGUI/Flet 等）
+
+### 15.2 方案选型结论
+
+经四轮迭代式评估（NiceGUI → 客观对比 → 全方面评估 → QML 决策），按用户需求加权评分（长期迭代5/AI主力5/测试方便5/模块化4/现代化4/离线5）得出方案 B（NiceGUI）和方案 D（QML）并列 130 分，但 QML 在 6 个关键差异点胜出：
+
+| 差异点 | QML 优势 |
+|--------|---------|
+| 离线使用 | 原生进程，无浏览器依赖 |
+| 变量表编辑器 | QML TableView 原生虚拟化，万行数据流畅 |
+| 打包分发 | PyInstaller 单文件 exe，无浏览器运行时 |
+| 长期维护 | QML 声明式 UI 改动不破坏 Python 逻辑 |
+| 现有代码迁移 | main_window / nav_tree / Service 层可复用 |
+| 生态稳定 | Qt 官方主推方向，文档/示例/工具链完整 |
+
+**决策**：采用方案 D（PySide6 + QML 重构）
+
+### 15.3 重构边界
+
+| 保留 | 重写 |
+|------|------|
+| 后端 Service 层（core/ 12 文件 2,850 行）| UI 层 8 大模块（53 文件 11,300 行 QWidget）|
+| DB 层（5 文件 968 行）| main_window.py（部分保留：QQuickWidget 容器）|
+| CLI 层（9 文件 2,429 行）| styles.py（QSS → QML 主题）|
+| models 层（数据类）| pytest-qt 测试套件（28 文件 10,000 行）|
+| HTML 原型设计语言 | - |
+
+**预期复用率**：23%（6,247 行后端可复用）/ 77%（21,300 行 QWidget 特有需重写为 QML）
+
+### 15.4 QML 架构设计
+
+```
+auto_pm/ui/
+├── main_window.py              # 改造：QMainWindow + QQuickWidget 容器（< 100 行）
+├── qml_bridge.py               # 新增：QmlBridge(QObject) 暴露 3 个 Service
+├── qml/
+│   ├── main.qml                # 入口：ApplicationWindow + StackView
+│   ├── theme/
+│   │   └── Theme.qml           # 主题：Colors/Typography/Spacing（20+ 设计 token）
+│   ├── models/
+│   │   └── project_list_model.py  # ProjectListModel(QAbstractListModel)
+│   ├── components/
+│   │   ├── Card.qml            # 基础组件：项目卡片
+│   │   ├── Badge.qml           # 基础组件：状态徽标
+│   │   ├── TabBar.qml          # 基础组件：标签栏
+│   │   ├── Button.qml          # 基础组件：按钮
+│   │   ├── Dialog.qml          # 基础组件：对话框
+│   │   ├── ApprovalTimeline.qml    # 复杂组件：审批时间线（Canvas）
+│   │   ├── PropagationView.qml     # 复杂组件：传播链（Flexbox+箭头）
+│   │   ├── StatusMachineView.qml   # 复杂组件：9 步状态机（圆角徽标+箭头）
+│   │   └── PhaseProgress.qml       # 复杂组件：阶段进度条
+│   ├── views/
+│   │   ├── ProjectListView.qml     # 项目列表页（ListView + 卡片 delegate）
+│   │   ├── WorkspaceView.qml       # 项目工作区页（5 Tab）
+│   │   ├── ChangeCenterView.qml    # 变更中心页
+│   │   ├── OverviewTab.qml         # 工作区-概览 Tab
+│   │   ├── ChangeTab.qml           # 工作区-变更 Tab
+│   │   ├── CheckTab.qml            # 工作区-检查 Tab
+│   │   ├── DocTab.qml              # 工作区-文档 Tab
+│   │   └── VarTableTab.qml         # 工作区-变量表 Tab（TableView）
+│   └── dialogs/
+│       ├── NewProjectWizard.qml    # 新建项目向导（3 步分步）
+│       ├── NewChangeDialog.qml     # 变更单新建
+│       ├── ProjectSettingsDialog.qml   # 项目设置
+│       ├── SyncCacheDialog.qml     # 同步缓存
+│       ├── ImportProjectDialog.qml # 导入项目
+│       ├── AboutDialog.qml         # 关于/帮助
+│       ├── ReportDialog.qml        # 报告生成
+│       └── SettingsDialog.qml      # 全局设置
+└── (删除) navigation/ project_list/ workspace/ change_center/ dialogs/ global_pages/ vartable/ widgets/ models/ styles.py
+```
+
+### 15.5 Python ↔ QML 数据桥设计
+
+```python
+# auto_pm/ui/qml_bridge.py
+class QmlBridge(QObject):
+    """Python ↔ QML 数据桥，暴露后端 Service 给 QML 侧调用"""
+
+    def __init__(self, workspace_root: Path):
+        super().__init__()
+        self._project_service = ProjectService(workspace_root)
+        self._change_service = ChangeService(workspace_root)
+        self._db_service = DbService(workspace_root)
+
+    @Property(QObject, constant=True)
+    def projectService(self) -> ProjectService:
+        return self._project_service
+
+    @Property(QObject, constant=True)
+    def changeService(self) -> ChangeService:
+        return self._change_service
+
+    @Property(QObject, constant=True)
+    def dbService(self) -> DbService:
+        return self._db_service
+```
+
+QML 侧使用方式：
+```qml
+import QtQuick
+
+ListView {
+    model: bridge.projectService.list_projects()  // 直接调用 Python 方法
+    delegate: ProjectCard {
+        projectData: model.display
+    }
+}
+```
+
+### 15.6 设计系统映射（CSS → QML Theme）
+
+| HTML 原型 CSS 变量 | QML Theme 属性 | 用途 |
+|-------------------|---------------|------|
+| `--sidebar-bg: #1e1e2e` | `Theme.sidebarBg: "#1e1e2e"` | 侧边栏背景 |
+| `--primary: #4a6cf7` | `Theme.primary: "#4a6cf7"` | 主色 |
+| `--success: #22c55e` | `Theme.success: "#22c55e"` | 成功色 |
+| `--badge-plc: #2563eb` | `Theme.badgePlc: "#2563eb"` | PLC 徽标色 |
+| `--phase-developing: #3b82f6` | `Theme.phaseDeveloping: "#3b82f6"` | 在研阶段色 |
+| ... | ... | （共 20+ 设计 token）|
+
+### 15.7 4 周迭代路线图
+
+| Week | 里程碑 | 版本 | 关键交付 |
+|------|--------|------|---------|
+| 1 | QML 基础设施 + PoC | V0.6.0a1 | QmlBridge + PoC 项目列表页 |
+| 2 | 核心页面迁移 | V0.6.0b1 | 项目列表 + 工作区 + 变更中心 QML 化 |
+| 3 | 复杂组件 + 对话框 | V0.6.0rc1 | 4 可视化组件 + 变量表编辑器 + 8 对话框 |
+| 4 | 测试 + 收尾 | V0.6.0 | 旧代码删除 + dogfooding 闭环 |
+
+详细 Epic/Feature/Story/Test 拆解见：`00_项目管理/03_执行过程/2026-07-04_V0.6.0_QML重构_4周迭代计划.md`
+
+### 15.8 dogfooding 闭环
+
+| CHG 编号 | 主题 | 启动 | 闭环 | 状态 |
+|---------|------|------|------|------|
+| CHG-SCPT-2026-086 | V0.6.0 GUI QML 重构 | 2026-07-04 | 2026-07-25 | draft |
+
+### 15.9 预期成果
+
+| 指标 | V0.5.4 基线 | V0.6.0 目标 |
+|------|------------|------------|
+| UI 代码行数 | 11,300（QWidget）| ≤8,000（QML）|
+| 测试代码行数 | 10,000（pytest-qt）| ≤6,000（QML TestCase + pytest 复用）|
+| UI 改动平均迭代次数 | 5-8 次 | ≤3 次（QML 声明式）|
+| 变量表万行渲染 FPS | 未测（QWidget 卡顿）| ≥30 FPS |
+| AI 维护效率 | 低（QSS + Python 耦合）| 高（QML 声明式）|
+
+### 15.10 风险登记
+
+| # | 风险 | 概率 | 影响 | 缓解措施 |
+|---|------|------|------|---------|
+| R1 | QML 与 Python 信号槽跨语言通信踩坑 | 中 | 高 | PoC 阶段先验证（W1-S5/S6），失败则降级为 Q_PROPERTY + property bind |
+| R2 | QML Canvas 性能不足（复杂可视化组件）| 低 | 中 | 限制节点数 ≤20，超出用 ListView 替代 |
+| R3 | 变量表编辑器虚拟化不达预期 | 中 | 高 | 先 mock 10,000 行数据验证，失败则保留 QWidget 版本作为降级 |
+| R4 | QML TestCase 与 pytest-qt 集成困难 | 低 | 中 | Qt 官方文档支持，备选用 pytest-qt 直接驱动 QML 引擎 |
+| R5 | 旧代码删除遗漏引用 | 低 | 中 | grep 全量扫描 + 全量回归 + 可见模式端到端验证 |
+
+### 15.11 V2.1 → V0.6.0 设计延续性
+
+V0.6.0 QML 重构**完全继承** V2.1 设计系统的：
+- 设计 token（CSS 变量 → QML Theme 属性）
+- 8 大页面布局结构（项目列表/工作区/变更中心/规范中心/模板管理/报告中心/系统设置 + 项目工作区 5 Tab）
+- 3 对话框交互流（新建项目向导/变更单新建/项目设置）
+- 4 状态覆盖（加载骨架屏/空状态/正常/错误）
+- 组件优先级（P0/P1/P2 清单）
+
+**不继承**的部分（V0.6.0 重写）：
+- QWidget 实现细节（QSS 样式 → QML 主题）
+- pytest-qt 测试实现（→ QML TestCase）
+- QPainter 自定义绘制（→ QML Canvas）
+
+---
+
+### V0.6.0 变更记录
+
+| 日期 | 版本 | 变更内容 | 操作人 |
+|------|------|----------|--------|
+| 2026-07-04 | V0.6.0-draft | 新增 §15 QML 重构方案章节：触发背景 + 方案选型结论 + 重构边界 + QML 架构设计 + Python ↔ QML 数据桥 + 设计系统映射 + 4 周迭代路线图 + dogfooding 闭环 + 预期成果 + 风险登记 + V2.1 延续性 | TraeAI（pm-workflow Skill）|
+
+**审核状态**：⏳ 待审核（2026-07-04，待用户审批后启动 Week 1 实施）
+
+**附件**：
+- `00_项目管理/03_执行过程/2026-07-04_V0.6.0_QML重构_4周迭代计划.md`（4 周详细 Epic/Feature/Story/Test 拆解）
+- `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-086.md`（dogfooding 变更单）

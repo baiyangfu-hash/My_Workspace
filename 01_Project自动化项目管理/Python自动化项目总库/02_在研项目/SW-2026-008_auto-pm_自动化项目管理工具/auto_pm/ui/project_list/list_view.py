@@ -127,27 +127,33 @@ QLabel#dashboardSection {
 
         title = QLabel("项目驾驶舱")
         title.setObjectName("dashboardTitle")
+        title.setWordWrap(True)
         layout.addWidget(title)
 
         self._total_label = QLabel("项目总数: 0")
         self._total_label.setObjectName("dashboardMetric")
+        self._total_label.setWordWrap(True)
         layout.addWidget(self._total_label)
 
         self._phase_label = QLabel("阶段分布: 开发中 0 / 调试中 0 / 生产中 0 / 已归档 0")
         self._phase_label.setObjectName("dashboardHint")
+        self._phase_label.setWordWrap(True)
         layout.addWidget(self._phase_label)
 
         self._change_label = QLabel("未关闭变更: 0")
         self._change_label.setObjectName("dashboardMetric")
+        self._change_label.setWordWrap(True)
         layout.addWidget(self._change_label)
 
         self._check_label = QLabel("检查失败项目: 0")
         self._check_label.setObjectName("dashboardMetric")
+        self._check_label.setWordWrap(True)
         layout.addWidget(self._check_label)
 
         # V0.4.1 Step 3: PLC 检查不适用项目数（Python 项目）
         self._not_applicable_label = QLabel("检查不适用: 0")
         self._not_applicable_label.setObjectName("dashboardHint")
+        self._not_applicable_label.setWordWrap(True)
         layout.addWidget(self._not_applicable_label)
 
         recent_title = QLabel("最近活动")

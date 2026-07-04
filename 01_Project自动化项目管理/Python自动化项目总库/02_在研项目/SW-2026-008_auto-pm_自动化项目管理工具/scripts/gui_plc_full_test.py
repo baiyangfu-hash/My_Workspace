@@ -292,8 +292,14 @@ def _check_z_overlap(widget: QWidget) -> None:
         overlap_y = min(wg.bottom(), sg.bottom()) - max(wg.top(), sg.top())
         if overlap_x > 20 and overlap_y > 20:
             # sibling 在 widget 之上（z-order 更高）
-            sibling_index = parent.children().index(sibling) if hasattr(parent, 'children') else -1
-            widget_index = parent.children().index(widget) if hasattr(parent, 'children') else -1
+            try:
+                sibling_index = parent.children().index(sibling)
+            except (ValueError, AttributeError):
+                sibling_index = -1
+            try:
+                widget_index = parent.children().index(widget)
+            except (ValueError, AttributeError):
+                widget_index = -1
             if sibling_index > widget_index:
                 record_visual(
                     "z_overlap", _widget_path(widget),

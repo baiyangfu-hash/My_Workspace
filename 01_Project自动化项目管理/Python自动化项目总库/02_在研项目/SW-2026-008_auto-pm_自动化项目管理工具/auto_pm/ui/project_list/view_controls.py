@@ -77,17 +77,21 @@ class ViewControls(QFrame):
     def _build_ui(self) -> None:
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setSpacing(4)
 
         # 视图切换按钮组
         self._card_btn = QToolButton()
-        self._card_btn.setText("卡片视图")
+        self._card_btn.setText("卡片")
+        self._card_btn.setToolTip("卡片视图")
         self._card_btn.setCheckable(True)
         self._card_btn.setChecked(True)
+        self._card_btn.setMinimumWidth(50)
 
         self._list_btn = QToolButton()
-        self._list_btn.setText("列表视图")
+        self._list_btn.setText("列表")
+        self._list_btn.setToolTip("列表视图")
         self._list_btn.setCheckable(True)
+        self._list_btn.setMinimumWidth(50)
 
         self._view_group = QButtonGroup(self)
         self._view_group.setExclusive(True)
@@ -103,6 +107,8 @@ class ViewControls(QFrame):
         # 排序下拉框
         layout.addWidget(QLabel("排序:"))
         self._sort_combo = QComboBox()
+        self._sort_combo.setMinimumWidth(80)
+        self._sort_combo.setMaximumWidth(120)
         for value, label in self._SORT_OPTIONS:
             self._sort_combo.addItem(label, value)
         self._sort_combo.currentIndexChanged.connect(self._on_sort_changed)
@@ -113,6 +119,8 @@ class ViewControls(QFrame):
         # 分组下拉框
         layout.addWidget(QLabel("分组:"))
         self._group_combo = QComboBox()
+        self._group_combo.setMinimumWidth(80)
+        self._group_combo.setMaximumWidth(140)
         for value, label in self._GROUP_OPTIONS:
             self._group_combo.addItem(label, value)
         self._group_combo.currentIndexChanged.connect(self._on_group_changed)

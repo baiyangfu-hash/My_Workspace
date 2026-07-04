@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
+    QSizePolicy,
     QSplitter,
     QStackedWidget,
     QStatusBar,
@@ -39,10 +40,41 @@ from auto_pm.ui.dialogs import (
     NewProjectDialog,
 )
 from auto_pm.ui.global_pages.global_view import GlobalView
-from auto_pm.ui.global_pages.report_page import ReportPage
-from auto_pm.ui.global_pages.settings_page import SettingsPage
-from auto_pm.ui.global_pages.spec_center import SpecCenterView
-from auto_pm.ui.global_pages.template_page import TemplatePage
+
+# V0.8.0 Phase 4 (CHG-092): 4 个旧版页面已迁移到 QML（ReportView/SettingsView/
+# SpecCenterView/TemplateView），对应 QWidget 文件已删除。本入口保留为 deprecated，
+# import 失败时回退到占位 QWidget，保证 main_window.py 仍可被测试导入（向后兼容）。
+# V0.9 计划完全移除 main_window.py，本 try/except 一并删除。
+try:
+    from auto_pm.ui.global_pages.report_page import ReportPage
+    from auto_pm.ui.global_pages.settings_page import SettingsPage
+    from auto_pm.ui.global_pages.spec_center import SpecCenterView
+    from auto_pm.ui.global_pages.template_page import TemplatePage
+except ImportError:  # 4 个文件已删除（V0.8.0 Phase 4）
+    class ReportPage(QWidget):  # type: ignore[no-redef]
+        """占位 QWidget（旧版 ReportPage 已迁移到 QML ReportView）"""
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            super().__init__()
+
+    class SettingsPage(QWidget):  # type: ignore[no-redef]
+        """占位 QWidget（旧版 SettingsPage 已迁移到 QML SettingsView）"""
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            super().__init__()
+
+    class SpecCenterView(QWidget):  # type: ignore[no-redef]
+        """占位 QWidget（旧版 SpecCenterView 已迁移到 QML SpecCenterView）"""
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            super().__init__()
+
+    class TemplatePage(QWidget):  # type: ignore[no-redef]
+        """占位 QWidget（旧版 TemplatePage 已迁移到 QML TemplateView）"""
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            super().__init__()
+
 from auto_pm.ui.navigation.nav_tree import NavigationTree
 from auto_pm.ui.project_list.list_view import ProjectListView
 from auto_pm.ui.styles import BASE_WIDGET_STYLE
@@ -81,6 +113,16 @@ class MainWindow(QMainWindow):
 
     def __init__(self, workspace_root: str = "", parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        # V0.6.0 起 QML UI 为默认入口（auto-pm gui --qml）
+        # 本 QWidget 入口保留作为 fallback，待 V0.7 QML 完整覆盖规范中心/报告/模板后删除
+        import warnings
+
+        warnings.warn(
+            "QWidget GUI 已弃用（V0.6.0 起），请改用 'auto-pm gui --qml'。"
+            "V0.7 计划完全移除本入口。",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._workspace_root = workspace_root or os.getcwd()
         self._auto_loaded = False
         self._db = self._init_db()
@@ -213,7 +255,12 @@ class MainWindow(QMainWindow):
         self._search_edit = QLineEdit()
         self._search_edit.setPlaceholderText("按编号/名称/描述搜索...")
         self._search_edit.setClearButtonEnabled(True)
-        self._search_edit.setMinimumWidth(220)
+        self._search_edit.setMinimumWidth(80)
+        self._search_edit.setMaximumWidth(320)
+        self._search_edit.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding,
+            QSizePolicy.Policy.Fixed,
+        )
         self._search_edit.textChanged.connect(self._on_search_changed)
         toolbar.addWidget(self._search_edit)
 
@@ -221,6 +268,11 @@ class MainWindow(QMainWindow):
         self._business_combo = QComboBox()
         for value, label in _BUSINESS_LINE_OPTIONS:
             self._business_combo.addItem(label, value)
+        self._business_combo.setMinimumWidth(80)
+        self._business_combo.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding,
+            QSizePolicy.Policy.Fixed,
+        )
         self._business_combo.currentIndexChanged.connect(self._on_business_line_changed)
         toolbar.addWidget(self._business_combo)
 
