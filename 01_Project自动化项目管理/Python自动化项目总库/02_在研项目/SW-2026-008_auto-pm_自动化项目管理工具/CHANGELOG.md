@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Changed - V1.0.0 WPF 混合方案暂停 + 回退到 V0.9.0 QML 基线（2026-07-06）
+
+- **决策**：暂停 V1.0.0 WPF 混合方案（保留 Python 业务层 + C# WPF 替换 QML UI + grpc 桥），回退到 V0.9.0 QML 全迁移完成的稳定基线（commit `bc7ab31`）
+- **原因**：用户作为电气工程师，WPF 学习成本过大；V1.0.0 引入 Python + C# + proto 三语言混合，过渡期间 QML + WPF 两套 UI 栈并存，维护成本超出单人项目承受范围
+- **V1.0.0 工作保存**：全部 V1.0.0 工作成果（21,300 行 C# WPF 源码 + grpc 桥 + Week 1-5 M1-M5 五个里程碑 + P0 整改 + P1 文档同步）已提交到 `feature/v1.0.0-wpf-poc` 分支（commit `da69a92`），未来可通过 `git checkout feature/v1.0.0-wpf-poc` 恢复
+- **当前主分支**：`feature/trae-pro-20260509` 已 push 到远程（`origin/feature/trae-pro-20260509`），V0.9.0 工作已保护
+- **验证**：smoke 测试 23 passed in 2.07s + Python import OK；全量回归（999 passed）待跑
+
 ## [0.9.0] - 2026-07-05
 
 ### Added - CHG-SCPT-2026-094 V0.9.0 旧 QWidget 模块完整移除 + CLI 标志退役
