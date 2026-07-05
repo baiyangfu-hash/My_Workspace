@@ -80,7 +80,6 @@ def python_project_factory(tmp_path: Path):
 
     识别方式：.copier-answers.yml 含 stack=python（与 tests/cli/test_python.py _make_python_project 一致）
     """
-    import json
 
     def _create(
         project_id: str = "SW-2026-PYT",
