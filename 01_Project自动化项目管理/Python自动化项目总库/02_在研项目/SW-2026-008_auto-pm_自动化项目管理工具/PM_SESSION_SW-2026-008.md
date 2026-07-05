@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
 
 # PM_SESSION_SW-2026-008
 
@@ -7,7 +7,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-07-04
+- last_updated: 2026-07-05
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -70,8 +70,8 @@
   - `plc check` 对 Python 项目的"不适用"口径已通过 V0.4.1 Step 3 修复（CheckResult.not_applicable 标记 + DashboardService 防御性条件 + UI 透明展示）
   - Week 3 已固化资产字段契约第一版，Week 4 文档刷新已按最小口径落地；下一步做真实试运行时仍需继续约束缺省值策略、空值展示口径和工站命名一致性
 - spec_compliance:
-  - last_check: 2026-06-28
-  - result: 代码基线 0.3.8 + V0.4.1 Step 1~3 增量 + 收口批次 Critical 修复；pyproject=0.3.8（用户决策本轮不升级，留下轮处理）、CHANGELOG=[0.3.8]、PRD=V2.1.1、PM_SESSION §2 当前焦点已切换到 V0.4.1 收口批次。运行复核：ruff check 0 errors；mypy auto_pm 0 errors；test_17 焦点回归 7 passed 1 skipped；全量回归 978 passed 1 failed 1 skipped（因 -x 早停，全量预计 ~1233 passed 1 failed；1 failed 为 M1 元测试 false positive，待阶段 2 修复）；dogfooding 8 次闭环（CHG-001/062/063/064/072/073/074/075 全 closed，CHG-075 内容不完整待 CHG-077 替换）
+  - last_check: 2026-07-05
+  - result: 代码基线 V0.9.0（QML 全迁移完成 + CLI 标志退役 + 旧 QWidget 代码完整移除）；pyproject=0.9.0、CHANGELOG=[0.9.0]、006 frontmatter=V0.9.0、PRD=V2.2.0、PM_SESSION §2 当前焦点 V0.9.0 已闭环。运行复核：ruff check 0 errors；mypy auto_pm 0 errors（104 source files）；全量回归 999 passed 1 skipped in 44.14s（0 failed）；dogfooding 25 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094 全 closed，CHG-080 状态仍 implementing V2.3 多周迭代中）
 
 ## 4. Artifacts Index（文档索引）
 
@@ -133,7 +133,7 @@
 
 ## 8. Handoff Notes
 
-- current_state: 2026-07-05 V0.9.0 QML 全迁移完成（commit `bc7ab31`，CHG-093/094 两连闭环，第 24/25 次 dogfooding 闭环 closed）。V0.9.0 完成旧 QWidget 模块完整移除 + CLI 标志退役 Phase 1+2 两阶段闭环：① **Phase 1（CHG-093）** 删除 tests/ui/ 22 文件 + tests/gui/ 21 文件（43 个旧 QWidget 测试文件），消除 59 个 DeprecationWarning 噪音；② **Phase 2（CHG-094）** 删除 main_window.py + styles.py + auto_pm/gui/ 兼容包 + scripts/gui_plc_full_test.py + 7 个旧 QWidget 模块目录 37 文件 + global_view.py（41 个生产/脚本文件）；CLI 标志退役：移除 --qml + --qwidget + _run_pyside_gui()，gui_command 简化为 (ctx, debug)。**版本号三件套一致**：pyproject 0.9.0 + CHANGELOG [0.9.0] + PM_SESSION §2 milestone V0.9.0。**验证**：全量回归 1189 passed 2 skipped 0 failed in 36.61s + ruff/mypy 0 errors 104 source files + CLI 冒烟通过。**关键阻塞**：无。下一步：① 性能 FPS 实测（万行数据 FPS ≥ 30）；② 电气部门真实试用反馈。
+- current_state: 2026-07-05 V0.9.0 QML 全迁移完成（commit `e9c6dd0`，CHG-093/094 两连闭环，第 24/25 次 dogfooding 闭环 closed）。V0.9.0 完成旧 QWidget 模块完整移除 + CLI 标志退役 Phase 1+2 两阶段闭环：① **Phase 1（CHG-093）** 删除 tests/ui/ 22 文件 + tests/gui/ 21 文件（43 个旧 QWidget 测试文件），消除 59 个 DeprecationWarning 噪音；② **Phase 2（CHG-094）** 删除 main_window.py + styles.py + auto_pm/gui/ 兼容包 + scripts/gui_plc_full_test.py + 7 个旧 QWidget 模块目录 37 文件 + global_view.py（41 个生产/脚本文件）；CLI 标志退役：移除 --qml + --qwidget + _run_pyside_gui()，gui_command 简化为 (ctx, debug)。**版本号三件套一致**：pyproject 0.9.0 + CHANGELOG [0.9.0] + 006 V0.9.0 + PM_SESSION §2 milestone V0.9.0。**验证**：全量回归 999 passed 1 skipped in 44.14s + ruff/mypy 0 errors 104 source files + CLI 冒烟通过。**关键阻塞**：无。下一步：① 性能 FPS 实测（万行数据 FPS ≥ 30）；② 电气部门真实试用反馈。
 
 - skill_handoff_v090: 2026-07-05 pm-workflow 完成 V0.9.0 旧 QWidget 模块完整移除 + CLI 标志退役 Phase 1+2 两阶段完整闭环（CHG-093/094 两连闭环，第 24/25 次 dogfooding 闭环 closed）。**切换原因**：基于 V0.8.0 QML 完整覆盖 + CLI 默认入口翻转完成，V0.9.0 完成旧 QWidget 代码完整移除 + CLI 标志退役。**完成情况**：① **Phase 1（CHG-093）** 删除 tests/ui/ 22 文件 + tests/gui/ 21 文件（43 个旧 QWidget 测试文件），消除 59 个 DeprecationWarning 噪音；② **Phase 2（CHG-094）** 删除 main_window.py + styles.py + auto_pm/gui/ 兼容包 + scripts/gui_plc_full_test.py + 7 个旧 QWidget 模块目录 37 文件 + global_view.py（41 个生产/脚本文件）；CLI 标志退役：移除 --qml + --qwidget + _run_pyside_gui()，gui_command 简化为 (ctx, debug)；修改 ui/__init__.py + global_pages/__init__.py + Taskfile.yml。**回归验证**：999 passed 1 skipped in 44.14s + ruff/mypy 0 errors（104 source files）+ CLI 冒烟通过。**版本号三件套一致**：pyproject 0.8.0→0.9.0 + CHANGELOG [0.9.0] + PM_SESSION §2 milestone V0.9.0。**关键决策**：① **A 类激进清理完成**：V0.8.0 保留的 main_window.py 框架（try/except + 4 占位 QWidget）本期完整删除，同步删除 41 个生产/脚本文件 + 43 个旧测试文件；② **CLI 标志完整退役**：--qml（V0.6.0 PoC 入口 → V0.8.0 no-op 弃用 → V0.9.0 移除）+ --qwidget（V0.8.0 旧版入口 → V0.9.0 移除）+ _run_pyside_gui() 函数移除，gui_command 简化为 (ctx, debug) 直接调用 _run_qml_gui()。**关键约束遵守**：① 用户硬约束"CHG 模板不改动"全程使用 12 章节标准模板；② 用户硬约束"未验证禁止回写"CHG-094 §10.2 实际验证结果每项都有验证证据；③ 用户硬约束"禁止用 Python 脚本直接写磁盘修改项目文件"全程使用 Edit/Write 工具；④ 用户硬约束"GUI 测试默认可见模式"GUI_VISIBLE=1；⑤ 用户硬约束"后台任务超时检测"主动轮询 CheckCommandStatus。**dogfooding 累计**：25 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094 全 closed，CHG-080 状态仍 implementing V2.3 多周迭代中）。下次会话起手任务：① 性能 FPS 实测（万行数据 FPS ≥ 30）；② 电气部门真实试用反馈；③ V1.0.0 发布评估。**关键约束沿用前条 skill_handoff_v080**（禁止 Python 脚本写磁盘 / rich markup escape / DTO+adapter 模式 / tmp_path 隔离 / Bug 诊断 Step 3.5 强制流程 / frozen dataclass with slots=True / qapp fixture 单一定位 tests/conftest.py / GUI 测试默认可见模式 GUI_VISIBLE=1 / 文件命名规范禁止版本号后缀 / 后端零改动约束 / 保守删除策略 / dogfooding 闭环 CHG-*.md 状态流转 / 三层真源架构约束 / PM_SESSION 膨胀自动化约束 / 元测试门禁约束 / 影子台账退役约束 / A 类激进清理约束 / CLI 默认入口翻转约束 / try/except 占位回退约束）+ ① **CLI 标志完整退役约束**：V0.9.0 后 gui_command 简化为 (ctx, debug)，禁止再添加 --qml/--qwidget 等旧版入口标志；② **旧 QWidget 代码完整移除约束**：禁止再引入 QWidget 主窗口代码，所有 GUI 入口必须通过 QML（auto_pm/ui/qml_main_window.py:run_qml_gui）。
 
