@@ -1,14 +1,14 @@
-// ProjectListView.qml - V0.6.0 W2-S1 完整功能版（搜索/过滤/排序/分页）
+// ProjectListView.qml - V0.6.0 W2-S1 完整功能版（搜索/过滤/排序/分页�?
 //
-// 在 W1 PoC 基础上扩展：
-// - 搜索框（实时模糊匹配 name/project_id）
-// - 业务线 + 阶段筛选下拉
+// �?W1 PoC 基础上扩展：
+// - 搜索框（实时模糊匹配 name/project_id�?
+// - 业务�?+ 阶段筛选下�?
 // - 排序下拉（按名称/编号/版本号）
-// - 分页（每页 10/20/50 可选）
+// - 分页（每�?10/20/50 可选）
 // - 卡片视图 + 表格视图切换
-// - 点击卡片触发 bridge.selectProject → 工作区跳转
+// - 点击卡片触发 workbenchBridge.selectProject �?工作区跳�?
 //
-// 数据流：bridge.listProjects() → projectModel → JS 过滤/排序 → displayModel（ListModel）→ ListView
+// 数据流：workbenchBridge.listProjects() �?projectModel �?JS 过滤/排序 �?displayModel（ListModel）→ ListView
 
 import QtQuick
 import QtQuick.Controls
@@ -20,7 +20,7 @@ Rectangle {
     id: root
     color: Theme.background
 
-    // ── 公开状态 ────────────────────────────────────────
+    // ── 公开状�?────────────────────────────────────────
     property string searchText: ""
     property string stackFilter: "all"  // all/plc/python/unknown
     property string phaseFilter: "all"  // all/developing/commissioning/production/archived
@@ -38,7 +38,7 @@ Rectangle {
     // ── 过滤排序后的展示模型 ────────────────────────────
     ListModel { id: displayModel }
 
-    // ── 顶部工具栏 ──────────────────────────────────────
+    // ── 顶部工具�?──────────────────────────────────────
     Rectangle {
         id: toolbar
         anchors.left: parent.left
@@ -60,7 +60,7 @@ Rectangle {
             anchors.margins: Theme.spacingMd
             spacing: Theme.spacingSm
 
-            // 第一行：标题 + 视图切换 + 项目数
+            // 第一行：标题 + 视图切换 + 项目�?
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingMd
@@ -74,7 +74,7 @@ Rectangle {
 
                 Item { Layout.fillWidth: true }
 
-                // 视图切换按钮组
+                // 视图切换按钮�?
                 RowLayout {
                     spacing: 0
                     PrimaryButton {
@@ -92,23 +92,23 @@ Rectangle {
                 }
 
                 Text {
-                    text: "共 " + root.totalCount + " 个项目"
+                    text: "�?" + root.totalCount + " 个项�?
                     font.pixelSize: Theme.fontSizeSm
                     color: Theme.textSecondary
                 }
             }
 
-            // 第二行：搜索框 + 筛选 + 排序
+            // 第二行：搜索�?+ 筛�?+ 排序
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingSm
 
-                // 搜索框
+                // 搜索�?
                 TextField {
                     id: searchInput
                     Layout.preferredWidth: 280
                     Layout.preferredHeight: 32
-                    placeholderText: "搜索项目名称或编号..."
+                    placeholderText: "搜索项目名称或编�?.."
                     text: root.searchText
                     onTextChanged: {
                         root.searchText = text
@@ -125,12 +125,12 @@ Rectangle {
                     }
                 }
 
-                // 业务线筛选
+                // 业务线筛�?
                 ComboBox {
                     id: stackCombo
                     Layout.preferredWidth: 120
                     Layout.preferredHeight: 32
-                    model: ["全部技术栈", "PLC", "Python", "未分类"]
+                    model: ["全部技术栈", "PLC", "Python", "未分�?]
                     onCurrentIndexChanged: {
                         var map = ["all", "plc", "python", "unknown"]
                         root.stackFilter = map[currentIndex]
@@ -139,7 +139,7 @@ Rectangle {
                     }
                 }
 
-                // 阶段筛选
+                // 阶段筛�?
                 ComboBox {
                     id: phaseCombo
                     Layout.preferredWidth: 120
@@ -160,7 +160,7 @@ Rectangle {
                     id: sortCombo
                     Layout.preferredWidth: 140
                     Layout.preferredHeight: 32
-                    model: ["按名称", "按编号", "按版本"]
+                    model: ["按名�?, "按编�?, "按版�?]
                     onCurrentIndexChanged: {
                         var map = ["name", "project_id", "version"]
                         root.sortField = map[currentIndex]
@@ -168,9 +168,9 @@ Rectangle {
                     }
                 }
 
-                // 升降序切换
+                // 升降序切�?
                 PrimaryButton {
-                    text: root.sortDir === "asc" ? "↑" : "↓"
+                    text: root.sortDir === "asc" ? "�? : "�?
                     type: "ghost"
                     Layout.preferredWidth: 32
                     onClicked: {
@@ -186,8 +186,8 @@ Rectangle {
                     Layout.preferredWidth: 60
                     onClicked: {
                         if (typeof bridge !== "undefined" && bridge !== null) {
-                            bridge.refreshProjects()
-                            var projects = bridge.listProjects()
+                            workbenchBridge.refreshProjects()
+                            var projects = workbenchBridge.listProjects()
                             projectModel.setProjects(projects)
                             root.applyFilters()
                         }
@@ -197,7 +197,7 @@ Rectangle {
         }
     }
 
-    // ── 项目列表区 ─────────────────────────────────────
+    // ── 项目列表�?─────────────────────────────────────
     Rectangle {
         id: listArea
         anchors.left: parent.left
@@ -216,11 +216,11 @@ Rectangle {
             spacing: Theme.spacingSm
             model: displayModel
 
-            // 空状态
+            // 空状�?
             Text {
                 anchors.centerIn: parent
                 visible: displayModel.count === 0
-                text: "暂无项目匹配筛选条件\n\n请调整搜索词或筛选条件"
+                text: "暂无项目匹配筛选条件\n\n请调整搜索词或筛选条�?
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeLg
                 horizontalAlignment: Text.AlignHCenter
@@ -255,7 +255,7 @@ Rectangle {
                         spacing: 2
 
                         Text {
-                            text: model.name || "(未命名项目)"
+                            text: model.name || "(未命名项�?"
                             font.pixelSize: Theme.fontSizeLg
                             font.bold: true
                             color: Theme.textPrimary
@@ -270,7 +270,7 @@ Rectangle {
                         }
                     }
 
-                    // 版本号
+                    // 版本�?
                     Text {
                         text: model.version ? "v" + model.version : "v-"
                         font.pixelSize: Theme.fontSizeSm
@@ -288,7 +288,7 @@ Rectangle {
                                 "production": "生产",
                                 "archived": "归档"
                             }
-                            return phaseMap[model.phase] || "未分类"
+                            return phaseMap[model.phase] || "未分�?
                         }
                         type: model.phase || "default"
                     }
@@ -301,7 +301,7 @@ Rectangle {
                         console.log("[QML] 点击项目: " + model.project_id + " - " + model.name)
                         root.projectClicked(model.project_id, model.name)
                         if (typeof bridge !== "undefined" && bridge !== null) {
-                            bridge.selectProject(model.project_id, model.name)
+                            workbenchBridge.selectProject(model.project_id, model.name)
                         }
                     }
                 }
@@ -384,25 +384,25 @@ Rectangle {
                         onClicked: {
                             root.projectClicked(model.project_id, model.name)
                             if (typeof bridge !== "undefined" && bridge !== null) {
-                                bridge.selectProject(model.project_id, model.name)
+                                workbenchBridge.selectProject(model.project_id, model.name)
                             }
                         }
                     }
                 }
             }
 
-            // 表格空状态
+            // 表格空状�?
             Text {
                 anchors.centerIn: parent
                 visible: displayModel.count === 0
-                text: "暂无项目匹配筛选条件"
+                text: "暂无项目匹配筛选条�?
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeMd
             }
         }
     }
 
-    // ── 分页栏 ──────────────────────────────────────────
+    // ── 分页�?──────────────────────────────────────────
     Rectangle {
         id: paginationBar
         anchors.left: parent.left
@@ -446,9 +446,9 @@ Rectangle {
 
             Item { Layout.fillWidth: true }
 
-            // 上一页
+            // 上一�?
             PrimaryButton {
-                text: "上一页"
+                text: "上一�?
                 type: "ghost"
                 Layout.preferredWidth: 60
                 enabled: root.currentPage > 0
@@ -470,9 +470,9 @@ Rectangle {
                 color: Theme.textPrimary
             }
 
-            // 下一页
+            // 下一�?
             PrimaryButton {
-                text: "下一页"
+                text: "下一�?
                 type: "ghost"
                 Layout.preferredWidth: 60
                 enabled: root.currentPage < Math.ceil(root.totalCount / root.pageSize) - 1
@@ -487,7 +487,7 @@ Rectangle {
         }
     }
 
-    // ── 过滤/排序/分页逻辑（JS） ─────────────────────────
+    // ── 过滤/排序/分页逻辑（JS�?─────────────────────────
     function applyFilters() {
         var projects = []
         var count = projectModel ? projectModel.rowCount() : 0
@@ -501,7 +501,7 @@ Rectangle {
             var phase = projectModel.data(idx, 0x0100 + 4) // PhaseRole
             var version = projectModel.data(idx, 0x0100 + 5) // VersionRole
 
-            // 搜索匹配（name 或 project_id 含搜索词，忽略大小写）
+            // 搜索匹配（name �?project_id 含搜索词，忽略大小写�?
             if (root.searchText !== "") {
                 var q = root.searchText.toLowerCase()
                 if (!String(name).toLowerCase().includes(q) &&
@@ -510,12 +510,12 @@ Rectangle {
                 }
             }
 
-            // 业务线筛选
+            // 业务线筛�?
             if (root.stackFilter !== "all" && stack !== root.stackFilter) {
                 continue
             }
 
-            // 阶段筛选
+            // 阶段筛�?
             if (root.phaseFilter !== "all" && phase !== root.phaseFilter) {
                 continue
             }
@@ -567,14 +567,15 @@ Rectangle {
     // ── 初始加载 ────────────────────────────────────────
     Component.onCompleted: {
         if (typeof bridge !== "undefined" && bridge !== null) {
-            console.log("[QML] ProjectListView: bridge 可用，加载项目数据...")
-            var projects = bridge.listProjects()
-            console.log("[QML] ProjectListView: 收到 " + projects.length + " 个项目")
+            console.log("[QML] ProjectListView: bridge 可用，加载项目数�?..")
+            var projects = workbenchBridge.listProjects()
+            console.log("[QML] ProjectListView: 收到 " + projects.length + " 个项�?)
             projectModel.setProjects(projects)
             root.applyFilters()
         } else {
-            console.warn("[QML] ProjectListView: bridge 未注入")
+            console.warn("[QML] ProjectListView: bridge 未注�?)
             root.applyFilters()
         }
     }
 }
+

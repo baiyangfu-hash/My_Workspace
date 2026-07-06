@@ -17,7 +17,6 @@ from auto_pm.models.change import (
 from auto_pm.models.dto import (
     ApiResponse,
     DashboardSummaryDTO,
-    ProjectCardDTO,
     ProjectCreateRequest,
     ProjectDetail,
     ProjectDetailDTO,
@@ -63,7 +62,6 @@ __all__ = [
     # dto
     "ProjectListItem",
     "ProjectDetail",
-    "ProjectCardDTO",
     "DashboardSummaryDTO",
     "ProjectDetailDTO",
     "ProjectCreateRequest",

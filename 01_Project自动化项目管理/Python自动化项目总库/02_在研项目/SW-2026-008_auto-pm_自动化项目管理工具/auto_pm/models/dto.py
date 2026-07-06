@@ -21,31 +21,12 @@ class ProjectListItem(BaseModel):
 
     project_id: str = Field(..., description="项目编号")
     name: str = Field(..., description="项目名称")
+    path: str = Field("", description="项目绝对路径")
     stack: Stack = Field(..., description="技术栈")
     version: str = Field("", description="版本号")
     phase: str = Field("", description="阶段")
+    business_line: str = Field("", description="业务线")
     change_count: int = Field(0, description="关联变更单数（JOIN 查询）")
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ProjectCardDTO(BaseModel):
-    """项目卡片 DTO（PySide6 项目列表卡片用）
-
-    包含卡片展示所需的全部字段：编号、名称、技术栈、阶段、版本、业务线、变更数、路径、
-    最近修改时间、描述摘要。
-    """
-
-    project_id: str = Field(..., description="项目编号")
-    name: str = Field(..., description="项目名称")
-    stack: Stack = Field(..., description="技术栈: plc/python/unknown")
-    phase: str = Field("", description="项目阶段")
-    version: str = Field("", description="版本号")
-    business_line: BusinessLine = Field("", description="业务线: SW/DJ/ZD/XT/WX")
-    change_count: int = Field(0, description="关联变更单数")
-    path: str = Field("", description="项目绝对路径")
-    file_mtime: float = Field(0.0, description="项目文件最近修改时间(时间戳)")
-    description: str = Field("", description="项目描述摘要")
 
     model_config = ConfigDict(from_attributes=True)
 

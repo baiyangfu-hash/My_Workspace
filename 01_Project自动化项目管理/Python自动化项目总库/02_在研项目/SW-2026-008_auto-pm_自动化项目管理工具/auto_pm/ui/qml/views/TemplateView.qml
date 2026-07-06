@@ -1,14 +1,14 @@
-// TemplateView.qml - V0.8.0 Phase 2 模板管理（CHG-091）
+// TemplateView.qml - V0.8.0 Phase 2 模板管理（CHG-091?
 //
-// 模板卡片列表 + 更新项目按钮，对应 QWidget 版 template_page.py：
-//   ┌──────────────────────────────────────────────┐
-//   │ 🏭 plc-standard             [更新项目]       │
-//   │ v1.0 | 技术栈: PLC | 使用项目: 3             │
-//   │ PLC 标准项目模板                              │
-//   └──────────────────────────────────────────────┘
+// 模板卡片列表 + 更新项目按钮，对?QWidget ?template_page.py?
+//   ┌──────────────────────────────────────────────?
+//   ?🏭 plc-standard             [更新项目]       ?
+//   ?v1.0 | 技术栈: PLC | 使用项目: 3             ?
+//   ?PLC 标准项目模板                              ?
+//   └──────────────────────────────────────────────?
 //
-// 数据流：bridge.listTemplates() → 循环 bridge.getTemplateDetail(name) → 卡片渲染
-// 三重守卫：typeof bridge === "undefined" || bridge === null || !bridge.hasTemplateService
+// 数据流：systemBridge.listTemplates() ?循环 systemBridge.getTemplateDetail(name) ?卡片渲染
+// 三重守卫：typeof systemBridge === "undefined" || systemBridge === null || !systemBridge.hasService
 //
 // 更新项目按钮：Phase 2 显示 "Copier 增量更新功能将在 V0.9 实现" 提示
 
@@ -32,17 +32,17 @@ Rectangle {
 
     // ── 加载数据 ────────────────────────────────────────
     function loadData() {
-        if (typeof bridge === "undefined" || bridge === null || !bridge.hasTemplateService) {
-            console.warn("[QML] TemplateView: TemplateService 未启用")
-            errorMessage = "TemplateService 未启用"
+        if (typeof systemBridge === "undefined" || systemBridge === null || !systemBridge.hasService) {
+            console.warn("[QML] TemplateView: TemplateService 未启?)
+            errorMessage = "TemplateService 未启?
             templatesModel.clear()
             return
         }
         errorMessage = ""
-        var names = bridge.listTemplates()
+        var names = systemBridge.listTemplates()
         templatesModel.clear()
         for (var i = 0; i < names.length; i++) {
-            var detail = bridge.getTemplateDetail(names[i])
+            var detail = systemBridge.getTemplateDetail(names[i])
             if (detail && !detail.error) {
                 templatesModel.append(detail)
             }
@@ -97,23 +97,23 @@ Rectangle {
             }
 
             Text {
-                text: "共 " + templatesModel.count + " 个可用 Copier 模板"
+                text: "?" + templatesModel.count + " 个可?Copier 模板"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
         }
     }
 
-    // ── 错误状态 ────────────────────────────────────────
+    // ── 错误状?────────────────────────────────────────
     Text {
         visible: errorMessage !== ""
         anchors.centerIn: parent
-        text: "⚠ " + errorMessage
+        text: "?" + errorMessage
         color: Theme.error
         font.pixelSize: Theme.fontSizeMd
     }
 
-    // ── 空状态 ─────────────────────────────────────────
+    // ── 空状?─────────────────────────────────────────
     Text {
         visible: errorMessage === "" && templatesModel.count === 0
         anchors.centerIn: parent
@@ -199,11 +199,11 @@ Rectangle {
                     }
                 }
 
-                // 第二行：版本 | 技术栈 | 使用项目数
+                // 第二行：版本 | 技术栈 | 使用项目?
                 Text {
                     Layout.fillWidth: true
                     text: {
-                        var stackLabel = "未分类"
+                        var stackLabel = "未分?
                         if (model.stack === "plc") stackLabel = "PLC"
                         else if (model.stack === "python") stackLabel = "Python"
                         return (model.version || "v1.0")
@@ -217,7 +217,7 @@ Rectangle {
                 // 第三行：描述
                 Text {
                     Layout.fillWidth: true
-                    text: model.description || "—"
+                    text: model.description || "?
                     font.pixelSize: Theme.fontSizeSm
                     color: Theme.textPrimary
                     wrapMode: Text.WordWrap
@@ -226,7 +226,7 @@ Rectangle {
         }
     }
 
-    // ── 更新项目确认对话框 ──────────────────────────────
+    // ── 更新项目确认对话?──────────────────────────────
     Dialog {
         id: updateDialog
         title: "更新项目"
@@ -251,7 +251,7 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: "ℹ Copier 增量更新功能将在 V0.9 实现（CHG-091 Phase 2 仅展示卡片）"
+                text: "?Copier 增量更新功能将在 V0.9 实现（CHG-091 Phase 2 仅展示卡片）"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
                 wrapMode: Text.WordWrap
@@ -266,7 +266,7 @@ Rectangle {
                 Item { Layout.fillWidth: true }
 
                 PrimaryButton {
-                    text: "知道了"
+                    text: "知道?
                     onClicked: updateDialog.close()
                 }
             }
@@ -275,3 +275,4 @@ Rectangle {
 
     Component.onCompleted: loadData()
 }
+

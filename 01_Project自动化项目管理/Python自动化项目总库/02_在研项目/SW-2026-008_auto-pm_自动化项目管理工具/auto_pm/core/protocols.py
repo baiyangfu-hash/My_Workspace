@@ -15,8 +15,8 @@ from typing import Any, Optional, Protocol, runtime_checkable
 from auto_pm.models import (
     ChangeRequest,
     ChangeSummary,
-    ProjectCardDTO,
     ProjectInfo,
+    ProjectListItem,
 )
 
 # ── Project 域 ────────────────────────────────────────────
@@ -68,7 +68,7 @@ class ProjectServiceProtocol(Protocol):
         """按条件筛选项目"""
         ...
 
-    def list_projects_with_change_count(self) -> list[ProjectCardDTO]:
+    def list_projects_with_change_count(self) -> list[ProjectListItem]:
         """返回带变更数统计的项目列表"""
         ...
 
@@ -82,6 +82,14 @@ class ProjectServiceProtocol(Protocol):
 
     def is_cache_available(self) -> bool:
         """DB 缓存是否可用"""
+        ...
+
+    def get_project_count(self) -> int:
+        """获取项目总数（优先查缓存）"""
+        ...
+
+    def get_db_path(self) -> str:
+        """获取 DB 文件路径（若未初始化则返回空字符串）"""
         ...
 
 

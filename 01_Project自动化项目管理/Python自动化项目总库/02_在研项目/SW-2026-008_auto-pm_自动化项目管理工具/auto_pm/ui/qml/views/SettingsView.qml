@@ -1,19 +1,19 @@
-// SettingsView.qml - V0.8.0 Phase 2 系统设置（CHG-091）
+// SettingsView.qml - V0.8.0 Phase 2 系统设置（CHG-091?
 //
-// 工作空间路径 + DB 统计 + 清除/重建 + PM_SESSION 健康，对应 QWidget 版 settings_page.py：
-//   ┌─ 通用 ─────────────────────────────────────────┐
-//   │ 工作空间路径: [/tmp/workspace]            [📂]   │
-//   │ 扫描深度: 4                                     │
-//   ├─ 数据库 ────────────────────────────────────────┤
-//   │ 缓存路径 / 项目记录 / 变更记录 / 上次同步       │
-//   │ [清除缓存]  [重建索引]                          │
-//   ├─ PM_SESSION 健康 ───────────────────────────────┤
-//   │ 文件 / 大小 / 行数 / 状态                       │
-//   │ [刷新检查]                                      │
-//   └─────────────────────────────────────────────────┘
+// 工作空间路径 + DB 统计 + 清除/重建 + PM_SESSION 健康，对?QWidget ?settings_page.py?
+//   ┌─ 通用 ─────────────────────────────────────────?
+//   ?工作空间路径: [/tmp/workspace]            [📂]   ?
+//   ?扫描深度: 4                                     ?
+//   ├─ 数据?────────────────────────────────────────?
+//   ?缓存路径 / 项目记录 / 变更记录 / 上次同步       ?
+//   ?[清除缓存]  [重建索引]                          ?
+//   ├─ PM_SESSION 健康 ───────────────────────────────?
+//   ?文件 / 大小 / 行数 / 状?                      ?
+//   ?[刷新检查]                                      ?
+//   └─────────────────────────────────────────────────?
 //
-// 数据流：bridge.getSettingsSummary() / clearCache() / rebuildIndex() / runPmSessionCheck()
-// 三重守卫：bridge !== null（getSettingsSummary 始终可用，DB 部分基于 db_available）
+// 数据流：workbenchBridge.getSettingsSummary() / clearCache() / rebuildIndex() / runPmSessionCheck()
+// 三重守卫：bridge !== null（getSettingsSummary 始终可用，DB 部分基于 db_available?
 
 import QtQuick
 import QtQuick.Controls
@@ -28,7 +28,7 @@ Rectangle {
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
 
-    // ── 内部状态 ────────────────────────────────────────
+    // ── 内部状?────────────────────────────────────────
     property var settingsData: ({})
     property var pmSessionData: ({})
     property string errorMessage: ""
@@ -37,20 +37,20 @@ Rectangle {
     // ── 加载数据 ────────────────────────────────────────
     function loadData() {
         if (typeof bridge === "undefined" || bridge === null) {
-            errorMessage = "QmlBridge 未注入"
+            errorMessage = "QmlBridge 未注?
             return
         }
         errorMessage = ""
-        settingsData = bridge.getSettingsSummary()
+        settingsData = workbenchBridge.getSettingsSummary()
         if (settingsData && settingsData.error) {
             errorMessage = settingsData.error
             return
         }
         // 加载 PM_SESSION 健康
-        if (bridge.hasPmSessionService) {
-            pmSessionData = bridge.runPmSessionCheck()
+        if (systemBridge.hasService) {
+            pmSessionData = systemBridge.runPmSessionCheck()
         } else {
-            pmSessionData = {"error": "未启用 PM_SESSION 服务"}
+            pmSessionData = {"error": "未启?PM_SESSION 服务"}
         }
     }
 
@@ -102,23 +102,23 @@ Rectangle {
             }
 
             Text {
-                text: "工作空间路径 + 数据库缓存 + PM_SESSION 健康"
+                text: "工作空间路径 + 数据库缓?+ PM_SESSION 健康"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
         }
     }
 
-    // ── 错误状态 ────────────────────────────────────────
+    // ── 错误状?────────────────────────────────────────
     Text {
         visible: errorMessage !== ""
         anchors.centerIn: parent
-        text: "⚠ " + errorMessage
+        text: "?" + errorMessage
         color: Theme.error
         font.pixelSize: Theme.fontSizeMd
     }
 
-    // ── 设置内容（3 个卡片）────────────────────────────
+    // ── 设置内容? 个卡片）────────────────────────────
     ScrollView {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -165,7 +165,7 @@ Rectangle {
                         }
                         Text {
                             Layout.fillWidth: true
-                            text: settingsData.workspace_root || "—"
+                            text: settingsData.workspace_root || "?
                             font.pixelSize: Theme.fontSizeSm
                             color: Theme.textPrimary
                             elide: Text.ElideMiddle
@@ -208,7 +208,7 @@ Rectangle {
                     spacing: Theme.spacingSm
 
                     Text {
-                        text: "数据库"
+                        text: "数据?
                         font.pixelSize: Theme.fontSizeMd
                         font.bold: true
                         color: Theme.primary
@@ -216,26 +216,26 @@ Rectangle {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "缓存路径: " + (settingsData.db_path || "未连接")
+                        text: "缓存路径: " + (settingsData.db_path || "未连?)
                         font.pixelSize: Theme.fontSizeSm
                         color: settingsData.db_available ? Theme.textPrimary : Theme.textMuted
                         elide: Text.ElideMiddle
                     }
 
                     Text {
-                        text: "项目记录: " + (settingsData.project_count || 0) + " 条"
+                        text: "项目记录: " + (settingsData.project_count || 0) + " ?
                         font.pixelSize: Theme.fontSizeSm
                         color: Theme.textPrimary
                     }
 
                     Text {
-                        text: "变更记录: " + (settingsData.change_count || 0) + " 条"
+                        text: "变更记录: " + (settingsData.change_count || 0) + " ?
                         font.pixelSize: Theme.fontSizeSm
                         color: Theme.textPrimary
                     }
 
                     Text {
-                        text: "上次同步: " + (settingsData.last_sync || "—")
+                        text: "上次同步: " + (settingsData.last_sync || "?)
                         font.pixelSize: Theme.fontSizeSm
                         color: Theme.textSecondary
                     }
@@ -286,7 +286,7 @@ Rectangle {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "文件: " + (pmSessionData.file_path || pmSessionData.error || "—")
+                        text: "文件: " + (pmSessionData.file_path || pmSessionData.error || "?)
                         font.pixelSize: Theme.fontSizeSm
                         color: Theme.textPrimary
                         elide: Text.ElideMiddle
@@ -309,7 +309,7 @@ Rectangle {
                     }
 
                     Text {
-                        text: pmSessionData.is_healthy === true ? "✓ 健康" : "✗ 不健康"
+                        text: pmSessionData.is_healthy === true ? "?健康" : "?不健?
                         font.pixelSize: Theme.fontSizeSm
                         font.bold: true
                         color: pmSessionData.is_healthy === true ? Theme.success : Theme.error
@@ -321,8 +321,8 @@ Rectangle {
                         spacing: Theme.spacingSm
 
                         PrimaryButton {
-                            text: "刷新检查"
-                            enabled: bridge !== null && bridge.hasPmSessionService
+                            text: "刷新检?
+                            enabled: bridge !== null && systemBridge.hasService
                             onClicked: loadData()
                         }
 
@@ -345,7 +345,7 @@ Rectangle {
         }
     }
 
-    // ── 清除缓存确认对话框 ──────────────────────────────
+    // ── 清除缓存确认对话?──────────────────────────────
     Dialog {
         id: clearCacheDialog
         title: "清除缓存"
@@ -361,7 +361,7 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: "⚠ 将删除缓存文件："
+                text: "?将删除缓存文件："
                 font.pixelSize: Theme.fontSizeMd
                 font.bold: true
                 color: Theme.error
@@ -401,7 +401,7 @@ Rectangle {
                     text: "确认清除"
                     type: "danger"
                     onClicked: {
-                        var result = bridge.clearCache()
+                        var result = workbenchBridge.clearCache()
                         resultMessage = result.message
                         clearCacheDialog.close()
                         loadData()
@@ -411,7 +411,7 @@ Rectangle {
         }
     }
 
-    // ── 重建索引确认对话框 ──────────────────────────────
+    // ── 重建索引确认对话?──────────────────────────────
     Dialog {
         id: rebuildDialog
         title: "重建索引"
@@ -427,7 +427,7 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: "ℹ 将强制全量扫描工作空间并重建索引，可能耗时较长，是否继续？"
+                text: "?将强制全量扫描工作空间并重建索引，可能耗时较长，是否继续？"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textPrimary
                 wrapMode: Text.WordWrap
@@ -450,10 +450,10 @@ Rectangle {
                 PrimaryButton {
                     text: "确认重建"
                     onClicked: {
-                        var result = bridge.rebuildIndex()
+                        var result = workbenchBridge.rebuildIndex()
                         resultMessage = result.message
-                            + "（项目 " + result.projects_found
-                            + " / 变更 " + result.changes_found + "）"
+                            + "（项?" + result.projects_found
+                            + " / 变更 " + result.changes_found + "?
                         rebuildDialog.close()
                         loadData()
                     }
@@ -464,3 +464,4 @@ Rectangle {
 
     Component.onCompleted: loadData()
 }
+

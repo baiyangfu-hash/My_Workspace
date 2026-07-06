@@ -9,6 +9,5 @@ Week 1 PoC 范围：仅实现 QmlBridge + ProjectListModel + 项目列表 QML Li
 """
 
 from auto_pm.ui.qml.models.project_list_model import ProjectListModel
-from auto_pm.ui.qml.qml_bridge import QmlBridge
 
-__all__ = ["QmlBridge", "ProjectListModel"]
+__all__ = ["ProjectListModel"]

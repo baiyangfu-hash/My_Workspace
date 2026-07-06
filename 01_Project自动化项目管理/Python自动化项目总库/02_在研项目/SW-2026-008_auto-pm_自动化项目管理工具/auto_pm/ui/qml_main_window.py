@@ -30,9 +30,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 from auto_pm.change.change_service import ChangeService
 from auto_pm.core.project_service import ProjectService
-from auto_pm.ui.qml.models.project_list_model import ProjectListModel
-from auto_pm.ui.qml.qml_bridge import (
-    QmlBridge,
+from auto_pm.ui.factories import (
     make_asset_summary_service,
     make_dashboard_service,
     make_doc_refresh_service,
@@ -42,6 +40,13 @@ from auto_pm.ui.qml.qml_bridge import (
     make_spec_check_service,
     make_template_service,
 )
+from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
+from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
+from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
+from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
+from auto_pm.ui.qml.models.project_list_model import ProjectListModel
+from auto_pm.ui.registry import FacadeRegistry
 
 
 def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
@@ -82,6 +87,21 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     # V0.8.0 Phase 2 新增 SpecCenterAdapter（CHG-091）
     spec_center_service = make_spec_center_service(workspace_root)
 
+    # M1 阶段：初始化 FacadeRegistry
+    registry = FacadeRegistry()
+    registry.initialize({
+        "project_service": project_service,
+        "change_service": change_service,
+        "spec_check_service": spec_check_service,
+        "report_service": report_service,
+        "template_service": template_service,
+        "pm_session_service": pm_session_service,
+        "dashboard_service": dashboard_service,
+        "asset_summary_service": asset_summary_service,
+        "doc_refresh_service": doc_refresh_service,
+        "spec_center_service": spec_center_service,
+    })
+
     if debug:
         sys.stderr.write(
             f"[DEBUG] Service 初始化:\n"
@@ -96,19 +116,12 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
             f"  spec_center={'✓' if spec_center_service else '✗（无 spec_registry.json）'}\n"
         )
 
-    # 3. 创建 QML 桥接对象（V0.8.0 Phase 1+2 扩展注入 9 个新 Service）
-    bridge = QmlBridge(
-        project_service=project_service,
-        change_service=change_service,
-        spec_check_service=spec_check_service,
-        report_service=report_service,
-        template_service=template_service,
-        pm_session_service=pm_session_service,
-        dashboard_service=dashboard_service,
-        asset_summary_service=asset_summary_service,
-        doc_refresh_service=doc_refresh_service,
-        spec_center_service=spec_center_service,
-    )
+    # 3. 创建 QML 桥接对象
+    workbench_bridge = WorkbenchBridge(facade=registry.workbench_facade)
+    change_bridge = ChangeBridge(facade=registry.change_facade)
+    spec_bridge = SpecBridge(facade=registry.spec_facade)
+    delivery_bridge = DeliveryBridge(facade=registry.delivery_facade)
+    system_bridge = SystemBridge(facade=registry.system_facade)
     project_model = ProjectListModel()
 
     # 4. 加载 main.qml
@@ -121,8 +134,12 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
 
     engine = QQmlApplicationEngine()
 
-    # 5. 注入 context property（QML 端通过 bridge / projectModel 访问）
-    engine.rootContext().setContextProperty("bridge", bridge)
+    # 5. 注入 context property（QML 端通过 xxxBridge / projectModel 访问）
+    engine.rootContext().setContextProperty("workbenchBridge", workbench_bridge)
+    engine.rootContext().setContextProperty("changeBridge", change_bridge)
+    engine.rootContext().setContextProperty("specBridge", spec_bridge)
+    engine.rootContext().setContextProperty("deliveryBridge", delivery_bridge)
+    engine.rootContext().setContextProperty("systemBridge", system_bridge)
     engine.rootContext().setContextProperty("projectModel", project_model)
 
     # 6. 加载 QML 文件

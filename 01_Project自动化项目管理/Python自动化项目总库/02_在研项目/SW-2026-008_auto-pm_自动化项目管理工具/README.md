@@ -175,19 +175,20 @@ auto-pm gui --debug    # 调试模式（开启日志详细输出）
 
 ## GUI 功能
 
-- **项目中心式导航** - QMainWindow + 左侧侧边栏 + QStackedWidget 切换主区域
-- **项目列表首页** - 项目卡片网格（编号/名称/技术栈徽标/版本/阶段/业务线），统计栏 + 搜索 + 筛选
-- **项目工作区** - Tab 容器（概览/变更/检查/文档 四 Tab）
-- **变更中心** - 变更列表 + 详情面板 + 创建对话框 + 状态流转对话框 + 编辑对话框
-- **变更创建 QWizard 分步向导** - BasicInfoPage 基本信息 → DescriptionPage 变更描述 → ConfirmPage 提交确认（M3-4 T76）
-- **StatusMachineView 可视化状态机** - 水平展示 12 状态节点 + 11 箭头；当前状态蓝色边框 + 目标状态绿色填充 + 可达状态可点击 + 不可达灰色禁用；节点点击一键流转（M3-4 T77）
-- **ApprovalTimeline 审批时间线** - 垂直展示审批历史：圆点+连接线+状态流转+审批人+意见+日期；12 状态颜色映射（M3-3）
-- **PropagationView 传播链可视化** - QGraphicsView 水平展示跨领域传播链：节点+箭头+领域中文名映射；兼容 `->`/`→` 分隔符（M3-2）
-- **4 维度列表筛选** - 状态 Tab + 领域 + 紧急程度 + 项目下拉筛选；项目下拉选项从变更单列表动态提取（M3-4 T78）
-- **EditChangeDialog 编辑对话框** - QDialog + QTabWidget 双 Tab（基本信息 + 影响分析）；覆盖 10 个可编辑字段（含 dict 类型 constraint_impacts/domain_impacts）（M3-1）
-- **全局功能页** - 规范中心/模板管理/报告中心/系统设置骨架页
-- **项目 CRUD 对话框** - 新建/编辑/删除/导入四个对话框（ui/dialogs/）
-- **多角色适配** - 角色切换菜单（项目经理/PLC工程师/Python工程师/规范编辑），角色-Tab 映射
+> V0.6.0 起 GUI 已迁移至 QML 运行时，V0.9.0 起引入 Facade 接口层。
+
+- **项目中心式导航** - QML 主窗口 + 左侧侧边栏 + StackLayout 切换主区域
+- **项目列表首页** - 项目卡片网格（编号/名称/技术栈徽标/版本/阶段/业务线），统计栏 + 搜索 + 筛选（ProjectListView.qml）
+- **项目工作区** - Tab 容器（概览/变更/检查/文档），工程资产摘要（WorkspaceView.qml）
+- **变更中心** - 变更列表 + 详情面板 + 创建/状态流转/编辑对话框（ChangeCenterView.qml）
+- **变更创建向导** - 分步向导：基本信息 → 变更描述 → 提交确认（NewChangeDialog.qml）
+- **StatusMachineView 可视化状态机** - 水平展示 12 状态节点 + 11 箭头；当前状态高亮 + 可达状态可点击（StatusMachineView.qml）
+- **ApprovalTimeline 审批时间线** - 垂直展示审批历史：圆点+连接线+状态流转+审批人+意见+日期（ApprovalTimeline.qml）
+- **PropagationView 传播链可视化** - 水平展示跨领域传播链：节点+箭头+领域中文名映射（PropagationView.qml）
+- **4 维度列表筛选** - 状态 Tab + 领域 + 紧急程度 + 项目下拉筛选
+- **全局功能页** - 规范中心（SpecCenterView.qml）/模板管理（TemplateView.qml）/报告中心（ReportView.qml）/系统设置（SettingsView.qml）
+- **项目 CRUD 对话框** - 新建向导/编辑/导入对话框（qml/dialogs/）
+- **变量表编辑器** - 8 列变量表展示 + UndoStack ≥20 步（VarTableEditorView.qml）
 - **DB 缓存优先** - 优先读 SQLite 索引缓存，缺失时回退文件系统扫描
 - **缓存同步** - 工具栏同步按钮，调用 SyncService 增量扫描（file_mtime 判据）
 
@@ -225,32 +226,48 @@ uv run pre-commit run --all-files
 ```
 auto-pm/
 ├── auto_pm/                        # 主包
+│   ├── application/                # 应用层 Facade（5 个用例编排入口）
+│   │   ├── workbench_facade.py     # 驾驶舱 + 项目列表 + 项目工作台
+│   │   ├── change_facade.py        # 变更创建/流转/列表/详情
+│   │   ├── spec_facade.py          # 规范中心概览/检查
+│   │   ├── delivery_facade.py      # 文档刷新/报告/资产摘要
+│   │   └── system_facade.py        # PM_SESSION/模板/缓存管理
 │   ├── cli/                        # Click CLI 入口
 │   │   ├── __main__.py             # auto-pm 主入口
 │   │   ├── project.py              # project 子命令组（CRUD + import）
 │   │   ├── change.py               # change 子命令组（变更管理）
-│   │   ├── gui.py                  # gui 命令（PySide6 启动）
-│   │   ├── template.py             # template 子命令组（模板管理）
+│   │   ├── gui.py                  # gui 命令（QML GUI 启动）
 │   │   ├── plc/                    # PLC 技术栈插件
 │   │   └── python/                 # Python 技术栈插件
-│   ├── core/                       # 核心共享层
+│   ├── core/                       # 核心领域服务层
 │   │   ├── project_service.py      # 项目 CRUD 服务 + 文件系统扫描
-│   │   └── template_service.py     # Copier 模板调度
-│   ├── change/                     # 变更管理包（7 模块）
-│   ├── models/                     # Pydantic v2 模型层
-│   ├── db/                         # SQLite 索引缓存层
-│   ├── ui/                         # PySide6 GUI 层（8 子模块：workspace/global_pages/widgets/dialogs/models/navigation/project_list/change_center）
-│   ├── plc/                        # PLC 检查/修复
-│   ├── config/                     # 配置
-│   ├── logging/                    # 日志
+│   │   ├── dashboard_service.py    # 驾驶舱聚合服务
+│   │   ├── protocols.py            # Service Protocol 接口定义
+│   │   ├── paths.py                # 统一路径约定常量
+│   │   └── constants.py            # 业务线/技术栈/阶段常量
+│   ├── change/                     # 变更管理包（parser/generator/service 等 9 模块）
+│   ├── models/                     # Pydantic v2 模型层（project/change/plc/dto/enums）
+│   ├── db/                         # SQLite 索引缓存层（WAL 模式，5 张表）
+│   ├── ui/                         # PySide6 QML GUI 层
+│   │   ├── contracts/              # DTO/Command/Event 接口契约
+│   │   ├── qml/                    # QML 视图/组件/对话框/主题/模型/桥接
+│   │   ├── global_pages/           # 全局页面适配器
+│   │   ├── models/                 # Qt 模型适配器
+│   │   └── registry.py             # Facade 装配器
+│   ├── spec/                       # 规范管理（core + services）
+│   ├── plc/                        # PLC 检查/修复/标准化
+│   ├── vartable/                   # 变量表解析
+│   ├── config/                     # 配置（pydantic-settings）
+│   ├── logging/                    # 日志 + 审计
 │   └── utils/                      # 工具函数
 ├── templates/                      # Copier 模板仓库
 │   ├── plc-standard-project/       # PLC 标准项目模板
 │   ├── plc-shared-library/         # PLC 共享函数库模板
 │   ├── plc-test-suite/             # PLC 测试套件模板
 │   └── python-tool/                # Python 工具项目模板
-├── tests/                          # 测试
-├── 00_项目基础信息/                 # 项目自身文档
+├── tests/                          # 测试（111 文件，含 application/change/core/db/plc/spec 等）
+├── 00_项目基础信息/                 # 项目治理文档（技术债/发布门禁/试运行）
+├── 02_设计/                        # 设计真源（PRD/INT/DSN/TEC/里程碑/原型）
 └── pyproject.toml                  # hatchling 构建配置
 ```
 
@@ -263,7 +280,7 @@ auto-pm/
 | 数据模型 | Pydantic v2 |
 | 配置管理 | pydantic-settings |
 | 模板引擎 | Copier + Jinja2 |
-| GUI 框架 | PySide6 |
+| GUI 框架 | PySide6 (QML 运行时) |
 | 数据库 | SQLite3 (WAL 模式) |
 | 构建 | hatchling |
 | 代码质量 | ruff + mypy (strict) + pytest |
@@ -272,21 +289,31 @@ auto-pm/
 
 > 详细索引见 [docs/归档索引.md](docs/归档索引.md)
 
-### 当前有效文档
+### 设计文档（`02_设计/`，V3.0 设计真源）
 
 | 文档 | 路径 | 说明 |
 |------|------|------|
-| PRD 产品需求文档 | `00_项目基础信息/001_产品需求文档_PRD.md` | 产品需求定义（V2.1.0） |
-| INT 接口文档 | `00_项目基础信息/002_接口文档_INT.md` | CLI/Service/Model 接口声明 |
-| DSN 详细设计说明书 | `00_项目基础信息/003_详细设计说明书_DSN.md` | 模块详细设计 |
-| TEC 技术方案文档 | `00_项目基础信息/004_技术方案文档_TEC.md` | 技术选型与方案 |
-| CHG 变更记录 | `00_项目基础信息/005_变更记录_CHG.md` | 项目级变更记录索引（指向标准变更单） |
-| 技术债评估报告 | `00_项目基础信息/006_技术债评估报告.md` | 技术债跟踪（21 项，18 项已偿还） |
-| 发布门禁规范 | `00_项目基础信息/007_发布门禁规范_REL.md` | 发布前质量门禁定义（V0.3.7+） |
-| 试运行报告 | `00_项目基础信息/008_试运行报告_PILOT.md` | Dogfooding 试运行证据归档（V0.3.7+） |
+| PRD 产品需求文档 | `02_设计/001_产品需求文档_PRD.md` | 产品需求定义（V3.0.0-draft） |
+| INT 接口文档 | `02_设计/002_接口文档_INT.md` | DTO/Command/Event 接口契约 |
+| DSN 详细设计说明书 | `02_设计/003_详细设计说明书_DSN.md` | 五层架构详细设计 |
+| TEC 技术方案文档 | `02_设计/004_技术方案文档_TEC.md` | 技术选型与方案（接口优先策略） |
+| 里程碑与实施计划 | `02_设计/005_里程碑与实施计划.md` | 30 周滚动计划（M0-M9） |
+| UI 架构原型 | `02_设计/006_UI架构原型.html` | HTML 交互原型（方案讨论用） |
+| UI 原型说明 | `02_设计/007_UI架构原型说明.md` | 原型配套说明 |
+
+### 项目治理文档（`00_项目基础信息/`）
+
+| 文档 | 路径 | 说明 |
+|------|------|------|
+| 技术债评估报告 | `00_项目基础信息/006_技术债评估报告.md` | 技术债跟踪（34 项全部偿还） |
+| 发布门禁规范 | `00_项目基础信息/007_发布门禁规范_REL.md` | 发布前质量门禁定义 |
+| 试运行报告 | `00_项目基础信息/008_试运行报告_PILOT.md` | Dogfooding 试运行证据归档 |
+
+### 项目管理文档
+
+| 文档 | 路径 | 说明 |
+|------|------|------|
 | PM_SESSION | `PM_SESSION_SW-2026-008.md` | 项目会话文档（**单一状态真源**） |
-| V2.1 迭代 Spec | `.trae/specs/v2.1-change-management-enhancement/spec.md` | V2.1 变更管理增强迭代规格 |
-| 执行总计划 | `09_整改项/V0.3.0-项目落地执行总计划_重规划版.md` | V0.3.0 落地执行主计划 |
 | CHANGELOG | `CHANGELOG.md` | 变更日志 |
 
 ### 已废弃文档
@@ -295,12 +322,11 @@ auto-pm/
 
 | 文档 | 废弃原因 | 替代文档 |
 |------|----------|----------|
+| `00_项目基础信息/001~005` | V2.1 设计文档，已迁移至 `02_设计/` | `02_设计/001~007` |
 | `docs/example.md` | Copier 模板示例，非项目文档 | 无（可删除） |
-| `docs/gui-prototype/` | V2.0 HTML 原型，已被实际 UI 替代 | `auto_pm/ui/` |
-| `docs/里程碑迭代计划_V2.1.md` | 仅历史/镜像参考，不再作为推进真源 | `.trae/specs/v2.1-change-management-enhancement/spec.md` + `PM_SESSION_SW-2026-008.md` |
-| `09_整改项/V2.0-全功能自动化测试计划.md` | 含已删除的角色系统用例 | `PM_SESSION_SW-2026-008.md` |
-| `09_整改项/GUI-V2.0-测试执行报告.md` | V2.0 测试结果，不再反映当前状态 | `PM_SESSION_SW-2026-008.md` |
-| `09_整改项/archive/` 下全部文档 | V2.0 整改/迭代报告，问题已修复 | `PM_SESSION_SW-2026-008.md` |
+| `docs/gui-prototype/` | V2.0 HTML 原型，已被 V3.0 原型替代 | `02_设计/006_UI架构原型.html` |
+| `docs/里程碑迭代计划_V2.1.md` | V2.1 历史计划 | `02_设计/005_里程碑与实施计划.md` |
+| `09_整改项/archive/` 下全部文档 | V2.0 整改/迭代报告 | `PM_SESSION_SW-2026-008.md` |
 
 ## Dogfooding 证据
 

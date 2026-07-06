@@ -1,11 +1,11 @@
-// ReportView.qml - V0.8.0 Phase 2 报告中心（CHG-091）
+// ReportView.qml - V0.8.0 Phase 2 报告中心（CHG-091?
 //
-// 2×2 卡片网格 + 柱状图，对应 QWidget 版 report_page.py：
-//   ┌─ 项目概览 ─┐ ┌─ 阶段分布 ─┐
-//   ┌─ 业务线分布 ┐ ┌─ 变更统计 ─┐
+// 2×2 卡片网格 + 柱状图，对应 QWidget ?report_page.py?
+//   ┌─ 项目概览 ─?┌─ 阶段分布 ─?
+//   ┌─ 业务线分??┌─ 变更统计 ─?
 //
-// 数据流：bridge.getProjectReport() / bridge.getChangeReport() → 内部 ListModel → 渲染
-// 三重守卫：typeof bridge === "undefined" || bridge === null || !bridge.hasReportService
+// 数据流：deliveryBridge.getProjectReport() / deliveryBridge.getChangeReport() ?内部 ListModel ?渲染
+// 三重守卫：typeof deliveryBridge === "undefined" || deliveryBridge === null || !deliveryBridge.hasService
 
 import QtQuick
 import QtQuick.Controls
@@ -23,17 +23,17 @@ Rectangle {
     // ── 内部数据模型 ────────────────────────────────────
     ListModel { id: projectOverviewModel }   // 项目概览：{label, value, max}
     ListModel { id: phaseModel }              // 阶段分布
-    ListModel { id: blModel }                 // 业务线分布
+    ListModel { id: blModel }                 // 业务线分?
     ListModel { id: changeModel }             // 变更统计
     property string projectSummary: ""        // "总项目数: 13"
-    property string changeSummary: ""        // "总变更: 20"
+    property string changeSummary: ""        // "总变? 20"
     property string errorMessage: ""
 
     // ── 加载数据 ────────────────────────────────────────
     function loadData() {
-        if (typeof bridge === "undefined" || bridge === null || !bridge.hasReportService) {
-            console.warn("[QML] ReportView: ReportService 未启用")
-            errorMessage = "ReportService 未启用"
+        if (typeof deliveryBridge === "undefined" || deliveryBridge === null || !deliveryBridge.hasService) {
+            console.warn("[QML] ReportView: ReportService 未启?)
+            errorMessage = "ReportService 未启?
             projectOverviewModel.clear()
             phaseModel.clear()
             blModel.clear()
@@ -41,8 +41,8 @@ Rectangle {
             return
         }
         errorMessage = ""
-        var projectData = bridge.getProjectReport()
-        var changeData = bridge.getChangeReport()
+        var projectData = deliveryBridge.getProjectReport()
+        var changeData = deliveryBridge.getChangeReport()
 
         if (projectData && projectData.error) {
             errorMessage = projectData.error
@@ -82,9 +82,9 @@ Rectangle {
         var phaseOrder = ["developing", "commissioning", "production", "archived"]
         var phaseLabels = {
             "developing": "开发中",
-            "commissioning": "调试中",
-            "production": "生产中",
-            "archived": "已归档"
+            "commissioning": "调试?,
+            "production": "生产?,
+            "archived": "已归?
         }
         for (var j = 0; j < phaseOrder.length; j++) {
             var pkey = phaseOrder[j]
@@ -95,7 +95,7 @@ Rectangle {
             })
         }
 
-        // 业务线分布
+        // 业务线分?
         var byBl = projectData.by_business_line || {}
         var blMax = 0
         for (var k3 in byBl) {
@@ -114,8 +114,8 @@ Rectangle {
             }
         }
 
-        // 变更统计：按状态
-        changeSummary = "总变更: " + (changeData.total || 0)
+        // 变更统计：按状?
+        changeSummary = "总变? " + (changeData.total || 0)
         var byStatus = changeData.by_status || {}
         var statusMax = 0
         for (var k4 in byStatus) {
@@ -129,16 +129,16 @@ Rectangle {
         ]
         var statusLabels = {
             "draft": "草稿",
-            "submitted": "已提交",
-            "under_review": "审核中",
-            "approved": "已批准",
-            "conditionally_approved": "有条件批准",
-            "rejected": "已驳回",
-            "implementing": "实施中",
-            "pending_acceptance": "待验收",
-            "accepting": "验收中",
-            "completed": "已完成",
-            "closed": "已关闭"
+            "submitted": "已提?,
+            "under_review": "审核?,
+            "approved": "已批?,
+            "conditionally_approved": "有条件批?,
+            "rejected": "已驳?,
+            "implementing": "实施?,
+            "pending_acceptance": "待验?,
+            "accepting": "验收?,
+            "completed": "已完?,
+            "closed": "已关?
         }
         var rendered = {}
         for (var n = 0; n < statusOrder.length; n++) {
@@ -152,7 +152,7 @@ Rectangle {
                 rendered[skey] = true
             }
         }
-        // 兜底：未在预定义顺序中的状态
+        // 兜底：未在预定义顺序中的状?
         for (var s2 in byStatus) {
             if (!rendered[s2]) {
                 changeModel.append({
@@ -212,18 +212,18 @@ Rectangle {
             }
 
             Text {
-                text: "项目与变更统计概览"
+                text: "项目与变更统计概?
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
         }
     }
 
-    // ── 错误状态 ────────────────────────────────────────
+    // ── 错误状?────────────────────────────────────────
     Text {
         visible: errorMessage !== ""
         anchors.centerIn: parent
-        text: "⚠ " + errorMessage
+        text: "?" + errorMessage
         color: Theme.error
         font.pixelSize: Theme.fontSizeMd
     }
@@ -241,7 +241,7 @@ Rectangle {
         rowSpacing: Theme.spacingMd
         visible: errorMessage === ""
 
-        // 卡片 1：项目概览
+        // 卡片 1：项目概?
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -277,7 +277,7 @@ Rectangle {
             }
         }
 
-        // 卡片 2：阶段分布
+        // 卡片 2：阶段分?
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -322,7 +322,7 @@ Rectangle {
                 spacing: Theme.spacingXs
 
                 Text {
-                    text: "业务线分布"
+                    text: "业务线分?
                     font.pixelSize: Theme.fontSizeMd
                     font.bold: true
                     color: Theme.primary
@@ -337,7 +337,7 @@ Rectangle {
             }
         }
 
-        // 卡片 4：变更统计
+        // 卡片 4：变更统?
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -376,3 +376,4 @@ Rectangle {
 
     Component.onCompleted: loadData()
 }
+

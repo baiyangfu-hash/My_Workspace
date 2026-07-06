@@ -1,21 +1,21 @@
-// main.qml - V0.8.0 QML 主入口（V0.6.0 W2 完整版 + V0.8.0 Phase 1+2 扩展）
+// main.qml - V0.8.0 QML 主入口（V0.6.0 W2 完整?+ V0.8.0 Phase 1+2 扩展?
 //
-// V0.6.0 W2 扩展：
-// - 完整侧边栏导航（项目列表 / 变更中心 / 规范中心 / 设置）
+// V0.6.0 W2 扩展?
+// - 完整侧边栏导航（项目列表 / 变更中心 / 规范中心 / 设置?
 // - StackView 页面切换
-// - 顶部工具栏（工作空间路径 + 应用标题）
-// - 状态栏（项目数 / 变更数 / DB 状态）
+// - 顶部工具栏（工作空间路径 + 应用标题?
+// - 状态栏（项目数 / 变更?/ DB 状态）
 //
 // V0.8.0 Phase 1 扩展（CHG-090）：
-// - 侧边栏补全 6 入口（新增报告中心 + 模板管理，激活规范中心 + 设置占位）
-// - StackLayout 扩展 4 个新分支（占位 Rectangle，CHG-091 实现真实页面）
-// - 版本号 V0.6.0 → V0.8.0
+// - 侧边栏补?6 入口（新增报告中?+ 模板管理，激活规范中?+ 设置占位?
+// - StackLayout 扩展 4 个新分支（占?Rectangle，CHG-091 实现真实页面?
+// - 版本?V0.6.0 ?V0.8.0
 //
 // V0.8.0 Phase 2 扩展（CHG-091）：
-// - StackLayout 4 个占位 Rectangle 替换为真实页面组件
-//   （SpecCenterView / ReportView / TemplateView / SettingsView）
+// - StackLayout 4 个占?Rectangle 替换为真实页面组?
+//   （SpecCenterView / ReportView / TemplateView / SettingsView?
 //
-// 通过 context property 访问：bridge（QmlBridge） / projectModel（ProjectListModel） / changeModel（ChangeListModel）
+// 通过 context property 访问：bridge（QmlBridge?/ projectModel（ProjectListModel?/ changeModel（ChangeListModel?
 
 import QtQuick
 import QtQuick.Controls
@@ -32,13 +32,13 @@ ApplicationWindow {
     title: "auto-pm V0.8.0 (QML)"
     color: Theme.background
 
-    // ── 当前页面状态 ────────────────────────────────────
+    // ── 当前页面状?────────────────────────────────────
     // "projectList" / "workspace" / "changeCenter" / "specCenter" / "reportCenter" / "templateManage" / "settings"
     property string currentPage: "projectList"
     property string currentProjectId: ""
     property string currentProjectName: ""
 
-    // ── 顶部标题栏 ──────────────────────────────────────
+    // ── 顶部标题?──────────────────────────────────────
     Rectangle {
         id: header
         anchors.left: parent.left
@@ -91,7 +91,7 @@ ApplicationWindow {
         anchors.bottom: statusbar.top
         spacing: 0
 
-        // ── 侧边栏导航 ──────────────────────────────────
+        // ── 侧边栏导?──────────────────────────────────
         Rectangle {
             Layout.preferredWidth: Theme.sidebarWidth
             Layout.fillHeight: true
@@ -152,7 +152,7 @@ ApplicationWindow {
                     }
                 }
 
-                // 规范中心（V0.8.0 Phase 1 激活，CHG-090）
+                // 规范中心（V0.8.0 Phase 1 激活，CHG-090?
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
@@ -173,7 +173,7 @@ ApplicationWindow {
                     }
                 }
 
-                // 报告中心（V0.8.0 Phase 1 新增，CHG-090）
+                // 报告中心（V0.8.0 Phase 1 新增，CHG-090?
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
@@ -194,7 +194,7 @@ ApplicationWindow {
                     }
                 }
 
-                // 模板管理（V0.8.0 Phase 1 新增，CHG-090）
+                // 模板管理（V0.8.0 Phase 1 新增，CHG-090?
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
@@ -215,7 +215,7 @@ ApplicationWindow {
                     }
                 }
 
-                // 设置（V0.8.0 Phase 1 激活，CHG-090）
+                // 设置（V0.8.0 Phase 1 激活，CHG-090?
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
@@ -238,22 +238,22 @@ ApplicationWindow {
 
                 Item { Layout.fillHeight: true }
 
-                // 项目数统计
+                // 项目数统?
                 Text {
-                    text: "项目数: " + (projectModel ? projectModel.rowCount() : 0)
+                    text: "项目? " + (projectModel ? projectModel.rowCount() : 0)
                     color: "#94a3b8"
                     font.pixelSize: Theme.fontSizeXs
                 }
 
                 Text {
-                    text: "变更数: " + (typeof bridge !== "undefined" && bridge !== null && bridge.hasChangeService ? bridge.listAllChanges().length : 0)
+                    text: "变更? " + (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService ? changeBridge.listAllChanges().length : 0)
                     color: "#94a3b8"
                     font.pixelSize: Theme.fontSizeXs
                 }
             }
         }
 
-        // ── 页面内容区 ──────────────────────────────────
+        // ── 页面内容?──────────────────────────────────
         StackLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -268,7 +268,7 @@ ApplicationWindow {
                 return 0
             }
 
-            // 0. 项目列表页
+            // 0. 项目列表?
             ProjectListView {
                 id: projectListView
                 onProjectClicked: {
@@ -287,7 +287,7 @@ ApplicationWindow {
                 }
             }
 
-            // 2. 变更中心页
+            // 2. 变更中心?
             ChangeCenterView {
                 id: changeCenterView
                 onBackToProjectList: {
@@ -295,25 +295,25 @@ ApplicationWindow {
                 }
             }
 
-            // 3. 规范中心页（V0.8.0 Phase 2 实现，CHG-091）
+            // 3. 规范中心页（V0.8.0 Phase 2 实现，CHG-091?
             SpecCenterView {
                 id: specCenterView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
-            // 4. 报告中心页（V0.8.0 Phase 2 实现，CHG-091）
+            // 4. 报告中心页（V0.8.0 Phase 2 实现，CHG-091?
             ReportView {
                 id: reportView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
-            // 5. 模板管理页（V0.8.0 Phase 2 实现，CHG-091）
+            // 5. 模板管理页（V0.8.0 Phase 2 实现，CHG-091?
             TemplateView {
                 id: templateView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
-            // 6. 设置页（V0.8.0 Phase 2 实现，CHG-091）
+            // 6. 设置页（V0.8.0 Phase 2 实现，CHG-091?
             SettingsView {
                 id: settingsView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
@@ -345,7 +345,7 @@ ApplicationWindow {
             spacing: Theme.spacingMd
 
             Text {
-                text: "● 就绪"
+                text: "?就绪"
                 color: Theme.success
                 font.pixelSize: Theme.fontSizeXs
             }
@@ -357,7 +357,7 @@ ApplicationWindow {
             }
 
             Text {
-                text: "变更: " + (typeof bridge !== "undefined" && bridge !== null && bridge.hasChangeService ? bridge.listAllChanges().length : "N/A")
+                text: "变更: " + (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService ? changeBridge.listAllChanges().length : "N/A")
                 color: Theme.textSecondary
                 font.pixelSize: Theme.fontSizeXs
             }
@@ -372,7 +372,7 @@ ApplicationWindow {
         }
     }
 
-    // ── 监听 bridge.projectSelected 信号 ────────────────
+    // ── 监听 workbenchBridge.projectSelected 信号 ────────────────
     Connections {
         target: typeof bridge !== "undefined" && bridge !== null ? bridge : null
         function onProjectSelected(projectId, projectName) {
@@ -383,15 +383,16 @@ ApplicationWindow {
         }
     }
 
-    // ── 启动时加载项目数据 ──────────────────────────────
+    // ── 启动时加载项目数?──────────────────────────────
     Component.onCompleted: {
         if (typeof bridge !== "undefined" && bridge !== null) {
             console.log("[QML main] bridge 可用，初始化数据...")
-            var projects = bridge.listProjects()
-            console.log("[QML main] 加载到 " + projects.length + " 个项目")
+            var projects = workbenchBridge.listProjects()
+            console.log("[QML main] 加载?" + projects.length + " 个项?)
             projectModel.setProjects(projects)
         } else {
-            console.warn("[QML main] bridge 未注入")
+            console.warn("[QML main] bridge 未注?)
         }
     }
 }
+

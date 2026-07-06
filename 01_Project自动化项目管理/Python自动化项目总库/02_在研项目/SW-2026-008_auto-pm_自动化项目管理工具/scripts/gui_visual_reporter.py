@@ -23,12 +23,10 @@
 from __future__ import annotations
 
 import json
-import os
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-
 
 # ── 控件类名 → 源代码文件映射（启发式） ──────────────────
 
@@ -310,7 +308,7 @@ class VisualReporter:
         )
 
         # 3. AI 修复建议模板 JSON
-        fix_template_path = report_dir / f"ai_fix_suggestions_template.json"
+        fix_template_path = report_dir / "ai_fix_suggestions_template.json"
         fix_template_path.write_text(
             json.dumps(_AI_FIX_SCHEMA, ensure_ascii=False, indent=2),
             encoding="utf-8",

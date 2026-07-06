@@ -86,7 +86,7 @@ class ProjectListModel(QAbstractListModel):
     # ── 数据更新接口 ──────────────────────────────────────
 
     @Slot(list)
-    def setProjects(self, projects: list[ProjectInfo]) -> None:
+    def setProjects(self, projects: list[Any]) -> None:
         """批量替换项目列表（重置模型）
 
         @Slot(list) 装饰器使 QML 端可调用 projectModel.setProjects(projects)。

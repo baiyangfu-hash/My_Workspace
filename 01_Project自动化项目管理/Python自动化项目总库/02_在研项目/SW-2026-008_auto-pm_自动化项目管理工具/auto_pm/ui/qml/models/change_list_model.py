@@ -64,7 +64,12 @@ class ChangeListModel(QAbstractListModel):
         if role_name is None:
             return None
 
-        value = change.get(role_name, "")
+        # Compatible with both dict and DTOs
+        if isinstance(change, dict):
+            value = change.get(role_name, "")
+        else:
+            value = getattr(change, role_name, "")
+
         # impact_scope 是 list，转字符串
         if isinstance(value, list):
             return ",".join(str(v) for v in value)
@@ -87,7 +92,7 @@ class ChangeListModel(QAbstractListModel):
     # ── 数据更新接口 ──────────────────────────────────────
 
     @Slot(list)
-    def setChanges(self, changes: list[dict[str, Any]]) -> None:
+    def setChanges(self, changes: list[Any]) -> None:
         """批量替换变更列表（重置模型）
 
         @Slot(list) 装饰器使 QML 端可调用 changeModel.setChanges(changes)。

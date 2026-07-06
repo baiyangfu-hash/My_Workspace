@@ -25,8 +25,7 @@ from auto_pm.core.project_scanner import ProjectScanner
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.logging.logging import setup_logger
-from auto_pm.models import ProjectInfo, ProjectRecord
-from auto_pm.models.dto import ProjectCardDTO
+from auto_pm.models import ProjectInfo, ProjectListItem, ProjectRecord
 from auto_pm.models.project import extract_business_line
 from auto_pm.utils.file_utils import StaleFileError, get_mtime, write_file
 
@@ -55,6 +54,18 @@ class ProjectService:
         )
         # M3-Iter1: 组合 ProjectScanner，委托扫描/识别逻辑
         self._scanner = ProjectScanner(self.workspace_root)
+
+    def inject_db(self, db: DatabaseManager) -> None:
+        """运行时注入 DatabaseManager 并重建 Repository
+
+        用于无法在构造时传入 db 的场景（如 UI 层先创建 Service，后初始化 DB）。
+
+        Args:
+            db: DatabaseManager 实例
+        """
+        self.db = db
+        self._repo = ProjectRepository(db)
+        self._repo_change = ChangeRequestRepository(db)
 
     # ── 项目列表 ──────────────────────────────────────────
 
@@ -142,7 +153,7 @@ class ProjectService:
             projects = [p for p in projects if p.business_line == business_line]
         return projects
 
-    def list_projects_with_change_count(self) -> list[ProjectCardDTO]:
+    def list_projects_with_change_count(self) -> list[ProjectListItem]:
         """返回带变更数统计的项目列表（用于卡片展示）
 
         Raises:
@@ -152,7 +163,7 @@ class ProjectService:
             raise RuntimeError("未注入 DatabaseManager，无法使用缓存模式")
 
         projects = self.list_projects_cached()
-        result: list[ProjectCardDTO] = []
+        result: list[ProjectListItem] = []
         for p in projects:
             change_count = (
                 self._repo_change.count_by_project(p.project_id)
@@ -160,22 +171,38 @@ class ProjectService:
                 else 0
             )
             result.append(
-                ProjectCardDTO(
+                ProjectListItem(
                     project_id=p.project_id,
                     name=p.name,
-                    stack=p.stack,
-                    phase=p.phase,
-                    version=p.version,
-                    business_line=p.business_line,
-                    change_count=change_count,
                     path=p.path,
-                    file_mtime=p.file_mtime,
-                    description=p.description,
+                    stack=p.stack,
+                    version=p.version,
+                    phase=p.phase,
+                    business_line=str(p.business_line) if p.business_line else "",
+                    change_count=change_count,
                 )
             )
         return result
 
-    # ── 项目查询 ──────────────────────────────────────────
+    def get_project_count(self) -> int:
+        """获取项目总数（优先查缓存）"""
+        if self._repo is not None and hasattr(self._repo, "count"):
+            try:
+                return int(self._repo.count())
+            except Exception:
+                return 0
+        try:
+            return len(self.list_projects_cached())
+        except Exception:
+            return 0
+
+    def get_db_path(self) -> str:
+        """获取 DB 文件路径（若未初始化则返回空字符串）"""
+        if self.db is not None and hasattr(self.db, "db_path"):
+            return str(self.db.db_path)
+        return ""
+
+    # ── 内部辅助方法 ──────────────────────────────────────────
 
     def get_project(self, project_id: str) -> Optional[ProjectInfo]:
         """按 project_id 查询项目

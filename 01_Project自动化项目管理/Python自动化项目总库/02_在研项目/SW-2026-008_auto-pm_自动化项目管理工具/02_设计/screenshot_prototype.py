@@ -1,5 +1,7 @@
+# ruff: noqa: T201
 import asyncio
 import os
+
 from playwright.async_api import async_playwright
 
 PROTOTYPE_PATH = r"c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具\02_设计\GUI原型.html"

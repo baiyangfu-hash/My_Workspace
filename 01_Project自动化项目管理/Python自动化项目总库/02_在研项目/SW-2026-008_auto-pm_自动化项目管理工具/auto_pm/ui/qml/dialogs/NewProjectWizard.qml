@@ -3,7 +3,7 @@
 // 3 步分步向导：
 // 1. 基本信息（项目 ID + 名称 + 技术栈 + 业务线）
 // 2. 模式选择（标准单机/多项目共用 + PLC/Python 选项）
-// 3. 确认创建（预览配置 + 调用 bridge.createProject）
+// 3. 确认创建（预览配置 + 调用 workbenchBridge.createProject）
 //
 // 通过 context property 访问：bridge（QmlBridge）
 
@@ -303,7 +303,7 @@ Item {
                             } else {
                                 // 调用 bridge 创建项目
                                 if (typeof bridge !== "undefined" && bridge !== null) {
-                                    bridge.createProject(
+                                    workbenchBridge.createProject(
                                         root.projectId, root.projectName,
                                         root.stack, root.mode, root.businessLine
                                     )

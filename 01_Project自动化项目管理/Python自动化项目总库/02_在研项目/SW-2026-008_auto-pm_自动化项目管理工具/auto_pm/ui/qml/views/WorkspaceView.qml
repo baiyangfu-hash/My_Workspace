@@ -1,13 +1,13 @@
-// WorkspaceView.qml - V0.6.0 W2-S2 项目工作区（5 Tab）
+// WorkspaceView.qml - V0.6.0 W2-S2 项目工作区（5 Tab?
 //
-// 项目工作区主页面，使用 TabBar 组件实现 5 个 Tab：
+// 项目工作区主页面，使?TabBar 组件实现 5 ?Tab?
 // - 概览 Tab：项目元信息卡片网格
-// - 变更 Tab：项目变更单 ListView + 状态徽标
-// - 检查 Tab：specmgr 报告渲染
+// - 变更 Tab：项目变更单 ListView + 状态徽?
+// - 检?Tab：specmgr 报告渲染
 // - 文档 Tab：文档树 + Markdown 渲染（占位）
-// - 变量表 Tab：变量表编辑器（占位，W3 实现）
+// - 变量?Tab：变量表编辑器（占位，W3 实现?
 //
-// 数据流：bridge.projectSelected 信号 → setProject(projectId, projectName) → 加载各 Tab 数据
+// 数据流：workbenchBridge.projectSelected 信号 ?setProject(projectId, projectName) ?加载?Tab 数据
 
 import QtQuick
 import QtQuick.Controls
@@ -19,12 +19,12 @@ Rectangle {
     id: root
     color: Theme.background
 
-    // ── 公开属性 ────────────────────────────────────────
+    // ── 公开属?────────────────────────────────────────
     property string currentProjectId: ""
     property string currentProjectName: ""
-    property var currentProjectDetail: ({})  // bridge.getProjectById 返回的 dict
-    property var changesList: []              // 当前项目的变更列表
-    property var specCheckResult: ({})        // 规范检查结果
+    property var currentProjectDetail: ({})  // workbenchBridge.getProjectById 返回?dict
+    property var changesList: []              // 当前项目的变更列?
+    property var specCheckResult: ({})        // 规范检查结?
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
@@ -37,19 +37,19 @@ Rectangle {
 
         // 加载项目详情
         if (typeof bridge !== "undefined" && bridge !== null) {
-            root.currentProjectDetail = bridge.getProjectById(projectId)
+            root.currentProjectDetail = workbenchBridge.getProjectById(projectId)
             console.log("[QML] WorkspaceView: 项目详情 " + (Object.keys(root.currentProjectDetail).length) + " 字段")
 
             // 加载项目变更列表
-            if (bridge.hasChangeService) {
-                root.changesList = bridge.listChanges(projectId)
-                console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " 条")
+            if (changeBridge.hasService) {
+                root.changesList = changeBridge.listChanges(projectId)
+                console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " ?)
             } else {
                 root.changesList = []
             }
         }
 
-        // 重置 Tab 到概览
+        // 重置 Tab 到概?
         tabBar.currentTabIndex = 0
         loadCurrentTab()
     }
@@ -69,20 +69,20 @@ Rectangle {
     }
 
     function loadChangeTab() {
-        if (typeof bridge !== "undefined" && bridge !== null && bridge.hasChangeService) {
-            root.changesList = bridge.listChanges(root.currentProjectId)
+        if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+            root.changesList = changeBridge.listChanges(root.currentProjectId)
         }
     }
 
     function loadCheckTab() {
-        if (typeof bridge !== "undefined" && bridge !== null && bridge.hasSpecService) {
-            console.log("[QML] WorkspaceView: 运行规范检查...")
-            root.specCheckResult = bridge.runSpecCheck()
-            console.log("[QML] WorkspaceView: 规范检查完成 " +
+        if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
+            console.log("[QML] WorkspaceView: 运行规范检?..")
+            root.specCheckResult = specBridge.runSpecCheck()
+            console.log("[QML] WorkspaceView: 规范检查完?" +
                 "error=" + (root.specCheckResult.error_count || 0) +
                 " warn=" + (root.specCheckResult.warning_count || 0))
         } else {
-            root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服务"}
+            root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服?}
         }
     }
 
@@ -94,7 +94,7 @@ Rectangle {
         // W2 占位：W3 实现变量表编辑器
     }
 
-    // ── 顶部导航栏 ──────────────────────────────────────
+    // ── 顶部导航?──────────────────────────────────────
     Rectangle {
         id: navBar
         anchors.left: parent.left
@@ -118,7 +118,7 @@ Rectangle {
             spacing: Theme.spacingSm
 
             PrimaryButton {
-                text: "← 返回"
+                text: "?返回"
                 type: "ghost"
                 Layout.preferredWidth: 80
                 onClicked: root.backToProjectList()
@@ -153,7 +153,7 @@ Rectangle {
                         "production": "生产",
                         "archived": "归档"
                     }
-                    return phaseMap[root.currentProjectDetail.phase] || "未分类"
+                    return phaseMap[root.currentProjectDetail.phase] || "未分?
                 }
                 type: root.currentProjectDetail.phase || "default"
             }
@@ -166,17 +166,17 @@ Rectangle {
         }
     }
 
-    // ── Tab 栏 ──────────────────────────────────────────
+    // ── Tab ?──────────────────────────────────────────
     TabBar {
         id: tabBar
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: navBar.bottom
-        tabs: ["概览", "变更", "检查", "文档", "变量表"]
+        tabs: ["概览", "变更", "检?, "文档", "变量?]
         onCurrentTabChanged: loadCurrentTab()
     }
 
-    // ── Tab 内容区（StackLayout 切换） ─────────────────
+    // ── Tab 内容区（StackLayout 切换?─────────────────
     Rectangle {
         id: tabContent
         anchors.left: parent.left
@@ -213,24 +213,24 @@ Rectangle {
                                   "技术栈: " + (root.currentProjectDetail.stack || "") + "\n" +
                                   "阶段: " + (root.currentProjectDetail.phase || "") + "\n" +
                                   "版本: " + (root.currentProjectDetail.version || "") + "\n" +
-                                  "业务线: " + (root.currentProjectDetail.business_line || "")
+                                  "业务? " + (root.currentProjectDetail.business_line || "")
                     }
 
                     // PLC 信息
                     Card {
                         Layout.fillWidth: true
                         title: "PLC 信息"
-                        bodyText: "PLC 品牌: " + (root.currentProjectDetail.plc_vendor || "未配置") + "\n" +
-                                  "PLC 型号: " + (root.currentProjectDetail.plc_model || "未配置") + "\n" +
-                                  "设备类型: " + (root.currentProjectDetail.equipment_type || "未配置")
+                        bodyText: "PLC 品牌: " + (root.currentProjectDetail.plc_vendor || "未配?) + "\n" +
+                                  "PLC 型号: " + (root.currentProjectDetail.plc_model || "未配?) + "\n" +
+                                  "设备类型: " + (root.currentProjectDetail.equipment_type || "未配?)
                     }
 
                     // 项目类型
                     Card {
                         Layout.fillWidth: true
                         title: "项目分类"
-                        bodyText: "项目类型: " + (root.currentProjectDetail.project_type || "未配置") + "\n" +
-                                  "业务线: " + (root.currentProjectDetail.business_line || "")
+                        bodyText: "项目类型: " + (root.currentProjectDetail.project_type || "未配?) + "\n" +
+                                  "业务? " + (root.currentProjectDetail.business_line || "")
                     }
 
                     // 描述
@@ -266,7 +266,7 @@ Rectangle {
                 spacing: Theme.spacingSm
                 model: root.changesList
 
-                // 空状态
+                // 空状?
                 Text {
                     anchors.centerIn: parent
                     visible: root.changesList.length === 0
@@ -300,7 +300,7 @@ Rectangle {
                             }
 
                             Text {
-                                text: modelData.title || "(无标题)"
+                                text: modelData.title || "(无标?"
                                 font.pixelSize: Theme.fontSizeSm
                                 color: Theme.textSecondary
                                 elide: Text.ElideRight
@@ -328,7 +328,7 @@ Rectangle {
             }
         }
 
-        // ─── 检查 Tab ────────────────────────────────────
+        // ─── 检?Tab ────────────────────────────────────
         Rectangle {
             id: checkTab
             anchors.fill: parent
@@ -340,14 +340,14 @@ Rectangle {
                 anchors.margins: Theme.spacingLg
                 spacing: Theme.spacingMd
 
-                // 检查摘要
+                // 检查摘?
                 Card {
                     Layout.fillWidth: true
-                    title: "规范检查报告"
+                    title: "规范检查报?
                     bodyText: {
                         var r = root.specCheckResult
                         if (r.error_count === -1) {
-                            return "未启用规范检查服务或检查失败"
+                            return "未启用规范检查服务或检查失?
                         }
                         return "错误: " + (r.error_count || 0) + "\n" +
                                "警告: " + (r.warning_count || 0) + "\n" +
@@ -357,14 +357,14 @@ Rectangle {
                 }
 
                 PrimaryButton {
-                    text: "重新运行检查"
+                    text: "重新运行检?
                     type: "primary"
                     Layout.preferredWidth: 120
-                    enabled: typeof bridge !== "undefined" && bridge !== null && bridge.hasSpecService
+                    enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
                     onClicked: loadCheckTab()
                 }
 
-                // 检查结果列表
+                // 检查结果列?
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -424,7 +424,7 @@ Rectangle {
             }
         }
 
-        // ─── 文档 Tab（W2 占位） ─────────────────────────
+        // ─── 文档 Tab（W2 占位?─────────────────────────
         Rectangle {
             id: docTab
             anchors.fill: parent
@@ -433,7 +433,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "文档 Tab\n\nW3 实现：\n- 文档树（项目目录结构）\n- Markdown 渲染\n- 自动区标记"
+                text: "文档 Tab\n\nW3 实现：\n- 文档树（项目目录结构）\n- Markdown 渲染\n- 自动区标?
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeLg
                 horizontalAlignment: Text.AlignHCenter
@@ -441,7 +441,7 @@ Rectangle {
             }
         }
 
-        // ─── 变量表 Tab（W2 占位） ───────────────────────
+        // ─── 变量?Tab（W2 占位?───────────────────────
         Rectangle {
             id: varTableTab
             anchors.fill: parent
@@ -450,7 +450,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "变量表 Tab\n\nW3 实现：\n- QML TableView 8 列\n- 单元格编辑 + 校验\n- 批量操作 + 撤销重做\n- 万行虚拟化"
+                text: "变量?Tab\n\nW3 实现：\n- QML TableView 8 列\n- 单元格编?+ 校验\n- 批量操作 + 撤销重做\n- 万行虚拟?
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeLg
                 horizontalAlignment: Text.AlignHCenter
@@ -459,3 +459,4 @@ Rectangle {
         }
     }
 }
+
