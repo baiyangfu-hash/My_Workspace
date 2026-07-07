@@ -9,12 +9,12 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import shutil
 from datetime import datetime
 
-from auto_pm.logging.logging import setup_logger
 from auto_pm.plc.checker import PlcChecker
 from auto_pm.plc.models import (
     NAMING_RULES,
@@ -24,7 +24,7 @@ from auto_pm.plc.models import (
     StandardizeResult,
 )
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class PlcRepairer:

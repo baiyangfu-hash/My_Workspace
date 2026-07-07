@@ -1,13 +1,17 @@
 """Change Facade 接口层"""
 
-from typing import Any
-
 from auto_pm.core.protocols import ChangeServiceProtocol
+from auto_pm.models import ChangeRequest, ChangeSummary
 from auto_pm.ui.contracts.commands.change_commands import (
     CreateChangeCommand,
     TransitionChangeCommand,
 )
-from auto_pm.ui.contracts.dto.change_dto import ChangeRequestDTO, ChangeSummaryDTO
+from auto_pm.ui.contracts.dto.change_dto import (
+    ChangeRequestDTO,
+    ChangeSummaryDTO,
+    ChangeTimelineItemDTO,
+    ChangeValidationSummaryDTO,
+)
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
 
 
@@ -21,7 +25,7 @@ class ChangeFacade:
     def has_service(self) -> bool:
         return self._change_service is not None
 
-    def _summary_to_dto(self, summary: Any) -> ChangeSummaryDTO:
+    def _summary_to_dto(self, summary: ChangeSummary) -> ChangeSummaryDTO:
         return ChangeSummaryDTO(
             change_number=summary.change_number,
             project_id=summary.project_id,
@@ -36,7 +40,7 @@ class ChangeFacade:
             urgency=str(summary.urgency),
         )
 
-    def _request_to_dto(self, cr: Any) -> ChangeRequestDTO:
+    def _request_to_dto(self, cr: ChangeRequest) -> ChangeRequestDTO:
         sections = getattr(cr, "sections", {}) or {}
         return ChangeRequestDTO(
             change_number=cr.change_number,
@@ -90,12 +94,12 @@ class ChangeFacade:
                 return CommandResult(success=False, message="No change_service", payload=None)
             # ChangeService.create_change_request requires:
             # project_id, domain, business_nature, impact_scope, applicant, background, necessity
-            # plus optional ones. We extract from command.
+            # M3: impact_scope 从 command 透传（M2 之前硬编码为 []）
             cr = self._change_service.create_change_request(
                 project_id=command.project_id,
                 domain=command.domain,
                 business_nature=command.nature,
-                impact_scope=[],  # TODO: CreateChangeCommand 暂未携带 impact_scope，待 GUI 支持后补齐
+                impact_scope=list(command.impact_scope),
                 applicant=command.applicant,
                 background=command.background,
                 necessity=command.necessity,
@@ -122,3 +126,73 @@ class ChangeFacade:
             return CommandResult(success=True, message="Transitioned successfully", payload=self._request_to_dto(cr))
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)
+
+    def get_change_timeline(self, change_id: str) -> QueryResult[list[ChangeTimelineItemDTO]]:
+        """获取变更单审批时间线（M3 新增）
+
+        数据流：ChangeService.list_approval_history() → list[ApprovalRecord]
+              → 映射为 list[ChangeTimelineItemDTO]
+        """
+        try:
+            if not self._change_service:
+                return QueryResult(success=False, message="No change_service", payload=[])
+            records = self._change_service.list_approval_history(change_id)
+            dtos = [
+                ChangeTimelineItemDTO(
+                    from_status=str(r.from_status),
+                    to_status=str(r.to_status),
+                    approver=str(r.approver),
+                    comment=str(r.comment or ""),
+                    transition_date=str(r.transition_date or ""),
+                )
+                for r in records
+            ]
+            return QueryResult(success=True, message="Success", payload=dtos)
+        except Exception as e:
+            return QueryResult(success=False, message=str(e), payload=[])
+
+    def get_change_validation_summary(
+        self, change_id: str
+    ) -> QueryResult[ChangeValidationSummaryDTO | None]:
+        """获取变更验证摘要（M3 新增）
+
+        聚合数据：
+        - ImpactAnalysis（risk_level / mitigation / propagation_chain / domain_impacts / related_changes）
+        - ApprovalHistory 计数 + 最新时间
+        - ChangeRequest.current_status
+        """
+        try:
+            if not self._change_service:
+                return QueryResult(success=False, message="No change_service", payload=None)
+
+            cr = self._change_service.get_change_request(change_id)
+            if cr is None:
+                return QueryResult(
+                    success=False, message=f"Change {change_id} not found", payload=None
+                )
+
+            impact = self._change_service.get_impact_analysis(change_id)
+            approvals = self._change_service.list_approval_history(change_id)
+
+            approval_count = len(approvals)
+            last_approval_date: str | None = None
+            if approvals:
+                # list_approval_history 按 id 升序（时间顺序），最后一条为最新
+                last_approval_date = str(
+                    getattr(approvals[-1], "transition_date", "") or ""
+                ) or None
+
+            dto = ChangeValidationSummaryDTO(
+                change_number=change_id,
+                current_status=str(cr.status),
+                risk_level=str(getattr(impact, "risk_level", "")) if impact else "",
+                mitigation=str(getattr(impact, "mitigation", "")) if impact else "",
+                propagation_chain=str(getattr(impact, "propagation_chain", "")) if impact else "",
+                approval_count=approval_count,
+                last_approval_date=last_approval_date,
+                domain_impacts=dict(getattr(impact, "domain_impacts", {}) or {}) if impact else {},
+                related_changes=list(getattr(impact, "related_changes", []) or []) if impact else [],
+            )
+            return QueryResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return QueryResult(success=False, message=str(e), payload=None)

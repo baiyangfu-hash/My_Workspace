@@ -1,13 +1,13 @@
-// WorkspaceView.qml - V0.6.0 W2-S2 项目工作区（5 Tab?
+// WorkspaceView.qml - V0.6.0 W2-S2 项目工作区（5 Tab）
 //
-// 项目工作区主页面，使?TabBar 组件实现 5 ?Tab?
+// 项目工作区主页面，使用 TabBar 组件实现 5 个 Tab
 // - 概览 Tab：项目元信息卡片网格
-// - 变更 Tab：项目变更单 ListView + 状态徽?
-// - 检?Tab：specmgr 报告渲染
+// - 变更 Tab：项目变更单 ListView + 状态徽章
+// - 检查 Tab：specmgr 报告渲染
 // - 文档 Tab：文档树 + Markdown 渲染（占位）
-// - 变量?Tab：变量表编辑器（占位，W3 实现?
+// - 变量表 Tab：变量表编辑器（占位，W3 实现）
 //
-// 数据流：workbenchBridge.projectSelected 信号 ?setProject(projectId, projectName) ?加载?Tab 数据
+// 数据流：workbenchBridge.projectSelected 信号 → setProject(projectId, projectName) → 加载各 Tab 数据
 
 import QtQuick
 import QtQuick.Controls
@@ -19,12 +19,13 @@ Rectangle {
     id: root
     color: Theme.background
 
-    // ── 公开属?────────────────────────────────────────
+    // ── 公开属性 ────────────────────────────────────────
     property string currentProjectId: ""
     property string currentProjectName: ""
-    property var currentProjectDetail: ({})  // workbenchBridge.getProjectById 返回?dict
-    property var changesList: []              // 当前项目的变更列?
-    property var specCheckResult: ({})        // 规范检查结?
+    property var currentProjectDetail: ({})  // workbenchBridge.getProjectById 返回的 dict
+    property var changesList: []              // 当前项目的变更列表
+    property var specCheckResult: ({})        // 规范检查结果
+    property var assetSummary: ({})           // 资产汇总（仅 PLC 项目）
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
@@ -43,15 +44,37 @@ Rectangle {
             // 加载项目变更列表
             if (changeBridge.hasService) {
                 root.changesList = changeBridge.listChanges(projectId)
-                console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " ?)
+                console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " 条")
             } else {
                 root.changesList = []
             }
         }
 
-        // 重置 Tab 到概?
+        // 重置 Tab 到概览
         tabBar.currentTabIndex = 0
         loadCurrentTab()
+
+        // 加载资产汇总（仅 PLC 项目）
+        loadAssetSummary()
+    }
+
+    function loadAssetSummary() {
+        // M5: 资产汇总卡片接入 deliveryBridge.getAssetSummary
+        if (typeof deliveryBridge === "undefined" || deliveryBridge === null || !deliveryBridge.hasService) {
+            root.assetSummary = {}
+            return
+        }
+        if (root.currentProjectDetail.stack !== "plc") {
+            root.assetSummary = {}  // 仅 PLC 项目支持资产汇总
+            return
+        }
+        var res = deliveryBridge.getAssetSummary(root.currentProjectId)
+        if (res && res.data) {
+            root.assetSummary = res.data
+            console.log("[QML] WorkspaceView: 资产汇总加载 status=" + (res.data.status || "unknown"))
+        } else {
+            root.assetSummary = {}
+        }
     }
 
     function loadCurrentTab() {
@@ -76,13 +99,13 @@ Rectangle {
 
     function loadCheckTab() {
         if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
-            console.log("[QML] WorkspaceView: 运行规范检?..")
+            console.log("[QML] WorkspaceView: 运行规范检查...")
             root.specCheckResult = specBridge.runSpecCheck()
-            console.log("[QML] WorkspaceView: 规范检查完?" +
+            console.log("[QML] WorkspaceView: 规范检查完成: " +
                 "error=" + (root.specCheckResult.error_count || 0) +
                 " warn=" + (root.specCheckResult.warning_count || 0))
         } else {
-            root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服?}
+            root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服务"}
         }
     }
 
@@ -94,7 +117,7 @@ Rectangle {
         // W2 占位：W3 实现变量表编辑器
     }
 
-    // ── 顶部导航?──────────────────────────────────────
+    // ── 顶部导航栏 ──────────────────────────────────────
     Rectangle {
         id: navBar
         anchors.left: parent.left
@@ -118,7 +141,7 @@ Rectangle {
             spacing: Theme.spacingSm
 
             PrimaryButton {
-                text: "?返回"
+                text: "‹返回"
                 type: "ghost"
                 Layout.preferredWidth: 80
                 onClicked: root.backToProjectList()
@@ -153,7 +176,7 @@ Rectangle {
                         "production": "生产",
                         "archived": "归档"
                     }
-                    return phaseMap[root.currentProjectDetail.phase] || "未分?
+                    return phaseMap[root.currentProjectDetail.phase] || "未分类"
                 }
                 type: root.currentProjectDetail.phase || "default"
             }
@@ -166,17 +189,17 @@ Rectangle {
         }
     }
 
-    // ── Tab ?──────────────────────────────────────────
+    // ── Tab 栏 ──────────────────────────────────────────
     TabBar {
         id: tabBar
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: navBar.bottom
-        tabs: ["概览", "变更", "检?, "文档", "变量?]
+        tabs: ["概览", "变更", "检查", "文档", "变量表"]
         onCurrentTabChanged: loadCurrentTab()
     }
 
-    // ── Tab 内容区（StackLayout 切换?─────────────────
+    // ── Tab 内容区（StackLayout 切换）─────────────────
     Rectangle {
         id: tabContent
         anchors.left: parent.left
@@ -213,24 +236,24 @@ Rectangle {
                                   "技术栈: " + (root.currentProjectDetail.stack || "") + "\n" +
                                   "阶段: " + (root.currentProjectDetail.phase || "") + "\n" +
                                   "版本: " + (root.currentProjectDetail.version || "") + "\n" +
-                                  "业务? " + (root.currentProjectDetail.business_line || "")
+                                  "业务线: " + (root.currentProjectDetail.business_line || "")
                     }
 
                     // PLC 信息
                     Card {
                         Layout.fillWidth: true
                         title: "PLC 信息"
-                        bodyText: "PLC 品牌: " + (root.currentProjectDetail.plc_vendor || "未配?) + "\n" +
-                                  "PLC 型号: " + (root.currentProjectDetail.plc_model || "未配?) + "\n" +
-                                  "设备类型: " + (root.currentProjectDetail.equipment_type || "未配?)
+                        bodyText: "PLC 品牌: " + (root.currentProjectDetail.plc_vendor || "未配置") + "\n" +
+                                  "PLC 型号: " + (root.currentProjectDetail.plc_model || "未配置") + "\n" +
+                                  "设备类型: " + (root.currentProjectDetail.equipment_type || "未配置")
                     }
 
                     // 项目类型
                     Card {
                         Layout.fillWidth: true
                         title: "项目分类"
-                        bodyText: "项目类型: " + (root.currentProjectDetail.project_type || "未配?) + "\n" +
-                                  "业务? " + (root.currentProjectDetail.business_line || "")
+                        bodyText: "项目类型: " + (root.currentProjectDetail.project_type || "未配置") + "\n" +
+                                  "业务线: " + (root.currentProjectDetail.business_line || "")
                     }
 
                     // 描述
@@ -246,6 +269,103 @@ Rectangle {
                         Layout.fillWidth: true
                         title: "项目路径"
                         bodyText: root.currentProjectDetail.path || ""
+                    }
+
+                    // 资产汇总（仅 PLC 项目显示，M5 接入）
+                    Card {
+                        Layout.columnSpan: 3
+                        Layout.fillWidth: true
+                        visible: root.currentProjectDetail.stack === "plc"
+                        title: "资产汇总"
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: Theme.spacingSm
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: Theme.spacingSm
+
+                                Text {
+                                    text: {
+                                        var s = root.assetSummary.status || "未加载"
+                                        var labelMap = {
+                                            "healthy": "健康",
+                                            "warning": "告警",
+                                            "missing": "缺失",
+                                            "not_applicable": "不适用"
+                                        }
+                                        return "状态: " + (labelMap[s] || s)
+                                    }
+                                    font.pixelSize: Theme.fontSizeSm
+                                    color: Theme.textPrimary
+                                    Layout.fillWidth: true
+                                }
+
+                                Badge {
+                                    text: {
+                                        var s = root.assetSummary.status || ""
+                                        return root.assetSummary.total_issues || 0
+                                    }
+                                    type: {
+                                        var s = root.assetSummary.status || ""
+                                        if (s === "healthy") return "approved"
+                                        if (s === "warning") return "urgent"
+                                        if (s === "missing") return "critical"
+                                        return "default"
+                                    }
+                                }
+
+                                PrimaryButton {
+                                    text: "刷新"
+                                    type: "primary"
+                                    Layout.preferredWidth: 80
+                                    enabled: typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService
+                                    onClicked: {
+                                        var res = deliveryBridge.refreshAssetSummary(root.currentProjectId)
+                                        if (res && res.result) {
+                                            root.assetSummary = res.result
+                                            console.log("[QML] 资产汇总刷新完成")
+                                        } else if (res && res.message) {
+                                            console.warn("[QML] 资产汇总刷新失败: " + res.message)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: {
+                                    var a = root.assetSummary
+                                    if (!a || Object.keys(a).length === 0) {
+                                        return "点击刷新加载资产数据"
+                                    }
+                                    var io = a.io_points || {}
+                                    var blk = a.program_blocks || {}
+                                    var comm = a.communications || {}
+                                    return "IO 点数: " + (io.count || 0) + "（" + (io.exists ? "已配置" : "缺失") + "）\n" +
+                                           "程序块: " + (blk.count || 0) + "（" + (blk.exists ? "已配置" : "缺失") + "）\n" +
+                                           "通讯通道: " + (comm.count || 0) + "（" + (comm.exists ? "已配置" : "缺失") + "）\n" +
+                                           "问题总数: " + (a.total_issues || 0)
+                                }
+                                font.pixelSize: Theme.fontSizeSm
+                                color: Theme.textPrimary
+                                wrapMode: Text.WordWrap
+                            }
+
+                            // 问题列表（若有）
+                            Text {
+                                Layout.fillWidth: true
+                                visible: root.assetSummary.issue_messages && root.assetSummary.issue_messages.length > 0
+                                text: {
+                                    var msgs = root.assetSummary.issue_messages || []
+                                    return "问题明细:\n" + msgs.join("\n")
+                                }
+                                font.pixelSize: Theme.fontSizeXs
+                                color: Theme.error
+                                wrapMode: Text.WordWrap
+                            }
+                        }
                     }
                 }
             }
@@ -266,7 +386,7 @@ Rectangle {
                 spacing: Theme.spacingSm
                 model: root.changesList
 
-                // 空状?
+                // 空状态
                 Text {
                     anchors.centerIn: parent
                     visible: root.changesList.length === 0
@@ -300,7 +420,7 @@ Rectangle {
                             }
 
                             Text {
-                                text: modelData.title || "(无标?"
+                                text: modelData.title || "(无标题)"
                                 font.pixelSize: Theme.fontSizeSm
                                 color: Theme.textSecondary
                                 elide: Text.ElideRight
@@ -328,7 +448,7 @@ Rectangle {
             }
         }
 
-        // ─── 检?Tab ────────────────────────────────────
+        // ─── 检查 Tab ────────────────────────────────────
         Rectangle {
             id: checkTab
             anchors.fill: parent
@@ -340,14 +460,14 @@ Rectangle {
                 anchors.margins: Theme.spacingLg
                 spacing: Theme.spacingMd
 
-                // 检查摘?
+                // 检查摘要
                 Card {
                     Layout.fillWidth: true
-                    title: "规范检查报?
+                    title: "规范检查报告"
                     bodyText: {
                         var r = root.specCheckResult
                         if (r.error_count === -1) {
-                            return "未启用规范检查服务或检查失?
+                            return "未启用规范检查服务或检查失败"
                         }
                         return "错误: " + (r.error_count || 0) + "\n" +
                                "警告: " + (r.warning_count || 0) + "\n" +
@@ -357,14 +477,14 @@ Rectangle {
                 }
 
                 PrimaryButton {
-                    text: "重新运行检?
+                    text: "重新运行检查"
                     type: "primary"
                     Layout.preferredWidth: 120
                     enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
                     onClicked: loadCheckTab()
                 }
 
-                // 检查结果列?
+                // 检查结果列表
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -424,7 +544,7 @@ Rectangle {
             }
         }
 
-        // ─── 文档 Tab（W2 占位?─────────────────────────
+        // ─── 文档 Tab（W2 占位） ─────────────────────────
         Rectangle {
             id: docTab
             anchors.fill: parent
@@ -433,7 +553,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "文档 Tab\n\nW3 实现：\n- 文档树（项目目录结构）\n- Markdown 渲染\n- 自动区标?
+                text: "文档 Tab\n\nW3 实现：\n- 文档树（项目目录结构）\n- Markdown 渲染\n- 自动区标签"
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeLg
                 horizontalAlignment: Text.AlignHCenter
@@ -441,7 +561,7 @@ Rectangle {
             }
         }
 
-        // ─── 变量?Tab（W2 占位?───────────────────────
+        // ─── 变量表 Tab（W2 占位） ───────────────────────
         Rectangle {
             id: varTableTab
             anchors.fill: parent
@@ -450,7 +570,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "变量?Tab\n\nW3 实现：\n- QML TableView 8 列\n- 单元格编?+ 校验\n- 批量操作 + 撤销重做\n- 万行虚拟?
+                text: "变量表 Tab\n\nW3 实现：\n- QML TableView 8 列\n- 单元格编辑 + 校验\n- 批量操作 + 撤销重做\n- 万行虚拟化"
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeLg
                 horizontalAlignment: Text.AlignHCenter

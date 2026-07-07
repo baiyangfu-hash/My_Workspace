@@ -1,7 +1,7 @@
-// ChangeCenterView.qml - V0.6.0 W2-S3 变更中心（列?+ 详情面板?
+// ChangeCenterView.qml - V0.6.0 W2-S3 变更中心（列表 + 详情面板）
 //
-// 左侧变更?ListView（状?编号/标题/日期/申请人），右侧详情面板?
-// 数据流：changeBridge.listAllChanges() ?changeModel ?ListView ?点击 ?changeBridge.getChangeRequest(id) ?详情面板
+// 左侧变更 ListView（状态、编号/标题/日期/申请人），右侧详情面板
+// 数据流：changeBridge.listAllChanges() → changeModel → ListView → 点击 → changeBridge.getChangeRequest(id) → 详情面板
 
 import QtQuick
 import QtQuick.Controls
@@ -13,7 +13,7 @@ Rectangle {
     id: root
     color: Theme.background
 
-    // ── 公开状?────────────────────────────────────────
+    // ── 公开状态 ────────────────────────────────────────
     property string selectedChangeNumber: ""
     property var selectedChangeDetail: ({})
     property string statusFilter: "all"
@@ -29,13 +29,13 @@ Rectangle {
     // ── 加载数据 ────────────────────────────────────────
     function loadChanges() {
         if (typeof changeBridge === "undefined" || changeBridge === null || !changeBridge.hasService) {
-            console.warn("[QML] ChangeCenterView: ChangeService 未启?)
+            console.warn("[QML] ChangeCenterView: ChangeService 未启用")
             filteredModel.clear()
             return
         }
         console.log("[QML] ChangeCenterView: 加载变更列表...")
         var changes = changeBridge.listAllChanges()
-        console.log("[QML] ChangeCenterView: 收到 " + changes.length + " 条变?)
+        console.log("[QML] ChangeCenterView: 收到 " + changes.length + " 条变更")
         applyFilters(changes)
     }
 
@@ -68,7 +68,7 @@ Rectangle {
         if (typeof bridge === "undefined" || bridge === null) return
         root.selectedChangeNumber = changeNumber
         root.selectedChangeDetail = changeBridge.getChangeRequest(changeNumber)
-        console.log("[QML] ChangeCenterView: 加载变更详情 " + changeNumber + " ?" + (Object.keys(root.selectedChangeDetail).length) + " 字段")
+        console.log("[QML] ChangeCenterView: 加载变更详情 " + changeNumber + " →" + (Object.keys(root.selectedChangeDetail).length) + " 字段")
     }
 
     // ── 顶部导航 ────────────────────────────────────────
@@ -98,7 +98,7 @@ Rectangle {
                 spacing: Theme.spacingSm
 
                 PrimaryButton {
-                    text: "?返回"
+                    text: "‹返回"
                     type: "ghost"
                     Layout.preferredWidth: 80
                     onClicked: root.backToProjectList()
@@ -154,7 +154,7 @@ Rectangle {
                 ComboBox {
                     Layout.preferredWidth: 120
                     Layout.preferredHeight: 28
-                    model: ["全部状?, "draft", "submitted", "approved", "implementing", "completed", "closed"]
+                    model: ["全部状态", "draft", "submitted", "approved", "implementing", "completed", "closed"]
                     onCurrentIndexChanged: {
                         var map = ["all", "draft", "submitted", "approved", "implementing", "completed", "closed"]
                         root.statusFilter = map[currentIndex]
@@ -176,7 +176,7 @@ Rectangle {
                 Item { Layout.fillWidth: true }
 
                 Text {
-                    text: "?" + filteredModel.count + " ?
+                    text: "共 " + filteredModel.count + " 条"
                     font.pixelSize: Theme.fontSizeSm
                     color: Theme.textSecondary
                 }
@@ -184,7 +184,7 @@ Rectangle {
         }
     }
 
-    // ── 主内容：左列?+ 右详?─────────────────────────
+    // ── 主内容：左列表 + 右详情 ─────────────────────────
     RowLayout {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -192,7 +192,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         spacing: 0
 
-        // ─── 左侧变更单列?────────────────────────────
+        // ─── 左侧变更单列表 ────────────────────────────
         Rectangle {
             Layout.preferredWidth: 480
             Layout.fillHeight: true
@@ -213,11 +213,11 @@ Rectangle {
                 spacing: Theme.spacingXs
                 model: filteredModel
 
-                // 空状?
+                // 空状态
                 Text {
                     anchors.centerIn: parent
                     visible: filteredModel.count === 0
-                    text: "暂无变更?
+                    text: "暂无变更"
                     color: Theme.textMuted
                     font.pixelSize: Theme.fontSizeLg
                 }
@@ -255,7 +255,7 @@ Rectangle {
                         }
 
                         Text {
-                            text: model.title || "(无标?"
+                            text: model.title || "(无标题)"
                             font.pixelSize: Theme.fontSizeXs
                             color: root.selectedChangeNumber === model.change_number ? "white" : Theme.textSecondary
                             elide: Text.ElideRight
@@ -297,11 +297,11 @@ Rectangle {
             Layout.fillHeight: true
             color: Theme.background
 
-            // 空状态：未选中变更?
+            // 空状态：未选中变更单
             Text {
                 anchors.centerIn: parent
                 visible: root.selectedChangeNumber === ""
-                text: "?点击左侧变更单查看详?
+                text: "▶点击左侧变更单查看详情"
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeLg
             }
@@ -325,7 +325,7 @@ Rectangle {
                         color: Theme.textPrimary
                     }
 
-                    // 状?+ 领域 + 紧急程?
+                    // 状态 + 领域 + 紧急程度
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: Theme.spacingSm
@@ -356,10 +356,10 @@ Rectangle {
                         bodyText: "变更编号: " + (root.selectedChangeDetail.change_number || "") + "\n" +
                                   "项目编号: " + (root.selectedChangeDetail.project_id || "") + "\n" +
                                   "项目名称: " + (root.selectedChangeDetail.project_name || "") + "\n" +
-                                  "技术领? " + (root.selectedChangeDetail.domain || "") + "\n" +
+                                  "技术领域: " + (root.selectedChangeDetail.domain || "") + "\n" +
                                   "业务性质: " + (root.selectedChangeDetail.business_nature || "") + "\n" +
                                   "影响范围: " + ((root.selectedChangeDetail.impact_scope || []).join(", ")) + "\n" +
-                                  "申请? " + (root.selectedChangeDetail.applicant || "") + "\n" +
+                                  "申请人: " + (root.selectedChangeDetail.applicant || "") + "\n" +
                                   "申请日期: " + (root.selectedChangeDetail.apply_date || "") + "\n" +
                                   "计划日期: " + (root.selectedChangeDetail.planned_date || "")
                     }
@@ -368,37 +368,37 @@ Rectangle {
                     Card {
                         Layout.fillWidth: true
                         title: "§4 变更背景"
-                        bodyText: root.selectedChangeDetail.background || "（未填写?
+                        bodyText: root.selectedChangeDetail.background || "（未填写）"
                     }
 
-                    // 变更必要?
+                    // 变更必要性
                     Card {
                         Layout.fillWidth: true
-                        title: "§4 变更必要?
-                        bodyText: root.selectedChangeDetail.necessity || "（未填写?
+                        title: "§4 变更必要性"
+                        bodyText: root.selectedChangeDetail.necessity || "（未填写）"
                     }
 
                     // 风险评估
                     Card {
                         Layout.fillWidth: true
                         title: "§6 风险评估"
-                        bodyText: "风险等级: " + (root.selectedChangeDetail.risk_level || "未评?) + "\n" +
-                                  "缓解措施: " + (root.selectedChangeDetail.mitigation || "未填?) + "\n" +
-                                  "传播? " + (root.selectedChangeDetail.propagation_chain || "?)
+                        bodyText: "风险等级: " + (root.selectedChangeDetail.risk_level || "未评估") + "\n" +
+                                  "缓解措施: " + (root.selectedChangeDetail.mitigation || "未填写") + "\n" +
+                                  "传播链: " + (root.selectedChangeDetail.propagation_chain || "无")
                     }
 
-                    // 参考依?
+                    // 参考依据
                     Card {
                         Layout.fillWidth: true
-                        title: "§4 参考依?
-                        bodyText: root.selectedChangeDetail.references || "（无?
+                        title: "§4 参考依据"
+                        bodyText: root.selectedChangeDetail.references || "（无）"
                     }
 
                     // 文件路径
                     Card {
                         Layout.fillWidth: true
-                        title: "变更单文?
-                        bodyText: root.selectedChangeDetail.file_path || "（未关联文件?
+                        title: "变更单文件"
+                        bodyText: root.selectedChangeDetail.file_path || "（未关联文件）"
                     }
                 }
             }

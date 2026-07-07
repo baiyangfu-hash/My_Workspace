@@ -6,13 +6,13 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models.plc import CheckResult
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 # 文档字数阈值（中文按字符数，英文按词数，任一达标即视为 PASS）
 _MIN_CHINESE_CHARS = 800

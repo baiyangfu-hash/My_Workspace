@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 
@@ -52,7 +52,7 @@ class SpecScanner:
             return []
         return sorted(base_dir.rglob("PM_SESSION_*.md"))
 
-    def _extract_spec_number(self, file_path: Path) -> Optional[str]:
+    def _extract_spec_number(self, file_path: Path) -> str | None:
         name = file_path.stem
 
         head_match = _SPEC_ID_HEAD_RE.match(name)
@@ -88,7 +88,7 @@ class SpecScanner:
         domain_dir = self.workspace / domain
         return self._collect_md_files(domain_dir)
 
-    def extract_version(self, file_path: Path) -> Optional[str]:
+    def extract_version(self, file_path: Path) -> str | None:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 head = f.read(500)
@@ -103,7 +103,7 @@ class SpecScanner:
             return ver_match.group(1)
         return None
 
-    def extract_frontmatter(self, file_path: Path) -> Optional[dict[str, Any]]:
+    def extract_frontmatter(self, file_path: Path) -> dict[str, Any] | None:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()

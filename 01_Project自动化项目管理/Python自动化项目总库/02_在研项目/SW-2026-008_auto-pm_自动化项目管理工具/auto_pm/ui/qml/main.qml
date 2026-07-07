@@ -310,6 +310,7 @@ ApplicationWindow {
             // 5. 模板管理页（V0.8.0 Phase 2 实现，CHG-091?
             TemplateView {
                 id: templateView
+                currentProjectId: mainWindow.currentProjectId  // M5: 绑定当前选中项目
                 onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
@@ -388,10 +389,10 @@ ApplicationWindow {
         if (typeof bridge !== "undefined" && bridge !== null) {
             console.log("[QML main] bridge 可用，初始化数据...")
             var projects = workbenchBridge.listProjects()
-            console.log("[QML main] 加载?" + projects.length + " 个项?)
+            console.log("[QML main] 加载了 " + projects.length + " 个项目")
             projectModel.setProjects(projects)
         } else {
-            console.warn("[QML main] bridge 未注?)
+            console.warn("[QML main] bridge 未注入")
         }
     }
 }

@@ -1,14 +1,14 @@
-// SpecCenterView.qml - V0.8.0 Phase 2 规范中心（CHG-091?
+// SpecCenterView.qml - V0.8.0 Phase 2 规范中心（CHG-091）
 //
-// 简?3 Tab 结构（原 QWidget 6 Tab 简化），对?spec_center.py?
-//   Tab 1: 概览（规范统?+ 健康摘要?
-//   Tab 2: 规范索引（搜?+ 域过?+ 列表?
-//   Tab 3: 健康检查（运行检?+ 结果列表?
+// 简化 3 Tab 结构（原 QWidget 6 Tab 简化），对应 spec_center.py
+//   Tab 1: 概览（规范统计 + 健康摘要）
+//   Tab 2: 规范索引（搜索 + 域过滤 + 列表）
+//   Tab 3: 健康检查（运行检查 + 结果列表）
 //
 // 数据流：
-//   specBridge.getSpecOverview() ?概览 Tab
-//   specBridge.listSpecEntries(domain) ?索引 Tab
-//   specBridge.runSpecCheck() ?检?Tab
+//   specBridge.getSpecOverview() → 概览 Tab
+//   specBridge.listSpecEntries(domain) → 索引 Tab
+//   specBridge.runSpecCheck() → 检查 Tab
 // 三重守卫：typeof specBridge === "undefined" || specBridge === null || !specBridge.hasService
 //
 // 注：Frontmatter/报告/对比 Tab 留待 V0.9 实现
@@ -29,7 +29,7 @@ Rectangle {
     // ── 内部数据 ────────────────────────────────────────
     property var overviewData: ({})
     property string errorMessage: ""
-    property int currentTab: 0  // 0=概览 1=索引 2=检?
+    property int currentTab: 0  // 0=概览 1=索引 2=检查
 
     ListModel { id: entriesModel }
     ListModel { id: checkResultsModel }
@@ -40,7 +40,7 @@ Rectangle {
     // ── 加载概览数据 ────────────────────────────────────
     function loadOverview() {
         if (typeof specBridge === "undefined" || specBridge === null || !specBridge.hasService) {
-            errorMessage = "SpecCenterAdapter 未启用（?spec_registry.json?
+            errorMessage = "SpecCenterAdapter 未启用（参考 spec_registry.json）"
             return
         }
         errorMessage = ""
@@ -73,14 +73,14 @@ Rectangle {
         }
     }
 
-    // ── 运行健康检?────────────────────────────────────
+    // ── 运行健康检查 ────────────────────────────────────
     function runChecks() {
         if (typeof specBridge === "undefined" || specBridge === null || !specBridge.hasService) {
             checkResultsModel.clear()
             checkResultsModel.append({
-                "check_id": "?,
+                "check_id": "",
                 "severity": "ERROR",
-                "message": "SpecCheckService 未启?,
+                "message": "SpecCheckService 未启用",
                 "details": "",
                 "fix_suggestion": ""
             })
@@ -90,9 +90,9 @@ Rectangle {
         checkResultsModel.clear()
         if (result && result.error) {
             checkResultsModel.append({
-                "check_id": "?,
+                "check_id": "",
                 "severity": "ERROR",
-                "message": result.error || result.message || "检查失?,
+                "message": result.error || result.message || "检查失败",
                 "details": "",
                 "fix_suggestion": ""
             })
@@ -155,14 +155,14 @@ Rectangle {
             }
 
             Text {
-                text: "基于 spec_registry.json 的规范管理与健康检查中心（3 Tab 简化版?
+                text: "基于 spec_registry.json 的规范管理与健康检查中心（3 Tab 简化版）"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
         }
     }
 
-    // ── Tab ?──────────────────────────────────────────
+    // ── Tab 栏 ──────────────────────────────────────────
     Rectangle {
         id: tabBar
         anchors.left: parent.left
@@ -189,7 +189,7 @@ Rectangle {
                 model: [
                     {"label": "概览", "index": 0},
                     {"label": "规范索引", "index": 1},
-                    {"label": "健康检?, "index": 2}
+                    {"label": "健康检查", "index": 2}
                 ]
                 delegate: Rectangle {
                     Layout.preferredHeight: 32
@@ -214,7 +214,7 @@ Rectangle {
                             if (model.index === 1 && entriesModel.count === 0) {
                                 loadEntries()
                             } else if (model.index === 2 && checkResultsModel.count === 0) {
-                                // 不自动运行检查，等用户点?运行检?按钮
+                                // 不自动运行检查，等用户点击"运行检查"按钮
                             }
                         }
                     }
@@ -225,13 +225,13 @@ Rectangle {
         }
     }
 
-    // ── 错误状?────────────────────────────────────────
+    // ── 错误状态 ────────────────────────────────────────
     Text {
         visible: errorMessage !== ""
         anchors.top: tabBar.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: Theme.spacingXl
-        text: "?" + errorMessage
+        text: "❌" + errorMessage
         color: Theme.error
         font.pixelSize: Theme.fontSizeMd
     }
@@ -247,7 +247,7 @@ Rectangle {
         currentIndex: root.currentTab
         visible: errorMessage === ""
 
-        // ── Tab 1：概?───────────────────────────────
+        // ── Tab 1：概览 ───────────────────────────────
         Rectangle {
             color: "transparent"
 
@@ -310,7 +310,7 @@ Rectangle {
                             }
 
                             Text {
-                                text: "?错误: " + (overviewData.health_summary ? overviewData.health_summary.error_count : 0)
+                                text: "⚠错误: " + (overviewData.health_summary ? overviewData.health_summary.error_count : 0)
                                 font.pixelSize: Theme.fontSizeSm
                                 color: overviewData.health_summary && overviewData.health_summary.error_count > 0 ? Theme.error : Theme.textPrimary
                             }
@@ -320,7 +320,7 @@ Rectangle {
                                 color: overviewData.health_summary && overviewData.health_summary.warning_count > 0 ? Theme.warning : Theme.textPrimary
                             }
                             Text {
-                                text: "?信息: " + (overviewData.health_summary ? overviewData.health_summary.info_count : 0)
+                                text: "ℹ信息: " + (overviewData.health_summary ? overviewData.health_summary.info_count : 0)
                                 font.pixelSize: Theme.fontSizeSm
                                 color: Theme.textPrimary
                             }
@@ -357,7 +357,7 @@ Rectangle {
                                     for (var k in counts) {
                                         parts.push(k + ": " + counts[k])
                                     }
-                                    return parts.length > 0 ? parts.join(" / ") : "?
+                                    return parts.length > 0 ? parts.join(" / ") : ""
                                 }
                                 font.pixelSize: Theme.fontSizeSm
                                 color: Theme.textPrimary
@@ -396,7 +396,7 @@ Rectangle {
                                     for (var k in counts) {
                                         parts.push(k + ": " + counts[k])
                                     }
-                                    return parts.length > 0 ? parts.join(" / ") : "?
+                                    return parts.length > 0 ? parts.join(" / ") : ""
                                 }
                                 font.pixelSize: Theme.fontSizeSm
                                 color: Theme.textPrimary
@@ -410,7 +410,7 @@ Rectangle {
             }
         }
 
-        // ── Tab 2：规范索?───────────────────────────
+        // ── Tab 2：规范索引 ───────────────────────────
         Rectangle {
             color: "transparent"
 
@@ -418,7 +418,7 @@ Rectangle {
                 anchors.fill: parent
                 spacing: Theme.spacingSm
 
-                // 工具栏：搜索 + 域过?
+                // 工具栏：搜索 + 域过滤
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Theme.spacingSm
@@ -468,7 +468,7 @@ Rectangle {
                                 spacing: Theme.spacingSm
 
                                 Text {
-                                    text: model.spec_id || "?
+                                    text: model.spec_id || ""
                                     font.pixelSize: Theme.fontSizeSm
                                     font.bold: true
                                     color: Theme.primary
@@ -476,20 +476,20 @@ Rectangle {
                                     elide: Text.ElideRight
                                 }
                                 Text {
-                                    text: model.title || "?
+                                    text: model.title || ""
                                     font.pixelSize: Theme.fontSizeSm
                                     color: Theme.textPrimary
                                     Layout.fillWidth: true
                                     elide: Text.ElideRight
                                 }
                                 Text {
-                                    text: model.domain || "?
+                                    text: model.domain || ""
                                     font.pixelSize: Theme.fontSizeXs
                                     color: Theme.textSecondary
                                     Layout.preferredWidth: 60
                                 }
                                 Text {
-                                    text: model.lifecycle || "?
+                                    text: model.lifecycle || ""
                                     font.pixelSize: Theme.fontSizeXs
                                     color: model.lifecycle === "active" ? Theme.success : Theme.textMuted
                                     Layout.preferredWidth: 80
@@ -498,7 +498,7 @@ Rectangle {
                         }
                     }
 
-                    // 空状?
+                    // 空状态
                     Text {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -512,7 +512,7 @@ Rectangle {
             }
         }
 
-        // ── Tab 3：健康检?───────────────────────────
+        // ── Tab 3：健康检查 ───────────────────────────
         Rectangle {
             color: "transparent"
 
@@ -520,13 +520,13 @@ Rectangle {
                 anchors.fill: parent
                 spacing: Theme.spacingSm
 
-                // 工具栏：运行检查按?
+                // 工具栏：运行检查按钮
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Theme.spacingSm
 
                     PrimaryButton {
-                        text: "?运行检?
+                        text: "▶运行检查"
                         enabled: bridge !== null && specBridge.hasService
                         onClicked: runChecks()
                     }
@@ -534,13 +534,13 @@ Rectangle {
                     Item { Layout.fillWidth: true }
 
                     Text {
-                        text: "?" + checkResultsModel.count + " 条结?
+                        text: "共 " + checkResultsModel.count + " 条结果"
                         font.pixelSize: Theme.fontSizeSm
                         color: Theme.textSecondary
                     }
                 }
 
-                // 检查结果列?
+                // 检查结果列表
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -587,7 +587,7 @@ Rectangle {
                                 }
 
                                 Text {
-                                    text: model.check_id || "?
+                                    text: model.check_id || ""
                                     font.pixelSize: Theme.fontSizeXs
                                     font.bold: true
                                     color: Theme.textSecondary
@@ -596,7 +596,7 @@ Rectangle {
                                 }
 
                                 Text {
-                                    text: model.message || "?
+                                    text: model.message || ""
                                     font.pixelSize: Theme.fontSizeSm
                                     color: Theme.textPrimary
                                     Layout.fillWidth: true
@@ -625,12 +625,12 @@ Rectangle {
                     }
                 }
 
-                // 空状?
+                // 空状态
                 Text {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     visible: checkResultsModel.count === 0
-                    text: "点击 \"运行检查\" 按钮开?
+                    text: "点击 \"运行检查\" 按钮开始"
                     color: Theme.textMuted
                     font.pixelSize: Theme.fontSizeLg
                     horizontalAlignment: Text.AlignHCenter

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -77,13 +77,13 @@ class SpecRegistry:
         for spec_id, spec_info in self._specs.items():
             specs_raw[spec_id] = asdict(spec_info)
 
-    def get_spec(self, spec_id: str) -> Optional[SpecInfo]:
+    def get_spec(self, spec_id: str) -> SpecInfo | None:
         return self._specs.get(spec_id)
 
     def list_specs(
         self,
-        domain: Optional[str] = None,
-        lifecycle: Optional[str] = None,
+        domain: str | None = None,
+        lifecycle: str | None = None,
     ) -> list[SpecInfo]:
         results = list(self._specs.values())
         if domain is not None:

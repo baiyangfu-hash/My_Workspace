@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import re
 
-from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.utils.file_utils import read_file, write_file
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class LedgerUpdater:

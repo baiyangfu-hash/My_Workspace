@@ -13,13 +13,13 @@ V0.4.1 Step 3: 增加 not_applicable 口径，避免 Python 项目误报为 PLC 
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Any
 
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models import DashboardSummaryDTO
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class DashboardService:

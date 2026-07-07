@@ -37,3 +37,31 @@ class ProjectWorkspaceDTO:
     document_status: dict[str, Any] | None
     vartable_status: dict[str, Any] | None
     pending_actions: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class SettingsSummaryDTO:
+    """设置页摘要信息"""
+
+    workspace_root: str
+    db_path: str
+    project_count: int
+    last_sync: str
+    db_available: bool
+
+
+@dataclass(frozen=True)
+class RebuildIndexResultDTO:
+    """重建索引结果"""
+
+    projects_found: int
+    changes_found: int
+    message: str
+
+
+@dataclass(frozen=True)
+class ClearCacheResultDTO:
+    """清除缓存结果"""
+
+    success: bool
+    message: str

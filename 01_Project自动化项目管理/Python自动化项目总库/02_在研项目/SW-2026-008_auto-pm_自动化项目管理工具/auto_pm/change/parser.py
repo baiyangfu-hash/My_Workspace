@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from typing import Any, cast
@@ -15,12 +16,11 @@ from auto_pm.change.models import (
     ChangeRequest,
     ChangeSummary,
 )
-from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.models import ImpactAnalysis
 from auto_pm.models.enums import BusinessNature, ChangeStatus, Domain, ImpactScope
 from auto_pm.utils.file_utils import get_mtime, read_file
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ChgParser:

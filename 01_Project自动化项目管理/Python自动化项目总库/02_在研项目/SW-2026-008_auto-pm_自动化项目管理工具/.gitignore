@@ -68,3 +68,9 @@ __pycache__/
 # VS Code
 .vscode/*
 !.vscode/launch.json*
+
+# auto-pm 临时文件（CHG-SCPT-2026-100）
+*.bak_*
+pytest_*.txt
+claude_plan
+test_screenshots/

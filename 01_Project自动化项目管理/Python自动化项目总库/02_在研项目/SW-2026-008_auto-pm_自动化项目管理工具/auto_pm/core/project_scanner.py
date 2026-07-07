@@ -11,19 +11,18 @@ ProjectService 通过组合方式使用本模块，保持向后兼容。
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
-from typing import Optional
 
 import yaml
 
 from auto_pm.core.asset_summary_service import AssetSummaryService
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
 from auto_pm.models.enums import Stack
 from auto_pm.models.project import extract_business_line
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ProjectScanner:
@@ -144,7 +143,7 @@ class ProjectScanner:
 
         return list(by_id.values())
 
-    def try_identify_project(self, project_path: str) -> Optional[ProjectInfo]:
+    def try_identify_project(self, project_path: str) -> ProjectInfo | None:
         """尝试识别目录是否为项目，并提取元数据
 
         优先级：.copier-answers.yml > .plc.json > PM_SESSION_*.md > 目录名
@@ -222,7 +221,7 @@ class ProjectScanner:
             return "plc"
         return "unknown"
 
-    def read_copier_answers(self, project_path: str) -> Optional[ProjectInfo]:
+    def read_copier_answers(self, project_path: str) -> ProjectInfo | None:
         """从 .copier-answers.yml 读取项目元数据
 
         V0.3.0-M0.5-Phase1: 修复元数据契约不一致问题。
@@ -393,7 +392,7 @@ class ProjectScanner:
         """阶段模式匹配（统一大小写处理，支持中英文短语）"""
         return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
 
-    def read_plc_json(self, project_path: str) -> Optional[ProjectInfo]:
+    def read_plc_json(self, project_path: str) -> ProjectInfo | None:
         """从 .plc.json 读取项目元数据（仅检查项目根目录，用于项目识别）
 
         注意：递归查找 .plc.json 仅在 _enrich_from_plc_json 中使用，
@@ -485,7 +484,7 @@ class ProjectScanner:
         info.extra = extra
 
     @staticmethod
-    def _find_plc_json_recursive(project_path: str, max_depth: int = 3) -> Optional[str]:
+    def _find_plc_json_recursive(project_path: str, max_depth: int = 3) -> str | None:
         """递归查找 .plc.json（仅用于补充元数据，不用于项目识别）
 
         查找顺序：
@@ -505,7 +504,7 @@ class ProjectScanner:
             return root_plc_json
 
         # 2. 递归查找子目录
-        def _search_dir(dir_path: str, depth: int) -> Optional[str]:
+        def _search_dir(dir_path: str, depth: int) -> str | None:
             if depth > max_depth:
                 return None
             try:
@@ -528,7 +527,7 @@ class ProjectScanner:
 
         return _search_dir(project_path, 1)
 
-    def read_pm_session(self, project_path: str) -> Optional[ProjectInfo]:
+    def read_pm_session(self, project_path: str) -> ProjectInfo | None:
         """从 PM_SESSION_*.md 提取项目编号 + phase 元数据
 
         V0.5.3 Fix 3.5: 补全 phase 读取调用链。原实现仅从文件名提取 project_id，

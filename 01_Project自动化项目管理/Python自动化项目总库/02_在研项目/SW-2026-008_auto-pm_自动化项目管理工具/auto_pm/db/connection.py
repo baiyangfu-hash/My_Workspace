@@ -6,20 +6,21 @@ DB 路径: <workspace_root>/.auto-pm/index.db
 
 from __future__ import annotations
 
+import logging
 import os
 import sqlite3
 from pathlib import Path
 
 from auto_pm.db.schema import INDEX_DDL, TABLE_DDL, migrate_schema
-from auto_pm.logging.logging import setup_logger
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class DatabaseManager:
     """SQLite 连接管理器
 
     负责创建连接、初始化表结构、管理 DB 文件位置。
+    连接复用：单例连接避免每次操作都创建新连接（CHG-SCPT-2026-100 T2）。
     """
 
     DB_DIR = ".auto-pm"
@@ -29,23 +30,31 @@ class DatabaseManager:
         self.workspace_root = os.path.abspath(workspace_root)
         self.db_dir = os.path.join(self.workspace_root, self.DB_DIR)
         self.db_path = os.path.join(self.db_dir, self.DB_FILE)
+        self._conn: sqlite3.Connection | None = None
 
     def _ensure_dir(self) -> None:
         """确保 DB 目录存在"""
         Path(self.db_dir).mkdir(parents=True, exist_ok=True)
 
     def get_connection(self) -> sqlite3.Connection:
-        """获取 SQLite 连接（WAL 模式，外键开启）
+        """获取 SQLite 连接（WAL 模式，外键开启，单例复用）
 
         Returns:
-            sqlite3.Connection: 已配置的连接
+            sqlite3.Connection: 已配置的连接（同一实例多次调用返回同一对象）
         """
-        self._ensure_dir()
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # 行以 dict-like 方式访问
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA foreign_keys=ON")
-        return conn
+        if self._conn is None:
+            self._ensure_dir()
+            self._conn = sqlite3.connect(self.db_path)
+            self._conn.row_factory = sqlite3.Row  # 行以 dict-like 方式访问
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._conn.execute("PRAGMA foreign_keys=ON")
+        return self._conn
+
+    def close(self) -> None:
+        """关闭连接（测试或显式释放时使用）"""
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
 
     def init_schema(self) -> None:
         """初始化表结构（幂等，重复调用安全）

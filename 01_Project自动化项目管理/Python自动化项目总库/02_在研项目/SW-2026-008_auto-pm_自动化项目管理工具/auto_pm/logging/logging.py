@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import logging
 import sys
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
-from typing import Optional
 
 
 class _SilentTimedRotatingFileHandler(TimedRotatingFileHandler):
@@ -36,7 +37,7 @@ def _get_log_dir() -> Path:
 
 
 def setup_logger(
-    *, app_name: str, log_level: str, bind_to: Optional[logging.Logger] = None
+    *, app_name: str, log_level: str, bind_to: logging.Logger | None = None
 ) -> logging.Logger:
     """
     Set up a logger with the specified application name and log level.
@@ -53,7 +54,7 @@ def setup_logger(
     log_level : str
         The logging level as a string (e.g., 'DEBUG', 'INFO', 'WARNING',
         'ERROR', 'CRITICAL').
-    bind_to : Optional[logging.Logger], optional
+    bind_to : logging.Logger | None, optional
         An existing logger to bind the new logger's handlers to, by
         default None. Typically used for fastapi applications.
         ```python

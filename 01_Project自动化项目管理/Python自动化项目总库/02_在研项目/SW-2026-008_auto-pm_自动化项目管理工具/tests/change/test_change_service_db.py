@@ -35,6 +35,7 @@ def svc_with_db(workspace_root: str) -> Generator[tuple[ChangeService, DatabaseM
         db.drop_all()
     except Exception:
         pass
+    db.close()  # CHG-100 T2: 显式关闭连接，避免复用连接持有文件锁
     gc.collect()
     for ext in ("", "-wal", "-shm"):
         f = db.db_path + ext

@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import time
 from datetime import datetime
@@ -24,11 +25,10 @@ from auto_pm.db.repository import (
     ProjectRepository,
     ScanLogRepository,
 )
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectRecord
 from auto_pm.models.project import extract_business_line
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 # CHG-085: 扫描器版本号。scanner 逻辑变更（如 stack/phase 推断规则修改）时递增，
 # 增量同步检测到 DB 缓存的 scanner_version 与当前不一致时强制重扫该项目。
@@ -238,29 +238,14 @@ class SyncService:
 
     @staticmethod
     def _get_project_mtime(project_path: str) -> float:
-        """获取项目标志文件的 mtime
+        """获取项目标志文件的 mtime（委托给 ProjectScanner，消除克隆）
 
         优先级：.copier-answers.yml > .plc.json > PM_SESSION_*.md
         取最新修改时间作为增量判据。
         """
-        markers = [".copier-answers.yml", ".plc.json"]
-        mtime = 0.0
+        from auto_pm.core.project_scanner import ProjectScanner
 
-        for marker in markers:
-            path = os.path.join(project_path, marker)
-            if os.path.isfile(path):
-                mtime = max(mtime, os.path.getmtime(path))
-
-        # PM_SESSION_*.md
-        try:
-            for entry in os.listdir(project_path):
-                if entry.startswith("PM_SESSION_") and entry.endswith(".md"):
-                    path = os.path.join(project_path, entry)
-                    mtime = max(mtime, os.path.getmtime(path))
-        except OSError:
-            pass
-
-        return mtime
+        return ProjectScanner.get_project_mtime(project_path)
 
     @staticmethod
     def _find_change_file(change_dir: str, change_number: str) -> str | None:

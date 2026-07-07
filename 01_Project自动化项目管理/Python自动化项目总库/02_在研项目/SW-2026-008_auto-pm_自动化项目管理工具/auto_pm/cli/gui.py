@@ -15,7 +15,6 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 from types import TracebackType
-from typing import Optional
 
 import click
 from rich.console import Console
@@ -40,7 +39,7 @@ def _install_crash_handler() -> None:
     def _crash_excepthook(
         exc_type: type[BaseException],
         exc_value: BaseException,
-        exc_tb: Optional[TracebackType],
+        exc_tb: TracebackType | None,
     ) -> None:
         # 先写 crash.log
         try:

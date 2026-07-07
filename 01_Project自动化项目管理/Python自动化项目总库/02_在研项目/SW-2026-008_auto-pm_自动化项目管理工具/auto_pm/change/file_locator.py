@@ -17,9 +17,9 @@ V0.2.1-P1-6：find_change_file/scan_all_change_files 改为递归识别项目目
 from __future__ import annotations
 
 import datetime
+import logging
 import os
 import re
-from typing import Optional
 
 from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import (
@@ -31,11 +31,10 @@ from auto_pm.core.paths import (
     CHANGE_REQUESTS_PLC_PATH,
     CHANGE_REQUESTS_PYTHON_PATH,
 )
-from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.models import ChangeSummary
 from auto_pm.utils.file_utils import read_file
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ChangeFileLocator:
@@ -55,7 +54,7 @@ class ChangeFileLocator:
         self.workspace_root = workspace_root
         self._parser = parser
 
-    def get_project_path(self, project_id: str) -> Optional[str]:
+    def get_project_path(self, project_id: str) -> str | None:
         """根据项目编号获取项目路径
 
         项目目录命名约定为 ``{project_id}_{project_name}``（见 cmd_create），
@@ -96,7 +95,7 @@ class ChangeFileLocator:
         prefix: str,
         depth: int,
         max_depth: int,
-    ) -> Optional[str]:
+    ) -> str | None:
         """递归搜索项目目录
 
         策略：
@@ -197,7 +196,7 @@ class ChangeFileLocator:
             f"{change_number}.md",
         )
 
-    def find_change_file(self, change_number: str) -> Optional[str]:
+    def find_change_file(self, change_number: str) -> str | None:
         """根据变更编号查找文件
 
         递归遍历工作空间下的项目目录，按 PLC / Python 两套路径约定搜索。
@@ -251,7 +250,7 @@ class ChangeFileLocator:
         domain: str,
         depth: int,
         max_depth: int,
-    ) -> Optional[str]:
+    ) -> str | None:
         """递归查找变更单文件
 
         策略：

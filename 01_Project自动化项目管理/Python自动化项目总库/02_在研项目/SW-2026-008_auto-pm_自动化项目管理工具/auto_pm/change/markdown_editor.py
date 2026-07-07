@@ -11,13 +11,13 @@ ChangeService 通过组合方式使用本模块，保持向后兼容。
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
 from auto_pm.change.models import URGENCY_LEVELS
-from auto_pm.logging.logging import setup_logger as get_logger
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ChangeMarkdownEditor:

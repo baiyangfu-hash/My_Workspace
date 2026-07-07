@@ -14,17 +14,17 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from auto_pm.core.doc_refresh_service import DocRefreshService
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo
 from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_file
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 # 锚点正则映射：兼容模板文档与历史真实项目的章节编号差异。

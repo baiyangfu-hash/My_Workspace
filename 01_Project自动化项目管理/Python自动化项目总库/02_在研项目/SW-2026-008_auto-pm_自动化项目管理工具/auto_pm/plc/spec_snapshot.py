@@ -16,14 +16,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 from dataclasses import dataclass
 
-from auto_pm.logging.logging import setup_logger
 from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_file
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 # spec_registry.json 相对路径（相对工作空间根目录）
 _REGISTRY_REL_PATH = os.path.join("00_Obsidian_Base全局规范文件仓库", "spec_registry.json")

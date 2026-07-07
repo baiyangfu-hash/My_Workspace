@@ -7,6 +7,31 @@
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-07-08
+
+### Changed - CHG-SCPT-2026-100 阶段 A 闭环收尾（T1-T8 已完成项确认）
+
+- **Claude 诊断报告失真度核查**：19 项问题逐条核查，8 项 P0/P1 已全部修复但报告未更新（严重失真 42%）+ 3 项数字偏差（except Exception 实际 70 处 vs 报告 31 处；parser.py 实际 716 行 vs 报告 837 行；change_service.py 实际 723 行 vs 报告 887 行，部分失真 16%）+ 8 项仍真实存在（P2-P4 建议 42%）
+- **阶段 A 闭环收尾**：T1-T8 已完成项全部确认（缓存优先/DB 连接复用/sync 委托/setup_logger 标准化/.gitignore 加固/Optional 统一/Facade Any 替换），Grep 实测 `setup_logger`=0 处、`Optional[X]`=0 处、Facade Any 参数=0 处
+
+### Fixed - CHG-SCPT-2026-100 阶段 B 静默 except 整改
+
+- **delivery_facade.py L82 静默 except 修复**：`auto_pm/application/delivery_facade.py` L10 添加 `import logging` + L30 添加 `log = logging.getLogger(__name__)` + L82-83 静默 `except Exception: pass` 改为 `except Exception as e: log.warning("文件系统扫描失败，返回 None: %s", e, exc_info=True)`
+- **6 处静默 except 核查**：仅 1 处真正静默 pass 已修复（delivery_facade.py L82），其余 5 处已有日志记录或合理保留（logging.py L24 兜底/fix_svc.py L170 已 log.warning/file_utils.py L81 raise/frontmatter_svc.py L91+L146 已 log.warning）
+
+### Verified - CHG-SCPT-2026-100 聚焦回归
+
+- 聚焦回归：`pytest tests/application/test_delivery_facade.py -v` 实测 37 passed（0 failed）
+- ruff 0 errors（`auto_pm/application/delivery_facade.py`）
+- mypy 4 errors（pre-existing unreachable，未新增，`auto_pm/application/delivery_facade.py`）
+- dogfooding：CHG-SCPT-2026-100 第 31 次闭环 closed
+
+### Notes - CHG-SCPT-2026-100 Claude 诊断报告失真度核查说明
+
+- **报告失真度高**：Claude 第二版诊断报告（19 项问题）基于修复前状态生成，未反映 T1-T8 已完成的修复，后续使用该报告时必须先核查实际状态
+- **阶段 C 长期建议登记**：8 项 P2-P4 建议未在本次修复范围内，登记为长期建议（详见 `.trae/documents/auto-pm_Claude诊断核查与修复计划.md` 阶段 C）
+- **版本号 0.9.0→0.9.1**：patch 级别升级，仅含 1 处静默 except 修复 + 文档同步，无 API 变更
+
 ## [0.9.0] - 2026-07-05
 
 ### Added - CHG-SCPT-2026-094 V0.9.0 旧 QWidget 模块完整移除 + CLI 标志退役

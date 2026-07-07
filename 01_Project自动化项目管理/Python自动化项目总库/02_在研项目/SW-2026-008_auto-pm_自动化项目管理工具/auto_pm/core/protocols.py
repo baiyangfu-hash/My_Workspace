@@ -10,7 +10,7 @@ Protocol 是结构性子类型（duck typing 的静态化），Service 无需显
 
 from __future__ import annotations
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from auto_pm.models import (
     ChangeRequest,
@@ -33,11 +33,21 @@ class ProjectServiceProtocol(Protocol):
         """扫描工作空间，返回所有项目"""
         ...
 
-    def get_project(self, project_id: str) -> Optional[ProjectInfo]:
+    def get_project(self, project_id: str) -> ProjectInfo | None:
         """按 project_id 查询项目"""
         ...
 
-    def find_project_path(self, project_id: str) -> Optional[str]:
+    def get_project_cached(self, project_id: str) -> ProjectInfo | None:
+        """从 DB 缓存按 project_id 查询项目"""
+        ...
+
+    workspace_root: str
+
+    def clear_cache(self) -> dict[str, Any]:
+        """清除 DB 缓存并重新初始化 schema"""
+        ...
+
+    def find_project_path(self, project_id: str) -> str | None:
         """按 project_id 查询项目路径"""
         ...
 
@@ -61,9 +71,9 @@ class ProjectServiceProtocol(Protocol):
 
     def list_projects_filtered(
         self,
-        stack: Optional[str] = None,
-        phase: Optional[str] = None,
-        business_line: Optional[str] = None,
+        stack: str | None = None,
+        phase: str | None = None,
+        business_line: str | None = None,
     ) -> list[ProjectInfo]:
         """按条件筛选项目"""
         ...
@@ -101,7 +111,7 @@ class ProjectScannerProtocol(Protocol):
         """扫描工作空间，返回所有项目"""
         ...
 
-    def try_identify_project(self, project_path: str) -> Optional[ProjectInfo]:
+    def try_identify_project(self, project_path: str) -> ProjectInfo | None:
         """尝试识别目录是否为项目"""
         ...
 
@@ -141,7 +151,7 @@ class ChangeServiceProtocol(Protocol):
         """列出变更单，支持筛选"""
         ...
 
-    def get_change_request(self, change_number: str) -> Optional[ChangeRequest]:
+    def get_change_request(self, change_number: str) -> ChangeRequest | None:
         """获取变更单完整内容"""
         ...
 
@@ -152,14 +162,17 @@ class ChangeServiceProtocol(Protocol):
         approver: str = "",
         comment: str = "",
         verification_conclusion: str = "全部通过",
-    ) -> Optional[ChangeRequest]:
+        allow_partial_verification: bool = False,
+    ) -> ChangeRequest | None:
         """状态流转"""
         ...
 
     def list_all_changes(
         self,
-        status: Optional[str] = None,
-        domain: Optional[str] = None,
+        status: str | None = None,
+        domain: str | None = None,
+        urgency: str | None = None,
+        project_id: str | None = None,
     ) -> list[ChangeSummary]:
         """跨项目查询所有变更单"""
         ...
@@ -168,12 +181,20 @@ class ChangeServiceProtocol(Protocol):
         self,
         change_number: str,
         **kwargs: Any,
-    ) -> Optional[ChangeRequest]:
+    ) -> ChangeRequest | None:
         """修改变更单字段"""
         ...
 
     def delete_change_request(self, change_number: str) -> bool:
         """删除变更单"""
+        ...
+
+    def list_approval_history(self, change_number: str) -> list[Any]:
+        """查询变更单审批流转历史（供 GUI 审批时间线使用）"""
+        ...
+
+    def get_impact_analysis(self, change_number: str) -> Any | None:
+        """查询变更单的影响分析记录（供 GUI 验证摘要使用，M3 新增）"""
         ...
 
 
@@ -196,6 +217,154 @@ class PlcServiceProtocol(Protocol):
 
     def standardize(self, project_path: str, dry_run: bool = False) -> Any:
         """标准化 PLC 项目命名"""
+        ...
+
+
+# ── Dashboard / Asset 域 ─────────────────────────────────
+
+@runtime_checkable
+class DashboardServiceProtocol(Protocol):
+    """驾驶舱服务接口契约（M4-2 T8 新增）
+
+    提供 DashboardSummary 聚合数据供 WorkbenchFacade.get_dashboard_snapshot() 调用。
+    """
+
+    def get_summary(self) -> Any:
+        """返回 DashboardSummary（total_projects/phase_counts/open_change_count 等）"""
+        ...
+
+
+@runtime_checkable
+class AssetSummaryServiceProtocol(Protocol):
+    """工程资产摘要服务接口契约（M4-2 T8 新增）
+
+    提供 build_summary() 供 WorkbenchFacade/DeliveryFacade 调用。
+    """
+
+    def build_summary(
+        self,
+        project_path: str,
+        stack: str,
+        project_type: str,
+    ) -> dict[str, Any]:
+        """构建工程资产摘要（IO 点/程序块/通信变量等）"""
+        ...
+
+
+# ── PmSession / Template 域 ──────────────────────────────
+
+@runtime_checkable
+class PmSessionServiceProtocol(Protocol):
+    """PM_SESSION 服务接口契约（M4-2 T8 新增）
+
+    提供 generate_view()/check() 供 SystemFacade 调用。
+    """
+
+    def generate_view(self) -> dict[str, Any]:
+        """生成 PM_SESSION 视图数据"""
+        ...
+
+    def check(self) -> dict[str, Any]:
+        """执行 PM_SESSION 健康检查"""
+        ...
+
+
+@runtime_checkable
+class TemplateServiceProtocol(Protocol):
+    """模板服务接口契约（M4-2 T8 新增）
+
+    提供 list_templates()/get_template_path()/copy_template() 供 SystemFacade 调用。
+    """
+
+    def list_templates(self) -> list[str]:
+        """列出所有可用模板名"""
+        ...
+
+    def get_template_path(self, template_name: str) -> str:
+        """获取模板路径（不存在返回空字符串）"""
+        ...
+
+    def copy_template(
+        self,
+        template_name: str,
+        dest_path: str,
+        data: dict[str, Any],
+        overwrite: bool = False,
+    ) -> dict[str, Any]:
+        """复制模板到目标路径并注入变量"""
+        ...
+
+
+# ── Spec 域（Check/Center）──────────────────────────────
+
+@runtime_checkable
+class SpecCheckServiceProtocol(Protocol):
+    """规范检查服务接口契约（M4-1 T8 新增）
+
+    提供 run() 供 SpecFacade.run_spec_check() 调用。
+    """
+
+    def run(self) -> Any:
+        """执行规范检查，返回 CheckOutput（含 results/error_count 等）"""
+        ...
+
+
+@runtime_checkable
+class SpecCenterServiceProtocol(Protocol):
+    """规范中心服务接口契约（M4-1 T8 新增）
+
+    提供 get_overview()/list_entries() 供 SpecFacade 调用。
+    """
+
+    def get_overview(self) -> Any:
+        """返回 SpecCenterOverview（spec_count/domain_counts/health_summary 等）"""
+        ...
+
+    def list_entries(self, filter_domain: str | None = None) -> list[Any]:
+        """列出规范条目（支持按 domain 过滤）"""
+        ...
+
+
+# ── Delivery 域（DocRefresh/Report）─────────────────────
+
+@runtime_checkable
+class DocRefreshServiceProtocol(Protocol):
+    """文档刷新服务接口契约（M4-2 T8 新增）
+
+    提供 refresh_project_documents() 供 DeliveryFacade 调用。
+    """
+
+    def refresh_project_documents(
+        self,
+        project_info: Any,
+        dry_run: bool = False,
+    ) -> Any:
+        """刷新项目文档自动区（返回 DocRefreshResult）"""
+        ...
+
+
+@runtime_checkable
+class ReportServiceProtocol(Protocol):
+    """报告服务接口契约（M4-2 T8 新增）
+
+    提供 get_project_overview()/get_change_overview()/get_spec_report()/get_scan_report()
+    供 DeliveryFacade 调用。
+    """
+
+    def get_project_overview(self) -> dict[str, Any]:
+        """返回项目概览报告（total/by_stack/by_phase/by_business_line）"""
+        ...
+
+    def get_change_overview(self) -> dict[str, Any]:
+        """返回变更概览报告（total/by_status/by_domain）"""
+        ...
+
+    def get_spec_report(self) -> dict[str, Any]:
+        """返回规范报告（total/found/missing/by_stack/missing_codes）"""
+        ...
+
+    def get_scan_report(self) -> dict[str, Any]:
+        """返回扫描报告（latest/last_sync_time/is_cache_available）"""
         ...
 
 

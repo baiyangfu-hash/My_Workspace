@@ -1,7 +1,14 @@
-"""Spec Facade 接口层"""
+"""Spec Facade 接口层
 
-from typing import Any
+M4 第 1 批重构：从"转发层"升级为"用例编排层"，返回带类型 DTO。
+"""
 
+from auto_pm.core.protocols import SpecCenterServiceProtocol, SpecCheckServiceProtocol
+from auto_pm.ui.contracts.dto.spec_dto import (
+    SpecCenterEntryDTO,
+    SpecCenterOverviewDTO,
+    SpecCheckResultDTO,
+)
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
 
 
@@ -10,8 +17,8 @@ class SpecFacade:
 
     def __init__(
         self,
-        spec_check_service: Any = None,
-        spec_center_service: Any = None,
+        spec_check_service: SpecCheckServiceProtocol | None = None,
+        spec_center_service: SpecCenterServiceProtocol | None = None,
     ):
         self._spec_check_service = spec_check_service
         self._spec_center_service = spec_center_service
@@ -24,12 +31,12 @@ class SpecFacade:
     def has_spec_center_service(self) -> bool:
         return self._spec_center_service is not None
 
-    def run_spec_check(self) -> CommandResult[dict]:
+    def run_spec_check(self) -> CommandResult[SpecCheckResultDTO | None]:
         try:
             if not self._spec_check_service:
-                return CommandResult(success=False, message="No spec_check_service", payload={"error_count": -1, "message": "未启用规范检查服务"})
+                return CommandResult(success=False, message="No spec_check_service", payload=None)
             output = self._spec_check_service.run()
-            
+
             results = [
                 {
                     "check_id": r.check_id,
@@ -40,57 +47,57 @@ class SpecFacade:
                 }
                 for r in output.results
             ]
-            
-            payload = {
-                "error_count": output.error_count,
-                "warning_count": output.warning_count,
-                "info_count": output.info_count,
-                "exit_code": output.exit_code,
-                "results": results,
-            }
-            return CommandResult(success=True, message="Success", payload=payload)
-        except Exception as e:
-            return CommandResult(success=False, message=str(e), payload={"error_count": -1, "message": str(e)})
 
-    def get_spec_center_overview(self) -> QueryResult[dict]:
+            dto = SpecCheckResultDTO(
+                error_count=output.error_count,
+                warning_count=output.warning_count,
+                info_count=output.info_count,
+                exit_code=output.exit_code,
+                results=results,
+            )
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def get_spec_center_overview(self) -> QueryResult[SpecCenterOverviewDTO | None]:
         try:
             if not self._spec_center_service:
-                return QueryResult(success=False, message="No spec_center_service", payload={})
+                return QueryResult(success=False, message="No spec_center_service", payload=None)
             overview = self._spec_center_service.get_overview()
             health = overview.health_summary
-            payload = {
-                "spec_count": overview.spec_count,
-                "domain_counts": dict(overview.domain_counts),
-                "lifecycle_counts": dict(overview.lifecycle_counts),
-                "health_summary": {
+            dto = SpecCenterOverviewDTO(
+                spec_count=overview.spec_count,
+                domain_counts=dict(overview.domain_counts),
+                lifecycle_counts=dict(overview.lifecycle_counts),
+                health_summary={
                     "error_count": health.error_count,
                     "warning_count": health.warning_count,
                     "info_count": health.info_count,
                     "exit_code": health.exit_code,
                 },
-            }
-            return QueryResult(success=True, message="Success", payload=payload)
+            )
+            return QueryResult(success=True, message="Success", payload=dto)
         except Exception as e:
-            return QueryResult(success=False, message=str(e), payload={})
+            return QueryResult(success=False, message=str(e), payload=None)
 
-    def list_spec_center_entries(self, filter_domain: str | None = None) -> QueryResult[list[dict]]:
+    def list_spec_center_entries(self, filter_domain: str | None = None) -> QueryResult[list[SpecCenterEntryDTO]]:
         try:
             if not self._spec_center_service:
                 return QueryResult(success=False, message="No spec_center_service", payload=[])
             entries = self._spec_center_service.list_entries(filter_domain)
-            payload = [
-                {
-                    "spec_id": e.spec_id,
-                    "title": e.title,
-                    "number": e.number,
-                    "domain": e.domain,
-                    "lifecycle": e.lifecycle,
-                    "canonical_path": e.canonical_path,
-                    "version": e.version,
-                    "file_exists": e.file_exists,
-                }
+            dtos = [
+                SpecCenterEntryDTO(
+                    spec_id=e.spec_id,
+                    title=e.title,
+                    number=e.number,
+                    domain=e.domain,
+                    lifecycle=e.lifecycle,
+                    canonical_path=e.canonical_path,
+                    version=e.version,
+                    file_exists=e.file_exists,
+                )
                 for e in entries
             ]
-            return QueryResult(success=True, message="Success", payload=payload)
+            return QueryResult(success=True, message="Success", payload=dtos)
         except Exception as e:
             return QueryResult(success=False, message=str(e), payload=[])

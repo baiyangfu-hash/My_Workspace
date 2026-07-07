@@ -1,4 +1,8 @@
-"""Spec Bridge (QML)"""
+"""Spec Bridge (QML)
+
+M4 第 1 批重构：3 个 Slot 改用 dataclasses.asdict() 转换 DTO 为 dict 给 QML。
+"""
+from dataclasses import asdict
 from typing import Any
 
 from PySide6.QtCore import Property, QObject, Signal, Slot
@@ -22,7 +26,7 @@ class SpecBridge(QObject):
         if self._facade:
             res = self._facade.run_spec_check()
             if res.success and res.payload:
-                payload = res.payload
+                payload = asdict(res.payload)
                 self.specCheckCompleted.emit(
                     payload.get("error_count", 0),
                     payload.get("warning_count", 0),
@@ -37,7 +41,7 @@ class SpecBridge(QObject):
         if self._facade:
             res = self._facade.get_spec_center_overview()
             if res.success and res.payload:
-                return res.payload
+                return asdict(res.payload)
         return {}
 
     @Slot(str, result=list)
@@ -46,5 +50,5 @@ class SpecBridge(QObject):
             domain = filter_domain if filter_domain else None
             res = self._facade.list_spec_center_entries(domain)
             if res.success and res.payload:
-                return res.payload
+                return [asdict(e) for e in res.payload]
         return []

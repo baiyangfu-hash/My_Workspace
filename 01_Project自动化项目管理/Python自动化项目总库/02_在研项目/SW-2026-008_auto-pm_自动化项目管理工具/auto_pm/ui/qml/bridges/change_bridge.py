@@ -5,6 +5,10 @@ from typing import Any
 from PySide6.QtCore import Property, QObject, Signal, Slot
 
 from auto_pm.application.change_facade import ChangeFacade
+from auto_pm.ui.contracts.commands.change_commands import (
+    CreateChangeCommand,
+    TransitionChangeCommand,
+)
 
 
 class ChangeBridge(QObject):
@@ -57,3 +61,110 @@ class ChangeBridge(QObject):
         self._changes_cache = []
         self._change_detail_cache.clear()
         self.changesChanged.emit()
+
+    # ── M3 新增 Slot ──────────────────────────────────────────
+    # 说明：以下 4 个 Slot 为 M3 新增接口，QML 端尚未接入对应 UI。
+    # TODO M5: QML 端需新增对应 UI（创建变更单对话框 / 流转操作按钮 /
+    #          时间线视图 / 验证摘要面板），当前 Slot 仅暴露接口供后续接入。
+    # ─────────────────────────────────────────────────────────
+
+    @Slot("QVariant", result="QVariant")
+    def createChange(self, command_dict: dict[str, Any]) -> dict[str, Any]:
+        """创建变更单（M3 新增）
+
+        Args:
+            command_dict: 包含 project_id/title/domain/nature/background/
+                         necessity/applicant/impact_scope(可选) 的字典
+
+        Returns:
+            创建后的变更单详情 dict（成功）或 {"success": False, "message": ...}（失败）
+        """
+        if self._facade:
+            try:
+                cmd = CreateChangeCommand(
+                    project_id=str(command_dict.get("project_id", "")),
+                    title=str(command_dict.get("title", "")),
+                    domain=str(command_dict.get("domain", "")),
+                    nature=str(command_dict.get("nature", "")),
+                    background=str(command_dict.get("background", "")),
+                    necessity=str(command_dict.get("necessity", "")),
+                    applicant=str(command_dict.get("applicant", "")),
+                    impact_scope=list(command_dict.get("impact_scope", []) or []),
+                )
+                res = self._facade.create_change_request(cmd)
+                if res.success and res.payload is not None:
+                    self._changes_cache = []  # 失效列表缓存
+                    self.changesChanged.emit()
+                    return dataclasses.asdict(res.payload)
+                return {"success": False, "message": res.message}
+            except Exception as e:
+                return {"success": False, "message": str(e)}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot("QVariant", result="QVariant")
+    def transitionChange(self, command_dict: dict[str, Any]) -> dict[str, Any]:
+        """变更单状态流转（M3 新增）
+
+        Args:
+            command_dict: 包含 change_id/target_status/operator/note(可选)/
+                         allow_partial_verification(可选,默认False) 的字典
+
+        Returns:
+            流转后的变更单详情 dict（成功）或 {"success": False, "message": ...}（失败）
+        """
+        if self._facade:
+            try:
+                cmd = TransitionChangeCommand(
+                    change_id=str(command_dict.get("change_id", "")),
+                    target_status=str(command_dict.get("target_status", "")),
+                    operator=str(command_dict.get("operator", "")),
+                    note=command_dict.get("note"),
+                    allow_partial_verification=bool(
+                        command_dict.get("allow_partial_verification", False)
+                    ),
+                )
+                res = self._facade.transition_change(cmd)
+                if res.success and res.payload is not None:
+                    # 失效详情缓存（状态已变）
+                    self._change_detail_cache.pop(cmd.change_id, None)
+                    self._changes_cache = []
+                    self.changesChanged.emit()
+                    return dataclasses.asdict(res.payload)
+                return {"success": False, "message": res.message}
+            except Exception as e:
+                return {"success": False, "message": str(e)}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result=list)
+    def getChangeTimeline(self, change_number: str) -> list[Any]:
+        """获取变更单审批时间线（M3 新增）
+
+        Args:
+            change_number: 变更单编号
+
+        Returns:
+            时间线条目列表 list[dict]，每条含 from_status/to_status/approver/
+            comment/transition_date
+        """
+        if self._facade:
+            res = self._facade.get_change_timeline(change_number)
+            if res.success and res.payload is not None:
+                return [dataclasses.asdict(item) for item in res.payload]
+        return []
+
+    @Slot(str, result="QVariant")
+    def getChangeValidationSummary(self, change_number: str) -> dict[str, Any]:
+        """获取变更验证摘要（M3 新增）
+
+        Args:
+            change_number: 变更单编号
+
+        Returns:
+            摘要 dict，含 current_status/risk_level/mitigation/propagation_chain/
+            approval_count/last_approval_date/domain_impacts/related_changes
+        """
+        if self._facade:
+            res = self._facade.get_change_validation_summary(change_number)
+            if res.success and res.payload is not None:
+                return dataclasses.asdict(res.payload)
+        return {}

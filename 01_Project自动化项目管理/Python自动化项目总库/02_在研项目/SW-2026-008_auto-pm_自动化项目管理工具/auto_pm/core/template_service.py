@@ -6,12 +6,11 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any
 
-from auto_pm.logging.logging import setup_logger
-
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class TemplateService:

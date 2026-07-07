@@ -7,11 +7,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 from typing import cast
 
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
     NAMING_RULES,
@@ -27,7 +27,7 @@ from auto_pm.plc.spec_snapshot import (
     parse_spec_snapshot,
 )
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 # SysLib 关键文件清单（相对路径），用于 libraries 路径深度校验
 _KEY_FILES = [

@@ -16,13 +16,12 @@ V2.2 Week3：get_spec_report 改用 spec_registry.json（通过 SpecRegistry）
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-from auto_pm.logging.logging import setup_logger
-
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ReportService:
@@ -54,7 +53,7 @@ class ReportService:
         project_service: Any,
         change_service: Any,
         workspace_root: str = "",
-        db: Optional[Any] = None,
+        db: Any | None = None,
     ) -> None:
         self._project_service = project_service
         self._change_service = change_service

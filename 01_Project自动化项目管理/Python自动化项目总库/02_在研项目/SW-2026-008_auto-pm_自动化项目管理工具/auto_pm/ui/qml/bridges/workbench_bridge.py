@@ -66,20 +66,24 @@ class WorkbenchBridge(QObject):
     def getSettingsSummary(self) -> dict[str, Any]:
         if self._facade:
             res = self._facade.get_settings_summary()
-            if res.success and res.payload:
-                return res.payload
+            if res.success and res.payload is not None:
+                return dataclasses.asdict(res.payload)
         return {}
 
     @Slot(result="QVariant")
     def clearCache(self) -> dict[str, Any]:
         if self._facade:
             res = self._facade.clear_cache()
-            return res.payload or {"success": res.success, "message": res.message}
+            if res.payload is not None:
+                return dataclasses.asdict(res.payload)
+            return {"success": res.success, "message": res.message}
         return {"success": False, "message": "未初始化"}
 
     @Slot(result="QVariant")
     def rebuildIndex(self) -> dict[str, Any]:
         if self._facade:
             res = self._facade.rebuild_index()
-            return res.payload or {"success": res.success, "message": res.message}
+            if res.payload is not None:
+                return dataclasses.asdict(res.payload)
+            return {"success": res.success, "message": res.message}
         return {"success": False, "message": "未初始化"}

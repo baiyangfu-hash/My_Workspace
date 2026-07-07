@@ -1,14 +1,23 @@
 """Workbench Facade 接口层"""
 
-from typing import Any
+import logging
 
-from auto_pm.core.protocols import ProjectServiceProtocol
+from auto_pm.core.protocols import (
+    AssetSummaryServiceProtocol,
+    DashboardServiceProtocol,
+    ProjectServiceProtocol,
+)
 from auto_pm.ui.contracts.dto.workbench_dto import (
+    ClearCacheResultDTO,
     DashboardSnapshotDTO,
     ProjectCardDTO,
     ProjectWorkspaceDTO,
+    RebuildIndexResultDTO,
+    SettingsSummaryDTO,
 )
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
+
+log = logging.getLogger(__name__)
 
 
 class WorkbenchFacade:
@@ -16,9 +25,9 @@ class WorkbenchFacade:
 
     def __init__(
         self,
-        dashboard_service: Any,
+        dashboard_service: DashboardServiceProtocol,
         project_service: ProjectServiceProtocol,
-        asset_summary_service: Any,
+        asset_summary_service: AssetSummaryServiceProtocol,
     ):
         self._dashboard_service = dashboard_service
         self._project_service = project_service
@@ -44,31 +53,59 @@ class WorkbenchFacade:
                 not_applicable_project_count=summary.not_applicable_project_count,
                 recent_activities=summary.recent_activities,
                 risk_hints=summary.risk_hints,
-                failed_check_project_ids=list(summary.failed_check_project_ids),
-                not_applicable_project_ids=list(summary.not_applicable_project_ids),
+                failed_check_project_ids=summary.failed_check_project_ids,
+                not_applicable_project_ids=summary.not_applicable_project_ids,
             )
             return QueryResult(success=True, message="Success", payload=dto)
         except Exception as e:
             return QueryResult(success=False, message=str(e), errors=[str(e)])
 
     def list_project_cards(self) -> QueryResult[list[ProjectCardDTO]]:
-        """获取项目列表卡片"""
+        """获取项目列表卡片
+
+        优先使用 DB 缓存模式（list_projects_with_change_count，含 change_count 聚合），
+        无 DB 时降级为文件系统扫描（list_projects，change_count=0）。
+        """
         try:
-            projects = self._project_service.list_projects()
-            cards = []
-            for p in projects:
-                cards.append(ProjectCardDTO(
-                    project_id=p.project_id,
-                    name=p.name,
-                    stack=str(p.stack),
-                    phase=str(p.phase),
-                    version=p.version,
-                    health_status="Unknown",  # To be enriched later if needed
-                    open_change_count=0,      # To be enriched later if needed
-                    last_activity_at=None,
-                    path=p.path,
-                    business_line=str(p.business_line),
-                ))
+            # 优先走 DB 缓存（含 change_count 聚合）
+            try:
+                items = self._project_service.list_projects_with_change_count()
+            except RuntimeError:
+                # 无 DB 时降级为文件系统扫描
+                projects = self._project_service.list_projects()
+                cards = [
+                    ProjectCardDTO(
+                        project_id=p.project_id,
+                        name=p.name,
+                        stack=str(p.stack),
+                        phase=str(p.phase),
+                        version=p.version,
+                        health_status="Unknown",  # TODO M3: 接入 Change 域实时状态
+                        open_change_count=0,
+                        last_activity_at=None,  # TODO M3: 从 file_mtime 转换
+                        path=p.path,
+                        business_line=str(p.business_line),
+                    )
+                    for p in projects
+                ]
+                return QueryResult(success=True, message="Success", payload=cards)
+
+            # DB 缓存模式：ProjectListItem → ProjectCardDTO
+            cards = [
+                ProjectCardDTO(
+                    project_id=item.project_id,
+                    name=item.name,
+                    stack=str(item.stack),
+                    phase=str(item.phase),
+                    version=item.version,
+                    health_status="Unknown",  # TODO M3: 接入 Change 域实时状态
+                    open_change_count=item.change_count,
+                    last_activity_at=None,  # TODO M3: 从 file_mtime 转换
+                    path=item.path,
+                    business_line=str(item.business_line),
+                )
+                for item in items
+            ]
             return QueryResult(success=True, message="Success", payload=cards)
         except Exception as e:
             return QueryResult(success=False, message=str(e), errors=[str(e)])
@@ -99,80 +136,106 @@ class WorkbenchFacade:
                 project_id=project_id,
                 summary=summary,
                 asset_summary=asset_summary,
-                document_status=None,
-                vartable_status=None,
-                pending_actions=[],
+                document_status=None,  # TODO M3/M4: 接入 DocumentService
+                vartable_status=None,  # TODO M3/M4: 接入 VartableService
+                pending_actions=[],    # TODO M3: 从 ChangeService 查询 open changes
             )
             return QueryResult(success=True, message="Success", payload=dto)
         except Exception as e:
             return QueryResult(success=False, message=str(e), errors=[str(e)])
 
-    def get_settings_summary(self) -> QueryResult[dict]:
+    def get_settings_summary(self) -> QueryResult[SettingsSummaryDTO]:
         """获取设置页摘要基本信息（除 change_count 以外）"""
         try:
             if not self._project_service:
-                return QueryResult(success=False, message="No project_service", payload={})
-            
+                return QueryResult(success=False, message="No project_service")
+
             db_path = self._project_service.get_db_path()
             db_available = self._project_service.is_cache_available()
             project_count = self._project_service.get_project_count()
-                
+
             try:
                 last_sync = self._project_service.get_last_sync_time()
-            except Exception:
+            except Exception as e:
+                log.warning("获取最后同步时间失败: %s", e, exc_info=True)
                 last_sync = "—"
-                
-            payload = {
-                "workspace_root": self._project_service.workspace_root,
-                "db_path": db_path,
-                "project_count": project_count,
-                "last_sync": last_sync,
-                "db_available": db_available,
-            }
-            return QueryResult(success=True, message="Success", payload=payload)
-        except Exception as e:
-            return QueryResult(success=False, message=str(e), payload={})
 
-    def clear_cache(self) -> CommandResult[dict]:
+            dto = SettingsSummaryDTO(
+                workspace_root=self._project_service.workspace_root,
+                db_path=db_path,
+                project_count=project_count,
+                last_sync=last_sync,
+                db_available=db_available,
+            )
+            return QueryResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return QueryResult(success=False, message=str(e))
+
+    def clear_cache(self) -> CommandResult[ClearCacheResultDTO]:
         """清除 DB 缓存并重新初始化"""
         try:
             if not self._project_service:
-                return CommandResult(success=False, message="No project_service", payload={})
-            
-            if not self._project_service.is_cache_available():
-                return CommandResult(success=False, message="DB 未初始化，无需清除", payload={"success": False, "message": "DB 未初始化，无需清除"})
-            
-            import os
-            db_path = self._project_service.get_db_path()
-            for suffix in ("", "-wal", "-shm"):
-                file_path = db_path + suffix
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-            
-            db = getattr(self._project_service, "db", None)
-            if hasattr(db, "init_schema"):
-                db.init_schema()
-            return CommandResult(success=True, message="缓存已清除并重新初始化", payload={"success": True, "message": "缓存已清除并重新初始化"})
-        except Exception as e:
-            return CommandResult(success=False, message=str(e), payload={"success": False, "message": f"清除缓存失败: {e}"})
+                return CommandResult(
+                    success=False,
+                    message="No project_service",
+                    payload=ClearCacheResultDTO(success=False, message="No project_service"),
+                )
 
-    def rebuild_index(self) -> CommandResult[dict]:
+            if not self._project_service.is_cache_available():
+                return CommandResult(
+                    success=False,
+                    message="DB 未初始化，无需清除",
+                    payload=ClearCacheResultDTO(success=False, message="DB 未初始化，无需清除"),
+                )
+
+            result = self._project_service.clear_cache()
+            dto = ClearCacheResultDTO(
+                success=result["success"],
+                message=result["message"],
+            )
+            return CommandResult(success=True, message=dto.message, payload=dto)
+        except Exception as e:
+            return CommandResult(
+                success=False,
+                message=str(e),
+                payload=ClearCacheResultDTO(success=False, message=f"清除缓存失败: {e}"),
+            )
+
+    def rebuild_index(self) -> CommandResult[RebuildIndexResultDTO]:
         """重建 DB 索引"""
         try:
             if not self._project_service:
-                return CommandResult(success=False, message="No project_service", payload={})
-            
+                return CommandResult(
+                    success=False,
+                    message="No project_service",
+                    payload=RebuildIndexResultDTO(
+                        projects_found=0, changes_found=0, message="No project_service"
+                    ),
+                )
+
             if not self._project_service.is_cache_available():
-                return CommandResult(success=False, message="DB 未初始化，无法重建索引", payload={"projects_found": 0, "changes_found": 0, "message": "DB 未初始化，无法重建索引"})
-            
+                return CommandResult(
+                    success=False,
+                    message="DB 未初始化，无法重建索引",
+                    payload=RebuildIndexResultDTO(
+                        projects_found=0, changes_found=0, message="DB 未初始化，无法重建索引"
+                    ),
+                )
+
             result = self._project_service.sync_to_cache(force_full=True)
             projects_found = int(result.get("projects_found", 0))
             changes_found = int(result.get("changes_found", 0))
-            payload = {
-                "projects_found": projects_found,
-                "changes_found": changes_found,
-                "message": f"重建完成：发现 {projects_found} 个项目，{changes_found} 条变更单",
-            }
-            return CommandResult(success=True, message="Success", payload=payload)
+            dto = RebuildIndexResultDTO(
+                projects_found=projects_found,
+                changes_found=changes_found,
+                message=f"重建完成：发现 {projects_found} 个项目，{changes_found} 条变更单",
+            )
+            return CommandResult(success=True, message="Success", payload=dto)
         except Exception as e:
-            return CommandResult(success=False, message=str(e), payload={"projects_found": 0, "changes_found": 0, "message": f"重建索引失败: {e}"})
+            return CommandResult(
+                success=False,
+                message=str(e),
+                payload=RebuildIndexResultDTO(
+                    projects_found=0, changes_found=0, message=f"重建索引失败: {e}"
+                ),
+            )

@@ -12,15 +12,15 @@ UI/CLI 层通过 PlcService 操作 PLC 项目，不直接访问 PlcChecker/PlcRe
 
 from __future__ import annotations
 
+import logging
 import os
 
-from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.plc.checker import PlcChecker
 from auto_pm.plc.models import CheckResult, RepairResult, StandardizeResult
 from auto_pm.plc.repairer import PlcRepairer
 from auto_pm.plc.substance_checker import SubstanceChecker
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class PlcService:

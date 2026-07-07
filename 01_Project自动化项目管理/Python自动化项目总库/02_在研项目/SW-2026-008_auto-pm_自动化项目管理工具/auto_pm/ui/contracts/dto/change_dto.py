@@ -39,3 +39,35 @@ class ChangeRequestDTO:
     propagation_chain: str
     file_path: str
     sections: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class ChangeTimelineItemDTO:
+    """变更审批时间线条目（对应 approval_history 表的一行流转记录）"""
+
+    from_status: str
+    to_status: str
+    approver: str
+    comment: str
+    transition_date: str
+
+
+@dataclass(frozen=True)
+class ChangeValidationSummaryDTO:
+    """变更验证摘要（聚合影响分析 + 审批历史计数）
+
+    用于变更详情页右侧/底部的"验证状态"面板：
+    - risk_level / mitigation / propagation_chain 来自 ImpactAnalysis
+    - approval_count / last_approval_date 来自 ApprovalHistory 聚合
+    - domain_impacts / related_changes 来自 ImpactAnalysis 的结构化字段
+    """
+
+    change_number: str
+    current_status: str
+    risk_level: str
+    mitigation: str
+    propagation_chain: str
+    approval_count: int
+    last_approval_date: str | None
+    domain_impacts: dict[str, Any]
+    related_changes: list[str]

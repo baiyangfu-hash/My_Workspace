@@ -13,9 +13,10 @@ M3-Iter1 重构：扫描/识别逻辑提取到 ProjectScanner，本类通过组�
 from __future__ import annotations
 
 import json
+import logging
 import os
 from datetime import datetime
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import yaml
 
@@ -24,12 +25,11 @@ from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.project_scanner import ProjectScanner
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
-from auto_pm.logging.logging import setup_logger
 from auto_pm.models import ProjectInfo, ProjectListItem, ProjectRecord
 from auto_pm.models.project import extract_business_line
 from auto_pm.utils.file_utils import StaleFileError, get_mtime, write_file
 
-log = setup_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ProjectService:
@@ -94,7 +94,7 @@ class ProjectService:
         records = self._repo.list_all()
         return [self._record_to_info(r) for r in records]
 
-    def get_project_cached(self, project_id: str) -> Optional[ProjectInfo]:
+    def get_project_cached(self, project_id: str) -> ProjectInfo | None:
         """从 DB 缓存按 project_id 查询项目
 
         Raises:
@@ -107,9 +107,9 @@ class ProjectService:
 
     def list_projects_filtered(
         self,
-        stack: Optional[str] = None,
-        phase: Optional[str] = None,
-        business_line: Optional[str] = None,
+        stack: str | None = None,
+        phase: str | None = None,
+        business_line: str | None = None,
     ) -> list[ProjectInfo]:
         """按条件筛选项目（从 DB 缓存查询）
 
@@ -189,11 +189,13 @@ class ProjectService:
         if self._repo is not None and hasattr(self._repo, "count"):
             try:
                 return int(self._repo.count())
-            except Exception:
+            except Exception as e:
+                log.warning("DB count 查询失败，返回 0: %s", e, exc_info=True)
                 return 0
         try:
             return len(self.list_projects_cached())
-        except Exception:
+        except Exception as e:
+            log.warning("list_projects_cached 失败，返回 0: %s", e, exc_info=True)
             return 0
 
     def get_db_path(self) -> str:
@@ -204,8 +206,8 @@ class ProjectService:
 
     # ── 内部辅助方法 ──────────────────────────────────────────
 
-    def get_project(self, project_id: str) -> Optional[ProjectInfo]:
-        """按 project_id 查询项目
+    def get_project(self, project_id: str) -> ProjectInfo | None:
+        """按 project_id 查询项目（优先 DB 缓存，降级文件扫描）
 
         Args:
             project_id: 项目编号，如 DJ-2026-010
@@ -213,13 +215,20 @@ class ProjectService:
         Returns:
             ProjectInfo 或 None（未找到）
         """
+        if self._repo is not None:
+            try:
+                cached = self.get_project_cached(project_id)
+                if cached is not None:
+                    return cached
+            except Exception as e:
+                log.warning("DB 缓存查询失败，降级到文件扫描: %s", e)
         for proj in self.list_projects():
             if proj.project_id == project_id:
                 return proj
         log.warning("项目未找到: %s", project_id)
         return None
 
-    def find_project_path(self, project_id: str) -> Optional[str]:
+    def find_project_path(self, project_id: str) -> str | None:
         """按 project_id 查询项目路径
 
         Args:
@@ -535,6 +544,73 @@ class ProjectService:
         """DB 缓存是否可用（M3-Iter5：UI 层通过此方法判断而非直接访问 db 属性）"""
         return self.db is not None
 
+    def clear_cache(self) -> dict[str, Any]:
+        """清除 DB 缓存文件并重新初始化 schema
+
+        删除 db 主文件及 -wal/-shm 侧车文件，然后重新 init_schema()。
+        调用后 self._repo / self._repo_change 会基于新 db 重建。
+
+        Windows 上 WAL 模式可能短暂持有 -wal/-shm 文件锁，
+        因此先释放 Repository 引用并强制 GC 回收 sqlite3 连接，
+        再重试删除；若仍失败则降级为 drop_all + init_schema。
+
+        Returns:
+            {"success": bool, "message": str}
+
+        Raises:
+            RuntimeError: 未注入 DatabaseManager
+        """
+        if self.db is None:
+            raise RuntimeError("未注入 DatabaseManager，无法清除缓存")
+
+        import gc
+        import os
+        import time
+
+        db_path = self.get_db_path()
+
+        # 1. 释放 Repository 引用，强制 GC 回收 sqlite3 连接（释放文件锁）
+        self._repo = None
+        self._repo_change = None
+        gc.collect()
+
+        # 2. 尝试删除 db 主文件及 -wal/-shm 侧车文件（重试 3 次）
+        file_deleted = False
+        for attempt in range(3):
+            try:
+                for suffix in ("", "-wal", "-shm"):
+                    file_path = db_path + suffix
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                file_deleted = True
+                break
+            except PermissionError:
+                # Windows 上文件被锁，等待后重试
+                gc.collect()
+                time.sleep(0.1 * (attempt + 1))
+
+        # 3. 重新初始化 schema
+        if hasattr(self.db, "init_schema"):
+            self.db.init_schema()
+
+        # 4. 重建 Repository
+        self._repo = ProjectRepository(self.db)
+        self._repo_change = ChangeRequestRepository(self.db)
+
+        if file_deleted:
+            msg = "缓存已清除并重新初始化"
+        else:
+            # 删除失败时已通过 init_schema() 重建（幂等，会保留旧数据）
+            # 此处降级用 drop_all 清空数据
+            if hasattr(self.db, "drop_all"):
+                self.db.drop_all()
+                if hasattr(self.db, "init_schema"):
+                    self.db.init_schema()
+            msg = "缓存已清空（DB 文件被锁，已通过 drop_all 清理数据）"
+
+        log.info("DB 缓存已清除: %s (%s)", db_path, msg)
+        return {"success": True, "message": msg}
+
 
     def _upsert_to_cache(self, proj: ProjectInfo) -> None:
         """将单个项目 UPSERT 到 DB 缓存"""
@@ -595,19 +671,19 @@ class ProjectService:
 
     # ── 向后兼容的委托方法（M3-Iter1 保留签名，内部委托给 scanner） ──
 
-    def _try_identify_project(self, project_path: str) -> Optional[ProjectInfo]:
+    def _try_identify_project(self, project_path: str) -> ProjectInfo | None:
         """[已委托] 尝试识别目录是否为项目（向后兼容包装）"""
         return self._scanner.try_identify_project(project_path)
 
-    def _read_copier_answers(self, project_path: str) -> Optional[ProjectInfo]:
+    def _read_copier_answers(self, project_path: str) -> ProjectInfo | None:
         """[已委托] 从 .copier-answers.yml 读取项目元数据（向后兼容包装）"""
         return self._scanner.read_copier_answers(project_path)
 
-    def _read_plc_json(self, project_path: str) -> Optional[ProjectInfo]:
+    def _read_plc_json(self, project_path: str) -> ProjectInfo | None:
         """[已委托] 从 .plc.json 读取项目元数据（向后兼容包装）"""
         return self._scanner.read_plc_json(project_path)
 
-    def _read_pm_session(self, project_path: str) -> Optional[ProjectInfo]:
+    def _read_pm_session(self, project_path: str) -> ProjectInfo | None:
         """[已委托] 从 PM_SESSION_*.md 文件名提取项目编号（向后兼容包装）"""
         return self._scanner.read_pm_session(project_path)
 

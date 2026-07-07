@@ -12,9 +12,10 @@ M3-Iter2 重构：从 870 行上帝类拆分为 4 个职责单一的类：
 from __future__ import annotations
 
 import datetime
+import logging
 import os
 import re
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from auto_pm.change.file_locator import ChangeFileLocator
 from auto_pm.change.guard_checker import TransitionGuardChecker
@@ -34,8 +35,8 @@ from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
-from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.models import ApprovalRecord
+from auto_pm.models.change import ImpactAnalysis
 from auto_pm.models.project import ProjectRecord
 from auto_pm.utils.file_utils import (
     StaleFileError,
@@ -48,7 +49,7 @@ if TYPE_CHECKING:
     from auto_pm.change.generator import ChgGenerator
     from auto_pm.change.ledger_updater import LedgerUpdater
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 def _is_verification_passed(conclusion: str) -> bool:
@@ -594,14 +595,27 @@ class ChangeService:
             return []
         return self._repo.list_approval_history(change_number)
 
+    def get_impact_analysis(self, change_number: str) -> ImpactAnalysis | None:
+        """查询变更单的影响分析记录（供 GUI 验证摘要使用，M3）
+
+        Args:
+            change_number: 变更单编号
+
+        Returns:
+            ImpactAnalysis 或 None（无 DB 或无记录时返回 None）
+        """
+        if self._repo is None:
+            return None
+        return self._repo.get_impact_analysis(change_number)
+
     # ---- 跨项目查询 / 修改 / 删除 ----
 
     def list_all_changes(
         self,
-        status: Optional[str] = None,
-        domain: Optional[str] = None,
-        urgency: Optional[str] = None,
-        project_id: Optional[str] = None,
+        status: str | None = None,
+        domain: str | None = None,
+        urgency: str | None = None,
+        project_id: str | None = None,
     ) -> list[ChangeSummary]:
         """跨项目查询所有变更单（用于变更中心全局列表）
 
@@ -641,7 +655,7 @@ class ChangeService:
         self,
         change_number: str,
         **kwargs: Any,
-    ) -> Optional[ChangeRequest]:
+    ) -> ChangeRequest | None:
         """修改变更单字段
 
         支持修改的字段：

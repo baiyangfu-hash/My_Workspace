@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import logging
 from typing import cast
 
 from auto_pm.change.models import (
@@ -15,10 +16,9 @@ from auto_pm.change.models import (
     URGENCY_LEVELS,
     ChangeRequest,
 )
-from auto_pm.logging.logging import setup_logger as get_logger
 from auto_pm.utils.file_utils import write_file
 
-log = get_logger(log_level="INFO", app_name="auto_pm")
+log = logging.getLogger(__name__)
 
 
 class ChgGenerator:

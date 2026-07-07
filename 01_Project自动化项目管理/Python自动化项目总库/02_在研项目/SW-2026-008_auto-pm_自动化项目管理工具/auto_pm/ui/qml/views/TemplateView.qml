@@ -1,13 +1,13 @@
-// TemplateView.qml - V0.8.0 Phase 2 模板管理（CHG-091?
+// TemplateView.qml - V0.8.0 Phase 2 模板管理（CHG-091）
 //
-// 模板卡片列表 + 更新项目按钮，对?QWidget ?template_page.py?
-//   ┌──────────────────────────────────────────────?
-//   ?🏭 plc-standard             [更新项目]       ?
-//   ?v1.0 | 技术栈: PLC | 使用项目: 3             ?
-//   ?PLC 标准项目模板                              ?
-//   └──────────────────────────────────────────────?
+// 模板卡片列表 + 更新项目按钮，对应 QWidget 的 template_page.py
+//   ┌──────────────────────────────────────────────┐
+//   │🏭 plc-standard             [更新项目]       │
+//   │v1.0 | 技术栈: PLC | 使用项目: 3             │
+//   │PLC 标准项目模板                              │
+//   └──────────────────────────────────────────────┘
 //
-// 数据流：systemBridge.listTemplates() ?循环 systemBridge.getTemplateDetail(name) ?卡片渲染
+// 数据流：systemBridge.listTemplates() → 循环 systemBridge.getTemplateDetail(name) → 卡片渲染
 // 三重守卫：typeof systemBridge === "undefined" || systemBridge === null || !systemBridge.hasService
 //
 // 更新项目按钮：Phase 2 显示 "Copier 增量更新功能将在 V0.9 实现" 提示
@@ -22,6 +22,9 @@ Rectangle {
     id: root
     color: Theme.background
 
+    // ── 公开属性 ────────────────────────────────────────
+    property string currentProjectId: ""  // M5: 由 main.qml 绑定，用于 applyTemplate
+
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
 
@@ -29,12 +32,13 @@ Rectangle {
     ListModel { id: templatesModel }
     property string errorMessage: ""
     property string selectedTemplate: ""
+    property string applyResultMessage: ""  // M5: applyTemplate 结果消息
 
     // ── 加载数据 ────────────────────────────────────────
     function loadData() {
         if (typeof systemBridge === "undefined" || systemBridge === null || !systemBridge.hasService) {
-            console.warn("[QML] TemplateView: TemplateService 未启?)
-            errorMessage = "TemplateService 未启?
+            console.warn("[QML] TemplateView: TemplateService 未启用")
+            errorMessage = "TemplateService 未启用"
             templatesModel.clear()
             return
         }
@@ -97,23 +101,23 @@ Rectangle {
             }
 
             Text {
-                text: "?" + templatesModel.count + " 个可?Copier 模板"
+                text: "📋" + templatesModel.count + " 个可用 Copier 模板"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
         }
     }
 
-    // ── 错误状?────────────────────────────────────────
+    // ── 错误状态 ────────────────────────────────────────
     Text {
         visible: errorMessage !== ""
         anchors.centerIn: parent
-        text: "?" + errorMessage
+        text: "❌" + errorMessage
         color: Theme.error
         font.pixelSize: Theme.fontSizeMd
     }
 
-    // ── 空状?─────────────────────────────────────────
+    // ── 空状态 ─────────────────────────────────────────
     Text {
         visible: errorMessage === "" && templatesModel.count === 0
         anchors.centerIn: parent
@@ -191,19 +195,20 @@ Rectangle {
                     }
 
                     PrimaryButton {
-                        text: "更新项目"
+                        text: "应用模板到项目"
                         onClicked: {
                             root.selectedTemplate = model.name
+                            root.applyResultMessage = ""
                             updateDialog.open()
                         }
                     }
                 }
 
-                // 第二行：版本 | 技术栈 | 使用项目?
+                // 第二行：版本 | 技术栈 | 使用项目数
                 Text {
                     Layout.fillWidth: true
                     text: {
-                        var stackLabel = "未分?
+                        var stackLabel = "未分类"
                         if (model.stack === "plc") stackLabel = "PLC"
                         else if (model.stack === "python") stackLabel = "Python"
                         return (model.version || "v1.0")
@@ -217,7 +222,7 @@ Rectangle {
                 // 第三行：描述
                 Text {
                     Layout.fillWidth: true
-                    text: model.description || "?
+                    text: model.description || "—"
                     font.pixelSize: Theme.fontSizeSm
                     color: Theme.textPrimary
                     wrapMode: Text.WordWrap
@@ -226,12 +231,12 @@ Rectangle {
         }
     }
 
-    // ── 更新项目确认对话?──────────────────────────────
+    // ── 更新项目确认对话框 ──────────────────────────────
     Dialog {
         id: updateDialog
-        title: "更新项目"
-        dialogWidth: 380
-        dialogHeight: 160
+        title: "应用模板到项目"
+        dialogWidth: 420
+        dialogHeight: 220
         showButtons: false
         _isOpen: false
 
@@ -251,9 +256,21 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: "?Copier 增量更新功能将在 V0.9 实现（CHG-091 Phase 2 仅展示卡片）"
+                text: root.currentProjectId ?
+                          "目标项目: " + root.currentProjectId :
+                          "⚠️ 未选择项目（请先在项目列表中点击一个项目）"
                 font.pixelSize: Theme.fontSizeSm
-                color: Theme.textSecondary
+                color: root.currentProjectId ? Theme.textSecondary : Theme.error
+                wrapMode: Text.WordWrap
+            }
+
+            Text {
+                Layout.fillWidth: true
+                visible: root.applyResultMessage !== ""
+                text: root.applyResultMessage
+                font.pixelSize: Theme.fontSizeSm
+                color: root.applyResultMessage.startsWith("✅") ? Theme.success :
+                       (root.applyResultMessage.startsWith("❌") ? Theme.error : Theme.textSecondary)
                 wrapMode: Text.WordWrap
             }
 
@@ -266,8 +283,26 @@ Rectangle {
                 Item { Layout.fillWidth: true }
 
                 PrimaryButton {
-                    text: "知道?
+                    text: "取消"
+                    type: "ghost"
                     onClicked: updateDialog.close()
+                }
+
+                PrimaryButton {
+                    text: "确认应用"
+                    type: "primary"
+                    enabled: root.currentProjectId !== "" &&
+                             typeof systemBridge !== "undefined" && systemBridge !== null && systemBridge.hasService
+                    onClicked: {
+                        var res = systemBridge.applyTemplate(root.currentProjectId, root.selectedTemplate)
+                        if (res && res.success) {
+                            root.applyResultMessage = "✅ 模板应用成功（项目: " + (res.project_id || "") + "）"
+                        } else if (res && res.message) {
+                            root.applyResultMessage = "❌ 失败: " + res.message
+                        } else {
+                            root.applyResultMessage = "❌ 未知失败"
+                        }
+                    }
                 }
             }
         }
