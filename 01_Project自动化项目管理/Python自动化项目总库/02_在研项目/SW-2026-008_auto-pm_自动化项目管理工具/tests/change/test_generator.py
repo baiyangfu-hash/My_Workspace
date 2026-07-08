@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import os
 
+from auto_pm.change.constants import ChangeRequest
 from auto_pm.change.generator import ChgGenerator
-from auto_pm.change.models import ChangeRequest
 
 
 class TestChgGenerator:

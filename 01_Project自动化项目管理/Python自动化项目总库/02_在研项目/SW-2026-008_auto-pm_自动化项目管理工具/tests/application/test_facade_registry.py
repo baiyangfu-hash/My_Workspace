@@ -20,6 +20,7 @@ def test_registry_initialization():
         "doc_refresh_service": MagicMock(),
         "report_service": MagicMock(),
         "pm_session_service": MagicMock(),
+        "template_service": MagicMock(),
     }
     
     # Act

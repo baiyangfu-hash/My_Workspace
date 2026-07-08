@@ -7,7 +7,7 @@ import os
 import re
 from typing import Any, cast
 
-from auto_pm.change.models import (
+from auto_pm.change.constants import (
     ALL_STATUSES,
     BUSINESS_NATURES,
     DOMAINS,

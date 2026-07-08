@@ -13,7 +13,7 @@
 //   └─────────────────────────────────────────────────┘
 //
 // 数据流：workbenchBridge.getSettingsSummary() / clearCache() / rebuildIndex() / runPmSessionCheck()
-// 三重守卫：bridge !== null（getSettingsSummary 始终可用，DB 部分基于 db_available?
+// 三重守卫：workbenchBridge !== null（getSettingsSummary 始终可用，DB 部分基于 db_available）
 
 import QtQuick
 import QtQuick.Controls
@@ -36,8 +36,8 @@ Rectangle {
 
     // ── 加载数据 ────────────────────────────────────────
     function loadData() {
-        if (typeof bridge === "undefined" || bridge === null) {
-            errorMessage = "QmlBridge 未注入"
+        if (typeof workbenchBridge === "undefined" || workbenchBridge === null) {
+            errorMessage = "workbenchBridge 未注入"
             return
         }
         errorMessage = ""
@@ -322,7 +322,7 @@ Rectangle {
 
                         PrimaryButton {
                             text: "刷新检查"
-                            enabled: bridge !== null && systemBridge.hasService
+                            enabled: systemBridge !== null && systemBridge.hasService
                             onClicked: loadData()
                         }
 

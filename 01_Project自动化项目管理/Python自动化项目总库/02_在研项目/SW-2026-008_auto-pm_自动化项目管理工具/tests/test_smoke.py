@@ -96,36 +96,36 @@ class TestStatusFlow:
 
     def test_status_flow_defined(self) -> None:
         """STATUS_FLOW 已定义"""
-        from auto_pm.change.models import STATUS_FLOW
+        from auto_pm.change.constants import STATUS_FLOW
         assert "draft" in STATUS_FLOW
         assert "completed" in STATUS_FLOW
         assert "archived" in STATUS_FLOW
 
     def test_acceptance_flow_valid(self) -> None:
         """验收流程状态流转合法"""
-        from auto_pm.change.models import validate_status_transition
+        from auto_pm.change.constants import validate_status_transition
         validate_status_transition("implementing", "pending_acceptance")
         validate_status_transition("pending_acceptance", "accepting")
         validate_status_transition("accepting", "completed")
 
     def test_archive_flow_valid(self) -> None:
         """归档流程状态流转合法"""
-        from auto_pm.change.models import validate_status_transition
+        from auto_pm.change.constants import validate_status_transition
         validate_status_transition("completed", "archived")
 
     def test_rework_flow_valid(self) -> None:
         """返工路径状态流转合法"""
-        from auto_pm.change.models import validate_status_transition
+        from auto_pm.change.constants import validate_status_transition
         validate_status_transition("accepting", "implementing")
 
     def test_archived_is_terminal(self) -> None:
         """archived 是终态"""
-        from auto_pm.change.models import STATUS_FLOW
+        from auto_pm.change.constants import STATUS_FLOW
         assert STATUS_FLOW["archived"] == set()
 
     def test_status_labels_exist(self) -> None:
         """状态标签存在"""
-        from auto_pm.change.models import STATUS_LABELS
+        from auto_pm.change.constants import STATUS_LABELS
         assert STATUS_LABELS["draft"] == "草稿"
         assert STATUS_LABELS["completed"] == "已完成"
         assert STATUS_LABELS["archived"] == "已归档"

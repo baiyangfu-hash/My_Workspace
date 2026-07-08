@@ -200,7 +200,7 @@ Rectangle {
                     Text {
                         id: tabText
                         anchors.centerIn: parent
-                        text: model.label
+                        text: model.label ?? ""
                         color: root.currentTab === model.index ? "white" : Theme.textSecondary
                         font.pixelSize: Theme.fontSizeSm
                         font.bold: root.currentTab === model.index
@@ -527,7 +527,7 @@ Rectangle {
 
                     PrimaryButton {
                         text: "▶运行检查"
-                        enabled: bridge !== null && specBridge.hasService
+                        enabled: specBridge !== null && specBridge.hasService
                         onClicked: runChecks()
                     }
 

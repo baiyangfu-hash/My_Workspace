@@ -82,3 +82,43 @@ def test_workbench_bridge_no_facade(qapp):
     assert bridge.getSettingsSummary() == {}
     assert bridge.clearCache() == {"success": False, "message": "未初始化"}
     assert bridge.rebuildIndex() == {"success": False, "message": "未初始化"}
+    # CHG-106: getActiveChangeStatus 降级返回空状态机
+    active_status = bridge.getActiveChangeStatus("SW-2026-008")
+    assert active_status["active"] is False
+    assert active_status["state_machine"]["current_node"] == 0
+
+
+def test_workbench_bridge_active_change_status(qapp):
+    """Bridge.getActiveChangeStatus() 返回状态机 dict（CHG-106）"""
+    mock_facade = MagicMock()
+    mock_facade.get_active_change_status.return_value = QueryResult(
+        success=True,
+        message="Success",
+        payload={
+            "active": True,
+            "change_number": "CHG-SCPT-2026-106",
+            "title": "工作台 KPI",
+            "status": "implementing",
+            "apply_date": "2026-07-09",
+            "state_machine": {
+                "current_node": 2,
+                "current_node_name": "实施中 (Implementing)",
+                "progress": 50,
+                "nodes": [
+                    {"name": "需求澄清 (Draft)", "icon": "pencil-simple", "status": "done"},
+                    {"name": "方案评审 (Review)", "icon": "paper-plane-tilt", "status": "done"},
+                    {"name": "实施中 (Implementing)", "icon": "code", "status": "active"},
+                    {"name": "闭环归档 (Closed)", "icon": "check", "status": "pending"},
+                ],
+            },
+        },
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.getActiveChangeStatus("SW-2026-008")
+
+    assert result["active"] is True
+    assert result["change_number"] == "CHG-SCPT-2026-106"
+    assert result["state_machine"]["current_node"] == 2
+    assert result["state_machine"]["progress"] == 50
+    assert len(result["state_machine"]["nodes"]) == 4

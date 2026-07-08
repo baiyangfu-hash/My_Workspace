@@ -105,14 +105,20 @@ class DashboardSummaryDTO(BaseModel):
         default_factory=list,
         description="PLC 检查不适用项目编号列表",
     )
-    recent_activities: list[str] = Field(
+    recent_activities: list[dict[str, Any]] = Field(
         default_factory=list,
-        description="最近活动摘要列表",
+        description="最近活动摘要列表（CHG-106: 格式 {type, title, desc, time}）",
     )
     risk_hints: list[str] = Field(
         default_factory=list,
         description="交付风险/健康提示列表",
     )
+    # CHG-106 新增：技术债计数（解析 006 报告 §0.1 总览表）
+    tech_debt_count: int = Field(0, description="遗留技术债数（剩余未治理）")
+    tech_debt_total: int = Field(0, description="技术债总数（历史累计）")
+    # CHG-106 新增：测试通过率（读取 .pytest_cache）
+    test_pass_rate: float = Field(0.0, description="自动化测试通过率（0-100）")
+    test_total: int = Field(0, description="自动化测试总数")
 
 
 class AssetSummaryViewDTO(BaseModel):

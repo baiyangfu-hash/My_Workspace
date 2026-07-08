@@ -7,8 +7,6 @@ Service bug 修复（阶段 C）：
 - Bug #2/#3: refresh_asset_summary/get_asset_summary 改为接收 project_id，调 build_summary
 """
 
-import logging
-
 from auto_pm.core.protocols import (
     AssetSummaryServiceProtocol,
     DocRefreshServiceProtocol,
@@ -26,8 +24,6 @@ from auto_pm.ui.contracts.dto.delivery_dto import (
     SpecReportDTO,
 )
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
-
-log = logging.getLogger(__name__)
 
 
 class DeliveryFacade:
@@ -62,30 +58,10 @@ class DeliveryFacade:
         return self._project_service is not None
 
     def _get_project_info(self, project_id: str) -> ProjectInfo | None:
-        """查 ProjectInfo（优先 DB 缓存，fallback 文件系统扫描）
-
-        Returns:
-            ProjectInfo 或 None（项目不存在时）
-        """
+        """通过 project_service 获取项目信息（DB 缓存优先 + 文件系统降级）。"""
         if not self._project_service:
             return None
-        # 优先 DB 缓存
-        try:
-            info = self._project_service.get_project_cached(project_id)
-            if info is not None:
-                return info
-        except RuntimeError:
-            # 未注入 DatabaseManager，fallback 到文件系统扫描
-            pass
-        # fallback: 文件系统扫描后过滤
-        try:
-            projects = self._project_service.list_projects()
-            for p in projects:
-                if p.project_id == project_id:
-                    return p
-        except Exception as e:
-            log.warning("文件系统扫描失败，返回 None: %s", e, exc_info=True)
-        return None
+        return self._project_service.get_project(project_id)
 
     def refresh_project_docs(self, project_id: str, dry_run: bool = False) -> CommandResult[RefreshProjectDocsResultDTO | None]:
         try:
@@ -120,8 +96,6 @@ class DeliveryFacade:
             if not self._report_service:
                 return QueryResult(success=False, message="No report_service", payload=None)
             data = self._report_service.get_project_overview()
-            if not isinstance(data, dict):
-                data = {"raw": data}
             dto = ProjectReportDTO(
                 total=data.get("total", 0),
                 by_stack=data.get("by_stack", {}),
@@ -137,8 +111,6 @@ class DeliveryFacade:
             if not self._report_service:
                 return QueryResult(success=False, message="No report_service", payload=None)
             data = self._report_service.get_change_overview()
-            if not isinstance(data, dict):
-                data = {"raw": data}
             dto = ChangeReportDTO(
                 total=data.get("total", 0),
                 by_status=data.get("by_status", {}),
@@ -153,8 +125,6 @@ class DeliveryFacade:
             if not self._report_service:
                 return QueryResult(success=False, message="No report_service", payload=None)
             data = self._report_service.get_spec_report()
-            if not isinstance(data, dict):
-                data = {"raw": data}
             dto = SpecReportDTO(
                 total=data.get("total", 0),
                 found=data.get("found", 0),
@@ -171,8 +141,6 @@ class DeliveryFacade:
             if not self._report_service:
                 return QueryResult(success=False, message="No report_service", payload=None)
             data = self._report_service.get_scan_report()
-            if not isinstance(data, dict):
-                data = {"raw": data}
             dto = ScanReportDTO(
                 latest=data.get("latest"),
                 last_sync_time=data.get("last_sync_time", "—"),

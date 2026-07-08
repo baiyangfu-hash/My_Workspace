@@ -2,16 +2,29 @@
 
 > **项目**: SW-2026-008 auto-pm 自动化项目管理工具
 > **维护规则**: 历史整改文件归档到 `archive/` 子目录；当前活跃整改文件保留在根目录
-> **最近整理**: 2026-07-07（V0.9.0 重新诊断 + 整改项目录归档）
+> **最近整理**: 2026-07-08（V0.9.1 实测诊断 + 测试计划 + 归档整理）
 
-## 当前活跃文件（2 个）
+## 当前活跃文件（3 个 + README）
 
 | 文件 | 用途 | 状态 |
 |------|------|------|
-| [diagnostic_report.md](diagnostic_report.md) | 2026-07-07 重新诊断报告（V0.9.0 实测 ruff 26 errors + mypy 34 errors + pytest 阻断 + 15 项新发现问题） | ✅ 当前真源 |
+| [diagnostic_report.md](diagnostic_report.md) | 2026-07-08 V0.9.1 实测诊断报告（对 Claude-result 12 项残留问题逐项 Grep/Read/mypy 实证，8 存在 + 4 失真） | ✅ 当前真源 |
+| [CLI测试计划.md](CLI测试计划.md) | V0.9.1 CLI 测试计划（10 子命令组矩阵 + 153 用例 + 执行命令） | ✅ 当前真源 |
+| [GUI测试计划.md](GUI测试计划.md) | V0.9.1 GUI 测试计划（8 QML 页面矩阵 + 6 状态覆盖 + 可见模式约束 + 89 用例） | ✅ 当前真源 |
 | [README.md](README.md) | 09_整改项索引（本文件） | ✅ 当前真源 |
 
-## 归档文件（archive/，15 个）
+## 归档文件（archive/）
+
+### 2026-07-08 归档（6 个）
+
+| 文件 | 原活跃期 | 归档原因 |
+|------|----------|----------|
+| [archive/Claude-result_V0.9.1_原始报告.md](archive/Claude-result_V0.9.1_原始报告.md) | 2026-07-08 | 被 diagnostic_report.md（实测版）替代 |
+| [archive/remediation_plan.md](archive/remediation_plan.md) | 2026-07-07 | 7 项 P0 阻断性问题修复方案，状态=已完成 |
+| [archive/landing_plans/M2_workbench_landing_plan.md](archive/landing_plans/M2_workbench_landing_plan.md) | M2 | M2 里程碑已完成（WorkbenchFacade + WorkbenchBridge 落地） |
+| [archive/landing_plans/M3_change_landing_plan.md](archive/landing_plans/M3_change_landing_plan.md) | M3 | M3 里程碑已完成（ChangeFacade + ChangeBridge 落地） |
+| [archive/landing_plans/M4_delivery_system_landing_plan.md](archive/landing_plans/M4_delivery_system_landing_plan.md) | M4 | M4 里程碑已完成（DeliveryFacade 落地） |
+| [archive/landing_plans/M4_spec_landing_plan.md](archive/landing_plans/M4_spec_landing_plan.md) | M4 | M4 里程碑已完成（SpecFacade 落地） |
 
 ### 2026-07-07 重新诊断时归档（5 个）
 
@@ -63,26 +76,16 @@
 2. **保留原则**：当前活跃的诊断报告和执行清单保留在根目录，便于快速访问
 3. **索引维护**：每次归档操作后更新本 README 索引
 4. **历史追溯**：归档文件不删除，保留完整历史链路
-5. **命名规范**：归档文件保留原名，不追加版本号后缀（例外：`diagnostic_report_2026-07-06_V0.9.0.md` 因同名文件需区分，添加日期前缀）
+5. **命名规范**：归档文件保留原名，不追加版本号后缀（例外：`diagnostic_report_2026-07-06_V0.9.0.md` 因同名文件需区分，添加日期前缀；`Claude-result_V0.9.1_原始报告.md` 同理添加版本前缀）
 
-## 2026-07-07 重新诊断关键发现摘要
+## 2026-07-08 整理关键发现摘要
 
-> ⚠️ **PM_SESSION §3 spec_compliance 声明失真**：声称 "ruff 0 + mypy 0 + 999 passed"，实测为 "ruff 26 errors + mypy 34 errors + pytest INTERNALERROR"。
+**V0.9.1 实测诊断**：对 Claude-result V3 诊断报告的 12 项残留问题逐项用 Grep/Read/mypy 实证复核，结论为 **8 项存在 + 4 项失真**。最严重失真项为 mypy 实测仅 5 errors（非报告声称的 24 errors）。详见 [diagnostic_report.md](diagnostic_report.md)。
 
-**P0 阻断性问题（7 项）**：
-1. `protocols.py` 断裂导入（ImportError: cannot import name 'ProjectCardDTO'）
-2. `workbench_bridge.py` 方法名不匹配（get_dashboard_summary vs get_dashboard_snapshot）
-3. `tests/qml/test_qml_bridge_v08.py` 导入已删除的 qml_bridge.py
-4. `project_service.py` 重复定义（get_last_sync_time / is_cache_available）
-5. `project_service.py` 用旧字段构造新 ProjectCardDTO
-6. PySide6 DLL 加载失败（pytest 完全无法启动）
-7. `clean_bridge.py` 项目根目录临时文件
+**CLI/GUI 测试计划建立**：
+- CLI 测试计划：10 子命令组矩阵 + 153 用例 + 执行命令（详见 [CLI测试计划.md](CLI测试计划.md)）
+- GUI 测试计划：8 QML 页面矩阵 + 6 状态覆盖 + 可见模式约束 + 89 用例（详见 [GUI测试计划.md](GUI测试计划.md)）
 
-**已修复（对比 2026-07-06 旧报告）**：
-- A1: QmlBridge 上帝类已拆分为 5 个 Domain Bridge ✅
-- U1/U2/U3/D1/D2/D3/D4: README/归档索引/文档存放位置已修正 ✅
+**设计文档同步**：`02_设计/` 下 5 份设计文档已更新至 V3.1.0 已实现状态，与代码现状对齐。
 
-**部分修复（6 项）**：A2/A3/A4/C1/C2/C4/T1
-**未修复（3 项）**：C3/C5/U5
-
-详见 [diagnostic_report.md](diagnostic_report.md)。
+**本次归档动作**：将已被替代的 Claude-result V3 报告、已完成的 remediation_plan（7 项 P0 修复方案）、4 份 M2/M3/M4 Landing Plan（里程碑已完成）共 6 个文件归档到 `archive/`，其中 Landing Plan 统一归入 `archive/landing_plans/` 子目录。

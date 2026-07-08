@@ -149,6 +149,7 @@ def make_dashboard_service(
     project_service: Any,
     change_service: Any,
     plc_service: Any | None = None,
+    workspace_root: str | None = None,
 ) -> Any | None:
     """工厂函数：构造 DashboardService（CHG-090 V0.8.0）
 
@@ -156,6 +157,7 @@ def make_dashboard_service(
         project_service: 已实例化的 ProjectService
         change_service: 已实例化的 ChangeService
         plc_service: 可选的 PlcService
+        workspace_root: 工作空间根目录（CHG-106 新增，用于定位 006 报告和 .pytest_cache）
 
     Returns:
         DashboardService 实例或 None
@@ -167,6 +169,7 @@ def make_dashboard_service(
             project_service=project_service,
             change_service=change_service,
             plc_service=plc_service,
+            workspace_root=workspace_root,
         )
     except Exception:  # noqa: BLE001
         return None

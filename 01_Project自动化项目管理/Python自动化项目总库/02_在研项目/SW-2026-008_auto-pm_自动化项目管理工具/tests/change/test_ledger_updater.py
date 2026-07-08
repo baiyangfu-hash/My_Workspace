@@ -174,8 +174,8 @@ class TestLedgerUpdaterUpdateStatus:
         assert "CHG-SCPT-2026-001" in content
         assert "fubai" in content
 
-    def test_update_status_not_found(self, tmp_path: Path) -> None:
-        """update_status 未找到 change_number 时不修改内容"""
+    def test_update_status_not_found_triggers_self_heal(self, tmp_path: Path) -> None:
+        """CHG-108 缺陷2: update_status 未找到 change_number 时自愈补建新行"""
         ledger = tmp_path / "ledger.md"
         original = (
             "# 版本变更台帐\n\n"
@@ -187,10 +187,23 @@ class TestLedgerUpdaterUpdateStatus:
         ledger.write_text(original, encoding="utf-8")
 
         updater = LedgerUpdater()
-        updater.update_status(str(ledger), "CHG-SCPT-2026-999", "✅已关闭")
+        # 传入 applicant/apply_date 供自愈补建使用
+        updater.update_status(
+            str(ledger),
+            "CHG-SCPT-2026-999",
+            "✅已关闭",
+            applicant="fubai",
+            apply_date="2026-07-09",
+        )
 
         content = ledger.read_text(encoding="utf-8")
-        assert content == original
+        # CHG-108 缺陷2: 自愈补建后应包含目标变更编号
+        assert "CHG-SCPT-2026-999" in content
+        assert "✅已关闭" in content
+        # 原有记录保持不变
+        assert "CHG-SCPT-2026-001" in content
+        # 自愈补建的序号应为 002（原 max=001）
+        assert "002" in content
 
     def test_update_status_empty_file(self, tmp_path: Path) -> None:
         """update_status 对空文件不抛异常"""

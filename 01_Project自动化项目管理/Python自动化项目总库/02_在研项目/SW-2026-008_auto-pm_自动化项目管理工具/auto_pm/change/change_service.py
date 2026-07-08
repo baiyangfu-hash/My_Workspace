@@ -17,10 +17,8 @@ import os
 import re
 from typing import TYPE_CHECKING, Any
 
-from auto_pm.change.file_locator import ChangeFileLocator
-from auto_pm.change.guard_checker import TransitionGuardChecker
-from auto_pm.change.markdown_editor import ChangeMarkdownEditor
-from auto_pm.change.models import (
+from auto_pm.change.constants import (
+    LEDGER_STATUS_MAP,
     ChangeRequest,
     ChangeSummary,
     SpecViolationError,
@@ -31,6 +29,9 @@ from auto_pm.change.models import (
     validate_status_transition,
     validate_urgency,
 )
+from auto_pm.change.file_locator import ChangeFileLocator
+from auto_pm.change.guard_checker import TransitionGuardChecker
+from auto_pm.change.markdown_editor import ChangeMarkdownEditor
 from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
 from auto_pm.db.connection import DatabaseManager
@@ -82,20 +83,7 @@ def _is_verification_passed(conclusion: str) -> bool:
 
 
 # 台帐状态文案映射（TD-T10 修复：transition 流转后自动更新台帐状态行）
-_LEDGER_STATUS_MAP: dict[str, str] = {
-    "draft": "🔄待处理",
-    "submitted": "🔄审核中",
-    "under_review": "🔄审核中",
-    "approved": "🔄已批准",
-    "conditionally_approved": "🔄有条件批准",
-    "rejected": "❌已拒绝",
-    "implementing": "🔄实施中",
-    "pending_acceptance": "🔄待验收",
-    "accepting": "🔄验收中",
-    "completed": "✅已关闭",
-    "closed": "✅已关闭",
-    "archived": "✅已归档",
-}
+_LEDGER_STATUS_MAP = LEDGER_STATUS_MAP  # 向后兼容别名（CHG-108 缺陷 1：常量已提取到 constants.py）
 
 
 class ChangeService:
@@ -189,6 +177,7 @@ class ChangeService:
         references: str = "",
         planned_date: str | None = None,
         urgency: str = "normal",
+        retrofit: bool = False,
     ) -> ChangeRequest:
         """创建变更单
 
@@ -196,6 +185,12 @@ class ChangeService:
         2. 渲染 CHG-040 模板
         3. 保存 Markdown 文件
         4. 更新版本变更台帐
+
+        Args:
+            retrofit: CHG-108 缺陷 3 修复——"先实施后补"工作流。
+                True 时直接创建 closed 状态变更单（跳过状态流转），
+                §3.4 写入 closed，台账写入 ✅已关闭 + 完成日期。
+                适用于已实施的变更事后补单场景。
         """
         project_path = self._locator.get_project_path(project_id)
         if not project_path:
@@ -210,11 +205,12 @@ class ChangeService:
 
         # 生成变更编号
         change_number = self._locator.generate_change_number(project_path, domain)
-        log.info("创建变更单: %s, 项目=%s, 领域=%s, 性质=%s, 范围=%s",
-                 change_number, project_id, domain, business_nature, impact_scope)
+        log.info("创建变更单: %s, 项目=%s, 领域=%s, 性质=%s, 范围=%s, retrofit=%s",
+                 change_number, project_id, domain, business_nature, impact_scope, retrofit)
 
-        # 构造 ChangeRequest
+        # 构造 ChangeRequest（CHG-108 缺陷 3：retrofit 模式直接 closed）
         today = datetime.date.today().isoformat()
+        initial_status = "closed" if retrofit else "draft"
         cr = ChangeRequest(
             change_number=change_number,
             project_id=project_id,
@@ -229,7 +225,7 @@ class ChangeService:
             background=background,
             necessity=necessity,
             references=references,
-            status="draft",
+            status=initial_status,
         )
 
         # 生成文件路径
@@ -268,6 +264,7 @@ class ChangeService:
         # 更新台帐
         # V0.2.1-P2-8: 台帐文件不存在时自动创建（含变更单索引表格骨架）
         # CHG-085：调用 update() 时传入 applicant/apply_date，避免台账字段空缺
+        # CHG-108 缺陷 3：retrofit 模式下追加记录后立即更新状态为 ✅已关闭 + 完成日期
         ledger_path = get_or_create_ledger_file(project_path)
         if ledger_path:
             apply_date = planned_date or datetime.date.today().isoformat()
@@ -278,6 +275,17 @@ class ChangeService:
                 applicant=applicant,
                 apply_date=apply_date,
             )
+            if retrofit:
+                # retrofit 模式：台账状态直接写 ✅已关闭 + 完成日期
+                self._get_ledger_updater().update_status(
+                    ledger_path,
+                    change_number,
+                    "✅已关闭",
+                    complete_date=today,
+                    applicant=applicant,
+                    apply_date=apply_date,
+                )
+                log.info("retrofit 模式: 台账状态直接置为 ✅已关闭: %s", change_number)
             log.info("台帐已更新: %s", ledger_path)
         else:
             log.warning("台帐文件创建失败，跳过更新: %s", project_path)
@@ -331,9 +339,16 @@ class ChangeService:
         log.info("筛选结果: %d 条变更单", len(summaries))
         return summaries
 
-    def get_change_request(self, change_number: str) -> ChangeRequest | None:
-        """获取变更单完整内容"""
-        file_path = self._locator.find_change_file(change_number)
+    def get_change_request(
+        self, change_number: str, project_id: str | None = None
+    ) -> ChangeRequest | None:
+        """获取变更单完整内容
+
+        Args:
+            change_number: 变更单编号
+            project_id: 项目编号（可选，跨项目单号冲突时指定，TD-A04 修复）
+        """
+        file_path = self._locator.find_change_file(change_number, project_id=project_id)
         if not file_path:
             log.warning("获取变更单: 文件未找到 %s", change_number)
             return None
@@ -420,6 +435,7 @@ class ChangeService:
         comment: str = "",
         verification_conclusion: str = "全部通过",
         allow_partial_verification: bool = False,
+        project_id: str | None = None,
     ) -> ChangeRequest | None:
         """状态流转（PM-042 V2.2.0 §5.2 状态机）
 
@@ -430,7 +446,7 @@ class ChangeService:
             implementing → pending_acceptance → accepting → completed
                                                          ↘ implementing（返工）
         """
-        file_path = self._locator.find_change_file(change_number)
+        file_path = self._locator.find_change_file(change_number, project_id=project_id)
         if not file_path:
             log.warning("状态流转: 变更单文件未找到 %s", change_number)
             return None
@@ -527,7 +543,7 @@ class ChangeService:
         # 2. 更新相关章节记录
         if new_status in ("approved", "conditionally_approved", "rejected"):
             # 审批环节名称使用中文语义化标签（对齐 STATUS_LABELS）
-            from auto_pm.change.models import STATUS_LABELS
+            from auto_pm.change.constants import STATUS_LABELS
             status_label = STATUS_LABELS.get(new_status, new_status)
             approval_row = f"| **{status_label}** | {approver} | {comment or '同意'} | {today} | {approver} |\n"
             content = self._editor.append_to_approval_table(content, approval_row)
@@ -574,6 +590,8 @@ class ChangeService:
                     change_number,
                     status_label,
                     complete_date=complete_date,
+                    applicant=current_cr.applicant,
+                    apply_date=current_cr.apply_date,
                 )
                 log.debug("台帐状态已同步: %s → %s", change_number, status_label)
 
@@ -654,6 +672,7 @@ class ChangeService:
     def update_change_request(
         self,
         change_number: str,
+        lookup_project_id: str | None = None,
         **kwargs: Any,
     ) -> ChangeRequest | None:
         """修改变更单字段
@@ -685,7 +704,9 @@ class ChangeService:
                 )
 
         # 2. 获取变更单文件
-        file_path = self._locator.find_change_file(change_number)
+        file_path = self._locator.find_change_file(
+            change_number, project_id=lookup_project_id
+        )
         if not file_path:
             log.warning("修改变更单: 文件未找到 %s", change_number)
             return None
@@ -737,16 +758,19 @@ class ChangeService:
 
         return updated
 
-    def delete_change_request(self, change_number: str) -> bool:
+    def delete_change_request(
+        self, change_number: str, project_id: str | None = None
+    ) -> bool:
         """删除变更单（文件 + DB 缓存）
 
         Args:
             change_number: 变更单编号
+            project_id: 项目编号（可选，跨项目单号冲突时指定，TD-A04 修复）
 
         Returns:
             True 删除成功，False 不存在
         """
-        file_path = self._locator.find_change_file(change_number)
+        file_path = self._locator.find_change_file(change_number, project_id=project_id)
         file_deleted = False
 
         # 1. 删除 .md 文件
@@ -784,9 +808,11 @@ class ChangeService:
         """[已委托] 根据变更编号获取文件路径（向后兼容包装）"""
         return self._locator.get_change_file_path(project_path, change_number)
 
-    def _find_change_file(self, change_number: str) -> str | None:
+    def _find_change_file(
+        self, change_number: str, project_id: str | None = None
+    ) -> str | None:
         """[已委托] 根据变更编号查找文件（向后兼容包装）"""
-        return self._locator.find_change_file(change_number)
+        return self._locator.find_change_file(change_number, project_id=project_id)
 
     def _scan_all_change_files(self) -> list[ChangeSummary]:
         """[已委托] 扫描工作空间所有项目的变更单文件（向后兼容包装）"""

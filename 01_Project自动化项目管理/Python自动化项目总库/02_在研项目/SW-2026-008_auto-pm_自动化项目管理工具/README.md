@@ -9,9 +9,9 @@
 - **Python 项目管理** - 初始化（规范检查计划 V2.5 实现）
 - **变更管理** - 变更单创建/查询/状态流转/编辑（CLI+GUI）；完整 12 状态机 + 门禁校验 + §6/§8/§9/§10 章节渲染；CLI 表格 `--full` 不截断选项
 - **模板管理** - Copier 模板列表/增量更新
-- **桌面 GUI** - PySide6 原生桌面应用，项目中心式导航 + 项目 CRUD + 多角色适配 + 缓存同步；变更中心含 QWizard 分步创建向导 + StatusMachineView 可视化状态机 + ApprovalTimeline 审批时间线 + PropagationView 传播链可视化 + 4 维度列表筛选（状态/领域/紧急程度/项目）
+- **桌面 GUI** - PySide6 QML 桌面应用（V0.9.0 起旧 QWidget 完整移除），项目中心式导航 + 项目 CRUD + 多角色适配 + 缓存同步；变更中心含分步创建对话框 + StatusMachineView 可视化状态机 + ApprovalTimeline 审批时间线 + PropagationView 传播链可视化 + 4 维度列表筛选（状态/领域/紧急程度/项目）
 - **SQLite 索引缓存** - 增量扫描（file_mtime 判据），加速查询；变更单影响分析与审批记录持久化（impact_analysis + approval_history 两张表）
-- **Dogfooding** - auto-pm 自身使用 CHG-*.md 变更单流程（已闭环 3 次：CHG-SCPT-2026-001/062/063）
+- **Dogfooding** - auto-pm 自身使用 CHG-*.md 变更单流程（已闭环 30+ 次，CHG-SCPT-2026-001/062-100）
 
 ## 安装
 
@@ -175,7 +175,7 @@ auto-pm gui --debug    # 调试模式（开启日志详细输出）
 
 ## GUI 功能
 
-> V0.6.0 起 GUI 已迁移至 QML 运行时，V0.9.0 起引入 Facade 接口层。
+> V0.6.0 起 GUI 已迁移至 QML 运行时，V0.8.0 QML 完整覆盖，V0.9.0 旧 QWidget 完整移除 + CLI 标志退役 + Facade 接口层落地（5 个域 Facade + 5 个域 Bridge）。
 
 - **项目中心式导航** - QML 主窗口 + 左侧侧边栏 + StackLayout 切换主区域
 - **项目列表首页** - 项目卡片网格（编号/名称/技术栈徽标/版本/阶段/业务线），统计栏 + 搜索 + 筛选（ProjectListView.qml）
@@ -265,7 +265,7 @@ auto-pm/
 │   ├── plc-shared-library/         # PLC 共享函数库模板
 │   ├── plc-test-suite/             # PLC 测试套件模板
 │   └── python-tool/                # Python 工具项目模板
-├── tests/                          # 测试（111 文件，含 application/change/core/db/plc/spec 等）
+├── tests/                          # 测试（117 文件，含 application/change/core/db/plc/spec/qml 等）
 ├── 00_项目基础信息/                 # 项目治理文档（技术债/发布门禁/试运行）
 ├── 02_设计/                        # 设计真源（PRD/INT/DSN/TEC/里程碑/原型）
 └── pyproject.toml                  # hatchling 构建配置
@@ -307,7 +307,7 @@ auto-pm/
 |------|------|------|
 | 技术债评估报告 | `00_项目基础信息/006_技术债评估报告.md` | 技术债跟踪（34 项全部偿还） |
 | 发布门禁规范 | `00_项目基础信息/007_发布门禁规范_REL.md` | 发布前质量门禁定义 |
-| 试运行报告 | `00_项目基础信息/008_试运行报告_PILOT.md` | Dogfooding 试运行证据归档 |
+| 试运行报告 | `00_项目基础信息/008_试运行报告_PILOT.md` | 【已归档 V0.7.0】Dogfooding 试运行历史证据 |
 
 ### 项目管理文档
 
@@ -323,6 +323,8 @@ auto-pm/
 | 文档 | 废弃原因 | 替代文档 |
 |------|----------|----------|
 | `00_项目基础信息/001~005` | V2.1 设计文档，已迁移至 `02_设计/` | `02_设计/001~007` |
+| `00_项目基础信息/005_变更记录_CHG.md` | 【已归档 V0.7.0】影子台账，新真源为 CHANGELOG.md + auto-pm change list | CHANGELOG.md |
+| `00_项目基础信息/008_试运行报告_PILOT.md` | 【已归档 V0.7.0】试运行报告，新真源为 CHG-*.md §9/§10 | CHG-*.md |
 | `docs/example.md` | Copier 模板示例，非项目文档 | 无（可删除） |
 | `docs/gui-prototype/` | V2.0 HTML 原型，已被 V3.0 原型替代 | `02_设计/006_UI架构原型.html` |
 | `docs/里程碑迭代计划_V2.1.md` | V2.1 历史计划 | `02_设计/005_里程碑与实施计划.md` |
@@ -330,13 +332,18 @@ auto-pm/
 
 ## Dogfooding 证据
 
-auto-pm 自身使用 CHG-*.md 变更单流程管理迭代（M4 Dogfooding 持续化）。已完成的闭环：
+auto-pm 自身使用 CHG-*.md 变更单流程管理迭代（M4 Dogfooding 持续化）。已闭环 30+ 次（CHG-SCPT-2026-001/062-100，详见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/` 目录）。
+
+代表性闭环：
 
 | 变更单 | 内容 | 状态 |
 |--------|------|------|
 | CHG-SCPT-2026-001 | M0 基座清理（TD-T01~T04 修复 + ruff/mypy 清理 + 元测试升级） | ✅ 已归档 |
-| CHG-SCPT-2026-062 | M3.5 真源收口 + TD-T04 复发修复 + CHG-001 内容补全 | ✅ 已关闭 |
-| CHG-SCPT-2026-063 | phase 修复 + ruff 清零 + M4 Dogfooding 启动 | ✅ 已关闭 |
+| CHG-SCPT-2026-087/088/089 | V0.7.0 PM_SESSION 三层真源架构（归档 + 工具化 + 影子台账退役） | ✅ 已关闭 |
+| CHG-SCPT-2026-090/091/092 | V0.8.0 QML 完整覆盖 + 旧代码激进清理 | ✅ 已关闭 |
+| CHG-SCPT-2026-093/094 | V0.9.0 旧 QWidget 完整移除 + CLI 标志退役 | ✅ 已关闭 |
+| CHG-SCPT-2026-099 | QML 编码损坏系统性修复（约 250 处） | ✅ 已关闭 |
+| CHG-SCPT-2026-100 | V0.9.1 诊断报告失真度核查 + 真源同步 | ✅ 已关闭 |
 
 每个里程碑必须经过 CHG-*.md 流程（spec.md §9.1 固定模板 10 步：创建→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed→回写 PM_SESSION）。
 

@@ -19,7 +19,7 @@ from rich.table import Table
 
 from auto_pm.app_context import AppContext
 from auto_pm.change.change_service import ChangeService
-from auto_pm.change.models import (
+from auto_pm.change.constants import (
     ALL_STATUSES,
     BUSINESS_NATURES,
     DOMAINS,
@@ -356,12 +356,13 @@ def cmd_list(
 
 @change_group.command(name="show")
 @click.argument("change_number")
+@click.option("--pid", default=None, help="项目编号（跨项目单号冲突时必填，TD-A04 修复）")
 @click.pass_context
-def cmd_show(ctx: click.Context, change_number: str) -> None:
+def cmd_show(ctx: click.Context, change_number: str, pid: str | None) -> None:
     """查看变更单详情"""
     app_ctx: AppContext = ctx.obj
     svc = ChangeService(app_ctx.workspace_root)
-    cr = svc.get_change_request(change_number)
+    cr = svc.get_change_request(change_number, project_id=pid)
 
     if cr is None:
         console.print(f"[red]错误: 变更单不存在: {change_number}[/red]")
@@ -411,6 +412,8 @@ def cmd_show(ctx: click.Context, change_number: str) -> None:
 @click.option("--references", "references", default="", help="参考依据")
 @click.option("--planned-date", default=None, help="预计实施日期（YYYY-MM-DD，默认今天）")
 @click.option("--urgency", type=click.Choice(_URGENCY_CHOICES), default="normal", help="紧急程度")
+@click.option("--retrofit", "retrofit", is_flag=True, default=False,
+              help="CHG-108 缺陷3: 先实施后补模式——直接创建 closed 状态变更单（跳过状态流转）")
 @click.pass_context
 def cmd_create(
     ctx: click.Context,
@@ -424,6 +427,7 @@ def cmd_create(
     references: str,
     planned_date: str | None,
     urgency: str,
+    retrofit: bool,
 ) -> None:
     """创建变更单（生成 CHG-*.md 文件并更新台帐）"""
     app_ctx: AppContext = ctx.obj
@@ -441,8 +445,11 @@ def cmd_create(
             references=references,
             planned_date=planned_date,
             urgency=urgency,
+            retrofit=retrofit,
         )
         console.print(f"[green]变更单创建成功: {cr.change_number}[/green]")
+        if retrofit:
+            console.print("  [yellow]模式: retrofit（先实施后补，直接 closed）[/yellow]")
         console.print(f"  领域: {domain} ({DOMAINS[domain]})")
         console.print(f"  性质: {business_nature} ({BUSINESS_NATURES[business_nature]})")
         console.print(f"  范围: {','.join(impact_scope)}")
@@ -457,6 +464,60 @@ def cmd_create(
         ctx.exit(1)
 
 
+@change_group.command(name="verify")
+@click.argument("project_id")
+@click.option("--ledger-check", "ledger_check", is_flag=True, default=False,
+              help="CHG-108 缺陷3: 对账门禁——校验变更单文件 vs 台账记录一致性，差异时报错退出")
+@click.pass_context
+def cmd_verify(
+    ctx: click.Context,
+    project_id: str,
+    ledger_check: bool,
+) -> None:
+    """变更单验证（CHG-108 缺陷 3：对账门禁）
+
+    \b
+    --ledger-check: 对账门禁，检测台账与 CHG 文件的一致性
+      退出码 0 = 对账无差异（门禁通过）
+      退出码 1 = 项目不存在
+      退出码 2 = 有差异（门禁失败，需用 ledger reconcile --fix 修复）
+    """
+    if not ledger_check:
+        console.print("[yellow]请指定验证项，目前支持: --ledger-check[/yellow]")
+        ctx.exit(1)
+
+    from auto_pm.change.ledger_reconciler import LedgerReconciler
+    from auto_pm.core.project_service import ProjectService
+
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    project_path = svc.find_project_path(project_id)
+    if project_path is None:
+        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
+        ctx.exit(1)
+
+    reconciler = LedgerReconciler()
+    diff = reconciler.reconcile(project_path)
+
+    console.print()
+    console.print(f"[bold cyan]═══ 变更单对账门禁: {project_id} ═══[/bold cyan]")
+    console.print(f"  [cyan]结果:[/cyan] {diff.summary()}")
+
+    if diff.is_clean:
+        console.print("[green]✅ 门禁通过: 台账与变更单文件一致[/green]")
+        ctx.exit(0)
+    else:
+        console.print("[red]❌ 门禁失败: 检测到差异[/red]")
+        if diff.missing_in_ledger:
+            console.print(f"  [red]台账缺失 {len(diff.missing_in_ledger)} 条: {', '.join(diff.missing_in_ledger)}[/red]")
+        if diff.orphan_in_ledger:
+            console.print(f"  [yellow]台账孤儿 {len(diff.orphan_in_ledger)} 条: {', '.join(diff.orphan_in_ledger)}[/yellow]")
+        if diff.status_mismatches:
+            console.print(f"  [red]状态不一致 {len(diff.status_mismatches)} 条[/red]")
+        console.print("[dim]提示: 运行 `auto-pm ledger reconcile <PID> --fix` 自动修复缺失行和状态不一致[/dim]")
+        ctx.exit(2)
+
+
 @change_group.command(name="transition")
 @click.argument("change_number")
 @click.option("--to", "new_status", type=click.Choice(_STATUS_CHOICES), required=True, help="目标状态")
@@ -469,6 +530,7 @@ def cmd_create(
     default=False,
     help="允许部分验证闭环（CHG-085：§10.1 存在未通过项时，标注待验证项后允许流转到 completed）",
 )
+@click.option("--pid", default=None, help="项目编号（跨项目单号冲突时必填，TD-A04 修复）")
 @click.pass_context
 def cmd_transition(
     ctx: click.Context,
@@ -478,6 +540,7 @@ def cmd_transition(
     comment: str,
     verification_conclusion: str,
     allow_partial_verification: bool,
+    pid: str | None,
 ) -> None:
     """状态流转（更新变更单章节并持久化状态）"""
     app_ctx: AppContext = ctx.obj
@@ -491,6 +554,7 @@ def cmd_transition(
             comment=comment,
             verification_conclusion=verification_conclusion,
             allow_partial_verification=allow_partial_verification,
+            project_id=pid,
         )
         if cr is None:
             console.print(f"[red]错误: 变更单不存在: {change_number}[/red]")
@@ -529,6 +593,7 @@ _RISK_LEVEL_CHOICES = ["none", "low", "medium", "high"]
 @click.option("--risk-level", type=click.Choice(_RISK_LEVEL_CHOICES), default=None, help="§6.1 风险等级")
 @click.option("--mitigation", default=None, help="§6.1 缓解措施")
 @click.option("--propagation-chain", default=None, help="§6.3 变更传播链")
+@click.option("--pid", default=None, help="项目编号（跨项目单号冲突时必填，TD-A04 修复）")
 @click.pass_context
 def cmd_edit(
     ctx: click.Context,
@@ -541,6 +606,7 @@ def cmd_edit(
     risk_level: str | None,
     mitigation: str | None,
     propagation_chain: str | None,
+    pid: str | None,
 ) -> None:
     """编辑变更单字段（支持 §4 基本字段 + §6 影响分析字符串字段）
 
@@ -574,7 +640,7 @@ def cmd_edit(
         ctx.exit(1)
 
     try:
-        cr = svc.update_change_request(change_number, **updates)
+        cr = svc.update_change_request(change_number, lookup_project_id=pid, **updates)
         if cr is None:
             console.print(f"[red]错误: 变更单不存在: {change_number}[/red]")
             ctx.exit(1)

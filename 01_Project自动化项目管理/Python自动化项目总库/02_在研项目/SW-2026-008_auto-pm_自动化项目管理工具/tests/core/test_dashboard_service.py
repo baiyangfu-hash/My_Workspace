@@ -192,8 +192,13 @@ class TestDashboardService:
         assert result.failed_check_project_count == 1
         assert result.failed_check_project_ids == ["DJ-2026-001"]
         assert len(result.recent_activities) == 4
-        assert result.recent_activities[0].startswith("[项目] SW-2026-003")
-        assert any("CHG-PLC-2026-002" in item for item in result.recent_activities)
+        # CHG-106: recent_activities 格式从 list[str] 改为 list[dict[str, Any]]
+        # 每项结构: {"type": "default"|"success", "title": "...", "desc": "...", "time": "..."}
+        assert result.recent_activities[0]["title"].startswith("项目更新 SW-2026-003")
+        assert any(
+            "CHG-PLC-2026-002" in item["title"]
+            for item in result.recent_activities
+        )
         assert result.risk_hints[0] == "存在 2 条未关闭变更，建议优先清理实施中和待验收项"
         assert result.risk_hints[1] == "PLC 检查失败项目: DJ-2026-001"
 

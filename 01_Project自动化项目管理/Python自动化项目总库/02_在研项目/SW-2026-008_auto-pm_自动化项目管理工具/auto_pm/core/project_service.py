@@ -326,7 +326,10 @@ class ProjectService:
             匹配的项目列表
         """
         keyword_lower = keyword.lower()
-        all_projects = self.list_projects()
+        try:
+            all_projects = self.list_projects_cached()
+        except RuntimeError:
+            all_projects = self.list_projects()
         return [
             p for p in all_projects
             if keyword_lower in p.project_id.lower()

@@ -77,11 +77,13 @@ class ChangeFacade:
         except Exception as e:
             return QueryResult(success=False, message=str(e), payload=[])
 
-    def get_change_detail(self, change_id: str) -> QueryResult[ChangeRequestDTO | None]:
+    def get_change_detail(
+        self, change_id: str, project_id: str | None = None
+    ) -> QueryResult[ChangeRequestDTO | None]:
         try:
             if not self._change_service:
                 return QueryResult(success=False, message="No change_service", payload=None)
-            cr = self._change_service.get_change_request(change_id)
+            cr = self._change_service.get_change_request(change_id, project_id=project_id)
             if cr is None:
                 return QueryResult(success=False, message=f"Change {change_id} not found", payload=None)
             return QueryResult(success=True, message="Success", payload=self._request_to_dto(cr))
@@ -118,9 +120,12 @@ class ChangeFacade:
                 approver=command.operator,
                 comment=command.note or "",
                 allow_partial_verification=command.allow_partial_verification,
+                project_id=command.project_id,
             )
             # Re-fetch after transition
-            cr = self._change_service.get_change_request(command.change_id)
+            cr = self._change_service.get_change_request(
+                command.change_id, project_id=command.project_id
+            )
             if cr is None:
                 return CommandResult(success=False, message="Transitioned but could not fetch", payload=None)
             return CommandResult(success=True, message="Transitioned successfully", payload=self._request_to_dto(cr))
@@ -152,7 +157,7 @@ class ChangeFacade:
             return QueryResult(success=False, message=str(e), payload=[])
 
     def get_change_validation_summary(
-        self, change_id: str
+        self, change_id: str, project_id: str | None = None
     ) -> QueryResult[ChangeValidationSummaryDTO | None]:
         """获取变更验证摘要（M3 新增）
 
@@ -165,7 +170,7 @@ class ChangeFacade:
             if not self._change_service:
                 return QueryResult(success=False, message="No change_service", payload=None)
 
-            cr = self._change_service.get_change_request(change_id)
+            cr = self._change_service.get_change_request(change_id, project_id=project_id)
             if cr is None:
                 return QueryResult(
                     success=False, message=f"Change {change_id} not found", payload=None

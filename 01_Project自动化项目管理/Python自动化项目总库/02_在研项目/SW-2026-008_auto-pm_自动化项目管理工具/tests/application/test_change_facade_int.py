@@ -123,7 +123,7 @@ def change_facade_with_db(temp_workspace):
     # 不从 DB 缓存读取。集成测试不构造 CHG-*.md 文件（涉及 ChgGenerator 复杂度高），
     # 故 mock 该方法返回基于 DB 记录构造的 ChangeRequest，其他方法（list_approval_history /
     # get_impact_analysis）保持真实走 DB Repository。
-    from auto_pm.change.models import ChangeRequest
+    from auto_pm.change.constants import ChangeRequest
 
     mock_cr = ChangeRequest(
         change_number="CHG-2026-001",
@@ -138,7 +138,7 @@ def change_facade_with_db(temp_workspace):
         title="测试变更单",
         urgency="normal",
     )
-    change_service.get_change_request = lambda cn: mock_cr if cn == "CHG-2026-001" else None
+    change_service.get_change_request = lambda cn, project_id=None: mock_cr if cn == "CHG-2026-001" else None
 
     facade = ChangeFacade(change_service=change_service)
     yield facade

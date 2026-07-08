@@ -33,7 +33,7 @@ class SystemFacade:
 
     def __init__(
         self,
-        pm_session_service: PmSessionServiceProtocol,
+        pm_session_service: PmSessionServiceProtocol | None = None,
         template_service: TemplateServiceProtocol | None = None,
         project_service: ProjectServiceProtocol | None = None
     ):
@@ -54,30 +54,10 @@ class SystemFacade:
         return self._project_service is not None
 
     def _get_project_info(self, project_id: str) -> ProjectInfo | None:
-        """查 ProjectInfo（优先 DB 缓存，fallback 文件系统扫描）
-
-        Returns:
-            ProjectInfo 或 None（项目不存在时）
-        """
+        """通过 project_service 获取项目信息（DB 缓存优先 + 文件系统降级）。"""
         if not self._project_service:
             return None
-        # 优先 DB 缓存
-        try:
-            info = self._project_service.get_project_cached(project_id)
-            if info is not None:
-                return info
-        except RuntimeError:
-            # 未注入 DatabaseManager，fallback 到文件系统扫描
-            pass
-        # fallback: 文件系统扫描后过滤
-        try:
-            projects = self._project_service.list_projects()
-            for p in projects:
-                if p.project_id == project_id:
-                    return p
-        except Exception as e:
-            log.warning("get_project_by_id 文件系统扫描失败: %s", e, exc_info=True)
-        return None
+        return self._project_service.get_project(project_id)
 
     def get_pm_session_view(self) -> QueryResult[PmSessionViewDTO | None]:
         try:

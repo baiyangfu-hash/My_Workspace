@@ -55,6 +55,30 @@ class WorkbenchBridge(QObject):
         return {}
 
     @Slot(str, result="QVariant")
+    def getActiveChangeStatus(self, project_id: str) -> dict[str, Any]:
+        """获取项目主线变更单的状态机视图数据（CHG-106 新增）
+
+        供 PlatformDashboardView 状态机组件渲染。
+        """
+        if self._facade:
+            res = self._facade.get_active_change_status(project_id)
+            if res.success and res.payload is not None:
+                return res.payload
+        return {
+            "active": False,
+            "change_number": "",
+            "title": "",
+            "status": "",
+            "apply_date": "",
+            "state_machine": {
+                "current_node": 0,
+                "current_node_name": "需求澄清 (Draft)",
+                "progress": 0,
+                "nodes": [],
+            },
+        }
+
+    @Slot(str, result="QVariant")
     def getAssetSummary(self, project_id: str) -> dict[str, Any]:
         if self._facade:
             res = self._facade.get_project_workspace(project_id)

@@ -1,6 +1,7 @@
 """Workbench Facade 接口层"""
 
 import logging
+from typing import Any
 
 from auto_pm.core.protocols import (
     AssetSummaryServiceProtocol,
@@ -20,14 +21,78 @@ from auto_pm.ui.contracts.result import CommandResult, QueryResult
 log = logging.getLogger(__name__)
 
 
+# CHG-106: 12 状态 → 4 节点状态机映射
+# V7 原型 view-platform-dashboard 状态机：Draft → Review → Implementing → Closed
+_STATE_MACHINE_NODES: tuple[dict[str, str], ...] = (
+    {"name": "需求澄清 (Draft)", "icon": "pencil-simple"},
+    {"name": "方案评审 (Review)", "icon": "paper-plane-tilt"},
+    {"name": "实施中 (Implementing)", "icon": "code"},
+    {"name": "闭环归档 (Closed)", "icon": "check"},
+)
+
+_STATUS_TO_NODE_INDEX: dict[str, int] = {
+    "draft": 0,
+    "submitted": 0,
+    "under_review": 0,
+    "approved": 1,
+    "implementing": 2,
+    "pending_acceptance": 2,
+    "accepting": 2,
+    "completed": 3,
+    "closed": 3,
+}
+
+
+def _build_state_machine(status: str) -> dict[str, Any]:
+    """根据 12 状态构建 4 节点状态机视图数据
+
+    Returns:
+        {
+            "current_node": 0-3,
+            "current_node_name": "...",
+            "progress": 0-100,
+            "nodes": [{"name", "icon", "status": "done"|"active"|"pending"}]
+        }
+    """
+    current_node = _STATUS_TO_NODE_INDEX.get(status, 0)
+    # 终态节点（Closed）：所有节点标 done，当前节点不再 active
+    is_final = current_node == len(_STATE_MACHINE_NODES) - 1
+    nodes: list[dict[str, Any]] = []
+    for i, node_def in enumerate(_STATE_MACHINE_NODES):
+        if i < current_node:
+            node_status = "done"
+        elif i == current_node:
+            node_status = "done" if is_final else "active"
+        else:
+            node_status = "pending"
+        nodes.append(
+            {
+                "name": node_def["name"],
+                "icon": node_def["icon"],
+                "status": node_status,
+            }
+        )
+    # V7 原型：Implementing (node 2) 对应 50%；闭环时 100%
+    if current_node >= 3:
+        progress = 100
+    else:
+        progress = current_node * 25
+    return {
+        "current_node": current_node,
+        "current_node_name": _STATE_MACHINE_NODES[current_node]["name"],
+        "progress": progress,
+        "nodes": nodes,
+    }
+
+
 class WorkbenchFacade:
     """提供给 UI 层的 Workbench 用例聚合入口"""
 
     def __init__(
         self,
-        dashboard_service: DashboardServiceProtocol,
         project_service: ProjectServiceProtocol,
-        asset_summary_service: AssetSummaryServiceProtocol,
+        dashboard_service: DashboardServiceProtocol | None = None,
+        asset_summary_service: AssetSummaryServiceProtocol | None = None,
     ):
         self._dashboard_service = dashboard_service
         self._project_service = project_service
@@ -43,6 +108,12 @@ class WorkbenchFacade:
 
     def get_dashboard_snapshot(self) -> QueryResult[DashboardSnapshotDTO]:
         """获取驾驶舱摘要数据"""
+        if not self._dashboard_service:
+            return QueryResult(
+                success=False,
+                message="DashboardService 未启用",
+                errors=["DashboardService 未启用"],
+            )
         try:
             summary = self._dashboard_service.get_summary()
             dto = DashboardSnapshotDTO(
@@ -55,8 +126,66 @@ class WorkbenchFacade:
                 risk_hints=summary.risk_hints,
                 failed_check_project_ids=summary.failed_check_project_ids,
                 not_applicable_project_ids=summary.not_applicable_project_ids,
+                tech_debt_count=summary.tech_debt_count,
+                tech_debt_total=summary.tech_debt_total,
+                test_pass_rate=summary.test_pass_rate,
+                test_total=summary.test_total,
             )
             return QueryResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return QueryResult(success=False, message=str(e), errors=[str(e)])
+
+    def get_active_change_status(self, project_id: str) -> QueryResult[dict[str, Any]]:
+        """获取项目主线变更单的状态机视图数据（CHG-106 新增）
+
+        用于平台驾驶舱状态机视图，返回最近一条活跃变更单 + 4 节点状态机结构。
+        若无活跃变更单，返回 active=False 的空状态。
+
+        Returns:
+            QueryResult[dict], payload 结构:
+            {
+                "active": bool,
+                "change_number": str,
+                "title": str,
+                "status": str,  # 原始 12 状态
+                "apply_date": str,
+                "state_machine": {
+                    "current_node": int,
+                    "current_node_name": str,
+                    "progress": int,
+                    "nodes": [{"name", "icon", "status"}]
+                }
+            }
+        """
+        try:
+            if not self._dashboard_service:
+                return QueryResult(
+                    success=False,
+                    message="DashboardService 未启用",
+                    errors=["DashboardService 未启用"],
+                )
+
+            change = self._dashboard_service.get_active_change_for_project(project_id)
+            if change is None:
+                payload = {
+                    "active": False,
+                    "change_number": "",
+                    "title": "",
+                    "status": "",
+                    "apply_date": "",
+                    "state_machine": _build_state_machine("draft"),
+                }
+                return QueryResult(success=True, message="No active change", payload=payload)
+
+            payload = {
+                "active": True,
+                "change_number": change.change_number,
+                "title": change.title or change.change_number,
+                "status": change.status,
+                "apply_date": change.apply_date,
+                "state_machine": _build_state_machine(change.status),
+            }
+            return QueryResult(success=True, message="Success", payload=payload)
         except Exception as e:
             return QueryResult(success=False, message=str(e), errors=[str(e)])
 

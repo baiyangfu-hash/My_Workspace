@@ -151,7 +151,9 @@ class ChangeServiceProtocol(Protocol):
         """列出变更单，支持筛选"""
         ...
 
-    def get_change_request(self, change_number: str) -> ChangeRequest | None:
+    def get_change_request(
+        self, change_number: str, project_id: str | None = None
+    ) -> ChangeRequest | None:
         """获取变更单完整内容"""
         ...
 
@@ -163,6 +165,7 @@ class ChangeServiceProtocol(Protocol):
         comment: str = "",
         verification_conclusion: str = "全部通过",
         allow_partial_verification: bool = False,
+        project_id: str | None = None,
     ) -> ChangeRequest | None:
         """状态流转"""
         ...
@@ -180,12 +183,15 @@ class ChangeServiceProtocol(Protocol):
     def update_change_request(
         self,
         change_number: str,
+        lookup_project_id: str | None = None,
         **kwargs: Any,
     ) -> ChangeRequest | None:
         """修改变更单字段"""
         ...
 
-    def delete_change_request(self, change_number: str) -> bool:
+    def delete_change_request(
+        self, change_number: str, project_id: str | None = None
+    ) -> bool:
         """删除变更单"""
         ...
 
@@ -227,10 +233,15 @@ class DashboardServiceProtocol(Protocol):
     """驾驶舱服务接口契约（M4-2 T8 新增）
 
     提供 DashboardSummary 聚合数据供 WorkbenchFacade.get_dashboard_snapshot() 调用。
+    CHG-106 扩展：新增 get_active_change_for_project 供平台驾驶舱状态机视图调用。
     """
 
     def get_summary(self) -> Any:
         """返回 DashboardSummary（total_projects/phase_counts/open_change_count 等）"""
+        ...
+
+    def get_active_change_for_project(self, project_id: str) -> Any:
+        """返回项目最近一条活跃变更单（CHG-106），无活跃变更时返回 None"""
         ...
 
 

@@ -64,11 +64,7 @@ class ChangeListModel(QAbstractListModel):
         if role_name is None:
             return None
 
-        # Compatible with both dict and DTOs
-        if isinstance(change, dict):
-            value = change.get(role_name, "")
-        else:
-            value = getattr(change, role_name, "")
+        value = change.get(role_name, "")
 
         # impact_scope 是 list，转字符串
         if isinstance(value, list):

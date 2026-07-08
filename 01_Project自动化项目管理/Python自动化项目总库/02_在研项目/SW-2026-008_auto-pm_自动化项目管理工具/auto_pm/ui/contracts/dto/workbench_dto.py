@@ -15,6 +15,11 @@ class DashboardSnapshotDTO:
     risk_hints: list[dict[str, Any]]
     failed_check_project_ids: list[str]
     not_applicable_project_ids: list[str]
+    # CHG-106 新增：技术债计数 + 测试通过率（KPI 网格数据源）
+    tech_debt_count: int = 0
+    tech_debt_total: int = 0
+    test_pass_rate: float = 0.0
+    test_total: int = 0
 
 @dataclass(frozen=True)
 class ProjectCardDTO:

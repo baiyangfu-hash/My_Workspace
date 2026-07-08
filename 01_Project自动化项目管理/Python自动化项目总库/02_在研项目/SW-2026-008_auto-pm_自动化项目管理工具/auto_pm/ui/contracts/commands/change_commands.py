@@ -28,3 +28,4 @@ class TransitionChangeCommand:
     operator: str
     note: str | None
     allow_partial_verification: bool
+    project_id: str | None = None

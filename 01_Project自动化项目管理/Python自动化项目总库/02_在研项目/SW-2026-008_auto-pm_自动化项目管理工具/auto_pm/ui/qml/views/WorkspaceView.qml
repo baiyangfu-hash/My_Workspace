@@ -37,7 +37,7 @@ Rectangle {
         console.log("[QML] WorkspaceView: 加载项目 " + projectId + " - " + projectName)
 
         // 加载项目详情
-        if (typeof bridge !== "undefined" && bridge !== null) {
+        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
             root.currentProjectDetail = workbenchBridge.getProjectById(projectId)
             console.log("[QML] WorkspaceView: 项目详情 " + (Object.keys(root.currentProjectDetail).length) + " 字段")
 
@@ -356,7 +356,7 @@ Rectangle {
                             // 问题列表（若有）
                             Text {
                                 Layout.fillWidth: true
-                                visible: root.assetSummary.issue_messages && root.assetSummary.issue_messages.length > 0
+                                visible: (root.assetSummary.issue_messages || []).length > 0
                                 text: {
                                     var msgs = root.assetSummary.issue_messages || []
                                     return "问题明细:\n" + msgs.join("\n")
@@ -544,37 +544,39 @@ Rectangle {
             }
         }
 
-        // ─── 文档 Tab（W2 占位） ─────────────────────────
+        // ─── 文档 Tab（CHG-107 T3：FutureCapability 占位）──
         Rectangle {
             id: docTab
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 3
             color: "transparent"
 
-            Text {
-                anchors.centerIn: parent
-                text: "文档 Tab\n\nW3 实现：\n- 文档树（项目目录结构）\n- Markdown 渲染\n- 自动区标签"
-                color: Theme.textMuted
-                font.pixelSize: Theme.fontSizeLg
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+            FutureCapability {
+                anchors.fill: parent
+                anchors.margins: Theme.spacingLg
+                title: "文档树与 Markdown 渲染 (Documentation Explorer)"
+                description: "基线服务目前仅支持项目元信息展示。文档树浏览、Markdown 实时渲染、自动区标签将在 M4 迭代中提供。"
+                buttonText: "进入文档浏览器"
+                badgeText: "🚀 M4 迭代解锁"
+                iconText: "📄"
             }
         }
 
-        // ─── 变量表 Tab（W2 占位） ───────────────────────
+        // ─── 变量表 Tab（CHG-107 T3：FutureCapability 占位，对齐 V7 L1145-1152）──
         Rectangle {
             id: varTableTab
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 4
             color: "transparent"
 
-            Text {
-                anchors.centerIn: parent
-                text: "变量表 Tab\n\nW3 实现：\n- QML TableView 8 列\n- 单元格编辑 + 校验\n- 批量操作 + 撤销重做\n- 万行虚拟化"
-                color: Theme.textMuted
-                font.pixelSize: Theme.fontSizeLg
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+            FutureCapability {
+                anchors.fill: parent
+                anchors.margins: Theme.spacingLg
+                title: "详细变量表映射编辑 (Variables Editor)"
+                description: "基线服务目前仅支持资产统计。跨平台细粒度变量级增删改查将在 M4 迭代中提供。"
+                buttonText: "进入变量矩阵视图"
+                badgeText: "🚀 M4 迭代解锁"
+                iconText: "🔒"
             }
         }
     }

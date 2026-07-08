@@ -402,7 +402,7 @@ class TestUpdateChangeRequest:
 
     def test_update_invalid_urgency_raises(self, workspace_with_chg: str) -> None:
         """urgency 值不合法 → 抛 SpecViolationError"""
-        from auto_pm.change.models import SpecViolationError
+        from auto_pm.change.constants import SpecViolationError
 
         svc = ChangeService(workspace_with_chg)
         with pytest.raises(SpecViolationError, match="紧急程度"):
@@ -513,3 +513,170 @@ class TestDeleteChangeRequest:
 
         cr = svc.get_change_request("CHG-DOCU-2026-001")
         assert cr is None
+
+
+# ════════════════════════════════════════════════════════
+#  跨项目单号过滤测试（TD-A04 修复，CHG-SCPT-2026-105）
+# ════════════════════════════════════════════════════════
+
+
+def _create_chg_file_for_project(
+    workspace: str, project_id: str, change_number: str, domain: str, content: str
+) -> str:
+    """在指定项目目录中创建变更单文件（跨项目测试专用）"""
+    project_path = os.path.join(workspace, project_id)
+    os.makedirs(project_path, exist_ok=True)
+    # 创建项目标志文件，使 ChangeFileLocator._is_project_dir 识别为项目目录
+    with open(
+        os.path.join(project_path, f"PM_SESSION_{project_id}.md"),
+        "w",
+        encoding="utf-8",
+    ) as f:
+        f.write("# PM_SESSION\n")
+    chg_dir = os.path.join(
+        project_path, "00_项目管理", "04_变更管理", "01_变更单", f"CHG-{domain}"
+    )
+    os.makedirs(chg_dir, exist_ok=True)
+    file_path = os.path.join(chg_dir, f"{change_number}.md")
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    return file_path
+
+
+_SAMPLE_CHG_CONTENT_PROJECT_B = _SAMPLE_CHG_CONTENT.replace(
+    "TEST-2026-001", "TEST-2026-002"
+)
+
+
+@pytest.fixture
+def workspace_with_cross_project_chg(tmp_path: Path) -> tuple[str, str, str]:
+    """创建两个项目各有相同变更单号的工作空间
+
+    Returns:
+        (workspace_root, file_path_a, file_path_b)
+        两个项目 TEST-2026-001 和 TEST-2026-002 各有 CHG-DOCU-2026-001.md
+    """
+    file_a = _create_chg_file_for_project(
+        str(tmp_path), "TEST-2026-001", "CHG-DOCU-2026-001", "DOCU", _SAMPLE_CHG_CONTENT
+    )
+    file_b = _create_chg_file_for_project(
+        str(tmp_path),
+        "TEST-2026-002",
+        "CHG-DOCU-2026-001",
+        "DOCU",
+        _SAMPLE_CHG_CONTENT_PROJECT_B,
+    )
+    return str(tmp_path), file_a, file_b
+
+
+class TestCrossProjectFilter:
+    """跨项目单号过滤测试（TD-A04 修复验证）"""
+
+    def test_find_with_project_id_a(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """提供 project_id=TEST-2026-001 → 返回项目 A 的文件"""
+        workspace, file_a, _ = workspace_with_cross_project_chg
+        from auto_pm.change.file_locator import ChangeFileLocator
+        from auto_pm.change.parser import ChgParser
+
+        locator = ChangeFileLocator(workspace, ChgParser())
+        result = locator.find_change_file(
+            "CHG-DOCU-2026-001", project_id="TEST-2026-001"
+        )
+        assert result == file_a
+
+    def test_find_with_project_id_b(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """提供 project_id=TEST-2026-002 → 返回项目 B 的文件"""
+        workspace, _, file_b = workspace_with_cross_project_chg
+        from auto_pm.change.file_locator import ChangeFileLocator
+        from auto_pm.change.parser import ChgParser
+
+        locator = ChangeFileLocator(workspace, ChgParser())
+        result = locator.find_change_file(
+            "CHG-DOCU-2026-001", project_id="TEST-2026-002"
+        )
+        assert result == file_b
+
+    def test_find_without_project_id_backward_compat(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """不提供 project_id → 向后兼容，递归搜索返回第一个匹配"""
+        workspace, file_a, _ = workspace_with_cross_project_chg
+        from auto_pm.change.file_locator import ChangeFileLocator
+        from auto_pm.change.parser import ChgParser
+
+        locator = ChangeFileLocator(workspace, ChgParser())
+        result = locator.find_change_file("CHG-DOCU-2026-001")
+        # 不带 project_id 时返回第一个匹配（递归遍历顺序决定）
+        assert result is not None
+        assert result in (file_a, workspace_with_cross_project_chg[2])
+
+    def test_get_change_request_with_project_id_a(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """get_change_request 提供 project_id=TEST-2026-001 → 返回项目 A 的变更单"""
+        workspace, _, _ = workspace_with_cross_project_chg
+        svc = ChangeService(workspace)
+        cr = svc.get_change_request("CHG-DOCU-2026-001", project_id="TEST-2026-001")
+        assert cr is not None
+        assert cr.project_id == "TEST-2026-001"
+
+    def test_get_change_request_with_project_id_b(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """get_change_request 提供 project_id=TEST-2026-002 → 返回项目 B 的变更单"""
+        workspace, _, _ = workspace_with_cross_project_chg
+        svc = ChangeService(workspace)
+        cr = svc.get_change_request("CHG-DOCU-2026-001", project_id="TEST-2026-002")
+        assert cr is not None
+        assert cr.project_id == "TEST-2026-002"
+
+    def test_get_change_request_without_project_id_returns_one(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """get_change_request 不提供 project_id → 向后兼容，返回第一个匹配"""
+        workspace, _, _ = workspace_with_cross_project_chg
+        svc = ChangeService(workspace)
+        cr = svc.get_change_request("CHG-DOCU-2026-001")
+        assert cr is not None
+        assert cr.project_id in ("TEST-2026-001", "TEST-2026-002")
+
+    def test_delete_with_project_id_a(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """delete_change_request 提供 project_id=TEST-2026-001 → 删除项目 A 的文件"""
+        workspace, file_a, file_b = workspace_with_cross_project_chg
+        svc = ChangeService(workspace)
+        result = svc.delete_change_request(
+            "CHG-DOCU-2026-001", project_id="TEST-2026-001"
+        )
+        assert result is True
+        assert not os.path.isfile(file_a)
+        # 项目 B 的文件应保留
+        assert os.path.isfile(file_b)
+
+    def test_find_with_nonexistent_project_id_fallback(
+        self,
+        workspace_with_cross_project_chg: tuple[str, str, str],
+    ) -> None:
+        """project_id 不存在 → 回退递归搜索（向后兼容）"""
+        workspace, _, _ = workspace_with_cross_project_chg
+        from auto_pm.change.file_locator import ChangeFileLocator
+        from auto_pm.change.parser import ChgParser
+
+        locator = ChangeFileLocator(workspace, ChgParser())
+        result = locator.find_change_file(
+            "CHG-DOCU-2026-001", project_id="NONEXISTENT-2026-999"
+        )
+        # project_id 定位失败时回退递归搜索
+        assert result is not None

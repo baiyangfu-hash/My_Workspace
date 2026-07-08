@@ -15,7 +15,7 @@ import logging
 import re
 from typing import Any
 
-from auto_pm.change.models import URGENCY_LEVELS
+from auto_pm.change.constants import URGENCY_LEVELS
 
 log = logging.getLogger(__name__)
 

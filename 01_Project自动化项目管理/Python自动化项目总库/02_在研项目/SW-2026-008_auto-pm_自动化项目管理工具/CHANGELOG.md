@@ -7,6 +7,69 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-09
+
+### Added - CHG-SCPT-2026-107 V1.0.0 HTML 原型 V7 第 4 阶段收尾落地
+
+- **LoadingOverlay.qml 新建**：异步操作加载指示组件（对齐 V7 .loading-overlay L744-772），深色半透明遮罩 rgba(2,6,23,0.7) + Canvas 绘制环形 spinner（primary 色前景弧 + 淡色背景环）+ RotationAnimation 1s 旋转 + Behavior on opacity 0.2s 平滑过渡 + 可配置 message/spinnerSize/active 属性
+- **FutureCapability.qml 新建**：未实现功能灰化占位组件（对齐 V7 .future-capability L774-793 + L1145-1152），Canvas 绘制 dashed 虚线圆角边框 + 旋转 45deg 黄色角标"🚀 M4 迭代解锁" + 锁图标 + 标题 + 描述 + 禁用按钮（opacity:0.5）+ 可配置 title/description/buttonText/badgeText/iconText 属性
+
+### Changed - CHG-SCPT-2026-107 V1.0.0 视图集成 + 版本号三件套升级
+
+- **PlatformDashboardView.qml**：新增 `_loading` 属性 + `loadData()` 控制 + LoadingOverlay 组件实例集成（异步加载驾驶舱数据时显示遮罩）
+- **WorkspaceView.qml**：文档 Tab + 变量表 Tab 占位从纯文本升级为 FutureCapability 组件（对齐 V7 L1145-1152 变量表占位设计）
+- **版本号三件套升级**：pyproject.toml `0.9.2`→`1.0.0` + CHANGELOG.md 新增 [1.0.0] 章节 + 006_技术债评估报告.md frontmatter `V0.9.2`→`V1.0.0` + main.qml 4 处版本号 `V0.9.3`→`V1.0.0`（title/header 注释/侧边栏版本/状态栏）+ scripts/gui_smoke_test.py `V0.9.3`→`V1.0.0`
+
+### Verified - CHG-SCPT-2026-107 V1.0.0 全量门禁 + GUI 冒烟
+
+- ruff check auto_pm/ 0 errors
+- mypy auto_pm/ 0 errors
+- change/core/application 测试全通过
+- QML 测试全通过
+- spec 规范测试全通过
+- PM_SESSION size 元测试全通过
+- LoadingOverlay/FutureCapability 组件加载验证通过
+- V1.0.0 发布评估：HTML 原型 V7 四阶段全部落地（CHG-102~107 闭环），版本号三件套一致
+
+### Notes - CHG-SCPT-2026-107 V1.0.0 里程碑说明
+
+- **HTML 原型 V7 四阶段落地完成**：CHG-102（视觉系统升级+导航框架重构）+ CHG-103（变更中心 Split/Ledger）+ CHG-104（TD-A04 跨项目单号过滤修复）+ CHG-105（TD-A04 修复）+ CHG-106（平台驾驶舱 KPI/状态机/时间线）+ CHG-107（Loading Overlay + Future Capability + 收尾门禁 + V1.0.0）
+- **V1.0.0 语义化版本**：MAJOR 1.0.0 标志首个稳定发布版本，HTML 原型 V7 全部组件落地，可对外发布
+- **后续路线**：M4 迭代解锁变量表编辑器 + 文档浏览器 + 批量操作等 FutureCapability 占位功能
+
+## [0.9.2] - 2026-07-08
+
+### Changed - CHG-SCPT-2026-101 V0.9.2 治理收口迭代闭环（Phase 1-6）
+
+- **Phase 1 PM_SESSION 真源同步**：修正 §2/§8 失真声明（mypy 8→0 + ruff 2→0 + QmlBridge 已拆分为 5 个域 bridge）+ §9"拆薄 QmlBridge"标记 ✅ + ruff --fix 修复 2 个 I001 import 排序
+- **Phase 2 Claude P2-P4 项核查**：7 项逐条核查全部无需修改（5 项已修复 P2-S1/S2/S3/S5/S6 + 1 项有测试覆盖不适用 P2-S4 + 1 项合理路线图标记 P2-S7），Claude v3 诊断报告 P2-P4 项严重失真
+- **Phase 3 文档收口**：README.md 7 处过时描述修复（QWidget→QML 单入口 + QWizard→分步创建对话框 + dogfooding 3→30+次 + V0.9.0 QML 完整移除 + Facade 接口层落地 + tests/ 111→117 文件 + 试运行报告归档 + 废弃文档列表 + dogfooding 证据表 3→6 条代表性闭环）+ qml_main_window.py 2 处 docstring 更新（模块 docstring + run_qml_gui docstring）+ pyproject.toml 无需修改（Claude #6 pywebview 依赖声明失真，dependencies 中无 pywebview）
+
+### Fixed - CHG-SCPT-2026-101 Phase 4 修复
+
+- **VarTableEditorView.qml L259**：`onFocusLost`→`onEditingFinished`（TextField 标准信号，覆盖失去焦点 + Enter/Return 场景）
+- **PM_SESSION 归档**：运行 `auto-pm pm-session archive --section 6 --keep-recent 15`，归档 24 行早期 Implementation Log 条目到 `00_项目管理/05_PM_SESSION归档/PM_SESSION_SW-2026-008_archive_auto.md`，主文件 156.6KB→109.7KB，元测试门禁恢复通过
+
+### Verified - CHG-SCPT-2026-101 三轨门禁 + GUI 冒烟
+
+- ruff check . 实测 All checks passed (0 errors)
+- mypy auto_pm/ 实测 Success: no issues found in 125 source files (0 errors)
+- tests/spec/ 128 passed 1 skipped in 2.20s
+- tests/qml/ 138 passed in 2.21s（可见模式 GUI_VISIBLE=1）
+- tests/test_pm_session_size.py 9 passed in 0.18s（PM_SESSION 109.7KB/243 行恢复 ≤150KB）
+- 8 个 QML view 全部可加载（QQmlApplicationEngine rootObjects() 非空：ChangeCenterView/ProjectListView/ReportView/SettingsView/SpecCenterView/TemplateView/VarTableEditorView/WorkspaceView）
+- auto-pm pm-session check 健康检查通过（0 缺失 0 回归）
+- 全量 pytest 207.10s 完成 2 failed + 1258 passed + 2 skipped（2 个失败是 PM_SESSION 大小超阈已归档修复，未复现"卡在 96%"和"7 个 CLI JSON 失败"问题）
+- dogfooding：CHG-SCPT-2026-101 第 32 次闭环 closed
+
+### Notes - CHG-SCPT-2026-101 Claude v3 诊断报告失真度核查结论
+
+- **Phase 2 P2-P4 项**：7 项中 5 项已修复 + 1 项有测试覆盖不适用 + 1 项是合理路线图标记，**7/7 严重失真**
+- **Phase 3 #6 pywebview 依赖**：pyproject.toml dependencies 中无 pywebview，**Claude #6 失真声明**
+- **结论**：Claude v3 在 V0.9.1 代码基线上的静态分析存在大量"已修复项被误报为待修复"问题，后续使用 Claude 诊断报告时须做失真度核查，禁止直接采信
+- **预先存在 warnings**（非本次修改引入，留待后续迭代）：VarTableEditorView.qml L177 HorizontalHeaderView anchor + SpecCenterView.qml L203 undefined→QString + WorkspaceView.qml L359 undefined→bool
+- **Phase 5 质量加固评估**：Ruff 扩展规则集 RUF/SIM/PLR 发现 3951 错误（规模过大建议后续专门迭代）+ AutoPmConfig 已有基础（app_config.py 2 字段，后续逐步收口硬编码）
+
 ## [0.9.1] - 2026-07-08
 
 ### Changed - CHG-SCPT-2026-100 阶段 A 闭环收尾（T1-T8 已完成项确认）

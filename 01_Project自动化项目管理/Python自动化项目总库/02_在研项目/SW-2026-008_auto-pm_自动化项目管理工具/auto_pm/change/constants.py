@@ -151,6 +151,23 @@ PHASE_LABELS: dict[str, str] = {
     "archived": "已归档",
 }
 
+# 台账状态文案映射（带 emoji，供 LedgerUpdater/Reconciler 写入台账"状态"列）
+# CHG-108 缺陷 1：从 change_service._LEDGER_STATUS_MAP 提取为公开常量，消除重复定义
+LEDGER_STATUS_MAP: dict[str, str] = {
+    "draft": "🔄待处理",
+    "submitted": "🔄审核中",
+    "under_review": "🔄审核中",
+    "approved": "🔄已批准",
+    "conditionally_approved": "🔄有条件批准",
+    "rejected": "❌已拒绝",
+    "implementing": "🔄实施中",
+    "pending_acceptance": "🔄待验收",
+    "accepting": "🔄验收中",
+    "completed": "✅已关闭",
+    "closed": "✅已关闭",
+    "archived": "✅已归档",
+}
+
 # §3 必须包含的子章节
 REQUIRED_SUBSECTIONS: set[str] = {"3.0", "3.1", "3.2", "3.3", "3.4"}
 

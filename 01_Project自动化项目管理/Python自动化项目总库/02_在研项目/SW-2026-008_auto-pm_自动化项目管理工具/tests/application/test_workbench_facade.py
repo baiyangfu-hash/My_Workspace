@@ -65,6 +65,99 @@ def test_get_dashboard_snapshot_failure():
     assert "DB Connection Error" in result.errors
 
 
+# ── get_active_change_status 测试（CHG-106 新增） ──────
+
+
+def test_get_active_change_status_success():
+    """验证获取活跃变更单状态机数据：12 状态 implementing → 4 节点 node[2] active"""
+    mock_dashboard_service = MagicMock()
+    mock_change = MagicMock()
+    mock_change.change_number = "CHG-SCPT-2026-106"
+    mock_change.title = "工作台 KPI 网格"
+    mock_change.status = "implementing"
+    mock_change.apply_date = "2026-07-09"
+    mock_dashboard_service.get_active_change_for_project.return_value = mock_change
+
+    facade = WorkbenchFacade(
+        dashboard_service=mock_dashboard_service,
+        project_service=MagicMock(),
+    )
+
+    result = facade.get_active_change_status("SW-2026-008")
+
+    assert result.success is True
+    assert result.payload["active"] is True
+    assert result.payload["change_number"] == "CHG-SCPT-2026-106"
+    assert result.payload["title"] == "工作台 KPI 网格"
+    assert result.payload["status"] == "implementing"
+    sm = result.payload["state_machine"]
+    assert sm["current_node"] == 2
+    assert sm["current_node_name"] == "实施中 (Implementing)"
+    assert sm["progress"] == 50
+    assert len(sm["nodes"]) == 4
+    assert sm["nodes"][0]["status"] == "done"
+    assert sm["nodes"][1]["status"] == "done"
+    assert sm["nodes"][2]["status"] == "active"
+    assert sm["nodes"][3]["status"] == "pending"
+
+
+def test_get_active_change_status_no_active_change():
+    """验证无活跃变更单时返回 active=False 的空状态"""
+    mock_dashboard_service = MagicMock()
+    mock_dashboard_service.get_active_change_for_project.return_value = None
+
+    facade = WorkbenchFacade(
+        dashboard_service=mock_dashboard_service,
+        project_service=MagicMock(),
+    )
+
+    result = facade.get_active_change_status("SW-2026-008")
+
+    assert result.success is True
+    assert result.payload["active"] is False
+    assert result.payload["change_number"] == ""
+    # 状态机仍返回 Draft 节点结构
+    assert result.payload["state_machine"]["current_node"] == 0
+    assert len(result.payload["state_machine"]["nodes"]) == 4
+
+
+def test_get_active_change_status_closed_progress_100():
+    """验证 closed 状态映射到 node[3] 且 progress=100"""
+    mock_dashboard_service = MagicMock()
+    mock_change = MagicMock()
+    mock_change.change_number = "CHG-SCPT-2026-105"
+    mock_change.title = "TD-A04 修复"
+    mock_change.status = "closed"
+    mock_change.apply_date = "2026-07-09"
+    mock_dashboard_service.get_active_change_for_project.return_value = mock_change
+
+    facade = WorkbenchFacade(
+        dashboard_service=mock_dashboard_service,
+        project_service=MagicMock(),
+    )
+
+    result = facade.get_active_change_status("SW-2026-008")
+
+    assert result.success is True
+    sm = result.payload["state_machine"]
+    assert sm["current_node"] == 3
+    assert sm["progress"] == 100
+    assert all(n["status"] == "done" for n in sm["nodes"])
+
+
+def test_get_active_change_status_no_dashboard_service():
+    """验证 DashboardService 未启用时返回失败"""
+    facade = WorkbenchFacade(
+        dashboard_service=None,
+        project_service=MagicMock(),
+    )
+
+    result = facade.get_active_change_status("SW-2026-008")
+
+    assert result.success is False
+    assert "DashboardService 未启用" in result.errors
+
+
 # ── list_project_cards 测试 ──────────────────────────────
 
 def test_list_project_cards_empty():

@@ -256,7 +256,7 @@ Rectangle {
                     anchors.fill: parent
                     font.pixelSize: Theme.fontSizeSm
                     selectByMouse: true
-                    onFocusLost: {
+                    onEditingFinished: {
                         var ok = varTableModel.setCell(row, column, text)
                         if (!ok) {
                             root.lastValidationError = "校验失败：值不合法"

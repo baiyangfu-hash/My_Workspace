@@ -185,7 +185,7 @@ Rectangle {
                     type: "ghost"
                     Layout.preferredWidth: 60
                     onClicked: {
-                        if (typeof bridge !== "undefined" && bridge !== null) {
+                        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                             workbenchBridge.refreshProjects()
                             var projects = workbenchBridge.listProjects()
                             projectModel.setProjects(projects)
@@ -300,7 +300,7 @@ Rectangle {
                     onClicked: {
                         console.log("[QML] 点击项目: " + model.project_id + " - " + model.name)
                         root.projectClicked(model.project_id, model.name)
-                        if (typeof bridge !== "undefined" && bridge !== null) {
+                        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                             workbenchBridge.selectProject(model.project_id, model.name)
                         }
                     }
@@ -383,7 +383,7 @@ Rectangle {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             root.projectClicked(model.project_id, model.name)
-                            if (typeof bridge !== "undefined" && bridge !== null) {
+                            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                                 workbenchBridge.selectProject(model.project_id, model.name)
                             }
                         }
@@ -566,14 +566,14 @@ Rectangle {
 
     // ── 初始加载 ────────────────────────────────────────
     Component.onCompleted: {
-        if (typeof bridge !== "undefined" && bridge !== null) {
-            console.log("[QML] ProjectListView: bridge 可用，加载项目数...")
+        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+            console.log("[QML] ProjectListView: workbenchBridge 可用，加载项目数...")
             var projects = workbenchBridge.listProjects()
             console.log("[QML] ProjectListView: 收到 " + projects.length + " 个项目")
             projectModel.setProjects(projects)
             root.applyFilters()
         } else {
-            console.warn("[QML] ProjectListView: bridge 未注入")
+            console.warn("[QML] ProjectListView: workbenchBridge 未注入")
             root.applyFilters()
         }
     }

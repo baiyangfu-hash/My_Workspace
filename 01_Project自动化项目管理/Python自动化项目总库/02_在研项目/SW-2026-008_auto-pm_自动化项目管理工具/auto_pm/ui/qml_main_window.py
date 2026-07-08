@@ -1,19 +1,18 @@
-"""QML 主窗口入口（V0.6.0 Week 1 PoC / V0.8.0 Phase 1+2 扩展）
+"""QML 主窗口入口（V0.9.0 QML 单入口）
 
-独立的 QML UI 入口，用 QQmlApplicationEngine 加载 main.qml。
-- 不修改现有 main_window.py（保证现有 QWidget UI 零回归）
-- 通过 rootContext() 注入 QmlBridge 和 ProjectListModel
-- Week 4 收尾时再统一替换 main_window.py
+用 QQmlApplicationEngine 加载 main.qml，通过 rootContext() 注入 5 个域 Bridge
+（Workbench/Change/Spec/Delivery/System）+ ProjectListModel。
 
-V0.8.0 Phase 1（CHG-090）：扩展注入 6 个新 Service（Report/Template/PmSession/
-Dashboard/AssetSummary/DocRefresh），为 4 个新 QML 页面做前置准备。
-V0.8.0 Phase 2（CHG-091）：扩展注入 SpecCenterAdapter，为 SpecCenterView 提供
-get_overview/list_entries 等 Slot 后端。
+版本演进：
+- V0.6.0 Week 1 PoC：QmlBridge + ProjectListModel 基础入口
+- V0.8.0 Phase 1+2：扩展注入 6 个新 Service + SpecCenterAdapter
+- V0.9.0：旧 QWidget main_window.py 完整移除，QML 成为唯一 GUI 入口；
+  CLI 标志 --qml/--qwidget 退役，gui_command 简化为 (ctx, debug)；
+  QmlBridge 拆分为 5 个域 Bridge（change/workbench/delivery/system/spec）
 
 启动方式：
-    python -m auto_pm gui --qml
-    或
-    auto-pm gui --qml
+    auto-pm gui
+    auto-pm gui --debug
 
 设计参考：02_设计/GUI原型设计.md §15.4 QML 架构设计
 """
@@ -27,6 +26,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, QUrl
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQuickControls2 import QQuickStyle
 
 from auto_pm.change.change_service import ChangeService
 from auto_pm.core.project_service import ProjectService
@@ -50,11 +50,9 @@ from auto_pm.ui.registry import FacadeRegistry
 
 
 def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
-    """启动 QML GUI
+    """启动 QML GUI（V0.9.0 QML 单入口）
 
-    V0.6.0 W2：注入 ProjectService + ChangeService + SpecCheckService
-    V0.8.0 Phase 1（CHG-090）：扩展注入 6 个新 Service
-    V0.8.0 Phase 2（CHG-091）：扩展注入 SpecCenterAdapter
+    初始化 10 个后端 Service + FacadeRegistry + 5 个域 Bridge，加载 main.qml。
 
     Args:
         workspace_root: 工作空间根路径
@@ -65,6 +63,9 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     """
     # 1. 创建 QGuiApplication（QML 应用用 QGuiApplication 而非 QApplication）
     app = QGuiApplication.instance() or QGuiApplication(sys.argv)
+
+    # 1.5 设置 Basic 样式（支持控件 background 自定义，消除原生样式警告）
+    QQuickStyle.setStyle("Basic")
 
     # 2. 初始化后端 Service（后端零改动约束：直接复用现有 Service）
     project_service = ProjectService(workspace_root=workspace_root)
@@ -81,6 +82,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     dashboard_service = make_dashboard_service(
         project_service=project_service,
         change_service=change_service,
+        workspace_root=workspace_root,
     )
     asset_summary_service = make_asset_summary_service()
     doc_refresh_service = make_doc_refresh_service(workspace_root)

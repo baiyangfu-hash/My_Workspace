@@ -75,6 +75,7 @@ def _make_project_service(*projects: Any) -> SimpleNamespace:
 
     return SimpleNamespace(
         get_project_cached=_get_cached,
+        get_project=_get_cached,
         list_projects=_list,
     )
 

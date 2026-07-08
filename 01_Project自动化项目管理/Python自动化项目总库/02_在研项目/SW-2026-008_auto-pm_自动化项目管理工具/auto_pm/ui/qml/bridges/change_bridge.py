@@ -24,6 +24,11 @@ class ChangeBridge(QObject):
     def hasService(self) -> bool:
         return self._facade is not None
 
+    @Property(int, notify=changesChanged)
+    def changeCount(self) -> int:
+        """变更单数量（只读属性，供 QML 绑定使用，避免绑定循环）"""
+        return len(self._changes_cache)
+
     @Slot(result=list)
     def listAllChanges(self) -> list[Any]:
         if self._changes_cache:

@@ -5,7 +5,7 @@
 // 2. 模式选择（标准单机/多项目共用 + PLC/Python 选项）
 // 3. 确认创建（预览配置 + 调用 workbenchBridge.createProject）
 //
-// 通过 context property 访问：bridge（QmlBridge）
+// 通过 context property 访问：workbenchBridge（WorkbenchBridge）
 
 import QtQuick
 import QtQuick.Controls
@@ -301,8 +301,8 @@ Item {
                             if (root.currentStep < root.totalSteps - 1) {
                                 root.currentStep += 1
                             } else {
-                                // 调用 bridge 创建项目
-                                if (typeof bridge !== "undefined" && bridge !== null) {
+                                // 调用 workbenchBridge 创建项目
+                                if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                                     workbenchBridge.createProject(
                                         root.projectId, root.projectName,
                                         root.stack, root.mode, root.businessLine

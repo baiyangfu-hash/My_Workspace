@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 
-from auto_pm.change.models import (
+from auto_pm.change.constants import (
     ChangeRequest,
     TransitionGuardError,
 )

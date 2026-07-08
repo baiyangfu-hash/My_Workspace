@@ -88,8 +88,8 @@ class FrontmatterService:
 
             try:
                 content = file_path.read_text(encoding="utf-8")
-            except Exception:
-                log.warning("读取规范文件 frontmatter 失败: %s", file_path, exc_info=True)
+            except Exception as e:
+                log.warning("读取规范文件 frontmatter 失败: %s, 错误: %s", file_path, e, exc_info=True)
                 items.append(FrontmatterItem(
                     spec_id=sid,
                     file_path=file_path,
@@ -143,8 +143,8 @@ class FrontmatterService:
                 item.file_path.write_text(new_content, encoding="utf-8")
                 item.status = "applied"
                 modified_count += 1
-            except Exception:
-                log.warning("应用 frontmatter 失败: %s", item.file_path, exc_info=True)
+            except Exception as e:
+                log.warning("应用 frontmatter 失败: %s, 错误: %s", item.file_path, e, exc_info=True)
                 item.status = "error"
                 error_count += 1
 

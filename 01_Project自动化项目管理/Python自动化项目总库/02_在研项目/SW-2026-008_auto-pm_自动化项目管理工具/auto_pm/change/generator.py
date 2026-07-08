@@ -6,7 +6,7 @@ import datetime
 import logging
 from typing import cast
 
-from auto_pm.change.models import (
+from auto_pm.change.constants import (
     BUSINESS_NATURE_DESCRIPTIONS,
     BUSINESS_NATURES,
     DOMAIN_DESCRIPTIONS,

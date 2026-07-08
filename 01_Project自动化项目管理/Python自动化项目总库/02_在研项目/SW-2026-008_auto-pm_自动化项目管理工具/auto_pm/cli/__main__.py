@@ -53,6 +53,7 @@ from auto_pm.app_context import AppContext  # noqa: E402
 from auto_pm.cli.change import change_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
 from auto_pm.cli.gui import gui_command  # noqa: E402
+from auto_pm.cli.ledger import ledger_group  # noqa: E402
 from auto_pm.cli.plc import plc_group  # noqa: E402
 from auto_pm.cli.project import project_group  # noqa: E402
 from auto_pm.cli.python import python_group  # noqa: E402
@@ -98,6 +99,7 @@ cli.add_command(template_group)
 cli.add_command(vartable_group)
 cli.add_command(gui_command)
 cli.add_command(pm_session_group)
+cli.add_command(ledger_group)
 
 
 if __name__ == "__main__":

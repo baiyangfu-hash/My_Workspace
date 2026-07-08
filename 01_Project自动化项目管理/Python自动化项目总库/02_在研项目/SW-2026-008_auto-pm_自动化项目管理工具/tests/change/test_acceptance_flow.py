@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 from auto_pm.change.change_service import ChangeService
-from auto_pm.change.models import (
+from auto_pm.change.constants import (
     SpecViolationError,
     TransitionGuardError,
     validate_status_transition,
@@ -434,7 +434,7 @@ class TestAcceptanceStatusLabels:
 
     def test_status_labels_exist(self) -> None:
         """验收流程状态标签存在"""
-        from auto_pm.change.models import STATUS_LABELS
+        from auto_pm.change.constants import STATUS_LABELS
 
         assert STATUS_LABELS["pending_acceptance"] == "待验收"
         assert STATUS_LABELS["accepting"] == "验收中"
@@ -442,7 +442,7 @@ class TestAcceptanceStatusLabels:
 
     def test_status_flow_includes_acceptance_states(self) -> None:
         """STATUS_FLOW 包含验收流程状态"""
-        from auto_pm.change.models import STATUS_FLOW
+        from auto_pm.change.constants import STATUS_FLOW
 
         assert "pending_acceptance" in STATUS_FLOW
         assert "accepting" in STATUS_FLOW

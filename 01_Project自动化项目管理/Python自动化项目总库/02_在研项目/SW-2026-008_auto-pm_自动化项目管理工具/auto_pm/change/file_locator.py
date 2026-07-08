@@ -196,7 +196,9 @@ class ChangeFileLocator:
             f"{change_number}.md",
         )
 
-    def find_change_file(self, change_number: str) -> str | None:
+    def find_change_file(
+        self, change_number: str, project_id: str | None = None
+    ) -> str | None:
         """根据变更编号查找文件
 
         递归遍历工作空间下的项目目录，按 PLC / Python 两套路径约定搜索。
@@ -208,6 +210,12 @@ class ChangeFileLocator:
 
         非项目目录（如 0100_PLC自动化/00_项目管理/）会被跳过，
         避免找到残留的空变更单文件。
+
+        Args:
+            change_number: 变更单编号
+            project_id: 项目编号（可选）。提供时优先在该项目目录内搜索，
+                       避免跨项目单号冲突时返回错误项目的文件（TD-A04 修复）。
+                       未提供或项目定位失败时回退到递归全工作空间搜索（向后兼容）。
         """
         domain = extract_domain_from_change_number(change_number)
         if not domain:
@@ -218,10 +226,42 @@ class ChangeFileLocator:
             log.warning("查找变更单: 工作空间目录不存在 %s", self.workspace_root)
             return None
 
-        # 递归遍历工作空间，只在项目目录内搜索变更单文件
+        # TD-A04 修复：提供 project_id 时优先在该项目目录内搜索
+        if project_id:
+            project_path = self.get_project_path(project_id)
+            if project_path:
+                result = self._find_change_in_project(project_path, change_number, domain)
+                if result:
+                    return result
+                log.debug(
+                    "查找变更单: project_id=%s 定位到项目目录但未找到变更单 %s，回退递归搜索",
+                    project_id, change_number,
+                )
+            else:
+                log.warning(
+                    "查找变更单: project_id=%s 未定位到项目目录，回退递归搜索",
+                    project_id,
+                )
+
+        # 递归遍历工作空间，只在项目目录内搜索变更单文件（向后兼容）
         return self._recursive_find_change_file(
             self.workspace_root, change_number, domain, depth=0, max_depth=5
         )
+
+    def _find_change_in_project(
+        self, project_path: str, change_number: str, domain: str
+    ) -> str | None:
+        """在指定项目目录内按 PLC/Python 两套路径约定搜索变更单文件
+
+        TD-A04 修复新增：提供 project_id 时走此方法，避免递归全工作空间。
+        """
+        for rel_path in self.CHANGE_FILE_SEARCH_PATHS:
+            candidate = os.path.join(
+                project_path, rel_path, f"CHG-{domain}", f"{change_number}.md"
+            )
+            if os.path.isfile(candidate):
+                return candidate
+        return None
 
     def _is_project_dir(self, dir_path: str) -> bool:
         """判断目录是否为项目目录（与 ProjectScanner 标志对齐）
