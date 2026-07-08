@@ -171,7 +171,7 @@ def cmd_check(
     "--keep-recent",
     type=int,
     default=0,
-    help="主文件保留该章节最近 N 行内容（0=整章归档）",
+    help="主文件保留该章节最近 N 行内容（0=整章归档）；§8 中表示保留最新 N 条 skill_handoff 条目",
 )
 @click.option(
     "--archive-file",
@@ -198,6 +198,10 @@ def cmd_archive(
     示例：
         auto-pm pm-session archive -w . --section 7
         auto-pm pm-session archive -w . --section 6 --keep-recent 20
+        auto-pm pm-session archive -w . --section 8 --keep-recent 8
+
+    §8 特殊处理（CHG-109）：--keep-recent N 表示保留最新 N 条 skill_handoff 条目，
+    current_state* 和归档说明始终保留，其余旧 skill_handoff 条目归档。
     """
     ws = _resolve_workspace(workspace, ctx)
     root = project_root if project_root else ws
@@ -226,14 +230,19 @@ def cmd_archive(
 
     section_lines = section.end_line - section.start_line
     archive_lines = max(0, section_lines - keep_recent)
+    is_section_8 = section_number == "8"
 
     console.print("[cyan]PM_SESSION 归档预览[/cyan]")
     console.print(f"  主文件: {pm_file}")
     console.print(f"  归档文件: {archive_file}")
     console.print(f"  章节: §{section_number} {section.title}")
     console.print(f"  章节总行数: {section_lines}")
-    console.print(f"  归档行数: {archive_lines}")
-    console.print(f"  保留最近: {keep_recent} 行")
+    if is_section_8:
+        console.print("  归档模式: 条目级（§8 倒序结构，CHG-109）")
+        console.print(f"  保留最新: {keep_recent} 条 skill_handoff")
+    else:
+        console.print(f"  归档行数: {archive_lines}")
+        console.print(f"  保留最近: {keep_recent} 行")
     console.print(f"  创建备份: {'否' if no_backup else '是'}")
 
     if dry_run:
@@ -241,13 +250,21 @@ def cmd_archive(
         return
 
     svc = PmSessionArchiveService()
-    result = svc.archive_section(
-        main_file=pm_file,
-        archive_file=archive_file,
-        section_number=section_number,
-        keep_recent=keep_recent,
-        create_backup=not no_backup,
-    )
+    if is_section_8:
+        result = svc.archive_section_8(
+            main_file=pm_file,
+            archive_file=archive_file,
+            keep_entries=keep_recent,
+            create_backup=not no_backup,
+        )
+    else:
+        result = svc.archive_section(
+            main_file=pm_file,
+            archive_file=archive_file,
+            section_number=section_number,
+            keep_recent=keep_recent,
+            create_backup=not no_backup,
+        )
 
     ok_icon = "✅" if _supports_unicode_output() else "[OK]"
     console.print(f"\n[green]{ok_icon} 归档完成[/green]")

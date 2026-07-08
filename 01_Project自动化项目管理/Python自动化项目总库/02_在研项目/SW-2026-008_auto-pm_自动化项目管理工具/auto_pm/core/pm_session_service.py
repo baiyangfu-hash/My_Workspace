@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 import shutil
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 # 章节标题正则：## N. Title（N 为数字）
@@ -31,6 +32,14 @@ DEPRECATED_SECTIONS = {"7"}
 ARCHIVE_DIR_NAME = "05_PM_SESSION归档"
 ARCHIVE_DIR_PARENT = "00_项目管理"
 ARCHIVE_FILE_PATTERN = "PM_SESSION_{project_id}_archive_{version}.md"
+
+# §8 Handoff Notes 条目识别前缀（CHG-109 条目级归档）
+SECTION8_CURRENT_STATE_PREFIX = "- current_state"
+SECTION8_SKILL_HANDOFF_PREFIX = "- skill_handoff"
+SECTION8_ARCHIVE_NOTE_PREFIX = ">"
+
+# 归档文件大小阈值（超过则切分到新文件，防止单文件过大无法 Read）
+ARCHIVE_FILE_MAX_SIZE_KB = 200
 
 
 @dataclass
@@ -347,6 +356,198 @@ class PmSessionArchiveService:
             main_file_lines_after=new_parse.total_lines,
             backup_file=backup_file,
         )
+
+    def archive_section_8(
+        self,
+        main_file: Path,
+        archive_file: Path,
+        keep_entries: int = 8,
+        create_backup: bool = True,
+    ) -> ArchiveResult:
+        """§8 专用归档：条目级归档（CHG-109）
+
+        §8 Handoff Notes 结构（最新在上，旧在下）：
+            ## 8. Handoff Notes          ← 保留（header）
+            - current_state: ...          ← 保留（最新状态）
+            - skill_handoff_xxx (最新)    ← 保留（最新 N 条）
+            ...                           ← 归档（旧条目）
+            - skill_handoff_zzz (最旧)    ← 归档
+            > 归档说明                     ← 保留（归档指针）
+
+        与 archive_section() 的区别：
+            - archive_section 按"行"归档（适用于 §6 最新在下的结构）
+            - archive_section_8 按"条目"归档（适用于 §8 最新在上的倒序结构）
+
+        Args:
+            main_file: PM_SESSION 主文件路径
+            archive_file: 归档文件路径
+            keep_entries: 保留最新 N 条 skill_handoff 条目（current_state* 始终保留）
+            create_backup: 是否创建主文件备份
+
+        Returns:
+            ArchiveResult
+        """
+        if not main_file.exists():
+            raise FileNotFoundError(f"PM_SESSION 主文件不存在: {main_file}")
+
+        parse_result = self.parser.parse_file(main_file)
+        section = parse_result.get_section("8")
+        if section is None:
+            raise ValueError(f"章节 §8 不存在于 {main_file}")
+
+        main_lines_before = parse_result.total_lines
+        all_lines = main_file.read_text(encoding="utf-8").splitlines(keepends=False)
+
+        # §8 行范围 [section.start_line, section.end_line)
+        section_lines = all_lines[section.start_line : section.end_line]
+
+        # 识别条目：header + 后续空行 → 保留；然后逐条识别
+        # header 行（index 0）+ 后续空行
+        header_end = 1
+        while header_end < len(section_lines) and not section_lines[header_end].strip():
+            header_end += 1
+
+        # 从 header_end 开始识别条目（每个条目 = 起始行 + 后续空行）
+        entries: list[tuple[int, int, str]] = []  # (start_idx, end_idx, entry_type)
+        i = header_end
+        while i < len(section_lines):
+            stripped = section_lines[i].strip()
+            if not stripped:
+                i += 1
+                continue
+
+            if stripped.startswith(SECTION8_CURRENT_STATE_PREFIX):
+                etype = "current_state"
+            elif stripped.startswith(SECTION8_SKILL_HANDOFF_PREFIX):
+                etype = "skill_handoff"
+            elif stripped.startswith(SECTION8_ARCHIVE_NOTE_PREFIX):
+                etype = "archive_note"
+            else:
+                etype = "other"
+
+            # 条目范围 [start, end) 包含起始行 + 后续空行
+            start = i
+            j = i + 1
+            while j < len(section_lines) and not section_lines[j].strip():
+                j += 1
+            entries.append((start, j, etype))
+            i = j
+
+        # 分离 skill_handoff 条目
+        skill_handoff_entries = [(s, e, t) for s, e, t in entries if t == "skill_handoff"]
+
+        # 备份
+        backup_file: Path | None = None
+        if create_backup:
+            backup_file = main_file.with_suffix(main_file.suffix + ".bak_archive")
+            shutil.copy2(main_file, backup_file)
+
+        if len(skill_handoff_entries) <= keep_entries:
+            # 无需归档
+            return ArchiveResult(
+                archive_file=archive_file,
+                archived_sections=["8"],
+                archived_line_count=0,
+                main_file_lines_before=main_lines_before,
+                main_file_lines_after=main_lines_before,
+                backup_file=backup_file,
+            )
+
+        # 确定要归档的 skill_handoff 条目（超出 keep_entries 的旧条目）
+        entries_to_archive = skill_handoff_entries[keep_entries:]
+        archive_line_indices: set[int] = set()
+        for start, end, _ in entries_to_archive:
+            for idx in range(start, end):
+                archive_line_indices.add(idx)
+
+        # 构造归档内容和新 §8 内容
+        archived_lines: list[str] = []
+        new_section_lines: list[str] = []
+        for idx, line in enumerate(section_lines):
+            if idx in archive_line_indices:
+                archived_lines.append(line)
+            else:
+                new_section_lines.append(line)
+
+        # 归档内容：添加分隔标记
+        archived_content = (
+            f"--- §8 归档补充（{date.today().isoformat()}）："
+            f"以下 {len(entries_to_archive)} 条 skill_handoff 从 Active PM_SESSION §8 迁移 ---\n\n"
+            + "\n".join(archived_lines)
+        )
+
+        # 新主文件：替换 §8 范围
+        new_main_lines = (
+            all_lines[: section.start_line]
+            + new_section_lines
+            + all_lines[section.end_line :]
+        )
+
+        # 归档文件大小检查（超 200KB 切分到新文件）
+        target_archive = self._resolve_archive_file(archive_file)
+
+        # 追加到归档文件
+        target_archive.parent.mkdir(parents=True, exist_ok=True)
+        if target_archive.exists():
+            existing = target_archive.read_text(encoding="utf-8")
+            target_archive.write_text(
+                existing.rstrip("\n") + "\n\n" + archived_content + "\n",
+                encoding="utf-8",
+            )
+        else:
+            header = "# PM_SESSION 归档\n\n> 由 auto-pm pm-session archive 自动生成\n\n"
+            target_archive.write_text(
+                header + archived_content + "\n", encoding="utf-8"
+            )
+
+        # 重写主文件
+        main_file.write_text(
+            "\n".join(new_main_lines) + "\n", encoding="utf-8"
+        )
+
+        new_parse = self.parser.parse_file(main_file)
+
+        return ArchiveResult(
+            archive_file=target_archive,
+            archived_sections=["8"],
+            archived_line_count=len(archived_lines),
+            main_file_lines_before=main_lines_before,
+            main_file_lines_after=new_parse.total_lines,
+            backup_file=backup_file,
+        )
+
+    def _resolve_archive_file(self, archive_file: Path) -> Path:
+        """归档文件大小检查：超 ARCHIVE_FILE_MAX_SIZE_KB 切分到新文件
+
+        防止单个归档文件过大（超过 Read 128KB 限制），当文件超过 200KB 时
+        自动创建带日期的新归档文件。
+
+        Args:
+            archive_file: 原始归档文件路径
+
+        Returns:
+            实际使用的归档文件路径（可能是新切分的文件）
+        """
+        if not archive_file.exists():
+            return archive_file
+
+        size_kb = archive_file.stat().st_size / 1024.0
+        if size_kb <= ARCHIVE_FILE_MAX_SIZE_KB:
+            return archive_file
+
+        # 超过阈值，创建新归档文件：archive_auto_<YYYYMMDD>.md
+        date_str = date.today().strftime("%Y%m%d")
+        stem = archive_file.stem  # 如 PM_SESSION_SW-2026-008_archive_V0.6.0
+        new_name = f"{stem}_auto_{date_str}.md"
+        new_file = archive_file.parent / new_name
+
+        # 同日文件已存在则加序号
+        seq = 1
+        while new_file.exists():
+            new_file = archive_file.parent / f"{stem}_auto_{date_str}_{seq}.md"
+            seq += 1
+
+        return new_file
 
 
 def generate_view(parse_result: PmSessionParseResult) -> str:

@@ -420,3 +420,233 @@ class TestConstants:
         assert MAX_FILE_LINES > 0
         assert MAX_FILE_SIZE_KB >= 100  # 至少 100KB
         assert MAX_FILE_LINES >= 200  # 至少 200 行
+
+
+# ---------- archive_section_8 测试（CHG-109）----------
+
+
+SAMPLE_PM_SESSION_WITH_HANDOFFS = """# PM_SESSION_TEST
+
+## 0. Meta
+
+- project_id: TEST-001
+
+## 1. Positioning
+
+- one_liner: 测试项目
+
+## 2. Current Focus
+
+- current_focus: 当前焦点
+
+## 3. Status Summary
+
+- in_progress: 测试中
+
+## 4. Artifacts Index
+
+- req: doc.md
+
+## 5. Logs
+
+- change_log: 测试日志
+
+## 6. Implementation Log
+
+- 2026-07-04 测试实施记录
+
+## 8. Handoff Notes
+
+- current_state: 最新状态
+
+- current_state_gui_test: GUI 测试状态
+
+- skill_handoff_001: 第1条 skill_handoff（最新）
+
+- skill_handoff_002: 第2条 skill_handoff
+
+- skill_handoff_003: 第3条 skill_handoff
+
+- skill_handoff_004: 第4条 skill_handoff
+
+- skill_handoff_005: 第5条 skill_handoff（最旧）
+
+> 归档说明：早期 skill_handoff 已归档
+
+## 9. Next Actions
+
+- [待启动] 测试下一步
+"""
+
+
+@pytest.fixture
+def sample_pm_session_with_handoffs(tmp_path: Path) -> Path:
+    """创建含多条 skill_handoff 的 §8 测试文件（CHG-109）"""
+    f = tmp_path / "PM_SESSION_TEST_HANDOFF.md"
+    f.write_text(SAMPLE_PM_SESSION_WITH_HANDOFFS, encoding="utf-8")
+    return f
+
+
+class TestArchiveSection8:
+    """§8 条目级归档测试（CHG-109）"""
+
+    def test_keeps_latest_n_skill_handoffs(self, sample_pm_session_with_handoffs: Path, tmp_path: Path) -> None:
+        """保留最新 N 条 skill_handoff，归档其余"""
+        archive_file = tmp_path / "archive.md"
+        svc = PmSessionArchiveService()
+        result = svc.archive_section_8(
+            main_file=sample_pm_session_with_handoffs,
+            archive_file=archive_file,
+            keep_entries=2,
+            create_backup=False,
+        )
+
+        # 应归档 3 条（005/004/003），保留 2 条（001/002）
+        assert result.archived_line_count > 0
+        assert result.main_file_lines_after < result.main_file_lines_before
+
+        new_content = sample_pm_session_with_handoffs.read_text(encoding="utf-8")
+        # 最新 2 条保留
+        assert "skill_handoff_001" in new_content
+        assert "skill_handoff_002" in new_content
+        # 旧 3 条已归档
+        assert "skill_handoff_003" not in new_content
+        assert "skill_handoff_004" not in new_content
+        assert "skill_handoff_005" not in new_content
+
+    def test_preserves_current_state(self, sample_pm_session_with_handoffs: Path, tmp_path: Path) -> None:
+        """current_state* 条目始终保留"""
+        archive_file = tmp_path / "archive.md"
+        svc = PmSessionArchiveService()
+        svc.archive_section_8(
+            main_file=sample_pm_session_with_handoffs,
+            archive_file=archive_file,
+            keep_entries=1,
+            create_backup=False,
+        )
+
+        new_content = sample_pm_session_with_handoffs.read_text(encoding="utf-8")
+        assert "current_state: 最新状态" in new_content
+        assert "current_state_gui_test" in new_content
+
+    def test_preserves_archive_note(self, sample_pm_session_with_handoffs: Path, tmp_path: Path) -> None:
+        """归档说明（> 开头）始终保留"""
+        archive_file = tmp_path / "archive.md"
+        svc = PmSessionArchiveService()
+        svc.archive_section_8(
+            main_file=sample_pm_session_with_handoffs,
+            archive_file=archive_file,
+            keep_entries=1,
+            create_backup=False,
+        )
+
+        new_content = sample_pm_session_with_handoffs.read_text(encoding="utf-8")
+        assert "归档说明" in new_content
+
+    def test_no_archive_when_keep_entries_ge_total(self, sample_pm_session_with_handoffs: Path, tmp_path: Path) -> None:
+        """keep_entries >= skill_handoff 总数时不归档"""
+        archive_file = tmp_path / "archive.md"
+        svc = PmSessionArchiveService()
+        result = svc.archive_section_8(
+            main_file=sample_pm_session_with_handoffs,
+            archive_file=archive_file,
+            keep_entries=10,  # 远超 5 条
+            create_backup=False,
+        )
+
+        assert result.archived_line_count == 0
+        assert result.main_file_lines_after == result.main_file_lines_before
+
+    def test_appends_to_archive_file(self, sample_pm_session_with_handoffs: Path, tmp_path: Path) -> None:
+        """归档内容追加到归档文件"""
+        archive_file = tmp_path / "archive.md"
+        archive_file.write_text("# 已有归档\n\n## old\n- old content\n", encoding="utf-8")
+
+        svc = PmSessionArchiveService()
+        svc.archive_section_8(
+            main_file=sample_pm_session_with_handoffs,
+            archive_file=archive_file,
+            keep_entries=2,
+            create_backup=False,
+        )
+
+        archive_content = archive_file.read_text(encoding="utf-8")
+        assert "已有归档" in archive_content
+        assert "skill_handoff_005" in archive_content
+        assert "skill_handoff_004" in archive_content
+        assert "skill_handoff_003" in archive_content
+
+    def test_nonexistent_section_8(self, tmp_path: Path) -> None:
+        """§8 不存在时抛 ValueError"""
+        content = "# PM_SESSION_TEST\n\n## 0. Meta\n\n- x\n"
+        main_file = tmp_path / "PM_SESSION_TEST.md"
+        main_file.write_text(content, encoding="utf-8")
+        archive_file = tmp_path / "archive.md"
+
+        svc = PmSessionArchiveService()
+        with pytest.raises(ValueError, match="章节 §8"):
+            svc.archive_section_8(
+                main_file=main_file,
+                archive_file=archive_file,
+                keep_entries=2,
+            )
+
+    def test_nonexistent_main_file(self, tmp_path: Path) -> None:
+        """主文件不存在时抛 FileNotFoundError"""
+        svc = PmSessionArchiveService()
+        with pytest.raises(FileNotFoundError):
+            svc.archive_section_8(
+                main_file=tmp_path / "nonexistent.md",
+                archive_file=tmp_path / "archive.md",
+                keep_entries=2,
+            )
+
+    def test_creates_backup(self, sample_pm_session_with_handoffs: Path, tmp_path: Path) -> None:
+        """create_backup=True 时创建备份文件"""
+        archive_file = tmp_path / "archive.md"
+        svc = PmSessionArchiveService()
+        result = svc.archive_section_8(
+            main_file=sample_pm_session_with_handoffs,
+            archive_file=archive_file,
+            keep_entries=2,
+            create_backup=True,
+        )
+
+        assert result.backup_file is not None
+        assert result.backup_file.exists()
+
+
+class TestResolveArchiveFile:
+    """归档文件版本切分测试（CHG-109 T3）"""
+
+    def test_under_threshold_returns_same_file(self, tmp_path: Path) -> None:
+        """归档文件未超 200KB，返回原路径"""
+        archive_file = tmp_path / "archive.md"
+        archive_file.write_text("# 小归档\n", encoding="utf-8")
+
+        svc = PmSessionArchiveService()
+        result = svc._resolve_archive_file(archive_file)
+        assert result == archive_file
+
+    def test_nonexistent_file_returns_same_file(self, tmp_path: Path) -> None:
+        """归档文件不存在，返回原路径"""
+        archive_file = tmp_path / "nonexistent_archive.md"
+
+        svc = PmSessionArchiveService()
+        result = svc._resolve_archive_file(archive_file)
+        assert result == archive_file
+
+    def test_over_threshold_returns_new_file(self, tmp_path: Path) -> None:
+        """归档文件超 200KB，返回带日期的新文件路径"""
+        archive_file = tmp_path / "PM_SESSION_TEST_archive_V0.6.0.md"
+        # 创建超过 200KB 的文件
+        big_content = "# 大归档\n\n" + "x" * (210 * 1024)
+        archive_file.write_text(big_content, encoding="utf-8")
+
+        svc = PmSessionArchiveService()
+        result = svc._resolve_archive_file(archive_file)
+
+        # 应返回新文件路径（含 _auto_YYYYMMDD）
+        assert result != archive_file
+        assert "_auto_" in result.name
+        assert result.name.startswith("PM_SESSION_TEST_archive_V0.6.0_auto_")
