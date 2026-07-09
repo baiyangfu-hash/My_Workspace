@@ -30,7 +30,7 @@ RowLayout {
             if (children[i] instanceof Item) {
                 children[i].Layout.fillWidth = true
                 children[i].Layout.fillHeight = true
-                children[i].Layout.preferredWidth = -1
+                children[i].Layout.preferredWidth = 0
             }
         }
     }

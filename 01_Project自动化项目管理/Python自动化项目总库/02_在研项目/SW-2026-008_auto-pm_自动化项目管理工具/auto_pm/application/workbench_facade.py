@@ -7,6 +7,7 @@ from auto_pm.core.protocols import (
     AssetSummaryServiceProtocol,
     DashboardServiceProtocol,
     ProjectServiceProtocol,
+    TemplateServiceProtocol,
 )
 from auto_pm.ui.contracts.dto.workbench_dto import (
     ClearCacheResultDTO,
@@ -93,10 +94,12 @@ class WorkbenchFacade:
         project_service: ProjectServiceProtocol,
         dashboard_service: DashboardServiceProtocol | None = None,
         asset_summary_service: AssetSummaryServiceProtocol | None = None,
+        template_service: TemplateServiceProtocol | None = None,
     ):
         self._dashboard_service = dashboard_service
         self._project_service = project_service
         self._asset_summary_service = asset_summary_service
+        self._template_service = template_service
 
     @property
     def has_project_service(self) -> bool:
@@ -368,3 +371,100 @@ class WorkbenchFacade:
                     projects_found=0, changes_found=0, message=f"重建索引失败: {e}"
                 ),
             )
+
+    def create_project(
+        self,
+        project_id: str,
+        project_name: str,
+        stack: str,
+        mode: str,
+        business_line: str,
+    ) -> CommandResult[dict[str, Any] | None]:
+        """QML GUI: 创建新项目（去伪存真，对接 Copier 模板生成骨架）"""
+        try:
+            if not self._template_service:
+                return CommandResult(success=False, message="TemplateService 未注入", payload=None)
+
+            import os
+            from auto_pm.core.constants import get_template_name, get_workspace_subdir
+
+            subdir = get_workspace_subdir(stack) or ""
+            dest_root = os.path.join(self._project_service.workspace_root, subdir)
+            project_dir = f"{project_id}_{project_name}"
+            dest_path = os.path.abspath(os.path.join(dest_root, project_dir))
+
+            if os.path.exists(dest_path):
+                return CommandResult(success=False, message=f"目标路径已存在: {dest_path}", payload=None)
+
+            template_name = get_template_name(stack, mode if stack == "plc" else "")
+
+            # 业务线推断：未指定时从项目编号前缀提取
+            if not business_line:
+                business_line = project_id.split("-", 1)[0] if "-" in project_id else ""
+
+            data = {
+                "project_id": project_id,
+                "project_name": project_name,
+                "description": project_name,
+                "version": "V1.0.0",
+                "stack": stack,
+                "mode": mode if stack == "plc" else "",
+                "business_line": business_line,
+            }
+
+            os.makedirs(dest_root, exist_ok=True)
+            self._template_service.copy_template(template_name, dest_path, data)
+
+            # 补全元数据
+            if hasattr(self._project_service, "retrofit_project_by_path"):
+                try:
+                    self._project_service.retrofit_project_by_path(dest_path)
+                except Exception:
+                    pass
+
+            # 同步缓存
+            self._project_service.sync_to_cache(force_full=True)
+
+            # 审计日志
+            try:
+                from auto_pm.logging.audit import audit_log
+                audit_log(
+                    "project_create",
+                    project_id=project_id,
+                    project_name=project_name,
+                    stack=stack,
+                    mode=mode if stack == "plc" else "",
+                    business_line=business_line,
+                    path=dest_path,
+                )
+            except Exception:
+                pass
+
+            return CommandResult(
+                success=True,
+                message=f"项目创建成功: {project_id}",
+                payload={"project_id": project_id, "path": dest_path},
+            )
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def import_project(self, src_path: str) -> CommandResult[dict[str, Any] | None]:
+        """QML GUI: 导入外部项目目录"""
+        try:
+            import os
+            # 调用 project_service.import_project(src_path)
+            dest_path = self._project_service.import_project(src_path)
+
+            # 解析 project_id
+            from auto_pm.core.project_scanner import ProjectScanner
+            scanner = ProjectScanner(self._project_service.workspace_root)
+            proj_info = scanner.scan_single_project(dest_path)
+            project_id = proj_info.project_id if proj_info else os.path.basename(dest_path)
+
+            return CommandResult(
+                success=True,
+                message=f"项目导入成功: {project_id}",
+                payload={"project_id": project_id, "path": dest_path},
+            )
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)

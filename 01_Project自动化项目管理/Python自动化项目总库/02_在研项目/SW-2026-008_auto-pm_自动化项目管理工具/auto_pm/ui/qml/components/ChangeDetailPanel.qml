@@ -23,6 +23,7 @@ GlassPanel {
 
     // ── 信号 ────────────────────────────────────────────
     signal statusChanged()
+    signal requestEditChange()
 
     // ── 状态流转映射 ────────────────────────────────────
     function _getNextStatuses(currentStatus) {
@@ -113,6 +114,15 @@ GlassPanel {
                     font.pixelSize: Theme.fontSizeXxl
                     font.bold: true
                     color: Theme.textPrimary
+                }
+
+                PrimaryButton {
+                    text: "编辑"
+                    type: "ghost"
+                    Layout.preferredHeight: 28
+                    Layout.preferredWidth: 60
+                    enabled: typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService
+                    onClicked: root.requestEditChange()
                 }
 
                 Item { Layout.fillWidth: true }
@@ -221,6 +231,7 @@ GlassPanel {
 
                 ColumnLayout {
                     Layout.fillWidth: true
+                    height: implicitHeight
                     spacing: Theme.spacingXs
 
                     // 空时间线

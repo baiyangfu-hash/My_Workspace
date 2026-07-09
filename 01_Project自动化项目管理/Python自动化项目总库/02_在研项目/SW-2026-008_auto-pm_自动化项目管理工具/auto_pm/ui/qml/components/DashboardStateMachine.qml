@@ -66,17 +66,23 @@ GlassPanel {
                 // 标签胶囊
                 Rectangle {
                     visible: root.tagText !== ""
-                    width: tagLabel.implicitWidth + 16
+                    Layout.maximumWidth: 250
+                    Layout.preferredWidth: Math.min(250, tagLabel.implicitWidth + 16)
                     height: 24
                     radius: 12
                     color: Theme.primary
 
                     Text {
                         id: tagLabel
-                        anchors.centerIn: parent
+                        anchors.fill: parent
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 8
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                         text: root.tagText
                         color: "white"
                         font.pixelSize: Theme.fontSizeSm
+                        elide: Text.ElideRight
                     }
                 }
             }

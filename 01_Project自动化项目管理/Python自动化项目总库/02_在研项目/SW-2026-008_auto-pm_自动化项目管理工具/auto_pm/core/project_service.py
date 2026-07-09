@@ -515,8 +515,10 @@ class ProjectService:
 
         # 延迟导入避免循环依赖
         from auto_pm.db.sync import SyncService
+        from auto_pm.change.change_service import ChangeService
 
-        sync = SyncService(self.db, self)
+        change_service = ChangeService(workspace_root=self.workspace_root, db=self.db)
+        sync = SyncService(self.db, self, change_service=change_service)
         return sync.sync(force_full=force_full)
 
     def get_last_sync_time(self) -> str:

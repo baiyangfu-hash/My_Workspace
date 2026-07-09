@@ -95,8 +95,22 @@ Item {
                     enabled: root.projectPath !== "" && !root.isDetecting
                     onClicked: {
                         root.isDetecting = true
-                        // 实际检测由 Python 端处理，此处仅状态切换
-                        root.detectedId = "待检测"
+                        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                            var res = workbenchBridge.detectProject(root.projectPath)
+                            if (res && res.success) {
+                                root.detectedId = res.project_id
+                                root.detectedName = res.name
+                                root.detectedStack = res.stack
+                            } else {
+                                root.detectedId = "无法识别"
+                                root.detectedName = res ? res.message : "检测失败"
+                                root.detectedStack = "unknown"
+                            }
+                        } else {
+                            root.detectedId = "未初始化"
+                            root.detectedName = "Bridge 服务未启用"
+                            root.detectedStack = "unknown"
+                        }
                         root.isDetecting = false
                     }
                 }
@@ -152,9 +166,16 @@ Item {
                         text: "导入"
                         type: "primary"
                         Layout.preferredWidth: 80
-                        enabled: root.detectedId !== "" && root.detectedId !== "待检测"
+                        enabled: root.detectedId !== "" && root.detectedId !== "待检测" && root.detectedId !== "无法识别" && root.detectedId !== "未初始化"
                         onClicked: {
-                            root.imported(root.detectedId, root.projectPath)
+                            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                                var res = workbenchBridge.importProject(root.projectPath)
+                                if (res && res.success) {
+                                    root.imported(res.project_id, root.projectPath)
+                                } else {
+                                    console.error("导入项目失败: " + JSON.stringify(res))
+                                }
+                            }
                             root._isOpen = false
                         }
                     }

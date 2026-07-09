@@ -26,6 +26,7 @@ Rectangle {
     property var changesList: []              // 当前项目的变更列表
     property var specCheckResult: ({})        // 规范检查结果
     property var assetSummary: ({})           // 资产汇总（仅 PLC 项目）
+    property alias currentTabIndex: tabBar.currentTabIndex
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
@@ -75,6 +76,11 @@ Rectangle {
         } else {
             root.assetSummary = {}
         }
+    }
+
+    function switchTab(index) {
+        tabBar.currentTabIndex = index
+        loadCurrentTab()
     }
 
     function loadCurrentTab() {
@@ -280,6 +286,7 @@ Rectangle {
 
                         ColumnLayout {
                             Layout.fillWidth: true
+                            height: implicitHeight
                             spacing: Theme.spacingSm
 
                             RowLayout {

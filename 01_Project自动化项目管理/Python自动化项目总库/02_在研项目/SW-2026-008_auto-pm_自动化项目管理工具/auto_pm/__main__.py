@@ -8,16 +8,19 @@ UnicodeDecodeError 崩溃。设置 PYTHONUTF8=1 可防止此问题。
 from __future__ import annotations
 
 import os
+import sys
 
-# 强制 UTF-8 模式，防止 Windows GBK 环境下 site 模块崩溃
-# 此设置影响子进程和后续的 Python I/O 操作
+_package_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(_package_dir)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 os.environ.setdefault("PYTHONUTF8", "1")
 
 from auto_pm.cli.__main__ import _fix_windows_encoding, cli  # noqa: E402
 
-if __name__ == "__main__":
-    # CHG-108 缺陷1修复: python -m auto_pm 运行时也需修复 GBK 控制台编码，
-    # 否则 rich 打印含 emoji（如 ✅已关闭）的表格时触发 UnicodeEncodeError。
-    # cli/__main__.py 的 if __name__ == "__main__" 分支不会在 -m 模式下触发。
+if __name__ == "__main__" or __name__ == "auto_pm.__main__":
+    if len(sys.argv) == 1:
+        sys.argv.append("gui")
     _fix_windows_encoding()
     cli()

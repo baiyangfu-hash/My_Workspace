@@ -227,6 +227,15 @@ class GuiTestRunner(QObject):
         window = self._get_root_window()
         if not window:
             return False
+        # 冒烟测试启动时强制重建索引，确保缓存数据完整
+        workbench_bridge = self.engine.rootContext().contextProperty("workbenchBridge")
+        change_bridge = self.engine.rootContext().contextProperty("changeBridge")
+        if workbench_bridge:
+            print("正在冒烟测试中重建数据库缓存...")
+            workbench_bridge.rebuildIndex()
+            workbench_bridge.refreshProjects()
+            if change_bridge:
+                change_bridge.refreshChanges()
         self._take_screenshot("app_launch", "应用启动后主窗口初始状态")
         return window.isVisible()
 
@@ -379,14 +388,17 @@ def main() -> int:
     from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
     from auto_pm.ui.qml.models.project_list_model import ProjectListModel
     from auto_pm.ui.registry import FacadeRegistry
+    from auto_pm.db.connection import DatabaseManager
+    db = DatabaseManager(workspace_root)
 
-    project_service = ProjectService(workspace_root=workspace_root)
-    change_service = ChangeService(workspace_root=workspace_root)
+    project_service = ProjectService(workspace_root=workspace_root, db=db)
+    change_service = ChangeService(workspace_root=workspace_root, db=db)
     spec_check_service = make_spec_check_service(workspace_root)
     report_service = make_report_service(
         project_service=project_service,
         change_service=change_service,
         workspace_root=workspace_root,
+        db=db,
     )
     template_service = make_template_service(workspace_root)
     pm_session_service = make_pm_session_service(workspace_root)

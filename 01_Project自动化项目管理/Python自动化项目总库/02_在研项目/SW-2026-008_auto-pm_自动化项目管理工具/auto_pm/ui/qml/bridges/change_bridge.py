@@ -173,3 +173,19 @@ class ChangeBridge(QObject):
             if res.success and res.payload is not None:
                 return dataclasses.asdict(res.payload)
         return {}
+
+    @Slot(str, "QVariant", str, result="QVariant")
+    def updateChange(self, change_id: str, command_dict: dict[str, Any], project_id: str | None = None) -> dict[str, Any]:
+        """更新变更单（GUI 编辑支持）"""
+        if self._facade:
+            try:
+                res = self._facade.update_change_request(change_id, command_dict, project_id)
+                if res.success and res.payload is not None:
+                    self._change_detail_cache.pop(change_id, None)
+                    self._changes_cache = []
+                    self.changesChanged.emit()
+                    return dataclasses.asdict(res.payload)
+                return {"success": False, "message": res.message}
+            except Exception as e:
+                return {"success": False, "message": str(e)}
+        return {"success": False, "message": "未初始化"}

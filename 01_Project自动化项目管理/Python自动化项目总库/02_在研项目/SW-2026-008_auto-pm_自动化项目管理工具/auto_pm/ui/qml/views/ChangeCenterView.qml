@@ -29,6 +29,8 @@ Rectangle {
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
+    signal requestNewChange()
+    signal requestEditChange()
 
     // ── 过滤后的展示模型 ────────────────────────────────
     ListModel { id: filteredModel }
@@ -64,6 +66,18 @@ Rectangle {
             }
             filtered.push(c)
         }
+
+        // 按申请日期及变更单号降序排列（最新排在最上面）
+        filtered.sort(function(a, b) {
+            var dateA = a.apply_date || ""
+            var dateB = b.apply_date || ""
+            if (dateA !== dateB) {
+                return dateB.localeCompare(dateA)
+            }
+            var numA = a.change_number || ""
+            var numB = b.change_number || ""
+            return numB.localeCompare(numA)
+        })
 
         filteredModel.clear()
         for (var j = 0; j < filtered.length; j++) {
@@ -161,6 +175,14 @@ Rectangle {
                         root.loadChanges()
                     }
                 }
+
+                PrimaryButton {
+                    text: "+ 新建变更"
+                    type: "primary"
+                    Layout.preferredWidth: 100
+                    enabled: typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService
+                    onClicked: root.requestNewChange()
+                }
             }
 
             RowLayout {
@@ -254,70 +276,78 @@ Rectangle {
                         font.pixelSize: Theme.fontSizeLg
                     }
 
-                    delegate: Rectangle {
+                    delegate: Item {
                         width: changeListView.width
-                        height: 80
-                        color: root.selectedChangeNumber === model.change_number ? Theme.glassHighlight : Theme.glassBg
-                        radius: Theme.radiusSm
-                        border.color: root.selectedChangeNumber === model.change_number ? Theme.primary : Theme.glassBorder
-                        border.width: root.selectedChangeNumber === model.change_number ? 2 : 1
+                        height: 88
 
-                        ColumnLayout {
+                        Rectangle {
                             anchors.fill: parent
-                            anchors.margins: Theme.spacingSm
-                            spacing: 2
+                            anchors.leftMargin: 4
+                            anchors.rightMargin: 12
+                            anchors.topMargin: 4
+                            anchors.bottomMargin: 4
+                            color: root.selectedChangeNumber === model.change_number ? Theme.glassHighlight : Theme.glassBg
+                            radius: Theme.radiusSm
+                            border.color: root.selectedChangeNumber === model.change_number ? Theme.primary : Theme.glassBorder
+                            border.width: root.selectedChangeNumber === model.change_number ? 2 : 1
 
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Theme.spacingXs
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: Theme.spacingSm
+                                spacing: 2
 
-                                Text {
-                                    text: model.change_number || ""
-                                    font.pixelSize: Theme.fontSizeSm
-                                    font.bold: true
-                                    color: Theme.textPrimary
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: Theme.spacingXs
+
+                                    Text {
+                                        text: model.change_number || ""
+                                        font.pixelSize: Theme.fontSizeSm
+                                        font.bold: true
+                                        color: Theme.textPrimary
+                                    }
+
+                                    Item { Layout.fillWidth: true }
+
+                                    Badge {
+                                        text: model.status || ""
+                                        type: model.status || "default"
+                                    }
                                 }
 
-                                Item { Layout.fillWidth: true }
-
-                                Badge {
-                                    text: model.status || ""
-                                    type: model.status || "default"
-                                }
-                            }
-
-                            Text {
-                                text: model.title || "(无标题)"
-                                font.pixelSize: Theme.fontSizeXs
-                                color: Theme.textSecondary
-                                elide: Text.ElideRight
-                                Layout.fillWidth: true
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Theme.spacingXs
-
                                 Text {
-                                    text: model.project_id || ""
+                                    text: model.title || "(无标题)"
                                     font.pixelSize: Theme.fontSizeXs
-                                    color: Theme.textMuted
+                                    color: Theme.textSecondary
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
                                 }
 
-                                Item { Layout.fillWidth: true }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: Theme.spacingXs
 
-                                Text {
-                                    text: (model.applicant || "") + " " + (model.apply_date || "")
-                                    font.pixelSize: Theme.fontSizeXs
-                                    color: Theme.textMuted
+                                    Text {
+                                        text: model.project_id || ""
+                                        font.pixelSize: Theme.fontSizeXs
+                                        color: Theme.textMuted
+                                    }
+
+                                    Item { Layout.fillWidth: true }
+
+                                    Text {
+                                        text: (model.applicant || "") + " " + (model.apply_date || "")
+                                        font.pixelSize: Theme.fontSizeXs
+                                        color: Theme.textMuted
+                                    }
                                 }
                             }
-                        }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.loadChangeDetail(model.change_number)
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.loadChangeDetail(model.change_number)
+                            }
                         }
                     }
                 }
@@ -330,6 +360,7 @@ Rectangle {
                 changeNumber: root.selectedChangeNumber
                 changeDetail: root.selectedChangeDetail
                 onStatusChanged: root.onDetailStatusChanged()
+                onRequestEditChange: root.requestEditChange()
             }
         }
 

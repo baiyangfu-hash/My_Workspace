@@ -104,18 +104,23 @@ Rectangle {
 
             ColumnLayout {
                 spacing: 2
+                Layout.fillWidth: true
 
                 Text {
                     text: "SW-2026-008_auto-pm_自动化项目管理工具"
                     color: Theme.textPrimary
                     font.pixelSize: Theme.fontSizeXxl
                     font.bold: true
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
                 }
 
                 Text {
                     text: "📁 Python自动化项目总库 / 02_在研项目 / SW-2026-008"
                     color: Theme.textMuted
                     font.pixelSize: Theme.fontSizeMd
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
                 }
             }
 

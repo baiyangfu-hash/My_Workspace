@@ -1,7 +1,6 @@
-// NewChangeDialog.qml - 变更单新建对话框（V0.6.0 W3-S11）
+// EditChangeDialog.qml - 编辑变更单属性对话框（V0.6.0 W3-S11）
 //
-// 表单填写变更单信息，生成 CHG-*.md 文件。
-// 字段：影响项目/标题/技术域/性质/申请人/背景/必要性
+// 提供变更单的字段编辑能力，直接调用 changeBridge.updateChange() 保存
 
 import QtQuick
 import QtQuick.Controls
@@ -13,24 +12,61 @@ Item {
     id: root
 
     property bool _isOpen: false
+    property string changeNumber: ""
 
-    // 表单字段
+    // 字段属性
     property string changeTitle: ""
     property string domain: "PLC"
     property string nature: "REQ"
-    property string impactProject: ""
-    property string applicant: "fubai"
+    property string applicant: ""
     property string background: ""
     property string necessity: ""
-    property string changeType: "feature"
+    property string references: ""
+    property string plannedDate: ""
     property string urgency: "normal"
+    property string riskLevel: "low"
+    property string mitigation: ""
+    property string propagationChain: ""
+    property string projectId: ""
 
     // ── 信号 ────────────────────────────────────────────
-    signal changeCreated(string changeNumber, string title)
+    signal changeSaved(string changeNumber)
     signal cancelled()
 
     visible: _isOpen
     anchors.fill: parent
+
+    // 填充数据函数
+    function prefill(detail) {
+        if (!detail) return
+        root.changeNumber = detail.change_number || ""
+        root.projectId = detail.project_id || ""
+        root.changeTitle = detail.title || ""
+        root.domain = detail.domain || "PLC"
+        root.nature = detail.business_nature || "REQ"
+        root.applicant = detail.applicant || ""
+        root.background = detail.background || ""
+        root.necessity = detail.necessity || ""
+        root.references = detail.references || ""
+        root.plannedDate = detail.planned_date || ""
+        root.urgency = detail.urgency || "normal"
+        root.riskLevel = detail.risk_level || "low"
+        root.mitigation = detail.mitigation || ""
+        root.propagationChain = detail.propagation_chain || ""
+
+        // 同步下拉框的 index
+        var domains = ["PLC", "HMI", "ELEC", "MECH", "SCPT", "DOCU", "SAFE"]
+        domainCombo.currentIndex = Math.max(0, domains.indexOf(root.domain))
+
+        var natures = ["REQ", "DSN", "IMP", "TEST", "OPT", "DEF"]
+        natureCombo.currentIndex = Math.max(0, natures.indexOf(root.nature))
+
+        var urgencies = ["normal", "urgent", "critical"]
+        urgencyCombo.currentIndex = Math.max(0, urgencies.indexOf(root.urgency))
+
+        var risks = ["low", "medium", "high"]
+        riskCombo.currentIndex = Math.max(0, risks.indexOf(root.riskLevel))
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -42,8 +78,8 @@ Item {
 
     Rectangle {
         anchors.centerIn: parent
-        width: 580
-        height: 520
+        width: 600
+        height: 560
         color: Theme.background
         radius: Theme.radiusLg
         border.color: Theme.border
@@ -62,7 +98,7 @@ Item {
                 color: Theme.primary
                 Text {
                     anchors.centerIn: parent
-                    text: "新建变更单"
+                    text: "编辑变更单 - " + root.changeNumber
                     color: "white"
                     font.pixelSize: Theme.fontSizeLg
                     font.bold: true
@@ -82,21 +118,9 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: "影响项目"; width: 80; color: Theme.textSecondary }
-                        TextField {
-                            Layout.fillWidth: true
-                            placeholderText: "如 SW-2026-008 / DJ-2026-005"
-                            text: root.impactProject
-                            onTextChanged: root.impactProject = text
-                        }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
                         Text { text: "变更标题"; width: 80; color: Theme.textSecondary }
                         TextField {
                             Layout.fillWidth: true
-                            placeholderText: "简明描述变更内容"
                             text: root.changeTitle
                             onTextChanged: root.changeTitle = text
                         }
@@ -106,6 +130,7 @@ Item {
                         Layout.fillWidth: true
                         Text { text: "技术领域"; width: 80; color: Theme.textSecondary }
                         ComboBox {
+                            id: domainCombo
                             model: ["PLC", "HMI", "ELEC", "MECH", "SCPT", "DOCU", "SAFE"]
                             onActivated: root.domain = currentText
                         }
@@ -115,6 +140,7 @@ Item {
                         Layout.fillWidth: true
                         Text { text: "变更性质"; width: 80; color: Theme.textSecondary }
                         ComboBox {
+                            id: natureCombo
                             model: ["REQ (需求)", "DSN (设计)", "IMP (实施)", "TEST (测试)", "OPT (优化)", "DEF (缺陷)"]
                             onActivated: {
                                 var map = ["REQ", "DSN", "IMP", "TEST", "OPT", "DEF"]
@@ -128,9 +154,39 @@ Item {
                         Text { text: "申请人"; width: 80; color: Theme.textSecondary }
                         TextField {
                             Layout.fillWidth: true
-                            placeholderText: "如 fubai"
                             text: root.applicant
                             onTextChanged: root.applicant = text
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "计划日期"; width: 80; color: Theme.textSecondary }
+                        TextField {
+                            Layout.fillWidth: true
+                            placeholderText: "如 2026-07-09"
+                            text: root.plannedDate
+                            onTextChanged: root.plannedDate = text
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "紧急程度"; width: 80; color: Theme.textSecondary }
+                        ComboBox {
+                            id: urgencyCombo
+                            model: ["normal", "urgent", "critical"]
+                            onActivated: root.urgency = currentText
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "风险等级"; width: 80; color: Theme.textSecondary }
+                        ComboBox {
+                            id: riskCombo
+                            model: ["low", "medium", "high"]
+                            onActivated: root.riskLevel = currentText
                         }
                     }
 
@@ -139,7 +195,6 @@ Item {
                         Text { text: "背景说明"; width: 80; color: Theme.textSecondary }
                         TextField {
                             Layout.fillWidth: true
-                            placeholderText: "变更背景与现状描述"
                             text: root.background
                             onTextChanged: root.background = text
                         }
@@ -150,9 +205,38 @@ Item {
                         Text { text: "必要性说明"; width: 80; color: Theme.textSecondary }
                         TextField {
                             Layout.fillWidth: true
-                            placeholderText: "为什么必须进行此变更"
                             text: root.necessity
                             onTextChanged: root.necessity = text
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "参考依据"; width: 80; color: Theme.textSecondary }
+                        TextField {
+                            Layout.fillWidth: true
+                            text: root.references
+                            onTextChanged: root.references = text
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "缓解措施"; width: 80; color: Theme.textSecondary }
+                        TextField {
+                            Layout.fillWidth: true
+                            text: root.mitigation
+                            onTextChanged: root.mitigation = text
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "传播链评估"; width: 80; color: Theme.textSecondary }
+                        TextField {
+                            Layout.fillWidth: true
+                            text: root.propagationChain
+                            onTextChanged: root.propagationChain = text
                         }
                     }
                 }
@@ -181,31 +265,31 @@ Item {
                         onClicked: { root._isOpen = false; root.cancelled() }
                     }
                     PrimaryButton {
-                        text: "创建"
+                        text: "保存"
                         type: "primary"
                         Layout.preferredWidth: 80
-                        enabled: root.impactProject !== "" && root.changeTitle !== "" && root.applicant !== ""
+                        enabled: root.changeTitle !== "" && root.applicant !== ""
                         onClicked: {
                             if (typeof changeBridge !== "undefined" && changeBridge !== null) {
-                                var cmd = {
-                                    "project_id": root.impactProject,
+                                var updates = {
                                     "title": root.changeTitle,
                                     "domain": root.domain,
-                                    "nature": root.nature,
+                                    "business_nature": root.nature,
                                     "applicant": root.applicant,
                                     "background": root.background,
                                     "necessity": root.necessity,
-                                    "impact_scope": ["LOCAL"]
+                                    "references": root.references,
+                                    "planned_date": root.plannedDate,
+                                    "urgency": root.urgency,
+                                    "risk_level": root.riskLevel,
+                                    "mitigation": root.mitigation,
+                                    "propagation_chain": root.propagationChain
                                 }
-                                var res = changeBridge.createChange(cmd)
-                                if (res && res.change_number) {
-                                    root.changeCreated(res.change_number, root.changeTitle)
-                                    // 清空表单
-                                    root.changeTitle = ""
-                                    root.background = ""
-                                    root.necessity = ""
+                                var res = changeBridge.updateChange(root.changeNumber, updates, root.projectId)
+                                if (res && !res.success) {
+                                    console.error("[QML] 更新变更单失败: " + JSON.stringify(res))
                                 } else {
-                                    console.error("[QML] 创建变更失败: " + JSON.stringify(res))
+                                    root.changeSaved(root.changeNumber)
                                 }
                             }
                             root._isOpen = false

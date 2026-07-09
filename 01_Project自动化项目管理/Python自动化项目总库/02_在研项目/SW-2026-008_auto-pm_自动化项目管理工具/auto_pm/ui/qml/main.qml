@@ -34,6 +34,7 @@ import QtQuick.Layouts
 import "theme"
 import "views"
 import "components"
+import "dialogs"
 
 ApplicationWindow {
     id: mainWindow
@@ -216,7 +217,7 @@ ApplicationWindow {
 
                 // ═══ 轨道 1：Platform Cockpit ════════════════════
                 Text {
-                    text: "PLATFORM COCKPIT"
+                    text: "PLATFORM COCKPIT 🚀"
                     color: Theme.textMuted
                     font.pixelSize: Theme.fontSizeXs
                     font.bold: true
@@ -224,53 +225,25 @@ ApplicationWindow {
                     Layout.topMargin: Theme.spacingSm
                 }
 
-                // 项目大厅入口
-                Rectangle {
+                // 平台卡片 (ContextCard, 绑定自身 SW-2026-008)
+                ContextCard {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    color: mainWindow.currentPage === "projectList" ? Theme.primary : "transparent"
-                    opacity: mainWindow.currentPage === "projectList" ? 1.0 : 0.9
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "🏠"
-                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeMd
-                        }
-
-                        Text {
-                            text: "项目大厅"
-                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-
-                        Text {
-                            text: (projectModel ? projectModel.rowCount() : 0).toString()
-                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textMuted
-                            font.pixelSize: Theme.fontSizeXs
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: mainWindow.currentPage = "projectList"
+                    projectId: "SW-2026-008"
+                    projectName: "auto-pm 研发管理平台"
+                    phase: "developing"
+                    stack: "python"
+                    hasProject: true
+                    onClicked: {
+                        mainWindow.currentPage = "platformDashboard"
+                        platformDashboardView.loadData()
                     }
                 }
 
-                // 平台驾驶舱大盘入口（CHG-106 新增）
+                // 平台驾驶舱大盘入口
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
+                    Layout.preferredHeight: 36
                     color: mainWindow.currentPage === "platformDashboard" ? Theme.primary : "transparent"
-                    opacity: 0.9
                     radius: Theme.radiusSm
 
                     RowLayout {
@@ -282,7 +255,7 @@ ApplicationWindow {
                         Text {
                             text: "📊"
                             color: mainWindow.currentPage === "platformDashboard" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeMd
+                            font.pixelSize: Theme.fontSizeSm
                         }
 
                         Text {
@@ -303,6 +276,122 @@ ApplicationWindow {
                     }
                 }
 
+                // 平台变更管控入口 + Badge
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    color: mainWindow.currentPage === "changeCenter" ? Theme.primary : "transparent"
+                    radius: Theme.radiusSm
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Theme.spacingSm
+                        anchors.rightMargin: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Text {
+                            text: "🔄"
+                            color: mainWindow.currentPage === "changeCenter" ? "white" : Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSm
+                        }
+
+                        Text {
+                            text: "平台变更管控"
+                            color: mainWindow.currentPage === "changeCenter" ? "white" : Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            Layout.fillWidth: true
+                        }
+
+                        SidebarBadge {
+                            count: changeBridge ? changeBridge.changeCount : 0
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            mainWindow.currentPage = "changeCenter"
+                            changeCenterView.loadChanges()
+                        }
+                    }
+                }
+
+                // 平台架构规范检查入口
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    color: mainWindow.currentPage === "specCenter" ? Theme.primary : "transparent"
+                    radius: Theme.radiusSm
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Theme.spacingSm
+                        anchors.rightMargin: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Text {
+                            text: "📐"
+                            color: mainWindow.currentPage === "specCenter" ? "white" : Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSm
+                        }
+
+                        Text {
+                            text: "平台架构规范检查"
+                            color: mainWindow.currentPage === "specCenter" ? "white" : Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            mainWindow.currentPage = "specCenter"
+                            specCenterView.loadOverview()
+                            specCenterView.loadEntries()
+                        }
+                    }
+                }
+
+                // 平台迭代与发布入口
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    color: mainWindow.currentPage === "reportCenter" ? Theme.primary : "transparent"
+                    radius: Theme.radiusSm
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Theme.spacingSm
+                        anchors.rightMargin: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Text {
+                            text: "📄"
+                            color: mainWindow.currentPage === "reportCenter" ? "white" : Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSm
+                        }
+
+                        Text {
+                            text: "平台迭代与发布"
+                            color: mainWindow.currentPage === "reportCenter" ? "white" : Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            mainWindow.currentPage = "reportCenter"
+                            reportView.loadData()
+                        }
+                    }
+                }
+
                 // ═══ 分隔线 ════════════════════════════════════
                 Rectangle {
                     Layout.fillWidth: true
@@ -312,9 +401,67 @@ ApplicationWindow {
                     Layout.bottomMargin: Theme.spacingSm
                 }
 
-                // ═══ 轨道 2：Active Project ══════════════════════
+                // ═══ 轨道 2：Workspace ══════════════════════════
                 Text {
-                    text: "ACTIVE PROJECT"
+                    text: "WORKSPACE 🌐"
+                    color: Theme.textMuted
+                    font.pixelSize: Theme.fontSizeXs
+                    font.bold: true
+                    font.letterSpacing: 1.5
+                }
+
+                // 业务项目大厅入口
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    color: mainWindow.currentPage === "projectList" ? Theme.primary : "transparent"
+                    radius: Theme.radiusSm
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Theme.spacingSm
+                        anchors.rightMargin: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Text {
+                            text: "🏠"
+                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSm
+                        }
+
+                        Text {
+                            text: "业务项目大厅"
+                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            Layout.fillWidth: true
+                        }
+
+                        Text {
+                            text: (projectModel ? projectModel.count : 0).toString()
+                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textMuted
+                            font.pixelSize: Theme.fontSizeXs
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: mainWindow.currentPage = "projectList"
+                    }
+                }
+
+                // ═══ 分隔线 ════════════════════════════════════
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.glassBorder
+                    Layout.topMargin: Theme.spacingSm
+                    Layout.bottomMargin: Theme.spacingSm
+                }
+
+                // ═══ 轨道 3：Active Project ══════════════════════
+                Text {
+                    text: "ACTIVE BUSINESS PROJECT 💻"
                     color: Theme.textMuted
                     font.pixelSize: Theme.fontSizeXs
                     font.bold: true
@@ -332,17 +479,18 @@ ApplicationWindow {
                     onClicked: {
                         if (mainWindow.currentProjectId !== "") {
                             mainWindow.currentPage = "workspace"
+                            workspaceView.switchTab(0)
                         } else {
                             mainWindow.currentPage = "projectList"
                         }
                     }
                 }
 
-                // 驾驶舱入口
+                // 工程健康度概览
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "workspace" ? Theme.primary : "transparent"
+                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 0) ? Theme.primary : "transparent"
                     opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
                     radius: Theme.radiusSm
 
@@ -354,13 +502,13 @@ ApplicationWindow {
 
                         Text {
                             text: "📊"
-                            color: mainWindow.currentPage === "workspace" ? "white" : Theme.textSecondary
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 0) ? "white" : Theme.textSecondary
                             font.pixelSize: Theme.fontSizeSm
                         }
 
                         Text {
-                            text: "驾驶舱"
-                            color: mainWindow.currentPage === "workspace" ? "white" : Theme.textPrimary
+                            text: "工程健康度概览"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 0) ? "white" : Theme.textPrimary
                             font.pixelSize: Theme.fontSizeSm
                             Layout.fillWidth: true
                         }
@@ -370,15 +518,18 @@ ApplicationWindow {
                         anchors.fill: parent
                         cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
                         enabled: mainWindow.currentProjectId !== ""
-                        onClicked: mainWindow.currentPage = "workspace"
+                        onClicked: {
+                            mainWindow.currentPage = "workspace"
+                            workspaceView.switchTab(0)
+                        }
                     }
                 }
 
-                // 变更中心入口 + Badge
+                // 变量表与 IO 资产
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "changeCenter" ? Theme.primary : "transparent"
+                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 4) ? Theme.primary : "transparent"
                     opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
                     radius: Theme.radiusSm
 
@@ -389,20 +540,16 @@ ApplicationWindow {
                         spacing: Theme.spacingSm
 
                         Text {
-                            text: "🔄"
-                            color: mainWindow.currentPage === "changeCenter" ? "white" : Theme.textSecondary
+                            text: "📋"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 4) ? "white" : Theme.textSecondary
                             font.pixelSize: Theme.fontSizeSm
                         }
 
                         Text {
-                            text: "变更中心"
-                            color: mainWindow.currentPage === "changeCenter" ? "white" : Theme.textPrimary
+                            text: "变量表与 IO 资产"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 4) ? "white" : Theme.textPrimary
                             font.pixelSize: Theme.fontSizeSm
                             Layout.fillWidth: true
-                        }
-
-                        SidebarBadge {
-                            count: changeBridge ? changeBridge.changeCount : 0
                         }
                     }
 
@@ -410,15 +557,18 @@ ApplicationWindow {
                         anchors.fill: parent
                         cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
                         enabled: mainWindow.currentProjectId !== ""
-                        onClicked: mainWindow.currentPage = "changeCenter"
+                        onClicked: {
+                            mainWindow.currentPage = "workspace"
+                            workspaceView.switchTab(4)
+                        }
                     }
                 }
 
-                // 规范中心入口 + Badge
+                // 工程变更控制矩阵
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "specCenter" ? Theme.primary : "transparent"
+                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 1) ? Theme.primary : "transparent"
                     opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
                     radius: Theme.radiusSm
 
@@ -429,14 +579,14 @@ ApplicationWindow {
                         spacing: Theme.spacingSm
 
                         Text {
-                            text: "📐"
-                            color: mainWindow.currentPage === "specCenter" ? "white" : Theme.textSecondary
+                            text: "🔀"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 1) ? "white" : Theme.textSecondary
                             font.pixelSize: Theme.fontSizeSm
                         }
 
                         Text {
-                            text: "规范中心"
-                            color: mainWindow.currentPage === "specCenter" ? "white" : Theme.textPrimary
+                            text: "工程变更控制矩阵"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 1) ? "white" : Theme.textPrimary
                             font.pixelSize: Theme.fontSizeSm
                             Layout.fillWidth: true
                         }
@@ -446,15 +596,18 @@ ApplicationWindow {
                         anchors.fill: parent
                         cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
                         enabled: mainWindow.currentProjectId !== ""
-                        onClicked: mainWindow.currentPage = "specCenter"
+                        onClicked: {
+                            mainWindow.currentPage = "workspace"
+                            workspaceView.switchTab(1)
+                        }
                     }
                 }
 
-                // 交付报告入口
+                // 工程规范与死区检查
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "reportCenter" ? Theme.primary : "transparent"
+                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 2) ? Theme.primary : "transparent"
                     opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
                     radius: Theme.radiusSm
 
@@ -465,14 +618,14 @@ ApplicationWindow {
                         spacing: Theme.spacingSm
 
                         Text {
-                            text: "📄"
-                            color: mainWindow.currentPage === "reportCenter" ? "white" : Theme.textSecondary
+                            text: "🛡️"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 2) ? "white" : Theme.textSecondary
                             font.pixelSize: Theme.fontSizeSm
                         }
 
                         Text {
-                            text: "交付报告"
-                            color: mainWindow.currentPage === "reportCenter" ? "white" : Theme.textPrimary
+                            text: "工程规范与死区检查"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 2) ? "white" : Theme.textPrimary
                             font.pixelSize: Theme.fontSizeSm
                             Layout.fillWidth: true
                         }
@@ -482,15 +635,18 @@ ApplicationWindow {
                         anchors.fill: parent
                         cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
                         enabled: mainWindow.currentProjectId !== ""
-                        onClicked: mainWindow.currentPage = "reportCenter"
+                        onClicked: {
+                            mainWindow.currentPage = "workspace"
+                            workspaceView.switchTab(2)
+                        }
                     }
                 }
 
-                // 模板管理入口
+                // 工程交付与试运行报告
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "templateManage" ? Theme.primary : "transparent"
+                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 3) ? Theme.primary : "transparent"
                     opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
                     radius: Theme.radiusSm
 
@@ -501,14 +657,14 @@ ApplicationWindow {
                         spacing: Theme.spacingSm
 
                         Text {
-                            text: "📑"
-                            color: mainWindow.currentPage === "templateManage" ? "white" : Theme.textSecondary
+                            text: "🚀"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 3) ? "white" : Theme.textSecondary
                             font.pixelSize: Theme.fontSizeSm
                         }
 
                         Text {
-                            text: "模板管理"
-                            color: mainWindow.currentPage === "templateManage" ? "white" : Theme.textPrimary
+                            text: "工程交付与试运行报告"
+                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 3) ? "white" : Theme.textPrimary
                             font.pixelSize: Theme.fontSizeSm
                             Layout.fillWidth: true
                         }
@@ -518,7 +674,10 @@ ApplicationWindow {
                         anchors.fill: parent
                         cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
                         enabled: mainWindow.currentProjectId !== ""
-                        onClicked: mainWindow.currentPage = "templateManage"
+                        onClicked: {
+                            mainWindow.currentPage = "workspace"
+                            workspaceView.switchTab(3)
+                        }
                     }
                 }
 
@@ -533,7 +692,7 @@ ApplicationWindow {
                     Layout.bottomMargin: Theme.spacingSm
                 }
 
-                // ═══ 轨道 3：Settings ═══════════════════════════
+                // ═══ 轨道 4：Settings ═══════════════════════════
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
@@ -595,6 +754,8 @@ ApplicationWindow {
             // 0. 项目列表页
             ProjectListView {
                 id: projectListView
+                onRequestNewProject: newProjectWizard._isOpen = true
+                onRequestImportProject: importProjectDialog._isOpen = true
                 onProjectClicked: {
                     mainWindow.currentProjectId = projectId
                     mainWindow.currentProjectName = projectName
@@ -614,6 +775,11 @@ ApplicationWindow {
             // 2. 变更中心页
             ChangeCenterView {
                 id: changeCenterView
+                onRequestNewChange: newChangeDialog._isOpen = true
+                onRequestEditChange: {
+                    editChangeDialog.prefill(changeCenterView.selectedChangeDetail)
+                    editChangeDialog._isOpen = true
+                }
                 onBackToProjectList: {
                     mainWindow.currentPage = "projectList"
                 }
@@ -652,6 +818,68 @@ ApplicationWindow {
         }
     }
 
+    // ── 对话框覆盖层 ────────────────────────────────────
+    NewProjectWizard {
+        id: newProjectWizard
+        anchors.fill: parent
+        z: 999
+        onProjectCreated: {
+            console.log("[QML main] 项目创建成功: " + projectId)
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                workbenchBridge.refreshProjects()
+                var projects = workbenchBridge.listProjects()
+                projectModel.setProjects(projects)
+            }
+        }
+    }
+
+    ImportProjectDialog {
+        id: importProjectDialog
+        anchors.fill: parent
+        z: 999
+        onImported: {
+            console.log("[QML main] 项目导入成功: " + projectId)
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                workbenchBridge.refreshProjects()
+                var projects = workbenchBridge.listProjects()
+                projectModel.setProjects(projects)
+            }
+        }
+    }
+
+    NewChangeDialog {
+        id: newChangeDialog
+        anchors.fill: parent
+        z: 999
+        onChangeCreated: {
+            console.log("[QML main] 变更单创建成功: " + changeNumber)
+            if (typeof changeBridge !== "undefined" && changeBridge !== null) {
+                changeBridge.refreshChanges()
+                changeBridge.listAllChanges()
+            }
+            if (mainWindow.currentPage === "changeCenter") {
+                changeCenterView.loadChanges()
+            }
+        }
+    }
+
+    EditChangeDialog {
+        id: editChangeDialog
+        anchors.fill: parent
+        z: 999
+        onChangeSaved: {
+            console.log("[QML main] 变更单更新成功: " + changeNumber)
+            if (typeof changeBridge !== "undefined" && changeBridge !== null) {
+                changeBridge.refreshChanges()
+                changeBridge.listAllChanges()
+            }
+            if (mainWindow.currentPage === "changeCenter") {
+                changeCenterView.loadChanges()
+                changeCenterView.loadChangeDetail(changeNumber)
+            }
+        }
+    }
+
     // ── 状态栏（24px，版本号 V1.0.0）─────────────────────
     Rectangle {
         id: statusbar
@@ -682,7 +910,7 @@ ApplicationWindow {
             }
 
             Text {
-                text: "项目: " + (projectModel ? projectModel.rowCount() : 0)
+                text: "项目: " + (projectModel ? projectModel.count : 0)
                 color: Theme.textSecondary
                 font.pixelSize: Theme.fontSizeXs
             }

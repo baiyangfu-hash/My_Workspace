@@ -1,5 +1,7 @@
 """Change Facade 接口层"""
 
+from typing import Any
+
 from auto_pm.core.protocols import ChangeServiceProtocol
 from auto_pm.models import ChangeRequest, ChangeSummary
 from auto_pm.ui.contracts.commands.change_commands import (
@@ -201,3 +203,22 @@ class ChangeFacade:
             return QueryResult(success=True, message="Success", payload=dto)
         except Exception as e:
             return QueryResult(success=False, message=str(e), payload=None)
+
+    def update_change_request(
+        self, change_id: str, updates: dict[str, Any], project_id: str | None = None
+    ) -> CommandResult[ChangeRequestDTO | None]:
+        """更新变更单（GUI 编辑支持）"""
+        try:
+            if not self._change_service:
+                return CommandResult(success=False, message="No change_service", payload=None)
+
+            cr = self._change_service.update_change_request(
+                change_id, lookup_project_id=project_id, **updates
+            )
+            if cr is None:
+                return CommandResult(success=False, message=f"变更单不存在: {change_id}", payload=None)
+            
+            dto = self._request_to_dto(cr)
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import QAbstractListModel, QModelIndex, QPersistentModelIndex, Qt, Slot
+from PySide6.QtCore import QAbstractListModel, QModelIndex, QPersistentModelIndex, Qt, Slot, Property, Signal
 
 from auto_pm.models import ProjectInfo
 
@@ -29,6 +29,12 @@ class ProjectListModel(QAbstractListModel):
 
     包装 ProjectService.list_projects() 结果，供 QML ListView 使用。
     """
+
+    countChanged = Signal()
+
+    @Property(int, notify=countChanged)
+    def count(self) -> int:
+        return len(self._projects)
 
     # 角色枚举（UserRole 起步避免与 Qt 内置角色冲突）
     ProjectIdRole = Qt.ItemDataRole.UserRole + 1
@@ -61,7 +67,11 @@ class ProjectListModel(QAbstractListModel):
         if role_name is None:
             return None
 
-        value = getattr(project, role_name, "")
+        if isinstance(project, dict):
+            value = project.get(role_name, "")
+        else:
+            value = getattr(project, role_name, "")
+            
         # 枚举类型转字符串（Stack/ProjectPhase/BusinessLine）
         if hasattr(value, "value"):
             return str(value.value)
@@ -92,12 +102,10 @@ class ProjectListModel(QAbstractListModel):
         @Slot(list) 装饰器使 QML 端可调用 projectModel.setProjects(projects)。
         QML 端传入的 JS 数组会被 PySide6 自动转换为 Python list。
         """
-        self.beginInsertRows(QModelIndex(), 0, max(len(projects) - 1, 0))
+        self.beginResetModel()
         self._projects = list(projects)
-        self.endInsertRows()
-        # 如果是空列表，需要 dataChanged 通知 QML 清空
-        if not projects:
-            self.layoutChanged.emit()
+        self.endResetModel()
+        self.countChanged.emit()
 
     @Slot()
     def clear(self) -> None:
@@ -105,6 +113,7 @@ class ProjectListModel(QAbstractListModel):
         self.beginResetModel()
         self._projects = []
         self.endResetModel()
+        self.countChanged.emit()
 
     @Slot(int, result="QVariant")
     def getProjectAt(self, row: int) -> ProjectInfo | None:

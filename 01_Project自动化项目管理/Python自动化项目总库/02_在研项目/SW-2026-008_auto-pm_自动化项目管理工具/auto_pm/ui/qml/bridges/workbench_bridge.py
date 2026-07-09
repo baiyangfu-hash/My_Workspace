@@ -111,3 +111,44 @@ class WorkbenchBridge(QObject):
                 return dataclasses.asdict(res.payload)
             return {"success": res.success, "message": res.message}
         return {"success": False, "message": "未初始化"}
+
+    @Slot(str, str, str, str, str, result="QVariant")
+    def createProject(self, project_id: str, project_name: str, stack: str, mode: str, business_line: str) -> dict[str, Any]:
+        if self._facade and hasattr(self._facade, "create_project"):
+            res = self._facade.create_project(project_id, project_name, stack, mode, business_line)
+            if res.success:
+                self.refreshProjects()
+                return {"success": True, "project_id": res.payload["project_id"] if res.payload else ""}
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result="QVariant")
+    def importProject(self, src_path: str) -> dict[str, Any]:
+        if self._facade and hasattr(self._facade, "import_project"):
+            res = self._facade.import_project(src_path)
+            if res.success:
+                self.refreshProjects()
+                return {"success": True, "project_id": res.payload["project_id"] if res.payload else ""}
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result="QVariant")
+    def detectProject(self, path: str) -> dict[str, Any]:
+        if self._facade and hasattr(self._facade, "_project_service"):
+            try:
+                import os
+                from auto_pm.core.project_scanner import ProjectScanner
+                scanner = ProjectScanner(self._facade._project_service.workspace_root)
+                proj = scanner.scan_single_project(path)
+                if proj:
+                    return {
+                        "success": True,
+                        "project_id": proj.project_id,
+                        "name": proj.name,
+                        "stack": str(proj.stack),
+                    }
+                else:
+                    return {"success": False, "message": "无法在此路径下识别到有效的项目元数据文件"}
+            except Exception as e:
+                return {"success": False, "message": str(e)}
+        return {"success": False, "message": "服务未启用"}

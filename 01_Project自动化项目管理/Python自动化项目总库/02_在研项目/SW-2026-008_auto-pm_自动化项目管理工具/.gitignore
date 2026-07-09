@@ -52,6 +52,9 @@ dist/
 coverage/
 *.log
 
+# GUI smoke test 运行时产物
+output/
+
 # auto-pm runtime
 .auto-pm/
 

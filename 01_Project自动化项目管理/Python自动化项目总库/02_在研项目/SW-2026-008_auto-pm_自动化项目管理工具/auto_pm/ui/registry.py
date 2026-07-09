@@ -72,6 +72,7 @@ class FacadeRegistry:
             dashboard_service=dashboard_service,
             project_service=project_service,
             asset_summary_service=asset_summary_service,
+            template_service=template_service,
         )
 
         self.change_facade = ChangeFacade(

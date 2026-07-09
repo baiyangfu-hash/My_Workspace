@@ -79,8 +79,7 @@ Rectangle {
         Item {
             id: slot
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            implicitHeight: 0
+            implicitHeight: childrenRect.height
         }
     }
 }

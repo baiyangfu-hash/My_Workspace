@@ -67,15 +67,20 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     # 1.5 设置 Basic 样式（支持控件 background 自定义，消除原生样式警告）
     QQuickStyle.setStyle("Basic")
 
+    # 1.8 初始化 DatabaseManager 并注入
+    from auto_pm.db.connection import DatabaseManager
+    db = DatabaseManager(workspace_root)
+
     # 2. 初始化后端 Service（后端零改动约束：直接复用现有 Service）
-    project_service = ProjectService(workspace_root=workspace_root)
-    change_service = ChangeService(workspace_root=workspace_root)
+    project_service = ProjectService(workspace_root=workspace_root, db=db)
+    change_service = ChangeService(workspace_root=workspace_root, db=db)
     spec_check_service = make_spec_check_service(workspace_root)
     # V0.8.0 Phase 1 新增 6 个 Service（CHG-090）
     report_service = make_report_service(
         project_service=project_service,
         change_service=change_service,
         workspace_root=workspace_root,
+        db=db,
     )
     template_service = make_template_service(workspace_root)
     pm_session_service = make_pm_session_service(workspace_root)

@@ -34,6 +34,8 @@ Rectangle {
 
     // ── 信号 ────────────────────────────────────────────
     signal projectClicked(string projectId, string projectName)
+    signal requestNewProject()
+    signal requestImportProject()
 
     // ── 过滤排序后的展示模型 ────────────────────────────
     ListModel { id: displayModel }
@@ -60,7 +62,7 @@ Rectangle {
             anchors.margins: Theme.spacingMd
             spacing: Theme.spacingSm
 
-            // 第一行：标题 + 视图切换 + 项目数
+            // 第一行：标题 + 视图切换 + 新增/导入按钮 + 项目数
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingMd
@@ -73,6 +75,20 @@ Rectangle {
                 }
 
                 Item { Layout.fillWidth: true }
+
+                PrimaryButton {
+                    text: "+ 新建项目"
+                    type: "primary"
+                    Layout.preferredWidth: 100
+                    onClicked: root.requestNewProject()
+                }
+
+                PrimaryButton {
+                    text: "+ 导入项目"
+                    type: "ghost"
+                    Layout.preferredWidth: 100
+                    onClicked: root.requestImportProject()
+                }
 
                 // 视图切换按钮组
                 RowLayout {

@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "auto-pm GUI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "auto_pm",
+      "args": [],
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+    {
       "name": "auto-pm simple-command",
       "type": "debugpy",
       "request": "launch",
