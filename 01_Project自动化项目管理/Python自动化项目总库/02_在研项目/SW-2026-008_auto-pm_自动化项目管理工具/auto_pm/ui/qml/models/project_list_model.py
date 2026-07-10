@@ -55,7 +55,7 @@ class ProjectListModel(QAbstractListModel):
 
     def __init__(self, parent: Any = None) -> None:
         super().__init__(parent)
-        self._projects: list[ProjectInfo] = []
+        self._projects: list[Any] = []
 
     # ── QAbstractListModel 必须实现 ───────────────────────
 
@@ -127,7 +127,8 @@ class ProjectListModel(QAbstractListModel):
     def getProjectAt(self, row: int) -> ProjectInfo | None:
         """返回指定行的 ProjectInfo（Python 端测试用）"""
         if 0 <= row < len(self._projects):
-            return self._projects[row]
+            from typing import cast
+            return cast(ProjectInfo, self._projects[row])
         return None
 
     @Slot(result=int)

@@ -199,11 +199,11 @@ class ChangeServiceProtocol(Protocol):
         """删除变更单"""
         ...
 
-    def list_approval_history(self, change_number: str) -> list[Any]:
+    def list_approval_history(self, change_number: str, project_id: str | None = None) -> list[Any]:
         """查询变更单审批流转历史（供 GUI 审批时间线使用）"""
         ...
 
-    def get_impact_analysis(self, change_number: str) -> Any | None:
+    def get_impact_analysis(self, change_number: str, project_id: str | None = None) -> Any | None:
         """查询变更单的影响分析记录（供 GUI 验证摘要使用，M3 新增）"""
         ...
 

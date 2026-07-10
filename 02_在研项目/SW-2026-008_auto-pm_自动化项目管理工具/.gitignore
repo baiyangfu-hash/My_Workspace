@@ -1,0 +1,79 @@
+# Coverage.py
+htmlcov/
+reports/
+
+# cruft
+*.rej
+
+# Data
+*.csv*
+*.dat*
+*.pickle*
+*.xls*
+*.zip*
+
+# direnv
+.envrc
+
+# dotenv
+.env
+
+# Hypothesis
+.hypothesis/
+
+# Jupyter
+*.ipynb
+.ipynb_checkpoints/
+notebooks/
+
+# macOS
+.DS_Store
+
+# mypy
+.dmypy.json
+.mypy_cache/
+
+# Node.js
+node_modules/
+
+# Python
+.venv/
+dist/
+
+# PyCharm
+.idea/
+
+# pyenv
+.python-version
+
+# pytest
+.pytest_cache/
+.coverage
+coverage/
+*.log
+
+# GUI smoke test 运行时产物
+output/
+
+# auto-pm runtime
+.auto-pm/
+
+# Python
+__pycache__/
+*.py[cdo]
+
+# Ruff
+.ruff_cache/
+
+# Terraform
+.terraform/
+
+# VS Code
+.vscode/*
+!.vscode/launch.json*
+
+# auto-pm 临时文件（CHG-SCPT-2026-100）
+*.bak_*
+pytest_*.txt
+claude_plan
+test_screenshots/

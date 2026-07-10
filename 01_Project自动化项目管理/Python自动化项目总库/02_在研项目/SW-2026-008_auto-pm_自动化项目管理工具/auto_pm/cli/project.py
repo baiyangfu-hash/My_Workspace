@@ -804,7 +804,7 @@ def cmd_import(
         try:
             from auto_pm.db.connection import DatabaseManager
 
-            db = DatabaseManager(db_path)
+            db = DatabaseManager(app_ctx.workspace_root)
             db.init_schema()
             svc_with_db = ProjectService(app_ctx.workspace_root, db=db)
             svc_with_db.sync_to_cache(force_full=True)
