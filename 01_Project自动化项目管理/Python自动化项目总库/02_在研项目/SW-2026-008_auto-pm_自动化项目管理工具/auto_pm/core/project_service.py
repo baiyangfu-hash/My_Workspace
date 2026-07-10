@@ -184,6 +184,41 @@ class ProjectService:
             )
         return result
 
+    def generate_project_code(self, business_line: str) -> str:
+        """自动生成项目编号：{业务线}-{年份}-{序号:03d}
+
+        扫描工作空间中同业务线同年份的已有项目，取最大序号 +1。
+        若未找到任何项目，从 001 开始。
+
+        Args:
+            business_line: 业务线代码（如 "SW", "DJ"）
+
+        Returns:
+            项目编号字符串（如 "SW-2026-009"）
+        """
+        import datetime
+
+        year = datetime.datetime.now().year
+        prefix = f"{business_line}-{year}-"
+        max_seq = 0
+
+        try:
+            projects = self.list_projects()
+        except Exception:
+            projects = []
+
+        for p in projects:
+            pid = p.project_id if hasattr(p, "project_id") else str(p)
+            if pid.startswith(prefix):
+                try:
+                    seq = int(pid.split("-")[-1])
+                    if seq > max_seq:
+                        max_seq = seq
+                except (ValueError, IndexError):
+                    pass
+
+        return f"{business_line}-{year}-{max_seq + 1:03d}"
+
     def get_project_count(self) -> int:
         """获取项目总数（优先查缓存）"""
         if self._repo is not None and hasattr(self._repo, "count"):
@@ -514,8 +549,8 @@ class ProjectService:
             raise RuntimeError("未注入 DatabaseManager，无法同步缓存")
 
         # 延迟导入避免循环依赖
-        from auto_pm.db.sync import SyncService
         from auto_pm.change.change_service import ChangeService
+        from auto_pm.db.sync import SyncService
 
         change_service = ChangeService(workspace_root=self.workspace_root, db=self.db)
         sync = SyncService(self.db, self, change_service=change_service)

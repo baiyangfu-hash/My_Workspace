@@ -118,8 +118,9 @@ def test_new_change_dialog_default_properties(
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "NewChangeDialog.qml")
     assert dlg.property("_isOpen") is False
     assert dlg.property("changeTitle") == ""
-    assert dlg.property("changeType") == "feature"
-    assert dlg.property("urgency") == "normal"
+    assert dlg.property("projectId") == ""
+    assert dlg.property("domain") == "PLC"
+    assert dlg.property("nature") == "REQ"
 
 
 def test_new_change_dialog_set_fields(
@@ -128,12 +129,14 @@ def test_new_change_dialog_set_fields(
     """NewChangeDialog 设置字段后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "NewChangeDialog.qml")
     dlg.setProperty("changeTitle", "新增功能")
-    dlg.setProperty("changeType", "feat")
-    dlg.setProperty("impactProject", "SW-2026-008")
+    dlg.setProperty("projectId", "SW-2026-008")
+    dlg.setProperty("domain", "SCPT")
+    dlg.setProperty("nature", "OPT")
     qapp.processEvents()
     assert dlg.property("changeTitle") == "新增功能"
-    assert dlg.property("changeType") == "feat"
-    assert dlg.property("impactProject") == "SW-2026-008"
+    assert dlg.property("projectId") == "SW-2026-008"
+    assert dlg.property("domain") == "SCPT"
+    assert dlg.property("nature") == "OPT"
 
 
 # ── ProjectSettingsDialog.qml (W3-S12) ───────────────────

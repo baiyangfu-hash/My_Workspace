@@ -1,9 +1,9 @@
 ---
 title: auto-pm CLI 测试计划
-version: V0.9.1
-date: 2026-07-08
+version: V0.9.2
+date: 2026-07-10
 scope: CLI 命令全量测试矩阵
-baseline: pyproject=0.9.1 / 1115 passed
+baseline: pyproject=0.9.1 / 1115 passed（V0.9.2 深度审查整改：新增 --auto-id 参数记录）
 ---
 
 # auto-pm CLI 测试计划
@@ -37,8 +37,8 @@ baseline: pyproject=0.9.1 / 1115 passed
 
 | 项目 | 基线值 |
 |------|--------|
-| pyproject.toml 版本 | 0.9.1 |
-| 全量回归用例数 | 1115 passed |
+| pyproject.toml 版本 | 0.9.1（V0.9.2 整改未涉及版本号变更） |
+| 全量回归用例数 | 1115 passed（V0.9.2 QML 层 143 passed） |
 | pytest 标记数 | 6（gui/cli/smoke/unit/integration/slow）|
 | CLI 测试文件数 | 9（tests/cli/test_*.py）|
 | CLI 入口 | `python -m auto_pm` 或 `auto-pm`（click 框架）|
@@ -58,7 +58,7 @@ baseline: pyproject=0.9.1 / 1115 passed
 | 子命令 | 参数/选项 | 测试类型 | 预期行为 | 现有测试定位 |
 |--------|-----------|----------|----------|--------------|
 | `project list` | `--business-line/-bl` `--stack` `--phase` `--search` `--json` | 冒烟/功能/边界 | 输出项目表格；`--json` 输出 JSON 数组；空工作空间输出"未发现项目"或 `[]` | tests/cli/test_project.py::test_project_list_via_main |
-| `project create` | `--stack`(必) `--id`(必) `--name`(必) `--desc` `--business-line/-bl` `--mode` `--library-name` `--project-type` `--equipment-type` `--plc-vendor` `--plc-model` `--dry-run` | 功能/边界 | 调用 Copier 生成骨架；目标已存在 exit=1；`--dry-run` 仅预览；shared-library 缺 `--library-name` exit=1；业务线与编号前缀不一致输出警告 | tests/cli/test_project.py::test_project_create_dry_run_displays_v040_metadata、test_project_create_single_machine_generates_week2_template_assets |
+| `project create` | `--stack`(必) `--id`(必,与`--auto-id`互斥) `--auto-id`(与`--id`互斥) `--name`(必) `--desc` `--business-line/-bl` `--mode` `--library-name` `--project-type` `--equipment-type` `--plc-vendor` `--plc-model` `--dry-run` | 功能/边界 | 调用 Copier 生成骨架；`--auto-id` 自动生成项目编号（如 SW-2026-009）；`--id` 与 `--auto-id` 互斥同时使用 exit=2；目标已存在 exit=1；`--dry-run` 仅预览；shared-library 缺 `--library-name` exit=1；业务线与编号前缀不一致输出警告 | tests/cli/test_project.py::test_project_create_dry_run_displays_v040_metadata、test_project_create_single_machine_generates_week2_template_assets |
 | `project show <ID>` | `--json` | 冒烟/功能/边界 | 输出项目详情；`--json` 输出 model_dump；项目不存在 exit=1；渲染工程资产摘要 | tests/cli/test_project.py::test_project_show_via_main、test_project_show_not_found、test_project_show_displays_v040_metadata、test_project_show_displays_week3_asset_summary、test_project_show_json_contains_asset_summary |
 | `project edit <ID>` | `--phase` `--desc` `--version` `--business-line/-bl` | 功能/边界 | 写入 .copier-answers.yml；未指定字段提示；项目不存在 exit=1 | （缺口） |
 | `project delete <ID>` | `--confirm` | 功能/边界（破坏性）| 无 `--confirm` exit=1；`--confirm` 删除目录并审计；项目不存在 exit=1 | （缺口） |

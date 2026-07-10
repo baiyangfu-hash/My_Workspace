@@ -56,3 +56,116 @@
 - 2026-07-09 | skill=fullstack-engineer | mode=CHG-SCPT-2026-102 视觉系统升级 + 导航框架重构（HTML 原型 V7 落地第 1 阶段） | goal=用户要求把 HTML 原型 V7 的交互界面落地，用现有 QML 技术栈，原型作为参考。本次落地原型 V7 视觉系统（Theme 深色玻璃拟物化）+ 导航骨架（三轨道分组 + Header 升级 + ContextCard + Badge + BackendStatus），为后续页面交互补齐（CHG-2/3/4）铺底 | changed_files: ① `auto_pm/ui/qml/theme/Theme.qml`（V0.6.0 浅色 → V0.9.3 深色玻璃拟物，新增 glass/secondary token，sidebarWidth 220→280，保留所有 token 名称不变）；② `auto_pm/ui/qml/components/GlassPanel.qml`（**新建** 毛玻璃容器组件，对齐原型 V7 .glass-panel）；③ `auto_pm/ui/qml/components/AmbientOrb.qml`（**新建** 光晕背景球，对齐原型 V7 .ambient-orb）；④ `auto_pm/ui/qml/components/ContextCard.qml`（**新建** 当前项目上下文卡片，Active Project 头部，复用 GlassPanel 基底，解耦设计属性传入而非调 bridge）；⑤ `auto_pm/ui/qml/components/SidebarBadge.qml`（**新建** 侧边栏待办数徽标，count>0 显示，>99 显示 99+）；⑥ `auto_pm/ui/qml/components/BackendStatus.qml`（**新建** DB 连接状态指示灯，connected 绑定 systemBridge.hasService）；⑦ `auto_pm/ui/qml/main.qml`（V0.8.0 单轨道 7 入口 → V0.9.3 三轨道分组导航 + Header 48→72px + 搜索栏 + 集成 5 个新组件 + 版本号 V0.9.3，保留 currentPage 状态值和 7 个 view id 不破坏 138 个 qml 测试）；⑧ `scripts/gui_smoke_test.py`（版本号 V0.9.2→V0.9.3）；⑨ `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-102.md`（**新建** 变更单，状态 implementing，§5/§6/§7/§9/§10 完整填写） | impact: ① **视觉系统升级完成**——Theme.qml 深色玻璃拟物化（background #020617 + surface #0f172a + primary #6366f1 + glassBg/glassBorder/glassHighlight 新增），138 qml 测试零破坏（保留 token 名称只改值策略验证正确）；② **导航框架重构完成**——main.qml 从单轨道扁平 7 入口升级为三轨道分组（Platform Cockpit / Active Project / Settings），Header 72px + 搜索栏 + 圆形 logo + 刷新按钮，侧边栏集成 ContextCard（Active Project 头部，未选项目时置灰 opacity:0.4）+ SidebarBadge（变更中心入口待办数）+ BackendStatus（侧边栏底部 DB 状态灯）；③ **5 个新组件全部解耦设计**——ContextCard/SidebarBadge/BackendStatus 采用属性传入而非直接调 bridge，避免新增不必要 Slot（T4 简化决策）；④ **T6 全量门禁 5 项全绿**——ruff 0 errors + mypy 0 errors in 125 source files + tests/qml 138 passed + tests/spec 137 passed 1 skipped + PM_SESSION size 9 passed；⑤ **T7 GUI 冒烟测试 9/9 通过**——9 张截图（00_app_launch 到 08_back_to_project_list），1 个 QFontDatabase 警告（非业务，PySide6 环境字体目录问题），0 个业务警告；⑥ **版本号一致性**——main.qml title "auto-pm V0.9.3 (QML)" + 状态栏 "QML V0.9.3" + Header 版本标签 V0.9.3 | risks: 低——① 保留 currentPage 状态值和 7 个 view id 不破坏 138 个 qml 测试（验证通过）；② 5 个新组件采用解耦设计（属性传入而非调 bridge），降低耦合度；③ ContextCard 的 hasProject 属性从绑定改为显式赋值避免绑定循环；④ PM_SESSION 归档 §6 早期 20 行（keep-recent 6），主文件 145.6KB→107.8KB 腾出空间 | verification: 已验证——① ruff check auto_pm/ = All checks passed!；② mypy auto_pm/ = Success: no issues found in 125 source files；③ pytest tests/qml/ --no-cov = 138 passed in 1.48s；④ pytest tests/spec/ tests/test_pm_session_size.py --no-cov = 137 passed, 1 skipped in 4.33s；⑤ GUI 冒烟测试 9/9 通过 + 9 截图 + 1 QFontDatabase 警告（非业务）；⑥ CHG-102 §10.1 V1-V13 全部 ☑ 通过 + §10.3 验证结论"全部通过,可关闭" + review 整改（PM_SESSION 真源同步 + CHG-085 文档小问题修复）
 - 2026-07-03 | skill=pm-workflow | mode=CHG-085 Task D+E | goal=完成 CHG-085 实施方案 Task D（PM_SESSION 同步与精简 D1-D5）+ Task E（版本号与 CHANGELOG 同步 E1-E3）+ 全量回归 + 静态门禁 + CHG-085 状态流转到 closed，然后执行 review 验证声明真实性 + 真源一致性，修复 review 发现的 PM_SESSION 真源未同步到闭环完成状态（核心阻断）+ CHG-085 文档 4 个小问题 | changed_files: ① `PM_SESSION_SW-2026-008.md`（§2 current_focus 从"implementing 中"更新到"已闭环 closed" + §2 milestone 从"0.5.3→0.5.4 实施中"更新到"V0.5.4 已闭环 closed" + §3 in_progress V0.5.4 条目移到 completed 顶部 + §6 本条 Implementation Log + §8 current_state 从"implementing 中"更新到"已闭环 closed" + §8 next_focus 首项从"完成 CHG-085 闭环"更新到标注已完成）；② `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-085.md`（§8.2 审批结论勾选 ☑通过 + §9 追加 2 行实施完成记录 + §10.1 第 7 行序号 1→7 + §10.2 标注"本变更无跨领域影响，不适用"）；③ `pyproject.toml`（version 0.5.3→0.5.4，Task E1）；④ `CHANGELOG.md`（新增 [0.5.4] 章节，Task E2）；⑤ `00_项目基础信息/006_技术债评估报告.md`（frontmatter version V0.5.3→V0.5.4 + §0.1 最近更新重写 + §0.2 关键指标更新，Task E3） | impact: ① PM_SESSION 单一真源同步到 V0.5.4 闭环完成状态（§2/§3/§6/§8 全部回写），真源一致性前置校验通过（pyproject 0.5.4 == CHANGELOG [0.5.4] == 006 frontmatter V0.5.4 == PM_SESSION §2 milestone V0.5.4 + CHG-085 == closed）；② CHG-085 文档完整性达标（§8.2 审批结论勾选 + §9 实施记录完整 + §10.1 序号正确 + §10.2 标注不适用）；③ 版本号三件套升级到 V0.5.4（pyproject + CHANGELOG + 006 frontmatter）；④ review 验证声明真实性：9 个新测试全部通过 + ruff CHG-085 相关 10 文件 0 errors + mypy auto_pm 0 errors 147 文件；⑤ CHG-085 第 16 次 dogfooding 闭环完成（draft→closed 9 步状态流转全部成功） | risks: 低——本轮仅文档同步 + review 整改，未改生产代码；PM_SESSION 文件较大（429KB）编辑需谨慎用 Edit 工具避免缓冲区陈旧；CHG-085 已 closed 无法重开，review 整改直接修改文档不重新走状态流转 | verification: 已验证——① PM_SESSION §2 current_focus/milestone 状态字段已更新到"已闭环 closed"；② PM_SESSION §3 in_progress V0.5.4 条目已移到 completed 顶部；③ PM_SESSION §6 本条 Implementation Log 已追加；④ PM_SESSION §8 current_state/next_focus 状态字段已更新（已修复）；⑤ CHG-085 §8.2 ☑通过 + §9 追加 2 行 + §10.1 序号 7 + §10.2 标注不适用；⑥ 真源一致性校验：pyproject 0.5.4 == CHANGELOG [0.5.4] == 006 V0.5.4 == PM_SESSION §2 V0.5.4 已闭环 closed；⑦ CHG-085 状态 closed；⑧ 9 测试 + ruff 0 + mypy 0 三轨门禁通过
 
+## 6. Implementation Log
+> **§6 早期实施记录（V0.5.3 及之前，2026-06-19~2026-07-03 共 80+ 条）已归档到 [archive_V0.6.0.md](00_项目管理/05_PM_SESSION归档/PM_SESSION_SW-2026-008_archive_V0.6.0.md) §6 Implementation Log 早期归档**。
+> 归档范围：V0.5.3/V0.5.2/V0.5.1/V0.5.0/V2.3 Week1-4/V0.4.2/V0.4.1/V0.4.0/V0.3.0 全部里程碑/V2.0/V0.2.x 时代实施记录。
+> 用户硬约束：记录全部都要，迭代走过的路是教训也是经验。
+
+### 2026-07-09 CHG-SCPT-2026-109 §8 条目级归档（第 40 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建** ✅：CHG-SCPT-2026-109 通过 CLI `auto-pm change create` 创建（SCPT+OPT+MODULE，12 章节完整），背景为"PM_SESSION §8 归档时 Edit 工具无法处理超长 skill_handoff 单行"，必要性为"改造 pm-session archive 命令支持 §8 条目级归档"
+- **T1 `archive_section_8()` 实现** ✅：pm_session_service.py 新增 `archive_section_8()` 方法（约 150 行）实现 §8 Handoff Notes 条目级归档（区别于 `archive_section()` 的行级归档）。条目识别规则：`- current_state` → 保留；`- skill_handoff` → 可归档；`>` → 归档说明保留；空行 → 跟随相邻条目。§8 倒序结构（最新在上）特殊处理：按出现顺序前 keep_entries 条 skill_handoff 保留，其余归档。新增 4 个常量（SECTION8_CURRENT_STATE_PREFIX / SECTION8_SKILL_HANDOFF_PREFIX / SECTION8_ARCHIVE_NOTE_PREFIX / ARCHIVE_FILE_MAX_SIZE_KB）+ `from datetime import date` 导入
+- **T2 CLI 路由** ✅：cli/session.py `cmd_archive` 函数对 `section_number == "8"` 路由到 `archive_section_8`，预览输出适配（"归档模式: 条目级（§8 倒序结构，CHG-109）" + "保留最新: N 条 skill_handoff"），help 文本和 docstring 同步更新（添加 §8 示例和说明）
+- **T3 归档文件版本切分** ✅：新增 `_resolve_archive_file()` 方法检查归档文件大小，超 200KB 自动创建带日期后缀的新文件（`{stem}_auto_{YYYYMMDD}.md`），同日文件已存在则加序号，防止单文件过大无法 Read
+- **T4 测试覆盖** ✅：tests/core/test_pm_session_service.py 末尾追加 `SAMPLE_PM_SESSION_WITH_HANDOFFS` fixture + `TestArchiveSection8` 类（8 测试：保留最新 N 条 / current_state 始终保留 / 归档说明保留 / keep_entries >= 总数不归档 / 追加到归档文件 / §8 不存在抛 ValueError / 主文件不存在抛 FileNotFoundError / create_backup 创建备份）+ `TestResolveArchiveFile` 类（3 测试：未超阈值返回原路径 / 文件不存在返回原路径 / 超阈值返回新带日期路径）。11 测试全部通过
+- **T5 全量门禁 + PM_SESSION 回写 + CHG-109 闭环** ✅：① ruff check 0 errors；② mypy 0 errors in 127 source files；③ pytest tests/change+core+application+cli 651 passed 1 skipped；④ pytest tests/qml+spec 267 passed 1 skipped；⑤ pytest tests/test_pm_session_size.py 9 passed；⑥ dry-run 功能验证正确输出"归档模式: 条目级（§8 倒序结构，CHG-109）"；⑦ §5 change_log 追加 CHG-109 摘要 + §6 新增 CHG-109 实施记录 + §8 current_state 更新 + skill_handoff_20260709_chg109 + §9 CHG-109 done_when 标记 ✅ 已完成；⑧ CHG-109 §9 实施记录 + §10.1 验证项 + §10.3 验证结论 + 状态流转 closed
+
+### 2026-07-10 CHG-SCPT-2026-111 GUI 显示自适应修复（第 42 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建** ✅：CHG-SCPT-2026-111 通过 CLI `auto-pm change create` 创建（SCPT+DEF+MODULE，12 章节完整），背景为"平台驾驶舱和项目工作区6个GUI显示问题"，必要性为"彻底修复而非临时打补丁：字号自适应、Tooltip兜底、布局重构"
+- **T1 KpiCard.qml 字号自适应** ✅：新增 `_adaptiveFontSize` 计算属性（≤3字符 24px / ≤6字符 20px / ≤12字符 16px / >12字符 14px），value 文本新增 `elide: Text.ElideRight` + `Layout.fillWidth: true`，title 文本新增 `elide`，subtitle 文本新增 `elide`。新增 2 个 ToolTip（value hover ToolTip 当长度>12字符时显示完整文本 + subtitle hover ToolTip 当长度>30字符时显示完整文本），import QtQuick.Controls 导入
+- **T2 DashboardStateMachine.qml 修复** ✅：① tagLabel 锚点从 `anchors.fill` 修正为 `anchors.verticalCenter + anchors.left/right`，确保 elide 正确触发；② 新增 tagLabel ToolTip（hover 时显示完整标签，仅当长度>20字符）；③ 新增节点间箭头（`→` 字符，非末节点显示，颜色 glassBorder）；④ 节点标签新增 `elide + width + horizontalAlignment` 三件套防止溢出；⑤ 新增底部摘要栏（32px 高，分隔线 + 左侧摘要文本"已完成 X/Y 个节点" + 右侧进度百分比），`_doneCount`/`_totalNodes`/`_summaryText` 三个计算属性；⑥ 标题文本新增 `elide`；⑦ import QtQuick.Controls 导入
+- **T3 WorkspaceView.qml 修复** ✅：① 项目路径卡片从 `bodyText` 改为自定义 ColumnLayout + Text（`wrapMode: Text.WrapAnywhere + selectable: true + maximumLineCount: 3 + elide: Text.ElideRight`），支持换行/选择/复制；② 资产汇总卡片布局重构：从单行 RowLayout（状态+Badge+刷新按钮挤在一起）拆分为两行 ColumnLayout（第一行状态+Badge + 第二行刷新按钮）+ 分隔线 + 资产详情 + 空状态提示 + 问题列表，间距从 `spacingSm` 升级为 `spacingMd`，刷新按钮宽度 80→120 + 文本"刷新"→"刷新资产数据"
+
+## 6. Implementation Log
+> **§6 早期实施记录（V0.5.3 及之前，2026-06-19~2026-07-03 共 80+ 条）已归档到 [archive_V0.6.0.md](00_项目管理/05_PM_SESSION归档/PM_SESSION_SW-2026-008_archive_V0.6.0.md) §6 Implementation Log 早期归档**。
+> 归档范围：V0.5.3/V0.5.2/V0.5.1/V0.5.0/V2.3 Week1-4/V0.4.2/V0.4.1/V0.4.0/V0.3.0 全部里程碑/V2.0/V0.2.x 时代实施记录。
+> 用户硬约束：记录全部都要，迭代走过的路是教训也是经验。
+
+### 2026-07-09 CHG-SCPT-2026-109 §8 条目级归档（第 40 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建** ✅：CHG-SCPT-2026-109 通过 CLI `auto-pm change create` 创建（SCPT+OPT+MODULE，12 章节完整），背景为"PM_SESSION §8 归档时 Edit 工具无法处理超长 skill_handoff 单行"，必要性为"改造 pm-session archive 命令支持 §8 条目级归档"
+- **T1 `archive_section_8()` 实现** ✅：pm_session_service.py 新增 `archive_section_8()` 方法（约 150 行）实现 §8 Handoff Notes 条目级归档（区别于 `archive_section()` 的行级归档）。条目识别规则：`- current_state` → 保留；`- skill_handoff` → 可归档；`>` → 归档说明保留；空行 → 跟随相邻条目。§8 倒序结构（最新在上）特殊处理：按出现顺序前 keep_entries 条 skill_handoff 保留，其余归档。新增 4 个常量（SECTION8_CURRENT_STATE_PREFIX / SECTION8_SKILL_HANDOFF_PREFIX / SECTION8_ARCHIVE_NOTE_PREFIX / ARCHIVE_FILE_MAX_SIZE_KB）+ `from datetime import date` 导入
+- **T2 CLI 路由** ✅：cli/session.py `cmd_archive` 函数对 `section_number == "8"` 路由到 `archive_section_8`，预览输出适配（"归档模式: 条目级（§8 倒序结构，CHG-109）" + "保留最新: N 条 skill_handoff"），help 文本和 docstring 同步更新（添加 §8 示例和说明）
+- **T3 归档文件版本切分** ✅：新增 `_resolve_archive_file()` 方法检查归档文件大小，超 200KB 自动创建带日期后缀的新文件（`{stem}_auto_{YYYYMMDD}.md`），同日文件已存在则加序号，防止单文件过大无法 Read
+- **T4 测试覆盖** ✅：tests/core/test_pm_session_service.py 末尾追加 `SAMPLE_PM_SESSION_WITH_HANDOFFS` fixture + `TestArchiveSection8` 类（8 测试：保留最新 N 条 / current_state 始终保留 / 归档说明保留 / keep_entries >= 总数不归档 / 追加到归档文件 / §8 不存在抛 ValueError / 主文件不存在抛 FileNotFoundError / create_backup 创建备份）+ `TestResolveArchiveFile` 类（3 测试：未超阈值返回原路径 / 文件不存在返回原路径 / 超阈值返回新带日期路径）。11 测试全部通过
+- **T5 全量门禁 + PM_SESSION 回写 + CHG-109 闭环** ✅：① ruff check 0 errors；② mypy 0 errors in 127 source files；③ pytest tests/change+core+application+cli 651 passed 1 skipped；④ pytest tests/qml+spec 267 passed 1 skipped；⑤ pytest tests/test_pm_session_size.py 9 passed；⑥ dry-run 功能验证正确输出"归档模式: 条目级（§8 倒序结构，CHG-109）"；⑦ §5 change_log 追加 CHG-109 摘要 + §6 新增 CHG-109 实施记录 + §8 current_state 更新 + skill_handoff_20260709_chg109 + §9 CHG-109 done_when 标记 ✅ 已完成；⑧ CHG-109 §9 实施记录 + §10.1 验证项 + §10.3 验证结论 + 状态流转 closed
+
+### 2026-07-10 CHG-SCPT-2026-111 GUI 显示自适应修复（第 42 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建** ✅：CHG-SCPT-2026-111 通过 CLI `auto-pm change create` 创建（SCPT+DEF+MODULE，12 章节完整），背景为"平台驾驶舱和项目工作区6个GUI显示问题"，必要性为"彻底修复而非临时打补丁：字号自适应、Tooltip兜底、布局重构"
+- **T1 KpiCard.qml 字号自适应** ✅：新增 `_adaptiveFontSize` 计算属性（≤3字符 24px / ≤6字符 20px / ≤12字符 16px / >12字符 14px），value 文本新增 `elide: Text.ElideRight` + `Layout.fillWidth: true`，title 文本新增 `elide`，subtitle 文本新增 `elide`。新增 2 个 ToolTip（value hover ToolTip 当长度>12字符时显示完整文本 + subtitle hover ToolTip 当长度>30字符时显示完整文本），import QtQuick.Controls 导入
+- **T2 DashboardStateMachine.qml 修复** ✅：① tagLabel 锚点从 `anchors.fill` 修正为 `anchors.verticalCenter + anchors.left/right`，确保 elide 正确触发；② 新增 tagLabel ToolTip（hover 时显示完整标签，仅当长度>20字符）；③ 新增节点间箭头（`→` 字符，非末节点显示，颜色 glassBorder）；④ 节点标签新增 `elide + width + horizontalAlignment` 三件套防止溢出；⑤ 新增底部摘要栏（32px 高，分隔线 + 左侧摘要文本"已完成 X/Y 个节点" + 右侧进度百分比），`_doneCount`/`_totalNodes`/`_summaryText` 三个计算属性；⑥ 标题文本新增 `elide`；⑦ import QtQuick.Controls 导入
+- **T3 WorkspaceView.qml 修复** ✅：① 项目路径卡片从 `bodyText` 改为自定义 ColumnLayout + Text（`wrapMode: Text.WrapAnywhere + selectable: true + maximumLineCount: 3 + elide: Text.ElideRight`），支持换行/选择/复制；② 资产汇总卡片布局重构：从单行 RowLayout（状态+Badge+刷新按钮挤在一起）拆分为两行 ColumnLayout（第一行状态+Badge + 第二行刷新按钮）+ 分隔线 + 资产详情 + 空状态提示 + 问题列表，间距从 `spacingSm` 升级为 `spacingMd`，刷新按钮宽度 80→120 + 文本"刷新"→"刷新资产数据"
+
+## 6. Implementation Log
+- **T3 全量门禁 + PM_SESSION 回写 + CHG-113 闭环** ✅：① QML 139 passed + spec 137 passed 1 skipped + PM_SESSION size 9 passed；② mypy 0新增；③ ruff 0新增；④ §6 新增 CHG-113 实施记录 + §8 current_state 更新 + §9 CHG-113 done_when
+
+### 2026-07-10 CHG-SCPT-2026-113 修复 GUI 新建项目无法创建（第 44 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建** ✅：CLI `auto-pm change create` 创建 CHG-SCPT-2026-113（SCPT+DEF+MODULE）
+- **T1 模板路径修复** ✅：factories.py make_template_service: templates_dir 从 `Path(workspace_root)/"templates"` 改为 `Path(__file__).parent.parent/"templates"`（auto_pm 包内）
+- **T2 QML 返回值检查** ✅：NewProjectWizard.qml 新增 `_createError` 属性 + 检查 `createProject` 返回值，失败时显示红色错误消息不关闭
+- **T3 全量门禁 + dogfooding 闭环** ✅：QML 139+spec 137+PM_SESSION size 9 passed；ruff 0新增；mypy 0新增；ledger reconcile --fix 同步台帐
+
+### 2026-07-10 CHG-SCPT-2026-112 项目编号自动生成（第 43 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建** ✅：CLI `auto-pm change create` 创建 CHG-SCPT-2026-112（SCPT+REQ+MODULE，12 章节完整）
+- **T1 后端 generate_project_code** ✅：project_service.py 新增方法扫描同业务线同年份取最大序号+1（格式 {BL}-{YYYY}-{NNN}）；protocols.py 补充协议声明
+- **T2 Facade+Bridge** ✅：workbench_facade.py 新增 generate_project_code；workbench_bridge.py 新增 generateProjectCode Slot
+- **T3 GUI NewProjectWizard.qml** ✅：业务线 ComboBox textRole:"label" 显示中文描述；项目 ID 改为 readOnly 自动生成；打开/切换业务线触发 generateProjectId()
+- **T4 CLI --auto-id** ✅：--id 改为可选；新增 --auto-id 互斥标志；自动生成后打印绿色提示
+- **T5 全量门禁 + PM_SESSION 回写 + 状态流转 closed** ✅：mypy 协议修复；QML 237+spec 128+PM_SESSION size 9 passed；§6 归档 283 行；ledger reconcile --fix 同步台账
+
+### 2026-07-10 CHG-SCPT-2026-111 GUI 显示自适应修复（第 42 次 dogfooding 闭环 closed）
+
+### 2026-07-09 CHG-SCPT-2026-108 台账一致性治本（第 39 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建 + 状态流转** ✅：CHG-SCPT-2026-108 创建（12 章节完整，SCPT+DEF+MODULE+SYSTEM，合并原 108/109/110 三个 CHG），状态流转 draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed
+- **T1 缺陷2修复 + 常量提取** ✅：ledger_updater.py update_status() 新增 applicant/apply_date 参数 + 找不到行时自愈补建（不再静默 warning）；constants.py 新增 LEDGER_STATUS_MAP 公开常量（消除 change_service.py 重复定义）；change_service.py transition_status 调用 update_status 传入 applicant/apply_date
+- **T2 缺陷1修复** ✅：新建 ledger_reconciler.py（LedgerReconciler + ReconcileDiff，reconcile 只读扫描 + auto_fix 补建缺失行/修复状态不一致）+ cli/ledger.py（reconcile 子命令 + rich Table 输出三类差异）+ cli/__main__.py 注册 ledger_group
+- **T3 缺陷3修复 + CHG-104 状态修复** ✅：change_service.py create_change_request 新增 retrofit 参数（直接 closed + 台账✅已关闭）；cli/change.py cmd_create 新增 --retrofit + 新增 cmd_verify --ledger-check 对账门禁（无差异 exit 0，有差异 exit 2）；CHG-104 §3.4 状态字段 implementing→closed
+- **T4 测试覆盖 + 全量门禁 6 项** ✅：新建 test_ledger_reconciler.py（13 测试）+ 更新 test_ledger_updater.py（自愈补建测试）+ test_change_service.py retrofit 测试 = 38 passed；ruff 0 + mypy 0 + tests/change+cli 206 + tests/qml 139 + tests/spec 128+1skip + PM_SESSION size 9
+- **T5 UnicodeEncodeError 修复 + PM_SESSION 回写 + CHG-108 §9/§10 填写 + 状态流转 closed** ✅：auto_pm/__main__.py 新增 _fix_windows_encoding() 调用（python -m auto_pm 模式下修复 GBK 控制台编码，rich 打印 emoji 不再崩溃）；ledger reconcile SW-2026-008 验证台账状态同步（CHG-108 台账✅已关闭，仅剩 CHG-001 历史遗留差异）；§5 change_log 治标条目标记治本已闭环 + §6 新增 CHG-108 实施记录 + §8 current_state 更新 + skill_handoff_20260709_chg108 + §9 CHG-108 done_when 标记 ✅ 已完成；CHG-108 §9 实施记录 9 行 + §10.1 验证项 11 项全部 ☑通过 + §10.3 验证结论"全部通过" + 状态流转 closed
+
+### 2026-07-09 CHG-SCPT-2026-107 V1.0.0 收尾落地（第 38 次 dogfooding 闭环 closed）
+
+- **T0 变更单创建 + 状态流转**：CHG-SCPT-2026-107 创建（12 章节完整，SCPT+OPT+SYSTEM），状态流转 draft→submitted→under_review→approved→implementing
+- **T1 LoadingOverlay.qml 新建** ✅：异步操作加载指示组件（对齐 V7 .loading-overlay L744-772），深色半透明遮罩 Qt.rgba(0.02,0.06,0.09,0.7) + Canvas 绘制环形 spinner（primary 色前景弧 #6366f1 + 淡色背景环 rgba(99,102,241,0.2)）+ RotationAnimation 1s linear infinite 旋转 + Behavior on opacity NumberAnimation 200ms OutQuad 过渡 + active/message/spinnerSize 3 属性
+- **T2 FutureCapability.qml 新建** ✅：未实现功能灰化占位组件（对齐 V7 .future-capability L774-793 + L1145-1152），Canvas 绘制 dashed 虚线圆角边框 setLineDash([4,4]) + 旋转 45deg 黄色角标"🚀 M4 迭代解锁"（Theme.warning #f59e0b）+ 锁图标 32px rgba(255,255,255,0.2) + 标题 + 描述 + 禁用按钮（opacity:0.5）+ title/description/buttonText/badgeText/iconText 5 属性
+- **T3 视图集成 + 版本号三件套升级** ✅：① PlatformDashboardView.qml 新增 `_loading` 属性 + loadData() 控制（`_loading = true` → 加载数据 → `_loading = false`）+ LoadingOverlay 组件实例（`anchors.fill: parent` + `active: root._loading` + `message: "加载驾驶舱数据..."`）；② WorkspaceView.qml 文档 Tab + 变量表 Tab 占位从纯文本升级为 FutureCapability 组件（文档 Tab 用 📄 图标 + "文档树与 Markdown 渲染" 标题；变量表 Tab 用 🔒 图标 + "详细变量表映射编辑" 标题，对齐 V7 L1145-1152）；③ 版本号三件套升级：pyproject.toml `0.9.2`→`1.0.0` + CHANGELOG.md 新增 [1.0.0] 章节（Added/Changed/Verified/Notes 4 段）+ 006_技术债评估报告.md frontmatter `V0.9.2`→`V1.0.0` + main.qml 4 处版本号 `V0.9.3`→`V1.0.0`（L1 注释 + L43 title + L133 侧边栏 + L655 状态栏注释 + L699 状态栏文本）+ scripts/gui_smoke_test.py `V0.9.3`→`V1.0.0`
+- **T4 全量门禁 6 项 + GUI 冒烟 + V1.0.0 发布评估** ✅：① ruff check auto_pm/ 0 errors；② mypy auto_pm/ 0 errors in 125 source files；③ pytest tests/change/ tests/core/ tests/application/ --no-cov 510 passed in 8.21s；④ pytest tests/qml/ --no-cov 139 passed in 1.97s；⑤ pytest tests/spec/ --no-cov 128 passed 1 skipped in 2.09s；⑥ pytest tests/test_pm_session_size.py --no-cov 9 passed in 0.13s；⑦ GUI 冒烟 LoadingOverlay.qml + FutureCapability.qml 组件加载 2/2 OK（root=QObject）；⑧ V1.0.0 发布评估通过——HTML 原型 V7 四阶段全部落地（CHG-102~107 闭环）+ 版本号三件套一致（pyproject 1.0.0 == CHANGELOG [1.0.0] == 006 V1.0.0 == main.qml V1.0.0 == gui_smoke_test.py V1.0.0）
+- **T5 PM_SESSION §6/§8/§9 回写 + CHG-107 §9/§10 填写 + 状态流转 closed** ✅：§6 新增 CHG-107 实施记录 + §8 current_state 更新到 V1.0.0 + skill_handoff_20260709_chg107 + §9 CHG-4 done_when 标记 ✅ 已完成 + CHG-107 §9 T0-T5 实施记录 + §10.1 V1-V8 全部 ☑ 通过 + §10.3 验证结论"全部通过,可关闭" + 状态流转 implementing→pending_acceptance→accepting→completed→closed
+
+### 2026-07-10 CLI vs GUI 功能覆盖差异分析（pm-workflow 只读分析，无代码变更）
+
+- **目的**：识别 CLI 已支持但 GUI 尚未支持的功能，为 M4/M5 GUI 补全排优先级
+- **方法**：逐文件读取 CLI 11 个命令组（project/change/ledger/spec/pm-session/doc/template/vartable/plc/python/gui）共 40+ 子命令 + GUI 5 个 Bridge（Workbench/Change/Delivery/System/Spec）共 30+ Slot，逐一对比
+- **结论**：
+  - **已完整落地 15 项**：project list/create/show/import、change list/show/edit、spec check/overview/list、template list、pm-session check/view、doc refresh、delivery reports
+  - **Bridge 已暴露但 QML 未接入 6 项（TODO M5）**：change create/transition/timeline/validation、template apply、delivery asset refresh/summary
+
+## 6. Implementation Log
+
+### 2026-07-10 M4 项目管理补齐启动（CHG-SCPT-2026-115，第 46 次 dogfooding，状态 draft）
+
+- **T0: M4 剩余项核实** ✅：Grep 核实 change_bridge.py（transitionChange/getChangeTimeline/getChangeValidationSummary 3 个 Slot 已存在）+ ChangeDetailPanel.qml（状态流转按钮 L58-73 + 时间线 L75-84 + §10 验证项 L220 已存在）→ 变更管理 3 项已在 CHG-103 落地，M4 实际剩余 3 项：project edit/delete + template apply
+- **T1: CHG-115 创建** ✅：通过 CLI `auto-pm change create` 创建（SCPT+OPT+MODULE+SYSTEM），PM_SESSION §2/§5/§8 同步
+- **T2: 切换到 fullstack-engineer** 🔄：实施 project edit Bridge Slot + QML 对话框、project delete Bridge Slot + QML 确认对话框、template apply QML 对话框
+
+### 2026-07-10 M4 第1项 NewChangeDialog 重构+集成闭环（CHG-SCPT-2026-114，第 45 次 dogfooding）
+
+- **T0: NewChangeDialog.qml 重构** ✅：下拉框中文化（domain 显示 "PLC (PLC程序)" 等 7 项，nature 显示 "REQ (需求变更)" 等 5 项）；新增 impact_scope 五选多 CheckBox（LOCAL/MODULE/SYSTEM/CROSS/SAFE），带中文标签和审批要求描述；projectId 改为外部属性；新增 open()/close()/resetForm() 方法；移除废弃 changeType 属性；创建按钮调用 changeBridge.createChange(cmd) 传递完整参数（project_id/title/domain/nature/applicant/background/necessity/impact_scope）
+
+## 6. Implementation Log
+- **T1: main.qml 集成** ✅：ChangeCenterView.onRequestNewChange → 设置 projectId + 调用 newChangeDialog.open()；新增 NewChangeDialog 实例（id: newChangeDialog, z:999），onChangeCreated 刷新 changeBridge 和 changeCenterView
+- **T2: 测试更新** ✅：test_qml_dialogs_w3.py 移除废弃 changeType 断言；新增 projectId/domain/nature 默认值断言；新增 set_fields 测试；19 个 QML 对话框测试全部通过
+- **T3: 全量门禁** ✅：ruff 自动修复 16 W293（test_workbench_facade.py）；mypy 2 预存 unreachable（project_list_model.py，非本次变更）；pytest 全量 1304 passed/2 skipped；PM_SESSION 283 行
+- **T4: CHG-114 闭环** ✅：§5/§6/§9/§10/§11 全部填写；状态 draft→closed；PM_SESSION §2/§6/§8/§9 回写
+
+### 2026-07-10 M4 项目管理补齐 3 项闭环（CHG-SCPT-2026-115，第 46 次 dogfooding 闭环 closed）
+
+- **T0: 变更单创建** ✅：通过 CLI `auto-pm change create` 创建 CHG-SCPT-2026-115（SCPT+OPT+MODULE+SYSTEM，12 章节完整）
+- **T1: 后端 Facade** ✅：`workbench_facade.py` 新增 `edit_project()`（调用 `ProjectService.update_project_meta` + `sync_to_cache`）和 `delete_project()`（`shutil.rmtree` + `audit_log` 审计记录），约 50 行
+- **T2: Bridge Slot** ✅：`workbench_bridge.py` 新增 `editProject(project_id, fields)` 和 `deleteProject(project_id)` Slot，约 30 行
+- **T3: QML 对话框** ✅：新建 `ProjectEditDialog.qml`（阶段/描述/版本/业务线 4 字段编辑）、`DeleteConfirmDialog.qml`（输入项目名二次确认）、`TemplateApplyDialog.qml`（模板列表选择），约 200 行

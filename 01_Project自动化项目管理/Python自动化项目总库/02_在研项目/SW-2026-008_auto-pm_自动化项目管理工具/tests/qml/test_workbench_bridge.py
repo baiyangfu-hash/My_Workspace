@@ -10,7 +10,7 @@ from auto_pm.ui.contracts.dto.workbench_dto import (
     DashboardSnapshotDTO,
     ProjectCardDTO,
 )
-from auto_pm.ui.contracts.result import QueryResult
+from auto_pm.ui.contracts.result import CommandResult, QueryResult
 from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
 
 
@@ -122,3 +122,149 @@ def test_workbench_bridge_active_change_status(qapp):
     assert result["state_machine"]["current_node"] == 2
     assert result["state_machine"]["progress"] == 50
     assert len(result["state_machine"]["nodes"]) == 4
+
+
+def test_workbench_bridge_detect_project(qapp):
+    """Bridge.detectProject() 通过 Facade.detect_project 检测项目"""
+    mock_facade = MagicMock()
+    mock_facade.detect_project.return_value = CommandResult(
+        success=True,
+        message="",
+        payload={"project_id": "SW-2026-008", "name": "auto-pm", "stack": "python"},
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.detectProject("/tmp/SW-2026-008")
+
+    assert result["success"] is True
+    assert result["project_id"] == "SW-2026-008"
+    assert result["name"] == "auto-pm"
+    assert result["stack"] == "python"
+
+
+def test_workbench_bridge_detect_project_not_found(qapp):
+    """Bridge.detectProject() 路径无效时返回失败"""
+    mock_facade = MagicMock()
+    mock_facade.detect_project.return_value = CommandResult(
+        success=False,
+        message="无法在此路径下识别到有效的项目元数据文件",
+        payload=None,
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.detectProject("/tmp/not_a_project")
+
+    assert result["success"] is False
+    assert "无法" in result["message"]
+
+
+def test_workbench_bridge_detect_project_no_facade(qapp):
+    """facade=None 时 detectProject 降级返回失败"""
+    bridge = WorkbenchBridge(facade=None)
+    result = bridge.detectProject("/tmp/any")
+
+    assert result["success"] is False
+    assert result["message"] == "服务未启用"
+
+
+def test_workbench_bridge_detect_project_error(qapp):
+    """Bridge.detectProject() Facade 返回错误时降级返回失败"""
+    mock_facade = MagicMock()
+    mock_facade.detect_project.return_value = CommandResult(
+        success=False,
+        message="Scanner error",
+        payload=None,
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.detectProject("/tmp/error_path")
+
+    assert result["success"] is False
+    assert "Scanner error" in result["message"]
+
+
+# ── editProject / deleteProject 测试（M4 CHG-115 新增） ──
+
+
+def test_workbench_bridge_edit_project_success(qapp):
+    """Bridge.editProject() 成功编辑项目元数据"""
+    mock_facade = MagicMock()
+    mock_facade.edit_project.return_value = CommandResult(
+        success=True,
+        message="项目元数据已更新: SW-2026-001",
+        payload={"project_id": "SW-2026-001", "fields": {"phase": "production"}},
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.editProject("SW-2026-001", {"phase": "production"})
+
+    assert result["success"] is True
+    assert "已更新" in result["message"]
+    mock_facade.edit_project.assert_called_once_with("SW-2026-001", phase="production")
+
+
+def test_workbench_bridge_edit_project_not_found(qapp):
+    """Bridge.editProject() 项目不存在时返回失败"""
+    mock_facade = MagicMock()
+    mock_facade.edit_project.return_value = CommandResult(
+        success=False,
+        message="项目不存在: NOT-EXIST",
+        payload=None,
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.editProject("NOT-EXIST", {"phase": "developing"})
+
+    assert result["success"] is False
+    assert "项目不存在" in result["message"]
+
+
+def test_workbench_bridge_edit_project_no_facade(qapp):
+    """facade=None 时 editProject 降级返回未初始化"""
+    bridge = WorkbenchBridge(facade=None)
+    result = bridge.editProject("SW-2026-001", {"phase": "developing"})
+
+    assert result["success"] is False
+    assert result["message"] == "未初始化"
+
+
+def test_workbench_bridge_delete_project_success(qapp):
+    """Bridge.deleteProject() 成功删除项目"""
+    mock_facade = MagicMock()
+    mock_facade.delete_project.return_value = CommandResult(
+        success=True,
+        message="项目已删除: SW-2026-001",
+        payload={"project_id": "SW-2026-001", "name": "Test Project"},
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.deleteProject("SW-2026-001")
+
+    assert result["success"] is True
+    assert "已删除" in result["message"]
+    mock_facade.delete_project.assert_called_once_with("SW-2026-001")
+
+
+def test_workbench_bridge_delete_project_not_found(qapp):
+    """Bridge.deleteProject() 项目不存在时返回失败"""
+    mock_facade = MagicMock()
+    mock_facade.delete_project.return_value = CommandResult(
+        success=False,
+        message="项目不存在: NOT-EXIST",
+        payload=None,
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.deleteProject("NOT-EXIST")
+
+    assert result["success"] is False
+    assert "项目不存在" in result["message"]
+
+
+def test_workbench_bridge_delete_project_no_facade(qapp):
+    """facade=None 时 deleteProject 降级返回未初始化"""
+    bridge = WorkbenchBridge(facade=None)
+    result = bridge.deleteProject("SW-2026-001")
+
+    assert result["success"] is False
+    assert result["message"] == "未初始化"

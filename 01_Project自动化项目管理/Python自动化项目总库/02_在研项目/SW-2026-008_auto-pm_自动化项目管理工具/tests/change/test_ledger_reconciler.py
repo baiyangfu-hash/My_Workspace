@@ -13,7 +13,6 @@ from pathlib import Path
 
 from auto_pm.change.ledger_reconciler import LedgerReconciler, ReconcileDiff
 
-
 # 最小化有效 CHG-*.md 文件模板（含 §3/§4 章节，ChgParser 可解析）
 _CHG_TEMPLATE = """# 变更单
 

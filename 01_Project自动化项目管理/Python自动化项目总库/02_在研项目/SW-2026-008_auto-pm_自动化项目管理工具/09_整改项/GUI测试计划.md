@@ -1,9 +1,9 @@
 ---
 title: auto-pm GUI 测试计划
-version: V0.9.1
-date: 2026-07-08
+version: V0.9.2
+date: 2026-07-10
 scope: QML 页面全量测试矩阵
-baseline: pyproject=0.9.1 / 1115 passed / QML 唯一 UI 入口
+baseline: pyproject=0.9.1 / 1115 passed / QML 143 passed（V0.9.2 新增 4 个 detectProject 测试）
 ---
 
 # auto-pm GUI 测试计划
@@ -106,7 +106,7 @@ offscreen 模式存在以下缺陷，会掩盖真实问题：
 | 主题单例 | 1 | `auto_pm/ui/qml/theme/Theme.qml` | `test_qml_components.py::test_theme_singleton_loadable`（间接） |
 | 基础组件 | 5 | `components/Card.qml` / `Badge.qml` / `TabBar.qml` / `PrimaryButton.qml` / `Dialog.qml` | `test_qml_components.py`（11 用例） |
 | W3 复杂组件 | 4 | `components/ApprovalTimeline.qml` / `PropagationView.qml` / `StatusMachineView.qml` / `PhaseProgress.qml` | `test_qml_components_w3.py`（14 用例） |
-| W3 对话框 | 8 | `dialogs/NewProjectWizard.qml` / `NewChangeDialog.qml` / `ProjectSettingsDialog.qml` / `SyncCacheDialog.qml` / `ImportProjectDialog.qml` / `AboutDialog.qml` / `ReportDialog.qml` / `GlobalSettingsDialog.qml` | `test_qml_dialogs_w3.py`（17 用例） |
+| W3 对话框 | 8 | `dialogs/NewProjectWizard.qml` / `NewChangeDialog.qml`（V0.9.2 已对齐后端 BUSINESS_NATURES）/ `ProjectSettingsDialog.qml` / `SyncCacheDialog.qml` / `ImportProjectDialog.qml` / `AboutDialog.qml` / `ReportDialog.qml` / `GlobalSettingsDialog.qml` | `test_qml_dialogs_w3.py`（17 用例） |
 | 主入口 | 1 | `auto_pm/ui/qml/main.qml` | 暂无（待 L4 端到端覆盖） |
 
 ### 3.3 Bridge → Facade → Service 装配链

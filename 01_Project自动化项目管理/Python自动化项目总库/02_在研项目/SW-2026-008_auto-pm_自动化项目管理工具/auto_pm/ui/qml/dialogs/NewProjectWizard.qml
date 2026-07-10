@@ -1,11 +1,16 @@
-// NewProjectWizard.qml - 新建项目向导（V0.6.0 W3-S10）
+// NewProjectWizard.qml - 新建项目向导（V0.6.0 W3-S10 / CHG-112 编号自动生成）
 //
 // 3 步分步向导：
-// 1. 基本信息（项目 ID + 名称 + 技术栈 + 业务线）
+// 1. 基本信息（项目 ID 自动生成 + 名称 + 技术栈 + 业务线）
 // 2. 模式选择（标准单机/多项目共用 + PLC/Python 选项）
 // 3. 确认创建（预览配置 + 调用 workbenchBridge.createProject）
 //
 // 通过 context property 访问：workbenchBridge（WorkbenchBridge）
+//
+// CHG-112 变更：
+//   - 业务线 ComboBox 显示中文描述（SW 软件开发 等）
+//   - 项目 ID 自动生成（{业务线}-{年份}-{序号:03d}）
+//   - 切换业务线时自动重新生成编号
 
 import QtQuick
 import QtQuick.Controls
@@ -27,9 +32,20 @@ Item {
     property string stack: "python"
     property string businessLine: "SW"
 
-    // 步骤 2 数据
+    // 步骤 3 数据
     property string mode: "standard"
     property bool createPlcStructure: true
+    // 创建错误消息（步骤 3 失败时显示）
+    property string _createError: ""
+
+    // ── 业务线模型（code + label）──────
+    readonly property var _businessLineModel: [
+        { code: "SW", label: "SW 软件开发" },
+        { code: "DJ", label: "DJ 单机设备" },
+        { code: "ZD", label: "ZD 自动化整线" },
+        { code: "XT", label: "XT 系统升级" },
+        { code: "WX", label: "WX 维保项目" }
+    ]
 
     // ── 信号 ────────────────────────────────────────────
     signal projectCreated(string projectId, string projectName)
@@ -37,6 +53,26 @@ Item {
 
     visible: _isOpen
     anchors.fill: parent
+
+    // ── 打开时自动生成编号 ────────────────────────────────
+    on_IsOpenChanged: {
+        if (_isOpen) {
+            root.currentStep = 0
+            root.projectName = ""
+            root.generateProjectId()
+        }
+    }
+
+    // ── 自动生成项目编号 ────────────────────────────────
+    function generateProjectId() {
+        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+            var code = workbenchBridge.generateProjectCode(root.businessLine)
+            if (code !== "") {
+                root.projectId = code
+                console.log("[QML] 自动生成项目编号: " + code)
+            }
+        }
+    }
 
     // ── 遮罩层 ──────────────────────────────────────────
     Rectangle {
@@ -128,16 +164,22 @@ Item {
                         color: Theme.textPrimary
                     }
 
-                    // 项目 ID
+                    // 项目 ID（自动生成，只读）
                     RowLayout {
                         Layout.fillWidth: true
                         Text { text: "项目 ID"; width: 100; color: Theme.textSecondary }
                         TextField {
                             id: idInput
                             Layout.fillWidth: true
-                            placeholderText: "如 SW-2026-008 / DJ-2026-005"
                             text: root.projectId
-                            onTextChanged: root.projectId = text
+                            readOnly: true
+                            color: Theme.textSecondary
+                            ToolTip {
+                                visible: idHover.hovered
+                                text: "自动生成，格式：{业务线}-{年份}-{序号}"
+                                delay: 300
+                            }
+                            HoverHandler { id: idHover }
                         }
                     }
 
@@ -165,14 +207,20 @@ Item {
                         }
                     }
 
-                    // 业务线
+                    // 业务线（中文描述，切换时自动生成编号）
                     RowLayout {
                         Layout.fillWidth: true
                         Text { text: "业务线"; width: 100; color: Theme.textSecondary }
                         ComboBox {
-                            model: ["SW", "DJ", "ZD", "XT", "WX"]
+                            id: businessLineCombo
+                            textRole: "label"
+                            valueRole: "code"
+                            model: root._businessLineModel
                             currentIndex: 0
-                            onActivated: root.businessLine = currentText
+                            onActivated: {
+                                root.businessLine = currentValue
+                                root.generateProjectId()
+                            }
                         }
                     }
                 }
@@ -258,6 +306,17 @@ Item {
                             }
                         }
                     }
+
+                    // 错误提示（创建失败时显示）
+                    Text {
+                        text: root._createError
+                        color: Theme.error
+                        font.pixelSize: Theme.fontSizeSm
+                        font.bold: true
+                        visible: root._createError !== ""
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
                 }
             }
 
@@ -296,21 +355,28 @@ Item {
                         text: root.currentStep === 0 ? "下一步 →" : (root.currentStep === 1 ? "下一步 →" : "完成")
                         type: "primary"
                         Layout.preferredWidth: 100
-                        enabled: root.currentStep !== 0 || (root.projectId !== "" && root.projectName !== "")
+                        enabled: root.currentStep !== 0 || (root.projectName !== "" && root.projectId !== "")
                         onClicked: {
                             if (root.currentStep < root.totalSteps - 1) {
                                 root.currentStep += 1
                             } else {
                                 // 调用 workbenchBridge 创建项目
+                                root._createError = ""
                                 if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
-                                    workbenchBridge.createProject(
+                                    var result = workbenchBridge.createProject(
                                         root.projectId, root.projectName,
                                         root.stack, root.mode, root.businessLine
                                     )
+                                    if (result && result.success) {
+                                        root.projectCreated(root.projectId, root.projectName)
+                                        root._isOpen = false
+                                        root.currentStep = 0
+                                    } else {
+                                        root._createError = result ? (result.message || "创建失败") : "创建失败"
+                                    }
+                                } else {
+                                    root._createError = "Bridge 未初始化"
                                 }
-                                root.projectCreated(root.projectId, root.projectName)
-                                root._isOpen = false
-                                root.currentStep = 0
                             }
                         }
                     }

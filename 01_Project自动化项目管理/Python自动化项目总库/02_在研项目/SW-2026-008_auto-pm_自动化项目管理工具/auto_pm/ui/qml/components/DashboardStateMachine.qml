@@ -1,8 +1,14 @@
-// DashboardStateMachine.qml - 平台驾驶舱 4 节点状态机（CHG-106 T4）
+// DashboardStateMachine.qml - 平台驾驶舱 4 节点状态机（CHG-106 T4 / CHG-111 修复）
 //
 // 对齐 V7 原型 .state-machine（012_UI架构原型_V7.html L1038-1059）
 // 4 节点：Draft → Review → Implementing → Closed
 // 含进度条 + 当前节点脉冲动画
+//
+// CHG-111 修复：
+//   - tagLabel 锚点修复 + ToolTip 兜底
+//   - 节点间箭头连接线
+//   - 底部摘要栏（进度百分比 + 完成状态）
+//   - 节点 hover ToolTip
 //
 // 用法：
 //   DashboardStateMachine {
@@ -12,6 +18,7 @@
 //   }
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import "../theme"
 
@@ -29,6 +36,24 @@ GlassPanel {
     })
 
     implicitHeight: 200
+
+    // ── 计算属性 ────────────────────────────────────────
+    readonly property int _doneCount: {
+        var count = 0
+        var nodes = root.stateMachine.nodes || []
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].status === "done") count++
+        }
+        return count
+    }
+
+    readonly property int _totalNodes: (root.stateMachine.nodes || []).length
+
+    readonly property string _summaryText: {
+        if (root._totalNodes === 0) return "暂无状态数据"
+        if (root._doneCount === root._totalNodes) return "全部 " + root._totalNodes + " 个节点已完成"
+        return "已完成 " + root._doneCount + " / " + root._totalNodes + " 个节点"
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -61,6 +86,7 @@ GlassPanel {
                     font.pixelSize: Theme.fontSizeLg
                     font.bold: true
                     Layout.fillWidth: true
+                    elide: Text.ElideRight
                 }
 
                 // 标签胶囊
@@ -74,15 +100,25 @@ GlassPanel {
 
                     Text {
                         id: tagLabel
-                        anchors.fill: parent
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.right: parent.right
                         anchors.leftMargin: 8
                         anchors.rightMargin: 8
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
                         text: root.tagText
                         color: "white"
                         font.pixelSize: Theme.fontSizeSm
                         elide: Text.ElideRight
+                    }
+
+                    HoverHandler {
+                        id: tagHover
+                    }
+
+                    ToolTip {
+                        visible: tagHover.hovered && root.tagText.length > 20
+                        text: root.tagText
+                        delay: 500
                     }
                 }
             }
@@ -133,6 +169,17 @@ GlassPanel {
                         width: parent.width / 4
                         height: parent.height
 
+                        // 节点间箭头（非末节点时显示）
+                        Text {
+                            visible: index < root._totalNodes - 1
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: parent.width * 0.65
+                            text: "→"
+                            color: Theme.glassBorder
+                            font.pixelSize: Theme.fontSizeLg
+                        }
+
                         // 节点圆圈
                         Rectangle {
                             id: circle
@@ -173,8 +220,49 @@ GlassPanel {
                                    modelData.status === "done" ? Theme.textSecondary : Theme.textMuted
                             font.pixelSize: Theme.fontSizeSm
                             font.bold: modelData.status === "active"
+                            elide: Text.ElideRight
+                            width: parent.width - Theme.spacingXs
+                            horizontalAlignment: Text.AlignHCenter
                         }
                     }
+                }
+            }
+        }
+
+        // ── 底部摘要栏 ────────────────────────────────────
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 32
+            color: "transparent"
+
+            // 顶部分隔线
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: Theme.glassBorder
+            }
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: Theme.spacingLg
+                anchors.rightMargin: Theme.spacingLg
+                spacing: Theme.spacingSm
+
+                Text {
+                    text: root._summaryText
+                    color: root._doneCount === root._totalNodes && root._totalNodes > 0 ?
+                           Theme.success : Theme.textSecondary
+                    font.pixelSize: Theme.fontSizeSm
+                    Layout.fillWidth: true
+                }
+
+                Text {
+                    text: root.stateMachine.progress + "%"
+                    color: Theme.textMuted
+                    font.pixelSize: Theme.fontSizeSm
+                    visible: root._totalNodes > 0
                 }
             }
         }

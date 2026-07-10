@@ -63,7 +63,7 @@ def make_template_service(workspace_root: str) -> Any | None:
     try:
         from auto_pm.core.template_service import TemplateService
 
-        templates_dir = Path(workspace_root) / "templates"
+        templates_dir = Path(__file__).parent.parent / "templates"
         if not templates_dir.is_dir():
             return None
         return TemplateService(templates_dir=str(templates_dir))

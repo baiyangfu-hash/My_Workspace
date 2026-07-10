@@ -82,6 +82,10 @@ class ProjectServiceProtocol(Protocol):
         """返回带变更数统计的项目列表"""
         ...
 
+    def generate_project_code(self, business_line: str) -> str:
+        """自动生成项目编号：{业务线}-{年份}-{序号:03d}"""
+        ...
+
     def sync_to_cache(self, force_full: bool = False) -> dict[str, Any]:
         """同步文件系统项目到 DB 缓存"""
         ...

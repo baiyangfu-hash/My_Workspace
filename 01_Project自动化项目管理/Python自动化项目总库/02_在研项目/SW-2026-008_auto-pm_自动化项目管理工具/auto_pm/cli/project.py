@@ -191,7 +191,8 @@ def cmd_list(
 
 @project_group.command(name="create")
 @click.option("--stack", type=click.Choice(["plc", "python"]), required=True, help="技术栈")
-@click.option("--id", "project_id", required=True, help="项目编号（如 DJ-2026-010）")
+@click.option("--id", "project_id", required=False, default=None, help="项目编号（如 DJ-2026-010），与 --auto-id 互斥")
+@click.option("--auto-id", is_flag=True, default=False, help="自动生成项目编号（{业务线}-{年份}-{序号:03d}），与 --id 互斥")
 @click.option("--name", "project_name", required=True, help="项目名称")
 @click.option("--desc", "description", default="", help="项目描述")
 @click.option(
@@ -237,7 +238,8 @@ def cmd_list(
 def cmd_create(
     ctx: click.Context,
     stack: str,
-    project_id: str,
+    project_id: str | None,
+    auto_id: bool,
     project_name: str,
     description: str,
     business_line: str | None,
@@ -251,6 +253,29 @@ def cmd_create(
 ) -> None:
     """创建新项目（调用 Copier 模板生成骨架）"""
     app_ctx: AppContext = ctx.obj
+
+    # 互斥校验：--id 和 --auto-id 不能同时使用
+    if project_id and auto_id:
+        console.print("[red]错误: --id 和 --auto-id 不能同时使用[/red]")
+        ctx.exit(1)
+
+    # 自动生成项目编号
+    if auto_id:
+        bl = business_line or "SW"
+        try:
+            from auto_pm.core.project_service import ProjectService
+
+            svc = ProjectService(app_ctx.workspace_root)
+            project_id = svc.generate_project_code(bl)
+            console.print(f"[green]自动生成项目编号: {project_id}[/green]")
+        except Exception as e:
+            console.print(f"[red]错误: 自动生成项目编号失败: {e}[/red]")
+            ctx.exit(1)
+
+    # 必填校验：必须提供 --id 或 --auto-id
+    if not project_id:
+        console.print("[red]错误: 必须提供 --id 或 --auto-id[/red]")
+        ctx.exit(1)
 
     # 业务线推断：未指定时从项目编号前缀提取
     if business_line is None:

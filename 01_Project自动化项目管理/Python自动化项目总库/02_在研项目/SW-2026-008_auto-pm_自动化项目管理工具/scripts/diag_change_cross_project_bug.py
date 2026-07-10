@@ -267,9 +267,9 @@ def main() -> None:
             if cr.project_id != "SW-2026-008":
                 print(f"  ❌ BUG 确认：find_change_file 返回的是 {cr.project_id} 的变更单（状态: {cr.status}）")
                 print(f"  ❌ 用户想流转 SW-2026-008 的 draft 变更单，但实际拿到的是 {cr.project_id} 的 {cr.status} 变更单")
-                print(f"  ❌ 若执行 transition_status('CHG-DOCU-2026-001', 'submitted') 会报 'closed → submitted 不合法'")
+                print("  ❌ 若执行 transition_status('CHG-DOCU-2026-001', 'submitted') 会报 'closed → submitted 不合法'")
             else:
-                print(f"  ✅ 返回的是 SW-2026-008 的变更单（这次没踩到 bug）")
+                print("  ✅ 返回的是 SW-2026-008 的变更单（这次没踩到 bug）")
 
         # 3. 测试 get_project_path 是否能正确定位项目
         print()

@@ -386,6 +386,7 @@ class WorkbenchFacade:
                 return CommandResult(success=False, message="TemplateService 未注入", payload=None)
 
             import os
+
             from auto_pm.core.constants import get_template_name, get_workspace_subdir
 
             subdir = get_workspace_subdir(stack) or ""
@@ -448,6 +449,43 @@ class WorkbenchFacade:
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)
 
+    def generate_project_code(self, business_line: str) -> CommandResult[str]:
+        """自动生成项目编号"""
+        try:
+            code = self._project_service.generate_project_code(business_line)
+            return CommandResult(success=True, message="", payload=code)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def detect_project(self, path: str) -> CommandResult[dict[str, Any] | None]:
+        """检测指定路径是否为有效项目目录
+
+        调用 ProjectScanner.try_identify_project 识别项目元数据，
+        供 Bridge 层 detectProject 使用，避免 Bridge 层直接访问私有属性。
+        """
+        try:
+            from auto_pm.core.project_scanner import ProjectScanner
+
+            scanner = ProjectScanner(self._project_service.workspace_root)
+            proj = scanner.try_identify_project(path)
+            if proj:
+                return CommandResult(
+                    success=True,
+                    message="",
+                    payload={
+                        "project_id": proj.project_id,
+                        "name": proj.name,
+                        "stack": str(proj.stack),
+                    },
+                )
+            return CommandResult(
+                success=False,
+                message="无法在此路径下识别到有效的项目元数据文件",
+                payload=None,
+            )
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
     def import_project(self, src_path: str) -> CommandResult[dict[str, Any] | None]:
         """QML GUI: 导入外部项目目录"""
         try:
@@ -458,13 +496,68 @@ class WorkbenchFacade:
             # 解析 project_id
             from auto_pm.core.project_scanner import ProjectScanner
             scanner = ProjectScanner(self._project_service.workspace_root)
-            proj_info = scanner.scan_single_project(dest_path)
+            proj_info = scanner.try_identify_project(dest_path)
             project_id = proj_info.project_id if proj_info else os.path.basename(dest_path)
 
             return CommandResult(
                 success=True,
                 message=f"项目导入成功: {project_id}",
                 payload={"project_id": project_id, "path": dest_path},
+            )
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def edit_project(self, project_id: str, **kwargs: str) -> CommandResult[dict[str, Any] | None]:
+        """编辑项目元数据（M4 CHG-115 新增）
+
+        调用 ProjectService.update_project_meta 更新项目字段，
+        支持 phase/description/version/business_line 等字段。
+        """
+        try:
+            updated = self._project_service.update_project_meta(project_id, **kwargs)
+            self._project_service.sync_to_cache(force_full=True)
+            summary = updated.model_dump() if hasattr(updated, "model_dump") else {}
+            return CommandResult(
+                success=True,
+                message=f"项目元数据已更新: {project_id}",
+                payload={"project_id": project_id, "fields": kwargs, "summary": summary},
+            )
+        except FileNotFoundError:
+            return CommandResult(success=False, message=f"项目不存在: {project_id}", payload=None)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def delete_project(self, project_id: str) -> CommandResult[dict[str, Any] | None]:
+        """删除项目（M4 CHG-115 新增，破坏性操作）
+
+        删除项目目录并记录审计日志。
+        """
+        try:
+            import shutil
+
+            proj = self._project_service.get_project(project_id)
+            if proj is None:
+                return CommandResult(success=False, message=f"项目不存在: {project_id}", payload=None)
+
+            proj_path = proj.path
+            proj_name = proj.name
+
+            shutil.rmtree(proj_path)
+
+            from auto_pm.logging.audit import audit_log
+            audit_log(
+                "project_delete",
+                project_id=project_id,
+                project_name=proj_name,
+                path=proj_path,
+            )
+
+            self._project_service.sync_to_cache(force_full=True)
+
+            return CommandResult(
+                success=True,
+                message=f"项目已删除: {project_id}",
+                payload={"project_id": project_id, "name": proj_name},
             )
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)

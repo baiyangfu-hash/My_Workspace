@@ -371,6 +371,7 @@ def main() -> int:
 
     from auto_pm.change.change_service import ChangeService
     from auto_pm.core.project_service import ProjectService
+    from auto_pm.db.connection import DatabaseManager
     from auto_pm.ui.factories import (
         make_asset_summary_service,
         make_dashboard_service,
@@ -388,7 +389,6 @@ def main() -> int:
     from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
     from auto_pm.ui.qml.models.project_list_model import ProjectListModel
     from auto_pm.ui.registry import FacadeRegistry
-    from auto_pm.db.connection import DatabaseManager
     db = DatabaseManager(workspace_root)
 
     project_service = ProjectService(workspace_root=workspace_root, db=db)

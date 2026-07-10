@@ -2,18 +2,27 @@
 
 > **项目**: SW-2026-008 auto-pm 自动化项目管理工具
 > **维护规则**: 历史整改文件归档到 `archive/` 子目录；当前活跃整改文件保留在根目录
-> **最近整理**: 2026-07-08（V0.9.1 实测诊断 + 测试计划 + 归档整理）
+> **最近整理**: 2026-07-10（V0.9.2 深度审查 + 6 项修复 + 归档整理）
 
-## 当前活跃文件（3 个 + README）
+## 当前活跃文件（4 个 + README）
 
 | 文件 | 用途 | 状态 |
 |------|------|------|
-| [diagnostic_report.md](diagnostic_report.md) | 2026-07-08 V0.9.1 实测诊断报告（对 Claude-result 12 项残留问题逐项 Grep/Read/mypy 实证，8 存在 + 4 失真） | ✅ 当前真源 |
+| [V0.9.2_深度审查整改方案.md](V0.9.2_深度审查整改方案.md) | 2026-07-10 深度审查整改方案（3 Bug + 4 改进建议 + 修复实施记录） | ✅ 当前真源 |
+| [diagnostic_report.md](diagnostic_report.md) | 2026-07-08 V0.9.1 实测诊断报告（对 Claude-result 12 项残留问题逐项 Grep/Read/mypy 实证，8 存在 + 4 失真） | ✅ 历史参考 |
 | [CLI测试计划.md](CLI测试计划.md) | V0.9.1 CLI 测试计划（10 子命令组矩阵 + 153 用例 + 执行命令） | ✅ 当前真源 |
 | [GUI测试计划.md](GUI测试计划.md) | V0.9.1 GUI 测试计划（8 QML 页面矩阵 + 6 状态覆盖 + 可见模式约束 + 89 用例） | ✅ 当前真源 |
 | [README.md](README.md) | 09_整改项索引（本文件） | ✅ 当前真源 |
 
 ## 归档文件（archive/）
+
+### 2026-07-10 归档（3 个）
+
+| 文件 | 原活跃期 | 归档原因 |
+|------|----------|----------|
+| [archive/ARCHITECTURE_ANALYSIS.md](archive/ARCHITECTURE_ANALYSIS.md) | 2026-07-08 | 被 V0.9.2 深度审查报告替代 |
+| [archive/HTML_PROTOTYPE_V7_ANALYSIS.md](archive/HTML_PROTOTYPE_V7_ANALYSIS.md) | 2026-07-08 | 被 V0.9.2 深度审查报告替代 |
+| [archive/TECH_IMPLEMENTATION_GUIDE.md](archive/TECH_IMPLEMENTATION_GUIDE.md) | 2026-07-08 | 被 V0.9.2 深度审查报告替代 |
 
 ### 2026-07-08 归档（6 个）
 
@@ -77,6 +86,12 @@
 3. **索引维护**：每次归档操作后更新本 README 索引
 4. **历史追溯**：归档文件不删除，保留完整历史链路
 5. **命名规范**：归档文件保留原名，不追加版本号后缀（例外：`diagnostic_report_2026-07-06_V0.9.0.md` 因同名文件需区分，添加日期前缀；`Claude-result_V0.9.1_原始报告.md` 同理添加版本前缀）
+
+## 2026-07-10 整理关键发现摘要
+
+**V0.9.2 深度审查**：对 auto-pm 全项目逐行审查（Bridge 6 文件 + QML 40 文件 + 后端核心模块 + 测试抽样），发现 **3 个 Bug + 4 个改进建议**。最严重 Bug 为 `scan_single_project` 方法不存在（workbench_bridge.py + workbench_facade.py 两处调用），导致运行时 AttributeError。已全部修复，门禁全绿：ruff 0 + mypy 0 + QML 143 passed（含 4 个新增测试）。详见 [V0.9.2_深度审查整改方案.md](V0.9.2_深度审查整改方案.md)。
+
+**本次归档动作**：将已被替代的 ARCHITECTURE_ANALYSIS.md、HTML_PROTOTYPE_V7_ANALYSIS.md、TECH_IMPLEMENTATION_GUIDE.md 共 3 个文件归档到 `archive/`。
 
 ## 2026-07-08 整理关键发现摘要
 

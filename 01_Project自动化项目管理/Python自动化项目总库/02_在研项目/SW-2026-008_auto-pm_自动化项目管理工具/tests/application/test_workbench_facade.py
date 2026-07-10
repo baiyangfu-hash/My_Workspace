@@ -488,3 +488,119 @@ def test_rebuild_index_success():
     assert result.payload.projects_found == 3
     assert result.payload.changes_found == 2
     assert "发现 3 个项目" in result.payload.message
+
+
+# ── edit_project / delete_project 测试（M4 CHG-115 新增） ──
+
+
+def test_edit_project_success():
+    """验证编辑项目元数据成功"""
+    mock_project = MagicMock()
+    mock_project.model_dump.return_value = {"project_id": "SW-2026-001", "phase": "production"}
+
+    mock_project_service = MagicMock()
+    mock_project_service.update_project_meta.return_value = mock_project
+
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    result = facade.edit_project("SW-2026-001", phase="production", description="已上线")
+
+    assert result.success is True
+    assert "已更新" in result.message
+    assert result.payload["project_id"] == "SW-2026-001"
+    mock_project_service.update_project_meta.assert_called_once_with(
+        "SW-2026-001", phase="production", description="已上线"
+    )
+
+
+def test_edit_project_not_found():
+    """验证编辑不存在的项目返回失败"""
+    mock_project_service = MagicMock()
+    mock_project_service.update_project_meta.side_effect = FileNotFoundError("项目不存在")
+
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    result = facade.edit_project("NOT-EXIST", phase="developing")
+
+    assert result.success is False
+    assert "项目不存在" in result.message
+
+
+def test_edit_project_exception():
+    """验证编辑时异常降级返回失败"""
+    mock_project_service = MagicMock()
+    mock_project_service.update_project_meta.side_effect = Exception("IO Error")
+
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    result = facade.edit_project("SW-2026-001", phase="developing")
+
+    assert result.success is False
+    assert "IO Error" in result.message
+
+
+def test_delete_project_success():
+    """验证删除项目成功"""
+    import shutil as _shutil
+    from unittest.mock import patch
+
+    mock_project = MagicMock()
+    mock_project.path = "/tmp/test_project"
+    mock_project.name = "Test Project"
+
+    mock_project_service = MagicMock()
+    mock_project_service.get_project.return_value = mock_project
+
+    with patch.object(_shutil, "rmtree"), patch("auto_pm.logging.audit.audit_log"):
+        facade = WorkbenchFacade(
+            dashboard_service=MagicMock(),
+            project_service=mock_project_service,
+        )
+
+        result = facade.delete_project("SW-2026-001")
+
+    assert result.success is True
+    assert "已删除" in result.message
+    assert result.payload["project_id"] == "SW-2026-001"
+    mock_project_service.sync_to_cache.assert_called_once_with(force_full=True)
+
+
+def test_delete_project_not_found():
+    """验证删除不存在的项目返回失败"""
+    mock_project_service = MagicMock()
+    mock_project_service.get_project.return_value = None
+
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    result = facade.delete_project("NOT-EXIST")
+
+    assert result.success is False
+    assert "项目不存在" in result.message
+
+
+def test_delete_project_exception():
+    """验证删除时异常降级返回失败"""
+    mock_project_service = MagicMock()
+    mock_project_service.get_project.side_effect = Exception("Permission Denied")
+
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    result = facade.delete_project("SW-2026-001")
+
+    assert result.success is False
+    assert "Permission Denied" in result.message

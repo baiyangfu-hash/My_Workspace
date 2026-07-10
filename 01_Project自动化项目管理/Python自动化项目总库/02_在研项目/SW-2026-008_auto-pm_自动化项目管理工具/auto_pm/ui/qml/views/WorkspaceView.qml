@@ -30,6 +30,9 @@ Rectangle {
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
+    signal requestEditProject()
+    signal requestDeleteProject()
+    signal requestApplyTemplate()
 
     // ── 加载项目数据 ────────────────────────────────────
     function setProject(projectId, projectName) {
@@ -192,6 +195,28 @@ Rectangle {
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
+
+            // M4 CHG-115: 项目管理操作按钮
+            PrimaryButton {
+                text: "编辑"
+                type: "ghost"
+                Layout.preferredWidth: 60
+                onClicked: root.requestEditProject()
+            }
+
+            PrimaryButton {
+                text: "模板"
+                type: "ghost"
+                Layout.preferredWidth: 60
+                onClicked: root.requestApplyTemplate()
+            }
+
+            PrimaryButton {
+                text: "删除"
+                type: "danger"
+                Layout.preferredWidth: 60
+                onClicked: root.requestDeleteProject()
+            }
         }
     }
 
@@ -269,15 +294,32 @@ Rectangle {
                         bodyText: root.currentProjectDetail.description || "暂无描述"
                     }
 
-                    // 路径
+                    // 路径（CHG-111：自定义内容区，支持换行+选择+复制）
                     Card {
                         Layout.columnSpan: 3
                         Layout.fillWidth: true
                         title: "项目路径"
-                        bodyText: root.currentProjectDetail.path || ""
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            height: implicitHeight
+                            spacing: Theme.spacingSm
+
+                            TextEdit {
+                                Layout.fillWidth: true
+                                text: root.currentProjectDetail.path || ""
+                                color: Theme.textPrimary
+                                font.pixelSize: Theme.fontSizeSm
+                                wrapMode: TextEdit.WrapAnywhere
+                                readOnly: true
+                                selectByMouse: true
+                                activeFocusOnPress: true
+                                persistentSelection: true
+                            }
+                        }
                     }
 
-                    // 资产汇总（仅 PLC 项目显示，M5 接入）
+                    // 资产汇总（仅 PLC 项目显示，M5 接入 / CHG-111 布局重构）
                     Card {
                         Layout.columnSpan: 3
                         Layout.fillWidth: true
@@ -287,8 +329,9 @@ Rectangle {
                         ColumnLayout {
                             Layout.fillWidth: true
                             height: implicitHeight
-                            spacing: Theme.spacingSm
+                            spacing: Theme.spacingMd
 
+                            // 第一行：状态标签 + 问题数 Badge
                             RowLayout {
                                 Layout.fillWidth: true
                                 spacing: Theme.spacingSm
@@ -311,7 +354,6 @@ Rectangle {
 
                                 Badge {
                                     text: {
-                                        var s = root.assetSummary.status || ""
                                         return root.assetSummary.total_issues || 0
                                     }
                                     type: {
@@ -322,26 +364,37 @@ Rectangle {
                                         return "default"
                                     }
                                 }
+                            }
 
-                                PrimaryButton {
-                                    text: "刷新"
-                                    type: "primary"
-                                    Layout.preferredWidth: 80
-                                    enabled: typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService
-                                    onClicked: {
-                                        var res = deliveryBridge.refreshAssetSummary(root.currentProjectId)
-                                        if (res && res.result) {
-                                            root.assetSummary = res.result
-                                            console.log("[QML] 资产汇总刷新完成")
-                                        } else if (res && res.message) {
-                                            console.warn("[QML] 资产汇总刷新失败: " + res.message)
-                                        }
+                            // 第二行：刷新按钮
+                            PrimaryButton {
+                                text: "刷新资产数据"
+                                type: "primary"
+                                Layout.preferredWidth: 120
+                                enabled: typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService
+                                onClicked: {
+                                    var res = deliveryBridge.refreshAssetSummary(root.currentProjectId)
+                                    if (res && res.result) {
+                                        root.assetSummary = res.result
+                                        console.log("[QML] 资产汇总刷新完成")
+                                    } else if (res && res.message) {
+                                        console.warn("[QML] 资产汇总刷新失败: " + res.message)
                                     }
                                 }
                             }
 
+                            // 分隔线
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 1
+                                color: Theme.glassBorder
+                                visible: root.assetSummary && Object.keys(root.assetSummary).length > 0
+                            }
+
+                            // 资产详情
                             Text {
                                 Layout.fillWidth: true
+                                visible: root.assetSummary && Object.keys(root.assetSummary).length > 0
                                 text: {
                                     var a = root.assetSummary
                                     if (!a || Object.keys(a).length === 0) {
@@ -358,6 +411,15 @@ Rectangle {
                                 font.pixelSize: Theme.fontSizeSm
                                 color: Theme.textPrimary
                                 wrapMode: Text.WordWrap
+                            }
+
+                            // 空状态提示
+                            Text {
+                                Layout.fillWidth: true
+                                visible: !root.assetSummary || Object.keys(root.assetSummary).length === 0
+                                text: "点击刷新加载资产数据"
+                                font.pixelSize: Theme.fontSizeSm
+                                color: Theme.textMuted
                             }
 
                             // 问题列表（若有）

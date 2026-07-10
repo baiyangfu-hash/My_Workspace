@@ -112,6 +112,15 @@ class WorkbenchBridge(QObject):
             return {"success": res.success, "message": res.message}
         return {"success": False, "message": "未初始化"}
 
+    @Slot(str, result=str)
+    def generateProjectCode(self, business_line: str) -> str:
+        """自动生成项目编号"""
+        if self._facade and hasattr(self._facade, "generate_project_code"):
+            res = self._facade.generate_project_code(business_line)
+            if res.success and res.payload:
+                return res.payload
+        return ""
+
     @Slot(str, str, str, str, str, result="QVariant")
     def createProject(self, project_id: str, project_name: str, stack: str, mode: str, business_line: str) -> dict[str, Any]:
         if self._facade and hasattr(self._facade, "create_project"):
@@ -134,21 +143,46 @@ class WorkbenchBridge(QObject):
 
     @Slot(str, result="QVariant")
     def detectProject(self, path: str) -> dict[str, Any]:
-        if self._facade and hasattr(self._facade, "_project_service"):
-            try:
-                import os
-                from auto_pm.core.project_scanner import ProjectScanner
-                scanner = ProjectScanner(self._facade._project_service.workspace_root)
-                proj = scanner.scan_single_project(path)
-                if proj:
-                    return {
-                        "success": True,
-                        "project_id": proj.project_id,
-                        "name": proj.name,
-                        "stack": str(proj.stack),
-                    }
-                else:
-                    return {"success": False, "message": "无法在此路径下识别到有效的项目元数据文件"}
-            except Exception as e:
-                return {"success": False, "message": str(e)}
+        if self._facade and hasattr(self._facade, "detect_project"):
+            res = self._facade.detect_project(path)
+            if res.success and res.payload:
+                return {
+                    "success": True,
+                    "project_id": res.payload["project_id"],
+                    "name": res.payload["name"],
+                    "stack": res.payload["stack"],
+                }
+            return {"success": False, "message": res.message}
         return {"success": False, "message": "服务未启用"}
+
+    @Slot(str, "QVariant", result="QVariant")
+    def editProject(self, project_id: str, fields: dict[str, Any]) -> dict[str, Any]:
+        """编辑项目元数据（M4 CHG-115 新增）
+
+        Args:
+            project_id: 项目编号
+            fields: 待更新字段 dict（如 {"phase": "developing", "description": "..."}）
+        """
+        if self._facade and hasattr(self._facade, "edit_project"):
+            kwargs = {k: str(v) for k, v in fields.items() if v}
+            res = self._facade.edit_project(project_id, **kwargs)
+            if res.success:
+                self.refreshProjects()
+                return {"success": True, "message": res.message}
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result="QVariant")
+    def deleteProject(self, project_id: str) -> dict[str, Any]:
+        """删除项目（M4 CHG-115 新增，破坏性操作）
+
+        Args:
+            project_id: 项目编号
+        """
+        if self._facade and hasattr(self._facade, "delete_project"):
+            res = self._facade.delete_project(project_id)
+            if res.success:
+                self.refreshProjects()
+                return {"success": True, "message": res.message}
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化"}

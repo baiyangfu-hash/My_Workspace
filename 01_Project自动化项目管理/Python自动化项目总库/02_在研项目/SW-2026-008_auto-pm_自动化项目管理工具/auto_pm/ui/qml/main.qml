@@ -770,12 +770,33 @@ ApplicationWindow {
                 onBackToProjectList: {
                     mainWindow.currentPage = "projectList"
                 }
+                onRequestEditProject: {
+                    projectEditDialog.open(
+                        workspaceView.currentProjectId,
+                        workspaceView.currentProjectName,
+                        workspaceView.currentProjectDetail
+                    )
+                }
+                onRequestDeleteProject: {
+                    deleteConfirmDialog.projectId = workspaceView.currentProjectId
+                    deleteConfirmDialog.projectName = workspaceView.currentProjectName
+                    deleteConfirmDialog.open()
+                }
+                onRequestApplyTemplate: {
+                    templateApplyDialog.open(
+                        workspaceView.currentProjectId,
+                        workspaceView.currentProjectName
+                    )
+                }
             }
 
             // 2. 变更中心页
             ChangeCenterView {
                 id: changeCenterView
-                onRequestNewChange: newChangeDialog._isOpen = true
+                onRequestNewChange: {
+                    newChangeDialog.projectId = mainWindow.currentProjectId
+                    newChangeDialog.open()
+                }
                 onRequestEditChange: {
                     editChangeDialog.prefill(changeCenterView.selectedChangeDetail)
                     editChangeDialog._isOpen = true
@@ -878,6 +899,55 @@ ApplicationWindow {
                 changeCenterView.loadChangeDetail(changeNumber)
             }
         }
+    }
+
+    // M4 CHG-115: 项目管理新对话框
+    ProjectEditDialog {
+        id: projectEditDialog
+        anchors.fill: parent
+        z: 999
+        onProjectSaved: {
+            console.log("[QML main] 项目编辑成功: " + projectId)
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                workbenchBridge.refreshProjects()
+                var projects = workbenchBridge.listProjects()
+                projectModel.setProjects(projects)
+                // 刷新当前项目详情
+                workspaceView.currentProjectDetail = workbenchBridge.getProjectById(projectId)
+            }
+        }
+        onCancelled: close()
+    }
+
+    DeleteConfirmDialog {
+        id: deleteConfirmDialog
+        anchors.fill: parent
+        z: 999
+        onConfirmed: {
+            console.log("[QML main] 删除项目: " + projectId)
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                var result = workbenchBridge.deleteProject(projectId)
+                if (result && result.success) {
+                    workbenchBridge.refreshProjects()
+                    var projects = workbenchBridge.listProjects()
+                    projectModel.setProjects(projects)
+                    mainWindow.currentPage = "projectList"
+                } else {
+                    console.warn("[QML main] 删除失败: " + (result ? result.message : ""))
+                }
+            }
+        }
+        onCancelled: close()
+    }
+
+    TemplateApplyDialog {
+        id: templateApplyDialog
+        anchors.fill: parent
+        z: 999
+        onTemplateApplied: {
+            console.log("[QML main] 模板应用成功: " + projectId + " <- " + templateName)
+        }
+        onCancelled: close()
     }
 
     // ── 状态栏（24px，版本号 V1.0.0）─────────────────────
