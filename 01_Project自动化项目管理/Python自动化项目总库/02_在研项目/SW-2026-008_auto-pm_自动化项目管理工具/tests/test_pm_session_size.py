@@ -82,7 +82,8 @@ class TestPmSessionParserOnRealFile:
     """在真实 PM_SESSION 文件上测试解析器"""
 
     @pytest.fixture(scope="class")
-    def parse_result(self) -> object:
+    @classmethod
+    def parse_result(cls) -> object:
         if not PM_SESSION_FILE.exists():
             pytest.skip(f"PM_SESSION 文件不存在: {PM_SESSION_FILE}")
         parser = PmSessionParser()

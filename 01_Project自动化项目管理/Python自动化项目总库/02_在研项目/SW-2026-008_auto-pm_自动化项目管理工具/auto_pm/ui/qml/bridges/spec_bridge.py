@@ -52,3 +52,58 @@ class SpecBridge(QObject):
             if res.success and res.payload:
                 return [asdict(e) for e in res.payload]
         return []
+
+    @Slot(str, result="QVariant")
+    def generateSpecIndex(self, domain: str = "all") -> dict[str, Any]:
+        """生成规范索引（M5 CHG-119 新增）
+
+        Args:
+            domain: "all" 生成全部（pm/plc/python），或 "pm"/"plc"/"python" 指定单域
+
+        Returns:
+            索引生成结果 dict（含 domain/generated_files/errors）或
+            {"success": False, "message": ...}
+        """
+        if self._facade:
+            res = self._facade.generate_spec_index(domain)
+            if res.success and res.payload is not None:
+                return asdict(res.payload)
+            return {"success": res.success, "message": res.message}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result="QVariant")
+    def generateSpecReport(self, fmt: str = "markdown") -> dict[str, Any]:
+        """生成规范报告（M5 CHG-120 新增）
+
+        Args:
+            fmt: 报告格式，"markdown" 或 "json"
+
+        Returns:
+            报告生成结果 dict（含 fmt/output_path/content/file_size）或
+            {"success": False, "message": ...}
+        """
+        if self._facade:
+            res = self._facade.generate_spec_report(fmt)
+            if res.success and res.payload is not None:
+                return asdict(res.payload)
+            return {"success": res.success, "message": res.message}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(bool, result="QVariant")
+    def checkSpecFrontmatter(self, autoFix: bool = False) -> dict[str, Any]:
+        """检查/修复规范 Frontmatter（M5 CHG-121 新增）
+
+        Args:
+            autoFix: True 时自动添加缺失的 frontmatter
+
+        Returns:
+            检查结果 dict（含 items/total_count/pending_count/skipped_count/
+            error_count/modified_count/auto_fixed）或
+            {"success": False, "message": ...}
+        """
+        if self._facade:
+            res = self._facade.check_spec_frontmatter(auto_fix=autoFix)
+            if res.success and res.payload is not None:
+                return asdict(res.payload)
+            return {"success": res.success, "message": res.message}
+        return {"success": False, "message": "未初始化"}

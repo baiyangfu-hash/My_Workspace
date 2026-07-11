@@ -58,7 +58,7 @@ def _install_crash_handler() -> None:
     sys.excepthook = _crash_excepthook
 
 
-@click.command()
+@click.command("gui")
 @click.option("--debug", is_flag=True, help="调试模式（开启 DevTools / 控制台输出）")
 @click.pass_context
 def gui_command(ctx: click.Context, debug: bool) -> None:

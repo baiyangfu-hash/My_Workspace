@@ -1,12 +1,13 @@
 """Facade Registry 装配器"""
 
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from auto_pm.application.change_facade import ChangeFacade
 from auto_pm.application.delivery_facade import DeliveryFacade
 from auto_pm.application.spec_facade import SpecFacade
 from auto_pm.application.system_facade import SystemFacade
 from auto_pm.application.workbench_facade import WorkbenchFacade
+from auto_pm.change.ledger_reconciler import LedgerReconciler
 from auto_pm.core.protocols import (
     AssetSummaryServiceProtocol,
     ChangeServiceProtocol,
@@ -38,6 +39,9 @@ class ServiceContainer(TypedDict):
     change_service: ChangeServiceProtocol | None
     spec_check_service: SpecCheckServiceProtocol | None
     spec_center_service: SpecCenterServiceProtocol | None
+    index_service: Any | None  # M5 CHG-119: IndexService 无 Protocol，用 Any
+    spec_report_service: Any | None  # M5 CHG-120: Spec 域 ReportService 无 Protocol，用 Any
+    frontmatter_service: Any | None  # M5 CHG-121: FrontmatterService 无 Protocol，用 Any
     doc_refresh_service: DocRefreshServiceProtocol | None
     report_service: ReportServiceProtocol | None
     template_service: TemplateServiceProtocol | None
@@ -62,6 +66,9 @@ class FacadeRegistry:
         change_service = services["change_service"]
         spec_check_service = services["spec_check_service"]
         spec_center_service = services["spec_center_service"]
+        index_service = services["index_service"]
+        spec_report_service = services["spec_report_service"]
+        frontmatter_service = services["frontmatter_service"]
         doc_refresh_service = services["doc_refresh_service"]
         report_service = services["report_service"]
         pm_session_service = services["pm_session_service"]
@@ -77,11 +84,16 @@ class FacadeRegistry:
 
         self.change_facade = ChangeFacade(
             change_service=change_service,
+            project_service=project_service,  # M5 CHG-118: 台账对账需要解析 project_id → project_path
+            ledger_reconciler=LedgerReconciler(),  # M5 CHG-118: 复用 CHG-108 后端对账器
         )
 
         self.spec_facade = SpecFacade(
             spec_check_service=spec_check_service,
             spec_center_service=spec_center_service,
+            index_service=index_service,  # M5 CHG-119: 复用后端 IndexService
+            report_service=spec_report_service,  # M5 CHG-120: 复用后端 Spec 域 ReportService
+            frontmatter_service=frontmatter_service,  # M5 CHG-121: 复用后端 FrontmatterService
         )
 
         self.delivery_facade = DeliveryFacade(

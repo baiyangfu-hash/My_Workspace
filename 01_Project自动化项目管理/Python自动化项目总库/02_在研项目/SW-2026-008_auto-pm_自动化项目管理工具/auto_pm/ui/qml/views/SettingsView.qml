@@ -27,6 +27,7 @@ Rectangle {
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
+    signal requestArchivePmSession()
 
     // ── 内部状态 ────────────────────────────────────────
     property var settingsData: ({})
@@ -324,6 +325,12 @@ Rectangle {
                             text: "刷新检查"
                             enabled: systemBridge !== null && systemBridge.hasService
                             onClicked: loadData()
+                        }
+
+                        PrimaryButton {
+                            text: "📦 归档"
+                            enabled: systemBridge !== null && systemBridge.hasService
+                            onClicked: root.requestArchivePmSession()
                         }
 
                         Item { Layout.fillWidth: true }

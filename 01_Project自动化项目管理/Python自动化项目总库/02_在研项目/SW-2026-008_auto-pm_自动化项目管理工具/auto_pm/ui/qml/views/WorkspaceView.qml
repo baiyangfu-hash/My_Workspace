@@ -319,7 +319,7 @@ Rectangle {
                         }
                     }
 
-                    // 资产汇总（仅 PLC 项目显示，M5 接入 / CHG-111 布局重构）
+                    // 资产汇总（仅 PLC 项目显示，CHG-111 布局重构 + M5 CHG-116 验证已接入）
                     Card {
                         Layout.columnSpan: 3
                         Layout.fillWidth: true

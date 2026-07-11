@@ -199,3 +199,23 @@ class ChangeBridge(QObject):
             except Exception as e:
                 return {"success": False, "message": str(e)}
         return {"success": False, "message": "未初始化"}
+
+    @Slot(str, bool, result="QVariant")
+    def reconcileLedger(self, project_id: str, auto_fix: bool) -> dict[str, Any]:
+        """台账对账（M5 CHG-118 新增）
+
+        Args:
+            project_id: 项目编号
+            auto_fix: True 时自动补建缺失行 + 修复状态不一致
+
+        Returns:
+            对账结果 dict（含 is_clean/missing_in_ledger/orphan_in_ledger/
+            status_mismatches/summary/auto_fixed）或 {"success": False, "message": ...}
+        """
+        # M5 CHG-118: QML 端接入台账对账对话框
+        if self._facade:
+            res = self._facade.reconcile_ledger(project_id, auto_fix)
+            if res.success and res.payload is not None:
+                return dataclasses.asdict(res.payload)
+            return {"success": res.success, "message": res.message}
+        return {"success": False, "message": "未初始化"}

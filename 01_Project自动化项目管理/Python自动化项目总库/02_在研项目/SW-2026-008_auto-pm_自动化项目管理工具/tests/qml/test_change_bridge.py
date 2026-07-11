@@ -17,6 +17,7 @@ from auto_pm.ui.contracts.dto.change_dto import (
     ChangeSummaryDTO,
     ChangeTimelineItemDTO,
     ChangeValidationSummaryDTO,
+    LedgerReconcileResultDTO,
 )
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
 
@@ -219,6 +220,8 @@ def test_change_bridge_no_facade(qapp):
     assert bridge.transitionChange({}) == {"success": False, "message": "未初始化"}
     assert bridge.getChangeTimeline("CHG-001") == []
     assert bridge.getChangeValidationSummary("CHG-001") == {}
+    # M5 CHG-118 新增 Slot 的降级
+    assert bridge.reconcileLedger("SW-2026-008", False) == {"success": False, "message": "未初始化"}
 
 
 def test_change_bridge_create_change_failure(qapp):
@@ -232,3 +235,54 @@ def test_change_bridge_create_change_failure(qapp):
     bridge = ChangeBridge(facade=mock_facade)
     result = bridge.createChange({"project_id": "PRJ-001"})
     assert result == {"success": False, "message": "Validation failed"}
+
+
+def test_change_bridge_reconcile_ledger(qapp):
+    """reconcileLedger() 返回 dict（asdict 转换）+ project_id/autoFix 透传验证（M5 CHG-118）"""
+    from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
+
+    dto = LedgerReconcileResultDTO(
+        project_id="SW-2026-008",
+        is_clean=False,
+        missing_in_ledger=["CHG-SCPT-2026-001"],
+        orphan_in_ledger=["CHG-SCPT-2026-099"],
+        status_mismatches=[["CHG-SCPT-2026-002", "✅已关闭", "🔄待处理"]],
+        summary="台账缺失: 1 条, 台账多余(孤儿): 1 条, 状态不一致: 1 条",
+        auto_fixed=False,
+    )
+    mock_facade = MagicMock()
+    mock_facade.reconcile_ledger.return_value = CommandResult(
+        success=True, message="OK", payload=dto
+    )
+    bridge = ChangeBridge(facade=mock_facade)
+
+    result = bridge.reconcileLedger("SW-2026-008", False)
+
+    assert isinstance(result, dict)
+    assert result["project_id"] == "SW-2026-008"
+    assert result["is_clean"] is False
+    assert result["missing_in_ledger"] == ["CHG-SCPT-2026-001"]
+    assert result["orphan_in_ledger"] == ["CHG-SCPT-2026-099"]
+    assert result["status_mismatches"] == [["CHG-SCPT-2026-002", "✅已关闭", "🔄待处理"]]
+    assert "台账缺失" in result["summary"]
+    assert result["auto_fixed"] is False
+    # 透传验证
+    mock_facade.reconcile_ledger.assert_called_once_with("SW-2026-008", False)
+
+
+def test_change_bridge_reconcile_ledger_error(qapp):
+    """reconcileLedger() service 返回失败时透传 success=False + message（M5 CHG-118）"""
+    from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
+
+    mock_facade = MagicMock()
+    mock_facade.reconcile_ledger.return_value = CommandResult(
+        success=False, message="No project_service", payload=None
+    )
+    bridge = ChangeBridge(facade=mock_facade)
+
+    result = bridge.reconcileLedger("SW-2026-008", True)
+
+    assert isinstance(result, dict)
+    assert result["success"] is False
+    assert result["message"] == "No project_service"
+    mock_facade.reconcile_ledger.assert_called_once_with("SW-2026-008", True)

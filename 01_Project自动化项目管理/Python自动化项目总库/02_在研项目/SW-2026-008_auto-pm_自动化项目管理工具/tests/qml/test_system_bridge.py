@@ -6,17 +6,19 @@
 - 全部用 Mock Facade，无文件系统/DB 依赖
 - mock facade 用自定义 Mock 类（不使用 MagicMock），便于追踪调用参数
 
-覆盖 SystemBridge 的 6 个 Slot：
+覆盖 SystemBridge 的 7 个 Slot：
 - listTemplates() → list[str]
 - getTemplatePath(template_name) → str
 - getTemplateDetail(template_name) → dict（asdict 转换）
 - getPmSessionView() → dict（asdict 转换）
 - runPmSessionCheck() → dict（asdict 转换）
 - applyTemplate(project_id, template_name) → dict（asdict 转换）
+- archivePmSession(section, keepRecent, dryRun) → dict（asdict 转换，M5 CHG-117 新增）
 """
 
 from auto_pm.ui.contracts.dto.system_dto import (
     ApplyTemplateResultDTO,
+    PmSessionArchiveResultDTO,
     PmSessionCheckResultDTO,
     PmSessionViewDTO,
     TemplateDetailDTO,
@@ -35,6 +37,7 @@ class _MockSystemFacade:
         pm_session_view_result=None,
         run_pm_session_check_result=None,
         apply_template_result=None,
+        archive_pm_session_result=None,
     ) -> None:
         self._list_templates_result = list_templates_result
         self._get_template_path_result = get_template_path_result
@@ -42,9 +45,11 @@ class _MockSystemFacade:
         self._pm_session_view_result = pm_session_view_result
         self._run_pm_session_check_result = run_pm_session_check_result
         self._apply_template_result = apply_template_result
+        self._archive_pm_session_result = archive_pm_session_result
         self.get_template_path_calls: list[str] = []
         self.get_template_detail_calls: list[str] = []
         self.apply_template_calls: list[tuple[str, str]] = []
+        self.archive_pm_session_calls: list[tuple[str, int, bool]] = []
 
     def list_templates(self):
         return self._list_templates_result
@@ -66,6 +71,10 @@ class _MockSystemFacade:
     def apply_template(self, project_id, template_name):
         self.apply_template_calls.append((project_id, template_name))
         return self._apply_template_result
+
+    def archive_pm_session(self, section, keep_recent, dry_run):
+        self.archive_pm_session_calls.append((section, keep_recent, dry_run))
+        return self._archive_pm_session_result
 
 
 def test_system_bridge_list_templates(qapp):
@@ -183,8 +192,61 @@ def test_system_bridge_apply_template(qapp):
     assert mock_facade.apply_template_calls == [("PROJ-001", "python-tpl")]
 
 
+def test_system_bridge_archive_pm_session(qapp):
+    """archivePmSession() 返回 dict（asdict 转换）+ section/keepRecent/dryRun 透传验证（M5 CHG-117）"""
+    from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
+
+    dto = PmSessionArchiveResultDTO(
+        archive_file="/tmp/archive.md",
+        archived_sections=["6"],
+        archived_line_count=30,
+        main_file_lines_before=300,
+        main_file_lines_after=270,
+        is_dry_run=True,
+        section_title="Implementation Log",
+        section_total_lines=51,
+        keep_recent=20,
+    )
+    mock_facade = _MockSystemFacade(
+        archive_pm_session_result=CommandResult(success=True, message="OK", payload=dto)
+    )
+    bridge = SystemBridge(facade=mock_facade)
+
+    result = bridge.archivePmSession("6", 20, True)
+
+    assert isinstance(result, dict)
+    assert result["archive_file"] == "/tmp/archive.md"
+    assert result["archived_sections"] == ["6"]
+    assert result["archived_line_count"] == 30
+    assert result["main_file_lines_before"] == 300
+    assert result["main_file_lines_after"] == 270
+    assert result["is_dry_run"] is True
+    assert result["section_title"] == "Implementation Log"
+    assert result["section_total_lines"] == 51
+    assert result["keep_recent"] == 20
+    # 透传验证
+    assert mock_facade.archive_pm_session_calls == [("6", 20, True)]
+
+
+def test_system_bridge_archive_pm_session_error(qapp):
+    """archivePmSession() service 返回 error 时透传 success=False + message（M5 CHG-117）"""
+    from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
+
+    mock_facade = _MockSystemFacade(
+        archive_pm_session_result=CommandResult(success=False, message="章节 §99 不存在", payload=None)
+    )
+    bridge = SystemBridge(facade=mock_facade)
+
+    result = bridge.archivePmSession("99", 0, False)
+
+    assert isinstance(result, dict)
+    assert result["success"] is False
+    assert result["message"] == "章节 §99 不存在"
+    assert mock_facade.archive_pm_session_calls == [("99", 0, False)]
+
+
 def test_system_bridge_no_facade(qapp):
-    """facade=None 时 6 个 Slot 都返回降级值，不抛异常"""
+    """facade=None 时 7 个 Slot 都返回降级值，不抛异常"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
     bridge = SystemBridge(facade=None)
@@ -200,3 +262,5 @@ def test_system_bridge_no_facade(qapp):
     assert bridge.runPmSessionCheck() == {"success": False, "message": "未初始化"}
     # applyTemplate 降级为 {"success": False, "message": "未初始化"}
     assert bridge.applyTemplate("PROJ-001", "python-tpl") == {"success": False, "message": "未初始化"}
+    # archivePmSession 降级为 {"success": False, "message": "未初始化"}（M5 CHG-117）
+    assert bridge.archivePmSession("6", 20, True) == {"success": False, "message": "未初始化"}

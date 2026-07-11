@@ -4,6 +4,7 @@ M4 第 2 批重构：从"转发层"升级为"用例编排层"，6 方法返回�
 list_templates 返回 list[str]、get_template_path 返回 str，保持基础类型。
 Service bug 修复（阶段 C）：
 - Bug #6: apply_template 注入 project_service 查 ProjectInfo 后调 copy_template
+M5 CHG-117 新增：archive_pm_session 方法供 GUI 调用归档。
 """
 
 import logging
@@ -19,6 +20,7 @@ from auto_pm.core.protocols import (
 from auto_pm.models import ProjectInfo
 from auto_pm.ui.contracts.dto.system_dto import (
     ApplyTemplateResultDTO,
+    PmSessionArchiveResultDTO,
     PmSessionCheckResultDTO,
     PmSessionViewDTO,
     TemplateDetailDTO,
@@ -183,6 +185,40 @@ class SystemFacade:
                 project_id=project_id,
                 template_name=template_name,
                 result=result if isinstance(result, dict) else {"raw": result},
+            )
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def archive_pm_session(
+        self,
+        section: str,
+        keep_recent: int = 0,
+        dry_run: bool = False,
+    ) -> CommandResult[PmSessionArchiveResultDTO | None]:
+        """归档 PM_SESSION 指定章节的早期内容（M5 CHG-117 新增）
+
+        Args:
+            section: 章节号（如 "6"/"8"）
+            keep_recent: 保留最近 N 行（§8 表示保留最新 N 条 skill_handoff）
+            dry_run: 仅预览，不实际修改文件
+        """
+        try:
+            if not self._pm_session_service:
+                return CommandResult(success=False, message="No pm_session_service", payload=None)
+            result = self._pm_session_service.archive(section, keep_recent, dry_run)
+            if "error" in result:
+                return CommandResult(success=False, message=result["error"], payload=None)
+            dto = PmSessionArchiveResultDTO(
+                archive_file=result.get("archive_file", ""),
+                archived_sections=result.get("archived_sections", []),
+                archived_line_count=result.get("archived_line_count", 0),
+                main_file_lines_before=result.get("main_file_lines_before", 0),
+                main_file_lines_after=result.get("main_file_lines_after", 0),
+                is_dry_run=result.get("is_dry_run", False),
+                section_title=result.get("section_title", ""),
+                section_total_lines=result.get("section_total_lines", 0),
+                keep_recent=result.get("keep_recent", 0),
             )
             return CommandResult(success=True, message="Success", payload=dto)
         except Exception as e:

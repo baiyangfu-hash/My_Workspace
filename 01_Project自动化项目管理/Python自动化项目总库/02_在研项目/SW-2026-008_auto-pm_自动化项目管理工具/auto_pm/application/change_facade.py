@@ -2,7 +2,8 @@
 
 from typing import Any
 
-from auto_pm.core.protocols import ChangeServiceProtocol
+from auto_pm.change.ledger_reconciler import LedgerReconciler, ReconcileDiff
+from auto_pm.core.protocols import ChangeServiceProtocol, ProjectServiceProtocol
 from auto_pm.models import ChangeRequest, ChangeSummary
 from auto_pm.ui.contracts.commands.change_commands import (
     CreateChangeCommand,
@@ -13,6 +14,7 @@ from auto_pm.ui.contracts.dto.change_dto import (
     ChangeSummaryDTO,
     ChangeTimelineItemDTO,
     ChangeValidationSummaryDTO,
+    LedgerReconcileResultDTO,
 )
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
 
@@ -20,8 +22,15 @@ from auto_pm.ui.contracts.result import CommandResult, QueryResult
 class ChangeFacade:
     """提供给 UI 层的 Change 用例聚合入口"""
 
-    def __init__(self, change_service: ChangeServiceProtocol | None = None):
+    def __init__(
+        self,
+        change_service: ChangeServiceProtocol | None = None,
+        project_service: ProjectServiceProtocol | None = None,
+        ledger_reconciler: LedgerReconciler | None = None,
+    ):
         self._change_service = change_service
+        self._project_service = project_service
+        self._ledger_reconciler = ledger_reconciler
 
     @property
     def has_service(self) -> bool:
@@ -217,8 +226,52 @@ class ChangeFacade:
             )
             if cr is None:
                 return CommandResult(success=False, message=f"变更单不存在: {change_id}", payload=None)
-            
+
             dto = self._request_to_dto(cr)
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def reconcile_ledger(
+        self,
+        project_id: str,
+        auto_fix: bool = False,
+    ) -> CommandResult[LedgerReconcileResultDTO | None]:
+        """台账对账：扫描 CHG 文件 vs 版本变更台账（M5 CHG-118 新增）
+
+        Args:
+            project_id: 项目编号
+            auto_fix: True 时自动补建缺失行 + 修复状态不一致；False 时只读扫描
+
+        Returns:
+            CommandResult[LedgerReconcileResultDTO | None]
+        """
+        try:
+            if not self._project_service:
+                return CommandResult(success=False, message="No project_service", payload=None)
+            if not self._ledger_reconciler:
+                return CommandResult(success=False, message="No ledger_reconciler", payload=None)
+
+            project_path = self._project_service.find_project_path(project_id)
+            if not project_path:
+                return CommandResult(
+                    success=False, message=f"项目不存在: {project_id}", payload=None
+                )
+
+            if auto_fix:
+                diff: ReconcileDiff = self._ledger_reconciler.auto_fix(project_path)
+            else:
+                diff = self._ledger_reconciler.reconcile(project_path)
+
+            dto = LedgerReconcileResultDTO(
+                project_id=project_id,
+                is_clean=diff.is_clean,
+                missing_in_ledger=list(diff.missing_in_ledger),
+                orphan_in_ledger=list(diff.orphan_in_ledger),
+                status_mismatches=[list(m) for m in diff.status_mismatches],
+                summary=diff.summary(),
+                auto_fixed=auto_fix,
+            )
             return CommandResult(success=True, message="Success", payload=dto)
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)

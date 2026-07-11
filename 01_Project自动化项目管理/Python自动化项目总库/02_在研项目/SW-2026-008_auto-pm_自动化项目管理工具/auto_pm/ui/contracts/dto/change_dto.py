@@ -71,3 +71,21 @@ class ChangeValidationSummaryDTO:
     last_approval_date: str | None
     domain_impacts: dict[str, Any]
     related_changes: list[str]
+
+
+@dataclass(frozen=True)
+class LedgerReconcileResultDTO:
+    """台账对账结果（对应 reconcile_ledger 返回，M5 CHG-118 新增）
+
+    封装 LedgerReconciler.ReconcileDiff 为 QML 友好的 DTO：
+    - status_mismatches 从 list[tuple[str,str,str]] 转为 list[list[str]]（QML 不支持 tuple）
+    - auto_fixed 标识是只读对账(False)还是已自动修复(True)
+    """
+
+    project_id: str
+    is_clean: bool
+    missing_in_ledger: list[str]
+    orphan_in_ledger: list[str]
+    status_mismatches: list[list[str]]
+    summary: str
+    auto_fixed: bool

@@ -1,7 +1,7 @@
 """Delivery Bridge (QML)
 
 M4 第 2 批重构：5 个 Slot 改用 dataclasses.asdict() 转换 DTO 为 dict 给 QML。
-新增 2 个 Slot：refreshAssetSummary / getAssetSummary（QML 端尚未接入，TODO M5）。
+M5 CHG-116：refreshAssetSummary / getAssetSummary Slot 已接入 WorkspaceView.qml 资产汇总 Card。
 """
 from dataclasses import asdict
 from typing import Any
@@ -64,7 +64,7 @@ class DeliveryBridge(QObject):
 
     @Slot(str, result="QVariant")
     def refreshAssetSummary(self, project_id: str) -> dict[str, Any]:
-        # TODO M5: QML 端接入资产刷新按钮
+        # M5 CHG-116: 已接入 WorkspaceView.qml 资产汇总 Card 刷新按钮
         if self._facade:
             res = self._facade.refresh_asset_summary(project_id)
             if res.success and res.payload:
@@ -74,7 +74,7 @@ class DeliveryBridge(QObject):
 
     @Slot(str, result="QVariant")
     def getAssetSummary(self, project_id: str) -> dict[str, Any]:
-        # TODO M5: QML 端接入资产汇总展示
+        # M5 CHG-116: 已接入 WorkspaceView.qml 资产汇总 Card 展示
         if self._facade:
             res = self._facade.get_asset_summary(project_id)
             if res.success and res.payload:

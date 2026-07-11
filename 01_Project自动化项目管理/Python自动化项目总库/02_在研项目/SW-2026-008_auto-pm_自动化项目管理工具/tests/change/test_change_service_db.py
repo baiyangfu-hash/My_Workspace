@@ -203,8 +203,8 @@ class TestChangeServiceDBIntegration:
         svc, db = svc_with_db
 
         repo = ChangeRequestRepository(db)
-        from auto_pm.models import ProjectRecord, ChangeSummary
         from auto_pm.db.repository import ProjectRepository
+        from auto_pm.models import ChangeSummary, ProjectRecord
         # 插入项目记录以满足外键约束
         ProjectRepository(db).upsert(
             ProjectRecord(

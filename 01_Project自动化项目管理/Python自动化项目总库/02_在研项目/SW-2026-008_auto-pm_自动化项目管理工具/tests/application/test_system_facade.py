@@ -1,10 +1,11 @@
 """SystemFacade 单元测试
 
-覆盖 SystemFacade 的 6 个方法：
+覆盖 SystemFacade 的 7 个方法：
 - get_pm_session_view / run_pm_session_check
 - list_templates / get_template_path
 - get_template_detail（含 copier.yml 解析 + stack 推断 + usage_count 统计）
 - apply_template
+- archive_pm_session（M5 CHG-117 新增）
 
 M4 第 2 批重构后：方法返回带类型 DTO（list_templates/get_template_path 除外，保持基础类型）。
 """
@@ -15,6 +16,7 @@ from typing import Any
 from auto_pm.application.system_facade import SystemFacade
 from auto_pm.ui.contracts.dto.system_dto import (
     ApplyTemplateResultDTO,
+    PmSessionArchiveResultDTO,
     PmSessionCheckResultDTO,
     PmSessionViewDTO,
     TemplateDetailDTO,
@@ -37,6 +39,17 @@ def _make_pm_service(**overrides: Any) -> SimpleNamespace:
     return SimpleNamespace(
         generate_view=overrides.get("generate_view", lambda: {"status": "ok"}),
         check=overrides.get("check", lambda: {"errors": 0, "warnings": 2}),
+        archive=overrides.get("archive", lambda section, keep_recent, dry_run: {
+            "archive_file": "/tmp/archive.md",
+            "archived_sections": [section],
+            "archived_line_count": 10,
+            "main_file_lines_before": 300,
+            "main_file_lines_after": 290,
+            "is_dry_run": dry_run,
+            "section_title": "Implementation Log",
+            "section_total_lines": 50,
+            "keep_recent": keep_recent,
+        }),
     )
 
 
@@ -379,3 +392,65 @@ def test_apply_template_exception():
     assert res.success is False
     assert res.payload is None
     assert "apply boom" in res.message
+
+
+# ── archive_pm_session 测试（M5 CHG-117 新增）──────────────
+
+
+def test_archive_pm_session_success():
+    """正常调用返回 PmSessionArchiveResultDTO 且字段正确"""
+    svc = _make_pm_service()
+    facade = SystemFacade(pm_session_service=svc)
+
+    res = facade.archive_pm_session("6", 20, True)
+
+    assert res.success is True
+    assert isinstance(res.payload, PmSessionArchiveResultDTO)
+    assert res.payload.archive_file == "/tmp/archive.md"
+    assert res.payload.archived_sections == ["6"]
+    assert res.payload.archived_line_count == 10
+    assert res.payload.main_file_lines_before == 300
+    assert res.payload.main_file_lines_after == 290
+    assert res.payload.is_dry_run is True
+    assert res.payload.section_title == "Implementation Log"
+    assert res.payload.section_total_lines == 50
+    assert res.payload.keep_recent == 20
+
+
+def test_archive_pm_session_no_service():
+    """pm_session_service=None 时返回 success=False + payload=None"""
+    facade = SystemFacade(pm_session_service=None)
+
+    res = facade.archive_pm_session("6", 20, False)
+
+    assert res.success is False
+    assert res.payload is None
+    assert "No pm_session_service" in res.message
+
+
+def test_archive_pm_session_error_response():
+    """service.archive() 返回 error 字段时返回 success=False"""
+    svc = _make_pm_service(archive=lambda section, keep_recent, dry_run: {"error": f"章节 §{section} 不存在"})
+    facade = SystemFacade(pm_session_service=svc)
+
+    res = facade.archive_pm_session("99", 0, True)
+
+    assert res.success is False
+    assert res.payload is None
+    assert "章节 §99 不存在" in res.message
+
+
+def test_archive_pm_session_exception():
+    """service.archive() 抛异常时返回 success=False + payload=None"""
+    svc = SimpleNamespace(
+        generate_view=lambda: {},
+        check=lambda: {},
+        archive=_raise(Exception("archive boom")),
+    )
+    facade = SystemFacade(pm_session_service=svc)
+
+    res = facade.archive_pm_session("6", 20, False)
+
+    assert res.success is False
+    assert res.payload is None
+    assert "archive boom" in res.message

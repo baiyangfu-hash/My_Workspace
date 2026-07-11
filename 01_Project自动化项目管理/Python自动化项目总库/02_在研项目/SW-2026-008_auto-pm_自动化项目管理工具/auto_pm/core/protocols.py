@@ -273,6 +273,7 @@ class PmSessionServiceProtocol(Protocol):
     """PM_SESSION 服务接口契约（M4-2 T8 新增）
 
     提供 generate_view()/check() 供 SystemFacade 调用。
+    M5 CHG-117 新增 archive() 供 SystemFacade 调用。
     """
 
     def generate_view(self) -> dict[str, Any]:
@@ -281,6 +282,16 @@ class PmSessionServiceProtocol(Protocol):
 
     def check(self) -> dict[str, Any]:
         """执行 PM_SESSION 健康检查"""
+        ...
+
+    def archive(self, section: str, keep_recent: int, dry_run: bool) -> dict[str, Any]:
+        """归档指定章节的早期内容
+
+        Args:
+            section: 章节号（如 "6"/"8"）
+            keep_recent: 保留最近 N 行（§8 表示保留最新 N 条 skill_handoff）
+            dry_run: 仅预览，不实际修改文件
+        """
         ...
 
 

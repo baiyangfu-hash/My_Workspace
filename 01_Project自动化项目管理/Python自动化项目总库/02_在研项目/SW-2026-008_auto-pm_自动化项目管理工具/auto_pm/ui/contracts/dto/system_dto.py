@@ -39,3 +39,17 @@ class ApplyTemplateResultDTO:
     project_id: str
     template_name: str
     result: dict[str, Any]  # template_service.apply_template 返回
+
+
+@dataclass(frozen=True)
+class PmSessionArchiveResultDTO:
+    """PM_SESSION 归档结果（对应 archive_pm_session 返回，M5 CHG-117 新增）"""
+    archive_file: str
+    archived_sections: list[str]
+    archived_line_count: int
+    main_file_lines_before: int
+    main_file_lines_after: int
+    is_dry_run: bool
+    section_title: str
+    section_total_lines: int
+    keep_recent: int

@@ -23,7 +23,7 @@
 ### Verified - CHG-SCPT-2026-107 V1.0.0 全量门禁 + GUI 冒烟
 
 - ruff check auto_pm/ 0 errors
-- mypy auto_pm/ 4 errors（2 个 `scan_single_project` 不存在 + 2 个预存 unreachable，V0.9.2 修复 B1 后消除至 2 errors）
+- mypy auto_pm/ 0 errors（127 source files，B1/B3 修复后已消除所有错误）
 - change/core/application 测试全通过
 - QML 测试全通过
 - spec 规范测试全通过

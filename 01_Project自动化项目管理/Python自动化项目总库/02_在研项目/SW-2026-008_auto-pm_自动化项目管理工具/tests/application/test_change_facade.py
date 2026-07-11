@@ -4,10 +4,12 @@ import pytest
 
 from auto_pm.application.change_facade import ChangeFacade
 from auto_pm.change.change_service import ChangeService
+from auto_pm.change.ledger_reconciler import ReconcileDiff
 from auto_pm.ui.contracts.commands.change_commands import (
     CreateChangeCommand,
     TransitionChangeCommand,
 )
+from auto_pm.ui.contracts.dto.change_dto import LedgerReconcileResultDTO
 
 
 @pytest.fixture
@@ -298,4 +300,126 @@ def test_get_change_validation_summary_no_service():
     facade = ChangeFacade(change_service=None)
     result = facade.get_change_validation_summary("CHG-123")
     assert result.success is False
+    assert result.payload is None
+
+
+# ── reconcile_ledger 测试（M5 CHG-118 新增）──────────────
+
+
+def _make_diff(**overrides):
+    """构造 ReconcileDiff mock"""
+    return ReconcileDiff(
+        missing_in_ledger=overrides.get("missing_in_ledger", []),
+        orphan_in_ledger=overrides.get("orphan_in_ledger", []),
+        status_mismatches=overrides.get("status_mismatches", []),
+    )
+
+
+def test_reconcile_ledger_success():
+    """正常调用返回 LedgerReconcileResultDTO 且字段正确（auto_fix=False）"""
+    diff = _make_diff(
+        missing_in_ledger=["CHG-SCPT-2026-001"],
+        orphan_in_ledger=["CHG-SCPT-2026-099"],
+        status_mismatches=[("CHG-SCPT-2026-002", "✅已关闭", "🔄待处理")],
+    )
+    mock_project_svc = MagicMock()
+    mock_project_svc.find_project_path.return_value = "/tmp/project"
+    mock_reconciler = MagicMock()
+    mock_reconciler.reconcile.return_value = diff
+
+    facade = ChangeFacade(
+        change_service=None,
+        project_service=mock_project_svc,
+        ledger_reconciler=mock_reconciler,
+    )
+
+    result = facade.reconcile_ledger("SW-2026-008", auto_fix=False)
+
+    assert result.success is True
+    assert isinstance(result.payload, LedgerReconcileResultDTO)
+    assert result.payload.project_id == "SW-2026-008"
+    assert result.payload.is_clean is False
+    assert result.payload.missing_in_ledger == ["CHG-SCPT-2026-001"]
+    assert result.payload.orphan_in_ledger == ["CHG-SCPT-2026-099"]
+    assert result.payload.status_mismatches == [["CHG-SCPT-2026-002", "✅已关闭", "🔄待处理"]]
+    assert "台账缺失" in result.payload.summary
+    assert result.payload.auto_fixed is False
+    # 验证调用的是 reconcile（不是 auto_fix）
+    mock_reconciler.reconcile.assert_called_once_with("/tmp/project")
+    mock_reconciler.auto_fix.assert_not_called()
+
+
+def test_reconcile_ledger_auto_fix():
+    """auto_fix=True 时调用 auto_fix 且 auto_fixed=True"""
+    diff = _make_diff()  # clean diff
+    mock_project_svc = MagicMock()
+    mock_project_svc.find_project_path.return_value = "/tmp/project"
+    mock_reconciler = MagicMock()
+    mock_reconciler.auto_fix.return_value = diff
+
+    facade = ChangeFacade(
+        change_service=None,
+        project_service=mock_project_svc,
+        ledger_reconciler=mock_reconciler,
+    )
+
+    result = facade.reconcile_ledger("SW-2026-008", auto_fix=True)
+
+    assert result.success is True
+    assert result.payload.is_clean is True
+    assert result.payload.auto_fixed is True
+    mock_reconciler.auto_fix.assert_called_once_with("/tmp/project")
+    mock_reconciler.reconcile.assert_not_called()
+
+
+def test_reconcile_ledger_no_project_service():
+    """project_service=None 时返回 success=False"""
+    facade = ChangeFacade(change_service=None, project_service=None, ledger_reconciler=MagicMock())
+    result = facade.reconcile_ledger("SW-2026-008")
+    assert result.success is False
+    assert "No project_service" in result.message
+    assert result.payload is None
+
+
+def test_reconcile_ledger_no_reconciler():
+    """ledger_reconciler=None 时返回 success=False"""
+    facade = ChangeFacade(change_service=None, project_service=MagicMock(), ledger_reconciler=None)
+    result = facade.reconcile_ledger("SW-2026-008")
+    assert result.success is False
+    assert "No ledger_reconciler" in result.message
+    assert result.payload is None
+
+
+def test_reconcile_ledger_project_not_found():
+    """project_service.find_project_path 返回 None 时返回 success=False"""
+    mock_project_svc = MagicMock()
+    mock_project_svc.find_project_path.return_value = None
+    facade = ChangeFacade(
+        change_service=None,
+        project_service=mock_project_svc,
+        ledger_reconciler=MagicMock(),
+    )
+    result = facade.reconcile_ledger("NOT-EXIST")
+    assert result.success is False
+    assert "项目不存在" in result.message
+    assert result.payload is None
+
+
+def test_reconcile_ledger_exception():
+    """reconciler.reconcile() 抛异常时返回 success=False"""
+    mock_project_svc = MagicMock()
+    mock_project_svc.find_project_path.return_value = "/tmp/project"
+    mock_reconciler = MagicMock()
+    mock_reconciler.reconcile.side_effect = Exception("reconcile boom")
+
+    facade = ChangeFacade(
+        change_service=None,
+        project_service=mock_project_svc,
+        ledger_reconciler=mock_reconciler,
+    )
+
+    result = facade.reconcile_ledger("SW-2026-008")
+
+    assert result.success is False
+    assert "reconcile boom" in result.message
     assert result.payload is None

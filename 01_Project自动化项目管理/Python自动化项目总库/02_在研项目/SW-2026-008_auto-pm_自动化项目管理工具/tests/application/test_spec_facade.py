@@ -1,11 +1,13 @@
 """SpecFacade 单元测试
 
-覆盖 SpecFacade 的 3 个方法：
+覆盖 SpecFacade 的 4 个方法：
 - run_spec_check
 - get_spec_center_overview
 - list_spec_center_entries
+- generate_spec_index (M5 CHG-119 新增)
 """
 
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -14,6 +16,9 @@ from auto_pm.ui.contracts.dto.spec_dto import (
     SpecCenterEntryDTO,
     SpecCenterOverviewDTO,
     SpecCheckResultDTO,
+    SpecFrontmatterResultDTO,
+    SpecIndexResultDTO,
+    SpecReportResultDTO,
 )
 
 # ── mock helpers ──────────────────────────────────────
@@ -246,3 +251,322 @@ def test_list_spec_center_entries_exception():
     assert result.success is False
     assert result.payload == []
     assert "entries boom" in result.message
+
+
+# ── generate_spec_index 测试（M5 CHG-119 新增）──────────────
+
+
+def _make_index_output(**overrides: Any) -> SimpleNamespace:
+    """构造 IndexService.run() 输出 mock（含 generated_files: list[Path], errors: list[str]）"""
+    return SimpleNamespace(
+        generated_files=overrides.get(
+            "generated_files", [Path("/tmp/index_pm.md"), Path("/tmp/index_plc.md")]
+        ),
+        errors=overrides.get("errors", []),
+    )
+
+
+def test_generate_spec_index_success():
+    """正常调用返回 SpecIndexResultDTO 且 Path→str 转换正确（domain='all'）"""
+    output = _make_index_output()
+    service = SimpleNamespace(run=lambda domains=None: output)
+    facade = SpecFacade(index_service=service)
+
+    result = facade.generate_spec_index(domain="all")
+
+    assert result.success is True
+    assert isinstance(result.payload, SpecIndexResultDTO)
+    assert result.payload.domain == "all"
+    # Path → str 转换验证（跨平台：str(Path(...)) 在 Windows 用反斜杠）
+    assert all(isinstance(f, str) for f in result.payload.generated_files)
+    assert result.payload.generated_files == [
+        str(Path("/tmp/index_pm.md")),
+        str(Path("/tmp/index_plc.md")),
+    ]
+    assert result.payload.errors == []
+
+
+def test_generate_spec_index_domain_filter():
+    """domain='plc' 时 service.run(domains=['plc']) 透传验证"""
+    captured: dict = {}
+    output = _make_index_output(generated_files=[Path("/tmp/index_plc.md")])
+
+    def _run(domains=None):
+        captured["domains"] = domains
+        return output
+
+    service = SimpleNamespace(run=_run)
+    facade = SpecFacade(index_service=service)
+
+    result = facade.generate_spec_index(domain="plc")
+
+    assert result.success is True
+    assert result.payload.domain == "plc"
+    assert captured["domains"] == ["plc"]  # domain="plc" → domains=["plc"]
+
+
+def test_generate_spec_index_all_domains_none():
+    """domain='all' 时 service.run(domains=None) 透传验证"""
+    captured: dict = {}
+    output = _make_index_output()
+
+    def _run(domains=None):
+        captured["domains"] = domains
+        return output
+
+    service = SimpleNamespace(run=_run)
+    facade = SpecFacade(index_service=service)
+
+    result = facade.generate_spec_index(domain="all")
+
+    assert result.success is True
+    assert captured["domains"] is None  # domain="all" → domains=None
+
+
+def test_generate_spec_index_no_service():
+    """index_service=None 时返回 success=False + payload=None"""
+    facade = SpecFacade(index_service=None)
+
+    result = facade.generate_spec_index()
+
+    assert result.success is False
+    assert result.payload is None
+    assert "No index_service" in result.message
+
+
+def test_generate_spec_index_exception():
+    """service.run() 抛异常时返回 success=False + payload=None"""
+    service = SimpleNamespace(run=_raise(Exception("index boom")))
+    facade = SpecFacade(index_service=service)
+
+    result = facade.generate_spec_index()
+
+    assert result.success is False
+    assert result.payload is None
+    assert "index boom" in result.message
+
+
+def test_generate_spec_index_with_errors():
+    """output.errors 非空时仍返回 success=True（部分成功）"""
+    output = _make_index_output(
+        generated_files=[Path("/tmp/index_pm.md")],
+        errors=["plc 域生成失败: 注册表为空"],
+    )
+    service = SimpleNamespace(run=lambda domains=None: output)
+    facade = SpecFacade(index_service=service)
+
+    result = facade.generate_spec_index()
+
+    assert result.success is True
+    assert result.payload.errors == ["plc 域生成失败: 注册表为空"]
+    assert result.payload.generated_files == [str(Path("/tmp/index_pm.md"))]
+
+
+# ── generate_spec_report 测试（M5 CHG-120 新增）──────────────
+
+
+def _make_report_output(**overrides: Any) -> SimpleNamespace:
+    """构造 ReportService.generate() 输出 mock（含 content: str, output_path: Path, fmt: str）"""
+    return SimpleNamespace(
+        content=overrides.get("content", "# 规范元数据汇总报告\n\n总览..."),
+        output_path=overrides.get("output_path", Path("/tmp/规范元数据汇总报告.md")),
+        fmt=overrides.get("fmt", "markdown"),
+    )
+
+
+# ── check_spec_frontmatter 测试（M5 CHG-121 新增）──────────────
+
+
+def _make_frontmatter_item(**overrides: Any) -> SimpleNamespace:
+    """构造 FrontmatterItem mock（8 字段：spec_id/file_path/has_frontmatter/is_deprecated/file_exists/new_frontmatter/status）"""
+    return SimpleNamespace(
+        spec_id=overrides.get("spec_id", "SW-2026-006"),
+        file_path=overrides.get("file_path", Path("/tmp/spec.md")),
+        has_frontmatter=overrides.get("has_frontmatter", False),
+        is_deprecated=overrides.get("is_deprecated", False),
+        file_exists=overrides.get("file_exists", True),
+        new_frontmatter=overrides.get("new_frontmatter", "---\nspec_id: SW-2026-006\n---\n"),
+        status=overrides.get("status", "pending"),
+    )
+
+
+def _make_frontmatter_output(**overrides: Any) -> SimpleNamespace:
+    """构造 FrontmatterService.apply() 输出 mock（4 字段：items/modified_count/skipped_count/error_count）"""
+    return SimpleNamespace(
+        items=overrides.get("items", []),
+        modified_count=overrides.get("modified_count", 1),
+        skipped_count=overrides.get("skipped_count", 0),
+        error_count=overrides.get("error_count", 0),
+    )
+
+
+def test_generate_spec_report_success():
+    """正常调用返回 SpecReportResultDTO 且 Path→str 转换正确 + file_size=len(content)"""
+    output = _make_report_output()
+    service = SimpleNamespace(generate=lambda fmt="markdown", output_path=None: output)
+    facade = SpecFacade(report_service=service)
+
+    result = facade.generate_spec_report(fmt="markdown")
+
+    assert result.success is True
+    assert isinstance(result.payload, SpecReportResultDTO)
+    assert result.payload.fmt == "markdown"
+    # Path → str 转换验证（跨平台：str(Path(...)) 在 Windows 用反斜杠）
+    assert result.payload.output_path == str(Path("/tmp/规范元数据汇总报告.md"))
+    assert result.payload.content == "# 规范元数据汇总报告\n\n总览..."
+    assert result.payload.file_size == len("# 规范元数据汇总报告\n\n总览...")
+
+
+def test_generate_spec_report_fmt_json():
+    """fmt='json' 时 service.generate(fmt='json') 透传验证"""
+    captured: dict = {}
+    output = _make_report_output(fmt="json", content='{"specs": {}}', output_path=Path("/tmp/report.json"))
+
+    def _generate(fmt="markdown", output_path=None):
+        captured["fmt"] = fmt
+        return output
+
+    service = SimpleNamespace(generate=_generate)
+    facade = SpecFacade(report_service=service)
+
+    result = facade.generate_spec_report(fmt="json")
+
+    assert result.success is True
+    assert result.payload.fmt == "json"
+    assert captured["fmt"] == "json"  # fmt 透传验证
+    assert result.payload.content == '{"specs": {}}'
+    assert result.payload.file_size == len('{"specs": {}}')
+
+
+def test_generate_spec_report_no_service():
+    """report_service=None 时返回 success=False + payload=None"""
+    facade = SpecFacade(report_service=None)
+
+    result = facade.generate_spec_report()
+
+    assert result.success is False
+    assert result.payload is None
+    assert "No report_service" in result.message
+
+
+def test_generate_spec_report_exception():
+    """service.generate() 抛异常时返回 success=False + payload=None"""
+    service = SimpleNamespace(generate=_raise(Exception("report boom")))
+    facade = SpecFacade(report_service=service)
+
+    result = facade.generate_spec_report()
+
+    assert result.success is False
+    assert result.payload is None
+    assert "report boom" in result.message
+
+
+def test_generate_spec_report_file_size_accuracy():
+    """file_size 准确反映 content 长度（含中文多字节字符）"""
+    content = "# 报告\n\n中文内容测试\n" * 10
+    output = _make_report_output(content=content)
+    service = SimpleNamespace(generate=lambda fmt="markdown", output_path=None: output)
+    facade = SpecFacade(report_service=service)
+
+    result = facade.generate_spec_report()
+
+    assert result.success is True
+    assert result.payload.file_size == len(content)
+    assert result.payload.content == content
+
+
+# ── check_spec_frontmatter 测试（M5 CHG-121 新增）──────────────
+
+
+def test_check_spec_frontmatter_success():
+    """正常调用（auto_fix=False）返回 DTO + items Path→str 转换 + 状态统计"""
+    items = [
+        _make_frontmatter_item(spec_id="SW-006", status="pending"),
+        _make_frontmatter_item(spec_id="SW-007", status="skipped", has_frontmatter=True),
+        _make_frontmatter_item(spec_id="SW-008", status="error", file_exists=False),
+    ]
+    service = SimpleNamespace(preview=lambda: items)
+    facade = SpecFacade(frontmatter_service=service)
+
+    result = facade.check_spec_frontmatter(auto_fix=False)
+
+    assert result.success is True
+    assert isinstance(result.payload, SpecFrontmatterResultDTO)
+    assert result.payload.total_count == 3
+    assert result.payload.pending_count == 1
+    assert result.payload.skipped_count == 1
+    assert result.payload.error_count == 1
+    assert result.payload.modified_count == 0  # auto_fix=False
+    assert result.payload.auto_fixed is False
+    # Path → str 转换验证
+    assert result.payload.items[0]["file_path"] == str(Path("/tmp/spec.md"))
+    assert result.payload.items[0]["status"] == "pending"
+
+
+def test_check_spec_frontmatter_auto_fix():
+    """auto_fix=True 时调用 apply(pending_items) + modified_count 从 apply 结果获取"""
+    items = [
+        _make_frontmatter_item(spec_id="SW-006", status="pending"),
+        _make_frontmatter_item(spec_id="SW-007", status="skipped", has_frontmatter=True),
+    ]
+    apply_output = _make_frontmatter_output(modified_count=1)
+    apply_calls: list = []
+
+    def _apply(pending_items):
+        apply_calls.append(pending_items)
+        return apply_output
+
+    service = SimpleNamespace(preview=lambda: items, apply=_apply)
+    facade = SpecFacade(frontmatter_service=service)
+
+    result = facade.check_spec_frontmatter(auto_fix=True)
+
+    assert result.success is True
+    assert result.payload.modified_count == 1
+    assert result.payload.auto_fixed is True
+    assert result.payload.pending_count == 1  # 基于 preview 原始 items 统计
+    # apply 只接收 pending items
+    assert len(apply_calls) == 1
+    assert len(apply_calls[0]) == 1
+    assert apply_calls[0][0].spec_id == "SW-006"
+
+
+def test_check_spec_frontmatter_auto_fix_no_pending():
+    """auto_fix=True 但无 pending items 时不调用 apply"""
+    items = [_make_frontmatter_item(spec_id="SW-007", status="skipped", has_frontmatter=True)]
+    apply_calls: list = []
+    service = SimpleNamespace(
+        preview=lambda: items,
+        apply=lambda pending: apply_calls.append(pending) or _make_frontmatter_output(modified_count=0),
+    )
+    facade = SpecFacade(frontmatter_service=service)
+
+    result = facade.check_spec_frontmatter(auto_fix=True)
+
+    assert result.success is True
+    assert result.payload.modified_count == 0
+    assert result.payload.pending_count == 0
+    assert len(apply_calls) == 0  # 无 pending，不调用 apply
+
+
+def test_check_spec_frontmatter_no_service():
+    """frontmatter_service=None 时返回 success=False + payload=None"""
+    facade = SpecFacade(frontmatter_service=None)
+
+    result = facade.check_spec_frontmatter()
+
+    assert result.success is False
+    assert result.payload is None
+    assert "No frontmatter_service" in result.message
+
+
+def test_check_spec_frontmatter_exception():
+    """service.preview() 抛异常时返回 success=False + payload=None"""
+    service = SimpleNamespace(preview=_raise(Exception("frontmatter boom")))
+    facade = SpecFacade(frontmatter_service=service)
+
+    result = facade.check_spec_frontmatter()
+
+    assert result.success is False
+    assert result.payload is None
+    assert "frontmatter boom" in result.message

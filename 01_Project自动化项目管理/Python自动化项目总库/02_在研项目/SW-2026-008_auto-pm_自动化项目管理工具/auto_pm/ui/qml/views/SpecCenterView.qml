@@ -25,6 +25,9 @@ Rectangle {
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
+    signal requestGenerateSpecIndex()  // M5 CHG-119: 规范索引生成
+    signal requestGenerateSpecReport()  // M5 CHG-120: 规范报告生成
+    signal requestCheckSpecFrontmatter()  // M5 CHG-121: 规范 Frontmatter 检查
 
     // ── 内部数据 ────────────────────────────────────────
     property var overviewData: ({})
@@ -145,6 +148,27 @@ Rectangle {
                         loadOverview()
                         loadEntries()
                     }
+                }
+
+                PrimaryButton {
+                    text: "📝 生成索引"
+                    type: "ghost"
+                    enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+                    onClicked: root.requestGenerateSpecIndex()
+                }
+
+                PrimaryButton {
+                    text: "📊 生成报告"
+                    type: "ghost"
+                    enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+                    onClicked: root.requestGenerateSpecReport()
+                }
+
+                PrimaryButton {
+                    text: "🔍 检查 Frontmatter"
+                    type: "ghost"
+                    enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+                    onClicked: root.requestCheckSpecFrontmatter()
                 }
 
                 PrimaryButton {

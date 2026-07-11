@@ -6,16 +6,20 @@
 - 全部用 Mock Facade，无文件系统/DB 依赖
 - mock facade 用自定义 Mock 类（不使用 MagicMock），便于追踪调用参数
 
-覆盖 SpecBridge 的 3 个 Slot：
+覆盖 SpecBridge 的 4 个 Slot：
 - runSpecCheck() → dict + emit specCheckCompleted 信号
 - getSpecOverview() → dict
 - listSpecEntries(filter_domain) → list[dict]
+- generateSpecIndex(domain) → dict (M5 CHG-119 新增)
 """
 
 from auto_pm.ui.contracts.dto.spec_dto import (
     SpecCenterEntryDTO,
     SpecCenterOverviewDTO,
     SpecCheckResultDTO,
+    SpecFrontmatterResultDTO,
+    SpecIndexResultDTO,
+    SpecReportResultDTO,
 )
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
 
@@ -24,7 +28,7 @@ class _MockSpecFacade:
     """Mock SpecFacade，记录方法调用并返回预设结果。
 
     用自定义类替代 MagicMock，便于显式追踪 list_spec_center_entries
-    的调用参数（filter_domain 透传验证）。
+    的调用参数（filter_domain 透传验证）和 generate_spec_index 的调用参数（domain 透传验证）。
     """
 
     def __init__(
@@ -32,11 +36,20 @@ class _MockSpecFacade:
         run_check_result=None,
         overview_result=None,
         list_entries_result=None,
+        generate_index_result=None,
+        generate_report_result=None,
+        check_frontmatter_result=None,
     ) -> None:
         self._run_check_result = run_check_result
         self._overview_result = overview_result
         self._list_entries_result = list_entries_result
+        self._generate_index_result = generate_index_result
+        self._generate_report_result = generate_report_result
+        self._check_frontmatter_result = check_frontmatter_result
         self.list_entries_calls: list[str | None] = []
+        self.generate_index_calls: list[str] = []
+        self.generate_report_calls: list[str] = []
+        self.check_frontmatter_calls: list[bool] = []
 
     def run_spec_check(self):
         return self._run_check_result
@@ -47,6 +60,18 @@ class _MockSpecFacade:
     def list_spec_center_entries(self, filter_domain=None):
         self.list_entries_calls.append(filter_domain)
         return self._list_entries_result
+
+    def generate_spec_index(self, domain="all"):
+        self.generate_index_calls.append(domain)
+        return self._generate_index_result
+
+    def generate_spec_report(self, fmt="markdown"):
+        self.generate_report_calls.append(fmt)
+        return self._generate_report_result
+
+    def check_spec_frontmatter(self, auto_fix=False):
+        self.check_frontmatter_calls.append(auto_fix)
+        return self._check_frontmatter_result
 
 
 def _make_check_result_dto(**overrides):
@@ -169,7 +194,7 @@ def test_spec_bridge_list_entries(qapp):
 
 
 def test_spec_bridge_no_facade(qapp):
-    """facade=None 时 3 个 Slot 都返回降级值，不抛异常"""
+    """facade=None 时 4 个 Slot 都返回降级值，不抛异常"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
     bridge = SpecBridge(facade=None)
@@ -179,6 +204,12 @@ def test_spec_bridge_no_facade(qapp):
     assert bridge.getSpecOverview() == {}
     # listSpecEntries 降级
     assert bridge.listSpecEntries("") == []
+    # generateSpecIndex 降级（M5 CHG-119）
+    assert bridge.generateSpecIndex("all") == {"success": False, "message": "未初始化"}
+    # generateSpecReport 降级（M5 CHG-120）
+    assert bridge.generateSpecReport("markdown") == {"success": False, "message": "未初始化"}
+    # checkSpecFrontmatter 降级（M5 CHG-121）
+    assert bridge.checkSpecFrontmatter(False) == {"success": False, "message": "未初始化"}
 
 
 def test_spec_bridge_run_check_failure(qapp):
@@ -200,3 +231,176 @@ def test_spec_bridge_run_check_failure(qapp):
     assert result == {"error_count": -1, "message": "Spec check failed"}
     # 失败时不 emit 信号
     assert spy.count() == 0
+
+
+# ── generateSpecIndex 测试（M5 CHG-119 新增）──────────────
+
+
+def _make_index_result_dto(**overrides):
+    return SpecIndexResultDTO(
+        domain=overrides.get("domain", "all"),
+        generated_files=overrides.get("generated_files", ["/tmp/index_pm.md", "/tmp/index_plc.md"]),
+        errors=overrides.get("errors", []),
+    )
+
+
+def test_spec_bridge_generate_spec_index(qapp):
+    """generateSpecIndex() 返回 dict（asdict 转换）+ domain 透传验证（M5 CHG-119）"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    dto = _make_index_result_dto(
+        domain="plc",
+        generated_files=["/tmp/index_plc.md"],
+        errors=[],
+    )
+    mock_facade = _MockSpecFacade(
+        generate_index_result=CommandResult(success=True, message="OK", payload=dto)
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.generateSpecIndex("plc")
+
+    assert isinstance(result, dict)
+    assert result["domain"] == "plc"
+    assert result["generated_files"] == ["/tmp/index_plc.md"]
+    assert result["errors"] == []
+    # domain 透传验证
+    assert mock_facade.generate_index_calls == ["plc"]
+
+
+def test_spec_bridge_generate_spec_index_error(qapp):
+    """generateSpecIndex() service 返回失败时透传 success=False + message（M5 CHG-119）"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    mock_facade = _MockSpecFacade(
+        generate_index_result=CommandResult(
+            success=False, message="No index_service", payload=None
+        )
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.generateSpecIndex("all")
+
+    assert isinstance(result, dict)
+    assert result["success"] is False
+    assert result["message"] == "No index_service"
+    assert mock_facade.generate_index_calls == ["all"]
+
+
+# ── generateSpecReport 测试（M5 CHG-120 新增）──────────────
+
+
+def _make_report_result_dto(**overrides):
+    return SpecReportResultDTO(
+        fmt=overrides.get("fmt", "markdown"),
+        output_path=overrides.get("output_path", "/tmp/规范元数据汇总报告.md"),
+        content=overrides.get("content", "# 规范元数据汇总报告\n\n总览..."),
+        file_size=overrides.get("file_size", 30),
+    )
+
+
+def test_spec_bridge_generate_spec_report(qapp):
+    """generateSpecReport() 返回 dict（asdict 转换）+ fmt 透传验证（M5 CHG-120）"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    dto = _make_report_result_dto(
+        fmt="json",
+        output_path="/tmp/report.json",
+        content='{"specs": {}}',
+        file_size=13,
+    )
+    mock_facade = _MockSpecFacade(
+        generate_report_result=CommandResult(success=True, message="OK", payload=dto)
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.generateSpecReport("json")
+
+    assert isinstance(result, dict)
+    assert result["fmt"] == "json"
+    assert result["output_path"] == "/tmp/report.json"
+    assert result["content"] == '{"specs": {}}'
+    assert result["file_size"] == 13
+    # fmt 透传验证
+    assert mock_facade.generate_report_calls == ["json"]
+
+
+def test_spec_bridge_generate_spec_report_error(qapp):
+    """generateSpecReport() service 返回失败时透传 success=False + message（M5 CHG-120）"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    mock_facade = _MockSpecFacade(
+        generate_report_result=CommandResult(
+            success=False, message="No report_service", payload=None
+        )
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.generateSpecReport("markdown")
+
+    assert isinstance(result, dict)
+    assert result["success"] is False
+    assert result["message"] == "No report_service"
+    assert mock_facade.generate_report_calls == ["markdown"]
+
+
+# ── checkSpecFrontmatter 测试（M5 CHG-121 新增）──────────────
+
+
+def _make_frontmatter_result_dto(**overrides):
+    return SpecFrontmatterResultDTO(
+        items=overrides.get("items", []),
+        total_count=overrides.get("total_count", 1),
+        pending_count=overrides.get("pending_count", 1),
+        skipped_count=overrides.get("skipped_count", 0),
+        error_count=overrides.get("error_count", 0),
+        modified_count=overrides.get("modified_count", 0),
+        auto_fixed=overrides.get("auto_fixed", False),
+    )
+
+
+def test_spec_bridge_check_spec_frontmatter(qapp):
+    """checkSpecFrontmatter() 返回 dict（asdict 转换）+ autoFix 透传验证（M5 CHG-121）"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    dto = _make_frontmatter_result_dto(
+        items=[{"spec_id": "SW-006", "status": "pending", "file_path": "/tmp/spec.md"}],
+        total_count=1,
+        pending_count=1,
+        auto_fixed=True,
+        modified_count=1,
+    )
+    mock_facade = _MockSpecFacade(
+        check_frontmatter_result=CommandResult(success=True, message="OK", payload=dto)
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.checkSpecFrontmatter(True)
+
+    assert isinstance(result, dict)
+    assert result["total_count"] == 1
+    assert result["pending_count"] == 1
+    assert result["auto_fixed"] is True
+    assert result["modified_count"] == 1
+    assert result["items"][0]["spec_id"] == "SW-006"
+    # autoFix 透传验证
+    assert mock_facade.check_frontmatter_calls == [True]
+
+
+def test_spec_bridge_check_spec_frontmatter_error(qapp):
+    """checkSpecFrontmatter() service 返回失败时透传 success=False + message（M5 CHG-121）"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    mock_facade = _MockSpecFacade(
+        check_frontmatter_result=CommandResult(
+            success=False, message="No frontmatter_service", payload=None
+        )
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.checkSpecFrontmatter(False)
+
+    assert isinstance(result, dict)
+    assert result["success"] is False
+    assert result["message"] == "No frontmatter_service"
+    assert mock_facade.check_frontmatter_calls == [False]

@@ -38,6 +38,9 @@ from auto_pm.ui.factories import (
     make_report_service,
     make_spec_center_service,
     make_spec_check_service,
+    make_spec_frontmatter_service,
+    make_spec_index_service,
+    make_spec_report_service,
     make_template_service,
 )
 from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
@@ -93,6 +96,12 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     doc_refresh_service = make_doc_refresh_service(workspace_root)
     # V0.8.0 Phase 2 新增 SpecCenterAdapter（CHG-091）
     spec_center_service = make_spec_center_service(workspace_root)
+    # M5 CHG-119 新增 IndexService（规范索引生成）
+    spec_index_service = make_spec_index_service(workspace_root)
+    # M5 CHG-120 新增 Spec 域 ReportService（规范报告生成）
+    spec_report_service = make_spec_report_service(workspace_root)
+    # M5 CHG-121 新增 FrontmatterService（规范 Frontmatter 检查/修复）
+    frontmatter_service = make_spec_frontmatter_service(workspace_root)
 
     # M1 阶段：初始化 FacadeRegistry
     registry = FacadeRegistry()
@@ -107,6 +116,9 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
         "asset_summary_service": asset_summary_service,
         "doc_refresh_service": doc_refresh_service,
         "spec_center_service": spec_center_service,
+        "index_service": spec_index_service,
+        "spec_report_service": spec_report_service,
+        "frontmatter_service": frontmatter_service,
     })
 
     if debug:
@@ -120,7 +132,10 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
             f"  dashboard={'✓' if dashboard_service else '✗'} "
             f"asset_summary={'✓' if asset_summary_service else '✗'} "
             f"doc_refresh={'✓' if doc_refresh_service else '✗'}\n"
-            f"  spec_center={'✓' if spec_center_service else '✗（无 spec_registry.json）'}\n"
+            f"  spec_center={'✓' if spec_center_service else '✗（无 spec_registry.json）'} "
+            f"spec_index={'✓' if spec_index_service else '✗（无 spec_registry.json）'} "
+            f"spec_report={'✓' if spec_report_service else '✗（无 spec_registry.json）'} "
+            f"frontmatter={'✓' if frontmatter_service else '✗（无 spec_registry.json）'}\n"
         )
 
     # 3. 创建 QML 桥接对象

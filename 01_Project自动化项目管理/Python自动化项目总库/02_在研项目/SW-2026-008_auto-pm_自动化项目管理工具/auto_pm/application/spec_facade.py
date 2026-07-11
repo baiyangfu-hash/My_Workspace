@@ -3,11 +3,16 @@
 M4 第 1 批重构：从"转发层"升级为"用例编排层"，返回带类型 DTO。
 """
 
+from typing import Any
+
 from auto_pm.core.protocols import SpecCenterServiceProtocol, SpecCheckServiceProtocol
 from auto_pm.ui.contracts.dto.spec_dto import (
     SpecCenterEntryDTO,
     SpecCenterOverviewDTO,
     SpecCheckResultDTO,
+    SpecFrontmatterResultDTO,
+    SpecIndexResultDTO,
+    SpecReportResultDTO,
 )
 from auto_pm.ui.contracts.result import CommandResult, QueryResult
 
@@ -19,9 +24,15 @@ class SpecFacade:
         self,
         spec_check_service: SpecCheckServiceProtocol | None = None,
         spec_center_service: SpecCenterServiceProtocol | None = None,
+        index_service: Any | None = None,
+        report_service: Any | None = None,
+        frontmatter_service: Any | None = None,
     ):
         self._spec_check_service = spec_check_service
         self._spec_center_service = spec_center_service
+        self._index_service = index_service
+        self._report_service = report_service
+        self._frontmatter_service = frontmatter_service
 
     @property
     def has_spec_check_service(self) -> bool:
@@ -101,3 +112,94 @@ class SpecFacade:
             return QueryResult(success=True, message="Success", payload=dtos)
         except Exception as e:
             return QueryResult(success=False, message=str(e), payload=[])
+
+    def generate_spec_index(self, domain: str = "all") -> CommandResult[SpecIndexResultDTO | None]:
+        """生成规范索引文件（M5 CHG-119 新增）
+
+        Args:
+            domain: 生成域，"all" 生成全部（pm/plc/python），或指定单域
+        """
+        try:
+            if not self._index_service:
+                return CommandResult(success=False, message="No index_service", payload=None)
+
+            domains = None if domain == "all" else [domain]
+            output = self._index_service.run(domains=domains)
+
+            dto = SpecIndexResultDTO(
+                domain=domain,
+                generated_files=[str(f) for f in output.generated_files],
+                errors=list(output.errors),
+            )
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def generate_spec_report(self, fmt: str = "markdown") -> CommandResult[SpecReportResultDTO | None]:
+        """生成规范报告（M5 CHG-120 新增）
+
+        Args:
+            fmt: 报告格式，"markdown" 或 "json"
+        """
+        try:
+            if not self._report_service:
+                return CommandResult(success=False, message="No report_service", payload=None)
+
+            output = self._report_service.generate(fmt=fmt)
+
+            dto = SpecReportResultDTO(
+                fmt=output.fmt,
+                output_path=str(output.output_path),
+                content=output.content,
+                file_size=len(output.content),
+            )
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def check_spec_frontmatter(self, auto_fix: bool = False) -> CommandResult[SpecFrontmatterResultDTO | None]:
+        """检查/修复规范 Frontmatter（M5 CHG-121 新增）
+
+        Args:
+            auto_fix: True 时自动添加缺失的 frontmatter（调用 apply 写入磁盘）
+        """
+        try:
+            if not self._frontmatter_service:
+                return CommandResult(success=False, message="No frontmatter_service", payload=None)
+
+            items = self._frontmatter_service.preview()
+            modified_count = 0
+
+            if auto_fix:
+                pending_items = [i for i in items if i.status == "pending"]
+                if pending_items:
+                    result = self._frontmatter_service.apply(pending_items)
+                    modified_count = result.modified_count
+
+            pending_count = sum(1 for i in items if i.status == "pending")
+            skipped_count = sum(1 for i in items if i.status == "skipped")
+            error_count = sum(1 for i in items if i.status == "error")
+
+            dto = SpecFrontmatterResultDTO(
+                items=[
+                    {
+                        "spec_id": i.spec_id,
+                        "file_path": str(i.file_path),
+                        "has_frontmatter": i.has_frontmatter,
+                        "is_deprecated": i.is_deprecated,
+                        "file_exists": i.file_exists,
+                        "status": i.status,
+                        "new_frontmatter": i.new_frontmatter[:200] if i.new_frontmatter else "",
+                    }
+                    for i in items
+                ],
+                total_count=len(items),
+                pending_count=pending_count,
+                skipped_count=skipped_count,
+                error_count=error_count,
+                modified_count=modified_count,
+                auto_fixed=auto_fix,
+            )
+            return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)

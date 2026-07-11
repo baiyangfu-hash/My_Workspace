@@ -75,8 +75,12 @@ def change_facade_with_db(temp_workspace):
     )
 
     # 预置影响分析
+    # 注意：impact_analysis 表有外键约束 FOREIGN KEY (project_id, change_number)
+    # REFERENCES change_requests(project_id, change_number)，必须传 project_id
+    # 否则默认值 '' 不满足外键约束，触发 IntegrityError: FOREIGN KEY constraint failed
     change_repo.save_impact_analysis(
         ImpactAnalysis(
+            project_id="SW-2026-001",
             change_number="CHG-2026-001",
             risk_level="high",
             mitigation="缓解措施 A",
@@ -95,8 +99,11 @@ def change_facade_with_db(temp_workspace):
     from auto_pm.db.repository import ApprovalHistoryRepository
 
     approval_repo = ApprovalHistoryRepository(db)
+    # 注意：approval_history 表外键约束 FOREIGN KEY (project_id, change_number)
+    # REFERENCES change_requests(project_id, change_number)，必须传 project_id
     approval_repo.insert(
         ApprovalRecord(
+            project_id="SW-2026-001",
             change_number="CHG-2026-001",
             from_status="draft",
             to_status="submitted",
@@ -107,6 +114,7 @@ def change_facade_with_db(temp_workspace):
     )
     approval_repo.insert(
         ApprovalRecord(
+            project_id="SW-2026-001",
             change_number="CHG-2026-001",
             from_status="submitted",
             to_status="approved",

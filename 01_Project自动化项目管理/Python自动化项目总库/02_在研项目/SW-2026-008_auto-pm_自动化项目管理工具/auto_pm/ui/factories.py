@@ -18,6 +18,54 @@ def make_spec_check_service(workspace_root: str) -> Any | None:
         return None
 
 
+def make_spec_index_service(workspace_root: str) -> Any | None:
+    """工厂函数：构造 IndexService（CHG-119 M5）
+
+    返回 None 表示工作空间无 spec_registry.json 或构造失败。
+    """
+    try:
+        from auto_pm.spec.services.index_svc import IndexService
+
+        workspace = Path(workspace_root)
+        if not workspace.exists():
+            return None
+        return IndexService(workspace=workspace)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def make_spec_report_service(workspace_root: str) -> Any | None:
+    """工厂函数：构造 ReportService（CHG-120 M5）
+
+    返回 None 表示工作空间无 spec_registry.json 或构造失败。
+    """
+    try:
+        from auto_pm.spec.services.report_svc import ReportService
+
+        workspace = Path(workspace_root)
+        if not workspace.exists():
+            return None
+        return ReportService(workspace=workspace)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def make_spec_frontmatter_service(workspace_root: str) -> Any | None:
+    """工厂函数：构造 FrontmatterService（CHG-121 M5）
+
+    返回 None 表示工作空间无 spec_registry.json 或构造失败。
+    """
+    try:
+        from auto_pm.spec.services.frontmatter_svc import FrontmatterService
+
+        workspace = Path(workspace_root)
+        if not workspace.exists():
+            return None
+        return FrontmatterService(workspace=workspace)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 # ── V0.8.0 Phase 1 新增 6 个工厂函数（CHG-090） ──────────────
 
 
@@ -84,13 +132,14 @@ def make_pm_session_service(workspace_root: str) -> Any | None:
         from auto_pm.core.pm_session_service import (
             MAX_FILE_LINES,
             MAX_FILE_SIZE_KB,
+            PmSessionArchiveService,
             PmSessionCheckService,
             PmSessionParser,
             generate_view,
         )
 
         class _PmSessionViewAggregator:
-            """聚合 PM_SESSION 视图生成 + 健康检查（QML 用）"""
+            """聚合 PM_SESSION 视图生成 + 健康检查 + 归档（QML 用）"""
 
             def __init__(self, workspace_root: str) -> None:
                 self._workspace_root = workspace_root
@@ -138,6 +187,75 @@ def make_pm_session_service(workspace_root: str) -> Any | None:
                     "is_oversized": result.is_oversized,
                     "warnings": list(result.warnings),
                     "is_healthy": result.is_healthy,
+                }
+
+            def archive(self, section: str, keep_recent: int = 0, dry_run: bool = False) -> dict[str, Any]:
+                """归档指定章节的早期内容（M5 CHG-117 新增）
+
+                Args:
+                    section: 章节号（如 "6"/"8"）
+                    keep_recent: 保留最近 N 行（§8 表示保留最新 N 条 skill_handoff）
+                    dry_run: 仅预览，不实际修改文件
+                """
+                file_path = self._find_pm_session()
+                if file_path is None:
+                    return {"error": "未找到 PM_SESSION_*.md 文件"}
+
+                parser = PmSessionParser()
+                parse_result = parser.parse_file(file_path)
+                section_obj = parse_result.get_section(section)
+                if section_obj is None:
+                    return {"error": f"章节 §{section} 不存在"}
+
+                section_total_lines = section_obj.end_line - section_obj.start_line
+
+                # 构造归档文件路径
+                archive_dir = file_path.parent / "00_项目管理" / "05_PM_SESSION归档"
+                stem = file_path.stem
+                pid = stem.replace("PM_SESSION_", "") if stem.startswith("PM_SESSION_") else "PROJECT"
+                archive_file = archive_dir / f"PM_SESSION_{pid}_archive_auto.md"
+
+                if dry_run:
+                    return {
+                        "archive_file": str(archive_file),
+                        "archived_sections": [section],
+                        "archived_line_count": max(0, section_total_lines - 1 - keep_recent),
+                        "main_file_lines_before": parse_result.total_lines,
+                        "main_file_lines_after": parse_result.total_lines,
+                        "is_dry_run": True,
+                        "section_title": section_obj.title,
+                        "section_total_lines": section_total_lines,
+                        "keep_recent": keep_recent,
+                    }
+
+                # 实际归档
+                svc = PmSessionArchiveService()
+                if section == "8":
+                    result = svc.archive_section_8(
+                        main_file=file_path,
+                        archive_file=archive_file,
+                        keep_entries=keep_recent,
+                        create_backup=True,
+                    )
+                else:
+                    result = svc.archive_section(
+                        main_file=file_path,
+                        archive_file=archive_file,
+                        section_number=section,
+                        keep_recent=keep_recent,
+                        create_backup=True,
+                    )
+
+                return {
+                    "archive_file": str(result.archive_file),
+                    "archived_sections": result.archived_sections,
+                    "archived_line_count": result.archived_line_count,
+                    "main_file_lines_before": result.main_file_lines_before,
+                    "main_file_lines_after": result.main_file_lines_after,
+                    "is_dry_run": False,
+                    "section_title": section_obj.title,
+                    "section_total_lines": section_total_lines,
+                    "keep_recent": keep_recent,
                 }
 
         return _PmSessionViewAggregator(workspace_root)

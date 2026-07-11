@@ -144,7 +144,7 @@ class ProjectScanner:
         return list(by_id.values())
 
     def try_identify_project(self, project_path: str) -> ProjectInfo | None:
-        """尝试识别目录是否为项目，并提取元数据
+        r"""尝试识别目录是否为项目，并提取元数据
 
         优先级：.copier-answers.yml > .plc.json > PM_SESSION_*.md > 目录名
 

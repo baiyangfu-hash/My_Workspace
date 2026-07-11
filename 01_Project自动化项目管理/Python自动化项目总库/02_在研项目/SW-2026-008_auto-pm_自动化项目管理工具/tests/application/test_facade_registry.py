@@ -17,6 +17,9 @@ def test_registry_initialization():
         "change_service": MagicMock(),
         "spec_check_service": MagicMock(),
         "spec_center_service": MagicMock(),
+        "index_service": MagicMock(),  # M5 CHG-119
+        "spec_report_service": MagicMock(),  # M5 CHG-120
+        "frontmatter_service": MagicMock(),  # M5 CHG-121
         "doc_refresh_service": MagicMock(),
         "report_service": MagicMock(),
         "pm_session_service": MagicMock(),

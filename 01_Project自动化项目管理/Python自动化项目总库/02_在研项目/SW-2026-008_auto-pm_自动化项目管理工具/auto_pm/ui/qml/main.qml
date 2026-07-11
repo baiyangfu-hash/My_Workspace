@@ -801,6 +801,9 @@ ApplicationWindow {
                     editChangeDialog.prefill(changeCenterView.selectedChangeDetail)
                     editChangeDialog._isOpen = true
                 }
+                onRequestReconcileLedger: {
+                    ledgerReconcileDialog.open(changeCenterView.selectedProjectId)
+                }
                 onBackToProjectList: {
                     mainWindow.currentPage = "projectList"
                 }
@@ -810,6 +813,15 @@ ApplicationWindow {
             SpecCenterView {
                 id: specCenterView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
+                onRequestGenerateSpecIndex: {
+                    specIndexDialog.open()
+                }
+                onRequestGenerateSpecReport: {
+                    specReportDialog.open()
+                }
+                onRequestCheckSpecFrontmatter: {
+                    specFrontmatterDialog.open()
+                }
             }
 
             // 4. 报告中心页
@@ -829,6 +841,7 @@ ApplicationWindow {
             SettingsView {
                 id: settingsView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
+                onRequestArchivePmSession: pmSessionArchiveDialog.open()
             }
 
             // 7. 平台驾驶舱大盘页（CHG-106 新增）
@@ -946,6 +959,58 @@ ApplicationWindow {
         z: 999
         onTemplateApplied: {
             console.log("[QML main] 模板应用成功: " + projectId + " <- " + templateName)
+        }
+        onCancelled: close()
+    }
+
+    PmSessionArchiveDialog {
+        id: pmSessionArchiveDialog
+        anchors.fill: parent
+        z: 999
+        onArchived: {
+            console.log("[QML main] PM_SESSION 归档完成")
+        }
+        onCancelled: close()
+    }
+
+    LedgerReconcileDialog {
+        id: ledgerReconcileDialog
+        anchors.fill: parent
+        z: 999
+        onReconciled: {
+            console.log("[QML main] 台账对账自动修复完成")
+            changeCenterView.loadChanges()
+        }
+        onCancelled: close()
+    }
+
+    SpecIndexDialog {
+        id: specIndexDialog
+        anchors.fill: parent
+        z: 999
+        onGenerated: {
+            console.log("[QML main] 规范索引生成完成")
+            specCenterView.loadEntries()
+        }
+        onCancelled: close()
+    }
+
+    SpecReportDialog {
+        id: specReportDialog
+        anchors.fill: parent
+        z: 999
+        onGenerated: {
+            console.log("[QML main] 规范报告生成完成")
+        }
+        onCancelled: close()
+    }
+
+    SpecFrontmatterDialog {
+        id: specFrontmatterDialog
+        anchors.fill: parent
+        z: 999
+        onChecked: {
+            console.log("[QML main] 规范 Frontmatter 检查完成")
         }
         onCancelled: close()
     }

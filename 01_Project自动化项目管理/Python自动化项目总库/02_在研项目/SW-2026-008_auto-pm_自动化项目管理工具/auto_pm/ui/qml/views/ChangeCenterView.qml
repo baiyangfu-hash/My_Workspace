@@ -32,6 +32,7 @@ Rectangle {
     signal backToProjectList()
     signal requestNewChange()
     signal requestEditChange()
+    signal requestReconcileLedger()  // M5 CHG-118: 台账对账
 
     // ── 过滤后的展示模型 ────────────────────────────────
     ListModel { id: filteredModel }
@@ -176,6 +177,14 @@ Rectangle {
                         }
                         root.loadChanges()
                     }
+                }
+
+                PrimaryButton {
+                    text: "📊 台账对账"
+                    type: "ghost"
+                    Layout.preferredWidth: 100
+                    enabled: typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService
+                    onClicked: root.requestReconcileLedger()
                 }
 
                 PrimaryButton {
