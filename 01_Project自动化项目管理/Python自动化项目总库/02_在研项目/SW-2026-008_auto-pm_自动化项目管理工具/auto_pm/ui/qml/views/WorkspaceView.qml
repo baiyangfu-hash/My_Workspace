@@ -109,7 +109,7 @@ Rectangle {
     function loadCheckTab() {
         if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
             console.log("[QML] WorkspaceView: 运行规范检查...")
-            root.specCheckResult = specBridge.runSpecCheck()
+            root.specCheckResult = specBridge.runSpecCheck(root.currentProjectId)
             console.log("[QML] WorkspaceView: 规范检查完成: " +
                 "error=" + (root.specCheckResult.error_count || 0) +
                 " warn=" + (root.specCheckResult.warning_count || 0))
@@ -545,12 +545,27 @@ Rectangle {
                     }
                 }
 
-                PrimaryButton {
-                    text: "重新运行检查"
-                    type: "primary"
-                    Layout.preferredWidth: 120
-                    enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
-                    onClicked: loadCheckTab()
+                RowLayout {
+                    spacing: Theme.spacingMd
+                    PrimaryButton {
+                        text: "重新运行检查"
+                        type: "primary"
+                        Layout.preferredWidth: 120
+                        enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+                        onClicked: loadCheckTab()
+                    }
+
+                    PrimaryButton {
+                        text: "一键修复"
+                        type: "accent"
+                        Layout.preferredWidth: 120
+                        visible: root.currentProjectDetail.stack === "python"
+                        enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+                        onClicked: {
+                            specBridge.repairSpec(root.currentProjectId)
+                            loadCheckTab()
+                        }
+                    }
                 }
 
                 // 检查结果列表

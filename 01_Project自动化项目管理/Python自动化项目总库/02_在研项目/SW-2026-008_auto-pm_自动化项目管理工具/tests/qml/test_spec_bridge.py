@@ -39,6 +39,7 @@ class _MockSpecFacade:
         generate_index_result=None,
         generate_report_result=None,
         check_frontmatter_result=None,
+        repair_result=None,
     ) -> None:
         self._run_check_result = run_check_result
         self._overview_result = overview_result
@@ -46,12 +47,16 @@ class _MockSpecFacade:
         self._generate_index_result = generate_index_result
         self._generate_report_result = generate_report_result
         self._check_frontmatter_result = check_frontmatter_result
+        self._repair_result = repair_result
         self.list_entries_calls: list[str | None] = []
         self.generate_index_calls: list[str] = []
         self.generate_report_calls: list[str] = []
         self.check_frontmatter_calls: list[bool] = []
+        self.check_calls: list[str] = []
+        self.repair_calls: list[str] = []
 
-    def run_spec_check(self):
+    def run_spec_check(self, project_id=""):
+        self.check_calls.append(project_id)
         return self._run_check_result
 
     def get_spec_center_overview(self):
@@ -72,6 +77,10 @@ class _MockSpecFacade:
     def check_spec_frontmatter(self, auto_fix=False):
         self.check_frontmatter_calls.append(auto_fix)
         return self._check_frontmatter_result
+
+    def run_spec_repair(self, project_id):
+        self.repair_calls.append(project_id)
+        return self._repair_result
 
 
 def _make_check_result_dto(**overrides):
@@ -404,3 +413,35 @@ def test_spec_bridge_check_spec_frontmatter_error(qapp):
     assert result["success"] is False
     assert result["message"] == "No frontmatter_service"
     assert mock_facade.check_frontmatter_calls == [False]
+
+
+def test_spec_bridge_run_spec_check_with_project_id(qapp):
+    """测试 runSpecCheck(project_id) 透传 project_id 到 facade"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    dto = _make_check_result_dto(error_count=0)
+    mock_facade = _MockSpecFacade(
+        run_check_result=CommandResult(success=True, message="OK", payload=dto)
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.runSpecCheck("SW-2026-PYT")
+    assert isinstance(result, dict)
+    assert mock_facade.check_calls == ["SW-2026-PYT"]
+
+
+def test_spec_bridge_repair_spec(qapp):
+    """测试 repairSpec(project_id) 槽函数调用"""
+    from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
+
+    mock_facade = _MockSpecFacade(
+        repair_result=CommandResult(success=True, message="修复成功", payload={"repaired_items": []})
+    )
+    bridge = SpecBridge(facade=mock_facade)
+
+    result = bridge.repairSpec("SW-2026-PYT")
+    assert isinstance(result, dict)
+    assert result["success"] is True
+    assert result["message"] == "修复成功"
+    assert mock_facade.repair_calls == ["SW-2026-PYT"]
+

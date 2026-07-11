@@ -172,94 +172,48 @@ def cmd_check(
         console.print()
 
 
+@python_group.command(name="repair")
+@click.argument("project_id")
+@click.option("--dry-run", is_flag=True, help="仅预览修复，不实际写入文件")
+@click.pass_context
+def cmd_repair(
+    ctx: click.Context,
+    project_id: str,
+    dry_run: bool,
+) -> None:
+    """修复 Python 项目规范问题"""
+    app_ctx: AppContext = ctx.obj
+    proj_svc = ProjectService(app_ctx.workspace_root)
+    proj = proj_svc.get_project(project_id)
+    if proj is None:
+        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
+        ctx.exit(1)
+    if proj.stack != "python":
+        console.print(
+            f"[red]错误: 项目 {project_id} 不是 Python 项目（stack={proj.stack}）[/red]"
+        )
+        ctx.exit(1)
+
+    from auto_pm.core.python_service import PythonProjectService
+    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    templates_dir = os.path.join(package_dir, "templates")
+    py_svc = PythonProjectService(app_ctx.workspace_root, templates_dir=templates_dir)
+
+    repaired = py_svc.repair_project_spec(proj.path, project_id, dry_run=dry_run)
+    if dry_run:
+        console.print("[yellow][DRY-RUN] 将执行以下修复工作：[/yellow]")
+    else:
+        console.print("[green]成功修复以下规范项目：[/green]")
+    for item in repaired:
+        console.print(f"  - {item}")
+    if not repaired:
+        console.print("[green]项目完全合规，无需修复。[/green]")
+
+
 def _check_python_project(project_path: str, project_id: str) -> dict[str, Any]:
     """检查单个 Python 项目规范"""
-    checks: list[dict[str, Any]] = []
-
-    # 1. 必需文件检查
-    for fname in _REQUIRED_FILES:
-        fpath = os.path.join(project_path, fname)
-        ok = os.path.isfile(fpath)
-        checks.append({
-            "name": f"文件: {fname}",
-            "ok": ok,
-            "detail": "" if ok else "文件不存在",
-        })
-
-    # 2. 必需目录检查
-    for dname in _REQUIRED_DIRS:
-        dpath = os.path.join(project_path, dname)
-        ok = os.path.isdir(dpath)
-        checks.append({
-            "name": f"目录: {dname}",
-            "ok": ok,
-            "detail": "" if ok else "目录不存在",
-        })
-
-    # 3. pyproject.toml 基本字段检查
-    pyproject_path = os.path.join(project_path, "pyproject.toml")
-    if os.path.isfile(pyproject_path):
-        try:
-            with open(pyproject_path, encoding="utf-8") as f:
-                content = f.read()
-            has_name = "name" in content
-            has_version = "version" in content
-            has_python = "requires-python" in content
-            checks.append({
-                "name": "pyproject.toml: name 字段",
-                "ok": has_name,
-                "detail": "" if has_name else "缺少 name 字段",
-            })
-            checks.append({
-                "name": "pyproject.toml: version 字段",
-                "ok": has_version,
-                "detail": "" if has_version else "缺少 version 字段",
-            })
-            checks.append({
-                "name": "pyproject.toml: requires-python 字段",
-                "ok": has_python,
-                "detail": "" if has_python else "缺少 requires-python 字段",
-            })
-        except OSError:
-            checks.append({
-                "name": "pyproject.toml 读取",
-                "ok": False,
-                "detail": "读取失败",
-            })
-
-    # 4. tests/ 目录检查
-    tests_dir = os.path.join(project_path, "tests")
-    if os.path.isdir(tests_dir):
-        has_conftest = os.path.isfile(os.path.join(tests_dir, "conftest.py"))
-        checks.append({
-            "name": "tests/conftest.py",
-            "ok": has_conftest,
-            "detail": "" if has_conftest else "缺少 conftest.py",
-        })
-
-    # 5. PM_SESSION 文件检查
-    pm_session_found = False
-    try:
-        for entry in os.listdir(project_path):
-            if entry.startswith("PM_SESSION_") and entry.endswith(".md"):
-                pm_session_found = True
-                break
-    except OSError:
-        pass
-    checks.append({
-        "name": "PM_SESSION 文件",
-        "ok": pm_session_found,
-        "detail": "" if pm_session_found else "缺少 PM_SESSION_*.md",
-    })
-
-    passed = sum(1 for c in checks if c["ok"])
-    total = len(checks)
-
-    return {
-        "project_id": project_id,
-        "path": project_path,
-        "passed": passed,
-        "total": total,
-        "all_ok": passed == total,
-        "checks": checks,
-    }
+    from auto_pm.core.python_service import PythonProjectService
+    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    templates_dir = os.path.join(package_dir, "templates")
+    svc = PythonProjectService(os.path.dirname(project_path), templates_dir=templates_dir)
+    return svc.check_project_spec(project_path, project_id)

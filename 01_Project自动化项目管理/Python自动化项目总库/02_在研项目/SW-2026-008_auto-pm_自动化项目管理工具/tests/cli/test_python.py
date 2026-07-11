@@ -247,3 +247,47 @@ def test_python_check_missing_argument(cli_runner: CliRunner, tmp_path: Path) ->
     )
     assert result.exit_code == 1
     assert "请指定项目编号" in result.output or "--all" in result.output
+
+
+@pytest.mark.cli
+def test_python_repair_dry_run(cli_runner: CliRunner, tmp_path: Path) -> None:
+    """repair --dry-run 预览模式不实际执行修复"""
+    _make_python_project(tmp_path, "SW-2026-PYT", complete=False)
+    result = cli_runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path),
+            "python", "repair", "SW-2026-PYT",
+            "--dry-run",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert "[DRY-RUN]" in result.output
+    assert not (tmp_path / "SW-2026-PYT_Python工具" / ".pre-commit-config.yaml").exists()
+
+
+@pytest.mark.cli
+def test_python_repair_actual(cli_runner: CliRunner, tmp_path: Path) -> None:
+    """repair 实际修复缺少的规范文件"""
+    _make_python_project(tmp_path, "SW-2026-PYT", complete=False)
+    
+    # 模拟 templates 目录
+    project_root = Path(__file__).resolve().parent.parent.parent
+    template_dir = project_root / "templates" / "python-tool"
+    if not template_dir.exists():
+        # 如果不是标准开发目录，我们可以 mock 或者跳过物理修复测试
+        pytest.skip("python-tool 模板不存在，跳过物理修复测试")
+
+    result = cli_runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path),
+            "python", "repair", "SW-2026-PYT",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    proj_dir = tmp_path / "SW-2026-PYT_Python工具"
+    assert (proj_dir / ".pre-commit-config.yaml").is_file()
+

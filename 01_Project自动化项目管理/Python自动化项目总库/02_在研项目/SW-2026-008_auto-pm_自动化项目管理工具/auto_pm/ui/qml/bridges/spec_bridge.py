@@ -21,10 +21,11 @@ class SpecBridge(QObject):
     def hasService(self) -> bool:
         return self._facade is not None
 
+    @Slot(str, result="QVariant")
     @Slot(result="QVariant")
-    def runSpecCheck(self) -> dict[str, Any]:
+    def runSpecCheck(self, project_id: str = "") -> dict[str, Any]:
         if self._facade:
-            res = self._facade.run_spec_check()
+            res = self._facade.run_spec_check(project_id)
             if res.success and res.payload:
                 payload = asdict(res.payload)
                 self.specCheckCompleted.emit(
@@ -35,6 +36,15 @@ class SpecBridge(QObject):
                 return payload
             return {"error_count": -1, "message": res.message}
         return {"error_count": -1, "message": "未初始化"}
+
+    @Slot(str, result="QVariant")
+    def repairSpec(self, project_id: str) -> dict[str, Any]:
+        if self._facade:
+            res = self._facade.run_spec_repair(project_id)
+            if res.success and res.payload is not None:
+                return {"success": True, "message": res.message, "payload": res.payload}
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化"}
 
     @Slot(result="QVariant")
     def getSpecOverview(self) -> dict[str, Any]:

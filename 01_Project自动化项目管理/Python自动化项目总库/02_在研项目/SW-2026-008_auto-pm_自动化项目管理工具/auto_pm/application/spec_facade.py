@@ -5,7 +5,11 @@ M4 第 1 批重构：从"转发层"升级为"用例编排层"，返回带类型 
 
 from typing import Any
 
-from auto_pm.core.protocols import SpecCenterServiceProtocol, SpecCheckServiceProtocol
+from auto_pm.core.protocols import (
+    ProjectServiceProtocol,
+    SpecCenterServiceProtocol,
+    SpecCheckServiceProtocol,
+)
 from auto_pm.ui.contracts.dto.spec_dto import (
     SpecCenterEntryDTO,
     SpecCenterOverviewDTO,
@@ -27,23 +31,50 @@ class SpecFacade:
         index_service: Any | None = None,
         report_service: Any | None = None,
         frontmatter_service: Any | None = None,
+        project_service: ProjectServiceProtocol | None = None,
     ):
         self._spec_check_service = spec_check_service
         self._spec_center_service = spec_center_service
         self._index_service = index_service
         self._report_service = report_service
         self._frontmatter_service = frontmatter_service
+        self._project_service = project_service
 
     @property
     def has_spec_check_service(self) -> bool:
-        return self._spec_check_service is not None
+        return self._spec_check_service is not None or self._project_service is not None
 
     @property
     def has_spec_center_service(self) -> bool:
         return self._spec_center_service is not None
 
-    def run_spec_check(self) -> CommandResult[SpecCheckResultDTO | None]:
+    def run_spec_check(self, project_id: str = "") -> CommandResult[SpecCheckResultDTO | None]:
         try:
+            if project_id and self._project_service:
+                proj = self._project_service.get_project(project_id)
+                if proj and proj.stack == "python":
+                    from auto_pm.core.python_service import PythonProjectService
+                    py_svc = PythonProjectService(self._project_service.workspace_root)
+                    check_res = py_svc.check_project_spec(proj.path, project_id)
+                    results = [
+                        {
+                            "check_id": c["name"],
+                            "severity": "ERROR" if not c["ok"] else "INFO",
+                            "message": c["name"],
+                            "details": c.get("detail", ""),
+                            "fix_suggestion": "使用一键修复补齐规范文件" if not c["ok"] else "",
+                        }
+                        for c in check_res["checks"]
+                    ]
+                    dto = SpecCheckResultDTO(
+                        error_count=check_res["total"] - check_res["passed"],
+                        warning_count=0,
+                        info_count=check_res["passed"],
+                        exit_code=0 if check_res["all_ok"] else 1,
+                        results=results,
+                    )
+                    return CommandResult(success=True, message="Success", payload=dto)
+
             if not self._spec_check_service:
                 return CommandResult(success=False, message="No spec_check_service", payload=None)
             output = self._spec_check_service.run()
@@ -67,6 +98,27 @@ class SpecFacade:
                 results=results,
             )
             return CommandResult(success=True, message="Success", payload=dto)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=None)
+
+    def run_spec_repair(self, project_id: str) -> CommandResult[dict[str, Any] | None]:
+        try:
+            if not project_id or not self._project_service:
+                return CommandResult(success=False, message="Missing project_service or project_id", payload=None)
+            proj = self._project_service.get_project(project_id)
+            if not proj:
+                return CommandResult(success=False, message=f"Project {project_id} not found", payload=None)
+            
+            if proj.stack == "python":
+                from auto_pm.core.python_service import PythonProjectService
+                py_svc = PythonProjectService(self._project_service.workspace_root)
+                repaired_items = py_svc.repair_project_spec(proj.path, project_id, dry_run=False)
+                return CommandResult(
+                    success=True,
+                    message=f"成功修复 {len(repaired_items)} 项",
+                    payload={"repaired_items": repaired_items}
+                )
+            return CommandResult(success=False, message=f"Project stack {proj.stack} not supported for repair", payload=None)
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)
 

@@ -94,6 +94,7 @@ class FacadeRegistry:
             index_service=index_service,  # M5 CHG-119: 复用后端 IndexService
             report_service=spec_report_service,  # M5 CHG-120: 复用后端 Spec 域 ReportService
             frontmatter_service=frontmatter_service,  # M5 CHG-121: 复用后端 FrontmatterService
+            project_service=project_service,
         )
 
         self.delivery_facade = DeliveryFacade(

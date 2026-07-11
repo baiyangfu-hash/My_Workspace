@@ -570,3 +570,48 @@ def test_check_spec_frontmatter_exception():
     assert result.success is False
     assert result.payload is None
     assert "frontmatter boom" in result.message
+
+
+def test_run_spec_check_python_project(tmp_path):
+    """测试通过 SpecFacade 路由 Python 项目规范检查"""
+    proj = SimpleNamespace(project_id="SW-2026-PYT", name="Python项目", stack="python", path=str(tmp_path))
+    proj_service = SimpleNamespace(
+        get_project=lambda pid: proj if pid == "SW-2026-PYT" else None,
+        workspace_root=str(tmp_path),
+    )
+    # mock PythonProjectService 行为
+    facade = SpecFacade(project_service=proj_service)
+    
+    # 模拟 templates/python-tool/template 目录结构，用于 check
+    (tmp_path / ".copier-answers.yml").write_text("stack: python\n", encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = \"test\"\nversion = \"0.1.0\"\nrequires-python = \">=3.11\"\n", encoding="utf-8")
+    
+    result = facade.run_spec_check(project_id="SW-2026-PYT")
+    assert result.success is True
+    assert isinstance(result.payload, SpecCheckResultDTO)
+    # 因为很多必填文件没有，所以 error_count 应大于 0
+    assert result.payload.error_count > 0
+
+
+def test_run_spec_repair_python_project(tmp_path):
+    """测试通过 SpecFacade 路由 Python 项目一键修复"""
+    proj = SimpleNamespace(project_id="SW-2026-PYT", name="Python项目", stack="python", path=str(tmp_path))
+    proj_service = SimpleNamespace(
+        get_project=lambda pid: proj if pid == "SW-2026-PYT" else None,
+        workspace_root=str(tmp_path),
+    )
+    facade = SpecFacade(project_service=proj_service)
+    
+    # 物理模板路径
+    tpl_path = tmp_path / "templates" / "python-tool" / "template"
+    tpl_path.mkdir(parents=True, exist_ok=True)
+    (tpl_path / ".ruff.toml").write_text("ruff content", encoding="utf-8")
+    
+    # 手工把 templates_dir 补到 PythonProjectService
+    # 我们需要在测试中 mock 或控制环境
+    
+    result = facade.run_spec_repair(project_id="SW-2026-PYT")
+    # 即使修复项为 0（因缺少模板文件），也应该成功执行返回 success=True
+    assert result.success is True
+    assert "success" in result.message or "修复" in result.message
+
