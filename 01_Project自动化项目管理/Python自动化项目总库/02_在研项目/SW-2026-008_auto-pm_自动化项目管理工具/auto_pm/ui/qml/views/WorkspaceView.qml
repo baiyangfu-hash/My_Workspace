@@ -24,9 +24,84 @@ Rectangle {
     property string currentProjectName: ""
     property var currentProjectDetail: ({})  // workbenchBridge.getProjectById 返回的 dict
     property var changesList: []              // 当前项目的变更列表
+    property var selectedChangeDetail: ({})   // 选中的变更详情（CHG-123：驾驶舱模式）
     property var specCheckResult: ({})        // 规范检查结果
     property var assetSummary: ({})           // 资产汇总（仅 PLC 项目）
     property alias currentTabIndex: tabBar.currentTabIndex
+
+    // ── 变更Tab辅助属性（CHG-123：驾驶舱模式）─────────────────
+    property var _changeSummary: ({})         // 变更聚合摘要（后端预计算）
+    property string selectedCategory: "ALL"   // V10: 选中分类 (ALL / PLC / HMI / ELEC / DOCU)
+
+    // 过滤后的变更单列表模型
+    readonly property var filteredChangesList: {
+        var list = root.changesList || []
+        if (root.selectedCategory === "ALL") {
+            return list
+        }
+        return list.filter(function(item) {
+            return (item.domain || "").toUpperCase() === root.selectedCategory
+        })
+    }
+
+    // 基于选中的变更单动态计算状态机，确保流转状态和当前选中变更单绝对一致
+    readonly property var _currentChangeStateMachine: {
+        var status = "draft"
+        if (root.selectedChangeDetail && root.selectedChangeDetail.status) {
+            status = root.selectedChangeDetail.status
+        } else if (root.filteredChangesList && root.filteredChangesList.length > 0) {
+            status = root.filteredChangesList[0].status
+        }
+        return _computeStateMachineForStatus(status)
+    }
+
+    readonly property string _currentChangeNumber: {
+        if (root.selectedChangeDetail && root.selectedChangeDetail.change_number) {
+            return root.selectedChangeDetail.change_number
+        } else if (root.filteredChangesList && root.filteredChangesList.length > 0) {
+            return root.filteredChangesList[0].change_number
+        }
+        return ""
+    }
+
+    function _computeStateMachineForStatus(status) {
+        var statusOrder = [
+            "draft", "submitted", "under_review", "approved", "implementing",
+            "pending_acceptance", "accepting", "completed", "closed"
+        ]
+        var statusNames = {
+            "draft": "草稿",
+            "submitted": "已提交",
+            "under_review": "审核中",
+            "approved": "已批准",
+            "implementing": "实施中",
+            "pending_acceptance": "待验收",
+            "accepting": "验收中",
+            "completed": "已完成",
+            "closed": "已关闭"
+        }
+        var latestStatus = status || "draft"
+        var latestIdx = statusOrder.indexOf(latestStatus)
+        if (latestIdx === -1) latestIdx = 0
+
+        var nodes = []
+        for (var i = 0; i < statusOrder.length; i++) {
+            var nodeStatus = statusOrder[i]
+            nodes.push({
+                "name": statusNames[nodeStatus],
+                "status": nodeStatus,
+                "active": nodeStatus === latestStatus,
+                "completed": i <= latestIdx
+            })
+        }
+
+        return {
+            "current_node": latestIdx + 1,
+            "current_node_name": statusNames[latestStatus] || latestStatus,
+            "progress": ((latestIdx + 1) / statusOrder.length) * 100,
+            "nodes": nodes
+        }
+    }
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
@@ -103,6 +178,24 @@ Rectangle {
     function loadChangeTab() {
         if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
             root.changesList = changeBridge.listChanges(root.currentProjectId)
+            console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " 条")
+        }
+
+        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null && workbenchBridge.hasService) {
+            root._changeSummary = workbenchBridge.getProjectChangeSummary(root.currentProjectId) || {}
+            console.log("[QML] WorkspaceView: 变更聚合摘要加载完成, kpi.total=" +
+                (root._changeSummary.kpi ? root._changeSummary.kpi.total : 0))
+        } else {
+            root._changeSummary = {}
+        }
+
+        // 默认加载变更列表第一项的详情，以便右侧详情和状态流转能同步正确显示
+        if (root.changesList.length > 0) {
+            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+                root.selectedChangeDetail = changeBridge.getChangeRequest(root.changesList[0].change_number, root.currentProjectId) || {}
+            }
+        } else {
+            root.selectedChangeDetail = {}
         }
     }
 
@@ -440,82 +533,288 @@ Rectangle {
             }
         }
 
-        // ─── 变更 Tab ────────────────────────────────────
+        // ─── 变更 Tab（CHG-123：驾驶舱模式）───────────────
         Rectangle {
             id: changeTab
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 1
             color: "transparent"
 
-            ListView {
-                id: changeListView
+            ScrollView {
                 anchors.fill: parent
                 anchors.margins: Theme.spacingLg
                 clip: true
-                spacing: Theme.spacingSm
-                model: root.changesList
 
-                // 空状态
-                Text {
-                    anchors.centerIn: parent
-                    visible: root.changesList.length === 0
-                    text: "该项目暂无变更单"
-                    color: Theme.textMuted
-                    font.pixelSize: Theme.fontSizeLg
+                ColumnLayout {
+                    width: parent.width - 16
+                    spacing: Theme.spacingLg
+
+                // CHG-123: KPI 网格（4 卡片）- 驾驶舱模式：数据来自后端预计算
+                KpiGrid {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 120
+
+                    KpiCard {
+                        title: "变更总数"
+                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.total : 0)
+                        valueSuffix: "条"
+                        subtitle: "项目累计变更"
+                        iconText: "📋"
+                        iconColor: Theme.primary
+                    }
+
+                    KpiCard {
+                        title: "进行中"
+                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.implementing : 0)
+                        valueSuffix: "条"
+                        subtitle: "实施中变更"
+                        iconText: "🔄"
+                        iconColor: (root._changeSummary.kpi && root._changeSummary.kpi.implementing > 0) ? Theme.warning : Theme.textMuted
+                        valueColor: (root._changeSummary.kpi && root._changeSummary.kpi.implementing > 0) ? Theme.warning : Theme.textMuted
+                    }
+
+                    KpiCard {
+                        title: "待审批"
+                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.pending_review : 0)
+                        valueSuffix: "条"
+                        subtitle: "待审核/待提交"
+                        iconText: "📝"
+                        iconColor: (root._changeSummary.kpi && root._changeSummary.kpi.pending_review > 0) ? Theme.primary : Theme.textMuted
+                        valueColor: (root._changeSummary.kpi && root._changeSummary.kpi.pending_review > 0) ? Theme.primary : Theme.textMuted
+                    }
+
+                    KpiCard {
+                        title: "本周新增"
+                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.this_week : 0)
+                        valueSuffix: "条"
+                        subtitle: "最近7天"
+                        iconText: "➕"
+                        iconColor: (root._changeSummary.kpi && root._changeSummary.kpi.this_week > 0) ? Theme.success : Theme.textMuted
+                        valueColor: (root._changeSummary.kpi && root._changeSummary.kpi.this_week > 0) ? Theme.success : Theme.textMuted
+                    }
                 }
 
-                delegate: Rectangle {
-                    width: changeListView.width
-                    height: 64
-                    color: Theme.surface
-                    radius: Theme.radiusMd
-                    border.color: Theme.border
-                    border.width: 1
+                // CHG-123: 主体：状态机 + 时间线 - 驾驶舱模式：数据来自后端预计算
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 200
+                    spacing: Theme.spacingLg
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingMd
-                        spacing: Theme.spacingSm
+                    DashboardStateMachine {
+                        Layout.preferredWidth: root.width * 0.6 - Theme.spacingLg
+                        Layout.fillHeight: true
+                        title: root.changesList.length > 0 ? "变更状态流转" : "暂无变更"
+                        tagText: root._currentChangeNumber
+                        stateMachine: root._currentChangeStateMachine
+                    }
+
+                    ActivityTimeline {
+                        Layout.preferredWidth: root.width * 0.4 - Theme.spacingLg
+                        Layout.fillHeight: true
+                        activities: root._changeSummary.activities || []
+                    }
+                }
+
+                // CHG-123: 变更列表 + 详情面板（Split View）
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 450
+                    spacing: Theme.spacingLg
+
+                    // 左侧：变更列表
+                    Rectangle {
+                        Layout.preferredWidth: root.width * 0.5 - Theme.spacingLg
+                        Layout.fillHeight: true
+                        color: Theme.surface
+                        radius: Theme.radiusMd
+                        border.color: Theme.border
+                        border.width: 1
 
                         ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 2
+                            anchors.fill: parent
+                            spacing: Theme.spacingSm
 
-                            Text {
-                                text: modelData.change_number || ""
-                                font.pixelSize: Theme.fontSizeMd
-                                font.bold: true
-                                color: Theme.textPrimary
-                            }
-
-                            Text {
-                                text: modelData.title || "(无标题)"
-                                font.pixelSize: Theme.fontSizeSm
-                                color: Theme.textSecondary
-                                elide: Text.ElideRight
+                            // 列表标题
+                            RowLayout {
                                 Layout.fillWidth: true
+                                anchors.leftMargin: Theme.spacingMd
+                                anchors.rightMargin: Theme.spacingMd
+                                anchors.topMargin: Theme.spacingMd
+
+                                Text {
+                                    text: "变更列表"
+                                    font.pixelSize: Theme.fontSizeMd
+                                    font.bold: true
+                                    color: Theme.textPrimary
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Text {
+                                    text: "共 " + root.filteredChangesList.length + " 条"
+                                    font.pixelSize: Theme.fontSizeSm
+                                    color: Theme.textMuted
+                                }
+                            }
+
+                            // V10: 变更分类选项卡胶囊条 (Category filter pills bar)
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Layout.leftMargin: Theme.spacingMd
+                                Layout.rightMargin: Theme.spacingMd
+                                spacing: Theme.spacingXs
+
+                                property var categories: ["ALL", "PLC", "HMI", "ELEC", "DOCU"]
+
+                                Repeater {
+                                    model: parent.categories
+                                    delegate: Rectangle {
+                                        id: pillRect
+                                        implicitWidth: textLabel.implicitWidth + Theme.spacingMd * 2
+                                        implicitHeight: 24
+                                        radius: 12
+                                        color: root.selectedCategory === modelData ? Theme.primary : "transparent"
+                                        border.color: root.selectedCategory === modelData ? Theme.primary : Theme.border
+                                        border.width: 1
+
+                                        // 动态计算该分类下的条目数
+                                        property int count: {
+                                            var list = root.changesList || []
+                                            if (modelData === "ALL") return list.length
+                                            var cnt = 0
+                                            for (var i = 0; i < list.length; i++) {
+                                                if ((list[i].domain || "").toUpperCase() === modelData) cnt++
+                                            }
+                                            return cnt
+                                        }
+
+                                        RowLayout {
+                                            anchors.centerIn: parent
+                                            spacing: Theme.spacingXs
+
+                                            Text {
+                                                id: textLabel
+                                                text: modelData === "ALL" ? "全部" : modelData
+                                                font.pixelSize: Theme.fontSizeXs
+                                                font.bold: root.selectedCategory === modelData
+                                                color: root.selectedCategory === modelData ? "white" : Theme.textMuted
+                                            }
+
+                                            Text {
+                                                text: String(pillRect.count)
+                                                font.pixelSize: Theme.fontSizeXs
+                                                color: root.selectedCategory === modelData ? "white" : Theme.textSecondary
+                                                opacity: 0.8
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                root.selectedCategory = modelData
+                                                // 分类切换时，默认载入当前分类下排在第一的最新的变更详情
+                                                if (root.filteredChangesList.length > 0) {
+                                                    if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+                                                        root.selectedChangeDetail = changeBridge.getChangeRequest(root.filteredChangesList[0].change_number, root.currentProjectId) || {}
+                                                    }
+                                                } else {
+                                                    root.selectedChangeDetail = {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 列表内容
+                            ListView {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                clip: true
+                                spacing: Theme.spacingSm
+                                model: root.filteredChangesList
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    visible: root.filteredChangesList.length === 0
+                                    text: root.selectedCategory === "ALL" ? "该项目暂无变更单" : "该分类下暂无变更单"
+                                    color: Theme.textMuted
+                                    font.pixelSize: Theme.fontSizeMd
+                                }
+
+                                delegate: Rectangle {
+                                    width: parent.width
+                                    height: 60
+                                    color: Theme.background
+                                    radius: Theme.radiusSm
+                                    border.color: Theme.border
+                                    border.width: 1
+
+                                    RowLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: Theme.spacingSm
+                                        spacing: Theme.spacingSm
+
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 2
+
+                                            Text {
+                                                text: modelData.change_number || ""
+                                                font.pixelSize: Theme.fontSizeMd
+                                                font.bold: true
+                                                color: Theme.textPrimary
+                                            }
+
+                                            Text {
+                                                text: modelData.title || "(无标题)"
+                                                font.pixelSize: Theme.fontSizeSm
+                                                color: Theme.textSecondary
+                                                elide: Text.ElideRight
+                                                Layout.fillWidth: true
+                                            }
+                                        }
+
+                                        Badge {
+                                            text: modelData.domain || ""
+                                            type: "default"
+                                        }
+
+                                        Badge {
+                                            text: modelData.status || ""
+                                            type: modelData.status || "default"
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            console.log("[QML] WorkspaceView: 点击变更 " + modelData.change_number)
+                                            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+                                                root.selectedChangeDetail = changeBridge.getChangeRequest(modelData.change_number, root.currentProjectId) || {}
+                                                console.log("[QML] WorkspaceView: 变更详情字段数 " + Object.keys(root.selectedChangeDetail).length)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }
 
-                        Badge {
-                            text: modelData.domain || ""
-                            type: "default"
-                        }
-
-                        Badge {
-                            text: modelData.status || ""
-                            type: modelData.status || "default"
-                        }
-
-                        Text {
-                            text: modelData.apply_date || ""
-                            font.pixelSize: Theme.fontSizeXs
-                            color: Theme.textMuted
-                        }
+                    // 右侧：详情面板
+                    ChangeDetailPanel {
+                        Layout.preferredWidth: root.width * 0.5 - Theme.spacingLg
+                        Layout.fillHeight: true
+                        changeDetail: root.selectedChangeDetail
+                        changeNumber: root.selectedChangeDetail.change_number || ""
+                        projectId: root.currentProjectId
                     }
                 }
             }
         }
+    }
 
         // ─── 检查 Tab ────────────────────────────────────
         Rectangle {

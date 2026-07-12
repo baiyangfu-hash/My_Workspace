@@ -136,8 +136,8 @@ GlassPanel {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.leftMargin: parent.width / 8
-                anchors.rightMargin: parent.width / 8
+                anchors.leftMargin: root._totalNodes > 0 ? parent.width / (2 * root._totalNodes) : parent.width / 8
+                anchors.rightMargin: root._totalNodes > 0 ? parent.width / (2 * root._totalNodes) : parent.width / 8
                 height: 2
                 color: Theme.glassBorder
                 radius: 1
@@ -166,12 +166,12 @@ GlassPanel {
                     model: root.stateMachine.nodes
 
                     Item {
-                        width: parent.width / 4
+                        width: root._totalNodes > 0 ? parent.width / root._totalNodes : parent.width / 4
                         height: parent.height
 
-                        // 节点间箭头（非末节点时显示）
+                        // 节点间箭头（非末节点且总节点数较少时显示）
                         Text {
-                            visible: index < root._totalNodes - 1
+                            visible: (index < root._totalNodes - 1) && (root._totalNodes <= 5)
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
                             anchors.leftMargin: parent.width * 0.65
@@ -185,9 +185,10 @@ GlassPanel {
                             id: circle
                             anchors.horizontalCenter: parent.horizontalCenter
                             anchors.verticalCenter: parent.verticalCenter
-                            width: 40
-                            height: 40
-                            radius: 20
+                            readonly property int circleSize: root._totalNodes > 5 ? 30 : 40
+                            width: circleSize
+                            height: circleSize
+                            radius: circleSize / 2
                             color: modelData.status === "pending" ? Theme.surface : Theme.primary
                             border.color: modelData.status === "pending" ? Theme.glassBorder : Theme.primary
                             border.width: modelData.status === "active" ? 2 : 1
@@ -205,7 +206,7 @@ GlassPanel {
                                 anchors.centerIn: parent
                                 text: _nodeIcon(modelData.name || "")
                                 color: modelData.status === "pending" ? Theme.textMuted : "white"
-                                font.pixelSize: 18
+                                font.pixelSize: root._totalNodes > 5 ? 12 : 18
                                 font.bold: true
                             }
                         }
@@ -270,10 +271,16 @@ GlassPanel {
 
     // ── 辅助函数 ────────────────────────────────────────
     function _nodeIcon(name: string): string {
-        if (name.indexOf("Draft") >= 0) return "✏"
-        if (name.indexOf("Review") >= 0) return "📤"
-        if (name.indexOf("Implementing") >= 0) return "💻"
-        if (name.indexOf("Closed") >= 0) return "✓"
+        if (!name) return "•"
+        if (name.indexOf("Draft") >= 0 || name.indexOf("草稿") >= 0) return "草"
+        if (name.indexOf("Review") >= 0 || name.indexOf("审核") >= 0) return "审"
+        if (name.indexOf("Implementing") >= 0 || name.indexOf("实施") >= 0) return "实"
+        if (name.indexOf("Closed") >= 0 || name.indexOf("关闭") >= 0) return "关"
+        if (name.indexOf("提交") >= 0) return "提"
+        if (name.indexOf("批准") >= 0) return "批"
+        if (name.indexOf("待验") >= 0) return "验"
+        if (name.indexOf("验收") >= 0) return "收"
+        if (name.indexOf("完成") >= 0) return "完"
         return "•"
     }
 }

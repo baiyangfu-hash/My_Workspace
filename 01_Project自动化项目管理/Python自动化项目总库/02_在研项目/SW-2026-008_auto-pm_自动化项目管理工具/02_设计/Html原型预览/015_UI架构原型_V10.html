@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>auto-pm | V10 架构原型完整版 (对齐 QML 变更控制面板与多分类设计)</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-surface: #0c1222;
+            --bg-card: #121a2e;
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --sidebar-width: 260px;
+            --header-height: 56px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            user-select: none;
+        }
+
+        /* 统一左侧导航侧栏 (Shell) */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .logo-area {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .sidebar-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-section-title {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            padding-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            list-style: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0.02) 100%);
+            color: var(--primary-light);
+            border-color: rgba(99, 102, 241, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-item-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item-content i {
+            font-size: 16px;
+        }
+
+        .project-context-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .project-context-card .pj-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-context-card .pj-id {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* 右侧主视口 */
+        .main-content {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 16px;
+            width: 280px;
+            transition: all 0.2s;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            outline: none;
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 动态挂载点 */
+        .router-view {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--bg-base);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* KPI 网格 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--text-muted);
+        }
+
+        .kpi-card.has-data::before {
+            background: var(--primary-light);
+        }
+
+        .kpi-card.warn::before {
+            background: var(--warning);
+        }
+
+        .kpi-card.success::before {
+            background: var(--success);
+        }
+
+        .kpi-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .kpi-value-row {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-suffix {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .kpi-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .kpi-icon {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        /* 状态流转布局 */
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            height: 48px;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-tag {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 2px 8px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+        }
+
+        .panel-body {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 9节点状态机 */
+        .state-flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nodes-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 0 12px;
+        }
+
+        .flow-line {
+            position: absolute;
+            left: 32px;
+            right: 32px;
+            top: 15px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1;
+        }
+
+        .flow-line-progress {
+            position: absolute;
+            left: 32px;
+            top: 15px;
+            height: 2px;
+            background: var(--primary-light);
+            z-index: 1;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+            width: 40px;
+        }
+
+        .node-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .node-circle.completed {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .node-circle.active {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 0 16px var(--primary-light);
+            animation: pulse 2s infinite;
+        }
+
+        .node-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .node-label.active {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .node-label.completed {
+            color: var(--text-secondary);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        .flow-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 0 12px;
+        }
+
+        /* 流程时间线 */
+        .timeline-scroll {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 180px;
+            padding-right: 4px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 16px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 14px;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        .timeline-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            box-shadow: 0 0 8px var(--primary-light);
+            margin-top: 3px;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* 下部 Split View 变动大卡片 */
+        .lower-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            min-height: 480px;
+        }
+
+        .changes-list-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 分类胶囊按钮条 */
+        .category-filter-bar {
+            display: flex;
+            gap: 6px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.12);
+            overflow-x: auto;
+        }
+
+        .category-pill {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .category-pill:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .category-pill.active {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .category-count {
+            opacity: 0.8;
+            font-size: 10px;
+        }
+
+        .list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 400px;
+        }
+
+        .change-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .change-card:hover {
+            border-color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .change-card.selected {
+            border-color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        .card-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-id {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.domain {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        /* 状态标记 */
+        .badge.implementing { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; }
+        .badge.approved { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+        .badge.submitted { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .badge.completed { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+        .badge.draft { background: rgba(100, 116, 139, 0.15); border: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; }
+        .badge.closed { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+        .badge.under_review { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+
+        .change-card-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 右侧详情面板 */
+        .detail-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-title-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-id {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .detail-edit-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .transition-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn.secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .detail-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .detail-badges-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .info-section {
+            background: rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary-light);
+            padding-left: 8px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .info-table td.label {
+            color: var(--text-muted);
+            width: 120px;
+        }
+
+        .info-table td.value {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .header-badge.plc { background: rgba(14, 165, 233, 0.15); color: var(--secondary); border: 1px solid rgba(14, 165, 233, 0.3); }
+        .header-badge.status { background: rgba(99, 102, 241, 0.15); color: var(--primary-light); border: 1px solid rgba(99, 102, 241, 0.3); }
+        .header-badge.version { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* 模态弹框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            width: 480px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .project-detail-view-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         ============= 1. 核心骨架 (Shell) ============= 
+         ========================================== -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="ph-bold ph-hexagon"></i></div>
+            auto-pm
+        </div>
+
+        <div class="sidebar-scroll">
+            <!-- 平台大盘 -->
+            <div id="nav-platform">
+                <div class="nav-section-title">PLATFORM COCKPIT <i class="ph-bold ph-rocket-launch"></i></div>
+                <div class="project-context-card" style="background: rgba(99, 102, 241, 0.1); border-color:var(--primary);">
+                    <div class="pj-name">auto-pm 研发管理平台</div>
+                    <div class="pj-id">SW-2026-008</div>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-route="platform-dashboard" onclick="app.navigate('platform-dashboard')">
+                        <div class="nav-item-content"><i class="ph ph-gauge"></i> 平台驾驶舱大盘</div>
+                    </li>
+                    <li class="nav-item" data-route="platform-specs" onclick="app.navigate('platform-specs')">
+                        <div class="nav-item-content"><i class="ph ph-shield-check"></i> 平台架构规范检查</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="height: 1px; background: var(--border); margin: 8px 0;"></div>
+
+            <!-- 项目大厅 -->
+            <div id="nav-global">
+                <div class="nav-section-title">WORKSPACE <i class="ph-bold ph-globe"></i></div>
+                <ul class="nav-menu">
+                    <li class="nav-item" data-route="projects" onclick="app.navigate('projects')">
+                        <div class="nav-item-content"><i class="ph ph-squares-four"></i> 业务项目大厅</div>
+                        <span class="tag" style="background:rgba(255,255,255,0.05)">2</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="height: 1px; background: var(--border); margin: 8px 0;"></div>
+
+            <!-- 具体活跃工程 (Workspace View) -->
+            <div id="nav-project">
+                <div class="nav-section-title" style="color:var(--secondary)">ACTIVE BUSINESS PROJECT <i class="ph-bold ph-cpu"></i></div>
+                <div class="project-context-card" style="border-color:var(--secondary); cursor: pointer;" onclick="app.navigate('project-workspace')">
+                    <span class="pj-name">DJ-2026-005</span>
+                    <span class="pj-id">DJ-2026-005</span>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item" data-route="project-workspace" onclick="app.navigate('project-workspace')">
+                        <div class="nav-item-content"><i class="ph ph-squares-four"></i> 项目工作台 (5 Tab)</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="margin-top: auto;">
+                <ul class="nav-menu">
+                    <li class="nav-item" data-route="settings" onclick="app.navigate('settings')">
+                        <div class="nav-item-content"><i class="ph ph-gear"></i> 全局系统设置</div>
+                    </li>
+                </ul>
+                <div style="margin-top:16px; padding: 10px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; font-size: 11px; color: var(--text-muted); display:flex; align-items:center; gap:8px;">
+                    <div style="width:8px; height:8px; background:var(--success); border-radius:50%; box-shadow:0 0 8px var(--success);"></div>
+                    <div style="flex:1;">
+                        <div style="color:var(--text-primary); font-weight:bold; margin-bottom:2px;">Backend API</div>
+                        <div>Local IPC Connected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ==========================================
+         ============= 2. 主页面区 (Content) ============= 
+         ========================================== -->
+    <main class="main-content">
+        <header class="header">
+            <div class="search-bar">
+                <i class="ph ph-magnifying-glass" style="color: var(--text-muted)"></i>
+                <input type="text" placeholder="搜索功能块、变更单号...">
+            </div>
+            <div class="user-actions">
+                <button class="back-btn" onclick="app.showModal('新建工作流', '请选择您要新建的类型：业务项目、工程变更单。')"><i class="ph ph-plus"></i> 新建</button>
+                <div style="position:relative; cursor:pointer;">
+                    <i class="ph ph-bell" style="font-size:20px; color:var(--text-secondary);"></i>
+                    <div style="position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:var(--danger); border-radius:50%;"></div>
+                </div>
+                <div style="width: 32px; height:32px; border-radius:50%; background: linear-gradient(135deg, #a855f7, #3b82f6); border: 1.5px solid var(--border); cursor:pointer;"></div>
+            </div>
+        </header>
+
+        <!-- 视图切换主容器 -->
+        <div id="app-view" class="router-view"></div>
+    </main>
+
+    <!-- 全局弹窗层 -->
+    <div id="sys-modal" class="modal-overlay" onclick="app.closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modal-title" style="margin-bottom:12px; font-size:16px;">提示</h2>
+            <p id="modal-body" style="color:var(--text-secondary); line-height:1.6; margin-bottom: 20px; font-size:13px;"></p>
+            <div style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
+                <button class="back-btn" onclick="app.closeModal()">取消</button>
+                <button class="back-btn" style="background:var(--primary); color:white; border:none;" onclick="app.closeModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         ============= 3. 视图模板 (Views) ============= 
+         ========================================== -->
+
+    <!-- [1. 平台大盘] -->
+    <template id="view-platform-dashboard">
+        <div class="page-header">
+            <div>
+                <h1>平台研发大盘大厅 (Platform Dashboard)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">追踪 auto-pm 系统自身的开发需求、发布里程碑及健康度指标。</p>
+            </div>
+        </div>
+        <div class="kpi-grid" style="margin-bottom:20px;">
+            <div class="kpi-card has-data">
+                <div class="kpi-info">
+                    <span class="kpi-title">平台总工程数</span>
+                    <span class="kpi-value">13 <span class="kpi-suffix">个</span></span>
+                </div>
+                <div class="kpi-icon">📁</div>
+            </div>
+            <div class="kpi-card has-data warn">
+                <div class="kpi-info">
+                    <span class="kpi-title">技术债剩余</span>
+                    <span class="kpi-value" style="color:var(--warning)">12 <span class="kpi-suffix">项</span></span>
+                </div>
+                <div class="kpi-icon">⚠️</div>
+            </div>
+            <div class="kpi-card has-data success">
+                <div class="kpi-info">
+                    <span class="kpi-title">测试通过率</span>
+                    <span class="kpi-value" style="color:var(--success)">100%</span>
+                </div>
+                <div class="kpi-icon">✅</div>
+            </div>
+            <div class="kpi-card has-data">
+                <div class="kpi-info">
+                    <span class="kpi-title">当前活跃变更</span>
+                    <span class="kpi-value">CHG-123</span>
+                </div>
+                <div class="kpi-icon">🔄</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="ph ph-activity"></i> 平台近期动态时间线</span>
+            </div>
+            <div class="panel-body">
+                <div class="timeline-scroll" id="platform-timeline-container">
+                    <!-- JS 填充 -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- [2. 规范检查] -->
+    <template id="view-platform-specs">
+        <div class="page-header">
+            <div>
+                <h1>平台架构规范静态扫描 (LSP Specs Scanner)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">实时调用后端 LSP 扫描规则，监控 QML 文件中的属性定义和 API 调用合规性。</p>
+            </div>
+            <button class="back-btn" style="background:var(--primary); color:white; border:none;" onclick="app.simulateSpecsScan()"><i class="ph ph-play"></i> 开始全量扫描</button>
+        </div>
+        <div class="glass-panel" style="padding: 16px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                <span style="font-weight:600;">扫描进度</span>
+                <span id="scan-progress-text">已完成 100%</span>
+            </div>
+            <div style="width:100%; height:6px; background:rgba(0,0,0,0.2); border-radius:3px; overflow:hidden;">
+                <div id="scan-progress-bar" style="width:100%; height:100%; background:var(--success); transition:width 0.4s;"></div>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding: 0; overflow:hidden;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>规则编号</th>
+                        <th>规则说明</th>
+                        <th>违规位置</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--danger);">LSP-QML-012</td>
+                        <td>QML 中禁止无兜底的 undefined 属性绑定</td>
+                        <td style="font-family:var(--font-mono); color:var(--text-secondary);">WorkspaceView.qml : L34</td>
+                        <td><span class="badge closed">违规</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--success);">LSP-DB-015</td>
+                        <td>全局 DB 必须勾选 Optimized Block Access</td>
+                        <td style="font-family:var(--font-mono); color:var(--text-secondary);">HMI_Data.db</td>
+                        <td><span class="badge approved">通过</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- [3. 项目大厅] -->
+    <template id="view-projects">
+        <div class="page-header">
+            <div>
+                <h1>业务项目大厅 (Workspace Hub)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">工作区中扫描到的活动业务工程列表。</p>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding: 0; overflow:hidden;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>项目编号</th>
+                        <th>项目名称</th>
+                        <th>技术领域</th>
+                        <th>当前阶段</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="cursor: pointer;" onclick="app.navigate('project-workspace')">
+                        <td style="font-family:var(--font-mono); color:var(--primary-light); font-weight:600;">DJ-2026-005</td>
+                        <td>DJ-2026-005</td>
+                        <td><span class="badge domain">PLC</span></td>
+                        <td><span class="badge implementing">在研</span></td>
+                        <td><button class="back-btn">进入工作区</button></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--text-muted);">SW-2025-102</td>
+                        <td>PLC_标准化功能块库</td>
+                        <td><span class="badge domain">PLC</span></td>
+                        <td><span class="badge completed">归档</span></td>
+                        <td><button class="back-btn" onclick="alert('该项目已归档保护，无法编辑')">查看</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- [4. 项目工作台 - 5 Tab (核心对齐 QML 变更控制台面)] -->
+    <template id="view-project-workspace">
+        <div class="project-detail-view-container">
+            <!-- 顶部标题栏 -->
+            <div class="title-bar" style="padding: 0; background: transparent; border-bottom: none; height: auto;">
+                <div class="left-actions">
+                    <button class="back-btn" onclick="app.navigate('projects')"><i class="ph ph-caret-left"></i> 返回</button>
+                    <div class="project-title" style="font-size: 20px;">DJ-2026-005</div>
+                    <div class="project-subtitle">DJ-2026-005</div>
+                </div>
+                <div class="center-meta">
+                    <span class="header-badge plc">plc</span>
+                    <span class="header-badge status">在研</span>
+                    <span class="header-badge version">vV7.1.1</span>
+                </div>
+                <div class="right-actions">
+                    <button class="back-btn">编辑</button>
+                    <button class="back-btn">模板</button>
+                    <button class="back-btn" style="background:var(--danger); border:none; color:white;">删除</button>
+                </div>
+            </div>
+
+            <!-- 本地导航 Tab 栏 -->
+            <div class="tab-bar" style="padding: 0; background: transparent; height: 36px; gap: 24px;">
+                <div class="tab-item" id="wtab-0" onclick="app.switchWorkspaceTab(0)">概览</div>
+                <div class="tab-item active" id="wtab-1" onclick="app.switchWorkspaceTab(1)">变更</div>
+                <div class="tab-item" id="wtab-2" onclick="app.switchWorkspaceTab(2)">检查</div>
+                <div class="tab-item" id="wtab-3" onclick="app.switchWorkspaceTab(3)">文档</div>
+                <div class="tab-item" id="wtab-4" onclick="app.switchWorkspaceTab(4)">变量表</div>
+            </div>
+
+            <!-- TAB 0: 概览占位 -->
+            <div id="workspace-tab-content-0" style="display:none;">
+                <div class="glass-panel" style="padding: 24px; text-align: center; color:var(--text-muted);">
+                    <h3>项目元数据概览</h3>
+                    <p style="margin-top: 12px; font-size: 13px;">项目 DJ-2026-005 处于 developing 在研阶段，技术栈为 plc，包含 8 条变更。</p>
+                </div>
+            </div>
+
+            <!-- TAB 1: 变更主控制台 (核心实现) -->
+            <div id="workspace-tab-content-1" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- KPI 网格 -->
+                <div class="kpi-grid">
+                    <div class="kpi-card has-data">
+                        <div class="kpi-info">
+                            <span class="kpi-title">变更总数</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-total">8</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">项目累计变更</span>
+                        </div>
+                        <div class="kpi-icon">📋</div>
+                    </div>
+
+                    <div class="kpi-card has-data warn">
+                        <div class="kpi-info">
+                            <span class="kpi-title">进行中</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-active" style="color:var(--warning)">1</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">实施中变更</span>
+                        </div>
+                        <div class="kpi-icon">🔄</div>
+                    </div>
+
+                    <div class="kpi-card has-data">
+                        <div class="kpi-info">
+                            <span class="kpi-title">待审批</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-pending" style="color:var(--primary-light)">1</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">待审核/待提交</span>
+                        </div>
+                        <div class="kpi-icon">📝</div>
+                    </div>
+
+                    <div class="kpi-card success">
+                        <div class="kpi-info">
+                            <span class="kpi-title">本周新增</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-new" style="color:var(--success)">0</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">最近7天</span>
+                        </div>
+                        <div class="kpi-icon">➕</div>
+                    </div>
+                </div>
+
+                <!-- 状态机与时间线 -->
+                <div class="upper-dashboard">
+                    <!-- 9节点状态流转 -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ph-bold ph-git-branch" style="color:var(--primary-light)"></i> 变更状态流转
+                            </div>
+                            <span class="panel-tag" id="state-machine-tag">CHG-PLC-2026-003</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="state-flow-container">
+                                <div class="nodes-row">
+                                    <div class="flow-line"></div>
+                                    <div class="flow-line-progress" id="flow-progress-bar" style="width: 25%;"></div>
+                                    
+                                    <div class="flow-node"><div class="node-circle completed" id="node-0">草</div><span class="node-label completed" id="label-0">草稿</span></div>
+                                    <div class="flow-node"><div class="node-circle completed" id="node-1">提</div><span class="node-label completed" id="label-1">已提交</span></div>
+                                    <div class="flow-node"><div class="node-circle active" id="node-2">审</div><span class="node-label active" id="label-2">审核中</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-3">批</div><span class="node-label" id="label-3">已批准</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-4">实</div><span class="node-label" id="label-4">实施中</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-5">验</div><span class="node-label" id="label-5">待验收</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-6">收</div><span class="node-label" id="label-6">验收中</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-7">完</div><span class="node-label" id="label-7">已完成</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-8">关</div><span class="node-label" id="label-8">已关闭</span></div>
+                                </div>
+                                <div class="flow-summary">
+                                    <span id="flow-completed-count">已完成 2 / 9 个节点</span>
+                                    <span id="flow-percent">22.22%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 近期活动 (PM_SESSION) -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ph-bold ph-activity" style="color:var(--secondary)"></i> 近期活动 (PM_SESSION)
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="timeline-scroll" id="timeline-container">
+                                <!-- JS 填充 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 联动详情 Split View (分类过滤与按时间倒序) -->
+                <div class="lower-split">
+                    <!-- 左侧：分类过滤变更列表 -->
+                    <div class="changes-list-panel">
+                        <div class="panel-header" style="border-bottom:none;">
+                            <div class="panel-title">变更列表</div>
+                            <span style="font-size:12px; color:var(--text-muted);" id="changes-list-count">共 8 条</span>
+                        </div>
+
+                        <!-- 变更分类选项卡胶囊条 -->
+                        <div class="category-filter-bar">
+                            <div class="category-pill active" onclick="app.setCategory('ALL', this)" id="pill-ALL">
+                                全部 <span class="category-count" id="count-ALL">(8)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('PLC', this)" id="pill-PLC">
+                                PLC <span class="category-count" id="count-PLC">(5)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('HMI', this)" id="pill-HMI">
+                                HMI <span class="category-count" id="count-HMI">(0)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('ELEC', this)" id="pill-ELEC">
+                                ELEC <span class="category-count" id="count-ELEC">(1)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('DOCU', this)" id="pill-DOCU">
+                                DOCU <span class="category-count" id="count-DOCU">(2)</span>
+                            </div>
+                        </div>
+
+                        <div class="list-scroll" id="changes-list-container">
+                            <!-- JS 填充 (时间倒排) -->
+                        </div>
+                    </div>
+
+                    <!-- 右侧：详细内容面板 -->
+                    <div class="detail-panel">
+                        <div class="detail-header">
+                            <div class="detail-title-area">
+                                <span class="detail-id" id="detail-id">CHG-PLC-2026-003</span>
+                                <button class="detail-edit-btn">编辑</button>
+                            </div>
+                            <div class="transition-actions" id="transition-actions-container">
+                                <!-- JS 填充 -->
+                            </div>
+                        </div>
+                        <div class="detail-body">
+                            <div class="detail-badges-row">
+                                <span class="badge submitted" id="detail-badge-status">submitted</span>
+                                <span class="badge domain" id="detail-badge-domain">PLC</span>
+                                <span class="badge domain" id="detail-badge-nature">normal</span>
+                            </div>
+
+                            <div class="info-section">
+                                <div class="section-title">基本信息</div>
+                                <table class="info-table">
+                                    <tr><td class="label">变更编号:</td><td class="value" id="info-id">CHG-PLC-2026-003</td></tr>
+                                    <tr><td class="label">项目编号:</td><td class="value" id="info-project-id">DJ-2026-005</td></tr>
+                                    <tr><td class="label">项目名称:</td><td class="value" id="info-project-name">DJ-2026-005</td></tr>
+                                    <tr><td class="label">技术领域:</td><td class="value" id="info-domain">PLC</td></tr>
+                                    <tr><td class="label">业务性质:</td><td class="value" id="info-nature">DEF</td></tr>
+                                    <tr><td class="label">影响范围:</td><td class="value" id="info-impact">LOCAL</td></tr>
+                                    <tr><td class="label">申请人:</td><td class="value" id="info-applicant">TestUser</td></tr>
+                                    <tr><td class="label">申请日期:</td><td class="value" id="info-apply-date">2026-06-12</td></tr>
+                                    <tr><td class="label">计划日期:</td><td class="value" id="info-plan-date">2026-06-12</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <div class="section-title">变更描述 (Description)</div>
+                                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;" id="detail-desc">
+                                    测试变更描述内容
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 检查占位 -->
+            <div id="workspace-tab-content-2" style="display:none;">
+                <div class="glass-panel" style="padding: 24px; text-align: center; color:var(--text-muted);">
+                    <h3>规范检查报告 (specmgr)</h3>
+                    <p style="margin-top: 12px; font-size: 13px;">当前已运行 1 次规范扫描，未发现致命级违规。</p>
+                </div>
+            </div>
+
+            <!-- TAB 3: 文档占位 -->
+            <div id="workspace-tab-content-3" style="display:none;">
+                <div class="glass-panel" style="padding: 24px; text-align: center; color:var(--text-muted);">
+                    <h3>文档树浏览与实时 Markdown 渲染</h3>
+                    <p style="margin-top: 12px; font-size: 13px;">文档资源将在 M4 迭代中提供树状目录及实时渲染支持。</p>
+                </div>
+            </div>
+
+            <!-- TAB 4: 变量表占位 -->
+            <div id="workspace-tab-content-4" style="display:none;">
+                <div class="glass-panel" style="padding: 24px; text-align: center; color:var(--text-muted);">
+                    <h3>PLC/HMI 变量编辑器</h3>
+                    <p style="margin-top: 12px; font-size: 13px;">当前包含 2,048 个 IO 变量，支持在 M4 中解锁细粒度变量级增删改查。</p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- [5. 全局系统设置] -->
+    <template id="view-settings">
+        <div class="page-header">
+            <div>
+                <h1>全局系统设置 (Settings)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">配置本地工作区路径和标准库编译门禁限制。</p>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding:24px;">
+            <div style="display:flex; flex-direction:column; gap:16px; max-width: 500px;">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <label style="font-size:13px; font-weight:600;">默认自动化工程工作区目录</label>
+                    <input type="text" value="c:\Users\fubai\Desktop\My_Workspace" class="search-bar" style="width:100%; border-radius:4px; outline:none;" readonly>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <label style="font-size:13px; font-weight:600;">LSP 规则错误级别定义</label>
+                    <select style="background:var(--bg-base); border:1px solid var(--border); padding:8px; border-radius:4px; color:white;">
+                        <option>Strict (严格模式 - 违规阻断编译)</option>
+                        <option>Warning (告警模式 - 提示不阻断)</option>
+                    </select>
+                </div>
+                <button class="back-btn" style="background:var(--primary); color:white; border:none; width:max-content;" onclick="alert('设置已成功保存！')">保存设置</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- ==========================================
+         ============= 4. 业务逻辑 (App JS) ============ 
+         ========================================== -->
+    <script>
+        class Application {
+            constructor() {
+                this.viewContainer = document.getElementById('app-view');
+                this.modal = document.getElementById('sys-modal');
+                this.navItems = document.querySelectorAll('.nav-item');
+
+                // 统一的数据源
+                this.changes = [
+                    { id: "CHG-ELEC-2026-001", title: "Bridge验证测试创建 - 电气图纸校验", domain: "ELEC", status: "draft", nature: "normal", applicant: "李工", apply_date: "2026-07-11", plan_date: "2026-07-11", business_nature: "SCPT", impact: "LOCAL", desc: "Bridge 校验测试变更单，核对图纸逻辑接线引脚。" },
+                    { id: "CHG-PLC-2026-005", title: "门禁拦截测试", domain: "PLC", status: "implementing", nature: "normal", applicant: "TestUser", apply_date: "2026-07-08", plan_date: "2026-07-08", business_nature: "DEF", impact: "LOCAL", desc: "门禁栏拦截流程逻辑升级调试测试。" },
+                    { id: "CHG-PLC-2026-004", title: "验收返工流程测试", domain: "PLC", status: "approved", nature: "normal", applicant: "TestUser", apply_date: "2026-07-05", plan_date: "2026-07-05", business_nature: "DEF", impact: "LOCAL", desc: "测试验收退回及流程修正。" },
+                    { id: "CHG-PLC-2026-003", title: "测试变更", domain: "PLC", status: "submitted", nature: "normal", applicant: "TestUser", apply_date: "2026-06-12", plan_date: "2026-06-12", business_nature: "DEF", impact: "LOCAL", desc: "基线验证测试变更流程。" },
+                    { id: "CHG-PLC-2026-002", title: "test-change", domain: "PLC", status: "completed", nature: "normal", applicant: "TestUser", apply_date: "2026-06-05", plan_date: "2026-06-05", business_nature: "DEF", impact: "LOCAL", desc: "常规功能调整测试完成。" },
+                    { id: "CHG-DOCU-2026-002", title: "用户补充工艺流程概览图及交接文档", domain: "DOCU", status: "completed", nature: "normal", applicant: "刘工", apply_date: "2026-04-27", plan_date: "2026-04-27", business_nature: "OPT", impact: "GLOBAL", desc: "依现场调试需求，回写补齐工艺控制逻辑的整体框图说明文档。" },
+                    { id: "CHG-DOCU-2026-001", title: "通过MCP工具读取PLC程序PDF进行自动区标签说明", domain: "DOCU", status: "closed", nature: "normal", applicant: "刘工", apply_date: "2026-04-21", plan_date: "2026-04-21", business_nature: "OPT", impact: "GLOBAL", desc: "使用 MCP 自动化脚本提取 PLC 符号地址列表，生成 PDF 文档索引说明。" },
+                    { id: "CHG-PLC-2026-001", title: "初始化模板测试", domain: "PLC", status: "closed", nature: "normal", applicant: "张工", apply_date: "2026-04-10", plan_date: "2026-04-10", business_nature: "SCPT", impact: "LOCAL", desc: "项目立项初始化标准模板测试。" }
+                ];
+
+                this.selectedCategory = "ALL";
+                this.selectedChangeId = "CHG-PLC-2026-005"; // 默认选择最新
+
+                this.statusOrder = [
+                    "draft", "submitted", "under_review", "approved", "implementing",
+                    "pending_acceptance", "accepting", "completed", "closed"
+                ];
+                this.statusNames = {
+                    "draft": "草稿",
+                    "submitted": "已提交",
+                    "under_review": "审核中",
+                    "approved": "已批准",
+                    "implementing": "实施中",
+                    "pending_acceptance": "待验收",
+                    "accepting": "验收中",
+                    "completed": "已完成",
+                    "closed": "已关闭"
+                };
+
+                this.bindEvents();
+                // 默认路由
+                this.navigate('platform-dashboard');
+            }
+
+            bindEvents() {
+                this.navItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        this.navItems.forEach(n => n.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.navigate(e.currentTarget.dataset.route);
+                    });
+                });
+            }
+
+            navigate(route) {
+                this.viewContainer.innerHTML = '';
+                const template = document.getElementById(`view-${route}`);
+                if (template) {
+                    this.viewContainer.appendChild(template.content.cloneNode(true));
+                    if (this[`init_${route.replace('-', '_')}`]) this[`init_${route.replace('-', '_')}`]();
+                } else {
+                    this.viewContainer.innerHTML = `
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted); opacity:0.6;">
+                            <i class="ph-bold ph-cone" style="font-size:64px; margin-bottom:16px;"></i>
+                            <h2 style="font-weight:500;">模块 [${route}] 开发建设中...</h2>
+                        </div>
+                    `;
+                }
+
+                // 侧边栏菜单的高亮更新同步
+                document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+                    if (item.dataset.route === route) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+
+            // --- 各视图初始化 ---
+
+            init_platform_dashboard() {
+                const timelineContainer = document.getElementById('platform-timeline-container');
+                let html = '';
+                // 写入时间线
+                this.changes.slice(0, 4).forEach(c => {
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="timeline-title">${c.id}</span>
+                                <span style="font-size:12px; color:var(--text-secondary)">状态推进至 [${this.statusNames[c.status]}] - "${c.title}"</span>
+                                <span class="timeline-date">${c.apply_date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                timelineContainer.innerHTML = html;
+            }
+
+            simulateSpecsScan() {
+                const btn = document.querySelector('button[onclick="app.simulateSpecsScan()"]');
+                const bar = document.getElementById('scan-progress-bar');
+                const txt = document.getElementById('scan-progress-text');
+                
+                btn.innerHTML = `<i class="ph ph-spinner" style="animation: spin 1.2s linear infinite;"></i> 扫描中...`;
+                bar.style.width = "0%";
+                txt.innerText = "已完成 0%";
+
+                setTimeout(() => { bar.style.width = "60%"; txt.innerText = "已完成 60% (校验数据结构)"; }, 500);
+                setTimeout(() => {
+                    bar.style.width = "100%";
+                    txt.innerText = "已完成 100% (规范一致)";
+                    btn.innerHTML = `<i class="ph ph-play"></i> 重新全量扫描`;
+                }, 1000);
+            }
+
+            init_project_workspace() {
+                // 初始化加载 Tab 1 (变更 Tab) 的内部逻辑
+                this.switchWorkspaceTab(1);
+            }
+
+            switchWorkspaceTab(index) {
+                // 高亮选中 Tab 标签页
+                for (let i = 0; i < 5; i++) {
+                    const tab = document.getElementById(`wtab-${i}`);
+                    const content = document.getElementById(`workspace-tab-content-${i}`);
+                    if (tab && content) {
+                        if (i === index) {
+                            tab.classList.add('active');
+                            content.style.display = (index === 1) ? 'flex' : 'block';
+                        } else {
+                            tab.classList.remove('active');
+                            content.style.display = 'none';
+                        }
+                    }
+                }
+
+                // 若进入变更 tab, 则进行加载
+                if (index === 1) {
+                    this.loadChangeTabContent();
+                }
+            }
+
+            loadChangeTabContent() {
+                // 计算分类个数
+                this.updateCategoryCounts();
+                // 时间线渲染
+                this.renderWorkspaceTimeline();
+                // 渲染变更列表 (按时间倒序)
+                this.renderChangeList();
+                // 默认选择最新
+                this.selectChange(this.selectedChangeId);
+            }
+
+            updateCategoryCounts() {
+                document.getElementById('count-ALL').innerText = `(${this.changes.length})`;
+                ['PLC', 'HMI', 'ELEC', 'DOCU'].forEach(dom => {
+                    const count = this.changes.filter(c => c.domain === dom).length;
+                    document.getElementById(`count-${dom}`).innerText = `(${count})`;
+                });
+            }
+
+            renderWorkspaceTimeline() {
+                const container = document.getElementById('timeline-container');
+                let html = '';
+                this.changes.slice(0, 4).forEach(c => {
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="timeline-title">${c.id}</span>
+                                <span style="font-size:12px; color:var(--text-secondary)">推进至 [${this.statusNames[c.status]}] - "${c.title}"</span>
+                                <span class="timeline-date">${c.apply_date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            renderChangeList() {
+                const container = document.getElementById('changes-list-container');
+                // 过滤并按时间倒序排列 (最新的排最前)
+                const filtered = (this.selectedCategory === "ALL" 
+                    ? this.changes 
+                    : this.changes.filter(c => c.domain === this.selectedCategory))
+                    .sort((a, b) => new Date(b.apply_date) - new Date(a.apply_date));
+
+                document.getElementById('changes-list-count').innerText = `共 ${filtered.length} 条`;
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:13px;">暂无该分类的变更单</div>`;
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(c => {
+                    const isSelected = c.id === this.selectedChangeId;
+                    html += `
+                        <div class="change-card ${isSelected ? 'selected' : ''}" onclick="app.selectChange('${c.id}')">
+                            <div class="card-row-top">
+                                <span class="card-id">${c.id}</span>
+                                <div class="card-badges">
+                                    <span class="badge domain">${c.domain}</span>
+                                    <span class="badge ${c.status}">${this.statusNames[c.status] || c.status}</span>
+                                </div>
+                            </div>
+                            <div class="change-card-title">${c.title}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            setCategory(category, pillElement) {
+                document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+                pillElement.classList.add('active');
+                this.selectedCategory = category;
+                
+                this.renderChangeList();
+
+                const filtered = (category === "ALL" 
+                    ? this.changes 
+                    : this.changes.filter(c => c.domain === category))
+                    .sort((a, b) => new Date(b.apply_date) - new Date(a.apply_date));
+
+                if (filtered.length > 0) {
+                    this.selectChange(filtered[0].id);
+                } else {
+                    this.clearDetail();
+                }
+            }
+
+            selectChange(id) {
+                this.selectedChangeId = id;
+                const change = this.changes.find(c => c.id === id);
+                if (!change) return;
+
+                // 重新渲染高亮
+                const cards = document.querySelectorAll('.change-card');
+                cards.forEach(card => {
+                    const cardId = card.querySelector('.card-id').innerText;
+                    if (cardId === id) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+
+                // 更新右侧及基本信息
+                document.getElementById('detail-id').innerText = change.id;
+                document.getElementById('info-id').innerText = change.id;
+                document.getElementById('info-domain').innerText = change.domain;
+                document.getElementById('info-nature').innerText = change.business_nature || "DEF";
+                document.getElementById('info-impact').innerText = change.impact || "LOCAL";
+                document.getElementById('info-applicant').innerText = change.applicant;
+                document.getElementById('info-apply-date').innerText = change.apply_date;
+                document.getElementById('info-plan-date').innerText = change.plan_date;
+                document.getElementById('detail-desc').innerText = change.desc;
+
+                // 更新右侧 badges
+                const statusBadge = document.getElementById('detail-badge-status');
+                statusBadge.className = `badge ${change.status}`;
+                statusBadge.innerText = change.status;
+                
+                const domBadge = document.getElementById('detail-badge-domain');
+                domBadge.innerText = change.domain;
+                
+                const natureBadge = document.getElementById('detail-badge-nature');
+                natureBadge.innerText = change.nature;
+
+                // 状态流转可视化更新
+                this.updateStateMachine(change);
+
+                // 右上角流转按钮更新
+                this.updateTransitionButtons(change);
+            }
+
+            clearDetail() {
+                document.getElementById('detail-id').innerText = "无选中变更";
+                document.getElementById('detail-desc').innerText = "请在左侧列表中选择变更单";
+                document.getElementById('transition-actions-container').innerHTML = "";
+            }
+
+            updateStateMachine(change) {
+                const latestStatus = change.status;
+                const latestIdx = this.statusOrder.indexOf(latestStatus);
+                const currentIdx = latestIdx !== -1 ? latestIdx : 0;
+
+                document.getElementById('state-machine-tag').innerText = change.id;
+
+                for (let i = 0; i < 9; i++) {
+                    const circle = document.getElementById(`node-${i}`);
+                    const label = document.getElementById(`label-${i}`);
+                    if (!circle || !label) continue;
+                    
+                    circle.className = "node-circle";
+                    label.className = "node-label";
+
+                    if (i === currentIdx) {
+                        circle.classList.add("active");
+                        label.classList.add("active");
+                    } else if (i < currentIdx) {
+                        circle.classList.add("completed");
+                        label.classList.add("completed");
+                    }
+                }
+
+                const percent = (currentIdx / 8) * 100;
+                const progressBar = document.getElementById('flow-progress-bar');
+                if (progressBar) progressBar.style.width = `${percent}%`;
+
+                document.getElementById('flow-completed-count').innerText = `已完成 ${currentIdx} / 9 个节点`;
+                document.getElementById('flow-percent').innerText = `${(percent).toFixed(2)}%`;
+            }
+
+            updateTransitionButtons(change) {
+                const actionsContainer = document.getElementById('transition-actions-container');
+                if (!actionsContainer) return;
+                let html = '';
+
+                if (change.status === "draft") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'submitted')">➔ 提交审批</button>`;
+                } else if (change.status === "submitted") {
+                    html = `
+                        <button class="action-btn secondary" onclick="app.transitionTo('${change.id}', 'draft')">➔ 退回草稿</button>
+                        <button class="action-btn" onclick="app.transitionTo('${change.id}', 'under_review')">一 审核中</button>
+                    `;
+                } else if (change.status === "under_review") {
+                    html = `
+                        <button class="action-btn secondary" onclick="app.transitionTo('${change.id}', 'draft')">➔ 退回草稿</button>
+                        <button class="action-btn" onclick="app.transitionTo('${change.id}', 'approved')">一 批准变更</button>
+                    `;
+                } else if (change.status === "approved") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'implementing')">一 实施中</button>`;
+                } else if (change.status === "implementing") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'pending_acceptance')">一 提交验收</button>`;
+                } else if (change.status === "pending_acceptance") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'accepting')">一 验收中</button>`;
+                } else if (change.status === "accepting") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'completed')">一 确认完成</button>`;
+                } else if (change.status === "completed") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'closed')">一 关闭变更</button>`;
+                } else if (change.status === "closed") {
+                    html = `<span style="font-size:12px; color:var(--success); font-weight:600;"><i class="ph ph-check-circle"></i> 该变更已闭环</span>`;
+                }
+
+                actionsContainer.innerHTML = html;
+            }
+
+            transitionTo(changeId, targetStatus) {
+                const change = this.changes.find(c => c.id === changeId);
+                if (change) {
+                    change.status = targetStatus;
+                    this.loadChangeTabContent();
+                    console.log(`[V10 Prototype] 变更单 ${changeId} 推进到 ${targetStatus}`);
+                }
+            }
+
+            // --- 公共功能 ---
+
+            showModal(title = "提示", body = "") {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-body').innerText = body;
+                this.modal.classList.add('active');
+            }
+
+            closeModal(e) {
+                if (e && e.target !== this.modal) return;
+                this.modal.classList.remove('active');
+            }
+        }
+
+        // 全局动画样式注册
+        const animStyle = document.createElement('style');
+        animStyle.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+        document.head.appendChild(animStyle);
+
+        // 启动应用
+        const app = new Application();
+    </script>
+</body>
+</html>

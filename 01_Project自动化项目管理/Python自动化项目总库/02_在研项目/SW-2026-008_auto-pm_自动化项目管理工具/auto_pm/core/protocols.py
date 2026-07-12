@@ -238,6 +238,7 @@ class DashboardServiceProtocol(Protocol):
 
     提供 DashboardSummary 聚合数据供 WorkbenchFacade.get_dashboard_snapshot() 调用。
     CHG-106 扩展：新增 get_active_change_for_project 供平台驾驶舱状态机视图调用。
+    CHG-123 扩展：新增 get_change_summary_for_project 供项目工作区变更Tab驾驶舱模式调用。
     """
 
     def get_summary(self) -> Any:
@@ -246,6 +247,10 @@ class DashboardServiceProtocol(Protocol):
 
     def get_active_change_for_project(self, project_id: str) -> Any:
         """返回项目最近一条活跃变更单（CHG-106），无活跃变更时返回 None"""
+        ...
+
+    def get_change_summary_for_project(self, project_id: str) -> dict[str, Any]:
+        """返回项目级变更聚合摘要（CHG-123），含 KPI/状态机/活动时间线"""
         ...
 
 

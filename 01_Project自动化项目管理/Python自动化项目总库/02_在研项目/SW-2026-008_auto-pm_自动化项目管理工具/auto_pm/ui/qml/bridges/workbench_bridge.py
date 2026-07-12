@@ -79,6 +79,27 @@ class WorkbenchBridge(QObject):
         }
 
     @Slot(str, result="QVariant")
+    def getProjectChangeSummary(self, project_id: str) -> dict[str, Any]:
+        """获取项目级变更聚合摘要（项目工作区变更Tab驾驶舱模式）
+
+        返回预计算的 KPI、状态机和活动时间线数据。
+        """
+        if self._facade:
+            res = self._facade.get_project_change_summary(project_id)
+            if res.success and res.payload is not None:
+                return res.payload
+        return {
+            "kpi": {"total": 0, "implementing": 0, "pending_review": 0, "this_week": 0},
+            "state_machine": {
+                "current_node": 0,
+                "current_node_name": "无变更",
+                "progress": 0,
+                "nodes": [],
+            },
+            "activities": [],
+        }
+
+    @Slot(str, result="QVariant")
     def getAssetSummary(self, project_id: str) -> dict[str, Any]:
         if self._facade:
             res = self._facade.get_project_workspace(project_id)

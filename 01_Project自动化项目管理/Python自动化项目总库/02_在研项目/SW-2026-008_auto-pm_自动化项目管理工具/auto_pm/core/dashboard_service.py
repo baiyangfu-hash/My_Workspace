@@ -123,12 +123,158 @@ class DashboardService:
         if not active_changes:
             return None
 
-        # 按 apply_date 降序取最近一条（apply_date 格式 YYYY-MM-DD）
         active_changes.sort(
             key=lambda c: self._parse_date_to_timestamp(c.apply_date),
             reverse=True,
         )
         return active_changes[0]
+
+    def get_change_summary_for_project(self, project_id: str) -> dict[str, Any]:
+        """获取项目级变更聚合摘要（项目工作区变更Tab驾驶舱模式）
+
+        返回预计算的 KPI、状态机和活动时间线数据，避免 QML 端重复计算。
+
+        Args:
+            project_id: 项目编号
+
+        Returns:
+            聚合摘要 dict:
+            {
+                "kpi": {
+                    "total": int,
+                    "implementing": int,
+                    "pending_review": int,
+                    "this_week": int
+                },
+                "state_machine": {
+                    "current_node": int,
+                    "current_node_name": str,
+                    "progress": float,
+                    "nodes": list[dict]
+                },
+                "activities": list[dict]
+            }
+        """
+        try:
+            changes = self._change_service.list_all_changes(project_id=project_id)
+        except Exception as exc:
+            log.warning("查询项目变更失败 %s: %s", project_id, exc)
+            changes = []
+
+        kpi = self._compute_change_kpi(changes)
+        state_machine = self._compute_change_state_machine(changes)
+        activities = self._compute_change_activities(changes)
+
+        return {
+            "kpi": kpi,
+            "state_machine": state_machine,
+            "activities": activities,
+        }
+
+    @staticmethod
+    def _compute_change_kpi(changes: list[Any]) -> dict[str, int]:
+        """计算变更KPI数据"""
+        from datetime import datetime, timedelta
+
+        total = len(changes)
+        implementing = 0
+        pending_review = 0
+        this_week = 0
+        today = datetime.now()
+        week_ago = today - timedelta(days=7)
+
+        for c in changes:
+            status = str(c.status)
+            if status == "implementing":
+                implementing += 1
+            if status in ("under_review", "submitted"):
+                pending_review += 1
+
+            apply_date = getattr(c, "apply_date", "")
+            if apply_date and apply_date != "待补充":
+                try:
+                    date_obj = datetime.strptime(apply_date[:10], "%Y-%m-%d")
+                    if date_obj >= week_ago:
+                        this_week += 1
+                except (ValueError, TypeError):
+                    pass
+
+        return {
+            "total": total,
+            "implementing": implementing,
+            "pending_review": pending_review,
+            "this_week": this_week,
+        }
+
+    @staticmethod
+    def _compute_change_state_machine(changes: list[Any]) -> dict[str, Any]:
+        """计算变更状态机数据"""
+        if not changes:
+            return {
+                "current_node": 0,
+                "current_node_name": "无变更",
+                "progress": 0,
+                "nodes": [],
+            }
+
+        sorted_changes = sorted(
+            changes,
+            key=lambda c: DashboardService._parse_date_to_timestamp(c.apply_date),
+            reverse=True,
+        )
+        latest = sorted_changes[0]
+
+        status_order = [
+            "draft", "submitted", "under_review", "approved", "implementing",
+            "pending_acceptance", "accepting", "completed", "closed"
+        ]
+        status_names = {
+            "draft": "草稿",
+            "submitted": "已提交",
+            "under_review": "审核中",
+            "approved": "已批准",
+            "implementing": "实施中",
+            "pending_acceptance": "待验收",
+            "accepting": "验收中",
+            "completed": "已完成",
+            "closed": "已关闭",
+        }
+
+        latest_status = str(latest.status)
+        nodes = []
+        for status in status_order:
+            idx = status_order.index(status)
+            latest_idx = status_order.index(latest_status) if latest_status in status_order else -1
+            nodes.append({
+                "name": status_names[status],
+                "status": status,
+                "active": status == latest_status,
+                "completed": idx <= latest_idx,
+            })
+
+        current_idx = status_order.index(latest_status) if latest_status in status_order else -1
+
+        return {
+            "current_node": current_idx + 1,
+            "current_node_name": status_names.get(latest_status, latest_status),
+            "progress": ((current_idx + 1) / len(status_order)) * 100 if current_idx >= 0 else 0,
+            "nodes": nodes,
+        }
+
+    @staticmethod
+    def _compute_change_activities(changes: list[Any]) -> list[dict[str, Any]]:
+        """生成变更活动时间线"""
+        activities = []
+        for c in changes:
+            apply_date = getattr(c, "apply_date", "")
+            activities.append({
+                "time": apply_date,
+                "title": getattr(c, "change_number", ""),
+                "subtitle": getattr(c, "title", ""),
+                "type": str(getattr(c, "status", "default")),
+            })
+        activities.sort(key=lambda a: (a.get("time") or ""), reverse=True)
+        return activities[:10]
 
     def _collect_plc_check_stats(
         self, projects: list[Any]

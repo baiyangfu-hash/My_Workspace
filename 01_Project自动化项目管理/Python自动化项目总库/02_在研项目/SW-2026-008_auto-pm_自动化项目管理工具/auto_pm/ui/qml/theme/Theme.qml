@@ -20,6 +20,8 @@ QtObject {
     readonly property color background: "#020617"          // --bg-base 深蓝黑
     readonly property color surface: "#0f172a"             // --bg-gradient-2 极深蓝（卡片表面）
     readonly property color sidebarBg: "#0f172a"           // 侧边栏背景（与 surface 一致，玻璃拟物基底）
+    readonly property color backgroundTertiary: "#1e293b"  // 三级背景色（容器背景，对齐新面板）
+    readonly property color bgCard: "#0f172a"              // 卡片背景色（同 surface，对齐新卡片）
 
     // ── 功能色（对齐原型 V7）─────────────────────────────
     readonly property color primary: "#6366f1"             // --primary 靛蓝（主交互）
@@ -37,9 +39,11 @@ QtObject {
     readonly property color textPrimary: "#f1f5f9"         // 主文本（浅色，对比度 >7:1）
     readonly property color textSecondary: "#cbd5e1"       // 次文本（浅灰，对比度 >4.5:1）
     readonly property color textMuted: "#94a3b8"           // 静音文本（中灰，对比度 >3:1）
+    readonly property color textTertiary: "#94a3b8"        // 三级文本/辅助色（同 textMuted）
 
     // ── 边框/分隔（深色适配，复用玻璃边框色）─────────────
     readonly property color border: Qt.rgba(1.0, 1.0, 1.0, 0.08)        // 玻璃边框色
+    readonly property color borderSubtle: Qt.rgba(1.0, 1.0, 1.0, 0.04)  // 细微边框色
 
     // ── 徽标色（保留现有，深色背景可读）──────────────────
     readonly property color badgePlc: "#2563eb"            // PLC 徽标

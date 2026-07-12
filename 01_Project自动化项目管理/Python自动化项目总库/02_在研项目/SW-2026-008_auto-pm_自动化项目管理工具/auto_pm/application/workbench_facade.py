@@ -192,6 +192,45 @@ class WorkbenchFacade:
         except Exception as e:
             return QueryResult(success=False, message=str(e), errors=[str(e)])
 
+    def get_project_change_summary(self, project_id: str) -> QueryResult[dict[str, Any]]:
+        """获取项目级变更聚合摘要（项目工作区变更Tab驾驶舱模式）
+
+        返回预计算的 KPI、状态机和活动时间线数据，避免 QML 端重复计算。
+
+        Args:
+            project_id: 项目编号
+
+        Returns:
+            QueryResult[dict], payload 结构:
+            {
+                "kpi": {
+                    "total": int,
+                    "implementing": int,
+                    "pending_review": int,
+                    "this_week": int
+                },
+                "state_machine": {
+                    "current_node": int,
+                    "current_node_name": str,
+                    "progress": float,
+                    "nodes": list[dict]
+                },
+                "activities": list[dict]
+            }
+        """
+        try:
+            if not self._dashboard_service:
+                return QueryResult(
+                    success=False,
+                    message="DashboardService 未启用",
+                    errors=["DashboardService 未启用"],
+                )
+
+            payload = self._dashboard_service.get_change_summary_for_project(project_id)
+            return QueryResult(success=True, message="Success", payload=payload)
+        except Exception as e:
+            return QueryResult(success=False, message=str(e), errors=[str(e)])
+
     def list_project_cards(self) -> QueryResult[list[ProjectCardDTO]]:
         """获取项目列表卡片
 
