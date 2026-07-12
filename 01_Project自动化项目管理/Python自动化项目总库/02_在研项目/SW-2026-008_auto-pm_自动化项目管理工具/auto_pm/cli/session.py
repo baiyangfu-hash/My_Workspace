@@ -64,6 +64,17 @@ def _resolve_workspace(workspace: str | None, ctx: click.Context | None = None) 
     return ws
 
 
+def _find_pm_session_files(root: Path) -> list[Path]:
+    """递归查找所有 PM_SESSION 文件（排除 backup 和 archive）"""
+    candidates = list(root.rglob("PM_SESSION_*.md"))
+    # 排除备份文件和归档文件
+    candidates = [
+        c for c in candidates
+        if ".bak" not in c.name and "archive" not in c.name.lower()
+    ]
+    return sorted(candidates)
+
+
 def _find_pm_session_file(project_root: Path, project_id: str | None = None) -> Path:
     """查找项目目录下的 PM_SESSION 文件"""
     if project_id:
@@ -118,6 +129,40 @@ def cmd_check(
     """
     ws = _resolve_workspace(workspace, ctx)
     root = project_root if project_root else ws
+
+    # 当未指定 --project-root 时，递归扫描工作空间中的所有 PM_SESSION 文件
+    if project_root is None:
+        pm_files = _find_pm_session_files(ws)
+        if not pm_files:
+            console.print(
+                f"[red]错误: 在 {ws} 及子目录中未找到 PM_SESSION_*.md 文件[/red]"
+            )
+            raise SystemExit(2)
+        # 检查所有文件
+        svc = PmSessionCheckService()
+        all_healthy = True
+        for pm_file in pm_files:
+            result = svc.check(pm_file)
+            if quiet and result.is_healthy:
+                continue
+            if result.is_healthy:
+                ok_icon = "OK" if not _supports_unicode_output() else "✅"
+                console.print(
+                    f"[green]{ok_icon} {pm_file.relative_to(ws)}: "
+                    f"{result.file_size_kb}KB / {result.total_lines}行[/green]"
+                )
+            else:
+                all_healthy = False
+                fail_icon = "FAIL" if not _supports_unicode_output() else "❌"
+                warn_icon = "WARN" if not _supports_unicode_output() else "⚠"
+                console.print(f"[red]{fail_icon} {pm_file.relative_to(ws)}[/red]")
+                for w in result.warnings:
+                    console.print(f"  [yellow]{warn_icon} {w}[/yellow]")
+        if not all_healthy:
+            raise SystemExit(1)
+        return
+
+    # 指定了 --project-root 时，单文件检查
     try:
         pm_file = _find_pm_session_file(root, project_id)
     except (FileNotFoundError, ValueError) as e:

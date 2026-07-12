@@ -41,6 +41,13 @@ def cmd_refresh(
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
+    if proj.stack != "plc":
+        console.print(
+            f"[yellow]项目 {project_id} 不是 PLC 项目（stack={proj.stack}），"
+            f"doc refresh 仅支持 PLC 项目[/yellow]"
+        )
+        return
+
     refresh_service = DocRefreshService(app_ctx.workspace_root)
     result = refresh_service.refresh_project_documents(proj, dry_run=dry_run)
 
@@ -88,6 +95,13 @@ def cmd_inject(
     if proj is None:
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
+
+    if proj.stack != "plc":
+        console.print(
+            f"[yellow]项目 {project_id} 不是 PLC 项目（stack={proj.stack}），"
+            f"doc inject 仅支持 PLC 项目[/yellow]"
+        )
+        return
 
     inject_service = DocInjectService(app_ctx.workspace_root)
     result = inject_service.inject_markers(proj, dry_run=dry_run)

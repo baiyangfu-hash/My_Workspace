@@ -126,14 +126,14 @@ class ProjectScanner:
                 existing_pri = self._SOURCE_PRIORITY.get(existing.source, 99)
                 current_pri = self._SOURCE_PRIORITY.get(p.source, 99)
                 if current_pri < existing_pri:
-                    log.warning(
+                    log.debug(
                         "项目重复（按 project_id=%s）: 保留 %s@%s, 跳过 %s@%s",
                         p.project_id, p.source, p.path,
                         existing.source, existing.path,
                     )
                     by_id[p.project_id] = p
                 else:
-                    log.warning(
+                    log.debug(
                         "项目重复（按 project_id=%s）: 保留 %s@%s, 跳过 %s@%s",
                         p.project_id, existing.source, existing.path,
                         p.source, p.path,

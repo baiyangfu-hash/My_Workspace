@@ -44,7 +44,10 @@ class SpecScanner:
     def _collect_md_files(self, directory: Path) -> list[Path]:
         if not directory.exists():
             return []
-        return sorted(directory.rglob("*.md"))
+        files = sorted(directory.rglob("*.md"))
+        # 排除归档文件（PM_SESSION_*archive* 等），避免过时路径引用产生噪音 WARN
+        files = [f for f in files if "archive" not in f.name.lower()]
+        return files
 
     def iter_pm_session_files(self) -> list[Path]:
         base_dir = self.project_root or self.workspace

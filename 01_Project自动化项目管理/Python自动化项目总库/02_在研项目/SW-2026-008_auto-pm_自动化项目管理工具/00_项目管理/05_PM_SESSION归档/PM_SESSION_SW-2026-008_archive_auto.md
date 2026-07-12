@@ -263,3 +263,67 @@
 - **门禁结果**: ruff 0 + mypy 0 + 31 modified tests pass（含 7 个新测试：5 facade + 2 bridge）+ 315 broader pass + 6 pre-existing errors + PM_SESSION 287 行 + 台帐对账无差异
 - **CHG-120 状态**: draft→submitted→under_review→approved→implementing→pending_acceptance→accepting→completed→closed（9 步完整流转）
 
+## 6. Implementation Log
+- **CHG 编号规划**：CHG-116 delivery asset → CHG-117 pm-session archive → CHG-118 ledger reconcile → CHG-119 spec index → CHG-120 spec report → CHG-121 spec frontmatter（串行推进）
+- **工作量分布**：CHG-116 低（仅 QML 对话框）+ CHG-117~121 中（Facade+Bridge+QML）
+- **迭代计划文档**：`00_项目管理/03_执行过程/2026-07-11_M5_规范与台账管理_迭代计划.md`
+- **dogfooding 规划**：CHG-116~121 分别为第 47~52 次 dogfooding 闭环
+
+### 2026-07-11 CHG-116/117/118 早期记录摘要（已归档）
+
+- **CHG-116 delivery asset**（第 47 次 dogfooding，closed）：注释清理，发现 CHG-111 已完成 QML 接入，仅更新 delivery_bridge.py + WorkspaceView.qml 注释。门禁全绿 + 台帐无差异
+- **CHG-117 pm-session archive**（第 48 次 dogfooding，closed）：GUI 接入 PM_SESSION 归档功能，新增 PmSessionArchiveResultDTO + Protocol.archive + Facade/Bridge/QML Dialog 三层 + 6 测试。门禁全绿 + PM_SESSION 309→285 行 + 台帐无差异
+- **CHG-118 ledger reconcile**（第 49 次 dogfooding，closed）：GUI 接入台账对账功能，新增 LedgerReconcileResultDTO + reconcile_ledger Facade + reconcileLedger Bridge + LedgerReconcileDialog.qml + 8 测试。门禁全绿 + 台帐无差异
+- 详见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-116.md` / `CHG-SCPT-2026-117.md` / `CHG-SCPT-2026-118.md`
+
+### 2026-07-11 CHG-119/120/121 早期记录摘要（已归档）
+
+- **CHG-119 spec index**（第 50 次 dogfooding，closed）：GUI 接入规范索引生成，新增 SpecIndexResultDTO + generate_spec_index Facade + generateSpecIndex Bridge + SpecIndexDialog.qml + 8 测试。门禁全绿 + 台帐无差异
+- **CHG-120 spec report**（第 51 次 dogfooding，closed）：GUI 接入规范报告生成，新增 SpecReportResultDTO + generate_spec_report Facade + generateSpecReport Bridge + SpecReportDialog.qml + 7 测试。门禁全绿 + 台帐无差异
+- **CHG-121 spec frontmatter**（第 52 次 dogfooding，closed，M5 收尾）：GUI 接入 Frontmatter 检查/修复，新增 SpecFrontmatterResultDTO + check_spec_frontmatter Facade + checkSpecFrontmatter Bridge + SpecFrontmatterDialog.qml + 7 测试。门禁全绿 + 台帐无差异
+- 详见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-119.md` / `CHG-SCPT-2026-120.md` / `CHG-SCPT-2026-121.md`
+
+### 2026-07-11 M5 全量回归测试（fullstack-engineer 执行，非 dogfooding 闭环）
+
+- **skill**: fullstack-engineer | **mode**: 评审 | **goal**: M5 6 项 CHG-116~121 闭环后全量回归测试
+- **changed_files**: 无（只读验证）
+- **门禁结果**: ✅ mypy 0 errors in 127 source files + ✅ ruff M5 21 个修改文件 All checks passed + ⚠️ ruff 全量 3 pre-existing errors（scripts/diag_change_cross_project_bug.py E402×2 + tests/change/test_change_service_db.py I001×1，均非 M5 修改文件）+ ✅ pytest 1347 passed + 2 skipped + 6 pre-existing errors（test_change_facade_int.py FOREIGN KEY）+ ✅ PM_SESSION size 9 passed + ✅ 台帐核对无差异
+- **结论**: M5 6 项 CHG-116~121 回归测试全绿，所有 errors 均为预存技术债非 M5 引入
+
+### 2026-07-13 V1.0.0 第二轮深度审查 + CLI 全命令试用（fullstack-engineer 执行，非 dogfooding 闭环）
+
+- **skill**: fullstack-engineer | **mode**: 全栈联调 + 评审 | **goal**: 用户要求自检 GUI 功能可用性，试用工具并描述问题点
+- **changed_files**: `auto_pm/change/change_service.py`（N11 sort_key 类型注解修复）+ `09_整改项/深度审查报告.md`（重写）+ `09_整改项/深度审查整改方案.md`（重写）
+- **门禁结果**: ✅ ruff 0 errors + ✅ mypy 1 error（N11 sort_key，已修复）→ 0 errors in 128 source files + ✅ pytest 1361 passed 2 skipped 33.10s + ✅ ledger reconcile 无差异
+- **CLI 全命令试用（11 命令组端到端）**:
+  - ✅ 正常: project list/show, change list/show, plc check, ledger reconcile, template list
+  - 🔴 **P0-1 `--version` 崩溃**: `RuntimeError: 'auto_pm' is not installed`，click 在 python -m 模式下无法解析 package_name
+  - 🔴 **P0-2 全局中文乱码**: 所有命令在 Windows PowerShell 中 rich 输出中文全部乱码，工具对中国用户不可用
+  - 🔴 **P0-3 `python check` 不可用**: 13 个检查项状态全部为 "?"，Python 规范检查功能完全不可用
+  - 🟡 P1-1: SW-2026-008 项目重复警告每次污染输出（`02_在研项目/` 残骸目录）
+  - 🟡 P1-2: `pm-session check` 在 workspace root 找不到 PM_SESSION 文件
+  - 🟡 P1-3: `spec check` 422 个 WARN 噪音（archive 文件中过时路径引用）
+  - 🟡 P1-4: `change show` 只接受 CHANGE_NUMBER 不接受 project_id，与 `change list` 不一致
+  - 🟡 P1-5: `doc refresh` 对 Python 项目支持不足
+  - 🟢 P2: 文档 `--pid` 与实际 CLI 位置参数不一致，`vartable detect` 应为 `detect-format`
+- **结论**: 项目健康度从 4.5/5.0 下调至 3.5/5.0。三轨门禁全绿但 CLI 实际可用性严重不足——3 个 P0 问题阻断使用（`--version` 崩溃、中文乱码、`python check` 不可用）。P0 问题必须在 V1.0.0 正式发布前修复。审查报告和整改方案已更新至 `09_整改项/`。
+- **风险**: 上次审查（2026-07-11）声称 "mypy 0 errors" 但实测有 1 个 error——审查报告门禁数据需每次运行时验证，不能仅凭声明。
+
+### 2026-07-13 V1.0.0 第二轮审查修复 + GUI 试用（fullstack-engineer 执行，非 dogfooding 闭环）
+
+- **skill**: fullstack-engineer | **mode**: 全栈联调 + 后端 | **goal**: 修复 P0 阻断问题 + GUI 冒烟测试 + 迭代审查文件
+- **changed_files**: `auto_pm/__main__.py`（编码修复 + 移除 unused type:ignore）+ `auto_pm/cli/__main__.py`（编码修复 + version_option 显式 package_name + 移除 unused type:ignore）+ `auto_pm/cli/session.py`（递归搜索 PM_SESSION）+ `auto_pm/spec/core/scanner.py`（排除 archive）+ `auto_pm/cli/doc.py`（stack 类型检查）+ `auto_pm/change/change_service.py`（N11 sort_key 类型注解）+ `scripts/gui_smoke_test.py`（N12 补全 3 个新服务工厂）+ `09_整改项/深度审查报告.md`（迭代）+ `09_整改项/深度审查整改方案.md`（迭代）
+- **P0 修复（3 项全部完成）**:
+  - N1 `--version` 崩溃：`@click.version_option(version="1.0.0", package_name="auto-pm")` → `python -m auto_pm --version` 正常输出
+  - N2 全局中文乱码：`__main__.py` 设置 `PYTHONIOENCODING=utf-8` + `SetConsoleOutputCP(65001)` + `stdout.reconfigure(encoding='utf-8')`；`cli/__main__.py` 同样处理
+  - N3 `python check` "?"：N2 编码修复后 ✓/✗ 字符正常渲染，13 个检查项状态正确显示
+- **P1 修复（4 项完成）**:
+  - N5 `pm-session check`：改为 `rglob("PM_SESSION_*.md")` 递归搜索 + 排除 archive/backup
+  - N6 `spec check` 422 WARN：`_collect_md_files()` 排除 `"archive" in f.name.lower()`
+  - N8 `doc refresh`：CLI 入口检测 `proj.stack != "plc"` 给出友好提示
+  - N12 烟雾测试脚本回归：补全 `make_spec_index_service`/`make_spec_report_service`/`make_spec_frontmatter_service` 工厂 + 服务注入
+- **P2 修复（2 项完成）**:
+  - N11 `change_service.py` sort_key 类型注解
+  - N13 `__main__.py` + `cli/__main__.py` 移除 unused type:ignore（`hasattr` 已让 mypy 正确窄化类型）
+- **GUI 试用结果**：冒烟测试 `scripts/gui_smoke_test.py` 9/9 步骤通过（8 页面全部可加载）+ 9 截图 + 8 个 QML 警告（5 个 VarTableEditorView varTableModel 未定义 + 3 个布局/颜色，全为预存）
+- **门禁结果**: ✅ ruff 0 errors + ✅ mypy 0 errors in 128 source files + ✅ pytest 1352 passed 2 skipped (297.61s) + ✅ ledger reconcile 0 差异 + ✅ GUI 冒烟 9/9 通过

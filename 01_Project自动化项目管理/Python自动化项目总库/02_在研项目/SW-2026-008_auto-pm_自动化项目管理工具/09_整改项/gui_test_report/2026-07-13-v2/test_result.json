@@ -1,0 +1,172 @@
+{
+  "test_name": "auto-pm QML GUI 冒烟测试",
+  "version": "V1.0.0",
+  "start_time": "2026-07-13T03:59:49.959310",
+  "end_time": "2026-07-13T03:59:57.657189",
+  "duration_seconds": 7.697879,
+  "workspace_root": "C:\\Users\\fubai\\Desktop\\My_Workspace",
+  "summary": {
+    "total_steps": 9,
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "total_screenshots": 9,
+    "total_warnings": 3
+  },
+  "test_steps": [
+    {
+      "index": 0,
+      "name": "应用启动",
+      "description": "验证应用启动成功，主窗口可见",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:51.516224"
+    },
+    {
+      "index": 1,
+      "name": "项目列表页",
+      "description": "导航到项目列表页，验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:52.206144"
+    },
+    {
+      "index": 2,
+      "name": "变更中心页",
+      "description": "导航到变更中心页，验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:52.937048"
+    },
+    {
+      "index": 3,
+      "name": "规范中心页",
+      "description": "导航到规范中心页，验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:53.635386"
+    },
+    {
+      "index": 4,
+      "name": "报告中心页",
+      "description": "导航到报告中心页，验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:54.320984"
+    },
+    {
+      "index": 5,
+      "name": "模板管理页",
+      "description": "导航到模板管理页，验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:55.037809"
+    },
+    {
+      "index": 6,
+      "name": "设置页",
+      "description": "导航到设置页，验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:55.738912"
+    },
+    {
+      "index": 7,
+      "name": "工作台页",
+      "description": "导航到工作台页（通过选中第一个项目），验证页面加载",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:56.478733"
+    },
+    {
+      "index": 8,
+      "name": "返回项目列表",
+      "description": "从工作台返回项目列表页",
+      "status": "passed",
+      "timestamp": "2026-07-13T03:59:57.169406"
+    }
+  ],
+  "screenshots": [
+    {
+      "step": 0,
+      "name": "app_launch",
+      "description": "应用启动后主窗口初始状态",
+      "path": "screenshots/00_app_launch_20260713_035951.png",
+      "timestamp": "2026-07-13T03:59:51.514711"
+    },
+    {
+      "step": 1,
+      "name": "project_list",
+      "description": "项目列表页 - 显示所有项目",
+      "path": "screenshots/01_project_list_20260713_035952.png",
+      "timestamp": "2026-07-13T03:59:52.205142"
+    },
+    {
+      "step": 2,
+      "name": "change_center",
+      "description": "变更中心页 - 显示所有变更单",
+      "path": "screenshots/02_change_center_20260713_035952.png",
+      "timestamp": "2026-07-13T03:59:52.935186"
+    },
+    {
+      "step": 3,
+      "name": "spec_center",
+      "description": "规范中心页 - 显示规范概览/索引/检查",
+      "path": "screenshots/03_spec_center_20260713_035953.png",
+      "timestamp": "2026-07-13T03:59:53.634378"
+    },
+    {
+      "step": 4,
+      "name": "report_center",
+      "description": "报告中心页 - 显示报告模板和生成入口",
+      "path": "screenshots/04_report_center_20260713_035954.png",
+      "timestamp": "2026-07-13T03:59:54.320475"
+    },
+    {
+      "step": 5,
+      "name": "template_manage",
+      "description": "模板管理页 - 显示项目模板列表",
+      "path": "screenshots/05_template_manage_20260713_035954.png",
+      "timestamp": "2026-07-13T03:59:55.036797"
+    },
+    {
+      "step": 6,
+      "name": "settings",
+      "description": "设置页 - 显示应用设置选项",
+      "path": "screenshots/06_settings_20260713_035955.png",
+      "timestamp": "2026-07-13T03:59:55.737834"
+    },
+    {
+      "step": 7,
+      "name": "workspace",
+      "description": "工作台页 - 项目概览和详情",
+      "path": "screenshots/07_workspace_20260713_035956.png",
+      "timestamp": "2026-07-13T03:59:56.477718"
+    },
+    {
+      "step": 8,
+      "name": "back_to_project_list",
+      "description": "返回项目列表页 - 验证导航往返正常",
+      "path": "screenshots/08_back_to_project_list_20260713_035956.png",
+      "timestamp": "2026-07-13T03:59:57.168404"
+    }
+  ],
+  "warnings": [
+    {
+      "type": "Warning",
+      "message": "file:///C:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/ui/qml/views/VarTableEditorView.qml:195:9: QML HorizontalHeaderView: Cannot anchor to an item that isn't a parent or sibling.",
+      "file": "file:///C:/Users/fubai/Desktop/My_Workspace/01_Project???????/Python???????/02_????/SW-2026-008_auto-pm_?????????/auto_pm/ui/qml/views/VarTableEditorView.qml",
+      "line": 195,
+      "function": null,
+      "timestamp": "2026-07-13T03:59:48.606813"
+    },
+    {
+      "type": "Warning",
+      "message": "file:///C:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/ui/qml/dialogs/TemplateApplyDialog.qml:119:13: QML QQuickText: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.",
+      "file": "file:///C:/Users/fubai/Desktop/My_Workspace/01_Project???????/Python???????/02_????/SW-2026-008_auto-pm_?????????/auto_pm/ui/qml/dialogs/TemplateApplyDialog.qml",
+      "line": 119,
+      "function": null,
+      "timestamp": "2026-07-13T03:59:49.053024"
+    },
+    {
+      "type": "Warning",
+      "message": "file:///C:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/ui/qml/dialogs/DeleteConfirmDialog.qml:67:21: Unable to assign [undefined] to QColor",
+      "file": "file:///C:/Users/fubai/Desktop/My_Workspace/01_Project???????/Python???????/02_????/SW-2026-008_auto-pm_?????????/auto_pm/ui/qml/dialogs/DeleteConfirmDialog.qml",
+      "line": 67,
+      "function": null,
+      "timestamp": "2026-07-13T03:59:49.959310"
+    }
+  ]
+}

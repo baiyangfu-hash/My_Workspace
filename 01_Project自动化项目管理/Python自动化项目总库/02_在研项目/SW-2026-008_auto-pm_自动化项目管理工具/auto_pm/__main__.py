@@ -16,11 +16,21 @@ if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
 os.environ.setdefault("PYTHONUTF8", "1")
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
-from auto_pm.cli.__main__ import _fix_windows_encoding, cli  # noqa: E402
+# 必须在导入 cli 模块之前修复编码，因为 rich Console 在模块导入时初始化
+if sys.platform == "win32" and sys.stdout is not None:
+    try:
+        import ctypes
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)  # UTF-8
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        pass
+
+from auto_pm.cli.__main__ import cli  # noqa: E402
 
 if __name__ == "__main__" or __name__ == "auto_pm.__main__":
     if len(sys.argv) == 1:
         sys.argv.append("gui")
-    _fix_windows_encoding()
     cli()

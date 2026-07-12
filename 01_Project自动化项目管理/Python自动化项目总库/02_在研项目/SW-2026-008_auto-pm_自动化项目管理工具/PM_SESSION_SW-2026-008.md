@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
 
 # PM_SESSION_SW-2026-008
 
@@ -126,35 +126,12 @@
     - 2026-06-19~28 V0.4.0 Week 2-4 + V0.3.0 各里程碑 + V2.0 阶段 B + P1-P5 初始交付（12 条已折叠）
 
 ## 6. Implementation Log
-- **CHG 编号规划**：CHG-116 delivery asset → CHG-117 pm-session archive → CHG-118 ledger reconcile → CHG-119 spec index → CHG-120 spec report → CHG-121 spec frontmatter（串行推进）
-- **工作量分布**：CHG-116 低（仅 QML 对话框）+ CHG-117~121 中（Facade+Bridge+QML）
-- **迭代计划文档**：`00_项目管理/03_执行过程/2026-07-11_M5_规范与台账管理_迭代计划.md`
-- **dogfooding 规划**：CHG-116~121 分别为第 47~52 次 dogfooding 闭环
-
-### 2026-07-11 CHG-116/117/118 早期记录摘要（已归档）
-
-- **CHG-116 delivery asset**（第 47 次 dogfooding，closed）：注释清理，发现 CHG-111 已完成 QML 接入，仅更新 delivery_bridge.py + WorkspaceView.qml 注释。门禁全绿 + 台帐无差异
-- **CHG-117 pm-session archive**（第 48 次 dogfooding，closed）：GUI 接入 PM_SESSION 归档功能，新增 PmSessionArchiveResultDTO + Protocol.archive + Facade/Bridge/QML Dialog 三层 + 6 测试。门禁全绿 + PM_SESSION 309→285 行 + 台帐无差异
-- **CHG-118 ledger reconcile**（第 49 次 dogfooding，closed）：GUI 接入台账对账功能，新增 LedgerReconcileResultDTO + reconcile_ledger Facade + reconcileLedger Bridge + LedgerReconcileDialog.qml + 8 测试。门禁全绿 + 台帐无差异
-- 详见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-116.md` / `CHG-SCPT-2026-117.md` / `CHG-SCPT-2026-118.md`
-
-### 2026-07-11 CHG-119/120/121 早期记录摘要（已归档）
-
-- **CHG-119 spec index**（第 50 次 dogfooding，closed）：GUI 接入规范索引生成，新增 SpecIndexResultDTO + generate_spec_index Facade + generateSpecIndex Bridge + SpecIndexDialog.qml + 8 测试。门禁全绿 + 台帐无差异
-- **CHG-120 spec report**（第 51 次 dogfooding，closed）：GUI 接入规范报告生成，新增 SpecReportResultDTO + generate_spec_report Facade + generateSpecReport Bridge + SpecReportDialog.qml + 7 测试。门禁全绿 + 台帐无差异
-- **CHG-121 spec frontmatter**（第 52 次 dogfooding，closed，M5 收尾）：GUI 接入 Frontmatter 检查/修复，新增 SpecFrontmatterResultDTO + check_spec_frontmatter Facade + checkSpecFrontmatter Bridge + SpecFrontmatterDialog.qml + 7 测试。门禁全绿 + 台帐无差异
-- 详见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-119.md` / `CHG-SCPT-2026-120.md` / `CHG-SCPT-2026-121.md`
-
-### 2026-07-11 M5 全量回归测试（fullstack-engineer 执行，非 dogfooding 闭环）
-
-- **skill**: fullstack-engineer | **mode**: 评审 | **goal**: M5 6 项 CHG-116~121 闭环后全量回归测试
-- **changed_files**: 无（只读验证）
-- **门禁结果**: ✅ mypy 0 errors in 127 source files + ✅ ruff M5 21 个修改文件 All checks passed + ⚠️ ruff 全量 3 pre-existing errors（scripts/diag_change_cross_project_bug.py E402×2 + tests/change/test_change_service_db.py I001×1，均非 M5 修改文件）+ ✅ pytest 1347 passed + 2 skipped + 6 pre-existing errors（test_change_facade_int.py FOREIGN KEY）+ ✅ PM_SESSION size 9 passed + ✅ 台帐核对无差异
-- **结论**: M5 6 项 CHG-116~121 回归测试全绿，所有 errors 均为预存技术债非 M5 引入
+- **待修复**: N4 项目重复警告 + N7 `change show` 缺 project_id + N9/N10 文档小问题
+- **结论**: 项目健康度 3.5→4.0/5.0。P0 阻断问题全部修复，CLI 对中国用户可用，GUI 8 页面全部正常。剩余 2 个 P1 + 2 个 P2 非阻断。
 
 ## 8. Handoff Notes
 
-- current_state: 2026-07-12 **V1.0.0 M5 全部 6 项完成 + CHG-123 项目变更Tab驾驶舱模式优化完成**（CHG-116~121/123 全部闭环，第 53 次 dogfooding）。CHG-123 将项目详情页变更Tab从简单列表升级为驾驶舱模式：KpiGrid（变更总数/进行中/待审批/本周新增）+ DashboardStateMachine（9步状态流转）+ ActivityTimeline（活动时间线）+ Split View（列表+详情面板）。**代码基线 V1.0.0** 不变。下一步：V1.0.0 性能 FPS 实测 + 电气部门真实试用 + 发布评估。
+- current_state: 2026-07-13 **V1.0.0 第二轮审查修复完成 + GUI 试用完成**。门禁五轨全绿（ruff 0 + mypy 0 + pytest 1352 passed + 台帐对账 0 差异 + GUI 冒烟 9/9 通过）。**P0 阻断问题全部修复**（`--version` 崩溃、全局中文乱码、`python check`）。**P1 8 项中 5 项已修复**（pm-session 递归搜索、spec check 排除 archive、doc refresh 类型检查、烟雾测试脚本回归、unused type:ignore）。**GUI 8 页面全部可正常加载**，8 个 QML 警告全为预存。**代码基线 V1.0.0** 不变。剩余待修复：N4 项目重复警告（P1）、N7 change show 缺 project_id（P1）、N9/N10 文档小问题（P2）。
 - current_state_chg123: 2026-07-12 **CHG-SCPT-2026-123 项目变更Tab驾驶舱模式优化已闭环**（第 53 次 dogfooding 闭环 closed）。**完成情况**：① ✅ 通过 CLI 创建 CHG-SCPT-2026-123（SCPT+OPT+MODULE）；② ✅ WorkspaceView.qml 新增 `_computeChangeKpi()`/`_computeChangeStateMachine()`/`_computeChangeActivities()` 三个辅助方法；③ ✅ 变更Tab重写为驾驶舱模式：KpiGrid（4卡片）+ DashboardStateMachine + ActivityTimeline + Split View（列表+ChangeDetailPanel）；④ ✅ 变更列表点击联动详情（调用 changeBridge.getChangeRequest()）；⑤ ✅ QML 测试 161 passed 与修改前一致；⑥ ✅ CHG-123 状态流转 draft→closed（9步）+ 台帐对账无差异；⑦ ✅ PM_SESSION §3/§6/§8 回写。**关键决策**：a) **复用现有组件而非新建**——直接复用 PlatformDashboardView 中的 KpiGrid/DashboardStateMachine/ActivityTimeline 和 ChangeCenterView 中的 ChangeDetailPanel，保证视觉一致性；b) **纯 QML 逻辑实现**——KPI/状态机/时间线数据计算完全在 QML 侧完成，无需后端新增接口；c) **保持点击行为一致**——变更列表点击调用 changeBridge.getChangeRequest(changeNumber, projectId)，与 ChangeCenterView 逻辑一致。**门禁验证**：CHG-123 §10.1 V1-V5 全部 ☑通过 + §10.3 验证结论"全部通过,可关闭"。**next_focus**：V1.0.0 性能 FPS 实测（M6）。**read_first**：`00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-123.md`（变更单真源）、`auto_pm/ui/qml/views/WorkspaceView.qml`（变更Tab真源）
 
 - skill_handoff_20260711_chg118_closed: 2026-07-11 fullstack-engineer 完成 CHG-SCPT-2026-118 ledger reconcile 闭环（第 49 次 dogfooding 闭环 closed）。**完成情况**：T0-T8 共 9 个任务全部完成——① **T0 变更单创建** ✅：CLI `auto-pm change create` 创建 CHG-SCPT-2026-118（SCPT+OPT+MODULE）；② **T1 DTO 层** ✅：`change_dto.py` 新增 `LedgerReconcileResultDTO`（7 字段 frozen dataclass：project_id/is_clean/missing_in_ledger/orphan_in_ledger/status_mismatches/summary/auto_fixed，status_mismatches 用 `list[list[str]]` 适配 QML）；③ **T2 Facade** ✅：`change_facade.py` 新增 `reconcile_ledger(project_id, auto_fix=False)` 方法 + `__init__` 增加 `project_service`、`ledger_reconciler` 可选依赖（遵循 SystemFacade 接受多服务模式）；④ **T3 Bridge+registry** ✅：`change_bridge.py` 新增 `reconcileLedger(projectId, autoFix)` Slot（`@Slot(str, bool, result="QVariant")`，asdict 转 DTO 为 dict）；`registry.py` 装配 `LedgerReconciler()` 注入 ChangeFacade；⑤ **T4 QML 三件套** ✅：新建 `LedgerReconcileDialog.qml`（项目 ID 输入 + "🔍 仅对账"/"🔧 自动修复" 双按钮 + 结果展示区：缺失/孤儿/状态不一致/自动修复标记 + GlassPanel + Theme 配色）；`main.qml` 注册 Dialog + `onRequestReconcileLedger` 处理器；`ChangeCenterView.qml` 新增 `requestReconcileLedger()` 信号 + "📊 台账对账"按钮；⑥ **T5 单元测试** ✅：`test_change_facade.py` 新增 6 测试（success/auto_fix/no_service/no_reconciler/not_found/exception）；`test_change_bridge.py` 新增 2 测试（success/error）+ 降级断言更新；⑦ **T6 全量门禁** ✅：ruff 6 文件 0 errors + mypy 4 生产文件 0 errors + pytest modified 33 passed + pytest broader 309 passed（6 pre-existing errors 在 test_change_facade_int.py FOREIGN KEY 与 CHG-118 无关）+ PM_SESSION 285 行；⑧ **T7 CHG-118 闭环** ✅：§5-§11 填写 + 状态流转 draft→closed（9 步）+ ledger reconcile 无差异；⑨ **T8 PM_SESSION 回写** ✅：§6 追加 CHG-118 实施记录 + §8 current_state + skill_handoff + §9 CHG-118 标记完成。**关键决策**：a) **直接扩展 ChangeFacade 而非新建 Protocol+Aggregator**——对账操作简单，遵循 SystemFacade 接受多服务的模式，将 `project_service` + `ledger_reconciler` 作为可选依赖注入，避免过度设计；b) **tuple→list 转换**——`ReconcileDiff.status_mismatches` 是 `list[tuple[str,str,str]]`，QML 不支持 tuple，在 DTO 中用 `[list(m) for m in diff.status_mismatches]` 转 `list[list[str]]`；c) **信号布线 ChangeCenterView→main→Dialog**——ChangeCenterView 发 `requestReconcileLedger()` 信号，main.qml 接收后调用 `ledgerReconcileDialog.open(changeCenterView.selectedProjectId)`，对话框 `onReconciled` 触发 `changeCenterView.loadChanges()` 刷新；d) **双按钮降低误操作风险**——"仅对账"（auto_fix=False）为默认主按钮，"自动修复"次显著，用户先预览差异再决定是否写入。**门禁验证**：CHG-118 §10.1 V1-V10 全部 ☑通过 + §10.3 验证结论"全部通过,可关闭"。**next_focus**：CHG-119 spec index（spec_facade 新增 `generate_spec_index` + spec_bridge 新增 `generateSpecIndex` Slot + `SpecIndexDialog.qml`，后端 SpecIndexService 已有）。**watchouts**：a) M5 剩余 3 项（CHG-119~121）需新增 Facade+Bridge+QML，全部是 spec 域；b) `change transition` CLI 在 CHG-118 闭环中表现稳定，9 步全部 exit code 0（CHG-117 时期的缓存 bug 未复现）；c) PM_SESSION 285 行仍在安全范围，CHG-119 闭环时可能需归档 §6 早期 CHG-116/117 记录。**read_first**：`00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-118.md`（变更单真源）、`auto_pm/application/change_facade.py` reconcile_ledger（Facade 真源）、`auto_pm/ui/qml/bridges/change_bridge.py` reconcileLedger（Bridge 真源）、`auto_pm/ui/qml/dialogs/LedgerReconcileDialog.qml`（对话框真源）、`auto_pm/change/ledger_reconciler.py` LedgerReconciler（后端真源 CHG-108）
@@ -179,6 +156,12 @@
 - - **CLI vs GUI 差异分析 done_when** [已验证] 已完成：CLI 11 个命令组 40+ 子命令 vs GUI 5 个 Bridge 30+ Slot 逐一对比，输出三类差异（已落地 15 项 / Bridge 待接入 6 项 / 完全缺失 20 项），结果已回写 §6 和 §8
 - - **M4/M5 GUI 补全优先级排序 done_when** ✅ 已完成：M4（变更管理完整闭环+项目管理补齐 7 项）/ M5（规范与台账管理 6 项）/ M6（领域专用工具 9 项），用户已确认方案，结果已回写 §6 和 §8
 - **M4 变更管理+项目管理 GUI 补全** precondition: 差异分析已完成 ✅ + 迭代规划已确认 ✅，done_when: ① ✅ 通过 CLI 创建 M4 CHG 变更单（CHG-SCPT-2026-114，dogfooding）；② ✅ 变更管理 1/4 项 QML 落地（change create 对话框已完成）；③ ✅ 项目管理 3/3 项 Bridge+QML 落地（CHG-115 project edit/delete/template apply 已闭环）；④ ✅ 模板应用 1/1 项 QML 落地（template apply 已闭环）；⑤ ✅ 全量门禁 6 项全绿（ruff 0 + mypy 2 预存 + 40 facade/bridge + 139 qml + 128 spec + PM_SESSION size 9）；⑥ ✅ CHG-114 状态流转 closed；⑦ ✅ CHG-115 状态流转 closed（第 46 次 dogfooding）。**M4 全部 7 项完成**：变更管理 4 项（CHG-114 NewChangeDialog + CHG-103 ChangeDetailPanel 状态流转/时间线/验证）+ 项目管理 3 项（CHG-115 edit/delete/template）
+
+### 2026-07-13 第二轮审查修复后的 Next Actions
+
+- [precondition: 无] [待启动] done_when: **N4 项目重复警告清理**——① 删除或重命名 `02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具` 残骸目录；② 或降级重复警告为 logging.debug；③ CLI 运行不再输出重复警告
+- [precondition: 无] [待启动] done_when: **N7 `change show` 支持 project_id**——① `change show` 新增 `--pid` 或位置参数；② 跨项目同名变更单可正确区分；③ 与 `change list PROJECT_ID` 接口风格一致
+- [precondition: 无] [待启动] done_when: **N9/N10 文档小问题修复**——① PM_SESSION 文档中 `--pid` 与实际 CLI 位置参数统一；② vartable `detect`→`detect-format` 命令名更新；③ 文档与 CLI `--help` 一致
 
 ### 2026-07-11 M5 规范与台账管理迭代 Next Actions（6 个独立 CHG，用户已确认）
 

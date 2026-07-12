@@ -55,7 +55,7 @@ Rectangle {
             }
 
             Text {
-                text: "（" + (varTableModel ? varTableModel.rowCountQml() : 0) + " 行）"
+                text: "（" + (typeof varTableModel !== "undefined" && varTableModel ? varTableModel.rowCountQml() : 0) + " 行）"
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
@@ -66,9 +66,9 @@ Rectangle {
             PrimaryButton {
                 text: "撤销"
                 type: "ghost"
-                enabled: varTableModel ? varTableModel.canUndo() : false
+                enabled: typeof varTableModel !== "undefined" && varTableModel ? varTableModel.canUndo() : false
                 onClicked: {
-                    if (varTableModel) varTableModel.undo()
+                    if (typeof varTableModel !== "undefined" && varTableModel) varTableModel.undo()
                 }
             }
 
@@ -76,9 +76,9 @@ Rectangle {
             PrimaryButton {
                 text: "重做"
                 type: "ghost"
-                enabled: varTableModel ? varTableModel.canRedo() : false
+                enabled: typeof varTableModel !== "undefined" && varTableModel ? varTableModel.canRedo() : false
                 onClicked: {
-                    if (varTableModel) varTableModel.redo()
+                    if (typeof varTableModel !== "undefined" && varTableModel) varTableModel.redo()
                 }
             }
 
@@ -403,13 +403,13 @@ Rectangle {
     // ── 键盘快捷键：Ctrl+Z / Ctrl+Y ────────────────────
     Shortcut {
         sequence: "Ctrl+Z"
-        enabled: varTableModel ? varTableModel.canUndo() : false
-        onActivated: varTableModel.undo()
+        enabled: typeof varTableModel !== "undefined" && varTableModel ? varTableModel.canUndo() : false
+        onActivated: { if (typeof varTableModel !== "undefined" && varTableModel) varTableModel.undo() }
     }
 
     Shortcut {
         sequence: "Ctrl+Y"
-        enabled: varTableModel ? varTableModel.canRedo() : false
-        onActivated: varTableModel.redo()
+        enabled: typeof varTableModel !== "undefined" && varTableModel ? varTableModel.canRedo() : false
+        onActivated: { if (typeof varTableModel !== "undefined" && varTableModel) varTableModel.redo() }
     }
 }

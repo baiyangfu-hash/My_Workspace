@@ -338,7 +338,7 @@ class ChangeService:
 
         log.info("筛选结果: %d 条变更单", len(summaries))
         # V9: 按照时间倒序显示（若时间相同或无效，按变更编号倒序），确保最近的变更单在最上面
-        def sort_key(s):
+        def sort_key(s: ChangeSummary) -> tuple[str, str]:
             d = s.apply_date or ""
             if d == "待补充":
                 d = ""

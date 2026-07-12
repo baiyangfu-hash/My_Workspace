@@ -13,37 +13,24 @@ Usage:
 
 from __future__ import annotations
 
-import io
 import os
 import sys
 
 
 def _fix_windows_encoding() -> None:
-    """Windows GBK 终端编码修复
+    """Windows 终端编码修复：强制 stdout 为 UTF-8
 
     仅在直接执行（非被 import）时调用。
     避免与 pytest capture 机制冲突。
     """
     if sys.platform != "win32" or sys.stdout is None:
         return
-    _actual_encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
-    # PYTHONUTF8=1 时 stdout.encoding 报告 utf-8，但终端可能是 GBK
-    # 通过 Windows API 获取真实控制台代码页
     try:
-        import ctypes
-
-        _kernel32 = ctypes.windll.kernel32
-        _console_cp = _kernel32.GetConsoleOutputCP()
-        if _console_cp and _console_cp != 65001:  # 65001 = UTF-8
-            _actual_encoding = f"cp{_console_cp}"
-    except (OSError, AttributeError):
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        # pytest capture（StringIO 无 reconfigure）或旧 Python，静默跳过
         pass
-    if _actual_encoding.lower() != "utf-8":
-        _raw = sys.stdout.buffer if hasattr(sys.stdout, "buffer") else None
-        if _raw is not None:
-            sys.stdout = io.TextIOWrapper(
-                _raw, encoding=_actual_encoding, errors="replace", line_buffering=True
-            )
 
 
 import click  # noqa: E402
@@ -67,7 +54,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 console = Console()
 
 
-@click.version_option(None, "--version", "-v")
+@click.version_option(version="1.0.0", package_name="auto_pm", message="auto-pm, version %(version)s")
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "--workspace",

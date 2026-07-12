@@ -373,15 +373,18 @@ def main() -> int:
     from auto_pm.core.project_service import ProjectService
     from auto_pm.db.connection import DatabaseManager
     from auto_pm.ui.factories import (
-        make_asset_summary_service,
-        make_dashboard_service,
-        make_doc_refresh_service,
-        make_pm_session_service,
-        make_report_service,
-        make_spec_center_service,
-        make_spec_check_service,
-        make_template_service,
-    )
+    make_asset_summary_service,
+    make_dashboard_service,
+    make_doc_refresh_service,
+    make_pm_session_service,
+    make_report_service,
+    make_spec_center_service,
+    make_spec_check_service,
+    make_spec_frontmatter_service,
+    make_spec_index_service,
+    make_spec_report_service,
+    make_template_service,
+)
     from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
@@ -409,6 +412,9 @@ def main() -> int:
     asset_summary_service = make_asset_summary_service()
     doc_refresh_service = make_doc_refresh_service(workspace_root)
     spec_center_service = make_spec_center_service(workspace_root)
+    spec_index_service = make_spec_index_service(workspace_root)
+    spec_report_service = make_spec_report_service(workspace_root)
+    frontmatter_service = make_spec_frontmatter_service(workspace_root)
 
     facade_registry = FacadeRegistry()
     facade_registry.initialize({
@@ -422,6 +428,9 @@ def main() -> int:
         "asset_summary_service": asset_summary_service,
         "doc_refresh_service": doc_refresh_service,
         "spec_center_service": spec_center_service,
+        "index_service": spec_index_service,
+        "spec_report_service": spec_report_service,
+        "frontmatter_service": frontmatter_service,
     })
 
     project_model = ProjectListModel()
