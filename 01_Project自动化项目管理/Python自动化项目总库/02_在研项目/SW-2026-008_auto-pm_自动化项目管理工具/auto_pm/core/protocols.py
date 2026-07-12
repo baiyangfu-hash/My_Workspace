@@ -335,7 +335,14 @@ class SpecCheckServiceProtocol(Protocol):
     提供 run() 供 SpecFacade.run_spec_check() 调用。
     """
 
-    def run(self) -> Any:
+    def run(
+        self,
+        check_ids: list[str] | None = None,
+        auto_fix: bool = False,
+        dry_run: bool = False,
+        scope: str = "workspace",
+        project_root: Any = None,
+    ) -> Any:
         """执行规范检查，返回 CheckOutput（含 results/error_count 等）"""
         ...
 

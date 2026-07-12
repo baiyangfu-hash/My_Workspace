@@ -273,7 +273,7 @@ class DashboardService:
                 "subtitle": getattr(c, "title", ""),
                 "type": str(getattr(c, "status", "default")),
             })
-        activities.sort(key=lambda a: (a.get("time") or ""), reverse=True)
+        activities.sort(key=lambda a: (a.get("time") or "", a.get("title") or ""), reverse=True)
         return activities[:10]
 
     def _collect_plc_check_stats(
@@ -318,7 +318,7 @@ class DashboardService:
 
         CHG-106: 返回格式从 list[str] 改为 list[dict]，匹配 V7 时间线 {type, title, desc, time}。
         """
-        activities: list[tuple[float, dict[str, Any]]] = []
+        activities: list[tuple[tuple[float, str], dict[str, Any]]] = []
 
         for project in projects:
             if not project.file_mtime:
@@ -326,7 +326,7 @@ class DashboardService:
             formatted_time = self._format_timestamp(project.file_mtime)
             activities.append(
                 (
-                    float(project.file_mtime),
+                    (float(project.file_mtime), project.project_id),
                     {
                         "type": "default",
                         "title": f"项目更新 {project.project_id}",
@@ -344,7 +344,7 @@ class DashboardService:
             activity_type = "success" if change.status != "closed" else "default"
             activities.append(
                 (
-                    sort_key,
+                    (sort_key, change.change_number),
                     {
                         "type": activity_type,
                         "title": f"变更单 {change.change_number}",
@@ -446,8 +446,8 @@ class DashboardService:
         try:
             with open(nodeids_file, encoding="utf-8") as f:
                 nodeids_data = json.load(f)
-            # nodeids 格式: {"tests/test_foo.py::test_bar": true, ...}
-            total = len(nodeids_data) if isinstance(nodeids_data, dict) else 0
+            # nodeids 格式可以是 dict 或者 list
+            total = len(nodeids_data) if isinstance(nodeids_data, (dict, list)) else 0
         except (OSError, json.JSONDecodeError):
             log.debug("pytest nodeids 读取失败: %s", nodeids_file)
             return 0.0, 0

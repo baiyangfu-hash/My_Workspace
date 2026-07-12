@@ -387,8 +387,25 @@ class VarTableModel(QAbstractTableModel):
     def redoStackSize(self) -> int:
         return len(self._undo_stack._redo)
 
+    @Slot(result=list)
+    def getEntries(self) -> list[dict[str, Any]]:
+        """返回当前变量表中的全部条目"""
+        result = []
+        for row in self._rows:
+            result.append({
+                "station": row[COL_STATION],
+                "signal_type": row[COL_SIGNAL_TYPE],
+                "address": row[COL_ADDRESS],
+                "tag": row[COL_TAG],
+                "signal_name": row[COL_SIGNAL_NAME],
+                "device": row[COL_DEVICE],
+                "comment": row[COL_COMMENT],
+            })
+        return result
+
     # ── Python 端测试辅助 ─────────────────────────────────
 
     def to_rows(self) -> list[list[str]]:
         """返回内部行数据（Python 端测试用）"""
         return [list(row) for row in self._rows]
+

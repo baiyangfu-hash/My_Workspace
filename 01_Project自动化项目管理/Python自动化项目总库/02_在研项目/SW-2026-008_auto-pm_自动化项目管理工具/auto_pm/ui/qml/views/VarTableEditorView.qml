@@ -20,6 +20,7 @@ Rectangle {
     color: Theme.background
 
     // ── 公开属性 ────────────────────────────────────────
+    property string projectId: ""
     property var selectedRows: []  // 当前选中的行索引列表
     property string lastValidationError: ""
 
@@ -78,6 +79,23 @@ Rectangle {
                 enabled: varTableModel ? varTableModel.canRedo() : false
                 onClicked: {
                     if (varTableModel) varTableModel.redo()
+                }
+            }
+
+            // 保存按钮
+            PrimaryButton {
+                text: "保存"
+                type: "primary"
+                enabled: root.projectId !== ""
+                onClicked: {
+                    if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService) {
+                        var ok = deliveryBridge.saveVarTable(root.projectId, varTableModel)
+                        if (ok) {
+                            root.lastValidationError = "变量表保存成功"
+                        } else {
+                            root.lastValidationError = "变量表保存失败"
+                        }
+                    }
                 }
             }
 

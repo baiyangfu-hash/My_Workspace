@@ -49,6 +49,7 @@ from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
 from auto_pm.ui.qml.models.project_list_model import ProjectListModel
+from auto_pm.ui.qml.models.var_table_model import VarTableModel
 from auto_pm.ui.registry import FacadeRegistry
 
 
@@ -145,6 +146,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     delivery_bridge = DeliveryBridge(facade=registry.delivery_facade)
     system_bridge = SystemBridge(facade=registry.system_facade)
     project_model = ProjectListModel()
+    var_table_model = VarTableModel()
 
     # 4. 加载 main.qml
     qml_dir = Path(__file__).parent / "qml"
@@ -163,6 +165,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     engine.rootContext().setContextProperty("deliveryBridge", delivery_bridge)
     engine.rootContext().setContextProperty("systemBridge", system_bridge)
     engine.rootContext().setContextProperty("projectModel", project_model)
+    engine.rootContext().setContextProperty("varTableModel", var_table_model)
 
     # 6. 加载 QML 文件
     qml_url = QUrl.fromLocalFile(str(main_qml_path))

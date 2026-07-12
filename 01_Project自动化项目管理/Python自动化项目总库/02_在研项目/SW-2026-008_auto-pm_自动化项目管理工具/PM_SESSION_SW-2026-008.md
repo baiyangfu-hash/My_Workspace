@@ -73,7 +73,7 @@
   - Week 3 已固化资产字段契约第一版，Week 4 文档刷新已按最小口径落地；下一步做真实试运行时仍需继续约束缺省值策略、空值展示口径和工站命名一致性
 - spec_compliance:
   - last_check: 2026-07-11
-  - result: 代码基线 V1.0.0（M5 全部 6 项完成 CHG-116/117/118/119/120/121 + M4 全部 7 项完成 + CHG-123 项目变更Tab驾驶舱模式优化）。dogfooding 53 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/123 全 closed，CHG-080 状态仍 implementing V2.3 多周迭代中）。**CHG-123 项目变更Tab驾驶舱模式**：将项目详情页变更Tab从简单列表升级为驾驶舱模式，包含 KpiGrid（变更总数/进行中/待审批/本周新增 4 卡片）+ DashboardStateMachine（9 步状态流转可视化）+ ActivityTimeline（变更活动时间线）+ Split View（变更列表 + ChangeDetailPanel 详情面板）。验证：QML 测试 161 passed 与修改前一致
+  - result: 代码基线 V1.0.0（M5 全部 6 项完成 CHG-116/117/118/119/120/121 + M4 全部 7 项完成 + CHG-123 项目变更Tab驾驶舱模式优化 + CHG-124 5 功能子项统收）。dogfooding 54 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/123/124 全 closed，CHG-080 状态仍 implementing V2.3 多周迭代中）。**CHG-123 项目变更Tab驾驶舱模式**：将项目详情页变更Tab从简单列表升级为驾驶舱模式，包含 KpiGrid（变更总数/进行中/待审批/本周新增 4 卡片）+ DashboardStateMachine（9 步状态流转可视化）+ ActivityTimeline（变更活动时间线）+ Split View（变更列表 + ChangeDetailPanel 详情面板）。验证：QML 测试 161 passed 与修改前一致。**CHG-124 5 功能子项统收（DocBrowserView+变量表 IO 读写+EditChangeDialog GlassPanel+AboutDialog/GlobalSettingsDialog 接入+spec_facade PLC repair）**：retrofit 模式补单，13 文件改动，三轨门禁全绿（ruff 0 + mypy 0 + pytest 27 passed）
 
 ## 4. Artifacts Index（文档索引）
 
@@ -198,6 +198,10 @@
 
 > **§9 已完成的 Next Actions（V0.3.0~V0.6.0 时代 30+ 条 ✅）已归档到 [archive_V0.6.0.md](00_项目管理/05_PM_SESSION归档/PM_SESSION_SW-2026-008_archive_V0.6.0.md) §6 Implementation Log 早期归档**。
 > 用户硬约束：记录全部都要，迭代走过的路是教训也是经验。
+
+### 2026-07-13 CHG-124 5 功能子项统收后的 Next Actions
+
+- [precondition: M5 6 项闭环 ✅ + CHG-123 闭环 ✅] [✅已完成 2026-07-13] done_when: **CHG-124 5 功能子项统收（retrofit 模式，第 54 次 dogfooding）**——① ✅ 通过 CLI `auto-pm change create --retrofit` 创建 CHG-SCPT-2026-124（SCPT+OPT+MODULE，状态 closed）；② ✅ T1 DocBrowserView.qml 新建 269 行 + qml_main_window 注册；③ ✅ T2 delivery_bridge.py 新增 4 Slot（loadVarTable/saveVarTable/listProjectDocs/renderMarkdown），80→219 行；④ ✅ T3 main.qml +23 行注册 AboutDialog/GlobalSettingsDialog + 信号路由；⑤ ✅ T4 EditChangeDialog.qml +65 行 GlassPanel 改造；⑥ ✅ T5 spec_facade.py +15 行补齐 PLC stack repair 分支 + SpecCheckServiceProtocol.run 签名更新；⑦ ✅ T6 var_table_model.py +17 行新增 setEntries/getEntries 方法；⑧ ✅ T7 测试更新 27 passed；⑨ ✅ T8 三轨门禁全绿（ruff 0 + mypy 0 + pytest 27 passed）+ §10.1 V1-V10 全部通过；⑩ ✅ PM_SESSION §3/§6/§8/§9 回写 + 台帐对账无差异
 
 ### 2026-07-09 台账治标后的 Next Actions（治本 CHG 规划）
 

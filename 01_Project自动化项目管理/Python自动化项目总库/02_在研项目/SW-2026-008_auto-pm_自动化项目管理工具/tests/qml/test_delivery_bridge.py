@@ -233,7 +233,7 @@ def test_delivery_bridge_get_asset_summary(qapp):
 
 
 def test_delivery_bridge_no_facade(qapp):
-    """facade=None 时 7 个 Slot 都返回降级值，不抛异常"""
+    """facade=None 时 Slot 都返回降级值，不抛异常"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
     bridge = DeliveryBridge(facade=None)
@@ -249,3 +249,7 @@ def test_delivery_bridge_no_facade(qapp):
     assert bridge.refreshAssetSummary("PROJ-001") == {"success": False, "message": "未初始化"}
     # getAssetSummary 降级为 {}（需传 project_id）
     assert bridge.getAssetSummary("PROJ-001") == {}
+    # listProjectDocs 降级为 []
+    assert bridge.listProjectDocs("PROJ-001") == []
+    # renderMarkdown 降级为错误 HTML
+    assert "文件不存在" in bridge.renderMarkdown("nonexistent.md")

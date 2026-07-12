@@ -71,19 +71,16 @@ Item {
     Rectangle {
         anchors.fill: parent
         color: "#000000"
-        opacity: 0.4
+        opacity: 0.5
         visible: root._isOpen
         MouseArea { anchors.fill: parent; onClicked: {} }
     }
 
-    Rectangle {
+    GlassPanel {
         anchors.centerIn: parent
         width: 600
         height: 560
-        color: Theme.background
         radius: Theme.radiusLg
-        border.color: Theme.border
-        border.width: 1
         visible: root._isOpen
 
         ColumnLayout {
@@ -96,6 +93,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
                 color: Theme.primary
+                radius: Theme.radiusMd
+
                 Text {
                     anchors.centerIn: parent
                     text: "编辑变更单 - " + root.changeNumber
@@ -123,6 +122,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.changeTitle
                             onTextChanged: root.changeTitle = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -156,6 +162,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.applicant
                             onTextChanged: root.applicant = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -167,6 +180,13 @@ Item {
                             placeholderText: "如 2026-07-09"
                             text: root.plannedDate
                             onTextChanged: root.plannedDate = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -197,6 +217,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.background
                             onTextChanged: root.background = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -207,6 +234,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.necessity
                             onTextChanged: root.necessity = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -217,6 +251,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.references
                             onTextChanged: root.references = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -227,6 +268,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.mitigation
                             onTextChanged: root.mitigation = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
 
@@ -237,6 +285,13 @@ Item {
                             Layout.fillWidth: true
                             text: root.propagationChain
                             onTextChanged: root.propagationChain = text
+                            color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Theme.glassBg
+                                radius: Theme.radiusSm
+                                border.color: Theme.glassBorder
+                                border.width: 1
+                            }
                         }
                     }
                 }

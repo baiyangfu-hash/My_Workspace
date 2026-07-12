@@ -842,6 +842,11 @@ ApplicationWindow {
                 id: settingsView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
                 onRequestArchivePmSession: pmSessionArchiveDialog.open()
+                onRequestShowAbout: aboutDialog._isOpen = true
+                onRequestShowGlobalSettings: {
+                    globalSettingsDialog.workspaceRoot = settingsView.settingsData.workspace_root || ""
+                    globalSettingsDialog._isOpen = true
+                }
             }
 
             // 7. 平台驾驶舱大盘页（CHG-106 新增）
@@ -1013,6 +1018,24 @@ ApplicationWindow {
             console.log("[QML main] 规范 Frontmatter 检查完成")
         }
         onCancelled: close()
+    }
+
+    AboutDialog {
+        id: aboutDialog
+        anchors.fill: parent
+        z: 999
+        onClosed: _isOpen = false
+    }
+
+    GlobalSettingsDialog {
+        id: globalSettingsDialog
+        anchors.fill: parent
+        z: 999
+        onSaved: {
+            console.log("[QML main] 全局配置保存成功")
+            _isOpen = false
+        }
+        onCancelled: _isOpen = false
     }
 
     // ── 状态栏（24px，版本号 V1.0.0）─────────────────────

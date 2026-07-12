@@ -223,7 +223,7 @@ def test_about_dialog_default_properties(
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "AboutDialog.qml")
     assert dlg.property("_isOpen") is False
     assert dlg.property("appName") == "auto-pm"
-    assert dlg.property("appVersion") == "0.6.0"
+    assert dlg.property("appVersion") == "1.0.0"
     assert dlg.property("license") == "MIT"
     assert "PySide6" in dlg.property("techStack")
 

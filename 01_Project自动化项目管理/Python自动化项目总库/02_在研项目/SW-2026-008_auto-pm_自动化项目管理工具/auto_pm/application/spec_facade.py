@@ -118,6 +118,21 @@ class SpecFacade:
                     message=f"成功修复 {len(repaired_items)} 项",
                     payload={"repaired_items": repaired_items}
                 )
+            elif proj.stack == "plc":
+                if not self._spec_check_service:
+                    return CommandResult(success=False, message="No spec_check_service", payload=None)
+                from pathlib import Path
+                output = self._spec_check_service.run(
+                    auto_fix=True,
+                    scope="project",
+                    project_root=Path(proj.path),
+                )
+                repaired = [fr.check_id for fr in (output.fix_results or []) if fr.applied]
+                return CommandResult(
+                    success=True,
+                    message=f"成功自动修复 {len(repaired)} 项 PLC 规范",
+                    payload={"repaired_items": repaired}
+                )
             return CommandResult(success=False, message=f"Project stack {proj.stack} not supported for repair", payload=None)
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)

@@ -31,17 +31,51 @@ Rectangle {
 
     // ── 变更Tab辅助属性（CHG-123：驾驶舱模式）─────────────────
     property var _changeSummary: ({})         // 变更聚合摘要（后端预计算）
-    property string selectedCategory: "ALL"   // V10: 选中分类 (ALL / PLC / HMI / ELEC / DOCU)
+    property string searchKeyword: ""         // 搜索关键字
+    property string selectedStatusFilter: "ALL" // 状态过滤
+    property string selectedDomainFilter: "ALL" // 领域过滤
 
     // 过滤后的变更单列表模型
     readonly property var filteredChangesList: {
         var list = root.changesList || []
-        if (root.selectedCategory === "ALL") {
-            return list
-        }
         return list.filter(function(item) {
-            return (item.domain || "").toUpperCase() === root.selectedCategory
+            // 1. 过滤搜索关键字
+            var kw = root.searchKeyword.trim().toLowerCase()
+            if (kw !== "") {
+                var chgNum = (item.change_number || "").toLowerCase()
+                var title = (item.title || "").toLowerCase()
+                if (chgNum.indexOf(kw) === -1 && title.indexOf(kw) === -1) {
+                    return false
+                }
+            }
+            // 2. 过滤技术领域
+            if (root.selectedDomainFilter !== "ALL") {
+                if ((item.domain || "").toUpperCase() !== root.selectedDomainFilter) {
+                    return false
+                }
+            }
+            // 3. 过滤状态
+            if (root.selectedStatusFilter !== "ALL") {
+                if ((item.status || "").toLowerCase() !== root.selectedStatusFilter.toLowerCase()) {
+                    return false
+                }
+            }
+            return true
         })
+    }
+
+    onSearchKeywordChanged: autoSelectFirstChange()
+    onSelectedStatusFilterChanged: autoSelectFirstChange()
+    onSelectedDomainFilterChanged: autoSelectFirstChange()
+
+    function autoSelectFirstChange() {
+        if (root.filteredChangesList && root.filteredChangesList.length > 0) {
+            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+                root.selectedChangeDetail = changeBridge.getChangeRequest(root.filteredChangesList[0].change_number, root.currentProjectId) || {}
+            }
+        } else {
+            root.selectedChangeDetail = {}
+        }
     }
 
     // 基于选中的变更单动态计算状态机，确保流转状态和当前选中变更单绝对一致
@@ -212,11 +246,17 @@ Rectangle {
     }
 
     function loadDocTab() {
-        // W2 占位：W3 实现 Markdown 渲染
+        console.log("[QML] WorkspaceView: 加载文档目录, projectId=" + root.currentProjectId)
+        if (docBrowser) {
+            docBrowser.loadDocs()
+        }
     }
 
     function loadVarTableTab() {
-        // W2 占位：W3 实现变量表编辑器
+        console.log("[QML] WorkspaceView: 加载变量表, projectId=" + root.currentProjectId)
+        if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService) {
+            deliveryBridge.loadVarTable(root.currentProjectId, varTableModel)
+        }
     }
 
     // ── 顶部导航栏 ──────────────────────────────────────
@@ -548,78 +588,26 @@ Rectangle {
                 ColumnLayout {
                     width: parent.width - 16
                     spacing: Theme.spacingLg
-
-                // CHG-123: KPI 网格（4 卡片）- 驾驶舱模式：数据来自后端预计算
-                KpiGrid {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 120
-
-                    KpiCard {
-                        title: "变更总数"
-                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.total : 0)
-                        valueSuffix: "条"
-                        subtitle: "项目累计变更"
-                        iconText: "📋"
-                        iconColor: Theme.primary
-                    }
-
-                    KpiCard {
-                        title: "进行中"
-                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.implementing : 0)
-                        valueSuffix: "条"
-                        subtitle: "实施中变更"
-                        iconText: "🔄"
-                        iconColor: (root._changeSummary.kpi && root._changeSummary.kpi.implementing > 0) ? Theme.warning : Theme.textMuted
-                        valueColor: (root._changeSummary.kpi && root._changeSummary.kpi.implementing > 0) ? Theme.warning : Theme.textMuted
-                    }
-
-                    KpiCard {
-                        title: "待审批"
-                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.pending_review : 0)
-                        valueSuffix: "条"
-                        subtitle: "待审核/待提交"
-                        iconText: "📝"
-                        iconColor: (root._changeSummary.kpi && root._changeSummary.kpi.pending_review > 0) ? Theme.primary : Theme.textMuted
-                        valueColor: (root._changeSummary.kpi && root._changeSummary.kpi.pending_review > 0) ? Theme.primary : Theme.textMuted
-                    }
-
-                    KpiCard {
-                        title: "本周新增"
-                        value: String(root._changeSummary.kpi ? root._changeSummary.kpi.this_week : 0)
-                        valueSuffix: "条"
-                        subtitle: "最近7天"
-                        iconText: "➕"
-                        iconColor: (root._changeSummary.kpi && root._changeSummary.kpi.this_week > 0) ? Theme.success : Theme.textMuted
-                        valueColor: (root._changeSummary.kpi && root._changeSummary.kpi.this_week > 0) ? Theme.success : Theme.textMuted
-                    }
-                }
-
-                // CHG-123: 主体：状态机 + 时间线 - 驾驶舱模式：数据来自后端预计算
-                RowLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 200
-                    spacing: Theme.spacingLg
-
+                    // CHG-123: 主体：状态流转与近期活动垂直平铺铺满宽度 (对齐 V10 原型设计)
                     DashboardStateMachine {
-                        Layout.preferredWidth: root.width * 0.6 - Theme.spacingLg
-                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 180
                         title: root.changesList.length > 0 ? "变更状态流转" : "暂无变更"
                         tagText: root._currentChangeNumber
                         stateMachine: root._currentChangeStateMachine
                     }
 
                     ActivityTimeline {
-                        Layout.preferredWidth: root.width * 0.4 - Theme.spacingLg
-                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 220
                         activities: root._changeSummary.activities || []
                     }
-                }
 
-                // CHG-123: 变更列表 + 详情面板（Split View）
-                RowLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 450
-                    spacing: Theme.spacingLg
+                    // CHG-123: 变更列表 + 详情面板（Split View）
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 520
+                        spacing: Theme.spacingLg
 
                     // 左侧：变更列表
                     Rectangle {
@@ -656,73 +644,48 @@ Rectangle {
                                     color: Theme.textMuted
                                 }
                             }
-
-                            // V10: 变更分类选项卡胶囊条 (Category filter pills bar)
+                            // V11: 过滤搜索工具栏 (Search textfield + dropdown ComboBoxes)
                             RowLayout {
                                 Layout.fillWidth: true
                                 Layout.leftMargin: Theme.spacingMd
                                 Layout.rightMargin: Theme.spacingMd
-                                spacing: Theme.spacingXs
+                                spacing: Theme.spacingSm
 
-                                property var categories: ["ALL", "PLC", "HMI", "ELEC", "DOCU"]
-
-                                Repeater {
-                                    model: parent.categories
-                                    delegate: Rectangle {
-                                        id: pillRect
-                                        implicitWidth: textLabel.implicitWidth + Theme.spacingMd * 2
-                                        implicitHeight: 24
-                                        radius: 12
-                                        color: root.selectedCategory === modelData ? Theme.primary : "transparent"
-                                        border.color: root.selectedCategory === modelData ? Theme.primary : Theme.border
+                                TextField {
+                                    id: searchInput
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 28
+                                    placeholderText: "搜索变更单号/标题..."
+                                    font.pixelSize: Theme.fontSizeSm
+                                    color: Theme.textPrimary
+                                    background: Rectangle {
+                                        color: Theme.glassBg
+                                        radius: Theme.radiusSm
+                                        border.color: Theme.glassBorder
                                         border.width: 1
+                                    }
+                                    onTextChanged: root.searchKeyword = text
+                                }
 
-                                        // 动态计算该分类下的条目数
-                                        property int count: {
-                                            var list = root.changesList || []
-                                            if (modelData === "ALL") return list.length
-                                            var cnt = 0
-                                            for (var i = 0; i < list.length; i++) {
-                                                if ((list[i].domain || "").toUpperCase() === modelData) cnt++
-                                            }
-                                            return cnt
-                                        }
+                                ComboBox {
+                                    id: statusCombo
+                                    Layout.preferredWidth: 100
+                                    Layout.preferredHeight: 28
+                                    model: ["全部状态", "草稿", "已提交", "审核中", "已批准", "实施中", "已完成", "已关闭"]
+                                    property var keys: ["ALL", "draft", "submitted", "under_review", "approved", "implementing", "completed", "closed"]
+                                    onCurrentIndexChanged: {
+                                        root.selectedStatusFilter = keys[currentIndex]
+                                    }
+                                }
 
-                                        RowLayout {
-                                            anchors.centerIn: parent
-                                            spacing: Theme.spacingXs
-
-                                            Text {
-                                                id: textLabel
-                                                text: modelData === "ALL" ? "全部" : modelData
-                                                font.pixelSize: Theme.fontSizeXs
-                                                font.bold: root.selectedCategory === modelData
-                                                color: root.selectedCategory === modelData ? "white" : Theme.textMuted
-                                            }
-
-                                            Text {
-                                                text: String(pillRect.count)
-                                                font.pixelSize: Theme.fontSizeXs
-                                                color: root.selectedCategory === modelData ? "white" : Theme.textSecondary
-                                                opacity: 0.8
-                                            }
-                                        }
-
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
-                                                root.selectedCategory = modelData
-                                                // 分类切换时，默认载入当前分类下排在第一的最新的变更详情
-                                                if (root.filteredChangesList.length > 0) {
-                                                    if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
-                                                        root.selectedChangeDetail = changeBridge.getChangeRequest(root.filteredChangesList[0].change_number, root.currentProjectId) || {}
-                                                    }
-                                                } else {
-                                                    root.selectedChangeDetail = {}
-                                                }
-                                            }
-                                        }
+                                ComboBox {
+                                    id: domainCombo
+                                    Layout.preferredWidth: 100
+                                    Layout.preferredHeight: 28
+                                    model: ["全部领域", "PLC", "HMI", "ELEC", "DOCU"]
+                                    property var keys: ["ALL", "PLC", "HMI", "ELEC", "DOCU"]
+                                    onCurrentIndexChanged: {
+                                        root.selectedDomainFilter = keys[currentIndex]
                                     }
                                 }
                             }
@@ -738,7 +701,7 @@ Rectangle {
                                 Text {
                                     anchors.centerIn: parent
                                     visible: root.filteredChangesList.length === 0
-                                    text: root.selectedCategory === "ALL" ? "该项目暂无变更单" : "该分类下暂无变更单"
+                                    text: (root.selectedDomainFilter === "ALL" && root.selectedStatusFilter === "ALL" && root.searchKeyword.trim() === "") ? "该项目暂无变更单" : "该筛选条件下暂无变更单"
                                     color: Theme.textMuted
                                     font.pixelSize: Theme.fontSizeMd
                                 }
@@ -858,7 +821,7 @@ Rectangle {
                         text: "一键修复"
                         type: "accent"
                         Layout.preferredWidth: 120
-                        visible: root.currentProjectDetail.stack === "python"
+                        visible: root.currentProjectDetail.stack === "plc"
                         enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
                         onClicked: {
                             specBridge.repairSpec(root.currentProjectId)
@@ -927,39 +890,31 @@ Rectangle {
             }
         }
 
-        // ─── 文档 Tab（CHG-107 T3：FutureCapability 占位）──
+        // ─── 文档 Tab ──
         Rectangle {
             id: docTab
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 3
             color: "transparent"
 
-            FutureCapability {
+            DocBrowserView {
+                id: docBrowser
                 anchors.fill: parent
-                anchors.margins: Theme.spacingLg
-                title: "文档树与 Markdown 渲染 (Documentation Explorer)"
-                description: "基线服务目前仅支持项目元信息展示。文档树浏览、Markdown 实时渲染、自动区标签将在 M4 迭代中提供。"
-                buttonText: "进入文档浏览器"
-                badgeText: "🚀 M4 迭代解锁"
-                iconText: "📄"
+                projectId: root.currentProjectId
             }
         }
 
-        // ─── 变量表 Tab（CHG-107 T3：FutureCapability 占位，对齐 V7 L1145-1152）──
+        // ─── 变量表 Tab ──
         Rectangle {
             id: varTableTab
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 4
             color: "transparent"
 
-            FutureCapability {
+            VarTableEditorView {
+                id: varTableEditor
                 anchors.fill: parent
-                anchors.margins: Theme.spacingLg
-                title: "详细变量表映射编辑 (Variables Editor)"
-                description: "基线服务目前仅支持资产统计。跨平台细粒度变量级增删改查将在 M4 迭代中提供。"
-                buttonText: "进入变量矩阵视图"
-                badgeText: "🚀 M4 迭代解锁"
-                iconText: "🔒"
+                projectId: root.currentProjectId
             }
         }
     }

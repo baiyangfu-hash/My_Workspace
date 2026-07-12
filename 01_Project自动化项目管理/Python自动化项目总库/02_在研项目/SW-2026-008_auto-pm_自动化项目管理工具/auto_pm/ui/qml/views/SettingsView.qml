@@ -28,6 +28,8 @@ Rectangle {
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
     signal requestArchivePmSession()
+    signal requestShowAbout()
+    signal requestShowGlobalSettings()
 
     // ── 内部状态 ────────────────────────────────────────
     property var settingsData: ({})
@@ -89,6 +91,18 @@ Rectangle {
                 }
 
                 Item { Layout.fillWidth: true }
+
+                PrimaryButton {
+                    text: "关于"
+                    type: "ghost"
+                    onClicked: root.requestShowAbout()
+                }
+
+                PrimaryButton {
+                    text: "全局设置"
+                    type: "ghost"
+                    onClicked: root.requestShowGlobalSettings()
+                }
 
                 PrimaryButton {
                     text: "刷新"

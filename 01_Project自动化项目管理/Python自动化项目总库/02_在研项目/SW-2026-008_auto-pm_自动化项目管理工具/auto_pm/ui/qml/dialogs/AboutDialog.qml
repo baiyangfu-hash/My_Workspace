@@ -14,7 +14,7 @@ Item {
     property bool _isOpen: false
 
     // 应用信息
-    property string appVersion: "0.6.0"
+    property string appVersion: "1.0.0"
     property string appName: "auto-pm"
     property string description: "自动化项目管理工具"
     property string techStack: "Python 3.11+ / PySide6 / QML"
