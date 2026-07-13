@@ -1,4 +1,10 @@
-"""项目 CRUD Service
+"""PLC-HMI 概念映射：SFB 库函数（ProjectService）
+
+像 PLC 的 SFB/SFC 系统函数，提供底层项目数据操作能力。
+被 FB_Workbench（workbench_facade.py）调用，不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+项目 CRUD Service
 
 扫描工作空间内的项目，读取项目元数据，提供列表/查询能力。
 项目识别规则（满足任一）：

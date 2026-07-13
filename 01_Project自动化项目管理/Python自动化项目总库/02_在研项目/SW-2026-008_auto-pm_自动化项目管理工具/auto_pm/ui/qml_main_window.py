@@ -1,4 +1,14 @@
-"""QML 主窗口入口（V0.9.0 QML 单入口）
+"""PLC-HMI 概念映射：主程序入口（启动流程）
+
+像 PLC 的启动流程：上电 → 初始化 OB1 → 启动 HMI。
+1. 创建 QGuiApplication（HMI 运行时）
+2. 初始化所有 Service（DB 数据块）
+3. 调用 OB1（FacadeRegistry.initialize）装配 FB
+4. 创建 Bridge（HMI 变量表）注入 QML 上下文
+5. 加载 main.qml（主画面）
+
+--- 原始注释 ---
+QML 主窗口入口（V0.9.0 QML 单入口）
 
 用 QQmlApplicationEngine 加载 main.qml，通过 rootContext() 注入 5 个域 Bridge
 （Workbench/Change/Spec/Delivery/System）+ ProjectListModel。

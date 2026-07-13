@@ -1,4 +1,11 @@
-"""Copier 模板调度 Service
+"""PLC-HMI 概念映射：SFB 库函数（模板引擎（Copier 模板管理/项目模板应用））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+Copier 模板调度 Service
 
 封装 copier 的 copy/update API，提供项目初始化和模板增量更新能力。
 模板存放在项目根目录的 templates/ 下。

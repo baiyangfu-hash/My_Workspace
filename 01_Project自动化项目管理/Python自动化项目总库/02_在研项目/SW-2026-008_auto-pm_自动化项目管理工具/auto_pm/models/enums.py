@@ -1,4 +1,10 @@
-"""枚举与 Literal 类型定义
+"""PLC-HMI 概念映射：UDT 自定义数据类型（枚举类型（如 PLC 的常量定义））
+
+像 PLC 的 UDT（User Defined Type），定义数据结构。
+
+--- 原始注释 ---
+
+枚举与 Literal 类型定义
 
 对齐 CHG-040 变更管理规范和 LSP-907 907_项目配置规范_LSP 的合法值集合。
 使用 Literal 类型而非 Enum，便于与 Pydantic v2 和 JSON 序列化集成。

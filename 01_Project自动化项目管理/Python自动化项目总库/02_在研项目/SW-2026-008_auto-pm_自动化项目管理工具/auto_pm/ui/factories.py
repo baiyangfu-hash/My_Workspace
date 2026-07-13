@@ -1,3 +1,8 @@
+"""PLC-HMI 概念映射：HMI 数据模型（工厂函数（创建 Bridge/Facade 的装配逻辑））
+
+像 HMI 触摸屏的配方数据表/报警列表，为 QML 的 ListView/TableView 提供数据源。
+"""
+
 from pathlib import Path
 from typing import Any
 

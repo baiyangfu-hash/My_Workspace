@@ -1,4 +1,11 @@
-"""报告 Service - 统计聚合
+"""PLC-HMI 概念映射：SFB 库函数（报告生成（项目报告/变更报告/规范报告））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+报告 Service - 统计聚合
 
 聚合 ProjectService / ChangeService / 规范目录 / 扫描日志的数据，
 提供 4 种报告类型：

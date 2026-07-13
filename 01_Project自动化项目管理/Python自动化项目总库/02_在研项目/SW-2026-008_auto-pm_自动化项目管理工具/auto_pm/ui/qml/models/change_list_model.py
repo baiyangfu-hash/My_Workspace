@@ -1,4 +1,10 @@
-"""变更列表 QAbstractListModel（V0.6.0 W2-S3）
+"""PLC-HMI 概念映射：HMI 数据模型（变更列表模型（QML 变更单列表的数据源））
+
+像 HMI 触摸屏的配方数据表/报警列表，为 QML 的 ListView/TableView 提供数据源。
+
+--- 原始注释 ---
+
+变更列表 QAbstractListModel（V0.6.0 W2-S3）
 
 ChangeListModel 包装 ChangeSummary 字典列表为 QAbstractListModel，
 供 QML ListView 直接使用。QML 端通过 roleNames 访问字段。

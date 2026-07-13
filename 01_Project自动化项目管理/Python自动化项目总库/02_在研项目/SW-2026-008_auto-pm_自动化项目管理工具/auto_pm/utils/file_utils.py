@@ -1,4 +1,11 @@
-"""文件操作工具"""
+"""PLC-HMI 概念映射：SFB 库函数（文件工具（通用文件操作/编码处理））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+文件操作工具"""
 
 from __future__ import annotations
 

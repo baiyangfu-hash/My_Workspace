@@ -254,7 +254,7 @@ Rectangle {
 
     function loadVarTableTab() {
         console.log("[QML] WorkspaceView: 加载变量表, projectId=" + root.currentProjectId)
-        if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService) {
+        if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService && typeof varTableModel !== "undefined" && varTableModel) {
             deliveryBridge.loadVarTable(root.currentProjectId, varTableModel)
         }
     }

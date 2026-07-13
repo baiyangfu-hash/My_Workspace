@@ -1,4 +1,10 @@
-"""Workbench 相关 DTO 定义"""
+"""PLC-HMI 概念映射：HMI 画面数据结构（工作台 DTO（项目列表/项目详情/驾驶舱数据））
+
+像 HMI 触摸屏的画面变量结构，定义 QML 画面能显示的数据格式。
+
+--- 原始注释 ---
+
+Workbench 相关 DTO 定义"""
 
 from dataclasses import dataclass
 from typing import Any

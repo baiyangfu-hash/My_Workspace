@@ -1,4 +1,11 @@
-"""program_blocks.yml 解析器
+"""PLC-HMI 概念映射：SFB 库函数（程序块解析器（解析程序块变量表））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+program_blocks.yml 解析器
 
 V2.3 Week2 T08：在 AssetSummaryService._read_program_blocks 基础上深化，
 提取每个 block 的具体字段值到 BlockEntry。

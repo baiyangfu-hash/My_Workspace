@@ -1,4 +1,11 @@
-"""变更单文件路径定位器（M3-Iter2 从 ChangeService 拆分）
+"""PLC-HMI 概念映射：SFB 库函数（文件定位器（查找项目中的变更单文件））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变更单文件路径定位器（M3-Iter2 从 ChangeService 拆分）
 
 负责：
 - 项目路径解析（_get_project_path）

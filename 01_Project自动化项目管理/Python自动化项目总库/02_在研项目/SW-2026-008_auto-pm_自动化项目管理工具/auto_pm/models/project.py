@@ -1,4 +1,10 @@
-"""项目核心模型（迁移自 core/project_service.py:ProjectInfo）
+"""PLC-HMI 概念映射：UDT 自定义数据类型（项目信息（Project/ProjectRecord 数据结构））
+
+像 PLC 的 UDT（User Defined Type），定义数据结构。
+
+--- 原始注释 ---
+
+项目核心模型（迁移自 core/project_service.py:ProjectInfo）
 
 文件系统为单一真源，本模型为内存表示 + DB 缓存载体。
 """

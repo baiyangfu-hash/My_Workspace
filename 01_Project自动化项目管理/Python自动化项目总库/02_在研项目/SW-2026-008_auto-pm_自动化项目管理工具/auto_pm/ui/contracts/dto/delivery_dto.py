@@ -1,4 +1,10 @@
-"""Delivery 相关 DTO 定义
+"""PLC-HMI 概念映射：HMI 画面数据结构（交付管理 DTO（文档刷新/报告/资产汇总数据））
+
+像 HMI 触摸屏的画面变量结构，定义 QML 画面能显示的数据格式。
+
+--- 原始注释 ---
+
+Delivery 相关 DTO 定义
 
 M4 第 2 批新增：DeliveryFacade 7 方法返回带类型 DTO。
 对于 Service 层返回动态 dict 的方法，DTO 用 dict 字段包装（TODO: Service 结构明确后细化字段）。

@@ -1,4 +1,11 @@
-"""Spec Bridge (QML)
+"""PLC-HMI 概念映射：HMI 变量表（Spec 域）
+
+像 HMI 触摸屏的变量表，定义了 QML 画面能访问的所有规范检查相关变量和方法：
+- @Slot 方法 = HMI 按钮触发的脚本（规范检查/索引/Frontmatter/报告）
+- Signal = HMI 变量变化事件（检查结果变了自动刷新画面）
+
+--- 原始注释 ---
+Spec Bridge (QML)
 
 M4 第 1 批重构：3 个 Slot 改用 dataclasses.asdict() 转换 DTO 为 dict 给 QML。
 """

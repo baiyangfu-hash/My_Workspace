@@ -1,4 +1,10 @@
-"""PLC 检查与修复模型（迁移自 plc/models.py:dataclass）
+"""PLC-HMI 概念映射：UDT 自定义数据类型（PLC 项目信息（PLC 项目元数据数据结构））
+
+像 PLC 的 UDT（User Defined Type），定义数据结构。
+
+--- 原始注释 ---
+
+PLC 检查与修复模型（迁移自 plc/models.py:dataclass）
 
 常量（STD_DIRS/STD_PRDS/NAMING_RULES 等）仍保留在 plc/models.py。
 """

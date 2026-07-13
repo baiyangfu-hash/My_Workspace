@@ -1,4 +1,11 @@
-"""Autoshop 格式解析器
+"""PLC-HMI 概念映射：SFB 库函数（AutoShop 解析器（解析汇川 AutoShop 变量表））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+Autoshop 格式解析器
 
 V2.3 Week2 T10：解析 Autoshop（.asc/.asn）PLC 变量表。
 V2.3 Week3 T12：深化为真实字段提取 + 新增 detect_format 方法。

@@ -1,4 +1,11 @@
-"""变更单状态流转门禁检查器（M3-Iter2 从 ChangeService 拆分）
+"""PLC-HMI 概念映射：SFB 库函数（门禁检查器（变更状态/审批流校验））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变更单状态流转门禁检查器（M3-Iter2 从 ChangeService 拆分）
 
 负责 PM-042 V2.2.0/V2.3.0 §5.3 定义的状态流转门禁条件校验。
 

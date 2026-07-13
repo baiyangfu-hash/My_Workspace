@@ -1,4 +1,11 @@
-"""SCL 格式解析器
+"""PLC-HMI 概念映射：SFB 库函数（SCL 解析器（解析 SCL 源文件中的变量声明））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+SCL 格式解析器
 
 V2.3 Week2 T10：解析 Siemens SCL（.scl/.awl）源文件中的变量声明。
 V2.3 Week3 T12：深化为真实字段提取 + 新增 detect_format 方法。

@@ -1,4 +1,11 @@
-"""INT doc 接口文档解析器
+"""PLC-HMI 概念映射：SFB 库函数（IntDoc 解析器（解析 TIA Portal 内部文档格式））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+INT doc 接口文档解析器
 
 V2.3 Week2 T10：解析 Markdown 格式的 PLC 接口文档（接口文档_INT.md）。
 V2.3 Week3 T12：深化为真实字段提取 + 新增 detect_format 方法。

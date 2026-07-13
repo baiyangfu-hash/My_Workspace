@@ -1,4 +1,11 @@
-"""PM_SESSION 解析/归档/检查服务
+"""PLC-HMI 概念映射：SFB 库函数（PM_SESSION 管理（读取/写入/归档项目管理会话））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+PM_SESSION 解析/归档/检查服务
 
 提供 PM_SESSION_SW-2026-008.md 文件的章节级解析、归档和健康检查能力。
 

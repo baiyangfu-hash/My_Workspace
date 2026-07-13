@@ -1,4 +1,11 @@
-"""Spec Snapshot 解析器 - 规范版本漂移检测基础模块（V2.0.3）
+"""PLC-HMI 概念映射：SFB 库函数（规范快照（保存/恢复 PLC 规范检查状态））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+Spec Snapshot 解析器 - 规范版本漂移检测基础模块（V2.0.3）
 
 提供 PM_SESSION Spec Snapshot 表格解析、spec_registry.json 加载、版本对比能力，
 供 PlcChecker/PlcRepairer 调用以检测和修复规范版本漂移。

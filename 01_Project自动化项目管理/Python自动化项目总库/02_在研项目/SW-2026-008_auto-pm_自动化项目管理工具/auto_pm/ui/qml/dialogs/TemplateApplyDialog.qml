@@ -121,7 +121,7 @@ Item {
                 text: "没有可用的模板"
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeMd
-                anchors.horizontalCenter: parent.horizontalCenter
+                Layout.alignment: Qt.AlignHCenter
             }
 
             // 按钮栏

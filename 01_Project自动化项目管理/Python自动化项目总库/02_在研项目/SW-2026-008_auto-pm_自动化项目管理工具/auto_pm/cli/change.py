@@ -1,4 +1,11 @@
-"""change 子命令组 - 变更单 CRUD + 状态流转
+"""PLC-HMI 概念映射：CLI 命令行入口（变更命令组（create/list/show/edit/delete））
+
+像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
+不经过 HMI 画面，直接调用 FB 或 SFB。
+
+--- 原始注释 ---
+
+change 子命令组 - 变更单 CRUD + 状态流转
 
 Commands:
     list <PID>                          列出项目变更单

@@ -1,4 +1,10 @@
-"""变量表 QAbstractTableModel（V0.6.0 W3-S5~S9）
+"""PLC-HMI 概念映射：HMI 数据模型（变量表模型（QML 变量表编辑器的数据源））
+
+像 HMI 触摸屏的配方数据表/报警列表，为 QML 的 ListView/TableView 提供数据源。
+
+--- 原始注释 ---
+
+变量表 QAbstractTableModel（V0.6.0 W3-S5~S9）
 
 VarTableModel 包装 VarEntry 列表为 QAbstractTableModel，供 QML TableView 使用。
 支持：

@@ -1,4 +1,11 @@
-"""SQLite 连接管理
+"""PLC-HMI 概念映射：SFB 库函数（数据库连接（SQLite 连接管理/WAL 模式））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+SQLite 连接管理
 
 DB 路径: <workspace_root>/.auto-pm/index.db
 使用 WAL 模式提升并发读性能。

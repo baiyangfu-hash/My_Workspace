@@ -1,4 +1,10 @@
-"""Command / Query 基础结果封装"""
+"""PLC-HMI 概念映射：HMI 画面数据结构（统一结果类型（QueryResult/CommandResult 返回值包装））
+
+像 HMI 触摸屏的画面变量结构，定义 QML 画面能显示的数据格式。
+
+--- 原始注释 ---
+
+Command / Query 基础结果封装"""
 
 from dataclasses import dataclass, field
 from typing import Generic, TypeVar

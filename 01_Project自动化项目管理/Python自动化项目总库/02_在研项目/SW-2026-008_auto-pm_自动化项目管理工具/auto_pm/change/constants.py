@@ -1,4 +1,11 @@
-"""变更管理数据模型与规范常量
+"""PLC-HMI 概念映射：SFB 库函数（变更管理常量（如 PLC 的常量表/符号表））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变更管理数据模型与规范常量
 
 合并自:
   - src/models/change_request.py（ChangeRequest, ChangeSummary dataclass）

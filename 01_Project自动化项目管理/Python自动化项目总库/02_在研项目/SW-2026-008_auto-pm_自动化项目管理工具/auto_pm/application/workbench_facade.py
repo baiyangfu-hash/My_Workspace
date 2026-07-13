@@ -1,4 +1,12 @@
-"""Workbench Facade 接口层"""
+"""PLC-HMI 概念映射：FB_Workbench 功能块
+
+对应 PLC 的 FB，封装"工作台"域的完整业务逻辑。
+- 输入引脚：__init__ 参数（project_service, dashboard_service 等）
+- 输出引脚：返回 QueryResult/CommandResult（写回 HMI 变量表 → Bridge Signal 通知画面刷新）
+- 内部调用：SFB 库函数（core/ 下的 Service）
+
+--- 原始注释 ---
+Workbench Facade 接口层"""
 
 import logging
 from typing import Any

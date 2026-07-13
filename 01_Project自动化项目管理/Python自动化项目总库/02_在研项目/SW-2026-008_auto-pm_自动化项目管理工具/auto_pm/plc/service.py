@@ -1,4 +1,11 @@
-"""PLC Service - 封装 PlcChecker/PlcRepairer/SubstanceChecker（M3-Iter4）
+"""PLC-HMI 概念映射：SFB 库函数（PLC 项目服务（初始化/检查/修复 PLC 项目））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+PLC Service - 封装 PlcChecker/PlcRepairer/SubstanceChecker（M3-Iter4）
 
 提供统一的 PLC 项目检查/修复/标准化入口，实现 PlcServiceProtocol。
 UI/CLI 层通过 PlcService 操作 PLC 项目，不直接访问 PlcChecker/PlcRepairer。

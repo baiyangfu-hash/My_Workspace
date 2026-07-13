@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/My_Workspace.iml" filepath="$PROJECT_DIR$/.idea/My_Workspace.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/auto-pm.iml" filepath="$PROJECT_DIR$/.idea/auto-pm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/auto-pm@1.iml" filepath="$PROJECT_DIR$/.idea/auto-pm@1.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/plc-project-mgr.iml" filepath="$PROJECT_DIR$/.idea/plc-project-mgr.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/plc-var-parser.iml" filepath="$PROJECT_DIR$/.idea/plc-var-parser.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/pm-mgr.iml" filepath="$PROJECT_DIR$/.idea/pm-mgr.iml" />

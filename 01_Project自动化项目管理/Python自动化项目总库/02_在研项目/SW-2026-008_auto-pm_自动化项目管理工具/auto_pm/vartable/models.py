@@ -1,4 +1,11 @@
-"""变量表数据模型
+"""PLC-HMI 概念映射：SFB 库函数（变量表模型（变量/VarGroup/VarTable 数据结构））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变量表数据模型
 
 V2.3 Week1 T01：定义变量表解析的统一数据模型。
 V2.3 Week2 T08-T11：扩展支持 BlockEntry/ChannelEntry/FormatType。

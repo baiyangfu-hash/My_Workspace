@@ -1,4 +1,11 @@
-"""PLC 项目自动修复器（LSP-907 907_项目配置规范_LSP）
+"""PLC-HMI 概念映射：SFB 库函数（PLC 修复器（自动修复 PLC 项目结构问题））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+PLC 项目自动修复器（LSP-907 907_项目配置规范_LSP）
 
 迁移自 SW-2026-005 的 PlcProjectService.repair_project/standardize_docs。
 修复规则：

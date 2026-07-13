@@ -174,8 +174,9 @@ Rectangle {
                 title: "自动化测试通过率"
                 value: (root._snapshot.test_pass_rate || 0).toFixed(1) + "%"
                 subtitle: root._testSubtitle()
-                iconText: "✓"
-                iconColor: Theme.success
+                iconText: (root._snapshot.test_pass_rate || 0) >= 95 ? "✓" : "⚠"
+                iconColor: (root._snapshot.test_pass_rate || 0) >= 95 ? Theme.success :
+                           (root._snapshot.test_pass_rate || 0) >= 80 ? Theme.warning : Theme.error
                 valueColor: (root._snapshot.test_pass_rate || 0) >= 95 ? Theme.success :
                            (root._snapshot.test_pass_rate || 0) >= 80 ? Theme.warning : Theme.error
             }

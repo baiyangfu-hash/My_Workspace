@@ -1,4 +1,11 @@
-"""批量解析器
+"""PLC-HMI 概念映射：SFB 库函数（批量解析器（批量解析多个变量表文件））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+批量解析器
 
 V2.3 Week3 T14：遍历目录多文件解析，聚合多个 ParseResult。
 

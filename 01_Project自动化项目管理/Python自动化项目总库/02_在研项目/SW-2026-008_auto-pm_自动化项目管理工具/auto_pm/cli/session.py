@@ -1,4 +1,11 @@
-"""PM_SESSION 管理命令组 - CHG-088 Stage 2
+"""PLC-HMI 概念映射：CLI 命令行入口（会话命令组（PM_SESSION 查看/编辑））
+
+像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
+不经过 HMI 画面，直接调用 FB 或 SFB。
+
+--- 原始注释 ---
+
+PM_SESSION 管理命令组 - CHG-088 Stage 2
 
 提供 PM_SESSION 文件的章节级解析、归档和健康检查能力。
 

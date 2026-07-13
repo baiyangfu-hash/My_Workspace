@@ -124,7 +124,7 @@ Rectangle {
                 text: "加载示例"
                 type: "primary"
                 onClicked: {
-                    if (varTableModel) {
+                    if (typeof varTableModel !== "undefined" && varTableModel) {
                         var sample = []
                         for (var i = 0; i < 100; i++) {
                             sample.push({
@@ -147,7 +147,7 @@ Rectangle {
                 text: "万行压测"
                 type: "ghost"
                 onClicked: {
-                    if (varTableModel) {
+                    if (typeof varTableModel !== "undefined" && varTableModel) {
                         var sample = []
                         for (var i = 0; i < 10000; i++) {
                             sample.push({
@@ -167,12 +167,23 @@ Rectangle {
         }
     }
 
+    // 表头
+    HorizontalHeaderView {
+        id: horizontalHeader
+        syncView: tableView
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: toolbar.bottom
+        height: 32
+        z: 2
+    }
+
     // ── 变量表主体 ──────────────────────────────────────
     TableView {
         id: tableView
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: toolbar.bottom
+        anchors.top: horizontalHeader.bottom
         anchors.bottom: validationBar.top
         anchors.margins: 0
         clip: true
@@ -190,15 +201,6 @@ Rectangle {
         }
 
         model: typeof varTableModel !== "undefined" ? varTableModel : null
-
-        // 表头
-        HorizontalHeaderView {
-            id: horizontalHeader
-            syncView: tableView
-            anchors.left: parent.left
-            anchors.top: toolbar.bottom
-            height: 32
-        }
 
         // 委托：单元格
         delegate: Rectangle {
@@ -275,9 +277,11 @@ Rectangle {
                     font.pixelSize: Theme.fontSizeSm
                     selectByMouse: true
                     onEditingFinished: {
-                        var ok = varTableModel.setCell(row, column, text)
-                        if (!ok) {
-                            root.lastValidationError = "校验失败：值不合法"
+                        if (typeof varTableModel !== "undefined" && varTableModel) {
+                            var ok = varTableModel.setCell(row, column, text)
+                            if (!ok) {
+                                root.lastValidationError = "校验失败：值不合法"
+                            }
                         }
                         editLoader.active = false
                     }
@@ -354,7 +358,10 @@ Rectangle {
         }
 
         onOkClicked: {
-            var count = varTableModel.batchUpdate(root.selectedRows, 2, batchTypeDialog.selectedType)
+            var count = 0
+            if (typeof varTableModel !== "undefined" && varTableModel) {
+                count = varTableModel.batchUpdate(root.selectedRows, 2, batchTypeDialog.selectedType)
+            }
             root.lastValidationError = "已批量更新 " + count + " 行的信号类型"
             batchTypeDialog._isOpen = false
         }
@@ -393,7 +400,10 @@ Rectangle {
         }
 
         onOkClicked: {
-            var count = varTableModel.batchUpdate(root.selectedRows, 3, batchAddressDialog.newAddress)
+            var count = 0
+            if (typeof varTableModel !== "undefined" && varTableModel) {
+                count = varTableModel.batchUpdate(root.selectedRows, 3, batchAddressDialog.newAddress)
+            }
             root.lastValidationError = "已批量更新 " + count + " 行的地址"
             batchAddressDialog._isOpen = false
         }

@@ -1,4 +1,11 @@
-"""变更单 Markdown 内容编辑器（M3-Iter2 从 ChangeService 拆分）
+"""PLC-HMI 概念映射：SFB 库函数（Markdown 编辑器（变更单 Frontmatter 编辑））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变更单 Markdown 内容编辑器（M3-Iter2 从 ChangeService 拆分）
 
 负责变更单 .md 文件的内容级编辑：
 - 审批/实施/验证表格追加行

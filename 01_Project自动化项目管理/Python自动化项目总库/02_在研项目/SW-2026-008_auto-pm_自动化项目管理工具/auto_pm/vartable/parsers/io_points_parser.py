@@ -1,4 +1,11 @@
-"""io_points.csv 解析器
+"""PLC-HMI 概念映射：SFB 库函数（IO 点位解析器（解析 IO 点位表））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+io_points.csv 解析器
 
 V2.3 Week1 T02：在 AssetSummaryService._read_io_points 基础上深化，
 提取每行的具体字段值到 VarEntry，处理 address 多格式 + comment 多值。

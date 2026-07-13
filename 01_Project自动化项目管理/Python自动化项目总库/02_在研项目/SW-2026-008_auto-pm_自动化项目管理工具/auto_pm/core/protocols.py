@@ -1,4 +1,11 @@
-"""Service 层 Protocol 接口定义（M3-Iter3）
+"""PLC-HMI 概念映射：SFB 库函数（接口协议（类型定义/抽象基类/协议类））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+Service 层 Protocol 接口定义（M3-Iter3）
 
 定义 Service 层对外契约的 Protocol 接口，实现依赖倒置：
 - UI/CLI 层依赖 Protocol，不依赖具体 Service 实现

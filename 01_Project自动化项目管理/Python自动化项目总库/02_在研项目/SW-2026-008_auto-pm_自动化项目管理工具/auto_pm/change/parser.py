@@ -1,4 +1,11 @@
-"""变更单 Markdown 解析器"""
+"""PLC-HMI 概念映射：SFB 库函数（变更单解析器（Markdown 解析为结构化数据））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变更单 Markdown 解析器"""
 
 from __future__ import annotations
 

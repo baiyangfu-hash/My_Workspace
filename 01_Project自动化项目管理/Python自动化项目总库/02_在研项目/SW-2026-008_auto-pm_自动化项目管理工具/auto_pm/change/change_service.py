@@ -1,4 +1,11 @@
-"""变更管理 Service - 变更单 CRUD + 状态流转
+"""PLC-HMI 概念映射：SFB 库函数（变更单服务（CRUD 操作））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变更管理 Service - 变更单 CRUD + 状态流转
 
 M3-Iter2 重构：从 870 行上帝类拆分为 4 个职责单一的类：
 - ChangeService（本类）：CRUD + 状态流转编排

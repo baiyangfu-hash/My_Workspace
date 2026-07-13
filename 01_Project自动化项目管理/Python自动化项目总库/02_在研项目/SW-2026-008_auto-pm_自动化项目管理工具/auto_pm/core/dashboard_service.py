@@ -1,4 +1,11 @@
-"""项目驾驶舱 Service - 首页聚合统计
+"""PLC-HMI 概念映射：SFB 库函数（驾驶舱数据聚合（项目统计/变更统计/健康度计算））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+项目驾驶舱 Service - 首页聚合统计
 
 聚合 ProjectService / ChangeService / PlcService 的最小首页数据：
 - 项目总数
@@ -400,17 +407,10 @@ class DashboardService:
         """定位 006 技术债评估报告文件路径
 
         查找顺序：
-        1. workspace_root/00_项目基础信息/006_技术债评估报告.md
-        2. 项目列表中 stack='python' 项目的 00_项目基础信息/006_技术债评估报告.md
+        1. 项目列表中 stack='python' 项目的 00_项目基础信息/006_技术债评估报告.md
+        2. workspace_root/00_项目基础信息/006_技术债评估报告.md
         """
-        if self._workspace_root:
-            candidate = os.path.join(
-                self._workspace_root, "00_项目基础信息", "006_技术债评估报告.md"
-            )
-            if os.path.isfile(candidate):
-                return candidate
-
-        # 从项目列表中查找 Python 项目（auto-pm 自身）
+        # 优先从项目列表中查找 Python 项目（auto-pm 自身）
         try:
             projects = self._project_service.list_projects_cached()
             for project in projects:
@@ -422,6 +422,13 @@ class DashboardService:
                         return candidate
         except Exception as exc:  # pragma: no cover - 防御性日志
             log.warning("查找技术债报告时列举项目失败: %s", exc)
+
+        if self._workspace_root:
+            candidate = os.path.join(
+                self._workspace_root, "00_项目基础信息", "006_技术债评估报告.md"
+            )
+            if os.path.isfile(candidate):
+                return candidate
 
         return None
 
@@ -472,14 +479,10 @@ class DashboardService:
         """定位 .pytest_cache 目录
 
         查找顺序：
-        1. workspace_root/.pytest_cache
-        2. 项目列表中 stack='python' 项目的 .pytest_cache
+        1. 项目列表中 stack='python' 项目的 .pytest_cache
+        2. workspace_root/.pytest_cache
         """
-        if self._workspace_root:
-            candidate = os.path.join(self._workspace_root, ".pytest_cache")
-            if os.path.isdir(candidate):
-                return candidate
-
+        # 优先从项目列表中查找 Python 项目（auto-pm 自身）
         try:
             projects = self._project_service.list_projects_cached()
             for project in projects:
@@ -489,6 +492,11 @@ class DashboardService:
                         return candidate
         except Exception as exc:  # pragma: no cover - 防御性日志
             log.warning("查找 .pytest_cache 时列举项目失败: %s", exc)
+
+        if self._workspace_root:
+            candidate = os.path.join(self._workspace_root, ".pytest_cache")
+            if os.path.isdir(candidate):
+                return candidate
 
         return None
 

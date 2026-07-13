@@ -1,4 +1,10 @@
-"""GUI / API 层 DTO
+"""PLC-HMI 概念映射：UDT 自定义数据类型（通用数据传输对象（DTO 基类/通用数据结构））
+
+像 PLC 的 UDT（User Defined Type），定义数据结构。
+
+--- 原始注释 ---
+
+GUI / API 层 DTO
 
 供 PySide6 视图层和 CLI 使用，与核心模型分离，避免内部字段暴露给前端。
 """

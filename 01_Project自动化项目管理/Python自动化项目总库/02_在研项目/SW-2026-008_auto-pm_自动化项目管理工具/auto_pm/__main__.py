@@ -1,4 +1,10 @@
-"""auto-pm 包入口 - 支持 python -m auto_pm 执行
+"""PLC-HMI 概念映射：程序入口（auto-pm 主入口（python -m auto_pm 的启动点））
+
+像 PLC 的启动流程，程序的上电入口点。
+
+--- 原始注释 ---
+
+auto-pm 包入口 - 支持 python -m auto_pm 执行
 
 Windows GBK 环境下，site 模块加载含中文路径的 .pth 文件时会触发
 UnicodeDecodeError 崩溃。设置 PYTHONUTF8=1 可防止此问题。

@@ -1,4 +1,11 @@
-"""变量表格式转换器
+"""PLC-HMI 概念映射：SFB 库函数（变量表转换器（PLC 变量表格式互转））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+变量表格式转换器
 
 V2.3 Week3 T13：将 ParseResult 统一中间模型导出为 CSV/YAML/JSON。
 

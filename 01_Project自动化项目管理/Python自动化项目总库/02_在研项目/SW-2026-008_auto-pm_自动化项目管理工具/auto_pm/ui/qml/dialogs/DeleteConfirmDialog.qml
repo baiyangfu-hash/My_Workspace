@@ -64,7 +64,7 @@ Item {
                 }
                 Text {
                     text: "确认删除项目"
-                    color: Theme.danger
+                    color: Theme.error
                     font.pixelSize: Theme.fontSizeXl
                     font.bold: true
                 }

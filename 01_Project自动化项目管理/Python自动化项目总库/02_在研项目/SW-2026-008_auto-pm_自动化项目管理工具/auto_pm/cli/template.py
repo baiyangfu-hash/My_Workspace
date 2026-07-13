@@ -1,4 +1,11 @@
-"""template 子命令组 - Copier 模板管理
+"""PLC-HMI 概念映射：CLI 命令行入口（模板命令组（模板列表/应用））
+
+像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
+不经过 HMI 画面，直接调用 FB 或 SFB。
+
+--- 原始注释 ---
+
+template 子命令组 - Copier 模板管理
 
 Commands:
     list                列出可用模板

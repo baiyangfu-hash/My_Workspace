@@ -1,4 +1,11 @@
-"""应用上下文 - 持有 CLI 命令所需的全局对象"""
+"""PLC-HMI 概念映射：SFB 库函数（应用上下文（全局状态管理/工作空间信息））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+应用上下文 - 持有 CLI 命令所需的全局对象"""
 
 from __future__ import annotations
 

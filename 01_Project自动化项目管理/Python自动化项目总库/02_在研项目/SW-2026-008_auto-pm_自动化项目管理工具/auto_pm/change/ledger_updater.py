@@ -1,4 +1,11 @@
-"""版本变更台帐更新器"""
+"""PLC-HMI 概念映射：SFB 库函数（台账更新器（同步变更单到台账数据库））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+版本变更台帐更新器"""
 
 from __future__ import annotations
 

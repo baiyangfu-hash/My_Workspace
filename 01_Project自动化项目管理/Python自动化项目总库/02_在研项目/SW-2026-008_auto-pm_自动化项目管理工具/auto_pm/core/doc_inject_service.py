@@ -1,4 +1,11 @@
-"""文档自动区注入服务（V0.4.1 Step 2）
+"""PLC-HMI 概念映射：SFB 库函数（文档注入（向项目注入规范文件/模板））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+文档自动区注入服务（V0.4.1 Step 2）
 
 为历史 PLC 项目 retrofit AUTO_PM 标记。与 DocRefreshService 职责分离：
 - DocRefreshService: 仅替换已有 AUTO_PM 标记内容

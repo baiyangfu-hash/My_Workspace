@@ -1,4 +1,11 @@
-"""数据访问层（Repository）
+"""PLC-HMI 概念映射：SFB 库函数（数据库仓库（通用 CRUD 操作/ORM 封装））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+数据访问层（Repository）
 
 提供 projects / change_requests / impact_analysis / approval_history / scan_log 五张表的 CRUD 操作。
 所有方法使用参数化查询防止 SQL 注入。

@@ -1,4 +1,11 @@
-"""System Facade 接口层
+"""PLC-HMI 概念映射：FB_System 功能块
+
+对应 PLC 的 FB，封装"系统设置"域的完整业务逻辑（PM_SESSION 管理/模板管理/全局设置）。
+- 输入引脚：pm_session_service, template_service, project_service
+- 输出引脚：返回 QueryResult/CommandResult → Bridge Signal 通知画面刷新
+
+--- 原始注释 ---
+System Facade 接口层
 
 M4 第 2 批重构：从"转发层"升级为"用例编排层"，6 方法返回带类型 DTO。
 list_templates 返回 list[str]、get_template_path 返回 str，保持基础类型。

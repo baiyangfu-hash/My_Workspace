@@ -1,4 +1,10 @@
-"""plc 子命令组 - PLC 项目管理（LSP-907 907_项目配置规范_LSP）
+"""PLC-HMI 概念映射：程序入口（PLC CLI 子命令（PLC 项目操作））
+
+像 PLC 的启动流程，程序的上电入口点。
+
+--- 原始注释 ---
+
+plc 子命令组 - PLC 项目管理（LSP-907 907_项目配置规范_LSP）
 
 Commands:
     init <ID>                    创建 PLC 项目骨架（Copier 模板）

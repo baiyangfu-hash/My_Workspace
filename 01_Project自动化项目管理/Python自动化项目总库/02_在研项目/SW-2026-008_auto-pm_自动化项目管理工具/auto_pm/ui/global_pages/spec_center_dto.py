@@ -1,4 +1,10 @@
-"""规范中心 DTO 层
+"""PLC-HMI 概念映射：HMI 画面数据结构（规范中心页面 DTO（跨页面规范数据））
+
+像 HMI 触摸屏的画面变量结构，定义 QML 画面能显示的数据格式。
+
+--- 原始注释 ---
+
+规范中心 DTO 层
 
 将 Spec 子系统的 4 个 Service（IndexService / CheckService / FrontmatterService /
 ReportService）输出整形为 QWidget 可直接渲染的不可变 DTO。

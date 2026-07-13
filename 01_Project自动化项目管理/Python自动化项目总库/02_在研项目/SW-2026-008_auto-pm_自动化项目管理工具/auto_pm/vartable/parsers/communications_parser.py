@@ -1,4 +1,11 @@
-"""communications.yml 解析器
+"""PLC-HMI 概念映射：SFB 库函数（通信解析器（解析通信配置变量表））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+communications.yml 解析器
 
 V2.3 Week2 T09：在 AssetSummaryService._read_communications 基础上深化，
 提取每个 channel 的具体字段值到 ChannelEntry。

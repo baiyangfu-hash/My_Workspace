@@ -1,4 +1,10 @@
-"""项目列表模型（QAbstractListModel 适配器）
+"""PLC-HMI 概念映射：HMI 数据模型（项目模型（旧版项目数据模型，向后兼容））
+
+像 HMI 触摸屏的配方数据表/报警列表，为 QML 的 ListView/TableView 提供数据源。
+
+--- 原始注释 ---
+
+项目列表模型（QAbstractListModel 适配器）
 
 将 ProjectInfo 列表适配为 Qt 模型，供视图组件绑定。
 遵循 MVC 模式：模型负责数据持有与通知，视图负责渲染。

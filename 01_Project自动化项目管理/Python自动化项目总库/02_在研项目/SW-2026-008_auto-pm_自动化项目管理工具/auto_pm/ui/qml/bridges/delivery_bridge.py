@@ -1,4 +1,11 @@
-"""Delivery Bridge (QML)
+"""PLC-HMI 概念映射：HMI 变量表（Delivery 域）
+
+像 HMI 触摸屏的变量表，定义了 QML 画面能访问的所有交付管理相关变量和方法：
+- @Slot 方法 = HMI 按钮触发的脚本（文档刷新/报告生成/资产汇总）
+- Signal = HMI 变量变化事件（数据变了自动刷新画面）
+
+--- 原始注释 ---
+Delivery Bridge (QML)
 
 M4 第 2 批重构：5 个 Slot 改用 dataclasses.asdict() 转换 DTO 为 dict 给 QML。
 M5 CHG-116：refreshAssetSummary / getAssetSummary Slot 已接入 WorkspaceView.qml 资产汇总 Card。

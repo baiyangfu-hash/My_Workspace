@@ -1,4 +1,12 @@
-"""Facade Registry 装配器"""
+"""PLC-HMI 概念映射：OB1 组织块（初始化扫描）
+
+像 PLC 上电的第一个扫描周期，负责：
+1. 初始化所有 DB（数据块 / Service）
+2. 装配所有 FB（功能块 / Facade）
+3. 注入 HMI 上下文（让 QML 画面能访问 FB）
+
+--- 原始注释 ---
+Facade Registry 装配器"""
 
 from typing import Any, TypedDict
 

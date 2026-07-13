@@ -1,4 +1,10 @@
-"""项目列表 QAbstractListModel（V0.6.0 重构）
+"""PLC-HMI 概念映射：HMI 数据模型（项目列表模型（QML 项目列表的数据源））
+
+像 HMI 触摸屏的配方数据表/报警列表，为 QML 的 ListView/TableView 提供数据源。
+
+--- 原始注释 ---
+
+项目列表 QAbstractListModel（V0.6.0 重构）
 
 ProjectListModel 包装 ProjectService.list_projects() 为 QAbstractListModel，
 供 QML ListView 直接使用。QML 端通过 roleNames 访问字段。

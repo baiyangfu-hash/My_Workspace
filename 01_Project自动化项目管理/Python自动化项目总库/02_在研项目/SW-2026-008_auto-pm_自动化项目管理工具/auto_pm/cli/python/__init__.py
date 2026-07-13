@@ -1,4 +1,10 @@
-"""python 子命令组 - Python 项目管理
+"""PLC-HMI 概念映射：程序入口（Python CLI 子命令（Python 项目操作））
+
+像 PLC 的启动流程，程序的上电入口点。
+
+--- 原始注释 ---
+
+python 子命令组 - Python 项目管理
 
 Commands:
     init <ID> --name <NAME>   创建 Python 项目骨架（Copier python-tool 模板）

@@ -1,4 +1,11 @@
-"""Spec Facade 接口层
+"""PLC-HMI 概念映射：FB_Spec 功能块
+
+对应 PLC 的 FB，封装"规范检查"域的完整业务逻辑（检查/索引/Frontmatter/报告）。
+- 输入引脚：spec_check_service, spec_center_service, index_service 等
+- 输出引脚：返回 QueryResult/CommandResult → Bridge Signal 通知画面刷新
+
+--- 原始注释 ---
+Spec Facade 接口层
 
 M4 第 1 批重构：从"转发层"升级为"用例编排层"，返回带类型 DTO。
 """

@@ -1,4 +1,11 @@
-"""Change Facade 接口层"""
+"""PLC-HMI 概念映射：FB_Change 功能块
+
+对应 PLC 的 FB，封装"变更管理"域的完整业务逻辑（创建/编辑/审批/台账对账）。
+- 输入引脚：change_service, project_service, ledger_reconciler
+- 输出引脚：返回 QueryResult/CommandResult → Bridge Signal 通知画面刷新
+
+--- 原始注释 ---
+Change Facade 接口层"""
 
 from typing import Any
 

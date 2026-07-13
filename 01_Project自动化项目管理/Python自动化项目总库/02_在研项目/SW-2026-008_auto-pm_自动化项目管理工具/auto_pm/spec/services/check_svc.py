@@ -1,3 +1,9 @@
+"""PLC-HMI 概念映射：SFB 库函数（规范检查（扫描文件是否符合规范））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

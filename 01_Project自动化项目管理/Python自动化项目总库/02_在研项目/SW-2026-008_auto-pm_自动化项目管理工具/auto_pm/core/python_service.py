@@ -1,4 +1,11 @@
-"""Python 项目管理服务 - V2.5 交付
+"""PLC-HMI 概念映射：SFB 库函数（Python 项目服务（扫描/创建/管理 Python 项目））
+
+像 PLC 的 SFB/SFC 系统函数，被 FB 功能块（application/*_facade.py）调用，
+不直接暴露给 HMI 画面。
+
+--- 原始注释 ---
+
+Python 项目管理服务 - V2.5 交付
 
 提供 Python 项目的规范检查与自动修复功能。
 """

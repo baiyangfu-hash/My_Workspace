@@ -1,4 +1,10 @@
-"""变更管理核心模型（迁移自 change/models.py:dataclass）
+"""PLC-HMI 概念映射：UDT 自定义数据类型（变更单信息（ChangeRequest/ChangeSummary 数据结构））
+
+像 PLC 的 UDT（User Defined Type），定义数据结构。
+
+--- 原始注释 ---
+
+变更管理核心模型（迁移自 change/models.py:dataclass）
 
 来源：CHG-*.md 文件解析。常量和校验函数仍保留在 change/models.py。
 """

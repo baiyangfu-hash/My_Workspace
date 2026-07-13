@@ -1,4 +1,11 @@
-"""规范管理命令组 - 整合自 specmgr 工具（SW-2026-006）
+"""PLC-HMI 概念映射：CLI 命令行入口（规范命令组（check/index/frontmatter/report））
+
+像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
+不经过 HMI 画面，直接调用 FB 或 SFB。
+
+--- 原始注释 ---
+
+规范管理命令组 - 整合自 specmgr 工具（SW-2026-006）
 
 提供规范检查、索引生成、frontmatter 同步、健康报告能力。
 

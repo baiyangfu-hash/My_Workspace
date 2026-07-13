@@ -1,4 +1,12 @@
-"""Workbench Bridge (QML)"""
+"""PLC-HMI 概念映射：HMI 变量表（Workbench 域）
+
+像 HMI 触摸屏的变量表，定义了 QML 画面能访问的所有变量和方法：
+- @Slot 方法 = HMI 按钮触发的脚本（QML 调用 → 后台执行）
+- Signal = HMI 变量变化事件（数据变了自动刷新画面）
+- Property = HMI 只读变量（画面直接绑定显示）
+
+--- 原始注释 ---
+Workbench Bridge (QML)"""
 import dataclasses
 from typing import Any
 

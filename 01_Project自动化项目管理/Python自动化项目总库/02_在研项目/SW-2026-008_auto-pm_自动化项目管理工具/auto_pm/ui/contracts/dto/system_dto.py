@@ -1,4 +1,10 @@
-"""System 相关 DTO 定义
+"""PLC-HMI 概念映射：HMI 画面数据结构（系统设置 DTO（PM_SESSION/模板/设置数据））
+
+像 HMI 触摸屏的画面变量结构，定义 QML 画面能显示的数据格式。
+
+--- 原始注释 ---
+
+System 相关 DTO 定义
 
 M4 第 2 批新增：SystemFacade 6 方法返回带类型 DTO。
 list_templates 返回 list[str]、get_template_path 返回 str，无需 DTO。
