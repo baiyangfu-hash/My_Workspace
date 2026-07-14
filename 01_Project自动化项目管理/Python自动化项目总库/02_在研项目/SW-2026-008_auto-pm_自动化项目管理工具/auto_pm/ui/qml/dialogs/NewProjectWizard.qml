@@ -15,6 +15,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import "../theme"
 import "../components"
 
@@ -31,6 +32,7 @@ Item {
     property string projectName: ""
     property string stack: "python"
     property string businessLine: "SW"
+    property string destDir: ""  // 项目存放目录（空字符串表示用默认值 0100_项目/）
 
     // 步骤 3 数据
     property string mode: "standard"
@@ -53,6 +55,20 @@ Item {
 
     visible: _isOpen
     anchors.fill: parent
+
+    // ── 目录选择对话框（V1.0.1 新增） ────────────────────
+    FileDialog {
+        id: destDirDialog
+        title: "选择项目存放目录"
+        fileMode: FileDialog.OpenDirectory
+        onAccepted: {
+            var path = selectedFolder.toString()
+            // 转换 file:/// URL 为本地路径
+            path = path.replace("file:///", "").replace(/\//g, "\\")
+            root.destDir = path
+            destDirInput.text = path
+        }
+    }
 
     // ── 打开时自动生成编号 ────────────────────────────────
     on_IsOpenChanged: {
@@ -223,6 +239,23 @@ Item {
                             }
                         }
                     }
+
+                    // 项目存放目录（V1.0.1 新增，支持选择目录）
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "存放目录"; width: 100; color: Theme.textSecondary }
+                        TextField {
+                            id: destDirInput
+                            Layout.fillWidth: true
+                            text: root.destDir
+                            placeholderText: "默认: 0100_项目/"
+                            onTextChanged: root.destDir = text
+                        }
+                        Button {
+                            text: "浏览"
+                            onClicked: destDirDialog.open()
+                        }
+                    }
                 }
 
                 // 步骤 2：模式选择
@@ -304,6 +337,12 @@ Item {
                                 text: "PLC 结构: " + (root.createPlcStructure ? "创建" : "不创建")
                                 color: Theme.textPrimary
                             }
+                            Text {
+                                text: "存放目录: " + (root.destDir !== "" ? root.destDir : "0100_项目/（默认）")
+                                color: Theme.textPrimary
+                                Layout.fillWidth: true
+                                elide: Text.ElideMiddle
+                            }
                         }
                     }
 
@@ -365,7 +404,8 @@ Item {
                                 if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                                     var result = workbenchBridge.createProject(
                                         root.projectId, root.projectName,
-                                        root.stack, root.mode, root.businessLine
+                                        root.stack, root.mode, root.businessLine,
+                                        root.destDir
                                     )
                                     if (result && result.success) {
                                         root.projectCreated(root.projectId, root.projectName)

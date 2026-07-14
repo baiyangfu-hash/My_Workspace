@@ -150,10 +150,10 @@ class WorkbenchBridge(QObject):
                 return res.payload
         return ""
 
-    @Slot(str, str, str, str, str, result="QVariant")
-    def createProject(self, project_id: str, project_name: str, stack: str, mode: str, business_line: str) -> dict[str, Any]:
+    @Slot(str, str, str, str, str, str, result="QVariant")
+    def createProject(self, project_id: str, project_name: str, stack: str, mode: str, business_line: str, dest_dir: str) -> dict[str, Any]:
         if self._facade and hasattr(self._facade, "create_project"):
-            res = self._facade.create_project(project_id, project_name, stack, mode, business_line)
+            res = self._facade.create_project(project_id, project_name, stack, mode, business_line, dest_dir)
             if res.success:
                 self.refreshProjects()
                 return {"success": True, "project_id": res.payload["project_id"] if res.payload else ""}

@@ -80,11 +80,32 @@ STD_PRD_DOCS: Final[list[str]] = [
 ]
 
 
+# ── 默认项目存放目录（V1.0.1 新增） ─────────────────────────
+
+#: 默认项目存放目录名（相对于 auto-pm 工具目录）
+DEFAULT_PROJECTS_DIRNAME: Final[str] = "0100_项目"
+
+
 # ── 便捷函数 ───────────────────────────────────────────────
 
 def join_path(*parts: str) -> str:
     """跨平台拼接路径（os.path.join 的语义化包装）"""
     return os.path.join(*parts)
+
+
+def get_default_projects_dir() -> str:
+    """获取默认项目存放根目录（auto-pm 工具目录下的 0100_项目/）
+
+    通过 paths.py 文件位置推断 auto-pm 工具目录，不依赖 workspace_root 配置。
+    项目默认创建在此目录下，用户可通过 GUI/CLI 指定其他目录覆盖。
+
+    Returns:
+        默认项目存放根目录绝对路径
+    """
+    # paths.py 位于 auto_pm/core/paths.py
+    # 工具目录 = auto_pm/ 的上级目录
+    tool_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    return os.path.join(tool_dir, DEFAULT_PROJECTS_DIRNAME)
 
 
 def get_projects_subdir(workspace_root: str) -> str:

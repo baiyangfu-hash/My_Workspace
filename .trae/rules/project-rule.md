@@ -28,9 +28,14 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 
 ### 规范管理工具
 
-- **SpecMgr**（SW-2026-006）：全局可用 `specmgr -w "<工作空间根>" check|index|frontmatter|report [--auto-fix] [--dry-run]`
-- **auto-pm**（SW-2026-008）：`auto-pm -w "<工作空间根>" project create|show|edit|retrofit|delete ...` 和 `auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...`
-- pm-mgr（SW-2026-007）已被 auto-pm（SW-2026-008）取代
+- **auto-pm**（SW-2026-008）：统一项目管理工具，吸收原 specmgr 和 pm-mgr 功能
+  - 项目管理：`auto-pm -w "<工作空间根>" project create|show|edit|retrofit|delete ...`
+  - PLC 管理：`auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...`
+  - 规范检查：`auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] [--dry-run]`
+  - 变更管理：`auto-pm -w "<工作空间根>" change create|list|show|transition ...`
+  - 台账对账：`auto-pm -w "<工作空间根>" ledger reconcile <项目ID> [--auto-fix]`
+- specmgr（SW-2026-006）已被 auto-pm 吸收为 `auto-pm spec` 子命令
+- pm-mgr（SW-2026-007）已被 auto-pm 取代
 - `-w` 必须放在子命令之前；详细用法见 `pm-workflow` 技能
 
 ## 技术栈适配
@@ -84,9 +89,11 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 
 6. **Bug修复**：当发现bug时，首先编写能重现bug的代码，确认bug的存在，然后不断测试代码直到bug被修复。
 
+7. **后台任务监控**：启动后台测试/构建任务后，禁止被动等待通知。必须：①设置预期完成时间；②分段主动轮询（timeout=120s）；③超过预期时间未完成时立即读日志看进度，进度停滞即停止并诊断根因；④给用户明确时间预期。详见 `fullstack-engineer` 技能"后台任务监控纪律"章节
+
 ## 四、持续改进
 
-7. **规则迭代**：每次被纠正后，必须重新审视对话，确认是否需要在本规则中添加新规则，这样才能保证不再发生类似的情况。
+8. **规则迭代**：每次被纠正后，必须重新审视对话，确认是否需要在本规则中添加新规则，这样才能保证不再发生类似的情况。
 
 ## 安全红线
 
@@ -111,6 +118,7 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 3. **版本号一致性**：pyproject.toml 版本号必须与 CHANGELOG 最新条目一致；PM_SESSION §2 与 §8 版本号必须一致
 4. **里程碑核查**：里程碑迭代计划的"已完成"标注必须经过代码核查（文件行数、方法存在性、测试通过数），禁止仅凭声明标记完成
 5. **变更记录**：每次迭代必须在项目 `00_项目基础信息/` 下维护变更记录文件，记录本次迭代的所有变更条目
+6. **台账对账强制**：每次 CHG 闭环后必须执行 `auto-pm -w "<工作空间根>" ledger reconcile <项目ID>`，台账有差异时禁止升级版本号或开始新 CHG。每个迭代结束（版本号升级前）执行全量对账 `ledger reconcile <项目ID> --auto-fix`
 
 ## GUI 测试模式规则（强制）
 

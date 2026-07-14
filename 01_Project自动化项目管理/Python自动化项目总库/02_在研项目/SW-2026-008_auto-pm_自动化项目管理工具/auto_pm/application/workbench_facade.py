@@ -426,18 +426,28 @@ class WorkbenchFacade:
         stack: str,
         mode: str,
         business_line: str,
+        dest_dir: str = "",
     ) -> CommandResult[dict[str, Any] | None]:
-        """QML GUI: 创建新项目（去伪存真，对接 Copier 模板生成骨架）"""
+        """QML GUI: 创建新项目（去伪存真，对接 Copier 模板生成骨架）
+
+        Args:
+            dest_dir: 项目存放目录（空字符串表示用默认目录 0100_项目/）
+        """
         try:
             if not self._template_service:
                 return CommandResult(success=False, message="TemplateService 未注入", payload=None)
 
             import os
 
-            from auto_pm.core.constants import get_template_name, get_workspace_subdir
+            from auto_pm.core.constants import get_template_name
+            from auto_pm.core.paths import get_default_projects_dir
 
-            subdir = get_workspace_subdir(stack) or ""
-            dest_root = os.path.join(self._project_service.workspace_root, subdir)
+            # V1.0.1: 默认项目存放目录改为 auto-pm 工具目录下的 0100_项目/
+            # 用户可通过 dest_dir 参数指定其他目录
+            if dest_dir:
+                dest_root = os.path.abspath(dest_dir)
+            else:
+                dest_root = get_default_projects_dir()
             project_dir = f"{project_id}_{project_name}"
             dest_path = os.path.abspath(os.path.join(dest_root, project_dir))
 

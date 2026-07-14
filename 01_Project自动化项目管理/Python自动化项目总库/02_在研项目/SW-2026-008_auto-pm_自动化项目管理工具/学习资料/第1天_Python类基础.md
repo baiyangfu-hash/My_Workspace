@@ -9,6 +9,7 @@
 ## 一、为什么需要类？
 
 你写 PLC 程序时，一个 FB（功能块）包含：
+
 - 输入引脚（数据进來）
 - 输出引脚（数据出去）
 - 内部变量（FB 自己用的）
@@ -33,13 +34,13 @@ FB 逻辑                  def 方法()
 ```python
 # 定义一个类（像定义一个 FB 的模板）
 class ProjectMgr:
-    
+  
     # __init__ 是初始化方法，像 FB 的"上电第一个扫描周期"
     # 创建对象时自动执行，用来设置初始值
     def __init__(self, workspace_path):
         self.workspace = workspace_path    # 存到内部变量
         self.project_count = 0             # 初始值
-    
+  
     # 这是一个方法，像 FB 里的一个功能逻辑
     def count_projects(self):
         # self.workspace 就是上面 __init__ 里存的值
@@ -60,14 +61,14 @@ print(f"找到 {result} 个项目")
 
 ### 关键点
 
-| 概念 | 语法 | PLC 对应 |
-|------|------|----------|
-| 定义类 | `class 类名:` | 定义 FB |
-| 初始化 | `def __init__(self, 参数):` | FB 上电初始化 |
-| 内部变量 | `self.变量名 = 值` | FB 的静态变量 |
-| 方法定义 | `def 方法名(self, 参数):` | FB 的功能逻辑 |
-| 创建对象 | `mgr = 类名(参数)` | OB1 里实例化 FB |
-| 调用方法 | `mgr.方法名()` | 调用 FB 实例 |
+| 概念     | 语法                          | PLC 对应        |
+| -------- | ----------------------------- | --------------- |
+| 定义类   | `class 类名:`               | 定义 FB         |
+| 初始化   | `def __init__(self, 参数):` | FB 上电初始化   |
+| 内部变量 | `self.变量名 = 值`          | FB 的静态变量   |
+| 方法定义 | `def 方法名(self, 参数):`   | FB 的功能逻辑   |
+| 创建对象 | `mgr = 类名(参数)`          | OB1 里实例化 FB |
+| 调用方法 | `mgr.方法名()`              | 调用 FB 实例    |
 
 ---
 
@@ -80,7 +81,7 @@ class Student:
     def __init__(self, name, age):
         self.name = name    # 把传进来的 name 存到"我"的 name 属性
         self.age = age      # 把传进来的 age 存到"我"的 age 属性
-    
+  
     def say_hello(self):
         # self.name 意思是"我的 name"
         print(f"我叫 {self.name}，今年 {self.age} 岁")
@@ -94,6 +95,7 @@ s2.say_hello()   # 输出：我叫 李四，今年 20 岁
 ```
 
 **理解要点**：
+
 - `self` 不是关键字，是约定俗成的名字
 - 调用 `s1.say_hello()` 时，Python 自动把 `s1` 传给 `self`
 - 所以方法里 `self.name` 就是 `s1.name`
@@ -107,13 +109,13 @@ s2.say_hello()   # 输出：我叫 李四，今年 20 岁
 ```python
 class WorkbenchFacade:
     """FB_Workbench 功能块 - 项目管理"""
-    
+  
     def __init__(self, project_service, dashboard_service, template_service):
         # 输入引脚：接收三个 Service（底层库函数）
         self._project_service = project_service
         self._dashboard_service = dashboard_service
         self._template_service = template_service
-    
+  
     def list_project_cards(self, workspace_root):
         """列出所有项目卡片"""
         # 调用底层 Service 获取数据
@@ -122,7 +124,7 @@ class WorkbenchFacade:
         cards = [self._to_card(p) for p in projects]
         # 返回结果（输出引脚）
         return QueryResult(success=True, data=cards)
-    
+  
     def create_project(self, project_id, name, stack, mode):
         """创建新项目"""
         result = self._project_service.create_project(...)
@@ -148,20 +150,20 @@ class WorkbenchFacade:
 ```python
 class FbCounter:
     """计数器功能块"""
-    
+  
     def __init__(self, initial_value=0):
         self.count = initial_value
-    
+  
     def increment(self):
         """加 1"""
         self.count += 1
         return self.count
-    
+  
     def reset(self):
         """清零"""
         self.count = 0
         return self.count
-    
+  
     def get_value(self):
         """获取当前值"""
         return self.count
@@ -176,6 +178,7 @@ print(counter.get_value()) # 应该输出 0
 ```
 
 运行方式：
+
 ```powershell
 & "c:\Users\fubai\Desktop\My_Workspace\.venv\Scripts\Activate.ps1"
 cd "...\SW-2026-008_auto-pm_自动化项目管理工具"
@@ -201,6 +204,7 @@ def hello_world(self):
 ```
 
 然后在终端测试：
+
 ```powershell
 python -c "from auto_pm.application.workbench_facade import WorkbenchFacade; print(WorkbenchFacade.__init__.__code__.co_varnames)"
 ```

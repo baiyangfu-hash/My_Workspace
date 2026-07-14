@@ -51,9 +51,7 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 | 工具 | 用途 |
 |------|------|
-| auto-pm（SW-2026-008） | 自动化项目管理工具，支持项目CRUD、PLC检查/修复、变更管理、模板管理 |
-| specmgr（SW-2026-006） | 规范管理工具，check/index/frontmatter/report |
-| pm-mgr（SW-2026-007） | 项目结构初始化与检查工具 |
+| auto-pm（SW-2026-008） | 自动化项目管理工具，支持项目CRUD、PLC检查/修复、变更管理、模板管理、规范检查（吸收原 specmgr）、台账对账 |
 
 **auto-pm 用法**：
 ```powershell
@@ -109,7 +107,9 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 
 先读文件再改，尊重现有架构和命名风格，不在无关文件上扩散修改，变更后优先跑相关测试。
 
-### Step 4：回写 PM_SESSION §6-§9
+### Step 4：回写 PM_SESSION §6-§9（含门禁实测前置检查）
+
+**回写前必做**（若本轮有代码改动）：实际运行 ruff/mypy/pytest 并记录真实输出，禁止基于推断声明门禁状态。详见 `pm-workflow` Step 3.8 门禁实测强制检查。
 
 ## 工程实践规范
 
@@ -134,7 +134,19 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
    - 再怀疑生产代码
    - 特别警惕"假通过"：`if x is not None:` 类条件断言会掩盖 fixture 缺陷
 
-4. **未验证禁止回写**：
+4. **fixture 健康检查清单**（测试失败时先查 fixture，再查生产代码）：
+   - fixture 是否创建了项目标志文件？（PM_SESSION_*.md / .copier-answers.yml / .plc.json）
+   - fixture 的路径结构是否与生产环境一致？（如 02_PLC程序/PLC_ST/ 目录层级）
+   - fixture 的 mock 配置是否返回非 None 值？（打印 mock.return_value 确认）
+   - 测试中是否有 `if x is not None:` 类条件断言？（改为 `assert x is not None` + `assert x.字段 == 期望值`）
+   - fixture 的 scope 是否合理？（session 级 fixture 修改后会影响后续测试）
+
+   **条件断言检测规则**（以下模式视为"假通过风险"，必须改为无条件断言）：
+   - `if result is not None: assert ...` → `assert result is not None` + `assert result.xxx`
+   - `if cr: assert ...` → `assert cr is not None` + `assert cr.xxx`
+   - `try: assert ... except AssertionError: pass` → 删除 try/except，直接 assert
+
+5. **未验证禁止回写**：
    - 诊断结论未经运行时验证，**禁止**写入 PM_SESSION §8/§9
    - 必须标注"已验证"或"待验证"，未验证的结论只能放在 `open_questions`
 
@@ -160,6 +172,19 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 4. **flaky test 诊断顺序**：
    - 先验证生产代码（如缓存同步、信号连接），再怀疑测试基础设施
    - 测试不稳定时，先确认是否为 fixture 污染（如 session 级状态残留），再怀疑 Qt 会话管理
+
+5. **GUI 测试隔离检查清单**（编写/修改 GUI 测试前必查）：
+   - □ 是否使用 tmp_path 隔离？（禁止在真实工作空间创建项目）
+   - □ autouse fixture 的 except 是否用 logging.warning 暴露失败？（禁止 except Exception: pass）
+   - □ 是否有 session 级状态残留？（检查 conftest.py 中 session 级 fixture 的清理逻辑）
+   - □ 测试结束后是否清理了创建的项目/变更单？（检查 _cleanup_test_changes 是否被调用）
+   - □ 是否在测试专用工作空间（如 DJ-2026-998）中残留了数据？（测试后检查并清理）
+
+6. **全量回归卡住诊断流程**（全量 pytest 卡住时，进度停滞 >2 分钟）：
+   1. 是否是 GUI 测试卡住？（检查是否最后执行的 tests/qml/ 或 tests/gui/）
+   2. 是否是 session 级 fixture 污染？（检查 conftest.py session 级 fixture）
+   3. 是否是 Qt 事件循环阻塞？（检查是否有 QEventLoop.exec() 或 QTest.qWait 未超时）
+   4. 临时方案：分批执行 pytest（spec/change/app/core 一批 + qml 一批 + 其他一批）
 
 ### mypy 类型标注陷阱速查表
 

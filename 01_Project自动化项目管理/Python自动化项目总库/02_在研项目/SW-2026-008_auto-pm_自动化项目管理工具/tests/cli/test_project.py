@@ -232,6 +232,9 @@ def test_project_create_single_machine_generates_week2_template_assets(
     cli_runner: CliRunner, tmp_path: Path
 ) -> None:
     """project create 真实生成 Week 2 单机模板差异"""
+    # V1.0.1: 默认项目存放目录改为 auto-pm 工具目录下 0100_项目/，
+    # 测试中显式指定 --dest-dir 以保持隔离（避免污染真实工具目录）
+    dest_dir = tmp_path / "0100_项目"
     result = cli_runner.invoke(
         cli,
         [
@@ -253,12 +256,14 @@ def test_project_create_single_machine_generates_week2_template_assets(
             "Siemens",
             "--plc-model",
             "S7-1200",
+            "--dest-dir",
+            str(dest_dir),
         ],
         catch_exceptions=False,
     )
 
     assert result.exit_code == 0
-    project_dir = tmp_path / "0100_PLC自动化" / "DJ-2026-022_周单机模板"
+    project_dir = dest_dir / "DJ-2026-022_周单机模板"
     assert (project_dir / "01_需求与设计" / "001_单机设备项目概览_OVW.md").exists()
     assert (project_dir / "02_PLC程序" / "工程资产" / "io_points.csv").exists()
     assert (project_dir / "02_PLC程序" / "工程资产" / "program_blocks.yml").exists()
@@ -625,6 +630,9 @@ class TestDocRefresh:
         assert len(payload["refreshed_files"]) == 2
 
     def test_doc_refresh_after_project_create(self, cli_runner: CliRunner, tmp_path: Path) -> None:
+        # V1.0.1: 默认项目存放目录改为 auto-pm 工具目录下 0100_项目/，
+        # 测试中显式指定 --dest-dir 以保持隔离（避免污染真实工具目录）
+        dest_dir = tmp_path / "0100_项目"
         create_result = cli_runner.invoke(
             cli,
             [
@@ -646,6 +654,8 @@ class TestDocRefresh:
                 "Siemens",
                 "--plc-model",
                 "S7-1200",
+                "--dest-dir",
+                str(dest_dir),
             ],
             catch_exceptions=False,
         )
@@ -659,7 +669,7 @@ class TestDocRefresh:
         assert result.exit_code == 0
         assert "文档自动区处理完成" in result.output
 
-        project_dir = tmp_path / "0100_PLC自动化" / "DJ-2026-042_文档刷新集成"
+        project_dir = dest_dir / "DJ-2026-042_文档刷新集成"
         program_doc = next(
             (project_dir / "02_PLC程序" / "程序文档").glob("*PLC程序设计总文档_PLC.md")
         )

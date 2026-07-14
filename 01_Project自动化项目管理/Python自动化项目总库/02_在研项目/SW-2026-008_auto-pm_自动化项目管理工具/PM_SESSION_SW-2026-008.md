@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
 
 # PM_SESSION_SW-2026-008
 
@@ -7,7 +7,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-07-11
+- last_updated: 2026-07-14
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -72,8 +72,8 @@
   - `plc check` 对 Python 项目的"不适用"口径已通过 V0.4.1 Step 3 修复（CheckResult.not_applicable 标记 + DashboardService 防御性条件 + UI 透明展示）
   - Week 3 已固化资产字段契约第一版，Week 4 文档刷新已按最小口径落地；下一步做真实试运行时仍需继续约束缺省值策略、空值展示口径和工站命名一致性
 - spec_compliance:
-  - last_check: 2026-07-11
-  - result: 代码基线 V1.0.0（M5 全部 6 项完成 CHG-116/117/118/119/120/121 + M4 全部 7 项完成 + CHG-123 项目变更Tab驾驶舱模式优化 + CHG-124 5 功能子项统收）。dogfooding 54 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/123/124 全 closed，CHG-080 状态仍 implementing V2.3 多周迭代中）。**CHG-123 项目变更Tab驾驶舱模式**：将项目详情页变更Tab从简单列表升级为驾驶舱模式，包含 KpiGrid（变更总数/进行中/待审批/本周新增 4 卡片）+ DashboardStateMachine（9 步状态流转可视化）+ ActivityTimeline（变更活动时间线）+ Split View（变更列表 + ChangeDetailPanel 详情面板）。验证：QML 测试 161 passed 与修改前一致。**CHG-124 5 功能子项统收（DocBrowserView+变量表 IO 读写+EditChangeDialog GlassPanel+AboutDialog/GlobalSettingsDialog 接入+spec_facade PLC repair）**：retrofit 模式补单，13 文件改动，三轨门禁全绿（ruff 0 + mypy 0 + pytest 27 passed）
+  - last_check: 2026-07-14
+  - result: 代码基线 V1.0.0（M5 全部 6 项完成 CHG-116/117/118/119/120/121 + M4 全部 7 项完成 + CHG-123 项目变更Tab驾驶舱模式优化 + CHG-124 5 功能子项统收 + CHG-125 V1.0.0 架构文档化补单 + CHG-126 P0 阻断修复+优化补单）。dogfooding 56 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126 全 closed，CHG-080 状态仍 implementing V2.3 多周迭代中）。**CHG-122 Python 项目规范检查与一键修复**：新增 PythonProjectService 核心服务，打通 CLI python repair 命令和 GUI 一键修复按钮（2026-07-12 创建，retrofit 模式 closed，前次 §3 漏写已补登）。**CHG-123 项目变更Tab驾驶舱模式**：将项目详情页变更Tab从简单列表升级为驾驶舱模式，包含 KpiGrid（变更总数/进行中/待审批/本周新增 4 卡片）+ DashboardStateMachine（9 步状态流转可视化）+ ActivityTimeline（变更活动时间线）+ Split View（变更列表 + ChangeDetailPanel 详情面板）。验证：QML 测试 161 passed 与修改前一致。**CHG-124 5 功能子项统收（DocBrowserView+变量表 IO 读写+EditChangeDialog GlassPanel+AboutDialog/GlobalSettingsDialog 接入+spec_facade PLC repair）**：retrofit 模式补单，13 文件改动，三轨门禁全绿（ruff 0 + mypy 0 + pytest 27 passed）。**CHG-125 V1.0.0 架构文档化补单**（2026-07-14 retrofit 补单，对应提交 7a96213）：14 个关键 Python 文件头部添加 PLC 概念注释（OB1/FB/HMI 变量表/SFB 库函数/UDT 数据类型）+ 项目根目录创建 ARCHITECTURE.md 架构对照图，零代码改动仅文档化。**CHG-126 P0 阻断修复+优化补单**（2026-07-14 retrofit 补单，对应提交 a655655）：修复 3 个 P0 阻断（--version 命令崩溃 / Windows 终端中文乱码 / python check 命令显示异常）+ 5 项优化（PM_SESSION 扫描排除归档 / doc refresh PLC 类型检查 / 变更单排序 key 类型注解 / GUI 烟雾测试服务注入 / QML varTableModel 未定义报错），21 文件 +1251/-290
 
 ## 4. Artifacts Index（文档索引）
 
@@ -106,6 +106,7 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-07-14 缺失变更单补齐（CHG-SCPT-2026-125/126 retrofit 模式补单）：用户发现"有些提交没有变更单，需要补变更单"。pm-workflow 模式分析 git log 全量提交（80 条）vs 已有 CHG-*.md 文件（56 个），过滤非 SW-2026-008 项目提交后，识别出 2 个有实质代码变更但缺单的提交：① 7a96213（2026-07-13 V1.0.0 架构文档化，14 个 Python 文件头部 PLC 概念注释 + ARCHITECTURE.md）；② a655655（2026-07-13 修复 3 个 P0 阻断 + 5 项优化，21 文件 +1251/-290）。通过 `auto-pm change create --retrofit` CLI 补单：CHG-SCPT-2026-125（SCPT+OPT+MODULE+SYSTEM，V1.0.0 架构文档化）+ CHG-SCPT-2026-126（SCPT+DEF+MODULE+SYSTEM，P0 修复+优化），两张变更单直接创建为 closed 状态。台账对账无差异（ledger reconcile：缺失 0 / 孤儿 0 / 状态不一致 0）。同步修正 §3 spec_compliance（补登漏写的 122 + 新建的 125/126 + dogfooding 54→56 次 + last_check 2026-07-11→2026-07-14）。eb1d8a4（AI 占位符提交，仅 09_整改项 文档同步）经用户确认不单独补单。
   - 2026-07-10 V0.9.2 深度审查整改闭环（B4 数据库联合主键与 UI 项目参数路由 + CLI 对账闭环 + 改进项收口）：修复多项目同名变更覆盖冲突的 SQLite 主键缺陷，将 `change_requests` 和 `impact_analysis` 表重构为 `(project_id, change_number)` 联合主键；打通 QML 视图到后端的 `project_id` 传参链路，解决变更详情错乱“串台”问题。使用 CLI 状态机完成 `CHG-SCPT-2026-109/110/114/115` 四张滞后变更单的状态推演闭环（状态全闭环为 `closed`）。更新所有文档中的 UI 架构原型 V7 路径引用。MyPy 静态分析 0 错误（含修复 2 个预存 unreachable 警告），Ruff 0 错误，单元与集成测试 1311 项全数通过，三轨门禁达到 all-green，机器证据 gate_result.json 已生成。
   - 2026-07-10 M4 项目管理补齐闭环（CHG-SCPT-2026-115 第 46 次 dogfooding 闭环 closed）：fullstack-engineer 实施 M4 剩余 3 项——project edit（WorkbenchFacade.edit_project + WorkbenchBridge.editProject Slot + ProjectEditDialog.qml）、project delete（WorkbenchFacade.delete_project + WorkbenchBridge.deleteProject Slot + DeleteConfirmDialog.qml）、template apply（TemplateApplyDialog.qml，Bridge 已有 system_bridge.applyTemplate）。代码变更涉及 9 个文件（workbench_facade.py + workbench_bridge.py + ProjectEditDialog.qml + DeleteConfirmDialog.qml + TemplateApplyDialog.qml + WorkspaceView.qml + main.qml + test_workbench_facade.py + test_workbench_bridge.py）。新增 10 单元测试（facade 5 + bridge 5），全量门禁全绿（ruff 0 + mypy 2 预存 + 40 facade/bridge + 139 qml + 128 spec + PM_SESSION size 9）。M4 全部 7 项完成：变更管理 4 项（CHG-114 NewChangeDialog + CHG-103 ChangeDetailPanel 状态流转/时间线/验证）+ 项目管理 3 项（CHG-115 edit/delete/template）。台帐对账无差异。
   - 2026-07-10 M4 项目管理补齐启动（CHG-SCPT-2026-115 第 46 次 dogfooding）：pm-workflow 核实 M4 剩余 6 项实际状态——change transition/timeline/validation 3 项已在 CHG-103 落地于 ChangeDetailPanel.qml（状态流转按钮+审批时间线+§10 验证项），实际剩余 3 项：project edit（需新增 Bridge Slot + QML 对话框）、project delete（需新增 Bridge Slot + QML 确认对话框）、template apply（Bridge 已有 system_bridge.applyTemplate，缺 QML 对话框）。通过 CLI `auto-pm change create` 创建 CHG-SCPT-2026-115（SCPT+OPT+MODULE+SYSTEM，状态 draft），切换到 fullstack-engineer 实施。

@@ -26,15 +26,15 @@ description: "统一产品/项目管理主入口。适用于需求澄清、PRD/R
 auto-pm -w "<工作空间根>" project create|show|edit|retrofit|delete ... [--stack <plc|python>] [--id <编号>] [--name <名称>]
 auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...
 
-# SpecMgr：规范健康检查
-specmgr -w "<工作空间根>" check|index|frontmatter|report
+# 规范健康检查（auto-pm spec 子命令，吸收原 specmgr 功能）
+auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] [--dry-run]
 ```
 
 - `-w` 必须放在子命令之前
 - `project show` 自动通过多信号判据识别项目类型
 - `project retrofit` 仅添加 hooks/handoffs/Spec Snapshot，不修改现有文件
 
-> 注意：pm-mgr（SW-2026-007）已被auto-pm（SW-2026-008）取代。pm-mgr命令仍可用但不再维护，建议所有新项目使用auto-pm。
+> 注意：pm-mgr（SW-2026-007）已被 auto-pm（SW-2026-008）取代；specmgr（SW-2026-006）已被 auto-pm 吸收为 `auto-pm spec` 子命令。旧命令仍可用但不再维护，建议所有新项目使用 auto-pm。
 
 ## 总控流程
 
@@ -126,7 +126,13 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
    - 再怀疑生产代码
    - 特别警惕"假通过"：`if cr is not None:` 类条件断言会掩盖 fixture 缺陷
 
-4. **未验证禁止回写**：
+4. **fixture 健康检查**（测试失败时优先排查）：
+   - fixture 是否创建了项目标志文件？（PM_SESSION_*.md / .copier-answers.yml / .plc.json）
+   - fixture 的 mock 配置是否返回非 None 值？（打印 mock.return_value 确认）
+   - 测试中是否有 `if x is not None:` 类条件断言？（改为 `assert x is not None` + `assert x.字段 == 期望值`）
+   - 详细的 fixture 健康检查清单见 `fullstack-engineer` 技能"Fixture 健康检查清单"章节
+
+5. **未验证禁止回写**：
    - 诊断结论未经运行时验证，**禁止**写入 PM_SESSION §8/§9
    - 必须标注"已验证"或"待验证"，未验证的结论只能放在 `open_questions`
 
@@ -138,6 +144,8 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
    - 12 章节非空：§5 变更前后 / §6.1 五大约束 / §6.2 跨领域 / §6.3 传播链 / §7 实施计划 / §8.1 审批流程 / §8.2 审批结论 / §9 实施记录 / §10.1 验证项清单 / §10.2 跨领域联动验证 / §10.3 验证结论 / §11 版本详细变更说明 / §12 附录
    - **禁止**只填 §10.1/§10.3 就流转到 closed（早期 CHG-001/075 的教训）
    - `change transition` 流转到 closed 前，逐章节检查非空
+   - **禁止**用 `--allow-partial-verification` 绕过章节完整性检查
+   - 建议在 `change transition` 流转到 closed 前，由 CLI 自动校验 12 章节非空（当前为人工检查，后续 auto-pm 增强后改为自动）
 
 2. **闭环证据完整性**：
    - 代码 commit hash（或明确标注无代码变更）
@@ -171,25 +179,147 @@ specmgr -w "<工作空间根>" check|index|frontmatter|report
    - §9 Next Actions 中的 precondition 必须明确依赖的验证状态
    - 未验证的结论只能放在 `open_questions`
 
-### Step 4：同步回 PM_SESSION
+5. **读取时双向校验**：
+   - 读取 PM_SESSION §3/§8 中的声明时，若发现未标注验证状态（`[已验证]`/`[待验证]`），**视为"待验证"**
+   - "待验证"的声明**不得作为决策依据**，必须先运行时验证
+   - 回写前：必须标注验证状态
+   - 读取时：未标注 = 待验证 = 不可作为决策依据
 
-每次事件处理完更新：`current_focus`、`status_summary`、`artifacts_index`、对应日志（change/iteration/bug/refactor/release/spec_change）、`open_questions`。只追加，不覆盖历史。
+### Step 3.8：门禁实测强制检查（回写 PM_SESSION §3 前必做）
 
-### Step 4.5：PM_SESSION 间歇精简触发规则（防膨胀）
+回写 §3 spec_compliance 或 §6 声明门禁状态前，**必须**实际运行以下命令并记录真实输出：
 
-PM_SESSION 随迭代推进持续膨胀，需定期精简以保持可读性：
+1. `ruff check auto_pm/`（或对应项目源码目录）— 记录 error 数
+2. `mypy auto_pm/` — 记录 error 数和 source files 数
+3. `pytest --no-cov -q`（或对应测试目录）— 记录 passed/failed/skipped 数
 
-| 章节 | 触发阈值 | 精简方式 |
-|------|----------|----------|
-| §5 change_log | 条目数 > 40 | 折叠早期已完成里程碑记录为摘要（每条摘要末尾标注"详情见 §3 Status Summary 第 N 行"） |
-| §3 Status Summary completed | 条目数 > 30 | 早期里程碑折叠为摘要，详情指向 §5 或技术债报告 |
-| §6 Implementation Log | 条目数 > 20 | 早期记录折叠为摘要 |
-| §8 skill_handoff | 条目数 > 3 | 超过 3 条的早期 skill_handoff 标记为 `skill_handoff_archived`（保留为历史参考，从主交接包移除） |
+**禁止**基于以下来源声明门禁状态：
+- 上次审查报告的声明（审查报告可能失真，见"审查报告验证模式"）
+- 代码阅读推断（"只改了注释，应该不影响测试"）
+- AI 记忆中的历史数据
 
-**精简原则**：
-- 只折叠已完成里程碑，不删除信息源
-- 保留最新 2 个迭代的完整记录
-- 精简后必须验证：§4 Artifacts Index 路径有效性 + §2/§8 版本号一致性
+**若门禁未通过**：§3 必须如实记录失败状态，**禁止**声明"全绿"或"0 errors"。
+
+**例外**：纯文档/注释改动且无代码逻辑变更时，可只运行 ruff（mypy/pytest 跳过），但必须在 §3 标注"本次为文档改动，仅运行 ruff"。
+
+### Step 4：同步回 PM_SESSION（双层结构）
+
+PM_SESSION 采用**双层结构**：主文件 = 活跃快照（≤150 行）+ 历史目录 = 完整档案。
+
+**主文件结构（快照型，只保留当前状态）**：
+- §0 Meta / §1 Positioning（不变）
+- §2 Current Focus（只保留 current_focus + milestone，不保留 previous_focus 链）
+- §3 Status Summary（只保留 in_progress + 最近 3 条 completed 摘要 + open_questions，早期 completed 指向历史目录）
+- §4 Artifacts Index（路径失效的条目即时清理）
+- §5 Current Iteration Log（只保留本轮迭代的日志，上轮自动归档到历史目录）
+- §6 Latest Implementation（只保留最近 3 条 Implementation Log，早期指向 CHG-*.md §9/§10）
+- §8 Handoff Notes（只保留 current_state + 最新 1 条 skill_handoff + watchouts，早期归档）
+- §9 Next Actions（只保留未完成的 Next Actions，已完成的自动删除或移到历史目录）
+
+**每次事件处理完更新**：`current_focus`、`status_summary`、`artifacts_index`、对应日志（change/iteration/bug/refactor/release/spec_change）、`open_questions`。只追加，不覆盖历史；主文件超 150 行时触发归档（见 Step 4.5）。
+
+**§5/§6 职责分离**（避免重复记录）:
+- §5 change_log = 事件索引（一行摘要 + CHG 编号 + 日期），不记录详情
+- §6 Implementation Log = 技术实施详情（changed_files + impact + risks），详情也可只放在 CHG-*.md §9 中，§6 只保留"指向 CHG 编号 + 一句话摘要"
+
+### Step 4.5：PM_SESSION 双层结构归档规则（防膨胀彻底方案）
+
+PM_SESSION 主文件保持 ≤150 行，超过即触发归档到历史目录。
+
+**历史目录结构**:
+```
+00_项目管理/06_PM_SESSION历史/
+  ├── 2026-07-04_V0.6.0.md
+  ├── 2026-07-08_V0.9.2.md
+  └── 2026-07-13_V1.0.0.md
+```
+
+**归档触发机制（自动化，不走 CHG 闭环）**:
+- **版本发布时归档**：每次版本号升级（pyproject.toml 版本号变化），将本轮迭代的 §5/§6/§8 完整记录归档到 `06_PM_SESSION历史/YYYY-MM-DD_Vx.x.x.md`
+- **主文件超 150 行时归档**：主文件行数超过 150 行时，将早期 §3 completed/§5/§6/§8 条目归档到历史目录，主文件只保留快照
+- **不创建 CHG**：归档是基础设施维护操作，不是功能变更，**不需要**走 dogfooding 闭环
+
+**归档操作**:
+```powershell
+auto-pm -w "<工作空间根>" pm-session archive <项目ID> --version <版本号>
+```
+（若 auto-pm 未支持此命令，用 Edit 工具手工归档：① 创建历史目录文件，剪切早期条目；② 主文件只保留快照）
+
+**归档后校验**:
+- §4 Artifacts Index 路径有效性（归档文件路径正确）
+- §2/§8 版本号一致性
+- 历史目录文件命名格式：`YYYY-MM-DD_Vx.x.x.md`（禁止版本号后缀，见"文件命名规范"例外）
+
+**与旧 §4.5 间歇精简规则的区别**:
+- 旧规则：阈值触发后才精简（治标，精简前已膨胀）
+- 新规则：双层结构，主文件永远 ≤150 行（治本，归档自动化）
+
+### Step 4.1：台账对账检查（每次 CHG 闭环后必做）
+
+CHG 状态流转到 closed 后，**必须**执行台账对账：
+
+```powershell
+auto-pm -w "<工作空间根>" ledger reconcile <项目ID>
+```
+
+**检查结果处理**:
+- 缺失 0 / 孤儿 0 / 状态不一致 0 → 正常，继续
+- 有差异 → **必须修复后才能进入下一个 CHG**
+
+**全量对账时机**：每个迭代结束时（版本号升级前），执行全量对账：
+```powershell
+auto-pm -w "<工作空间根>" ledger reconcile <项目ID> --auto-fix
+```
+
+**禁止**：在台账有差异的情况下升级版本号或开始新 CHG。
+
+### retrofit 模式（先实施后补单）
+
+**适用场景**:
+- 紧急修复（P0 Bug 需立即修复，来不及先走变更单流程）
+- 历史遗漏（发现已有提交缺变更单）
+- 架构文档化（零代码改动的文档/注释补单）
+
+**操作方式**:
+```powershell
+auto-pm -w "<工作空间根>" change create --retrofit --pid <项目ID> --domain <D> --nature <N> --scope <S> --applicant <A> --background <B> --necessity <N>
+```
+
+**retrofit 模式特点**:
+- 变更单直接创建为 closed 状态（跳过 9 步状态流转）
+- 台账自动补建
+- 仍需填写 §5-§12 完整章节
+- §9 实施记录填写实际已完成的变更内容
+
+**注意事项**:
+- retrofit 是**例外流程**，不应成为常态
+- 每个 retrofit 补单后必须执行 `ledger reconcile` 确认台账一致
+- 若 retrofit 补单数量超过总 CHG 的 20%，需反思流程是否前置不足
+
+### 审查报告验证模式（收到外部 AI 审查报告时触发）
+
+外部审查报告（Claude/deepseek/其他 AI 产出）中的每一项声明，**必须**按以下分类验证：
+
+| 声明类型 | 验证方式 |
+|----------|----------|
+| 门禁声明（ruff/mypy/pytest 结果） | 必须运行时实测（见 Step 3.8） |
+| 文件存在性声明（"文件 X 不存在"/"文件 Y 有 Z 行"） | 必须用 Glob/Read 验证 |
+| 代码行为声明（"函数 X 做了 Y"） | 必须 Read 源码验证 |
+| 依赖声明（"pyproject.toml 包含 X 依赖"） | 必须 Read pyproject.toml 验证 |
+
+**验证结果标注**:
+- ✅ 已验证为真
+- ❌ 已验证为假（失真）
+- ⚠️ 部分失真（声明部分正确）
+
+**禁止**直接采信外部审查报告的结论进行修复，必须先完成验证。
+
+**失真度记录**：验证完成后，在 PM_SESSION §6 记录审查报告失真度（严重失真 X% + 部分失真 Y% + 仍真实存在 Z%），作为后续使用该 AI 报告的参考。
+
+**历史数据参考**（auto-pm 项目经验）:
+- V0.9.1 Claude v3 诊断报告：严重失真 42% + 部分失真 16% + 仍真实存在 42%
+- V0.9.2 Claude 诊断报告：P2-P4 项 7/7 严重失真
+- 2026-07-12 deepseek V0.9.2 深度审查：整体准确性高，但仍有 5 项数值性偏差
 
 ### Step 5：执行技能必须回写 PM_SESSION
 
@@ -238,8 +368,8 @@ PM_SESSION 随迭代推进持续膨胀，需定期精简以保持可读性：
 |------|------|----------|
 | `current_state` | 1-2 句话当前状态 + 版本号 + 关键阻塞 | 1 条 |
 | `next_focus` | 下一步行动，带 precondition + done_when | ≤5 条 |
-| `skill_handoff`（最新 1 条） | 切换原因 + 目标技能 + 起手任务 + 关键约束 | 1 条 |
-| `skill_handoff_archived` | 超过 3 条的早期交接记录归档 | 保留为历史参考 |
+| `skill_handoff` | 切换原因 + 目标技能 + 起手任务 + 关键约束 | **严格 1 条**（最新） |
+| `skill_handoff_archived` | 早期交接记录归档到 `06_PM_SESSION历史/`（见 Step 4.5） | 历史目录 |
 | `watchouts` | 分类管理（测试约束 / 代码约束 / 流程约束 / 环境约束） | 每类 ≤5 条 |
 | `read_first` | 文件路径，按优先级排序 | ≤5 个 |
 
@@ -247,6 +377,7 @@ PM_SESSION 随迭代推进持续膨胀，需定期精简以保持可读性：
 - §8 中存在未标注验证状态的诊断结论
 - watchouts 列表膨胀超过 20 条未分类
 - 新建独立状态文件替代 PM_SESSION
+- §8 skill_handoff 保留超过 1 条（早期必须归档到历史目录，不保留在主文件）
 
 ## 成功标准
 
