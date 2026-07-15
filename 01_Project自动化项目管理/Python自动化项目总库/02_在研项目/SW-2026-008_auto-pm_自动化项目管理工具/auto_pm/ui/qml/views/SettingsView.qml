@@ -18,6 +18,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import "../theme"
 import "../components"
 
@@ -184,6 +185,11 @@ Rectangle {
                             font.pixelSize: Theme.fontSizeSm
                             color: Theme.textPrimary
                             elide: Text.ElideMiddle
+                        }
+                        PrimaryButton {
+                            text: "修改"
+                            type: "ghost"
+                            onClicked: workspaceDirDialog.open()
                         }
                     }
 
@@ -479,6 +485,30 @@ Rectangle {
                         loadData()
                     }
                 }
+            }
+        }
+    }
+
+    // ── 工作空间根目录选择对话框 ──────────────────────────
+    FolderDialog {
+        id: workspaceDirDialog
+        title: "选择全局工作空间根目录"
+        currentFolder: settingsData.workspace_root ? "file:///" + settingsData.workspace_root.replace(/\\/g, "/") : ""
+        onAccepted: {
+            var path = selectedFolder.toString()
+            if (path.indexOf("file:///") === 0) {
+                path = path.substring(8);
+            } else if (path.indexOf("file://") === 0) {
+                path = path.substring(7);
+            }
+            path = path.replace(/\//g, "\\")
+            path = decodeURIComponent(path)
+
+            var res = workbenchBridge.saveWorkspaceRoot(path)
+            resultMessage = res.message
+            if (res.success) {
+                loadData()
+                workbenchBridge.refreshProjects()
             }
         }
     }

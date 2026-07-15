@@ -82,6 +82,10 @@ class GuiTestRunner(QObject):
         Returns:
             截图文件相对路径
         """
+        # 刷新渲染与事件队列，确保界面与后台数据对齐后再截图
+        from PySide6.QtCore import QCoreApplication
+        QCoreApplication.processEvents()
+
         root_objects = self.engine.rootObjects()
         if not root_objects:
             return ""
@@ -283,8 +287,23 @@ class GuiTestRunner(QObject):
 
     def _step_workspace(self) -> bool:
         """步骤：工作台页"""
+        # 通过选中第一个项目来加载工作台详情
+        workbench_bridge = self.engine.rootContext().contextProperty("workbenchBridge")
+        if workbench_bridge:
+            projects = workbench_bridge.listProjects()
+            if projects:
+                first_proj = projects[0]
+                print(f"正在选中第一个项目进行工作台冒烟测试: {first_proj.get('project_id')}")
+                workbench_bridge.selectProject(first_proj.get("project_id"), first_proj.get("name"))
+                
+                # 刷新事件队列使 projectSelected 信号和 UI 绑定生效
+                from PySide6.QtCore import QCoreApplication
+                QCoreApplication.processEvents()
+
         result = self._navigate_to_page("工作台", "workspace")
         if result:
+            from PySide6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
             self._take_screenshot("workspace", "工作台页 - 项目概览和详情")
         return result
 

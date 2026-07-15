@@ -172,9 +172,8 @@ GlassPanel {
                         // 节点间箭头（非末节点且总节点数较少时显示）
                         Text {
                             visible: (index < root._totalNodes - 1) && (root._totalNodes <= 5)
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left
-                            anchors.leftMargin: parent.width * 0.65
+                            anchors.verticalCenter: circle.verticalCenter
+                            anchors.horizontalCenter: parent.right
                             text: "→"
                             color: Theme.glassBorder
                             font.pixelSize: Theme.fontSizeLg
@@ -189,8 +188,10 @@ GlassPanel {
                             width: circleSize
                             height: circleSize
                             radius: circleSize / 2
-                            color: modelData.status === "pending" ? Theme.surface : Theme.primary
-                            border.color: modelData.status === "pending" ? Theme.glassBorder : Theme.primary
+                            color: modelData.status === "pending" ? Theme.surface :
+                                   modelData.status === "done" ? Theme.success : Theme.primary
+                            border.color: modelData.status === "pending" ? Theme.glassBorder :
+                                          modelData.status === "done" ? Theme.success : Theme.primary
                             border.width: modelData.status === "active" ? 2 : 1
 
                             // 脉冲动画（仅 active 节点）
@@ -204,7 +205,7 @@ GlassPanel {
                             // 节点图标
                             Text {
                                 anchors.centerIn: parent
-                                text: _nodeIcon(modelData.name || "")
+                                text: modelData.status === "done" ? "✓" : _nodeIcon(modelData.name || "")
                                 color: modelData.status === "pending" ? Theme.textMuted : "white"
                                 font.pixelSize: root._totalNodes > 5 ? 12 : 18
                                 font.bold: true

@@ -537,6 +537,112 @@ class ProjectService:
         log.info("已补全 .copier-answers.yml: %s", answers_path)
         return answers_path
 
+    def init_project_pm_framework(
+        self,
+        project_path: str,
+        project_id: str,
+        project_name: str,
+        stack_type: str,
+        author: str | None = None,
+    ) -> None:
+        """为指定路径的项目执行非侵入式 PM 基础文档与目录的初始化补全
+
+        Args:
+            project_path: 项目目录绝对路径
+            project_id: 项目编号（例如 DJ-2026-000）
+            project_name: 项目名称
+            stack_type: 技术栈，'plc' 或 'python'
+            author: 主设计人/申请人名称（如果为 None 则动态获取）
+        """
+        if author is None:
+            author = os.getenv("AUTO_PM_AUTHOR") or (os.getlogin() if hasattr(os, "getlogin") else "fubai")
+
+        if not os.path.isdir(project_path):
+            raise FileNotFoundError(f"项目目录不存在: {project_path}")
+
+        # 1. 补全 .copier-answers.yml
+        answers_path = os.path.join(project_path, self.COPIER_ANSWERS_FILE)
+        if not os.path.isfile(answers_path):
+            try:
+                self.retrofit_project_by_path(project_path)
+            except Exception as e:
+                log.warning("补全 .copier-answers.yml 失败: %s", e)
+
+        # 2. 根据 stack_type 补齐基础 PM 目录
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        if stack_type == "plc":
+            pm_dir = os.path.join(project_path, "00_项目管理", "01_立项与需求")
+            proj_doc_name = f"{project_id}_PROJ.md"
+            proj_doc_template = (
+                f"# Westwell PLC 项目立项需求说明书（{project_id}）\n\n"
+                f"## 1. 项目基础信息\n"
+                f"- **项目名称**：{project_name}\n"
+                f"- **项目编号**：{project_id}\n"
+                f"- **主设计人**：{author}\n"
+                f"- **创建日期**：{today_str}\n\n"
+                f"## 2. 需求定义\n"
+                f"- 初始化项目框架与基础文档。\n"
+            )
+        else:
+            pm_dir = os.path.join(project_path, "00_项目基础信息")
+            proj_doc_name = f"{project_id}_PM.md"
+            proj_doc_template = (
+                f"# Westwell Python 项目立项表（{project_id}）\n\n"
+                f"## 1. 项目基础信息\n"
+                f"- **项目名称**：{project_name}\n"
+                f"- **项目编号**：{project_id}\n"
+                f"- **主设计人**：{author}\n"
+                f"- **创建日期**：{today_str}\n\n"
+                f"## 2. 项目背景与目标\n"
+                f"- 初始化项目框架与基础文档。\n"
+            )
+
+        os.makedirs(pm_dir, exist_ok=True)
+
+        # 3. 创建立项表草稿 (如果不存在)
+        proj_doc_path = os.path.join(pm_dir, proj_doc_name)
+        if not os.path.isfile(proj_doc_path):
+            write_file(proj_doc_path, proj_doc_template)
+            log.info("已初始化立项表: %s", proj_doc_path)
+
+        # 4. 创建 PM_SESSION 骨架 (如果不存在)
+        session_path = os.path.join(project_path, f"PM_SESSION_{project_id}.md")
+        if not os.path.isfile(session_path):
+            session_template = (
+                f"# PM_SESSION_{project_id}\n\n"
+                f"> 项目管理会话\n\n"
+                f"## 0. Meta\n"
+                f"| 字段 | 内容 |\n"
+                f"| --- | --- |\n"
+                f"| 项目编号 | {project_id} |\n"
+                f"| 项目名称 | {project_name} |\n"
+                f"| 技术栈 | {stack_type} |\n"
+                f"| 版本 | V1.0.0 |\n\n"
+                f"## 1. Positioning（项目定位）\n"
+                f"- **一句话描述**：{project_name} 基础文档初始化。\n\n"
+                f"## 2. Milestone/Version（里程碑/版本）\n"
+                f"- [ ] V1.0.0 初始化版本归档\n\n"
+                f"## 3. Backlog/UserStories（待办/用户故事）\n"
+                f"- 无\n\n"
+                f"## 4. Current Iteration（当前迭代）\n"
+                f"- 无\n\n"
+                f"## 5. Execution Records（执行记录）\n"
+                f"- 无\n\n"
+                f"## 6. Change Records（变更历史）\n"
+                f"| 序号 | 变更单号 | 状态 | 描述 |\n"
+                f"| --- | --- | --- | --- |\n\n"
+                f"## 7. Risk & Decision Log（风险与决策日志）\n"
+                f"| 日期 | 类型 | 描述 | 决策 |\n"
+                f"| --- | --- | --- | --- |\n\n"
+                f"## 8. Handoff Notes（交接记录）\n"
+                f"- current_state: {project_name} 项目于 {today_str} 完成了项目管理框架与变更自愈系统的初始化。\n\n"
+                f"## 9. Spec Snapshot（规范快照）\n"
+                f"| 序号 | 规范项 | 版本 | 状态 |\n"
+                f"| --- | --- | --- | --- |\n"
+            )
+            write_file(session_path, session_template)
+            log.info("已初始化 PM_SESSION: %s", session_path)
+
     # ── DB 缓存同步 ──────────────────────────────────────
 
     def sync_to_cache(self, force_full: bool = False) -> dict[str, Any]:

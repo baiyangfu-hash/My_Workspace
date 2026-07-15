@@ -25,19 +25,22 @@ import sys
 
 
 def _fix_windows_encoding() -> None:
-    """Windows 终端编码修复：强制 stdout 为 UTF-8
+    """Windows 终端编码修复：强制 stdout/stderr 为 UTF-8
 
-    仅在直接执行（非被 import）时调用。
     避免与 pytest capture 机制冲突。
     """
-    if sys.platform != "win32" or sys.stdout is None:
+    if sys.platform != "win32":
         return
     try:
-        if hasattr(sys.stdout, "reconfigure"):
+        if sys.stdout is not None and hasattr(sys.stdout, "reconfigure"):
             sys.stdout.reconfigure(encoding="utf-8")
+        if sys.stderr is not None and hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8")
     except (AttributeError, OSError):
         # pytest capture（StringIO 无 reconfigure）或旧 Python，静默跳过
         pass
+
+_fix_windows_encoding()
 
 
 import click  # noqa: E402

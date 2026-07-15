@@ -24,6 +24,9 @@ class DeliveryBridge(QObject):
         super().__init__(parent)
         self._facade = facade
 
+    def set_facade(self, facade: DeliveryFacade | None) -> None:
+        self._facade = facade
+
     @Property(bool, constant=True)
     def hasService(self) -> bool:
         return self._facade is not None

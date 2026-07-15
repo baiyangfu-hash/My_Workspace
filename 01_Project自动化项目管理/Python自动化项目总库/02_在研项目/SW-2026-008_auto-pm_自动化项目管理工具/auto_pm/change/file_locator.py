@@ -71,6 +71,25 @@ class ChangeFileLocator:
         （如 0100_PLC自动化/ 或 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/），
         仅搜索 workspace_root 一层会找不到这些项目。
         """
+        # 0. Check if workspace root itself matches the project_id (e.g. running in auto-pm own workspace root)
+        try:
+            # Check if PM_SESSION_*.md exists in workspace_root and matches project_id
+            for entry in os.listdir(self.workspace_root):
+                if entry.startswith("PM_SESSION_") and entry.endswith(".md"):
+                    pid = entry[len("PM_SESSION_"):-len(".md")]
+                    if pid == project_id:
+                        return self.workspace_root
+            # Or if .copier-answers.yml in workspace_root has project_id
+            answers_path = os.path.join(self.workspace_root, ".copier-answers.yml")
+            if os.path.isfile(answers_path):
+                import yaml
+                with open(answers_path, encoding="utf-8") as f:
+                    answers = yaml.safe_load(f) or {}
+                if answers.get("project_id") == project_id:
+                    return self.workspace_root
+        except Exception:
+            pass
+
         # 1. 精确匹配（向后兼容：目录名 == project_id）
         candidate = os.path.join(self.workspace_root, project_id)
         if os.path.isdir(candidate):

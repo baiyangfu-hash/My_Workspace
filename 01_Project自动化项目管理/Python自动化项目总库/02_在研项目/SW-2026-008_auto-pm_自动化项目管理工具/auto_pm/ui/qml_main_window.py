@@ -29,6 +29,7 @@ QML 主窗口入口（V0.9.0 QML 单入口）
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -62,6 +63,8 @@ from auto_pm.ui.qml.models.project_list_model import ProjectListModel
 from auto_pm.ui.qml.models.var_table_model import VarTableModel
 from auto_pm.ui.registry import FacadeRegistry
 
+log = logging.getLogger(__name__)
+
 
 def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     """启动 QML GUI（V0.9.0 QML 单入口）
@@ -88,6 +91,25 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     # 2. 初始化后端 Service（后端零改动约束：直接复用现有 Service）
     project_service = ProjectService(workspace_root=workspace_root, db=db)
     change_service = ChangeService(workspace_root=workspace_root, db=db)
+
+    # 2.1 自动执行增量索引同步（自愈机制，解决文件变更后 GUI 缓存状态不符问题）
+    try:
+        project_service.sync_to_cache()
+    except Exception as exc:
+        sys.stderr.write(f"[WARNING] 启动时自动同步数据库索引失败: {exc}\n")
+
+    # 2.2 启动时自动执行项目台账对账自愈（自愈机制）
+    try:
+        from auto_pm.change.ledger_reconciler import LedgerReconciler
+        reconciler = LedgerReconciler()
+        for proj in project_service.list_projects():
+            try:
+                reconciler.auto_fix(proj.path)
+            except Exception as e:
+                sys.stderr.write(f"[WARNING] 项目 {proj.project_id} 启动自动对账失败: {e}\n")
+    except Exception as exc:
+        sys.stderr.write(f"[WARNING] 启动时自动对账失败: {exc}\n")
+
     spec_check_service = make_spec_check_service(workspace_root)
     # V0.8.0 Phase 1 新增 6 个 Service（CHG-090）
     report_service = make_report_service(
@@ -157,6 +179,93 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     system_bridge = SystemBridge(facade=registry.system_facade)
     project_model = ProjectListModel()
     var_table_model = VarTableModel()
+
+    # 3.5 注册运行时工作空间切换重载回调
+    def reload_workspace(new_path: str) -> None:
+        nonlocal db
+        try:
+            # 1. 关闭旧连接
+            db.close()
+            # 2. 新建 DatabaseManager 并初始化 schema
+            from auto_pm.db.connection import DatabaseManager
+            db = DatabaseManager(new_path)
+            db.init_schema()
+
+            # 3. 重新创建所有 Services
+            new_project_service = ProjectService(workspace_root=new_path, db=db)
+            new_change_service = ChangeService(workspace_root=new_path, db=db)
+            
+            # 同步缓存
+            try:
+                new_project_service.sync_to_cache()
+            except Exception as exc:
+                sys.stderr.write(f"[WARNING] 切换工作空间自动同步数据库索引失败: {exc}\n")
+
+            # 自动对账自愈
+            try:
+                from auto_pm.change.ledger_reconciler import LedgerReconciler
+                reconciler = LedgerReconciler()
+                for proj in new_project_service.list_projects():
+                    try:
+                        reconciler.auto_fix(proj.path)
+                    except Exception as e:
+                        sys.stderr.write(f"[WARNING] 项目 {proj.project_id} 切换自动对账失败: {e}\n")
+            except Exception as exc:
+                sys.stderr.write(f"[WARNING] 切换时自动对账失败: {exc}\n")
+
+            new_spec_check_service = make_spec_check_service(new_path)
+            new_report_service = make_report_service(
+                project_service=new_project_service,
+                change_service=new_change_service,
+                workspace_root=new_path,
+                db=db,
+            )
+            new_template_service = make_template_service(new_path)
+            new_pm_session_service = make_pm_session_service(new_path)
+            new_dashboard_service = make_dashboard_service(
+                project_service=new_project_service,
+                change_service=new_change_service,
+                workspace_root=new_path,
+            )
+            new_asset_summary_service = make_asset_summary_service()
+            new_doc_refresh_service = make_doc_refresh_service(new_path)
+            new_spec_center_service = make_spec_center_service(new_path)
+            new_spec_index_service = make_spec_index_service(new_path)
+            new_spec_report_service = make_spec_report_service(new_path)
+            new_frontmatter_service = make_spec_frontmatter_service(new_path)
+
+            # 4. 重建 Facades 并更新 registry
+            registry.initialize({
+                "project_service": new_project_service,
+                "change_service": new_change_service,
+                "spec_check_service": new_spec_check_service,
+                "report_service": new_report_service,
+                "template_service": new_template_service,
+                "pm_session_service": new_pm_session_service,
+                "dashboard_service": new_dashboard_service,
+                "asset_summary_service": new_asset_summary_service,
+                "doc_refresh_service": new_doc_refresh_service,
+                "spec_center_service": new_spec_center_service,
+                "index_service": new_spec_index_service,
+                "spec_report_service": new_spec_report_service,
+                "frontmatter_service": new_frontmatter_service,
+            })
+
+            # 5. 更新所有 Bridges 的 Facade 引用并通知刷新
+            workbench_bridge.set_facade(registry.workbench_facade)
+            change_bridge.set_facade(registry.change_facade)
+            spec_bridge.set_facade(registry.spec_facade)
+            delivery_bridge.set_facade(registry.delivery_facade)
+            system_bridge.set_facade(registry.system_facade)
+            
+            log.info("工作空间已成功重载并同步：%s", new_path)
+        except Exception as e:
+            sys.stderr.write(f"[ERROR] 重载工作空间失败: {e}\n")
+            log.exception("重载工作空间失败")
+
+    registry.reload_callback = reload_workspace
+    if registry.workbench_facade:
+        registry.workbench_facade._reload_callback = reload_workspace
 
     # 4. 加载 main.qml
     qml_dir = Path(__file__).parent / "qml"

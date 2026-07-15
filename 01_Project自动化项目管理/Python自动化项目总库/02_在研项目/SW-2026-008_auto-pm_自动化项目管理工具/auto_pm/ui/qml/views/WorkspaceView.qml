@@ -121,18 +121,29 @@ Rectangle {
         var nodes = []
         for (var i = 0; i < statusOrder.length; i++) {
             var nodeStatus = statusOrder[i]
+            var nodeState = "pending"
+            if (i < latestIdx) {
+                nodeState = "done"
+            } else if (i === latestIdx) {
+                nodeState = "active"
+            }
             nodes.push({
                 "name": statusNames[nodeStatus],
-                "status": nodeStatus,
+                "status": nodeState,
                 "active": nodeStatus === latestStatus,
                 "completed": i <= latestIdx
             })
         }
 
+        var progress = 0
+        if (statusOrder.length > 1) {
+            progress = (latestIdx / (statusOrder.length - 1)) * 100
+        }
+
         return {
             "current_node": latestIdx + 1,
             "current_node_name": statusNames[latestStatus] || latestStatus,
-            "progress": ((latestIdx + 1) / statusOrder.length) * 100,
+            "progress": progress,
             "nodes": nodes
         }
     }
@@ -142,6 +153,7 @@ Rectangle {
     signal requestEditProject()
     signal requestDeleteProject()
     signal requestApplyTemplate()
+    signal requestInitializePm()
 
     // ── 加载项目数据 ────────────────────────────────────
     function setProject(projectId, projectName) {
@@ -335,6 +347,14 @@ Rectangle {
                 type: "ghost"
                 Layout.preferredWidth: 60
                 onClicked: root.requestEditProject()
+            }
+
+            PrimaryButton {
+                text: "初始化 PM"
+                type: "accent"
+                Layout.preferredWidth: 90
+                visible: root.changesList.length === 0
+                onClicked: root.requestInitializePm()
             }
 
             PrimaryButton {
@@ -698,12 +718,26 @@ Rectangle {
                                 spacing: Theme.spacingSm
                                 model: root.filteredChangesList
 
-                                Text {
+                                ColumnLayout {
                                     anchors.centerIn: parent
                                     visible: root.filteredChangesList.length === 0
-                                    text: (root.selectedDomainFilter === "ALL" && root.selectedStatusFilter === "ALL" && root.searchKeyword.trim() === "") ? "该项目暂无变更单" : "该筛选条件下暂无变更单"
-                                    color: Theme.textMuted
-                                    font.pixelSize: Theme.fontSizeMd
+                                    spacing: Theme.spacingMd
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        text: (root.selectedDomainFilter === "ALL" && root.selectedStatusFilter === "ALL" && root.searchKeyword.trim() === "") ? "该项目暂无变更单" : "该筛选条件下暂无变更单"
+                                        color: Theme.textMuted
+                                        font.pixelSize: Theme.fontSizeMd
+                                    }
+
+                                    PrimaryButton {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        text: "🔧 初始化项目 PM 与变更管理"
+                                        type: "primary"
+                                        Layout.preferredWidth: 200
+                                        visible: (root.selectedDomainFilter === "ALL" && root.selectedStatusFilter === "ALL" && root.searchKeyword.trim() === "")
+                                        onClicked: root.requestInitializePm()
+                                    }
                                 }
 
                                 delegate: Rectangle {

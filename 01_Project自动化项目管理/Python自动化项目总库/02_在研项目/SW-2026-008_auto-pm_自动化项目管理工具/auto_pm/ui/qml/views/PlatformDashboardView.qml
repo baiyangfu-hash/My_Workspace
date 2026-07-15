@@ -37,10 +37,15 @@ Rectangle {
 
         console.log("[QML] PlatformDashboardView: 加载数据...")
         _loading = true  // CHG-107: 显示 LoadingOverlay
-        _snapshot = workbenchBridge.getDashboardSummary() || {}
-        _activeChangeStatus = workbenchBridge.getActiveChangeStatus(root.platformProjectId) || {}
-        _dataLoaded = true
-        _loading = false  // CHG-107: 隐藏 LoadingOverlay
+        try {
+            _snapshot = workbenchBridge.getDashboardSummary() || {}
+            _activeChangeStatus = workbenchBridge.getActiveChangeStatus(root.platformProjectId) || {}
+            _dataLoaded = true
+        } catch (e) {
+            console.error("[QML] PlatformDashboardView 加载数据发生错误: " + e)
+        } finally {
+            _loading = false  // CHG-107: 隐藏 LoadingOverlay
+        }
         console.log("[QML] PlatformDashboardView: 数据加载完成, projects=" + (_snapshot.total_projects || 0))
     }
 
@@ -204,7 +209,7 @@ Rectangle {
                 Layout.fillHeight: true
                 title: root._activeChangeStatus.active ?
                     "主线流转 (" + root._activeChangeStatus.change_number + ")" : "主线流转"
-                tagText: root._activeChangeStatus.active ? root._activeChangeStatus.title : ""
+                tagText: root._activeChangeStatus.active ? root._activeChangeStatus.state_machine.current_node_name : ""
                 stateMachine: root._activeChangeStatus.state_machine || ({
                     "current_node": 0,
                     "current_node_name": "",

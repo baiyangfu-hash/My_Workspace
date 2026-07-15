@@ -93,6 +93,15 @@ def join_path(*parts: str) -> str:
     return os.path.join(*parts)
 
 
+def get_config_file_path() -> str:
+    """获取全局配置文件 (.auto-pm-workspace) 的路径
+
+    统一位于工具根目录下。
+    """
+    tool_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    return os.path.join(tool_dir, ".auto-pm-workspace")
+
+
 def get_default_projects_dir() -> str:
     """获取默认项目存放根目录（auto-pm 工具目录下的 0100_项目/）
 

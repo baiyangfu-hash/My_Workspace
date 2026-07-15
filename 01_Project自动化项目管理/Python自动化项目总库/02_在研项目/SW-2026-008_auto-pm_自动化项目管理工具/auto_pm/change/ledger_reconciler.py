@@ -33,7 +33,11 @@ from datetime import date
 from auto_pm.change.constants import LEDGER_STATUS_MAP, ChangeRequest
 from auto_pm.change.ledger_updater import LedgerUpdater
 from auto_pm.change.parser import ChgParser
-from auto_pm.change.path_resolver import find_ledger_file, scan_change_files
+from auto_pm.change.path_resolver import (
+    find_ledger_file,
+    get_or_create_ledger_file,
+    scan_change_files,
+)
 from auto_pm.utils.file_utils import read_file
 
 log = logging.getLogger(__name__)
@@ -99,14 +103,27 @@ class LedgerReconciler:
         Returns:
             ReconcileDiff 差异报告；未找到台账时返回空 diff
         """
-        ledger_path = find_ledger_file(project_path)
-        if not ledger_path:
-            log.warning("对账失败: 未找到台账文件 (project=%s)", project_path)
-            return ReconcileDiff()
-
         # 扫描 CHG 文件并解析元信息
         chg_files = scan_change_files(project_path)
-        chg_meta: dict[str, ChangeRequest] = {}
+
+        ledger_path = find_ledger_file(project_path)
+        if not ledger_path:
+            if not chg_files:
+                # 既没有台账，也没有变更单文件，说明未启用变更管理，是正常干净的状态
+                return ReconcileDiff()
+            
+            # 有变更单文件但没有台账文件，说明变更已启用但台账丢失，生成“所有变更均缺失于台账”的差异
+            log.warning("对账失败: 未找到台账文件 (project=%s)", project_path)
+            chg_meta: dict[str, ChangeRequest] = {}
+            for fp in chg_files:
+                cr = self._parser.parse(fp)
+                if cr.change_number:
+                    chg_meta[cr.change_number] = cr
+            diff = ReconcileDiff()
+            diff.missing_in_ledger = sorted(chg_meta.keys())
+            return diff
+
+        chg_meta = {}
         for fp in chg_files:
             cr = self._parser.parse(fp)
             if cr.change_number:
@@ -156,9 +173,9 @@ class LedgerReconciler:
             log.info("对账无差异，无需修复")
             return diff
 
-        ledger_path = find_ledger_file(project_path)
+        ledger_path = get_or_create_ledger_file(project_path)
         if not ledger_path:
-            log.warning("自动修复失败: 未找到台账文件 (project=%s)", project_path)
+            log.warning("自动修复失败: 无法创建或未找到台账文件 (project=%s)", project_path)
             return diff
 
         # 重新解析 CHG 元信息（auto_fix 可能被独立调用，diff 来自外部）

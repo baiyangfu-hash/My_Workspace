@@ -210,10 +210,17 @@ ApplicationWindow {
                 color: Theme.glassBorder
             }
 
-            ColumnLayout {
+            ScrollView {
                 anchors.fill: parent
-                anchors.margins: Theme.spacingMd
-                spacing: Theme.spacingSm
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                ColumnLayout {
+                    width: parent.width - 24
+                    x: 12
+                    y: 12
+                    spacing: Theme.spacingSm
 
                 // ═══ 轨道 1：Platform Cockpit ════════════════════
                 Text {
@@ -734,6 +741,7 @@ ApplicationWindow {
                 }
             }
         }
+    }
 
         // ── 页面内容区（StackLayout，保留 7 个分支不变）──────
         StackLayout {
@@ -968,6 +976,28 @@ ApplicationWindow {
         onCancelled: close()
     }
 
+    PmInitializeConfirmDialog {
+        id: pmInitializeConfirmDialog
+        anchors.fill: parent
+        z: 999
+        onConfirmed: function(projectId) {
+            console.log("[QML main] 确认初始化 PM: " + projectId)
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                var result = workbenchBridge.initializeProjectPm(projectId)
+                if (result && result.success) {
+                    workbenchBridge.refreshProjects()
+                    var projects = workbenchBridge.listProjects()
+                    projectModel.setProjects(projects)
+                    // 重新加载工作区页面数据以显示新初始化的 PM_SESSION 和变更
+                    workspaceView.setProject(workspaceView.currentProjectId, workspaceView.currentProjectName)
+                } else {
+                    console.warn("[QML main] 初始化项目 PM 失败: " + (result ? result.message : ""))
+                }
+            }
+        }
+        onCancelled: close()
+    }
+
     PmSessionArchiveDialog {
         id: pmSessionArchiveDialog
         anchors.fill: parent
@@ -1032,7 +1062,14 @@ ApplicationWindow {
         anchors.fill: parent
         z: 999
         onSaved: {
-            console.log("[QML main] 全局配置保存成功")
+            console.log("[QML main] 全局配置保存成功, workspaceRoot: " + workspaceRoot)
+            var res = workbenchBridge.saveWorkspaceRoot(workspaceRoot)
+            if (res && res.success) {
+                settingsView.resultMessage = res.message || "设置已保存，重启应用生效！"
+                settingsView.loadData()
+            } else {
+                settingsView.resultMessage = "保存失败: " + (res ? res.message : "未知错误")
+            }
             _isOpen = false
         }
         onCancelled: _isOpen = false

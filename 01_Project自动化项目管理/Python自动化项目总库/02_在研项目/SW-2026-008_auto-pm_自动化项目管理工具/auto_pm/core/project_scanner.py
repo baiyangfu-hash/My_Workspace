@@ -68,6 +68,10 @@ class ProjectScanner:
         合并多来源元数据（copier > plc_json > pm_session）。
         """
         raw_results: list[ProjectInfo] = []
+        # Check workspace root itself (auto-pm project itself)
+        root_info = self.try_identify_project(self.workspace_root)
+        if root_info is not None:
+            raw_results.append(root_info)
         self._scan(self.workspace_root, raw_results, depth=0, max_depth=scan_depth)
         # V0.2.1-P2-1: 去重 + 合并多来源元数据
         results = self._deduplicate_projects(raw_results)
@@ -618,6 +622,8 @@ class ProjectScanner:
             if not os.path.isdir(entry_path):
                 continue
             if entry.startswith(".") or entry.startswith("__"):
+                continue
+            if "归档" in entry or "archive" in entry.lower():
                 continue
 
             # 判断是否是项目目录

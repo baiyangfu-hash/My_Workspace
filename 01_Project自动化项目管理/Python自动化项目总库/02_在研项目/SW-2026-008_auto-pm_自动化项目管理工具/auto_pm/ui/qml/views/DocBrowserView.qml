@@ -94,7 +94,7 @@ Rectangle {
                             Rectangle {
                                 anchors.fill: parent
                                 anchors.margins: 2
-                                color: root.selectedIndex === index ? Theme.glassBackground : "transparent"
+                                color: root.selectedIndex === index ? Theme.glassBg : "transparent"
                                 border.color: root.selectedIndex === index ? Theme.primary : "transparent"
                                 border.width: 1
                                 radius: Theme.radiusSm

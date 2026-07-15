@@ -81,11 +81,12 @@ def _build_state_machine(status: str) -> dict[str, Any]:
                 "status": node_status,
             }
         )
-    # V7 原型：Implementing (node 2) 对应 50%；闭环时 100%
-    if current_node >= 3:
-        progress = 100
+    # 线性进度：4 节点对应 0%, 33%, 66%, 100%
+    total_nodes = len(_STATE_MACHINE_NODES)
+    if total_nodes > 1:
+        progress = int((current_node / (total_nodes - 1)) * 100)
     else:
-        progress = current_node * 25
+        progress = 0
     return {
         "current_node": current_node,
         "current_node_name": _STATE_MACHINE_NODES[current_node]["name"],
@@ -103,11 +104,15 @@ class WorkbenchFacade:
         dashboard_service: DashboardServiceProtocol | None = None,
         asset_summary_service: AssetSummaryServiceProtocol | None = None,
         template_service: TemplateServiceProtocol | None = None,
+        change_service: Any = None,
+        reload_callback: Any = None,
     ):
         self._dashboard_service = dashboard_service
         self._project_service = project_service
         self._asset_summary_service = asset_summary_service
         self._template_service = template_service
+        self._change_service = change_service
+        self._reload_callback = reload_callback
 
     @property
     def has_project_service(self) -> bool:
@@ -618,3 +623,79 @@ class WorkbenchFacade:
             )
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)
+
+    def save_workspace_root(self, workspace_root: str) -> CommandResult[None]:
+        """保存全局工作空间根目录设置"""
+        try:
+            import os
+            # 校验路径合法性
+            workspace_root = os.path.abspath(workspace_root)
+            if not os.path.isdir(workspace_root):
+                return CommandResult(success=False, message=f"路径不存在或不是目录: {workspace_root}")
+
+            # 写入 .auto-pm-workspace 配置文件
+            from auto_pm.core.paths import get_config_file_path
+            cfg_file = get_config_file_path()
+            with open(cfg_file, "w", encoding="utf-8") as f:
+                f.write(workspace_root)
+
+            # 更新当前运行环境中的 workspace_root (以便能实时显示，尽管部分缓存库需要重启)
+            if self._project_service:
+                self._project_service.workspace_root = workspace_root
+
+            if getattr(self, "_reload_callback", None):
+                self._reload_callback(workspace_root)
+
+            return CommandResult(
+                success=True,
+                message=f"工作空间已成功更新并重载为: {workspace_root}！",
+            )
+        except Exception as e:
+            return CommandResult(success=False, message=f"保存失败: {str(e)}")
+
+    def initialize_project_pm(self, project_id: str) -> CommandResult[dict[str, Any]]:
+        """为已有项目一键初始化 PM 框架与变更管理（含创世变更单创建与缓存同步）"""
+        try:
+            if not self._project_service:
+                return CommandResult(success=False, message="ProjectService 未启用", payload={"success": False})
+
+            project = self._project_service.get_project(project_id)
+            if not project:
+                return CommandResult(success=False, message=f"未找到项目: {project_id}", payload={"success": False})
+
+            # 1. 补齐 PM 目录及文档骨架
+            stack_str = str(project.stack).lower()
+            self._project_service.init_project_pm_framework(
+                project_path=project.path,
+                project_id=project_id,
+                project_name=project.name,
+                stack_type=stack_str,
+            )
+
+            # 2. 如果启用了 change_service，为其生成首张创世变更单自愈补齐台账
+            if self._change_service:
+                import os as _os
+                _applicant = _os.getenv("AUTO_PM_AUTHOR", _os.getlogin())
+                domain = "PLC" if stack_str == "plc" else "SCPT"
+                self._change_service.create_change_request(
+                    project_id=project_id,
+                    domain=domain,
+                    business_nature="DEF",
+                    impact_scope=["LOCAL"],
+                    applicant=_applicant,
+                    background="项目 PM 连续性基础文档与变更管理机制初始化。",
+                    necessity="对齐规范管理，启用变更管理与对账自愈系统。",
+                    retrofit=True,
+                )
+
+            # 3. 强制进行一次数据库项目和变更缓存同步，保证 UI 界面状态立即可见
+            self._project_service.sync_to_cache(force_full=True)
+
+            return CommandResult(
+                success=True,
+                message="项目 PM 与变更管理规范初始化成功",
+                payload={"success": True, "project_id": project_id},
+            )
+        except Exception as e:
+            log.error("初始化项目 PM 失败: %s", e, exc_info=True)
+            return CommandResult(success=False, message=str(e), payload={"success": False})

@@ -57,14 +57,14 @@ Item {
     anchors.fill: parent
 
     // ── 目录选择对话框（V1.0.1 新增） ────────────────────
-    FileDialog {
+    FolderDialog {
         id: destDirDialog
         title: "选择项目存放目录"
-        fileMode: FileDialog.OpenDirectory
         onAccepted: {
             var path = selectedFolder.toString()
             // 转换 file:/// URL 为本地路径
             path = path.replace("file:///", "").replace(/\//g, "\\")
+            path = decodeURIComponent(path)
             root.destDir = path
             destDirInput.text = path
         }

@@ -101,6 +101,17 @@ class ProjectServiceProtocol(Protocol):
         """获取上次同步时间（格式 YYYY-MM-DD HH:MM，无记录返回 '—'）"""
         ...
 
+    def init_project_pm_framework(
+        self,
+        project_path: str,
+        project_id: str,
+        project_name: str,
+        stack_type: str,
+        author: str | None = None,
+    ) -> None:
+        """为指定路径的项目执行非侵入式 PM 基础文档与目录的初始化补全"""
+        ...
+
     def is_cache_available(self) -> bool:
         """DB 缓存是否可用"""
         ...

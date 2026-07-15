@@ -268,3 +268,29 @@ def test_workbench_bridge_delete_project_no_facade(qapp):
 
     assert result["success"] is False
     assert result["message"] == "未初始化"
+
+
+def test_workbench_bridge_initialize_project_pm_success(qapp):
+    """Bridge.initializeProjectPm() 成功初始化项目 PM 规范"""
+    mock_facade = MagicMock()
+    mock_facade.initialize_project_pm.return_value = CommandResult(
+        success=True,
+        message="项目 PM 与变更管理规范初始化成功",
+        payload={"success": True, "project_id": "SW-2026-001"},
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.initializeProjectPm("SW-2026-001")
+
+    assert result["success"] is True
+    assert "初始化成功" in result["message"]
+    mock_facade.initialize_project_pm.assert_called_once_with("SW-2026-001")
+
+
+def test_workbench_bridge_initialize_project_pm_no_facade(qapp):
+    """facade=None 时 initializeProjectPm 降级返回未初始化"""
+    bridge = WorkbenchBridge(facade=None)
+    result = bridge.initializeProjectPm("SW-2026-001")
+
+    assert result["success"] is False
+    assert result["message"] == "未初始化"

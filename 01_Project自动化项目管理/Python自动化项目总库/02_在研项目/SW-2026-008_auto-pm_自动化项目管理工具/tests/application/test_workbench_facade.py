@@ -93,7 +93,7 @@ def test_get_active_change_status_success():
     sm = result.payload["state_machine"]
     assert sm["current_node"] == 2
     assert sm["current_node_name"] == "实施中 (Implementing)"
-    assert sm["progress"] == 50
+    assert sm["progress"] == 66
     assert len(sm["nodes"]) == 4
     assert sm["nodes"][0]["status"] == "done"
     assert sm["nodes"][1]["status"] == "done"

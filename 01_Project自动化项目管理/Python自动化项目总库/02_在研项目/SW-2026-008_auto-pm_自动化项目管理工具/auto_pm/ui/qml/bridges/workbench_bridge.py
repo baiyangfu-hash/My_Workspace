@@ -24,6 +24,10 @@ class WorkbenchBridge(QObject):
         self._facade = facade
         self._projects_cache: list[Any] = []
 
+    def set_facade(self, facade: WorkbenchFacade | None) -> None:
+        self._facade = facade
+        self.refreshProjects()
+
     @Property(bool, notify=projectsChanged)
     def hasService(self) -> bool:
         return self._facade is not None
@@ -210,6 +214,25 @@ class WorkbenchBridge(QObject):
         """
         if self._facade and hasattr(self._facade, "delete_project"):
             res = self._facade.delete_project(project_id)
+            if res.success:
+                self.refreshProjects()
+                return {"success": True, "message": res.message}
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result="QVariant")
+    def saveWorkspaceRoot(self, workspace_root: str) -> dict[str, Any]:
+        """保存全局工作空间根目录设置"""
+        if self._facade and hasattr(self._facade, "save_workspace_root"):
+            res = self._facade.save_workspace_root(workspace_root)
+            return {"success": res.success, "message": res.message}
+        return {"success": False, "message": "未初始化或功能不可用"}
+
+    @Slot(str, result="QVariant")
+    def initializeProjectPm(self, project_id: str) -> dict[str, Any]:
+        """为已有项目一键初始化 PM 框架与变更管理（含创世变更单）"""
+        if self._facade and hasattr(self._facade, "initialize_project_pm"):
+            res = self._facade.initialize_project_pm(project_id)
             if res.success:
                 self.refreshProjects()
                 return {"success": True, "message": res.message}

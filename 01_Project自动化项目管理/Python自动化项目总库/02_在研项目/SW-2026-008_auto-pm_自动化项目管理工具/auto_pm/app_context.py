@@ -25,6 +25,17 @@ class AppContext:
             log_level=self.app_config.log_level, app_name=__app_name__
         )
         # 工作空间根目录（项目库所在目录）
+        if not workspace_root:
+            workspace_root = os.environ.get("AUTO_PM_WORKSPACE", "")
+        if not workspace_root:
+            from auto_pm.core.paths import get_config_file_path
+            cfg_file = get_config_file_path()
+            if os.path.isfile(cfg_file):
+                try:
+                    with open(cfg_file, "r", encoding="utf-8") as f:
+                        workspace_root = f.read().strip()
+                except Exception:
+                    pass
         self.workspace_root: str = workspace_root or os.getcwd()
 
     @property

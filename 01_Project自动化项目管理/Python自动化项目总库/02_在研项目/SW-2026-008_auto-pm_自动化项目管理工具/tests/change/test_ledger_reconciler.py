@@ -329,3 +329,33 @@ class TestLedgerReconcilerAutoFix:
 
         content = ledger.read_text(encoding="utf-8")
         assert content == original
+
+    def test_auto_fix_missing_ledger_with_chg_files(self, tmp_path: Path) -> None:
+        """台账文件不存在，但有变更单文件时，reconcile 返回缺失且 auto_fix 能自动创建台账并补全"""
+        project = _make_project(tmp_path)
+        # 删掉默认创建的台账文件
+        ledger = project / "00_项目管理" / "04_变更管理" / "04_变更记录" / "01_版本变更台帐.md"
+        if ledger.exists():
+            ledger.unlink()
+
+        _make_chg_file(project, "CHG-SCPT-2026-001", status="closed", applicant="alice")
+
+        r = LedgerReconciler()
+        diff = r.reconcile(str(project))
+
+        # 应该返回该变更单是 missing_in_ledger
+        assert diff.missing_in_ledger == ["CHG-SCPT-2026-001"]
+        assert diff.is_clean is False
+
+        # 执行自愈自动修复
+        r.auto_fix(str(project), diff)
+
+        # 应该成功创建了台账并补齐了
+        assert ledger.exists()
+        new_diff = r.reconcile(str(project))
+        assert new_diff.is_clean is True
+
+        content = ledger.read_text(encoding="utf-8")
+        assert "CHG-SCPT-2026-001" in content
+        assert "alice" in content
+        assert "✅已关闭" in content

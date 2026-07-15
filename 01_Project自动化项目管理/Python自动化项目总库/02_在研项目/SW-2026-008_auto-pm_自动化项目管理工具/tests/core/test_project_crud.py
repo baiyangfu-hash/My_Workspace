@@ -117,6 +117,101 @@ class TestRetrofitProjectByPath:
             svc.retrofit_project_by_path(str(tmp_path / "nonexistent"))
 
 
+class TestInitProjectPmFramework:
+    """ProjectService.init_project_pm_framework 测试"""
+
+    def test_init_pm_plc(self, tmp_path: Path) -> None:
+        """初始化 PLC 项目的 PM 框架"""
+        project_dir = tmp_path / "DJ-2026-000_测试项目"
+        project_dir.mkdir()
+        (project_dir / ".plc.json").write_text(
+            json.dumps(
+                {
+                    "name": "DJ-2026-000",
+                    "version": "V1.0.0",
+                    "description": "测试",
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+
+        svc = ProjectService(str(tmp_path))
+        svc.init_project_pm_framework(
+            project_path=str(project_dir),
+            project_id="DJ-2026-000",
+            project_name="测试项目",
+            stack_type="plc",
+        )
+
+        # 1. 验证 .copier-answers.yml 补齐
+        assert (project_dir / ".copier-answers.yml").exists()
+
+        # 2. 验证 PLC 专属目录和立项表生成
+        proj_doc = project_dir / "00_项目管理" / "01_立项与需求" / "DJ-2026-000_PROJ.md"
+        assert proj_doc.exists()
+        content = proj_doc.read_text(encoding="utf-8")
+        assert "Westwell PLC 项目立项需求说明书" in content
+
+        # 3. 验证 PM_SESSION 生成
+        session_file = project_dir / "PM_SESSION_DJ-2026-000.md"
+        assert session_file.exists()
+        session_content = session_file.read_text(encoding="utf-8")
+        assert "## 0. Meta" in session_content
+        assert "技术栈 | plc" in session_content
+        assert "## 7. Risk & Decision Log" in session_content
+
+        # 4. 验证立项表中主设计人为默认值 fubai
+        assert "**主设计人**：fubai" in content
+
+    def test_init_pm_python(self, tmp_path: Path) -> None:
+        """初始化 Python 项目的 PM 框架"""
+        project_dir = tmp_path / "SW-2026-001_测试项目"
+        project_dir.mkdir()
+
+        svc = ProjectService(str(tmp_path))
+        svc.init_project_pm_framework(
+            project_path=str(project_dir),
+            project_id="SW-2026-001",
+            project_name="测试项目",
+            stack_type="python",
+        )
+
+        # 1. 验证 .copier-answers.yml 补齐
+        assert (project_dir / ".copier-answers.yml").exists()
+
+        # 2. 验证 Python 专属目录和立项表生成
+        proj_doc = project_dir / "00_项目基础信息" / "SW-2026-001_PM.md"
+        assert proj_doc.exists()
+        content = proj_doc.read_text(encoding="utf-8")
+        assert "Westwell Python 项目立项表" in content
+
+        # 3. 验证 PM_SESSION 生成
+        session_file = project_dir / "PM_SESSION_SW-2026-001.md"
+        assert session_file.exists()
+        session_content = session_file.read_text(encoding="utf-8")
+        assert "## 7. Risk & Decision Log" in session_content
+
+    def test_init_pm_custom_author(self, tmp_path: Path) -> None:
+        """自定义 author 参数"""
+        project_dir = tmp_path / "SW-2026-002_作者测试"
+        project_dir.mkdir()
+
+        svc = ProjectService(str(tmp_path))
+        svc.init_project_pm_framework(
+            project_path=str(project_dir),
+            project_id="SW-2026-002",
+            project_name="作者测试",
+            stack_type="python",
+            author="test_user",
+        )
+
+        proj_doc = project_dir / "00_项目基础信息" / "SW-2026-002_PM.md"
+        content = proj_doc.read_text(encoding="utf-8")
+        assert "**主设计人**：test_user" in content
+        assert "fubai" not in content
+
+
 # ── CLI project import 测试 ──────────────────────────────
 
 

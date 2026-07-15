@@ -64,9 +64,13 @@ class FacadeRegistry:
         self.spec_facade: SpecFacade | None = None
         self.delivery_facade: DeliveryFacade | None = None
         self.system_facade: SystemFacade | None = None
+        self.reload_callback: Any = None
 
-    def initialize(self, services: ServiceContainer) -> None:
+    def initialize(self, services: ServiceContainer, reload_callback: Any = None) -> None:
         """根据传入的基础 Service 字典，装配 Facades"""
+        if reload_callback is not None:
+            self.reload_callback = reload_callback
+
         # 取出 services（TypedDict 提供类型安全，无需 cast）
         dashboard_service = services["dashboard_service"]
         project_service = services["project_service"]
@@ -88,6 +92,8 @@ class FacadeRegistry:
             project_service=project_service,
             asset_summary_service=asset_summary_service,
             template_service=template_service,
+            change_service=change_service,
+            reload_callback=self.reload_callback,
         )
 
         self.change_facade = ChangeFacade(

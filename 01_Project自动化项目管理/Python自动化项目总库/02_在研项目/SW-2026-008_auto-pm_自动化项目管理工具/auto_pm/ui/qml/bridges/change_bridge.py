@@ -27,6 +27,12 @@ class ChangeBridge(QObject):
         self._changes_cache: list[Any] = []
         self._change_detail_cache: dict[str, Any] = {}
 
+    def set_facade(self, facade: ChangeFacade | None) -> None:
+        self._facade = facade
+        self._changes_cache = []
+        self._change_detail_cache = {}
+        self.changesChanged.emit()
+
     @Property(bool, notify=changesChanged)
     def hasService(self) -> bool:
         return self._facade is not None

@@ -1,15 +1,15 @@
 ---
 title: auto-pm GUI 测试计划
-version: V0.9.2
-date: 2026-07-10
+version: V1.0.0
+date: 2026-07-15
 scope: QML 页面全量测试矩阵
-baseline: pyproject=0.9.1 / 1115 passed / QML 143 passed（V0.9.2 新增 4 个 detectProject 测试）
+baseline: pyproject=1.0.0 / 1367 passed / QML 161 passed
 ---
 
 # auto-pm GUI 测试计划
 
-> 适用范围：`auto_pm/ui/qml/` 全量 QML 页面 + 5 个 Domain Bridge + 3 个 QAbstractListModel + 10 个可复用组件 + 8 个对话框。
-> 基线说明：V0.9.0 完成 QWidget→QML 迁移并删除 84 个旧文件，QML 为唯一 UI 入口；当前 `pyproject.toml` 版本 0.9.1，全量回归 1115 passed。
+> 适用范围：`auto_pm/ui/qml/` 全量 QML 页面 + 5 个 Domain Bridge + 3 个 QAbstractListModel + 10 个可复用组件 + 9 个对话框。
+> 基线说明：V1.0.0 阶段，QWidget 已完整被移除，QML 为唯一 UI 入口；当前 `pyproject.toml` 版本 1.0.0，全量回归 1367 passed，QML 161 passed。
 
 ---
 
@@ -91,12 +91,12 @@ offscreen 模式存在以下缺陷，会掩盖真实问题：
 | # | 页面名 | QML 文件路径 | 对应 Domain Bridge | 关键 Slot / Property | 现有测试定位 |
 |---|--------|-------------|-------------------|---------------------|-------------|
 | 1 | 项目列表（默认首页/驾驶舱入口） | `auto_pm/ui/qml/views/ProjectListView.qml` | WorkbenchBridge | `listProjects()` / `refreshProjects()` / `selectProject(id,name)` / `projectModel` / `searchText` / `stackFilter` / `phaseFilter` / `sortField` / `pageSize` / `viewMode(card\|table)` | `test_workbench_bridge.py`（listProjects/refreshProjects 间接覆盖）+ `test_project_list_model.py`（model 层） |
-| 2 | 项目工作台（5 Tab） | `auto_pm/ui/qml/views/WorkspaceView.qml` | WorkbenchBridge + ChangeBridge + SpecBridge + DeliveryBridge | `getProjectById(id)` / `listChanges(id)` / `runSpecCheck()` / `getAssetSummary(id)` / `refreshAssetSummary(id)` / `setProject(id,name)` / `currentProjectDetail` / `changesList` / `specCheckResult` / `assetSummary` | `test_workbench_bridge.py`（getProjectById 间接）+ `test_change_bridge.py`（listChanges）+ `test_spec_bridge.py`（runSpecCheck）+ `test_delivery_bridge.py`（getAssetSummary/refreshAssetSummary） |
+| 2 | 项目工作台（5 Tab） | `auto_pm/ui/qml/views/WorkspaceView.qml` | WorkbenchBridge + ChangeBridge + SpecBridge + DeliveryBridge | `getProjectById(id)` / `listChanges(id)` / `runSpecCheck()` / `getAssetSummary(id)` / `refreshAssetSummary(id)` / `setProject(id,name)` / `initializeProjectPm(id)` / `currentProjectDetail` / `changesList` / `specCheckResult` / `assetSummary` | `test_workbench_bridge.py`（getProjectById 间接）+ `test_change_bridge.py`（listChanges）+ `test_spec_bridge.py`（runSpecCheck）+ `test_delivery_bridge.py`（getAssetSummary/refreshAssetSummary） |
 | 3 | 变更中心 | `auto_pm/ui/qml/views/ChangeCenterView.qml` | ChangeBridge | `listAllChanges()` / `getChangeRequest(num)` / `refreshChanges()` / `selectedChangeNumber` / `selectedChangeDetail` / `statusFilter` / `domainFilter` / `searchText` | `test_change_bridge.py`（listAllChanges/getChangeRequest/refreshChanges 间接） |
 | 4 | 规范中心（3 Tab） | `auto_pm/ui/qml/views/SpecCenterView.qml` | SpecBridge | `getSpecOverview()` / `listSpecEntries(domain)` / `runSpecCheck()` / `overviewData` / `currentTab(0\|1\|2)` / `errorMessage` / `specCheckCompleted` 信号 | `test_spec_bridge.py`（3 Slot + 信号全覆盖） |
 | 5 | 报告中心（2×2 网格） | `auto_pm/ui/qml/views/ReportView.qml` | DeliveryBridge | `getProjectReport()` / `getChangeReport()` / `projectSummary` / `changeSummary` / `projectOverviewModel` / `phaseModel` / `blModel` / `changeModel` | `test_delivery_bridge.py`（getProjectReport/getChangeReport） |
 | 6 | 模板管理 | `auto_pm/ui/qml/views/TemplateView.qml` | SystemBridge | `listTemplates()` / `getTemplateDetail(name)` / `applyTemplate(pid,name)` / `templatesModel` / `selectedTemplate` / `applyResultMessage` / `currentProjectId` | `test_system_bridge.py`（3 Slot 全覆盖） |
-| 7 | 系统设置（4 卡片） | `auto_pm/ui/qml/views/SettingsView.qml` | WorkbenchBridge + SystemBridge | `getSettingsSummary()` / `clearCache()` / `rebuildIndex()` / `runPmSessionCheck()` / `settingsData` / `pmSessionData` / `resultMessage` | `test_workbench_bridge.py`（getSettingsSummary/clearCache/rebuildIndex）+ `test_system_bridge.py`（runPmSessionCheck） |
+| 7 | 系统设置（4 卡片） | `auto_pm/ui/qml/views/SettingsView.qml` | WorkbenchBridge + SystemBridge | `getSettingsSummary()` / `clearCache()` / `rebuildIndex()` / `runPmSessionCheck()` / `saveWorkspaceRoot(path)` / `settingsData` / `pmSessionData` / `resultMessage` | `test_workbench_bridge.py`（getSettingsSummary/clearCache/rebuildIndex）+ `test_system_bridge.py`（runPmSessionCheck） |
 | 8 | 变量表编辑器 | `auto_pm/ui/qml/views/VarTableEditorView.qml` | （无 Bridge，直接用 `varTableModel` context property） | `selectedRows` / `lastValidationError` / 单元格编辑 / 批量操作 / 撤销重做 | `test_var_table_model.py`（model 层全覆盖） |
 
 ### 3.2 辅助资源矩阵
@@ -106,7 +106,7 @@ offscreen 模式存在以下缺陷，会掩盖真实问题：
 | 主题单例 | 1 | `auto_pm/ui/qml/theme/Theme.qml` | `test_qml_components.py::test_theme_singleton_loadable`（间接） |
 | 基础组件 | 5 | `components/Card.qml` / `Badge.qml` / `TabBar.qml` / `PrimaryButton.qml` / `Dialog.qml` | `test_qml_components.py`（11 用例） |
 | W3 复杂组件 | 4 | `components/ApprovalTimeline.qml` / `PropagationView.qml` / `StatusMachineView.qml` / `PhaseProgress.qml` | `test_qml_components_w3.py`（14 用例） |
-| W3 对话框 | 8 | `dialogs/NewProjectWizard.qml` / `NewChangeDialog.qml`（V0.9.2 已对齐后端 BUSINESS_NATURES）/ `ProjectSettingsDialog.qml` / `SyncCacheDialog.qml` / `ImportProjectDialog.qml` / `AboutDialog.qml` / `ReportDialog.qml` / `GlobalSettingsDialog.qml` | `test_qml_dialogs_w3.py`（17 用例） |
+| W3 对话框 | 9 | `dialogs/NewProjectWizard.qml` / `NewChangeDialog.qml`（V0.9.2 已对齐后端 BUSINESS_NATURES）/ `ProjectSettingsDialog.qml` / `SyncCacheDialog.qml` / `ImportProjectDialog.qml` / `AboutDialog.qml` / `ReportDialog.qml` / `GlobalSettingsDialog.qml` / `dialogs/PmInitializeConfirmDialog.qml` | `test_qml_dialogs_w3.py`（19 用例） |
 | 主入口 | 1 | `auto_pm/ui/qml/main.qml` | 暂无（待 L4 端到端覆盖） |
 
 ### 3.3 Bridge → Facade → Service 装配链
@@ -233,6 +233,28 @@ offscreen 模式存在以下缺陷，会掩盖真实问题：
 | 现有测试 | `test_delivery_bridge.py::test_delivery_bridge_get_asset_summary`（验证 project_id 透传 + data 字段）<br>`test_delivery_bridge.py::test_delivery_bridge_refresh_asset_summary`（验证 project_id 透传 + result 字段）<br>`test_delivery_bridge.py::test_delivery_bridge_no_facade`（降级） |
 | 缺口 | WorkspaceView.loadAssetSummary 的"仅 PLC 项目"分支未端到端验证；assetSummary 空态/错误态渲染未验证 |
 
+#### 链路 7：工作空间热切换与重载（saveWorkspaceRoot）
+
+| 项目 | 内容 |
+|------|------|
+| 触发 Slot | `WorkbenchBridge.saveWorkspaceRoot(path)` |
+| 后端方法 | `WorkbenchFacade.save_workspace_root(path)` → `reload_workspace(new_path)` 回调 |
+| 预期结果 | 关闭旧 DB 连接，重连新 DB 并初始化 Schema，重建所有 Services 与 Facades，更新 Bridges 的 Facade 引用并清空缓存发出刷新信号 |
+| QML 消费方 | SettingsView.qml `workspaceDirDialog` accepted 信号处理器 |
+| 现有测试 | `test_workbench_bridge.py` 覆盖 saveWorkspaceRoot 方法的调用 |
+| 缺口 | 无 UI 交互的端到端覆盖 |
+
+#### 链路 8：一键初始化项目 PM 架构（initializeProjectPm）
+
+| 项目 | 内容 |
+|------|------|
+| 触发 Slot | `WorkbenchBridge.initializeProjectPm(project_id)` |
+| 后端方法 | `WorkbenchFacade.initialize_project_pm(project_id)` |
+| 预期 DTO | `CommandResult[dict[str, Any]]` |
+| QML 消费方 | WorkspaceView.qml 的初始化操作引导按钮（`PmInitializeConfirmDialog` 对话框接受时触发） |
+| 现有测试 | `test_workbench_bridge.py` 覆盖 initializeProjectPm 调用 |
+| 缺口 | 无 UI 交互的端到端覆盖 |
+
 ### 5.2 链路覆盖汇总
 
 | 链路 | Bridge 层覆盖 | QML 端到端覆盖 | 整体状态 |
@@ -243,6 +265,8 @@ offscreen 模式存在以下缺陷，会掩盖真实问题：
 | 4 规范检查 | ✅ | △（检查 Tab 渲染未测） | Bridge 就绪，QML 部分 |
 | 5 文档刷新 | ✅ | ✗（文档 Tab 占位） | Bridge 就绪，QML 待实现 |
 | 6 资产摘要 | ✅ | △（仅 PLC 分支未测） | Bridge 就绪，QML 部分 |
+| 7 工作空间热切换 | ✅ | △（QML 对话框已对接） | 已打通 |
+| 8 项目 PM 初始化 | ✅ | △（空态引导按钮已对接） | 已打通 |
 
 ---
 
@@ -390,6 +414,7 @@ pip --version     # 验证指向 .venv
 | TC-WS-009 | 非 PLC 项目资产汇总 | assetSummary={}，资产汇总卡片不显示 | P1 | 待补 |
 | TC-WS-010 | 点击"刷新"资产汇总按钮 | deliveryBridge.refreshAssetSummary(id)，assetSummary 更新 | P1 | 待补 |
 | TC-WS-011 | 点击"重新运行检查"按钮 | loadCheckTab() 重新调用 runSpecCheck | P2 | 待补 |
+| TC-WS-012 | 项目未初始化 PM 且变更单为空 | 弹出 PmInitializeConfirmDialog 确认框并支持一键初始化 | P0 | 已对接 |
 
 ### 8.3 变更中心页（ChangeCenterView）
 
@@ -457,6 +482,7 @@ pip --version     # 验证指向 .venv
 | TC-ST-006 | db_available=false | "清除缓存"/"重建索引"按钮 enabled=false | P2 | 待补 |
 | TC-ST-007 | 点击"刷新检查"按钮 | loadData() 重新加载 | P2 | 待补 |
 | TC-ST-008 | bridge=None | errorMessage="QmlBridge 未注入" | P1 | 待补 |
+| TC-ST-009 | 点击"修改"工作空间路径，通过 FolderDialog 选择目录 | workbenchBridge.saveWorkspaceRoot(path) 并同步重载 | P0 | 已对接 |
 
 ### 8.8 变量表编辑器页（VarTableEditorView）
 
@@ -484,7 +510,9 @@ pip --version     # 验证指向 .venv
 | TC-FLOW-007 | 变更单流转 | transitionChange(cmd_dict) | 返回 ChangeRequestDTO dict，status 更新，详情缓存失效 | P1 | 现有（Bridge✅） |
 | TC-FLOW-008 | 模板应用 | applyTemplate(pid,name) | 返回 ApplyTemplateResultDTO dict，含 project_id/template_name/result | P1 | 现有（Bridge✅） |
 | TC-FLOW-009 | PM_SESSION 检查 | runPmSessionCheck() | 返回 PmSessionCheckResultDTO dict，含 data.is_healthy/warnings | P1 | 现有（Bridge✅） |
-| TC-FLOW-010 | 重建索引 | rebuildIndex() | 返回 RebuildIndexResultDTO dict，含 projects_found/changes_found/message | P1 | 现有（Bridge✅） |
+| TC-FLOW-010 | 重建索引 | rebuildIndex() | Return RebuildIndexResultDTO dict，含 projects_found/changes_found/message | P1 | 现有（Bridge✅） |
+| TC-FLOW-011 | 工作空间热切换与重载 | saveWorkspaceRoot(path) | 返回 RebuildIndexResultDTO，重载完成 | P0 | 现有（Bridge✅） |
+| TC-FLOW-012 | 一键初始化项目 PM 架构 | initializeProjectPm(id) | 返回 CommandResult，初始化完成 | P0 | 现有（Bridge✅） |
 
 ### 8.10 降级与异常用例
 
@@ -503,18 +531,18 @@ pip --version     # 验证指向 .venv
 | 分类 | 用例数 | 现有 | 待补 |
 |------|-------|------|------|
 | 项目列表 | 11 | 1 | 10 |
-| 项目工作台 | 11 | 0 | 11 |
+| 项目工作台 | 12 | 1 | 11 |
 | 变更中心 | 9 | 0 | 9 |
 | 规范中心 | 9 | 0 | 9 |
 | 报告中心 | 8 | 0 | 8 |
 | 模板管理 | 8 | 0 | 8 |
-| 系统设置 | 8 | 0 | 8 |
+| 系统设置 | 9 | 1 | 8 |
 | 变量表编辑器 | 8 | 6 | 2 |
-| 关键链路 | 10 | 10 | 0 |
+| 关键链路 | 12 | 12 | 0 |
 | 降级异常 | 7 | 7 | 0 |
-| **合计** | **89** | **24** | **65** |
+| **合计** | **93** | **28** | **65** |
 
-**结论：** Bridge/Model 层覆盖良好（24 用例），QML 页面端到端覆盖缺口大（65 待补），L4 层为后续补强重点。
+**结论：** Bridge/Model 层覆盖良好（28 用例），QML 页面端到端覆盖缺口大（65 待补），L4 层为后续补强重点。
 
 ---
 
@@ -571,14 +599,14 @@ pip --version     # 验证指向 .venv
 
 | 项目 | 基线值 | 实际值 | 核查结果 |
 |------|-------|-------|---------|
-| pyproject.toml version | 0.9.1 | 0.9.1（`pyproject.toml:7`） | ✅ |
+| pyproject.toml version | 1.0.0 | 1.0.0（`pyproject.toml:7`） | ✅ |
 | QML 唯一 UI 入口 | 是 | QWidget 已删除，QML 唯一 | ✅ |
 | markers 注册 | gui/cli/smoke/unit/integration/slow | 6 个全注册 | ✅ |
 | tests/qml/ 文件数 | 11 | conftest+10 测试文件 | ✅ |
 
 ---
 
-**文档版本：** V0.9.1  
-**最后更新：** 2026-07-08  
+**文档版本：** V1.0.0  
+**最后更新：** 2026-07-15  
 **维护者：** auto-pm 项目组  
-**下次评审：** V0.9.2 迭代时同步更新页面矩阵与用例清单
+**下次评审：** 迭代时同步更新页面矩阵与用例清单
