@@ -25,7 +25,7 @@ def proj(tmp_path):
 
 class TestDeliveryCLI:
     def test_build(self, runner, proj):
-        r = runner.invoke(cli, ["-w", str(proj), "delivery", "build", "--version", "V1.0.1", "--skip-pyinstaller", "--summary", "test"])
+        r = runner.invoke(cli, ["-w", str(proj), "delivery", "build", "--version", "V1.0.1", "--summary", "test"])
         assert r.exit_code == 0
 
     def test_status(self, runner, tmp_path):

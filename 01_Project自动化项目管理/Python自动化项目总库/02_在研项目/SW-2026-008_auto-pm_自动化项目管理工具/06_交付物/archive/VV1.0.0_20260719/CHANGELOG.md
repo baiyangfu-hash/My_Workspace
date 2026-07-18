@@ -7,21 +7,6 @@
 
 ## [Unreleased]
 
-## [1.1.0] - 2026-07-19
-
-### Added - CHG-SCPT-2026-132 集成全局公共 Modbus TCP 联调调试模块
-
-- **Modbus 模块及服务新建**：新增 `auto_pm/modbus/modbus_service.py` 核心服务，支持 Ping 链路诊断、连接与仿真管理、所有主流读取/写入功能码测试、并发网格区间扫描探测，并内置模拟物理波形的信号发生器。
-- **QML 桥接绑定**：新增 `auto_pm/modbus/modbus_bridge.py`，暴露 Slot 并通过 `QThreadPool` 实现非阻塞并发扫描与实时信号趋势定时推送。
-- **QML 页面与组件开发**：
-  - 新建 `ModbusDebuggerView.qml`，包含完整的连接卡、读取卡、LED 16位位解析器、实时监测表、折线趋势图、扫描网格、写入槽及物理报文 Hex 控制台。
-  - 新建 `ModbusBitExpander.qml` 二进制 LED 点阵可交互操作组件。
-  - 新建 `ModbusTrendCanvas.qml` 定时 Canvas 折线绘制曲线。
-  - 新建 `ModbusScannerGrid.qml` 10x10 并发区间活跃指示灯网格。
-- **导航与上下文集成**：在 `main.qml` 侧边栏轨道 3 公共工具新增入口并将视图挂载在 StackLayout 索引 8 处；在 `qml_main_window.py` 注册 `modbusBridge` 上下文属性。
-- **单元测试补充**：在 `tests/modbus/test_modbus_service.py` 补充 25 条功能用例。
-- **文档更新**：更新了 `README.md` 功能说明，并在 `02_设计/` 目录下的 PRD、INT 和 UI 说明文档中补齐了 Modbus 联调工坊的全部需求、接口设计与原型定义。
-
 ## [1.0.0] - 2026-07-09
 
 ### Added - CHG-SCPT-2026-107 V1.0.0 HTML 原型 V7 第 4 阶段收尾落地

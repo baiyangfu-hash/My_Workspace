@@ -8,6 +8,7 @@
 - **PLC 项目管理** - 初始化/规范检查(LSP-907)/自动修复/文档命名标准化/Spec Snapshot 漂移检测
 - **Python 项目管理** - 初始化（规范检查计划 V2.5 实现）
 - **变更管理** - 变更单创建/查询/状态流转/编辑（CLI+GUI）；完整 12 状态机 + 门禁校验 + §6/§8/§9/§10 章节渲染；CLI 表格 `--full` 不截断选项
+- **Modbus 联调工坊** - 全局公共 Modbus TCP 联调工具（不属于单一项目）；支持 Ping 链路测试、读取功能码（FC01-04/17/23）与写入（FC05/06/15/16）测试；集成 16位位状态 LED 解析器、波形趋势 Canvas 画布、10x10 网格区间并发扫描；支持 JSON 配置导入/导出。
 - **模板管理** - Copier 模板列表/增量更新
 - **桌面 GUI** - PySide6 QML 桌面应用（V0.9.0 起旧 QWidget 完整移除），项目中心式导航 + 项目 CRUD + 多角色适配 + 缓存同步；变更中心含分步创建对话框 + StatusMachineView 可视化状态机 + ApprovalTimeline 审批时间线 + PropagationView 传播链可视化 + 4 维度列表筛选（状态/领域/紧急程度/项目）
 - **SQLite 索引缓存** - 增量扫描（file_mtime 判据），加速查询；变更单影响分析与审批记录持久化（impact_analysis + approval_history 两张表）

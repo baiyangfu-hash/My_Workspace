@@ -19,7 +19,7 @@
 // - 版本号 V0.8.0 → V0.9.3
 //
 // 保留约束（不破坏 138 个 qml 测试）：
-// - currentPage 状态值不变：projectList/workspace/changeCenter/specCenter/reportCenter/templateManage/settings
+// - currentPage 状态值：projectList/workspace/changeCenter/specCenter/reportCenter/templateManage/settings/modbusDebugger
 // - StackLayout 7 个分支（0-6）和 currentIndex 映射逻辑不变
 // - 7 个 view 的 id 不变：projectListView/workspaceView/changeCenterView/specCenterView/reportView/templateView/settingsView
 // - onProjectClicked/onBackToProjectList 信号处理不变
@@ -733,6 +733,40 @@ ApplicationWindow {
                     }
                 }
 
+                // ═══ 轨道 5：Modbus 联调工坊（公共工具）══════════════
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    color: mainWindow.currentPage === "modbusDebugger" ? Qt.rgba(0.38, 0.71, 0.51, 0.25) : "transparent"
+                    radius: Theme.radiusSm
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Theme.spacingSm
+                        anchors.rightMargin: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Text {
+                            text: "⚡"
+                            color: mainWindow.currentPage === "modbusDebugger" ? Theme.success : Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSm
+                        }
+
+                        Text {
+                            text: "Modbus 联调工坊"
+                            color: mainWindow.currentPage === "modbusDebugger" ? "white" : Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: mainWindow.currentPage = "modbusDebugger"
+                    }
+                }
+
                 // BackendStatus：DB 连接状态指示灯
                 BackendStatus {
                     Layout.fillWidth: true
@@ -756,6 +790,7 @@ ApplicationWindow {
                 if (mainWindow.currentPage === "templateManage") return 5
                 if (mainWindow.currentPage === "settings") return 6
                 if (mainWindow.currentPage === "platformDashboard") return 7
+                if (mainWindow.currentPage === "modbusDebugger") return 8
                 return 0
             }
 
@@ -861,6 +896,11 @@ ApplicationWindow {
             PlatformDashboardView {
                 id: platformDashboardView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
+            }
+
+            // 8. Modbus 联调测试工坊（公共工具，不属于项目）
+            ModbusDebuggerView {
+                id: modbusDebuggerView
             }
         }
     }

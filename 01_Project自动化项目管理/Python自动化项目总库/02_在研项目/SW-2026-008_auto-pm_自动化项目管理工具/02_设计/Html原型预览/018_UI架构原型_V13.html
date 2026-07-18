@@ -1,0 +1,3041 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>auto-pm | V13 架构原型 (对齐 GitHub 最优开源与实时趋势图监测)</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-surface: #0c1222;
+            --bg-card: #121a2e;
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --sidebar-width: 260px;
+            --header-height: 56px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column; /* 100% 对齐 QML 垂直流动 */
+            user-select: none;
+        }
+
+        /* 统一左侧导航侧栏 (Shell) */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100%; /* 从 100vh 改为 100% 容器高度 */
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .logo-area {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .sidebar-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-section-title {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            padding-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            list-style: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0.02) 100%);
+            color: var(--primary-light);
+            border-color: rgba(99, 102, 241, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-item-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item-content i {
+            font-size: 16px;
+        }
+
+        .project-context-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .project-context-card .pj-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-context-card .pj-id {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* 右侧主视口 */
+        .main-content {
+            flex: 1;
+            height: 100%; /* 从 100vh 改为 100% 容器高度 */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            height: 72px; /* 对齐 main.qml 72px */
+            background: rgba(12, 18, 34, 0.95);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            width: 100%;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 16px;
+            width: 280px;
+            transition: all 0.2s;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            outline: none;
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 动态挂载点 */
+        .router-view {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--bg-base);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* KPI 网格 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--text-muted);
+        }
+
+        .kpi-card.has-data::before {
+            background: var(--primary-light);
+        }
+
+        .kpi-card.warn::before {
+            background: var(--warning);
+        }
+
+        .kpi-card.success::before {
+            background: var(--success);
+        }
+
+        .kpi-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .kpi-value-row {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-suffix {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .kpi-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .kpi-icon {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        /* 状态流转布局 */
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            height: 48px;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-tag {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 2px 8px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+        }
+
+        .panel-body {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 9节点状态机 */
+        .state-flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nodes-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 0 12px;
+        }
+
+        .flow-line {
+            position: absolute;
+            left: 32px;
+            right: 32px;
+            top: 15px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1;
+        }
+
+        .flow-line-progress {
+            position: absolute;
+            left: 32px;
+            top: 15px;
+            height: 2px;
+            background: var(--primary-light);
+            z-index: 1;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+            width: 40px;
+        }
+
+        .node-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .node-circle.completed {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .node-circle.active {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 0 16px var(--primary-light);
+            animation: pulse 2s infinite;
+        }
+
+        .node-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .node-label.active {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .node-label.completed {
+            color: var(--text-secondary);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        .flow-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 0 12px;
+        }
+
+        /* 流程时间线 */
+        .timeline-scroll {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 180px;
+            padding-right: 4px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 16px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 14px;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        .timeline-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            box-shadow: 0 0 8px var(--primary-light);
+            margin-top: 3px;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* 下部 Split View 变动大卡片 */
+        .lower-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            min-height: 480px;
+        }
+
+        .changes-list-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 分类胶囊按钮条 */
+        .category-filter-bar {
+            display: flex;
+            gap: 6px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.12);
+            overflow-x: auto;
+        }
+
+        .category-pill {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .category-pill:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .category-pill.active {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .category-count {
+            opacity: 0.8;
+            font-size: 10px;
+        }
+
+        .list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 400px;
+        }
+
+        .change-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .change-card:hover {
+            border-color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .change-card.selected {
+            border-color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        .card-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-id {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.domain {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        /* 状态标记 */
+        .badge.implementing { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; }
+        .badge.approved { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+        .badge.submitted { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .badge.completed { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+        .badge.draft { background: rgba(100, 116, 139, 0.15); border: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; }
+        .badge.closed { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+        .badge.under_review { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+
+        .change-card-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 右侧详情面板 */
+        .detail-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-title-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-id {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .detail-edit-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .transition-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn.secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .detail-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .detail-badges-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .info-section {
+            background: rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary-light);
+            padding-left: 8px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .info-table td.label {
+            color: var(--text-muted);
+            width: 120px;
+        }
+
+        .info-table td.value {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .header-badge.plc { background: rgba(14, 165, 233, 0.15); color: var(--secondary); border: 1px solid rgba(14, 165, 233, 0.3); }
+        .header-badge.status { background: rgba(99, 102, 241, 0.15); color: var(--primary-light); border: 1px solid rgba(99, 102, 241, 0.3); }
+        .header-badge.version { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* 模态弹框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            width: 480px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .project-detail-view-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 选项卡样式对齐 QML TabBar */
+        .tab-bar {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            height: 40px;
+            gap: 28px;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .tab-item {
+            font-size: 13px;
+            color: var(--text-muted);
+            padding: 8px 4px;
+            cursor: pointer;
+            position: relative;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-item:hover {
+            color: var(--text-secondary);
+        }
+
+        .tab-item.active {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-light);
+            box-shadow: 0 0 8px var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         ============= 顶部标题栏 (Header) ============= 
+         ========================================== -->
+    <header class="header">
+        <!-- 应用标识 -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 36px; height: 36px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);">
+                A
+            </div>
+            <div>
+                <span style="font-size: 15px; font-weight: bold; color: var(--text-primary);">auto-pm</span>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 1px;">V1.0.0</div>
+            </div>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-bar" style="margin-left: 32px; flex: 1; max-width: 480px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+            <i class="ph ph-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" placeholder="搜索项目 / 变更 / 规范..." style="background: transparent; border: none; color: white; outline: none; font-size: 13px; width: 100%;">
+        </div>
+
+        <!-- 操作区 -->
+        <div class="user-actions" style="display: flex; align-items: center; gap: 16px;">
+            <button class="back-btn" style="background: rgba(255,255,255,0.04); color: var(--text-primary); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;" onclick="alert('项目数据同步成功！')">
+                <i class="ph ph-arrows-clockwise"></i> 刷新数据
+            </button>
+            <div style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                <i class="ph ph-folder"></i> 📁 c:\Users\fubai\Desktop\My_Workspace
+            </div>
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #38bdf8); border: 1.5px solid var(--border); cursor: pointer;"></div>
+        </div>
+    </header>
+
+    <!-- 下半部主体布局 -->
+    <div style="display: flex; flex: 1; overflow: hidden; width: 100%;">
+        
+        <!-- 侧边栏 (Sidebar - 三轨道分组导航) -->
+        <aside class="sidebar">
+            <div class="sidebar-scroll" style="padding: 16px 12px; display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- 轨道 1：Platform Cockpit -->
+                <div id="nav-platform">
+                    <div class="nav-section-title" style="font-size: 10px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
+                        PLATFORM COCKPIT 🚀
+                    </div>
+                    <!-- Context Card -->
+                    <div class="project-context-card" style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer;" onclick="app.navigate('platform-dashboard')">
+                        <div class="pj-name" style="font-size: 12px; font-weight: 600; color: white;">auto-pm 研发管理平台</div>
+                        <div class="pj-id" style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">SW-2026-008</div>
+                    </div>
+                    <ul class="nav-menu" style="list-style: none; display: flex; flex-direction: column; gap: 2px;">
+                        <li class="nav-item active" data-route="platform-dashboard" onclick="app.navigate('platform-dashboard')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-chart-bar" style="font-size: 14px;"></i> 平台驾驶舱大盘</div>
+                        </li>
+                        <li class="nav-item" data-route="platform-changes" onclick="app.navigate('platform-changes')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-arrows-left-right" style="font-size: 14px;"></i> 平台变更管控</div>
+                        </li>
+                        <li class="nav-item" data-route="platform-specs" onclick="app.navigate('platform-specs')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-shield-check" style="font-size: 14px;"></i> 平台架构规范检查</div>
+                        </li>
+                        <li class="nav-item" data-route="platform-releases" onclick="app.navigate('platform-releases')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-article-ny-times" style="font-size: 14px;"></i> 平台迭代与发布</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+                <!-- 轨道 2：Workspace (公共项目与工具，Modbus 联调测试是公共部分) -->
+                <div id="nav-global">
+                    <div class="nav-section-title" style="font-size: 10px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
+                        WORKSPACE 🌐
+                    </div>
+                    <ul class="nav-menu" style="list-style: none; display: flex; flex-direction: column; gap: 2px;">
+                        <li class="nav-item" data-route="projects" onclick="app.navigate('projects')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-house" style="font-size: 14px;"></i> 业务项目大厅</div>
+                            <span class="tag" style="background: rgba(255,255,255,0.05); font-size: 10px; padding: 2px 6px; border-radius: 10px;">2</span>
+                        </li>
+                        <!-- Modbus 移出具体项目，归入公共工具轨道 -->
+                        <li class="nav-item" data-route="modbus-debugger" onclick="app.navigate('modbus-debugger')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-cpu" style="font-size: 14px; color: var(--secondary);"></i> PLC Modbus 联调测试</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+                <!-- 轨道 3：Active Project -->
+                <div id="nav-project">
+                    <div class="nav-section-title" style="font-size: 10px; color: var(--secondary); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
+                        ACTIVE BUSINESS PROJECT 💻
+                    </div>
+                    <!-- Project context card -->
+                    <div class="project-context-card" style="border: 1px solid var(--secondary); border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer;" onclick="app.navigate('project-workspace-tab0')">
+                        <div class="pj-name" style="font-size: 12px; font-weight: 600; color: white;">DJ-2026-005</div>
+                        <div class="pj-id" style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">DJ-2026-005 (PLC)</div>
+                    </div>
+                    <ul class="nav-menu" style="list-style: none; display: flex; flex-direction: column; gap: 2px;">
+                        <li class="nav-item" data-route="project-workspace-tab0" onclick="app.navigate('project-workspace-tab0')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-activity" style="font-size: 14px;"></i> 工程健康度概览</div>
+                        </li>
+                        <li class="nav-item" data-route="project-workspace-tab4" onclick="app.navigate('project-workspace-tab4')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-database" style="font-size: 14px;"></i> 变量表与 IO 资产</div>
+                        </li>
+                        <li class="nav-item" data-route="project-workspace-tab1" onclick="app.navigate('project-workspace-tab1')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-git-branch" style="font-size: 14px;"></i> 工程变更控制矩阵</div>
+                        </li>
+                        <li class="nav-item" data-route="project-workspace-tab2" onclick="app.navigate('project-workspace-tab2')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-shield-warning" style="font-size: 14px;"></i> 工程规范与死区检查</div>
+                        </li>
+                        <li class="nav-item" data-route="project-workspace-tab3" onclick="app.navigate('project-workspace-tab3')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-folder-open" style="font-size: 14px;"></i> 工程交付与试运行报告</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Settings & Status Footer -->
+                <div style="margin-top: auto;">
+                    <ul class="nav-menu" style="list-style: none;">
+                        <li class="nav-item" data-route="settings" onclick="app.navigate('settings')">
+                            <div class="nav-item-content" style="display: flex; align-items: center; gap: 8px; font-size: 12px;"><i class="ph ph-gear" style="font-size: 14px;"></i> 全局系统设置</div>
+                        </li>
+                    </ul>
+                    <div style="margin-top: 12px; padding: 10px; background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success);"></div>
+                        <div style="flex: 1;">
+                            <div style="color: var(--text-primary); font-weight: bold; font-size: 11px;">Backend API Status</div>
+                            <div style="color: var(--text-muted); font-size: 10px; margin-top: 1px;">Local IPC Connected</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- 主内容区 (Main Content) -->
+        <main class="main-content">
+            <!-- 视图切换容器 -->
+            <div id="app-view" class="router-view" style="flex: 1; padding: 20px; overflow-y: auto;"></div>
+        </main>
+
+    </div>
+
+    <!-- 全局弹窗层 -->
+    <div id="sys-modal" class="modal-overlay" onclick="app.closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modal-title" style="margin-bottom:12px; font-size:16px;">提示</h2>
+            <p id="modal-body" style="color:var(--text-secondary); line-height:1.6; margin-bottom: 20px; font-size:13px;"></p>
+            <div style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
+                <button class="back-btn" onclick="app.closeModal()">取消</button>
+                <button class="back-btn" style="background:var(--primary); color:white; border:none;" onclick="app.closeModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         ============= 3. 视图模板 (Views) ============= 
+         ========================================== -->
+
+    <!-- [NEW] [6. 平台变更管控] -->
+    <template id="view-platform-changes">
+        <div class="page-header">
+            <div>
+                <h1>平台变更管控矩阵 (Platform Change Matrix)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">查看 SW-2026-008 管理系统自身的开发迭代及审计记录。</p>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding: 0; overflow:hidden;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>变更单号</th>
+                        <th>变更标题</th>
+                        <th>提出人</th>
+                        <th>更新日期</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--primary-light); font-weight:600;">CHG-SCPT-2026-130</td>
+                        <td>auto-pm V1.0.0 正式发布包打包规范变更</td>
+                        <td>fubai</td>
+                        <td>2026-07-16</td>
+                        <td><span class="badge approved">已发布</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--text-muted);">CHG-SCPT-2026-102</td>
+                        <td>深色玻璃拟物设计系统升级</td>
+                        <td>张工</td>
+                        <td>2026-07-08</td>
+                        <td><span class="badge completed">已关闭</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- [NEW] [7. 平台迭代与发布] -->
+    <template id="view-platform-releases">
+        <div class="page-header">
+            <div>
+                <h1>平台迭代与发布报告 (Platform Releases)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">包含系统交付包编译产物及 SHA256 完整性特征记录。</p>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+            <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
+                <h3 style="font-size:15px; font-weight:600; color:white;">📦 auto-pm V1.0.0 Release Release Package</h3>
+                <span style="font-size:12px; color:var(--success); display:block; margin-top:4px;">Status: APPROVED - RELEASE COMPLETED (2026-07-16)</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:12px; background:rgba(0,0,0,0.2); padding:12px; border-radius:6px; border:1px solid var(--border); color:var(--text-secondary); line-height:1.6;">
+                <b>Package File:</b> Python自动化项目管理系统_V1.0.0_20260716.zip<br>
+                <b>File Count:</b> 3,797 files<br>
+                <b>Archive Size:</b> 173.69 MB<br>
+                <b>Checksum:</b> e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+            </div>
+        </div>
+    </template>
+
+    <!-- [1. 平台大盘] -->
+    <template id="view-platform-dashboard">
+        <div class="page-header">
+            <div>
+                <h1>平台研发大盘大厅 (Platform Dashboard)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">追踪 auto-pm 系统自身的开发需求、发布里程碑及健康度指标。</p>
+            </div>
+        </div>
+        <div class="kpi-grid" style="margin-bottom:20px;">
+            <div class="kpi-card has-data">
+                <div class="kpi-info">
+                    <span class="kpi-title">平台总工程数</span>
+                    <span class="kpi-value">13 <span class="kpi-suffix">个</span></span>
+                </div>
+                <div class="kpi-icon">📁</div>
+            </div>
+            <div class="kpi-card has-data warn">
+                <div class="kpi-info">
+                    <span class="kpi-title">技术债剩余</span>
+                    <span class="kpi-value" style="color:var(--warning)">12 <span class="kpi-suffix">项</span></span>
+                </div>
+                <div class="kpi-icon">⚠️</div>
+            </div>
+            <div class="kpi-card has-data success">
+                <div class="kpi-info">
+                    <span class="kpi-title">测试通过率</span>
+                    <span class="kpi-value" style="color:var(--success)">100%</span>
+                </div>
+                <div class="kpi-icon">✅</div>
+            </div>
+            <div class="kpi-card has-data">
+                <div class="kpi-info">
+                    <span class="kpi-title">当前活跃变更</span>
+                    <span class="kpi-value">CHG-123</span>
+                </div>
+                <div class="kpi-icon">🔄</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="ph ph-activity"></i> 平台近期动态时间线</span>
+            </div>
+            <div class="panel-body">
+                <div class="timeline-scroll" id="platform-timeline-container">
+                    <!-- JS 填充 -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- [2. 规范检查] -->
+    <template id="view-platform-specs">
+        <div class="page-header">
+            <div>
+                <h1>平台架构规范静态扫描 (LSP Specs Scanner)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">实时调用后端 LSP 扫描规则，监控 QML 文件中的属性定义和 API 调用合规性。</p>
+            </div>
+            <button class="back-btn" style="background:var(--primary); color:white; border:none;" onclick="app.simulateSpecsScan()"><i class="ph ph-play"></i> 开始全量扫描</button>
+        </div>
+        <div class="glass-panel" style="padding: 16px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                <span style="font-weight:600;">扫描进度</span>
+                <span id="scan-progress-text">已完成 100%</span>
+            </div>
+            <div style="width:100%; height:6px; background:rgba(0,0,0,0.2); border-radius:3px; overflow:hidden;">
+                <div id="scan-progress-bar" style="width:100%; height:100%; background:var(--success); transition:width 0.4s;"></div>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding: 0; overflow:hidden;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>规则编号</th>
+                        <th>规则说明</th>
+                        <th>违规位置</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--danger);">LSP-QML-012</td>
+                        <td>QML 中禁止无兜底的 undefined 属性绑定</td>
+                        <td style="font-family:var(--font-mono); color:var(--text-secondary);">WorkspaceView.qml : L34</td>
+                        <td><span class="badge closed">违规</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--success);">LSP-DB-015</td>
+                        <td>全局 DB 必须勾选 Optimized Block Access</td>
+                        <td style="font-family:var(--font-mono); color:var(--text-secondary);">HMI_Data.db</td>
+                        <td><span class="badge approved">通过</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- [3. 项目大厅] -->
+    <template id="view-projects">
+        <div class="page-header">
+            <div>
+                <h1>业务项目大厅 (Workspace Hub)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">工作区中扫描到的活动业务工程列表。</p>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding: 0; overflow:hidden;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>项目编号</th>
+                        <th>项目名称</th>
+                        <th>技术领域</th>
+                        <th>当前阶段</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="cursor: pointer;" onclick="app.navigate('project-workspace')">
+                        <td style="font-family:var(--font-mono); color:var(--primary-light); font-weight:600;">DJ-2026-005</td>
+                        <td>DJ-2026-005</td>
+                        <td><span class="badge domain">PLC</span></td>
+                        <td><span class="badge implementing">在研</span></td>
+                        <td><button class="back-btn">进入工作区</button></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:var(--font-mono); color:var(--text-muted);">SW-2025-102</td>
+                        <td>PLC_标准化功能块库</td>
+                        <td><span class="badge domain">PLC</span></td>
+                        <td><span class="badge completed">归档</span></td>
+                        <td><button class="back-btn" onclick="alert('该项目已归档保护，无法编辑')">查看</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- [4. 项目工作台 - 5 Tab (核心对齐 QML 变更控制台面)] -->
+    <template id="view-project-workspace">
+        <div class="project-detail-view-container">
+            <!-- 顶部标题栏 -->
+            <div class="title-bar" style="padding: 0; background: transparent; border-bottom: none; height: auto;">
+                <div class="left-actions">
+                    <button class="back-btn" onclick="app.navigate('projects')"><i class="ph ph-caret-left"></i> 返回</button>
+                    <div class="project-title" style="font-size: 20px;">DJ-2026-005</div>
+                    <div class="project-subtitle">DJ-2026-005</div>
+                </div>
+                <div class="center-meta">
+                    <span class="header-badge plc">plc</span>
+                    <span class="header-badge status">在研</span>
+                    <span class="header-badge version">vV7.1.1</span>
+                </div>
+                <div class="right-actions">
+                    <button class="back-btn">编辑</button>
+                    <button class="back-btn">模板</button>
+                    <button class="back-btn" style="background:var(--danger); border:none; color:white;">删除</button>
+                </div>
+            </div>
+
+            <!-- 本地导航 Tab 栏 -->
+            <div class="tab-bar" style="padding: 0; background: transparent; height: 36px; gap: 24px;">
+                <div class="tab-item" id="wtab-0" onclick="app.switchWorkspaceTab(0)">概览</div>
+                <div class="tab-item active" id="wtab-1" onclick="app.switchWorkspaceTab(1)">变更</div>
+                <div class="tab-item" id="wtab-2" onclick="app.switchWorkspaceTab(2)">检查</div>
+                <div class="tab-item" id="wtab-3" onclick="app.switchWorkspaceTab(3)">文档</div>
+                <div class="tab-item" id="wtab-4" onclick="app.switchWorkspaceTab(4)">变量表</div>
+            </div>
+
+            <!-- TAB 0: 概览占位 -->
+            <div id="workspace-tab-content-0" style="display:none;">
+                <div class="glass-panel" style="padding: 24px; text-align: center; color:var(--text-muted);">
+                    <h3>项目元数据概览</h3>
+                    <p style="margin-top: 12px; font-size: 13px;">项目 DJ-2026-005 处于 developing 在研阶段，技术栈为 plc，包含 8 条变更。</p>
+                </div>
+            </div>
+
+            <!-- TAB 1: 变更主控制台 (核心实现) -->
+            <div id="workspace-tab-content-1" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- KPI 网格 -->
+                <div class="kpi-grid">
+                    <div class="kpi-card has-data">
+                        <div class="kpi-info">
+                            <span class="kpi-title">变更总数</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-total">8</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">项目累计变更</span>
+                        </div>
+                        <div class="kpi-icon">📋</div>
+                    </div>
+
+                    <div class="kpi-card has-data warn">
+                        <div class="kpi-info">
+                            <span class="kpi-title">进行中</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-active" style="color:var(--warning)">1</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">实施中变更</span>
+                        </div>
+                        <div class="kpi-icon">🔄</div>
+                    </div>
+
+                    <div class="kpi-card has-data">
+                        <div class="kpi-info">
+                            <span class="kpi-title">待审批</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-pending" style="color:var(--primary-light)">1</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">待审核/待提交</span>
+                        </div>
+                        <div class="kpi-icon">📝</div>
+                    </div>
+
+                    <div class="kpi-card success">
+                        <div class="kpi-info">
+                            <span class="kpi-title">本周新增</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-value" id="kpi-new" style="color:var(--success)">0</span>
+                                <span class="kpi-suffix">条</span>
+                            </div>
+                            <span class="kpi-subtitle">最近7天</span>
+                        </div>
+                        <div class="kpi-icon">➕</div>
+                    </div>
+                </div>
+
+                <!-- 状态机与时间线 -->
+                <div class="upper-dashboard">
+                    <!-- 9节点状态流转 -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ph-bold ph-git-branch" style="color:var(--primary-light)"></i> 变更状态流转
+                            </div>
+                            <span class="panel-tag" id="state-machine-tag">CHG-PLC-2026-003</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="state-flow-container">
+                                <div class="nodes-row">
+                                    <div class="flow-line"></div>
+                                    <div class="flow-line-progress" id="flow-progress-bar" style="width: 25%;"></div>
+                                    
+                                    <div class="flow-node"><div class="node-circle completed" id="node-0">草</div><span class="node-label completed" id="label-0">草稿</span></div>
+                                    <div class="flow-node"><div class="node-circle completed" id="node-1">提</div><span class="node-label completed" id="label-1">已提交</span></div>
+                                    <div class="flow-node"><div class="node-circle active" id="node-2">审</div><span class="node-label active" id="label-2">审核中</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-3">批</div><span class="node-label" id="label-3">已批准</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-4">实</div><span class="node-label" id="label-4">实施中</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-5">验</div><span class="node-label" id="label-5">待验收</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-6">收</div><span class="node-label" id="label-6">验收中</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-7">完</div><span class="node-label" id="label-7">已完成</span></div>
+                                    <div class="flow-node"><div class="node-circle" id="node-8">关</div><span class="node-label" id="label-8">已关闭</span></div>
+                                </div>
+                                <div class="flow-summary">
+                                    <span id="flow-completed-count">已完成 2 / 9 个节点</span>
+                                    <span id="flow-percent">22.22%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 近期活动 (PM_SESSION) -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ph-bold ph-activity" style="color:var(--secondary)"></i> 近期活动 (PM_SESSION)
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="timeline-scroll" id="timeline-container">
+                                <!-- JS 填充 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 联动详情 Split View (分类过滤与按时间倒序) -->
+                <div class="lower-split">
+                    <!-- 左侧：分类过滤变更列表 -->
+                    <div class="changes-list-panel">
+                        <div class="panel-header" style="border-bottom:none;">
+                            <div class="panel-title">变更列表</div>
+                            <span style="font-size:12px; color:var(--text-muted);" id="changes-list-count">共 8 条</span>
+                        </div>
+
+                        <!-- 变更分类选项卡胶囊条 -->
+                        <div class="category-filter-bar">
+                            <div class="category-pill active" onclick="app.setCategory('ALL', this)" id="pill-ALL">
+                                全部 <span class="category-count" id="count-ALL">(8)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('PLC', this)" id="pill-PLC">
+                                PLC <span class="category-count" id="count-PLC">(5)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('HMI', this)" id="pill-HMI">
+                                HMI <span class="category-count" id="count-HMI">(0)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('ELEC', this)" id="pill-ELEC">
+                                ELEC <span class="category-count" id="count-ELEC">(1)</span>
+                            </div>
+                            <div class="category-pill" onclick="app.setCategory('DOCU', this)" id="pill-DOCU">
+                                DOCU <span class="category-count" id="count-DOCU">(2)</span>
+                            </div>
+                        </div>
+
+                        <div class="list-scroll" id="changes-list-container">
+                            <!-- JS 填充 (时间倒排) -->
+                        </div>
+                    </div>
+
+                    <!-- 右侧：详细内容面板 -->
+                    <div class="detail-panel">
+                        <div class="detail-header">
+                            <div class="detail-title-area">
+                                <span class="detail-id" id="detail-id">CHG-PLC-2026-003</span>
+                                <button class="detail-edit-btn">编辑</button>
+                            </div>
+                            <div class="transition-actions" id="transition-actions-container">
+                                <!-- JS 填充 -->
+                            </div>
+                        </div>
+                        <div class="detail-body">
+                            <div class="detail-badges-row">
+                                <span class="badge submitted" id="detail-badge-status">submitted</span>
+                                <span class="badge domain" id="detail-badge-domain">PLC</span>
+                                <span class="badge domain" id="detail-badge-nature">normal</span>
+                            </div>
+
+                            <div class="info-section">
+                                <div class="section-title">基本信息</div>
+                                <table class="info-table">
+                                    <tr><td class="label">变更编号:</td><td class="value" id="info-id">CHG-PLC-2026-003</td></tr>
+                                    <tr><td class="label">项目编号:</td><td class="value" id="info-project-id">DJ-2026-005</td></tr>
+                                    <tr><td class="label">项目名称:</td><td class="value" id="info-project-name">DJ-2026-005</td></tr>
+                                    <tr><td class="label">技术领域:</td><td class="value" id="info-domain">PLC</td></tr>
+                                    <tr><td class="label">业务性质:</td><td class="value" id="info-nature">DEF</td></tr>
+                                    <tr><td class="label">影响范围:</td><td class="value" id="info-impact">LOCAL</td></tr>
+                                    <tr><td class="label">申请人:</td><td class="value" id="info-applicant">TestUser</td></tr>
+                                    <tr><td class="label">申请日期:</td><td class="value" id="info-apply-date">2026-06-12</td></tr>
+                                    <tr><td class="label">计划日期:</td><td class="value" id="info-plan-date">2026-06-12</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <div class="section-title">变更描述 (Description)</div>
+                                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;" id="detail-desc">
+                                    测试变更描述内容
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 检查占位 -->
+            <div id="workspace-tab-content-2" style="display:none;">
+                <div class="glass-panel" style="padding: 24px; text-align: center; color:var(--text-muted);">
+                    <h3>规范检查报告 (specmgr)</h3>
+                    <p style="margin-top: 12px; font-size: 13px;">当前已运行 1 次规范扫描，未发现致命级违规。</p>
+                </div>
+            </div>
+
+            <!-- TAB 3: 文档占位 (V11 真实解析渲染版) -->
+            <div id="workspace-tab-content-3" style="display:none; height: 500px; display: grid; grid-template-columns: 240px 1fr 200px; gap: 16px; align-items: stretch; width: 100%;">
+                <!-- Left: document folder tree -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">📁 交付文档树 (02_设计)</div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 12px;">
+                        <div class="doc-tree-item active" style="padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(99, 102, 241, 0.12); color: var(--primary-light);" onclick="app.loadDocContent('prd')">
+                            📄 001_产品需求文档_PRD.md
+                        </div>
+                        <div class="doc-tree-item" style="padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);" onclick="app.loadDocContent('int')">
+                            📄 002_接口文档_INT.md
+                        </div>
+                        <div class="doc-tree-item" style="padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);" onclick="app.loadDocContent('dsn')">
+                            📄 003_详细设计说明书_DSN.md
+                        </div>
+                        <div class="doc-tree-item" style="padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);" onclick="app.loadDocContent('tec')">
+                            📄 004_技术方案文档_TEC.md
+                        </div>
+                        <div class="doc-tree-item" style="padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);" onclick="app.loadDocContent('plan')">
+                            📄 005_里程碑与实施计划.md
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center: Markdown view -->
+                <div style="background: rgba(18, 26, 46, 0.4); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; height: 100%;">
+                    <div id="doc-render-title" style="font-size: 18px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>001_产品需求文档_PRD.md</span>
+                        <button class="back-btn" style="padding: 4px 8px; font-size:11px;" onclick="alert('PDF 导出就绪，保存路径：06_交付物/02_发布说明/001_产品需求文档_PRD.pdf')">📥 导出为 PDF</button>
+                    </div>
+                    <div id="doc-render-body" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; font-family: var(--font-sans);">
+                        <!-- markdown loaded dynamically -->
+                        <h3>1. 文档定位</h3>
+                        <p style="margin-top: 8px;">本版 PRD 不再围绕“再做多少页面”展开，而是围绕一个更适合电气工程师理解和落地的核心原则展开：</p>
+                        <blockquote style="border-left: 3px solid var(--primary); padding-left: 12px; color: var(--text-muted); margin: 12px 0; font-style: italic;">
+                            界面层、业务层、项目数据层分离，通过稳定的变量/命令接口连接。
+                        </blockquote>
+                        <p style="margin-top: 8px;">这和 PLC 程序、HMI 画面、现场信号之间的关系是一致的：</p>
+                        <ul style="margin-left: 20px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                            <li>HMI 不直接写 PLC 内部实现细节</li>
+                            <li>HMI 通过变量地址、命令位、状态位与 PLC 通信</li>
+                            <li>PLC 内部逻辑可以重构，但外部接口要稳定</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right: Outline / Anchor Navigation -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">📌 大纲视图 (Outline)</div>
+                    <div id="doc-render-outline" style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: var(--text-secondary);">
+                        <div style="cursor:pointer; font-weight: 600; color: var(--primary-light);">1. 文档定位</div>
+                        <div style="padding-left: 10px; cursor:pointer;">1.1 当前实现状态基线</div>
+                        <div style="cursor:pointer;">2. 产品定位</div>
+                        <div style="cursor:pointer;">3. 目标用户</div>
+                        <div style="padding-left: 10px; cursor:pointer;">3.1 核心用户</div>
+                        <div style="padding-left: 10px; cursor:pointer;">3.2 非核心用户</div>
+                        <div style="cursor:pointer;">4. 当前问题定义</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: 变量表占位 (V11 真实变量编辑区) -->
+            <div id="workspace-tab-content-4" style="display:none; flex-direction:column; gap:12px; width: 100%;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" placeholder="搜索变量名或符号地址..." style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:4px; padding:6px 10px; color:white; font-size:12px; width:220px; outline:none;">
+                        <select style="background:var(--bg-surface); border:1px solid var(--border); color:white; padding:6px; border-radius:4px; font-size:12px; outline:none;">
+                            <option>所有数据类型 (Any)</option>
+                            <option>BOOL (布尔量)</option>
+                            <option>INT (16位整数)</option>
+                            <option>REAL (32位浮点数)</option>
+                        </select>
+                    </div>
+                    <button class="back-btn" style="background:var(--primary); color:white; border:none; padding:6px 12px; font-size:12px;" onclick="alert('新增变量模块已就绪')"><i class="ph ph-plus"></i> 新增变量</button>
+                </div>
+                <div style="border: 1px solid var(--border); border-radius: 6px; background: rgba(18, 26, 46, 0.2); overflow:hidden;">
+                    <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px;">
+                        <thead>
+                            <tr style="background:rgba(0,0,0,0.2); border-bottom:1px solid var(--border);">
+                                <th style="padding:10px; color:var(--text-muted); font-weight:600;">变量符号名 (Symbol)</th>
+                                <th style="padding:10px; color:var(--text-muted); font-weight:600;">数据类型</th>
+                                <th style="padding:10px; color:var(--text-muted); font-weight:600;">博途地址 / DB寻址</th>
+                                <th style="padding:10px; color:var(--text-muted); font-weight:600;">Modbus 映射地址 (1-Based)</th>
+                                <th style="padding:10px; color:var(--text-muted); font-weight:600;">说明 (Comment)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom:1px dotted rgba(255,255,255,0.04);">
+                                <td style="padding:8px 10px; font-family:var(--font-mono); font-weight:600; color:white;">Station_Active</td>
+                                <td style="padding:8px 10px; color:var(--secondary);">BOOL</td>
+                                <td style="padding:8px 10px; font-family:var(--font-mono);">DB10.DBX0.0</td>
+                                <td style="padding:8px 10px; font-family:var(--font-mono); color:var(--warning);">00001 (FC01)</td>
+                                <td style="padding:8px 10px; color:var(--text-muted);">本站处于激活状态信号</td>
+                            </tr>
+                            <tr style="border-bottom:1px dotted rgba(255,255,255,0.04);">
+                                <td style="padding:8px 10px; font-family:var(--font-mono); font-weight:600; color:white;">Sensor_Temp_Value</td>
+                                <td style="padding:8px 10px; color:var(--secondary);">REAL</td>
+                                <td style="padding:8px 10px; font-family:var(--font-mono);">DB10.DBD2</td>
+                                <td style="padding:8px 10px; font-family:var(--font-mono); color:var(--warning);">40002 (FC03)</td>
+                                <td style="padding:8px 10px; color:var(--text-muted);">主电炉温度传感器读数</td>
+                            </tr>
+                            <tr style="border-bottom:1px dotted rgba(255,255,255,0.04);">
+                                <td style="padding:8px 10px; font-family:var(--font-mono); font-weight:600; color:white;">Control_Valve_Pos</td>
+                                <td style="padding:8px 10px; color:var(--secondary);">INT</td>
+                                <td style="padding:8px 10px; font-family:var(--font-mono);">DB10.DBW6</td>
+                                <td style="padding:8px 10px; font-family:var(--font-mono); color:var(--warning);">40004 (FC03)</td>
+                                <td style="padding:8px 10px; color:var(--text-muted);">调节阀阀门给定开度 (0-10000)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- [5. 全局系统设置] -->
+    <template id="view-settings">
+        <div class="page-header">
+            <div>
+                <h1>全局系统设置 (Settings)</h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">配置本地工作区路径和标准库编译门禁限制。</p>
+            </div>
+        </div>
+        <div class="glass-panel" style="padding:24px;">
+            <div style="display:flex; flex-direction:column; gap:16px; max-width: 500px;">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <label style="font-size:13px; font-weight:600;">默认自动化工程工作区目录</label>
+                    <input type="text" value="c:\Users\fubai\Desktop\My_Workspace" class="search-bar" style="width:100%; border-radius:4px; outline:none;" readonly>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <label style="font-size:13px; font-weight:600;">LSP 规则错误级别定义</label>
+                    <select style="background:var(--bg-base); border:1px solid var(--border); padding:8px; border-radius:4px; color:white;">
+                        <option>Strict (严格模式 - 违规阻断编译)</option>
+                        <option>Warning (告警模式 - 提示不阻断)</option>
+                    </select>
+                </div>
+                <button class="back-btn" style="background:var(--primary); color:white; border:none; width:max-content;" onclick="alert('设置已成功保存！')">保存设置</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- ==========================================
+         ============= 4. 公共联调工具 (Global Tools) ============= 
+         ========================================== -->
+    <!-- ==========================================
+         ============= 4. 公共联调工具 (Global Tools V13) ============= 
+         ========================================== -->
+    <template id="view-modbus-debugger">
+        <div class="page-header" style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h1>PLC Modbus 联调测试工坊 <span style="font-size:11px; background:rgba(99,102,241,0.15); color:var(--primary-light); padding:2px 8px; border-radius:10px; margin-left:8px; border:1px solid var(--border);">V13 开源对齐版</span></h1>
+                <p style="color:var(--text-muted); margin-top:4px; font-size:13px;">
+                    参考 GitHub 开源工具 (OpenPoll / ModbusMechanic) 设计，集成 L3 Ping 检测、16位二进制 LED 位状态编辑、动态波形曲线监控及全量功能码扫描。
+                </p>
+            </div>
+            <!-- Import/Export bar -->
+            <div style="display:flex; gap:8px;">
+                <button class="back-btn" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:6px;" onclick="alert('成功导入 presets_config.json 寄存器描述字典！')">
+                    <i class="ph ph-upload-simple"></i> 导入配置
+                </button>
+                <button class="back-btn" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:6px;" onclick="alert('成功导出当前 Modbus_Export_Config.json 配置！')">
+                    <i class="ph ph-download-simple"></i> 导出配置
+                </button>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; width: 100%;">
+            <!-- Left Panel: Configurations and 16-Bit Expander -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- Connection parameters -->
+                <div class="glass-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 6px; display:flex; align-items:center; justify-content:space-between;">
+                        <span>🔌 Modbus TCP 连接参数</span>
+                        <span id="simulator-badge" style="font-size:10px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:var(--warning); padding:1px 6px; border-radius:8px;">仿真就绪</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; color: var(--text-muted);">目标 PLC IP 地址</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="mb-ip" value="192.168.1.10" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none; flex: 1;">
+                            <button id="mb-ping-btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;" onclick="app.runPingTest()">
+                                📡 Ping
+                            </button>
+                        </div>
+                        <div id="ping-status-row" style="font-size: 11px; color: var(--text-muted); display: none; align-items: center; gap: 6px; margin-top: 2px;">
+                            <span id="ping-dot" style="width: 6px; height: 6px; border-radius: 50%;"></span>
+                            <span id="ping-text"></span>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">端口 (Port)</label>
+                            <input type="number" id="mb-port" value="502" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">站号 (Unit ID)</label>
+                            <input type="number" id="mb-slave" value="1" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                        <label for="mb-sim-chk" style="font-size: 11px; color: var(--text-secondary); cursor: pointer;">启用本地仿真发生器</label>
+                        <input type="checkbox" id="mb-sim-chk" style="width: 14px; height: 14px; margin:0;" checked>
+                    </div>
+                    <button id="mb-connect-btn" style="background: var(--primary); border: none; color: white; padding: 8px 12px; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.toggleModbusConnection()">
+                        连接设备
+                    </button>
+                </div>
+
+                <!-- Read Testing -->
+                <div class="glass-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+                        🔍 寄存器读取测试
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; color: var(--text-muted);">配置模板预设 (Presets)</label>
+                        <select id="mb-preset" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;" onchange="app.onModbusPresetChange()">
+                            <option value="custom">-- 自定义物理调试 --</option>
+                            <option value="siemens_fan">西门子 S7-1200 风机控制</option>
+                            <option value="temp_monitor">多路温度传感器读取</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; color: var(--text-muted);">寄存器区段 / 功能码</label>
+                        <select id="mb-fc" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;" onchange="app.onModbusFCTypeChange()">
+                            <option value="03">03 读保持寄存器 (Read Holding Registers)</option>
+                            <option value="04">04 读输入寄存器 (Read Input Registers)</option>
+                            <option value="01">01 读线圈状态 (Read Coils)</option>
+                            <option value="02">02 读离散输入状态 (Read Discrete Inputs)</option>
+                            <option value="17">17 读设备描述字 (Report Slave ID)</option>
+                            <option value="23">23 读写多个寄存器 (Read/Write Registers)</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">起始地址</label>
+                            <input type="number" id="mb-start" value="0" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">读取长度</label>
+                            <input type="number" id="mb-count" value="10" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                        <label style="font-size: 11px; color: var(--text-muted);">浮点字节序</label>
+                        <select id="mb-endian" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; color: white; font-size: 11px; outline:none; width: 140px;">
+                            <option value="CDAB">CDAB (Word Swap 西门子)</option>
+                            <option value="ABCD">ABCD (Big-Endian)</option>
+                            <option value="BADC">BADC (Byte Swap)</option>
+                            <option value="DCBA">DCBA (Little-Endian)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="mb-poll-chk" style="width: 14px; height: 14px;" onchange="app.toggleModbusPolling()">
+                        <label for="mb-poll-chk" style="font-size: 11px; color: var(--text-secondary); cursor: pointer;">周期性轮询 (1000ms)</label>
+                    </div>
+                    <button id="mb-read-btn" style="background: var(--success); border: none; color: white; padding: 8px 12px; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" disabled onclick="app.readModbus()">
+                        单次扫描
+                    </button>
+                </div>
+
+                <!-- 16-Bit Register Bit Expander (QModMaster style) -->
+                <div class="glass-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 6px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>💡 16位寄存器位解析器</span>
+                        <span id="expander-addr" style="font-size:11px; font-family:var(--font-mono); color:var(--secondary);">40001</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(8, 1fr); gap: 6px; background: rgba(0,0,0,0.15); padding:8px; border-radius:4px; border:1px solid var(--border);">
+                        <!-- Bit 15 to Bit 0 layout -->
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">15</span>
+                            <div class="bit-led" id="bit-15" onclick="app.toggleBit(15)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">14</span>
+                            <div class="bit-led" id="bit-14" onclick="app.toggleBit(14)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">13</span>
+                            <div class="bit-led" id="bit-13" onclick="app.toggleBit(13)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">12</span>
+                            <div class="bit-led" id="bit-12" onclick="app.toggleBit(12)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">11</span>
+                            <div class="bit-led" id="bit-11" onclick="app.toggleBit(11)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">10</span>
+                            <div class="bit-led" id="bit-10" onclick="app.toggleBit(10)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">9</span>
+                            <div class="bit-led" id="bit-9" onclick="app.toggleBit(9)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">8</span>
+                            <div class="bit-led" id="bit-8" onclick="app.toggleBit(8)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(8, 1fr); gap: 6px; background: rgba(0,0,0,0.15); padding:8px; border-radius:4px; border:1px solid var(--border); margin-top:2px;">
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">7</span>
+                            <div class="bit-led" id="bit-7" onclick="app.toggleBit(7)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">6</span>
+                            <div class="bit-led" id="bit-6" onclick="app.toggleBit(6)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">5</span>
+                            <div class="bit-led" id="bit-5" onclick="app.toggleBit(5)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">4</span>
+                            <div class="bit-led" id="bit-4" onclick="app.toggleBit(4)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">3</span>
+                            <div class="bit-led" id="bit-3" onclick="app.toggleBit(3)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">2</span>
+                            <div class="bit-led" id="bit-2" onclick="app.toggleBit(2)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">1</span>
+                            <div class="bit-led" id="bit-1" onclick="app.toggleBit(1)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <span style="font-size:9px; color:var(--text-muted)">0</span>
+                            <div class="bit-led" id="bit-0" onclick="app.toggleBit(0)" style="width:12px; height:12px; border-radius:50%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); cursor:pointer;"></div>
+                        </div>
+                    </div>
+                    <div style="font-size:11px; display:flex; justify-content:space-between; color:var(--text-secondary); margin-top:2px;">
+                        <span>Dec: <b id="expander-dec-val" style="color:white;">0</b></span>
+                        <span>Hex: <b id="expander-hex-val" style="color:var(--warning);">0x0000</b></span>
+                        <button class="back-btn" style="padding:2px 6px; font-size:10px; background:var(--primary); border:none; color:white;" onclick="app.writeBitExpanderValue()">写入PLC</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Tabs, Table, Chart, Scanner, Logs -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- Sub-navigation tabs (Monitor / Trend / Scanner) -->
+                <div class="tab-bar">
+                    <div class="tab-item active" id="subtab-monitor" onclick="app.switchSubTab('monitor')">📊 实时数据监测表</div>
+                    <div class="tab-item" id="subtab-trend" onclick="app.switchSubTab('trend')">📈 物理量趋势监测图</div>
+                    <div class="tab-item" id="subtab-scanner" onclick="app.switchSubTab('scanner')">🧭 寄存器扫描探测器</div>
+                </div>
+
+                <!-- Sub-tab content 1: Monitor Table -->
+                <div id="subtab-content-monitor" class="glass-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; min-height:360px; overflow: hidden;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center;">
+                        <span>📊 物理通道监控 (双击行或点击“填入”可加载到写入或位解析器)</span>
+                        <span id="mb-poll-status" style="font-size: 11px; color: var(--success); font-weight: normal; display: none;">● 物理轮询中...</span>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; background: rgba(0,0,0,0.15);">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                            <thead>
+                                <tr style="background: rgba(0,0,0,0.25); text-align: left; border-bottom: 1px solid var(--border);">
+                                    <th style="padding: 10px 12px; font-weight: 600; color: var(--text-secondary); border-right: 1px solid var(--border); width: 15%;">寄存器物理地址</th>
+                                    <th style="padding: 10px 12px; font-weight: 600; color: var(--text-secondary); border-right: 1px solid var(--border); width: 25%;">绑定符号 (Tag Comment)</th>
+                                    <th style="padding: 10px 12px; font-weight: 600; color: var(--text-secondary); border-right: 1px solid var(--border); width: 15%;">十进制值 (Dec)</th>
+                                    <th style="padding: 10px 12px; font-weight: 600; color: var(--text-secondary); border-right: 1px solid var(--border); width: 15%;">十六进制 (Hex)</th>
+                                    <th style="padding: 10px 12px; font-weight: 600; color: var(--text-secondary); border-right: 1px solid var(--border); width: 15%;">32位浮点解码</th>
+                                    <th style="padding: 10px 12px; font-weight: 600; color: var(--text-secondary); width: 15%;">快速操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mb-table-body">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                        未连接设备。请配置参数并点击连接按钮以加载监控大盘。
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub-tab content 2: Live Trend Graph (HTML5 Canvas) -->
+                <div id="subtab-content-trend" class="glass-panel" style="padding: 16px; display: none; flex-direction: column; gap: 12px; min-height:360px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); display:flex; justify-content:space-between; align-items:center;">
+                        <span>📈 物理变送器动态波形曲线监控 (Trend Viewer)</span>
+                        <div style="font-size:11px; color:var(--text-muted);">追踪地址: <b style="color:var(--secondary);">40002 / 40003</b> (西门子模拟通道)</div>
+                    </div>
+                    <div style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:4px; position:relative; min-height:260px;">
+                        <canvas id="trend-canvas" style="width:100%; height:260px; display:block;"></canvas>
+                        <div style="position:absolute; top:10px; left:15px; display:flex; gap:12px; font-size:11px;">
+                            <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#6366f1; border-radius:50%;"></span> Fan_Speed_SP (设定值)</span>
+                            <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#10b981; border-radius:50%;"></span> Temp_Zone_REAL (解码实数)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab content 3: Scan Interrogator (ModbusMechanic style) -->
+                <div id="subtab-content-scanner" class="glass-panel" style="padding: 16px; display: none; flex-direction: column; gap: 12px; min-height:360px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); display:flex; justify-content:space-between; align-items:center;">
+                        <span>🧭 寄存器区段网络扫描探测器 (Interrogator Scanner)</span>
+                        <button class="back-btn" id="start-scan-discover-btn" style="background:var(--primary); border:none; color:white; padding:4px 10px; font-size:11px;" onclick="app.runInterrogatorScan()">
+                            <i class="ph ph-lightning"></i> 立即探测 (0-99)
+                        </button>
+                    </div>
+                    <div style="font-size:11px; color:var(--text-muted);">
+                        对目标 PLC 物理地址 [40001 - 40100] 进行高频并发功能码诊断，找出隐藏的活跃物理寄存器。
+                    </div>
+                    <div style="flex:1; display:grid; grid-template-columns: repeat(10, 1fr); gap:6px; background:rgba(0,0,0,0.2); padding:12px; border-radius:4px; border:1px solid var(--border);" id="scanner-grid-container">
+                        <!-- Grid elements initialized with gray, changing to green (active) or red (timeout) on scanning -->
+                    </div>
+                </div>
+
+                <!-- Write parameters -->
+                <div class="glass-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+                        ✍️ 物理参数下发写入
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items:end;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">写入功能码</label>
+                            <select id="mb-write-fc" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                                <option value="06">06 写单个保持寄存器</option>
+                                <option value="05">05 写单个线圈状态</option>
+                                <option value="16">16 写多个保持寄存器</option>
+                                <option value="15">15 写多个线圈状态</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">目标偏移物理地址</label>
+                            <input type="number" id="mb-write-addr" value="0" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--text-muted);">写入设定值 (Dec / Float)</label>
+                            <input type="text" id="mb-write-val" value="1234" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: white; font-size: 12px; outline:none;">
+                        </div>
+                    </div>
+                    <button id="mb-write-btn" style="background: var(--danger); border: none; color: white; padding: 8px 12px; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" disabled onclick="app.writeModbus()">
+                        下发写入指令
+                    </button>
+                </div>
+
+                <!-- Live Traffic trace console -->
+                <div class="glass-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 8px; height: 160px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center;">
+                        <span>📟 Modbus TCP 网口物理报文链路 (Live Traffic Trace)</span>
+                        <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" onclick="app.clearModbusConsole()">[清除日志]</span>
+                    </div>
+                    <div id="mb-console" style="flex: 1; overflow-y: auto; background: #040711; border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-family: var(--font-mono); font-size: 11px; color: #34d399; white-space: pre-wrap; line-height: 1.4;">[SYS] 监听网口 TCP/IP 502 端口物理链路已就绪...</div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <!-- ==========================================
+         ============= 4. 业务逻辑 (App JS) ============ 
+         ========================================== -->
+    <script>
+        class Application {
+            constructor() {
+                this.viewContainer = document.getElementById('app-view');
+                this.modal = document.getElementById('sys-modal');
+                this.navItems = document.querySelectorAll('.nav-item');
+
+                // 统一的数据源
+                this.changes = [
+                    { id: "CHG-ELEC-2026-001", title: "Bridge验证测试创建 - 电气图纸校验", domain: "ELEC", status: "draft", nature: "normal", applicant: "李工", apply_date: "2026-07-11", plan_date: "2026-07-11", business_nature: "SCPT", impact: "LOCAL", desc: "Bridge 校验测试变更单，核对图纸逻辑接线引脚。" },
+                    { id: "CHG-PLC-2026-005", title: "门禁拦截测试", domain: "PLC", status: "implementing", nature: "normal", applicant: "TestUser", apply_date: "2026-07-08", plan_date: "2026-07-08", business_nature: "DEF", impact: "LOCAL", desc: "门禁栏拦截流程逻辑升级调试测试。" },
+                    { id: "CHG-PLC-2026-004", title: "验收返工流程测试", domain: "PLC", status: "approved", nature: "normal", applicant: "TestUser", apply_date: "2026-07-05", plan_date: "2026-07-05", business_nature: "DEF", impact: "LOCAL", desc: "测试验收退回及流程修正。" },
+                    { id: "CHG-PLC-2026-003", title: "测试变更", domain: "PLC", status: "submitted", nature: "normal", applicant: "TestUser", apply_date: "2026-06-12", plan_date: "2026-06-12", business_nature: "DEF", impact: "LOCAL", desc: "基线验证测试变更流程。" },
+                    { id: "CHG-PLC-2026-002", title: "test-change", domain: "PLC", status: "completed", nature: "normal", applicant: "TestUser", apply_date: "2026-06-05", plan_date: "2026-06-05", business_nature: "DEF", impact: "LOCAL", desc: "常规功能调整测试完成。" },
+                    { id: "CHG-DOCU-2026-002", title: "用户补充工艺流程概览图及交接文档", domain: "DOCU", status: "completed", nature: "normal", applicant: "刘工", apply_date: "2026-04-27", plan_date: "2026-04-27", business_nature: "OPT", impact: "GLOBAL", desc: "依现场调试需求，回写补齐工艺控制逻辑的整体框图说明文档。" },
+                    { id: "CHG-DOCU-2026-001", title: "通过MCP工具读取PLC程序PDF进行自动区标签说明", domain: "DOCU", status: "closed", nature: "normal", applicant: "刘工", apply_date: "2026-04-21", plan_date: "2026-04-21", business_nature: "OPT", impact: "GLOBAL", desc: "使用 MCP 自动化脚本提取 PLC 符号地址列表，生成 PDF 文档索引说明。" },
+                    { id: "CHG-PLC-2026-001", title: "初始化模板测试", domain: "PLC", status: "closed", nature: "normal", applicant: "张工", apply_date: "2026-04-10", plan_date: "2026-04-10", business_nature: "SCPT", impact: "LOCAL", desc: "项目立项初始化标准模板测试。" }
+                ];
+
+                this.selectedCategory = "ALL";
+                this.selectedChangeId = "CHG-PLC-2026-005"; // 默认选择最新
+
+                this.statusOrder = [
+                    "draft", "submitted", "under_review", "approved", "implementing",
+                    "pending_acceptance", "accepting", "completed", "closed"
+                ];
+                this.statusNames = {
+                    "draft": "草稿",
+                    "submitted": "已提交",
+                    "under_review": "审核中",
+                    "approved": "已批准",
+                    "implementing": "实施中",
+                    "pending_acceptance": "待验收",
+                    "accepting": "验收中",
+                    "completed": "已完成",
+                    "closed": "已关闭"
+                };
+
+                this.bindEvents();
+                // 默认路由
+                this.navigate('platform-dashboard');
+            }
+
+            bindEvents() {
+                this.navItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        this.navItems.forEach(n => n.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.navigate(e.currentTarget.dataset.route);
+                    });
+                });
+            }
+
+            navigate(route) {
+                this.viewContainer.innerHTML = '';
+                const template = document.getElementById(`view-${route}`);
+                if (template) {
+                    this.viewContainer.appendChild(template.content.cloneNode(true));
+                    if (this[`init_${route.replace('-', '_')}`]) this[`init_${route.replace('-', '_')}`]();
+                } else {
+                    this.viewContainer.innerHTML = `
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted); opacity:0.6;">
+                            <i class="ph-bold ph-cone" style="font-size:64px; margin-bottom:16px;"></i>
+                            <h2 style="font-weight:500;">模块 [${route}] 开发建设中...</h2>
+                        </div>
+                    `;
+                }
+
+                // 侧边栏菜单的高亮更新同步
+                document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+                    if (item.dataset.route === route) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+
+            // --- 各视图初始化 ---
+
+            init_platform_dashboard() {
+                const timelineContainer = document.getElementById('platform-timeline-container');
+                let html = '';
+                // 写入时间线
+                this.changes.slice(0, 4).forEach(c => {
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="timeline-title">${c.id}</span>
+                                <span style="font-size:12px; color:var(--text-secondary)">状态推进至 [${this.statusNames[c.status]}] - "${c.title}"</span>
+                                <span class="timeline-date">${c.apply_date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                timelineContainer.innerHTML = html;
+            }
+
+            simulateSpecsScan() {
+                const btn = document.querySelector('button[onclick="app.simulateSpecsScan()"]');
+                const bar = document.getElementById('scan-progress-bar');
+                const txt = document.getElementById('scan-progress-text');
+                
+                btn.innerHTML = `<i class="ph ph-spinner" style="animation: spin 1.2s linear infinite;"></i> 扫描中...`;
+                bar.style.width = "0%";
+                txt.innerText = "已完成 0%";
+
+                setTimeout(() => { bar.style.width = "60%"; txt.innerText = "已完成 60% (校验数据结构)"; }, 500);
+                setTimeout(() => {
+                    bar.style.width = "100%";
+                    txt.innerText = "已完成 100% (规范一致)";
+                    btn.innerHTML = `<i class="ph ph-play"></i> 重新全量扫描`;
+                }, 1000);
+            }
+
+            init_project_workspace() {
+                // 初始化加载 Tab 1 (变更 Tab) 的内部逻辑
+                this.switchWorkspaceTab(1);
+            }
+
+            switchWorkspaceTab(index) {
+                // 高亮选中 Tab 标签页
+                for (let i = 0; i < 5; i++) {
+                    const tab = document.getElementById(`wtab-${i}`);
+                    const content = document.getElementById(`workspace-tab-content-${i}`);
+                    if (tab && content) {
+                        if (i === index) {
+                            tab.classList.add('active');
+                            content.style.display = (index === 1) ? 'flex' : 'block';
+                        } else {
+                            tab.classList.remove('active');
+                            content.style.display = 'none';
+                        }
+                    }
+                }
+
+                // 若进入变更 tab, 则进行加载
+                if (index === 1) {
+                    this.loadChangeTabContent();
+                }
+            }
+
+            loadChangeTabContent() {
+                // 计算分类个数
+                this.updateCategoryCounts();
+                // 时间线渲染
+                this.renderWorkspaceTimeline();
+                // 渲染变更列表 (按时间倒序)
+                this.renderChangeList();
+                // 默认选择最新
+                this.selectChange(this.selectedChangeId);
+            }
+
+            updateCategoryCounts() {
+                document.getElementById('count-ALL').innerText = `(${this.changes.length})`;
+                ['PLC', 'HMI', 'ELEC', 'DOCU'].forEach(dom => {
+                    const count = this.changes.filter(c => c.domain === dom).length;
+                    document.getElementById(`count-${dom}`).innerText = `(${count})`;
+                });
+            }
+
+            renderWorkspaceTimeline() {
+                const container = document.getElementById('timeline-container');
+                let html = '';
+                this.changes.slice(0, 4).forEach(c => {
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="timeline-title">${c.id}</span>
+                                <span style="font-size:12px; color:var(--text-secondary)">推进至 [${this.statusNames[c.status]}] - "${c.title}"</span>
+                                <span class="timeline-date">${c.apply_date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            renderChangeList() {
+                const container = document.getElementById('changes-list-container');
+                // 过滤并按时间倒序排列 (最新的排最前)
+                const filtered = (this.selectedCategory === "ALL" 
+                    ? this.changes 
+                    : this.changes.filter(c => c.domain === this.selectedCategory))
+                    .sort((a, b) => new Date(b.apply_date) - new Date(a.apply_date));
+
+                document.getElementById('changes-list-count').innerText = `共 ${filtered.length} 条`;
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:13px;">暂无该分类的变更单</div>`;
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(c => {
+                    const isSelected = c.id === this.selectedChangeId;
+                    html += `
+                        <div class="change-card ${isSelected ? 'selected' : ''}" onclick="app.selectChange('${c.id}')">
+                            <div class="card-row-top">
+                                <span class="card-id">${c.id}</span>
+                                <div class="card-badges">
+                                    <span class="badge domain">${c.domain}</span>
+                                    <span class="badge ${c.status}">${this.statusNames[c.status] || c.status}</span>
+                                </div>
+                            </div>
+                            <div class="change-card-title">${c.title}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            setCategory(category, pillElement) {
+                document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+                pillElement.classList.add('active');
+                this.selectedCategory = category;
+                
+                this.renderChangeList();
+
+                const filtered = (category === "ALL" 
+                    ? this.changes 
+                    : this.changes.filter(c => c.domain === category))
+                    .sort((a, b) => new Date(b.apply_date) - new Date(a.apply_date));
+
+                if (filtered.length > 0) {
+                    this.selectChange(filtered[0].id);
+                } else {
+                    this.clearDetail();
+                }
+            }
+
+            selectChange(id) {
+                this.selectedChangeId = id;
+                const change = this.changes.find(c => c.id === id);
+                if (!change) return;
+
+                // 重新渲染高亮
+                const cards = document.querySelectorAll('.change-card');
+                cards.forEach(card => {
+                    const cardId = card.querySelector('.card-id').innerText;
+                    if (cardId === id) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+
+                // 更新右侧及基本信息
+                document.getElementById('detail-id').innerText = change.id;
+                document.getElementById('info-id').innerText = change.id;
+                document.getElementById('info-domain').innerText = change.domain;
+                document.getElementById('info-nature').innerText = change.business_nature || "DEF";
+                document.getElementById('info-impact').innerText = change.impact || "LOCAL";
+                document.getElementById('info-applicant').innerText = change.applicant;
+                document.getElementById('info-apply-date').innerText = change.apply_date;
+                document.getElementById('info-plan-date').innerText = change.plan_date;
+                document.getElementById('detail-desc').innerText = change.desc;
+
+                // 更新右侧 badges
+                const statusBadge = document.getElementById('detail-badge-status');
+                statusBadge.className = `badge ${change.status}`;
+                statusBadge.innerText = change.status;
+                
+                const domBadge = document.getElementById('detail-badge-domain');
+                domBadge.innerText = change.domain;
+                
+                const natureBadge = document.getElementById('detail-badge-nature');
+                natureBadge.innerText = change.nature;
+
+                // 状态流转可视化更新
+                this.updateStateMachine(change);
+
+                // 右上角流转按钮更新
+                this.updateTransitionButtons(change);
+            }
+
+            clearDetail() {
+                document.getElementById('detail-id').innerText = "无选中变更";
+                document.getElementById('detail-desc').innerText = "请在左侧列表中选择变更单";
+                document.getElementById('transition-actions-container').innerHTML = "";
+            }
+
+            updateStateMachine(change) {
+                const latestStatus = change.status;
+                const latestIdx = this.statusOrder.indexOf(latestStatus);
+                const currentIdx = latestIdx !== -1 ? latestIdx : 0;
+
+                document.getElementById('state-machine-tag').innerText = change.id;
+
+                for (let i = 0; i < 9; i++) {
+                    const circle = document.getElementById(`node-${i}`);
+                    const label = document.getElementById(`label-${i}`);
+                    if (!circle || !label) continue;
+                    
+                    circle.className = "node-circle";
+                    label.className = "node-label";
+
+                    if (i === currentIdx) {
+                        circle.classList.add("active");
+                        label.classList.add("active");
+                    } else if (i < currentIdx) {
+                        circle.classList.add("completed");
+                        label.classList.add("completed");
+                    }
+                }
+
+                const percent = (currentIdx / 8) * 100;
+                const progressBar = document.getElementById('flow-progress-bar');
+                if (progressBar) progressBar.style.width = `${percent}%`;
+
+                document.getElementById('flow-completed-count').innerText = `已完成 ${currentIdx} / 9 个节点`;
+                document.getElementById('flow-percent').innerText = `${(percent).toFixed(2)}%`;
+            }
+
+            updateTransitionButtons(change) {
+                const actionsContainer = document.getElementById('transition-actions-container');
+                if (!actionsContainer) return;
+                let html = '';
+
+                if (change.status === "draft") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'submitted')">➔ 提交审批</button>`;
+                } else if (change.status === "submitted") {
+                    html = `
+                        <button class="action-btn secondary" onclick="app.transitionTo('${change.id}', 'draft')">➔ 退回草稿</button>
+                        <button class="action-btn" onclick="app.transitionTo('${change.id}', 'under_review')">一 审核中</button>
+                    `;
+                } else if (change.status === "under_review") {
+                    html = `
+                        <button class="action-btn secondary" onclick="app.transitionTo('${change.id}', 'draft')">➔ 退回草稿</button>
+                        <button class="action-btn" onclick="app.transitionTo('${change.id}', 'approved')">一 批准变更</button>
+                    `;
+                } else if (change.status === "approved") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'implementing')">一 实施中</button>`;
+                } else if (change.status === "implementing") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'pending_acceptance')">一 提交验收</button>`;
+                } else if (change.status === "pending_acceptance") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'accepting')">一 验收中</button>`;
+                } else if (change.status === "accepting") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'completed')">一 确认完成</button>`;
+                } else if (change.status === "completed") {
+                    html = `<button class="action-btn" onclick="app.transitionTo('${change.id}', 'closed')">一 关闭变更</button>`;
+                } else if (change.status === "closed") {
+                    html = `<span style="font-size:12px; color:var(--success); font-weight:600;"><i class="ph ph-check-circle"></i> 该变更已闭环</span>`;
+                }
+
+                actionsContainer.innerHTML = html;
+            }
+
+            transitionTo(changeId, targetStatus) {
+                const change = this.changes.find(c => c.id === changeId);
+                if (change) {
+                    change.status = targetStatus;
+                    this.loadChangeTabContent();
+                    console.log(`[V10 Prototype] 变更单 ${changeId} 推进到 ${targetStatus}`);
+                }
+            }
+
+            // --- 公共功能 ---
+
+            // --- V11 真实设计文档加载 mock 解析器 ---
+            loadDocContent(docKey) {
+                const titleEl = document.getElementById('doc-render-title');
+                const bodyEl = document.getElementById('doc-render-body');
+                const outlineEl = document.getElementById('doc-render-outline');
+                if (!titleEl || !bodyEl || !outlineEl) return;
+
+                // 清空选中高亮
+                document.querySelectorAll('.doc-tree-item').forEach(el => {
+                    el.style.background = 'transparent';
+                    el.style.color = 'var(--text-secondary)';
+                });
+
+                // 设置当前激活项的高亮颜色
+                const activeItem = event.currentTarget;
+                if (activeItem) {
+                    activeItem.style.background = 'rgba(99, 102, 241, 0.12)';
+                    activeItem.style.color = 'var(--primary-light)';
+                }
+
+                if (docKey === 'prd') {
+                    titleEl.innerHTML = '<span>001_产品需求文档_PRD.md</span> <button class="back-btn" style="padding: 4px 8px; font-size:11px;" onclick="alert(\'PDF 导出就绪，保存路径：06_交付物/02_发布说明/001_产品需求文档_PRD.pdf\')">📥 导出为 PDF</button>';
+                    bodyEl.innerHTML = `
+                        <h3>1. 文档定位</h3>
+                        <p style="margin-top: 8px;">本版 PRD 不再围绕“再做多少页面”展开，而是围绕一个更适合电气工程师理解和落地的核心原则展开：</p>
+                        <blockquote style="border-left: 3px solid var(--primary); padding-left: 12px; color: var(--text-muted); margin: 12px 0; font-style: italic;">
+                            界面层、业务层、项目数据层分离，通过稳定的变量/命令接口连接。
+                        </blockquote>
+                        <p style="margin-top: 8px;">这和 PLC 程序、HMI 画面、现场信号之间的关系是一致的：</p>
+                        <ul style="margin-left: 20px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                            <li>HMI 不直接写 PLC 内部实现细节</li>
+                            <li>HMI 通过变量地址、命令位、状态位与 PLC 通信</li>
+                            <li>PLC 内部逻辑可以重构，但外部接口要稳定</li>
+                        </ul>
+                    `;
+                    outlineEl.innerHTML = `
+                        <div style="cursor:pointer; font-weight: 600; color: var(--primary-light);">1. 文档定位</div>
+                        <div style="padding-left: 10px; cursor:pointer;">1.1 当前实现状态基线</div>
+                        <div style="cursor:pointer;">2. 产品定位</div>
+                        <div style="cursor:pointer;">3. 目标用户</div>
+                        <div style="padding-left: 10px; cursor:pointer;">3.1 核心用户</div>
+                        <div style="padding-left: 10px; cursor:pointer;">3.2 非核心用户</div>
+                        <div style="cursor:pointer;">4. 当前问题定义</div>
+                    `;
+                } else if (docKey === 'int') {
+                    titleEl.innerHTML = '<span>002_接口文档_INT.md</span> <button class="back-btn" style="padding: 4px 8px; font-size:11px;" onclick="alert(\'PDF 导出就绪，保存路径：06_交付物/02_发布说明/002_接口文档_INT.pdf\')">📥 导出为 PDF</button>';
+                    bodyEl.innerHTML = `
+                        <h3>1. 前后端 Bridge 信号规范</h3>
+                        <p style="margin-top: 8px;">本项目前端（QML）与后端（Python Service）交互依靠如下 Bridge 进行强类型契约绑定：</p>
+                        <table style="width:100%; border-collapse:collapse; margin-top:12px; border:1px solid var(--border); font-size:12px; text-align:left;">
+                            <tr style="background:rgba(0,0,0,0.25); border-bottom:1px solid var(--border);">
+                                <th style="padding:8px;">Bridge 实体名</th>
+                                <th style="padding:8px;">包含核心信号 / 方法</th>
+                                <th style="padding:8px;">数据负载 (payload)</th>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border);">
+                                <td style="padding:8px; font-family:var(--font-mono);">workbenchBridge</td>
+                                <td style="padding:8px;">projectSelected(projectId, name)</td>
+                                <td style="padding:8px;">string, string</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border);">
+                                <td style="padding:8px; font-family:var(--font-mono);">changeBridge</td>
+                                <td style="padding:8px;">changeStatusUpdated(chgId, status)</td>
+                                <td style="padding:8px;">string, string</td>
+                            </tr>
+                        </table>
+                    `;
+                    outlineEl.innerHTML = `
+                        <div style="cursor:pointer; font-weight: 600; color: var(--primary-light);">1. 前后端 Bridge 信号规范</div>
+                        <div style="cursor:pointer;">2. 错误码与自愈契约</div>
+                        <div style="cursor:pointer;">3. CLI 命令输入参数契约</div>
+                    `;
+                } else if (docKey === 'dsn') {
+                    titleEl.innerHTML = '<span>003_详细设计说明书_DSN.md</span> <button class="back-btn" style="padding: 4px 8px; font-size:11px;" onclick="alert(\'PDF 导出就绪，保存路径：06_交付物/02_发布说明/003_详细设计说明书_DSN.pdf\')">📥 导出为 PDF</button>';
+                    bodyEl.innerHTML = `
+                        <h3>1. UI 架构层设计说明</h3>
+                        <p style="margin-top: 8px;">根据 QML 单线单入口规范，主窗口 <code>main.qml</code> 通过三轨道侧边栏挂载视图：</p>
+                        <p style="margin-top: 8px;">每个大模块采用独立 <code>View.qml</code> 文件进行设计隔离。所有需要进行网络 I/O 的任务（如 Modbus 循环查询）均在 Python 端派生独立线程进行轮询，数据由 Bridges 以消息机制发布回 QML 侧渲染展示。</p>
+                    `;
+                    outlineEl.innerHTML = `
+                        <div style="cursor:pointer; font-weight: 600; color: var(--primary-light);">1. UI 架构层设计说明</div>
+                        <div style="cursor:pointer;">2. 双向大纲绑定算法</div>
+                        <div style="cursor:pointer;">3. 零依赖本地 PDF 导出流程</div>
+                    `;
+                } else {
+                    titleEl.innerHTML = '<span>文档预览</span>';
+                    bodyEl.innerHTML = '<p style="color:var(--text-muted);">正在解析加载其它文档...</p>';
+                    outlineEl.innerHTML = '';
+                }
+            }
+
+
+            // --- Modbus TCP Global Workstation (V12 Premium) ---
+            init_modbus_debugger() {
+                this.mbConnected = false;
+                this.mbPolling = null;
+                this.logModbus('SYS', "Modbus 联调测试模块已全局初始化就绪。");
+            }
+
+            runPingTest() {
+                const ip = document.getElementById('mb-ip').value;
+                const btn = document.getElementById('mb-ping-btn');
+                const row = document.getElementById('ping-status-row');
+                const dot = document.getElementById('ping-dot');
+                const text = document.getElementById('ping-text');
+                
+                if (!ip || ip.trim() === "") {
+                    alert("请输入目标 PLC 的 IP 地址！");
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = `<i class="ph ph-spinner" style="animation: spin 1.2s linear infinite;"></i> Ping...`;
+                row.style.display = "flex";
+                dot.style.background = "var(--warning)";
+                dot.style.boxShadow = "0 0 6px var(--warning)";
+                text.innerText = `正在 Ping ${ip}...`;
+                text.style.color = "var(--text-muted)";
+
+                this.logModbus('SYS', `发起 ICMP PING 探测到目标 IP: ${ip}...`);
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = `📡 Ping`;
+                    
+                    if (ip === "0.0.0.0" || ip.toLowerCase().includes("fail") || ip.trim() === "127.0.0.2") {
+                        dot.style.background = "var(--danger)";
+                        dot.style.boxShadow = "0 0 8px var(--danger)";
+                        text.innerText = `Ping 探测失败 (Timeout)`;
+                        text.style.color = "var(--danger)";
+                        this.logModbus('SYS', `[PING 失败] 请求超时。无法建立与目标 IP ${ip} 的物理层连通性！`);
+                    } else {
+                        dot.style.background = "var(--success)";
+                        dot.style.boxShadow = "0 0 8px var(--success)";
+                        text.innerText = `Ping OK, delay < 1ms (TTL=64)`;
+                        text.style.color = "var(--success)";
+                        this.logModbus('SYS', `[PING 成功] 来自 ${ip} 的回复: 字节=32 时间<1ms TTL=64. 物理链路畅通。`);
+                    }
+                }, 800);
+            }
+
+
+            // --- V13 Advanced Visual Features: Trend Canvas, Interrogator Grid, Bit Expander ---
+            
+            init_modbus_debugger() {
+                this.mbConnected = false;
+                this.mbPolling = null;
+                this.currentBitValue = 0; // 16-Bit Expander cache value
+                this.trendHistory = []; // Chart cache data
+                this.activeTab = 'monitor';
+                
+                // Initialize Scanner Grid Map (0-99)
+                setTimeout(() => {
+                    this.initScannerGrid();
+                }, 200);
+
+                this.logModbus('SYS', "Modbus 联调测试模块已升级至 V13 (对齐 GitHub 高阶图形面板) 载入就绪。");
+            }
+
+            switchSubTab(tabName) {
+                this.activeTab = tabName;
+                document.querySelectorAll('.tab-bar .tab-item').forEach(el => {
+                    if (el.id === `subtab-${tabName}`) {
+                        el.classList.add('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                });
+
+                ['monitor', 'trend', 'scanner'].forEach(t => {
+                    const el = document.getElementById(`subtab-content-${t}`);
+                    if (el) el.style.display = (t === tabName) ? 'flex' : 'none';
+                });
+
+                if (tabName === 'trend') {
+                    this.startTrendDrawing();
+                }
+            }
+
+            // 16-Bit Expander Bit Toggling
+            toggleBit(bitIndex) {
+                const led = document.getElementById(`bit-${bitIndex}`);
+                if (!led) return;
+                
+                // Check current state
+                const isActive = led.style.background.includes("rgb(16, 185, 129)") || led.style.background.includes("var(--success)");
+                if (isActive) {
+                    led.style.background = "#1e293b";
+                    led.style.boxShadow = "none";
+                    this.currentBitValue &= ~(1 << bitIndex);
+                } else {
+                    led.style.background = "var(--success)";
+                    led.style.boxShadow = "0 0 8px var(--success)";
+                    this.currentBitValue |= (1 << bitIndex);
+                }
+
+                // Update text display
+                document.getElementById('expander-dec-val').innerText = this.currentBitValue;
+                document.getElementById('expander-hex-val').innerText = "0x" + this.currentBitValue.toString(16).toUpperCase().padStart(4, '0');
+            }
+
+            loadBitExpanderValue(val) {
+                this.currentBitValue = parseInt(val) || 0;
+                document.getElementById('expander-dec-val').innerText = this.currentBitValue;
+                document.getElementById('expander-hex-val').innerText = "0x" + this.currentBitValue.toString(16).toUpperCase().padStart(4, '0');
+                
+                for (let i = 0; i < 16; i++) {
+                    const led = document.getElementById(`bit-${i}`);
+                    if (!led) continue;
+                    const bit = (this.currentBitValue >> i) & 1;
+                    if (bit === 1) {
+                        led.style.background = "var(--success)";
+                        led.style.boxShadow = "0 0 8px var(--success)";
+                    } else {
+                        led.style.background = "#1e293b";
+                        led.style.boxShadow = "none";
+                    }
+                }
+            }
+
+            writeBitExpanderValue() {
+                if (!this.mbConnected) {
+                    alert("请先连接 Modbus TCP 设备！");
+                    return;
+                }
+                const addr = parseInt(document.getElementById('expander-addr').innerText) - 40001;
+                document.getElementById('mb-write-addr').value = addr;
+                document.getElementById('mb-write-val').value = this.currentBitValue;
+                document.getElementById('mb-write-fc').value = "06"; // FC06 Write Single Register
+                this.writeModbus();
+            }
+
+            // HTML5 Canvas Trend Graph Plotter
+            startTrendDrawing() {
+                if (this.trendInterval) clearInterval(this.trendInterval);
+                const canvas = document.getElementById('trend-canvas');
+                if (!canvas) return;
+                
+                // Adjust width/height dynamically
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = 240;
+                
+                const ctx = canvas.getContext('2d');
+                
+                this.trendInterval = setInterval(() => {
+                    if (this.activeTab !== 'trend') {
+                        clearInterval(this.trendInterval);
+                        return;
+                    }
+
+                    // Generate waves
+                    let val1 = 1200 + Math.sin(Date.now() / 3000) * 400; // SP setting
+                    let val2 = 1250 + Math.cos(Date.now() / 4000) * 350 + Math.random() * 20; // real value
+                    
+                    if (this.mbConnected) {
+                        // Use simulated register values if connected
+                        val1 = Math.floor(Math.sin(Date.now() / 4000) * 800) + 2000;
+                        val2 = Math.floor(Math.cos(Date.now() / 5000) * 1200) + 1800;
+                    }
+
+                    this.trendHistory.push({ v1: val1, v2: val2 });
+                    if (this.trendHistory.length > 50) this.trendHistory.shift();
+
+                    this.drawTrendGrid(ctx, canvas.width, canvas.height);
+                }, 200);
+            }
+
+            drawTrendGrid(ctx, w, h) {
+                ctx.clearRect(0, 0, w, h);
+                
+                // Draw grid lines
+                ctx.strokeStyle = "rgba(255,255,255,0.03)";
+                ctx.lineWidth = 1;
+                for (let x = 0; x < w; x += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, h);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < h; y += 30) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(w, y);
+                    ctx.stroke();
+                }
+
+                if (this.trendHistory.length === 0) return;
+
+                // Min-Max limits for mapping values (0 - 4000) to height (h)
+                const mapY = (val) => {
+                    const min = 0, max = 4000;
+                    return h - ((val - min) / (max - min)) * (h - 20) - 10;
+                };
+
+                // Draw Blue line (v1)
+                ctx.strokeStyle = "#6366f1";
+                ctx.shadowColor = "rgba(99, 102, 241, 0.4)";
+                ctx.shadowBlur = 8;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                this.trendHistory.forEach((p, idx) => {
+                    const x = (idx / 50) * w;
+                    const y = mapY(p.v1);
+                    if (idx === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                // Draw Green line (v2)
+                ctx.strokeStyle = "#10b981";
+                ctx.shadowColor = "rgba(16, 185, 129, 0.4)";
+                ctx.shadowBlur = 8;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                this.trendHistory.forEach((p, idx) => {
+                    const x = (idx / 50) * w;
+                    const y = mapY(p.v2);
+                    if (idx === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                
+                ctx.shadowBlur = 0; // reset shadow
+            }
+
+            // Scanner Grid Discoverer Map
+            initScannerGrid() {
+                const container = document.getElementById('scanner-grid-container');
+                if (!container) return;
+                let html = "";
+                for (let i = 0; i < 100; i++) {
+                    html += `
+                        <div id="scan-grid-${i}" style="font-family:var(--font-mono); font-size:10px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; height:32px; color:var(--text-muted); cursor:pointer; transition:all 0.2s;" title="偏移地址: ${i}" onclick="app.loadScanAddress(${i})">
+                            ${i.toString().padStart(2, '0')}
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            }
+
+            loadScanAddress(offset) {
+                document.getElementById('mb-start').value = offset;
+                this.logModbus('SYS', `[扫描仪] 已快速将监测起始偏移量同步为 ${offset}`);
+                this.switchSubTab('monitor');
+                if (this.mbConnected) this.readModbus();
+            }
+
+            runInterrogatorScan() {
+                if (!this.mbConnected) {
+                    alert("请先连接 Modbus TCP 设备以执行并发网络扫描探测！");
+                    return;
+                }
+
+                const btn = document.getElementById('start-scan-discover-btn');
+                btn.disabled = true;
+                btn.innerHTML = `<i class="ph ph-spinner" style="animation: spin 1.2s linear infinite;"></i> 探测扫描中...`;
+
+                this.logModbus('SYS', "[扫描开始] 对目标 PLC 保持寄存器 [40001 - 40100] 发送 Modbus TCP 并发探测指令...");
+
+                // Simulate progressive scanning of 100 register cells
+                let step = 0;
+                const interval = setInterval(() => {
+                    for (let j = 0; j < 5; j++) {
+                        const cellId = step * 5 + j;
+                        if (cellId >= 100) break;
+                        const el = document.getElementById(`scan-grid-${cellId}`);
+                        if (!el) continue;
+
+                        // Mock active registers: e.g. 0,1,2,3,4,5,6,7, 10,11,12,13,14,15, 42,43
+                        let isActive = (cellId < 8) || (cellId >= 10 && cellId <= 15) || (cellId === 42 || cellId === 43);
+                        if (isActive) {
+                            el.style.background = "rgba(16, 185, 129, 0.15)";
+                            el.style.borderColor = "var(--success)";
+                            el.style.color = "var(--success)";
+                        } else {
+                            el.style.background = "rgba(239, 68, 68, 0.05)";
+                            el.style.borderColor = "rgba(239, 68, 68, 0.2)";
+                            el.style.color = "var(--danger)";
+                        }
+                    }
+                    step++;
+                    if (step >= 20) {
+                        clearInterval(interval);
+                        btn.disabled = false;
+                        btn.innerHTML = `<i class="ph ph-lightning"></i> 重新探测 (0-99)`;
+                        this.logModbus('SYS', "[扫描结束] 并发诊断扫描完成！发现 16 个活跃可写物理通道 (已用绿色标出)，其它离散不可达通道使用红色标出。");
+                    }
+                }, 100);
+            }
+
+
+            toggleModbusConnection() {
+                const ip = document.getElementById('mb-ip').value;
+                const port = document.getElementById('mb-port').value;
+                const btn = document.getElementById('mb-connect-btn');
+                const readBtn = document.getElementById('mb-read-btn');
+                const writeBtn = document.getElementById('mb-write-btn');
+                const simChk = document.getElementById('mb-sim-chk');
+
+                if (!this.mbConnected) {
+                    this.logModbus('SYS', `发起 TCP Socket 握手建立连接: ${ip}:${port}...`);
+                    setTimeout(() => {
+                        this.mbConnected = true;
+                        btn.innerText = "🔌 断开物理连接";
+                        btn.style.background = "var(--danger)";
+                        readBtn.disabled = false;
+                        writeBtn.disabled = false;
+                        
+                        if (simChk.checked) {
+                            this.logModbus('SYS', "[物理仿真] 已挂载本地信号发生器模拟 PLC 运行状态，输入输出报文完整仿真！");
+                        } else {
+                            this.logModbus('SYS', "TCP 握手成功，Modbus TCP 端口502就绪！正在侦听现场数据。");
+                        }
+                        this.readModbus();
+                    }, 300);
+                } else {
+                    if (this.mbPolling) {
+                        document.getElementById('mb-poll-chk').checked = false;
+                        this.toggleModbusPolling();
+                    }
+                    this.mbConnected = false;
+                    btn.innerText = "连接设备";
+                    btn.style.background = "var(--primary)";
+                    readBtn.disabled = true;
+                    writeBtn.disabled = true;
+                    this.logModbus('SYS', "本地 TCP Socket 连接已主动关闭。");
+                    document.getElementById('mb-table-body').innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                未连接设备。请配置参数并点击连接按钮以加载监控大盘。
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+
+            logModbus(type, msg) {
+                const term = document.getElementById('mb-console');
+                if (!term) return;
+                const time = new Date().toISOString().slice(11, 23);
+                let prefix = "";
+                if (type === "TX") prefix = `\n[${time}][TX] -> `;
+                else if (type === "RX") prefix = `\n[${time}][RX] <- `;
+                else prefix = `\n[${time}][SYS] `;
+                
+                term.innerText += prefix + msg;
+                term.scrollTop = term.scrollHeight;
+            }
+
+            clearModbusConsole() {
+                document.getElementById('mb-console').innerText = "[SYS] 监听报文缓存已清空。";
+            }
+
+            toggleModbusPolling() {
+                const chk = document.getElementById('mb-poll-chk');
+                const status = document.getElementById('mb-poll-status');
+                const readBtn = document.getElementById('mb-read-btn');
+
+                if (chk.checked && this.mbConnected) {
+                    status.style.display = "inline";
+                    readBtn.disabled = true;
+                    this.readModbus();
+                    this.mbPolling = setInterval(() => this.readModbus(), 1000);
+                } else {
+                    status.style.display = "none";
+                    readBtn.disabled = !this.mbConnected;
+                    if (this.mbPolling) {
+                        clearInterval(this.mbPolling);
+                        this.mbPolling = null;
+                    }
+                }
+            }
+
+            decodeFloat(highWord, lowWord, endian) {
+                let bytes = [];
+                const h1 = (highWord >> 8) & 0xFF;
+                const h2 = highWord & 0xFF;
+                const l1 = (lowWord >> 8) & 0xFF;
+                const l2 = lowWord & 0xFF;
+
+                if (endian === "ABCD") bytes = [h1, h2, l1, l2];
+                else if (endian === "BADC") bytes = [h2, h1, l2, l1];
+                else if (endian === "CDAB") bytes = [l1, l2, h1, h2]; // Siemens S7
+                else if (endian === "DCBA") bytes = [l2, l1, h2, h1];
+
+                const buf = new ArrayBuffer(4);
+                const view = new DataView(buf);
+                bytes.forEach((b, i) => view.setUint8(i, b));
+                return view.getFloat32(0).toFixed(4);
+            }
+
+            onModbusPresetChange() {
+                const preset = document.getElementById('mb-preset').value;
+                const fcSelect = document.getElementById('mb-fc');
+                const startInput = document.getElementById('mb-start');
+                const countInput = document.getElementById('mb-count');
+
+                if (preset === 'siemens_fan') {
+                    fcSelect.value = "03";
+                    startInput.value = "0";
+                    countInput.value = "8";
+                    this.logModbus('SYS', "[配置预设] 已加载西门子 S7-1200 标准风机控制字预设 (保持寄存器FC03)");
+                } else if (preset === 'temp_monitor') {
+                    fcSelect.value = "04";
+                    startInput.value = "10";
+                    countInput.value = "6";
+                    this.logModbus('SYS', "[配置预设] 已加载多路 PT100 温度采集模块预设 (只读输入寄存器FC04)");
+                }
+                this.onModbusFCTypeChange();
+                if (this.mbConnected) this.readModbus();
+            }
+
+            readModbus() {
+                if (!this.mbConnected) return;
+                const start = parseInt(document.getElementById('mb-start').value);
+                const count = parseInt(document.getElementById('mb-count').value);
+                const slave = parseInt(document.getElementById('mb-slave').value);
+                const preset = document.getElementById('mb-preset').value;
+                const endian = document.getElementById('mb-endian').value;
+                const fc = document.getElementById('mb-fc').value;
+                
+                let txHex = "";
+                if (fc === "17") {
+                    txHex = `00 01 00 00 00 02 0${slave} 11`.toUpperCase(); // FC17 = 0x11
+                } else if (fc === "23") {
+                    txHex = `00 01 00 00 00 0B 0${slave} 17 ${start.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')} ${count.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')} 00 00 00 00 00`.toUpperCase(); // FC23 = 0x17
+                } else {
+                    txHex = `00 01 00 00 00 06 0${slave} ${fc} ${start.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')} ${count.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')}`.toUpperCase();
+                }
+                this.logModbus('TX', txHex);
+
+                setTimeout(() => {
+                    const table = document.getElementById('mb-table-body');
+                    if (!table) return;
+                    
+                    if (fc === "17") {
+                        table.innerHTML = `
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 12px; color: var(--success); font-weight: bold; font-family: var(--font-mono);" colspan="2">Slave ID Report (FC17)</td>
+                                <td style="padding: 12px; color: white;" colspan="4">Run Indicator Status: ON, Product Code: auto-pm PLC-SIM-V12, Firmware Revision: 2.16</td>
+                            </tr>
+                        `;
+                        this.logModbus('RX', `00 01 00 00 00 1E 0${slave} 11 1A FF 01 61 75 74 6F 2D 70 6D 20 50 4C 43 2D 53 49 4D 2D 56 31 32 20 56 32 2E 31 36`.toUpperCase());
+                        return;
+                    }
+
+                    let html = "";
+                    let rxBytes = [];
+
+                    for (let i = 0; i < count; i++) {
+                        const addr = start + i;
+                        let tag = "DB10.DBW" + (addr * 2);
+                        let val = Math.floor(Math.random() * 200) + 1200;
+                        let isCoil = (fc === "01" || fc === "02");
+                        
+                        if (isCoil) {
+                            val = Math.random() > 0.5 ? 1 : 0;
+                            tag = `DB10.DBX0.${addr}`;
+                        } else {
+                            if (preset === 'siemens_fan') {
+                                const presets_tags = [
+                                    { name: "Fan_Start_CMD (启动给定)", v: 1 },
+                                    { name: "Fan_Speed_SP (转速主给定)", v: 3600 },
+                                    { name: "Fan_Status_Run (变频器运行)", v: 1 },
+                                    { name: "Fan_Current (风机运行电流)", v: 124 },
+                                    { name: "Fan_OutTemp_High (机壳排出温度H)", v: 16540 },
+                                    { name: "Fan_OutTemp_Low (机壳排出温度L)", v: 18840 },
+                                    { name: "Fan_Vibration (电机轴承振动)", v: 15430 },
+                                    { name: "Fan_Warn_Code (系统告警字)", v: 0 }
+                                ];
+                                if (i < presets_tags.length) {
+                                    tag = presets_tags[i].name;
+                                    val = presets_tags[i].v;
+                                }
+                            } else if (preset === 'temp_monitor') {
+                                const presets_tags = [
+                                    { name: "Temp_Zone1_PT100 (炉温1区)", v: Math.floor(Math.sin(Date.now() / 4000) * 100) + 1800 },
+                                    { name: "Temp_Zone2_PT100 (炉温2区)", v: Math.floor(Math.cos(Date.now() / 4000) * 80) + 1920 },
+                                    { name: "Temp_Zone3_PT100 (炉温3区)", v: Math.floor(Math.sin(Date.now() / 3000) * 120) + 2100 },
+                                    { name: "Temp_Zone4_PT100 (炉温4区)", v: 2200 },
+                                    { name: "Temp_Zone5_PT100 (炉温5区)", v: 1950 },
+                                    { name: "Temp_Zone6_PT100 (炉温6区)", v: 1780 }
+                                ];
+                                if (i < presets_tags.length) {
+                                    tag = presets_tags[i].name;
+                                    val = presets_tags[i].v;
+                                }
+                            }
+                        }
+                        
+                        const hex = val.toString(16).toUpperCase().padStart(4, '0');
+                        rxBytes.push(hex.slice(0, 2));
+                        rxBytes.push(hex.slice(2, 4));
+
+                        let floatStr = "-";
+                        if (!isCoil && i % 2 === 0 && i < count - 1) {
+                            let nextVal = Math.floor(Math.random() * 200) + 1200;
+                            if (preset === 'siemens_fan' && i === 4) nextVal = 18840;
+                            floatStr = this.decodeFloat(val, nextVal, endian);
+                        }
+
+                        let offset = 40001;
+                        if (fc === "01") offset = 1;
+                        if (fc === "02") offset = 10001;
+                        if (fc === "04") offset = 30001;
+
+                        html += `
+                            <tr style="border-bottom: 1px solid var(--border); cursor: pointer;" title="双击此行可将其快速填入写入测试中" ondblclick="app.fillWriteAddr('${addr}', '${val}')">
+                                <td style="padding: 8px 12px; font-family: var(--font-mono); color: #60a5fa;">${offset + addr}</td>
+                                <td style="padding: 8px 12px; color: var(--text-secondary);">${tag}</td>
+                                <td style="padding: 8px 12px; font-weight: bold; font-family: var(--font-mono); color: white;">${val}</td>
+                                <td style="padding: 8px 12px; font-family: var(--font-mono); color: var(--warning);">0x${hex}</td>
+                                <td style="padding: 8px 12px; font-family: var(--font-mono); color: var(--success);">${floatStr}</td>
+                                <td style="padding: 8px 12px;">
+                                    <button class="back-btn" style="padding: 2px 6px; font-size:10px;" onclick="app.fillWriteAddr('${addr}', '${val}')">✍️ 填入</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    table.innerHTML = html;
+
+                    const rxHex = `00 01 00 00 00 ${((count*2 + 3).toString(16).padStart(2, '0'))} 0${slave} ${fc} ${(count*2).toString(16).padStart(2, '0')} ${rxBytes.join(' ')}`.toUpperCase();
+                    this.logModbus('RX', rxHex);
+                }, 80);
+            }
+
+            fillWriteAddr(addr, val) {
+                document.getElementById('mb-write-addr').value = addr;
+                document.getElementById('mb-write-val').value = val;
+                
+                // V13 Expander sync
+                let offset = 40001;
+                const fc = document.getElementById('mb-fc').value;
+                if (fc === "01") offset = 1;
+                if (fc === "02") offset = 10001;
+                if (fc === "04") offset = 30001;
+                
+                document.getElementById('expander-addr').innerText = offset + parseInt(addr);
+                this.loadBitExpanderValue(val);
+                
+                this.logModbus('SYS', `已载入偏置地址 ${addr} 及其当前数值 ${val} 到写入缓存及16位解析器`);
+            }
+
+            writeModbus() {
+                if (!this.mbConnected) return;
+                const addr = parseInt(document.getElementById('mb-write-addr').value);
+                const val = parseInt(document.getElementById('mb-write-val').value);
+                const slave = parseInt(document.getElementById('mb-slave').value);
+                const writeFC = document.getElementById('mb-write-fc').value;
+
+                // 报文长度: Unit ID (1B) + FC (1B) + Start Addr (2B) + Data/Val (2B or more depending on FC)
+                // 简化模拟：单线圈FC05和单寄存器FC06使用2B值，FC15/16使用多字节。
+                let txLengthHex = "00 06";
+                let txDataHex = `${addr.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')} ${val.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')}`;
+                
+                if (writeFC === "15" || writeFC === "16") {
+                    txLengthHex = "00 09"; // 包含字节计数等，简易模拟
+                    txDataHex = `${addr.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')} 00 01 02 ${val.toString(16).padStart(4, '0').match(/.{1,2}/g).join(' ')}`;
+                }
+
+                const txHex = `00 02 00 00 00 06 0${slave} ${writeFC} ${txDataHex}`.toUpperCase();
+                this.logModbus('TX', txHex);
+
+                setTimeout(() => {
+                    this.logModbus('RX', txHex);
+                    let targetArea = 40001;
+                    if (writeFC === "05" || writeFC === "15") targetArea = 1;
+                    
+                    this.logModbus('SYS', `[命令发送成功] 写入功能码：FC${writeFC}，目标物理地址：${targetArea + addr}，写入设定值：${val}`);
+                    if (!this.mbPolling && (writeFC === "06" || writeFC === "05")) {
+                        this.readModbus();
+                    }
+                }, 100);
+            }
+
+            onModbusFCTypeChange() {
+                const fc = document.getElementById('mb-fc').value;
+                const writeBtn = document.getElementById('mb-write-btn');
+                const endianSelect = document.getElementById('mb-endian');
+                const writeFcSelect = document.getElementById('mb-write-fc');
+                
+                // 根据当前读取的功能码自适应切换对应的写入功能码选项
+                if (fc === "01") {
+                    writeFcSelect.value = "05";
+                } else if (fc === "03" || fc === "23") {
+                    writeFcSelect.value = "06";
+                }
+
+                writeBtn.disabled = !this.mbConnected;
+
+                if (fc === "01" || fc === "02" || fc === "17") {
+                    endianSelect.disabled = true; // 线圈/描述字无浮点数概念
+                } else {
+                    endianSelect.disabled = false;
+                }
+            }
+
+
+            showModal(title = "提示", body = "") {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-body').innerText = body;
+                this.modal.classList.add('active');
+            }
+
+            closeModal(e) {
+                if (e && e.target !== this.modal) return;
+                this.modal.classList.remove('active');
+            }
+        }
+
+        // 全局动画样式注册
+        const animStyle = document.createElement('style');
+        animStyle.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+        document.head.appendChild(animStyle);
+
+        // 启动应用
+        const app = new Application();
+    </script>
+</body>
+</html>

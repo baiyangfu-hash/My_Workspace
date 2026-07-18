@@ -41,6 +41,7 @@ from PySide6.QtQuickControls2 import QQuickStyle
 
 from auto_pm.change.change_service import ChangeService
 from auto_pm.core.project_service import ProjectService
+from auto_pm.modbus.modbus_bridge import ModbusBridge  # Modbus 联调工坊 Bridge
 from auto_pm.ui.factories import (
     make_asset_summary_service,
     make_dashboard_service,
@@ -179,6 +180,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     system_bridge = SystemBridge(facade=registry.system_facade)
     project_model = ProjectListModel()
     var_table_model = VarTableModel()
+    modbus_bridge = ModbusBridge()  # Modbus 联调工坊 Bridge（无依赖 Service，直接实例化）
 
     # 3.5 注册运行时工作空间切换重载回调
     def reload_workspace(new_path: str) -> None:
@@ -285,6 +287,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     engine.rootContext().setContextProperty("systemBridge", system_bridge)
     engine.rootContext().setContextProperty("projectModel", project_model)
     engine.rootContext().setContextProperty("varTableModel", var_table_model)
+    engine.rootContext().setContextProperty("modbusBridge", modbus_bridge)  # Modbus 联调工坊
 
     # 6. 加载 QML 文件
     qml_url = QUrl.fromLocalFile(str(main_qml_path))
