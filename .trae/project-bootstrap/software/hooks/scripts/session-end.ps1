@@ -30,6 +30,82 @@ if ($pmSession) {
     $currentFocus = Find-Value -Content $content -Pattern '^- current_focus:\s*(.+)$'
 }
 
+# ── pytest 门禁拦截与自愈 ────────────────────────────────
+$testFailed = $false
+$testSummary = ""
+$blockerText = ""
+$notVerifiedText = ""
+
+# 自动寻找 .venv 目录，向上层目录寻找
+$venvDir = ""
+$curDir = $repoRoot
+while ($curDir -ne "" -and $curDir -ne $null) {
+    $tempVenv = Join-Path $curDir ".venv"
+    if (Test-Path $tempVenv) {
+        $venvDir = $tempVenv
+        break
+    }
+    $parentDir = Split-Path $curDir -Parent
+    if ($parentDir -eq $curDir) {
+        break
+    }
+    $curDir = $parentDir
+}
+
+if ($venvDir -ne "") {
+    $pytestExe = ""
+    if (Test-Path (Join-Path $venvDir "Scripts\pytest.exe")) {
+        $pytestExe = Join-Path $venvDir "Scripts\pytest.exe"
+    } elseif (Test-Path (Join-Path $venvDir "bin\pytest")) {
+        $pytestExe = Join-Path $venvDir "bin\pytest"
+    }
+
+    if ($pytestExe -ne "") {
+        Write-Output "[sessionEnd] 正在运行 pytest 单元测试回归检查..."
+        $tempOut = [System.IO.Path]::GetTempFileName()
+        $process = Start-Process -FilePath $pytestExe -ArgumentList "--no-cov", "-q" -NoNewWindow -PassThru -RedirectStandardOutput $tempOut -Wait
+        $exitCode = $process.ExitCode
+        $pytestOutput = Get-Content -Path $tempOut -Raw
+        Remove-Item -Path $tempOut -Force
+
+        if ($exitCode -ne 0) {
+            $testFailed = $true
+            # 仅提取 pytest 输出的最后几行（如 summary 信息）以防止 draft 膨胀
+            $lines = $pytestOutput -split "`r?`n"
+            $lastLines = @()
+            $startCapture = $false
+            foreach ($line in $lines) {
+                if ($line -match '===.*failed') {
+                    $startCapture = $true
+                }
+                if ($startCapture -or $line -match 'failed' -or $line -match 'error') {
+                    $lastLines += $line
+                }
+            }
+            if ($lastLines.Count -eq 0) {
+                $startIndex = [Math]::Max(0, $lines.Count - 5)
+                for ($i = $startIndex; $i -lt $lines.Count; $i++) {
+                    $lastLines += $lines[$i]
+                }
+            }
+            $testSummary = $lastLines -join "`r`n"
+            Write-Output "[sessionEnd] ❌ 警告: 单元测试失败！"
+            Write-Output $testSummary
+        } else {
+            Write-Output "[sessionEnd] ✅ pytest 单元测试全部通过。"
+        }
+    }
+}
+
+if ($testFailed) {
+    $currentFocus = "[WARNING: TEST FAILING] " + $currentFocus
+    $blockerText = "    - ❌ pytest 单元测试回归失败！错误摘要:`r`n" + $testSummary.Replace("`n", "`n      ")
+    $notVerifiedText = "    - Code changes (due to test failures)"
+} else {
+    $blockerText = "    - "
+    $notVerifiedText = "    - "
+}
+
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $generatedAt = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 $draftName = "$timestamp--session-handoff-draft.md"
@@ -60,11 +136,11 @@ $draft = @"
   - verified:
     - 
   - not_verified:
-    - 
+$notVerifiedText
   - method:
     - 
   - blocker:
-    - 
+$blockerText
 
 ## 8. Handoff Notes
 - <YYYY-MM-DD> | from=<skill-name>

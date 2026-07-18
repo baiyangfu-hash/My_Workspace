@@ -853,3 +853,159 @@ class ProjectService:
     def _get_project_mtime(project_path: str) -> float:
         """[已委托] 获取项目标志文件的 mtime（向后兼容包装）"""
         return ProjectScanner.get_project_mtime(project_path)
+
+    def is_git_hooks_installed(self, project_path: str) -> bool:
+        """检查指定项目是否已安装 auto-pm Git 提交门禁钩子"""
+        hook_path = os.path.join(project_path, ".git", "hooks", "pre-commit")
+        if not os.path.isfile(hook_path):
+            return False
+        try:
+            with open(hook_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            return "auto-pm pre-commit" in content
+        except Exception:
+            return False
+
+    def install_git_hooks(self, project_path: str) -> dict[str, Any]:
+        """为指定项目安装离线 Git Pre-commit 提交门禁与自愈钩子"""
+        if not os.path.isdir(project_path):
+            return {"success": False, "message": f"项目目录不存在: {project_path}"}
+        
+        git_dir = os.path.join(project_path, ".git")
+        if not os.path.isdir(git_dir):
+            return {"success": False, "message": "项目未初始化 Git 仓库，无法安装门禁"}
+
+        hooks_dir = os.path.join(git_dir, "hooks")
+        os.makedirs(hooks_dir, exist_ok=True)
+        hook_path = os.path.join(hooks_dir, "pre-commit")
+
+        hook_content = """#!/bin/sh
+# auto-pm pre-commit hook (automatically installed)
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+VENV_DIR=""
+CUR_DIR="$PROJECT_ROOT"
+while [ "$CUR_DIR" != "/" ] && [ -n "$CUR_DIR" ]; do
+    if [ -d "$CUR_DIR/.venv" ]; then
+        VENV_DIR="$CUR_DIR/.venv"
+        break
+    fi
+    if [ "$CUR_DIR" = "C:" ] || [ "$CUR_DIR" = "c:" ] || [ "$CUR_DIR" = "D:" ] || [ "$CUR_DIR" = "d:" ]; then
+        break
+    fi
+    PARENT_DIR=$(dirname "$CUR_DIR")
+    if [ "$PARENT_DIR" = "$CUR_DIR" ]; then
+        break
+    fi
+    CUR_DIR="$PARENT_DIR"
+done
+
+if [ -z "$VENV_DIR" ]; then
+    echo "⚠️ [auto-pm pre-commit] 警告: 未找到虚拟环境 .venv，跳过门禁检查！"
+    exit 0
+fi
+
+if [ -f "$VENV_DIR/Scripts/python" ]; then
+    PYTHON_EXE="$VENV_DIR/Scripts/python"
+    RUFF_EXE="$VENV_DIR/Scripts/ruff"
+    MYPY_EXE="$VENV_DIR/Scripts/mypy"
+    PYTEST_EXE="$VENV_DIR/Scripts/pytest"
+elif [ -f "$VENV_DIR/Scripts/python.exe" ]; then
+    PYTHON_EXE="$VENV_DIR/Scripts/python.exe"
+    RUFF_EXE="$VENV_DIR/Scripts/ruff.exe"
+    MYPY_EXE="$VENV_DIR/Scripts/mypy.exe"
+    PYTEST_EXE="$VENV_DIR/Scripts/pytest.exe"
+else
+    PYTHON_EXE="$VENV_DIR/bin/python"
+    RUFF_EXE="$VENV_DIR/bin/ruff"
+    MYPY_EXE="$VENV_DIR/bin/mypy"
+    PYTEST_EXE="$VENV_DIR/bin/pytest"
+fi
+
+echo "🔍 [auto-pm pre-commit] 正在执行本地增量门禁与自愈检查..."
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\\\\.py$')
+
+if [ -z "$STAGED_FILES" ]; then
+    echo "✅ [auto-pm pre-commit] 没有检测到 staged Python 文件，跳过检查。"
+    exit 0
+fi
+
+if [ -f "$RUFF_EXE" ]; then
+    echo "⚡ [auto-pm pre-commit] 运行 ruff check --fix 自愈..."
+    "$RUFF_EXE" check --fix $STAGED_FILES
+    RUFF_EXIT=$?
+    git add $STAGED_FILES
+    
+    echo "⚡ [auto-pm pre-commit] 运行 ruff format..."
+    "$RUFF_EXE" format $STAGED_FILES
+    git add $STAGED_FILES
+
+    if [ $RUFF_EXIT -ne 0 ]; then
+        echo "❌ [auto-pm pre-commit] 错误: Ruff 静态检查未通过，请手动修复上述报错！"
+        exit 1
+    fi
+else
+    echo "⚠️ [auto-pm pre-commit] 警告: 未在虚拟环境中找到 ruff，跳过代码质量检查！"
+fi
+
+if [ -f "$MYPY_EXE" ]; then
+    echo "⚡ [auto-pm pre-commit] 运行 mypy 类型检查..."
+    "$MYPY_EXE" --ignore-missing-imports $STAGED_FILES
+    if [ $? -ne 0 ]; then
+        echo "❌ [auto-pm pre-commit] 错误: Mypy 类型校验失败，拒绝提交！"
+        exit 1
+    fi
+else
+    echo "⚠️ [auto-pm pre-commit] 警告: 未在虚拟环境中找到 mypy，跳过类型校验！"
+fi
+
+if [ -f "$PYTEST_EXE" ]; then
+    echo "⚡ [auto-pm pre-commit] 运行 pytest 全量测试..."
+    "$PYTEST_EXE" --no-cov -q
+    if [ $? -ne 0 ]; then
+        echo "❌ [auto-pm pre-commit] 错误: pytest 单元测试失败，拒绝提交！"
+        exit 1
+    fi
+else
+    echo "⚠️ [auto-pm pre-commit] 警告: 未在虚拟环境中找到 pytest，跳过单元测试回归！"
+fi
+
+echo "✅ [auto-pm pre-commit] 门禁与自愈检查全部通过，允许提交！"
+exit 0
+"""
+
+        try:
+            with open(hook_path, "w", encoding="utf-8", newline="\n") as f:
+                f.write(hook_content)
+            
+            # 设置可执行权限
+            try:
+                import stat
+                os.chmod(hook_path, os.stat(hook_path).st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
+            except Exception as e:
+                log.warning("设置钩子可执行权限失败: %s", e)
+
+            log.info("项目已安装 Git 提交门禁钩子: %s", hook_path)
+            return {"success": True, "message": "Git 提交门禁钩子安装成功"}
+        except Exception as e:
+            log.error("安装 Git 提交门禁钩子失败: %s", e)
+            return {"success": False, "message": f"安装钩子失败: {e}"}
+
+    def uninstall_git_hooks(self, project_path: str) -> dict[str, Any]:
+        """为指定项目卸载 Git Pre-commit 提交门禁钩子"""
+        hook_path = os.path.join(project_path, ".git", "hooks", "pre-commit")
+        if not os.path.isfile(hook_path):
+            return {"success": True, "message": "钩子不存在，无需卸载"}
+        
+        try:
+            # 校验是否是 auto-pm 的钩子
+            with open(hook_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            if "auto-pm pre-commit" in content:
+                os.remove(hook_path)
+                log.info("项目已卸载 Git 提交门禁钩子: %s", hook_path)
+                return {"success": True, "message": "Git 提交门禁钩子卸载成功"}
+            else:
+                return {"success": False, "message": "检测到非 auto-pm 拥有的 pre-commit 钩子，已安全跳过以防覆盖"}
+        except Exception as e:
+            log.error("卸载 Git 提交门禁钩子失败: %s", e)
+            return {"success": False, "message": f"卸载钩子失败: {e}"}

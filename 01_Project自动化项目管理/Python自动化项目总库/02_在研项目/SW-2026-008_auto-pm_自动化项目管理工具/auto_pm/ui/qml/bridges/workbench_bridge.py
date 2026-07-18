@@ -238,3 +238,32 @@ class WorkbenchBridge(QObject):
                 return {"success": True, "message": res.message}
             return {"success": False, "message": res.message}
         return {"success": False, "message": "未初始化"}
+
+    @Slot(str, result=bool)
+    def isHooksInstalled(self, project_id: str) -> bool:
+        """检查项目是否已安装提交门禁钩子"""
+        if self._facade and hasattr(self._facade, "is_git_hooks_installed"):
+            res = self._facade.is_git_hooks_installed(project_id)
+            if res.success and res.payload is not None:
+                return res.payload
+        return False
+
+    @Slot(str, result="QVariant")
+    def installHooks(self, project_id: str) -> dict[str, Any]:
+        """安装 Git Pre-commit 钩子"""
+        if self._facade and hasattr(self._facade, "install_git_hooks"):
+            res = self._facade.install_git_hooks(project_id)
+            if res.success and res.payload is not None:
+                return res.payload
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化或功能未启用"}
+
+    @Slot(str, result="QVariant")
+    def uninstallHooks(self, project_id: str) -> dict[str, Any]:
+        """卸载 Git Pre-commit 钩子"""
+        if self._facade and hasattr(self._facade, "uninstall_git_hooks"):
+            res = self._facade.uninstall_git_hooks(project_id)
+            if res.success and res.payload is not None:
+                return res.payload
+            return {"success": False, "message": res.message}
+        return {"success": False, "message": "未初始化或功能未启用"}

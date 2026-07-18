@@ -48,6 +48,7 @@ from rich.console import Console  # noqa: E402
 
 from auto_pm.app_context import AppContext  # noqa: E402
 from auto_pm.cli.change import change_group  # noqa: E402
+from auto_pm.cli.delivery import delivery_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
 from auto_pm.cli.gui import gui_command  # noqa: E402
 from auto_pm.cli.ledger import ledger_group  # noqa: E402
@@ -88,6 +89,7 @@ def cli(ctx: click.Context, workspace: str | None) -> None:
 # 挂载子命令组
 cli.add_command(project_group)
 cli.add_command(change_group)
+cli.add_command(delivery_group)
 cli.add_command(doc_group)
 cli.add_command(plc_group)
 cli.add_command(python_group)

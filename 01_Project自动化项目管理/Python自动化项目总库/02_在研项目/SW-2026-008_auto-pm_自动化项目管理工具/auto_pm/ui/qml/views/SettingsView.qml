@@ -37,6 +37,7 @@ Rectangle {
     property var pmSessionData: ({})
     property string errorMessage: ""
     property string resultMessage: ""
+    property bool isGitHooksInstalled: false
 
     // ── 加载数据 ────────────────────────────────────────
     function loadData() {
@@ -55,6 +56,12 @@ Rectangle {
             pmSessionData = systemBridge.runPmSessionCheck()
         } else {
             pmSessionData = {"error": "未启用 PM_SESSION 服务"}
+        }
+        // 加载门禁安装状态
+        if (typeof mainWindow !== "undefined" && mainWindow !== null && mainWindow.currentProjectId !== "") {
+            isGitHooksInstalled = workbenchBridge.isHooksInstalled(mainWindow.currentProjectId)
+        } else {
+            isGitHooksInstalled = false
         }
     }
 
@@ -355,6 +362,93 @@ Rectangle {
 
                         Item { Layout.fillWidth: true }
                     }
+                }
+            }
+
+            // ── 卡片 4：Git 提交门禁与自愈 ───────────────
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: gitHooksLayout.implicitHeight + 2 * Theme.spacingMd
+                color: Theme.surface
+                radius: Theme.radiusMd
+                border.color: Theme.border
+                border.width: 1
+
+                ColumnLayout {
+                    id: gitHooksLayout
+                    anchors.fill: parent
+                    anchors.margins: Theme.spacingMd
+                    spacing: Theme.spacingSm
+
+                    Text {
+                        text: "Git 提交门禁与自愈"
+                        font.pixelSize: Theme.fontSizeMd
+                        font.bold: true
+                        color: Theme.primary
+                    }
+
+                    Text {
+                        text: (typeof mainWindow !== "undefined" && mainWindow !== null && mainWindow.currentProjectId !== "") ? 
+                              "当前活跃项目: " + mainWindow.currentProjectId :
+                              "⚠️ 未选择活跃项目 (请先返回项目列表，点击一个项目进入工作台)"
+                        font.pixelSize: Theme.fontSizeSm
+                        color: Theme.textPrimary
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+                        visible: (typeof mainWindow !== "undefined" && mainWindow !== null && mainWindow.currentProjectId !== "")
+
+                        Text {
+                            text: "门禁激活状态:"
+                            font.pixelSize: Theme.fontSizeSm
+                            color: Theme.textSecondary
+                        }
+
+                        Text {
+                            text: root.isGitHooksInstalled ? "🟢 已激活 (auto-pm Pre-commit 提交门禁已装配)" : "🟡 未激活 (未装配 Git 提交门禁)"
+                            font.pixelSize: Theme.fontSizeSm
+                            font.bold: true
+                            color: root.isGitHooksInstalled ? Theme.success : Theme.warning
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+                        visible: (typeof mainWindow !== "undefined" && mainWindow !== null && mainWindow.currentProjectId !== "")
+
+                        PrimaryButton {
+                            text: "安装门禁"
+                            enabled: !root.isGitHooksInstalled
+                            onClicked: {
+                                var res = workbenchBridge.installHooks(mainWindow.currentProjectId)
+                                resultMessage = res.message
+                                loadData()
+                            }
+                        }
+
+                        PrimaryButton {
+                            text: "卸载门禁"
+                            type: "danger"
+                            enabled: root.isGitHooksInstalled
+                            onClicked: {
+                                var res = workbenchBridge.uninstallHooks(mainWindow.currentProjectId)
+                                resultMessage = res.message
+                                loadData()
+                            }
+                        }
+
+                        Item { Layout.fillWidth: true }
+                    }
+                }
+            }
+
+            Connections {
+                target: (typeof mainWindow !== "undefined") ? mainWindow : null
+                function onCurrentProjectIdChanged() {
+                    loadData()
                 }
             }
 

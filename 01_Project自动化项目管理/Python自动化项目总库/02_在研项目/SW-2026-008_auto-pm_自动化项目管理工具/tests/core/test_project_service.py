@@ -296,3 +296,48 @@ class TestListProjectsWithChangeCount:
         svc = ProjectService(str(tmp_path))
         with pytest.raises(RuntimeError, match="未注入 DatabaseManager"):
             svc.list_projects_with_change_count()
+
+
+# ── Git Pre-commit Hooks 提交门禁测试 ──────────────────────
+
+
+class TestGitHooks:
+    """Git 提交门禁与自愈钩子测试"""
+
+    def test_is_git_hooks_installed_not_exist(self, tmp_path: Path) -> None:
+        """测试未安装钩子时返回 False"""
+        svc = ProjectService(str(tmp_path))
+        assert svc.is_git_hooks_installed(str(tmp_path)) is False
+
+    def test_install_git_hooks_no_git_repo(self, tmp_path: Path) -> None:
+        """测试没有 Git 仓库时安装失败"""
+        svc = ProjectService(str(tmp_path))
+        res = svc.install_git_hooks(str(tmp_path))
+        assert res["success"] is False
+        assert "未初始化 Git 仓库" in res["message"]
+
+    def test_install_and_uninstall_git_hooks(self, tmp_path: Path) -> None:
+        """测试 Git 钩子的完整安装与卸载流程"""
+        # 1. 模拟 Git 仓库初始化
+        git_dir = tmp_path / ".git"
+        git_dir.mkdir()
+        (git_dir / "hooks").mkdir()
+
+        svc = ProjectService(str(tmp_path))
+        assert svc.is_git_hooks_installed(str(tmp_path)) is False
+
+        # 2. 安装门禁
+        res = svc.install_git_hooks(str(tmp_path))
+        assert res["success"] is True
+        assert svc.is_git_hooks_installed(str(tmp_path)) is True
+
+        hook_file = git_dir / "hooks" / "pre-commit"
+        assert hook_file.is_file()
+        content = hook_file.read_text(encoding="utf-8")
+        assert "auto-pm pre-commit" in content
+
+        # 3. 卸载门禁
+        unres = svc.uninstall_git_hooks(str(tmp_path))
+        assert unres["success"] is True
+        assert svc.is_git_hooks_installed(str(tmp_path)) is False
+        assert not hook_file.is_file()

@@ -820,3 +820,71 @@ def cmd_import(
             console.print("[green]DB 缓存已同步[/green]")
         except Exception as e:
             console.print(f"[yellow]DB 缓存同步失败（不影响导入）: {e}[/yellow]")
+
+
+@project_group.group(name="hooks")
+def hooks_group() -> None:
+    """管理项目的 Git Pre-commit 提交门禁与自愈钩子"""
+    pass
+
+
+@hooks_group.command(name="install")
+@click.argument("project_id")
+@click.pass_context
+def cmd_hooks_install(ctx: click.Context, project_id: str) -> None:
+    """为已有项目安装 Git Pre-commit 提交门禁与自愈钩子"""
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    proj = svc.get_project(project_id)
+
+    if proj is None:
+        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
+        ctx.exit(1)
+
+    result = svc.install_git_hooks(proj.path)
+    if result["success"]:
+        console.print(f"[green]{result['message']}[/green]")
+    else:
+        console.print(f"[red]安装失败: {result['message']}[/red]")
+        ctx.exit(1)
+
+
+@hooks_group.command(name="uninstall")
+@click.argument("project_id")
+@click.pass_context
+def cmd_hooks_uninstall(ctx: click.Context, project_id: str) -> None:
+    """为已有项目卸载 Git Pre-commit 提交门禁钩子"""
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    proj = svc.get_project(project_id)
+
+    if proj is None:
+        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
+        ctx.exit(1)
+
+    result = svc.uninstall_git_hooks(proj.path)
+    if result["success"]:
+        console.print(f"[green]{result['message']}[/green]")
+    else:
+        console.print(f"[red]卸载失败: {result['message']}[/red]")
+        ctx.exit(1)
+
+
+@hooks_group.command(name="status")
+@click.argument("project_id")
+@click.pass_context
+def cmd_hooks_status(ctx: click.Context, project_id: str) -> None:
+    """查看项目 Git Pre-commit 提交门禁的安装状态"""
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    proj = svc.get_project(project_id)
+
+    if proj is None:
+        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
+        ctx.exit(1)
+
+    installed = svc.is_git_hooks_installed(proj.path)
+    if installed:
+        console.print("[green]🟢 已激活 (auto-pm Pre-commit 提交门禁已装配)[/green]")
+    else:
+        console.print("[yellow]🟡 未激活 (未装配 Git 提交门禁)[/yellow]")

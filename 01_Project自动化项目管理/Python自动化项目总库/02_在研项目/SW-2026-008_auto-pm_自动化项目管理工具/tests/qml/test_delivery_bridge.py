@@ -253,3 +253,49 @@ def test_delivery_bridge_no_facade(qapp):
     assert bridge.listProjectDocs("PROJ-001") == []
     # renderMarkdown 降级为错误 HTML
     assert "文件不存在" in bridge.renderMarkdown("nonexistent.md")
+
+
+def test_delivery_bridge_parse_markdown_to_blocks(qapp, tmp_path):
+    """测试 parseMarkdownToBlocks() 在读取 Markdown 文件时返回结构化块列表"""
+    from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
+
+    # 1. 测试文件不存在
+    bridge = DeliveryBridge(facade=None)
+    res = bridge.parseMarkdownToBlocks(str(tmp_path / "nonexistent.md"))
+    assert len(res) == 1
+    assert res[0]["type"] == "paragraph"
+    assert "文件不存在" in res[0]["html"]
+
+    # 2. 测试正常解析
+    md_file = tmp_path / "test.md"
+    md_file.write_text("# Test Title\n\nSome text.", encoding="utf-8")
+    res = bridge.parseMarkdownToBlocks(str(md_file))
+    assert len(res) == 2
+    assert res[0]["type"] == "h1"
+    assert res[0]["text"] == "Test Title"
+    assert res[1]["type"] == "paragraph"
+    assert "Some text." in res[1]["html"]
+
+
+def test_delivery_bridge_export_doc_to_pdf(qapp, tmp_path):
+    """测试 exportDocToPdf() 能否通过 QTextDocument 离线输出 PDF"""
+    from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
+
+    bridge = DeliveryBridge(facade=None)
+    
+    # 1. 源文件不存在
+    res = bridge.exportDocToPdf(str(tmp_path / "nonexistent.md"), str(tmp_path / "out.pdf"))
+    assert res["success"] is False
+    assert "文件不存在" in res["message"]
+    
+    # 2. 正常导出
+    md_file = tmp_path / "test.md"
+    md_file.write_text("# Test Document\nThis is printed offline.", encoding="utf-8")
+    pdf_file = tmp_path / "out.pdf"
+    
+    res = bridge.exportDocToPdf(str(md_file), str(pdf_file))
+    assert res["success"] is True
+    assert pdf_file.exists()
+    assert pdf_file.stat().st_size > 0
+
+

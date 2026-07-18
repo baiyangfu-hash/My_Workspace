@@ -124,6 +124,18 @@ class ProjectServiceProtocol(Protocol):
         """获取 DB 文件路径（若未初始化则返回空字符串）"""
         ...
 
+    def is_git_hooks_installed(self, project_path: str) -> bool:
+        """检查指定项目是否已安装 auto-pm Git 提交门禁钩子"""
+        ...
+
+    def install_git_hooks(self, project_path: str) -> dict[str, Any]:
+        """为指定项目安装离线 Git Pre-commit 提交门禁与自愈钩子"""
+        ...
+
+    def uninstall_git_hooks(self, project_path: str) -> dict[str, Any]:
+        """为指定项目卸载 Git Pre-commit 提交门禁钩子"""
+        ...
+
 
 @runtime_checkable
 class ProjectScannerProtocol(Protocol):

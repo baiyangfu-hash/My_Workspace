@@ -179,15 +179,29 @@ class DeliveryBridge(QObject):
                         size_kb = 0.0
                         mtime = "—"
                     
+                    # Determine category: pm, tech, spec, log, other
+                    category = "other"
+                    name_lower = rel_path.lower()
+                    if name_lower.startswith("00_") or "变更管理" in rel_path or "chg-" in name_lower:
+                        category = "pm"
+                    elif name_lower.startswith("01_") or name_lower.startswith("02_") or "设计" in rel_path or "prd" in name_lower:
+                        category = "tech"
+                    elif ".trae/specs" in name_lower or "spec" in name_lower or "rules" in name_lower or "guideline" in name_lower:
+                        category = "spec"
+                    elif "pm_session" in name_lower:
+                        category = "log"
+
                     docs.append({
                         "name": rel_path,
                         "path": abs_path.replace("\\", "/"),
                         "size_kb": size_kb,
-                        "last_modified": mtime
+                        "last_modified": mtime,
+                        "category": category
                     })
         # Sort documents by name
         docs.sort(key=lambda d: str(d["name"]))
         return docs
+
 
     @Slot(str, result=str)
     def renderMarkdown(self, file_path: str) -> str:
@@ -230,4 +244,79 @@ class DeliveryBridge(QObject):
             return styled_html
         except Exception as e:
             return f"<p style='color: red;'>解析 Markdown 失败: {str(e)}</p>"
+
+    @Slot(str, result="QVariantList")
+    def parseMarkdownToBlocks(self, file_path: str) -> list[dict[str, Any]]:
+        import os
+
+        from auto_pm.utils.markdown_parser import parse_markdown_to_blocks
+
+        if not os.path.isfile(file_path):
+            return [{"type": "paragraph", "html": "<p style='color: red;'>文件不存在</p>"}]
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            return parse_markdown_to_blocks(content)
+        except Exception as e:
+            return [{"type": "paragraph", "html": f"<p style='color: red;'>解析 Markdown 失败: {str(e)}</p>"}]
+
+    @Slot(str, str, result="QVariantMap")
+    def exportDocToPdf(self, file_path: str, save_path: str) -> dict[str, Any]:
+        import os
+
+        import markdown
+        from PySide6.QtGui import QTextDocument
+
+        if not os.path.isfile(file_path):
+            return {"success": False, "message": "源文档文件不存在"}
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            html = markdown.markdown(content, extensions=['extra', 'codehilite', 'toc'])
+            
+            # 优雅的打印版 CSS 样式，适合离线 PDF 报告生成
+            styled_html = f"""
+            <html>
+            <head>
+            <style>
+                body {{ font-family: sans-serif; color: #1e293b; line-height: 1.6; font-size: 12px; }}
+                h1 {{ color: #0f172a; font-size: 18px; border-bottom: 2px solid #6366f1; padding-bottom: 6px; margin-top: 24px; }}
+                h2 {{ color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 18px; }}
+                h3 {{ color: #0f172a; font-size: 13px; margin-top: 12px; }}
+                code {{ background-color: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-family: monospace; color: #ef4444; }}
+                pre {{ background-color: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }}
+                pre code {{ background-color: transparent; padding: 0; color: #0f172a; }}
+                a {{ color: #2563eb; text-decoration: none; }}
+                table {{ border-collapse: collapse; width: 100%; margin-bottom: 16px; margin-top: 10px; }}
+                th, td {{ border: 1px solid #e2e8f0; padding: 6px 10px; text-align: left; }}
+                th {{ background-color: #f1f5f9; color: #0f172a; font-weight: bold; }}
+                blockquote {{ border-left: 4px solid #6366f1; padding-left: 12px; color: #64748b; margin-left: 0; }}
+            </style>
+            </head>
+            <body>
+            {html}
+            </body>
+            </html>
+            """
+            
+            doc = QTextDocument()
+            doc.setHtml(styled_html)
+            
+            # 确保保存的文件夹目录存在
+            dir_name = os.path.dirname(save_path)
+            if dir_name and not os.path.exists(dir_name):
+                os.makedirs(dir_name, exist_ok=True)
+                
+            from PySide6.QtPrintSupport import QPrinter
+            printer = QPrinter()
+            printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat)
+            printer.setOutputFileName(save_path)
+            doc.print_(printer)
+            
+            return {"success": True, "message": f"成功导出 PDF 至 {save_path}"}
+        except Exception as e:
+            return {"success": False, "message": f"导出 PDF 失败: {str(e)}"}
+
 

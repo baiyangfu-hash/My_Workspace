@@ -699,3 +699,36 @@ class WorkbenchFacade:
         except Exception as e:
             log.error("初始化项目 PM 失败: %s", e, exc_info=True)
             return CommandResult(success=False, message=str(e), payload={"success": False})
+
+    def is_git_hooks_installed(self, project_id: str) -> CommandResult[bool]:
+        """检查指定项目是否已装配提交门禁"""
+        try:
+            proj = self._project_service.get_project(project_id)
+            if not proj:
+                return CommandResult(success=False, message=f"项目不存在: {project_id}", payload=False)
+            installed = self._project_service.is_git_hooks_installed(proj.path)
+            return CommandResult(success=True, message="", payload=installed)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload=False)
+
+    def install_git_hooks(self, project_id: str) -> CommandResult[dict[str, Any]]:
+        """为指定项目安装提交门禁"""
+        try:
+            proj = self._project_service.get_project(project_id)
+            if not proj:
+                return CommandResult(success=False, message=f"项目不存在: {project_id}", payload={"success": False})
+            res = self._project_service.install_git_hooks(proj.path)
+            return CommandResult(success=res["success"], message=res["message"], payload=res)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload={"success": False, "message": str(e)})
+
+    def uninstall_git_hooks(self, project_id: str) -> CommandResult[dict[str, Any]]:
+        """为指定项目卸载提交门禁"""
+        try:
+            proj = self._project_service.get_project(project_id)
+            if not proj:
+                return CommandResult(success=False, message=f"项目不存在: {project_id}", payload={"success": False})
+            res = self._project_service.uninstall_git_hooks(proj.path)
+            return CommandResult(success=res["success"], message=res["message"], payload=res)
+        except Exception as e:
+            return CommandResult(success=False, message=str(e), payload={"success": False, "message": str(e)})
