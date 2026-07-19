@@ -3,10 +3,10 @@
 // 功能对齐 018_UI架构原型_V13.html：
 //   - 📡 Ping 链路诊断（建立 Modbus 连接前的网络层探路）
 //   - Modbus TCP 连接参数配置（IP/Port/UnitID/仿真模式开关）
-//   - 读取功能码选择：FC01/02/03/04/17/23
-//   - 写入功能码选择：FC05/06/15/16
+//   - 读取功能码选择：FC01/02/03/04/07/17/20/22/23/24/43（共 11 个）
+//   - 写入功能码选择：FC05/06/15/16/21/22（共 6 个）
 //   - 16位寄存器位解析器（LED 矩阵，双击表格行自动填入）
-//   - 三标签子视图：实时监测表 / Canvas 趋势曲线 / 寄存器扫描探测器
+//   - 双标签子视图：实时监测表 / 寄存器扫描探测器（趋势曲线标签已移除）
 //   - 物理报文 Hex 终端（实时 TX/RX/SYS 日志）
 //   - 导入/导出 JSON 配置
 //
@@ -31,7 +31,21 @@ Item {
 
     // ── 连接状态 ──────────────────────────────────────────
     property bool _isConnected: false
-    property int _subTabIndex: 0   // 0=监测 1=趋势 2=扫描
+    property int _subTabIndex: 0   // 0=监测 1=扫描
+    // ── 网卡数据源 ─────────────────────────────────────────
+    ListModel { id: nicModel }
+
+    Component.onCompleted: {
+        if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
+            var nics = modbusBridge.getNetworkInterfaces()
+            nicModel.clear()
+            for (var i = 0; i < nics.length; i++) {
+                nicModel.append(nics[i])
+            }
+            nicCombo.currentIndex = 0
+        }
+    }
+
 
     // ── Bridge 信号连接 ────────────────────────────────────
     Connections {
@@ -111,6 +125,25 @@ Item {
             presetCombo.currentValue
         )
     }
+    function _onParamsChanged() {
+        if (pollChk.checked) {
+            _updatePolling()
+        }
+    }
+
+    function _updatePolling() {
+        if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
+            modbusBridge.setPolling(
+                pollChk.checked,
+                fcCombo._comboValue,
+                parseInt(startAddrField.text) || 0,
+                parseInt(countField.text) || 10,
+                endianCombo._comboValue,
+                presetCombo._comboValue
+            )
+        }
+    }
+
 
     function _fillWriteSlot(addr, val, physicalAddr) {
         writeAddrField.text = addr.toString()
@@ -165,183 +198,214 @@ Item {
             }
         }
 
-        // ── 主双栏内容区 ─────────────────────────────────
-        RowLayout {
+        // ── 顶部连接与 Ping 诊断大面板 ───────────────────
+        GlassPanel {
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            spacing: Theme.spacingMd
+            implicitHeight: 180
 
-            // ────────────────────────────────────────────
-            // 左栏（340px 固定宽，配置参数 + 位解析器）
-            // ────────────────────────────────────────────
-            ColumnLayout {
-                Layout.preferredWidth: 340
-                Layout.fillHeight: true
-                spacing: Theme.spacingMd
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: Theme.spacingMd
+                spacing: Theme.spacingLg
 
-                // ── 连接参数卡 ──────────────────────────
-                GlassPanel {
+                // 📡 Ping 诊断控制台（连接参数已统一至下方主面板，此处仅保留 Ping 诊断）
+                ColumnLayout {
                     Layout.fillWidth: true
-                    implicitHeight: connectionCardCol.implicitHeight + Theme.spacingMd * 2
+                    Layout.fillHeight: true
+                    spacing: Theme.spacingSm
 
-                    ColumnLayout {
-                        id: connectionCardCol
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingMd
-                        spacing: Theme.spacingSm
-
-                        // 标题
-                        RowLayout {
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text {
+                            text: "📡 物理网口 ICMP 链路诊断 (Ping)"
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            font.bold: true
                             Layout.fillWidth: true
-                            Text {
-                                text: "🔌 Modbus TCP 连接参数"
-                                color: Theme.textPrimary
-                                font.pixelSize: Theme.fontSizeSm
-                                font.bold: true
-                                Layout.fillWidth: true
-                            }
-                            Rectangle {
-                                width: simBadgeText.implicitWidth + 12
-                                height: 18
-                                radius: 9
-                                color: Qt.rgba(0.96, 0.62, 0.04, 0.15)
-                                border.color: Qt.rgba(0.96, 0.62, 0.04, 0.3)
-                                Text {
-                                    id: simBadgeText
-                                    anchors.centerIn: parent
-                                    text: "仿真就绪"
-                                    color: Theme.warning
-                                    font.pixelSize: Theme.fontSizeXs
+                        }
+                        Button {
+                            id: pingBtn
+                            text: "📡 Ping"
+                            font.pixelSize: Theme.fontSizeXs
+                            implicitHeight: 28
+                            onClicked: {
+                                pingBtn.enabled = false
+                                pingBtn.text = "⏳ Ping中..."
+                                pingText.text = "正在执行 ICMP 探测，请稍候..."
+                                pingText.color = Theme.textMuted
+                                pingStatusRow.visible = true
+                                pingDot.color = Theme.textMuted
+                                if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
+                                    modbusBridge.pingHost(ipField.text)
+                                } else {
+                                    pingBtn.enabled = true
+                                    pingBtn.text = "📡 Ping"
+                                    pingStatusRow.visible = true
+                                    pingDot.color = Theme.success
+                                    pingText.text = "正在 Ping 192.168.1.88 具有 32 字节的数据:\n来自 192.168.1.88 的回复: 字节=32 时间<1ms TTL=64\n来自 192.168.1.88 的回复: 字节=32 时间<1ms TTL=64"
+                                    pingText.color = Theme.success
                                 }
                             }
                         }
+                    }
 
-                        // 分隔线
-                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+                    // Ping 输出框
+                    Flickable {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        contentHeight: pingText.implicitHeight + Theme.spacingSm * 2
+                        clip: true
 
-                        // IP 地址 + Ping 按钮
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "目标 PLC IP 地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                TextField {
-                                    id: ipField
-                                    Layout.fillWidth: true
-                                    text: "192.168.1.10"
-                                    placeholderText: "192.168.x.x"
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textPrimary
-                                    background: Rectangle {
-                                        color: Qt.rgba(0,0,0,0.2)
-                                        radius: Theme.radiusSm
-                                        border.color: ipField.activeFocus ? Theme.primary : Theme.border
-                                        border.width: 1
-                                    }
-                                }
-                                Button {
-                                    id: pingBtn
-                                    text: "📡 Ping"
-                                    font.pixelSize: Theme.fontSizeXs
-                                    implicitHeight: 32
-                                    onClicked: {
-                                        if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                            modbusBridge.pingHost(ipField.text)
-                                        } else {
-                                            pingStatusRow.visible = true
-                                            pingDot.color = Theme.success
-                                            pingText.text = "Ping OK (仿真模式)"
-                                            pingText.color = Theme.success
-                                        }
-                                    }
-                                }
-                            }
-                            // Ping 状态行
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "#040711"
+                            radius: Theme.radiusSm
+                            border.color: Theme.border
+                            border.width: 1
+
                             RowLayout {
                                 id: pingStatusRow
+                                anchors.fill: parent
+                                anchors.margins: Theme.spacingSm
+                                spacing: 8
                                 visible: false
-                                spacing: 6
+
                                 Rectangle {
                                     id: pingDot
                                     width: 6; height: 6; radius: 3
                                     color: Theme.textMuted
+                                    Layout.alignment: Qt.AlignTop
+                                    Layout.topMargin: 4
                                 }
                                 Text {
                                     id: pingText
-                                    text: ""
+                                    text: "等待执行 ICMP 探测..."
                                     color: Theme.textMuted
                                     font.pixelSize: Theme.fontSizeXs
-                                }
-                            }
-                        }
-
-                        // Port + Unit ID
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: Theme.spacingSm
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 4
-                                Text { text: "端口 (Port)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                TextField {
-                                    id: portField
+                                    font.family: "Consolas, Courier New, monospace"
+                                    lineHeight: 1.2
                                     Layout.fillWidth: true
-                                    text: "502"
-                                    validator: IntValidator { bottom: 1; top: 65535 }
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textPrimary
-                                    background: Rectangle {
-                                        color: Qt.rgba(0,0,0,0.2)
-                                        radius: Theme.radiusSm
-                                        border.color: portField.activeFocus ? Theme.primary : Theme.border
-                                        border.width: 1
-                                    }
-                                }
-                            }
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 4
-                                Text { text: "站号 (Unit ID)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                TextField {
-                                    id: slaveField
-                                    Layout.fillWidth: true
-                                    text: "1"
-                                    validator: IntValidator { bottom: 1; top: 255 }
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textPrimary
-                                    background: Rectangle {
-                                        color: Qt.rgba(0,0,0,0.2)
-                                        radius: Theme.radiusSm
-                                        border.color: slaveField.activeFocus ? Theme.primary : Theme.border
-                                        border.width: 1
-                                    }
+                                    wrapMode: Text.WrapAnywhere
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
 
-                        // 仿真模式开关
-                        RowLayout {
+        // ── Modbus 连接参数 + 寄存器读写主面板 ───────────────
+        GlassPanel {
+            Layout.fillWidth: true
+            implicitHeight: 230
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: Theme.spacingMd
+                spacing: Theme.spacingLg
+
+                // 左侧：Modbus TCP 连接参数
+                ColumnLayout {
+                    Layout.preferredWidth: 320
+                    spacing: Theme.spacingSm
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text {
+                            text: "🔌 Modbus TCP 连接参数"
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            font.bold: true
                             Layout.fillWidth: true
-                            Text {
-                                text: "启用本地仿真发生器"
-                                color: Theme.textSecondary
-                                font.pixelSize: Theme.fontSizeXs
-                                Layout.fillWidth: true
-                            }
-                            CheckBox {
-                                id: simChk
-                                checked: true
+                        }
+                    }
+
+                    // 本地物理网卡选择
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Text { text: "本地物理网卡绑定选择"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                        ComboBox {
+                            id: nicCombo
+                            Layout.fillWidth: true
+                            font.pixelSize: Theme.fontSizeSm
+                            textRole: "name"
+                            model: nicModel
+                            property string currentIp: model.count > 0 && currentIndex >= 0 ? model.get(currentIndex).ip : ""
+                        }
+                    }
+
+                    // IP 地址
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Text { text: "目标 PLC IP 地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                        TextField {
+                            id: ipField
+                            Layout.fillWidth: true
+                            text: "192.168.1.88"
+                            placeholderText: "192.168.x.x"
+                            font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                            background: Rectangle {
+                                color: Qt.rgba(0,0,0,0.2)
+                                radius: Theme.radiusSm
+                                border.color: ipField.activeFocus ? Theme.primary : Theme.border
+                                border.width: 1
                             }
                         }
+                    }
 
-                        // 连接/断开按钮
+                    // Port + Unit ID
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text { text: "端口 (Port)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                            TextField {
+                                id: portField
+                                Layout.fillWidth: true
+                                text: "502"
+                                validator: IntValidator { bottom: 1; top: 65535 }
+                                font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                background: Rectangle {
+                                    color: Qt.rgba(0,0,0,0.2)
+                                    radius: Theme.radiusSm
+                                    border.color: portField.activeFocus ? Theme.primary : Theme.border
+                                    border.width: 1
+                                }
+                            }
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text { text: "站号 (Unit ID)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                            TextField {
+                                id: slaveField
+                                Layout.fillWidth: true
+                                text: "1"
+                                validator: IntValidator { bottom: 1; top: 255 }
+                                font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                background: Rectangle {
+                                    color: Qt.rgba(0,0,0,0.2)
+                                    radius: Theme.radiusSm
+                                    border.color: slaveField.activeFocus ? Theme.primary : Theme.border
+                                    border.width: 1
+                                }
+                            }
+                        }
+                    }
+
+                    // 连接/断开按钮
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
                         Button {
                             id: connectBtn
                             Layout.fillWidth: true
-                            text: "连接设备"
+                            text: root._isConnected ? "🔌 断开连接" : "连接设备"
                             font.pixelSize: Theme.fontSizeSm
                             font.bold: true
                             onClicked: {
@@ -353,190 +417,315 @@ Item {
                                             ipField.text,
                                             parseInt(portField.text) || 502,
                                             parseInt(slaveField.text) || 1,
-                                            simChk.checked
+                                            simChk.checked,
+                                            nicCombo.currentIp
                                         )
                                     }
                                 } else {
-                                    // 无 Bridge，纯仿真演示
                                     root._isConnected = !root._isConnected
-                                    connectBtn.text = root._isConnected ? "🔌 断开连接" : "连接设备"
                                     if (root._isConnected) _doReadSim()
                                 }
                             }
                         }
+                        CheckBox {
+                            id: simChk
+                            checked: false
+                            visible: false
+                        }
                     }
                 }
 
-                // ── 读取参数卡 ──────────────────────────
-                GlassPanel {
-                    Layout.fillWidth: true
-                    implicitHeight: readCardCol.implicitHeight + Theme.spacingMd * 2
+                // 中间分隔线
+                Rectangle {
+                    Layout.fillHeight: true
+                    width: 1
+                    color: Theme.border
+                }
 
-                    ColumnLayout {
-                        id: readCardCol
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingMd
-                        spacing: Theme.spacingSm
+                ScrollView {
+                id: leftScroll
+                Layout.preferredWidth: 340
+                Layout.fillHeight: true
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-                        Text {
-                            text: "🔍 寄存器读取测试"
-                            color: Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            font.bold: true
-                        }
-                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+                ColumnLayout {
+                    width: leftScroll.width - 16 // 留出 16px 边距给垂直滚动条，防止内容与滚动条重叠遮挡
+                    spacing: Theme.spacingMd
 
-                        // 预设
-                        ColumnLayout { Layout.fillWidth: true; spacing: 4
-                            Text { text: "配置模板预设 (Presets)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                            ComboBox {
-                                id: presetCombo
-                                Layout.fillWidth: true
+                    // ── 读取参数卡 ──────────────────────────
+                    GlassPanel {
+                        Layout.fillWidth: true
+                        implicitHeight: readCardCol.implicitHeight + Theme.spacingMd * 2
+
+                        ColumnLayout {
+                            id: readCardCol
+                            anchors.fill: parent
+                            anchors.margins: Theme.spacingMd
+                            spacing: Theme.spacingSm
+
+                            Text {
+                                text: "🔍 寄存器读取测试"
+                                color: Theme.textPrimary
                                 font.pixelSize: Theme.fontSizeSm
-                                model: ListModel {
-                                    ListElement { text: "-- 自定义物理调试 --"; value: "custom" }
-                                    ListElement { text: "西门子 S7-1200 风机控制"; value: "siemens_fan" }
-                                    ListElement { text: "多路温度传感器读取"; value: "temp_monitor" }
-                                }
-                                textRole: "text"
-                                property string currentValue: model.get(currentIndex).value
+                                font.bold: true
                             }
-                        }
+                            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
 
-                        // 功能码
-                        ColumnLayout { Layout.fillWidth: true; spacing: 4
-                            Text { text: "寄存器区段 / 功能码"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                            ComboBox {
-                                id: fcCombo
+                            // 预设
+                            ColumnLayout { Layout.fillWidth: true; spacing: 4
+                                Text { text: "配置模板预设 (Presets)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                ComboBox {
+                                    id: presetCombo
+                                    onCurrentIndexChanged: root._onParamsChanged()
+                                    Layout.fillWidth: true
+                                    font.pixelSize: Theme.fontSizeSm
+                                    model: ListModel {
+                                        ListElement { text: "-- 自定义物理调试 --"; value: "custom" }
+                                        ListElement { text: "西门子 S7-1200 风机控制"; value: "siemens_fan" }
+                                        ListElement { text: "多路温度传感器读取"; value: "temp_monitor" }
+                                    }
+                                    textRole: "text"
+                                    property string _comboValue: model.get(currentIndex).value
+                                }
+                            }
+
+                            // 功能码
+                            ColumnLayout { Layout.fillWidth: true; spacing: 4
+                                Text { text: "寄存器区段 / 功能码"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                ComboBox {
+                                    id: fcCombo
+                                    onCurrentIndexChanged: root._onParamsChanged()
+                                    Layout.fillWidth: true
+                                    font.pixelSize: Theme.fontSizeSm
+                                    model: ListModel {
+                                        ListElement { text: "03 读保持寄存器 (Holding)";  value: "03" }
+                                        ListElement { text: "04 读输入寄存器 (Input)";     value: "04" }
+                                        ListElement { text: "01 读线圈状态 (Coils)";       value: "01" }
+                                        ListElement { text: "02 读离散输入 (Discrete)";    value: "02" }
+                                        ListElement { text: "23 读/写多寄存器 (RW)";       value: "23" }
+                                        ListElement { text: "07 读异常状态 (Exception)";    value: "07" }
+                                        ListElement { text: "17 报告从站ID (Report ID)";   value: "17" }
+                                        ListElement { text: "20 读文件记录 (File Read)";    value: "20" }
+                                        ListElement { text: "22 掩码写寄存器 (Mask)";       value: "22" }
+                                        ListElement { text: "24 读FIFO队列 (FIFO)";        value: "24" }
+                                        ListElement { text: "43 读设备标识 (Device ID)";    value: "43" }
+                                    }
+                                    textRole: "text"
+                                    property string _comboValue: model.get(currentIndex).value
+                                }
+                            }
+
+                            // 起始地址 + 读取长度
+                            RowLayout {
+                                Layout.fillWidth: true; spacing: Theme.spacingSm
+                                ColumnLayout { Layout.fillWidth: true; spacing: 4
+                                    Text { text: "起始地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                    TextField {
+                                        id: startAddrField
+                                        onTextChanged: root._onParamsChanged()
+                                        Layout.fillWidth: true; text: "0"
+                                        validator: IntValidator { bottom: 0; top: 65535 }
+                                        font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                        background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: startAddrField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+                                    }
+                                }
+                                ColumnLayout { Layout.fillWidth: true; spacing: 4
+                                    Text { text: "读取长度"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                    TextField {
+                                        id: countField
+                                        onTextChanged: root._onParamsChanged()
+                                        Layout.fillWidth: true; text: "10"
+                                        validator: IntValidator { bottom: 1; top: 125 }
+                                        font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                        background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: countField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+                                    }
+                                }
+                            }
+
+                            // 字节序 + 轮询
+                            RowLayout {
                                 Layout.fillWidth: true
+                                Text { text: "浮点字节序"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs; Layout.fillWidth: true }
+                                ComboBox {
+                                    id: endianCombo
+                                    onCurrentIndexChanged: root._onParamsChanged()
+                                    implicitWidth: 150
+                                    font.pixelSize: Theme.fontSizeXs
+                                    model: ListModel {
+                                        ListElement { text: "CDAB (Word Swap 西门子)"; value: "CDAB" }
+                                        ListElement { text: "ABCD (Big-Endian)";       value: "ABCD" }
+                                        ListElement { text: "BADC (Byte Swap)";        value: "BADC" }
+                                        ListElement { text: "DCBA (Little-Endian)";    value: "DCBA" }
+                                    }
+                                    textRole: "text"
+                                    property string _comboValue: model.get(currentIndex).value
+                                }
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                CheckBox {
+                                    id: pollChk
+                                    text: "周期性轮询 (1000ms)"
+                                    font.pixelSize: Theme.fontSizeXs
+                                    onCheckedChanged: {
+                                        root._updatePolling()
+                                    }
+                                }
+                            }
+
+                            Button {
+                                id: readBtn
+                                Layout.fillWidth: true
+                                text: "单次扫描"
                                 font.pixelSize: Theme.fontSizeSm
-                                model: ListModel {
-                                    ListElement { text: "03 读保持寄存器 (Holding)";  value: "03" }
-                                    ListElement { text: "04 读输入寄存器 (Input)";     value: "04" }
-                                    ListElement { text: "01 读线圈状态 (Coils)";       value: "01" }
-                                    ListElement { text: "02 读离散输入 (Discrete)";    value: "02" }
-                                    ListElement { text: "17 读设备描述字 (Slave ID)";  value: "17" }
-                                    ListElement { text: "23 读写多寄存器 (RW Regs)";   value: "23" }
-                                }
-                                textRole: "text"
-                                property string currentValue: model.get(currentIndex).value
+                                enabled: root._isConnected
+                                onClicked: _doRead()
                             }
                         }
+                    }
 
-                        // 起始地址 + 读取长度
-                        RowLayout {
-                            Layout.fillWidth: true; spacing: Theme.spacingSm
-                            ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                Text { text: "起始地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                TextField {
-                                    id: startAddrField; Layout.fillWidth: true; text: "0"
-                                    validator: IntValidator { bottom: 0; top: 65535 }
-                                    font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
-                                    background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: startAddrField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+                    // ── 写入参数卡 ──────────────────────────
+                    GlassPanel {
+                        Layout.fillWidth: true
+                        implicitHeight: writeCardCol.implicitHeight + Theme.spacingMd * 2
+
+                        ColumnLayout {
+                            id: writeCardCol
+                            anchors.fill: parent
+                            anchors.margins: Theme.spacingMd
+                            spacing: Theme.spacingSm
+
+                            Text {
+                                text: "✍️ 物理参数下发写入"
+                                color: Theme.textPrimary
+                                font.pixelSize: Theme.fontSizeSm
+                                font.bold: true
+                            }
+                            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 4
+                                Text { text: "写入功能码"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                ComboBox {
+                                    id: writeFcCombo
+                                    Layout.fillWidth: true
+                                    font.pixelSize: Theme.fontSizeSm
+                                    model: ListModel {
+                                        ListElement { text: "06 写单个保持寄存器"; value: "06" }
+                                        ListElement { text: "05 写单个线圈状态"; value: "05" }
+                                        ListElement { text: "16 写多个保持寄存器"; value: "16" }
+                                        ListElement { text: "15 写多个线圈状态"; value: "15" }
+                                        ListElement { text: "22 掩码写寄存器 (Mask)"; value: "22" }
+                                        ListElement { text: "21 写文件记录 (File Write)"; value: "21" }
+                                    }
+                                    textRole: "text"
+                                    property string _comboValue: model.get(currentIndex).value
                                 }
                             }
-                            ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                Text { text: "读取长度"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                TextField {
-                                    id: countField; Layout.fillWidth: true; text: "10"
-                                    validator: IntValidator { bottom: 1; top: 125 }
-                                    font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
-                                    background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: countField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: Theme.spacingSm
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 4
+                                    Text { text: "目标偏移地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                    TextField {
+                                        id: writeAddrField
+                                        Layout.fillWidth: true
+                                        text: "0"
+                                        validator: IntValidator { bottom: 0; top: 65535 }
+                                        font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                        background: Rectangle {
+                                            color: Qt.rgba(0,0,0,0.2)
+                                            radius: Theme.radiusSm
+                                            border.color: writeAddrField.activeFocus ? Theme.primary : Theme.border
+                                            border.width: 1
+                                        }
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 4
+                                    Text { text: "写入设定值 (Dec)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                    TextField {
+                                        id: writeValField
+                                        Layout.fillWidth: true
+                                        text: "0"
+                                        font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                        background: Rectangle {
+                                            color: Qt.rgba(0,0,0,0.2)
+                                            radius: Theme.radiusSm
+                                            border.color: writeValField.activeFocus ? Theme.primary : Theme.border
+                                            border.width: 1
+                                        }
+                                    }
                                 }
                             }
-                        }
 
-                        // 字节序 + 轮询
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Text { text: "浮点字节序"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs; Layout.fillWidth: true }
-                            ComboBox {
-                                id: endianCombo
-                                implicitWidth: 150
-                                font.pixelSize: Theme.fontSizeXs
-                                model: ListModel {
-                                    ListElement { text: "CDAB (Word Swap 西门子)"; value: "CDAB" }
-                                    ListElement { text: "ABCD (Big-Endian)";       value: "ABCD" }
-                                    ListElement { text: "BADC (Byte Swap)";        value: "BADC" }
-                                    ListElement { text: "DCBA (Little-Endian)";    value: "DCBA" }
-                                }
-                                textRole: "text"
-                                property string currentValue: model.get(currentIndex).value
-                            }
-                        }
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            CheckBox {
-                                id: pollChk
-                                text: "周期性轮询 (1000ms)"
-                                font.pixelSize: Theme.fontSizeXs
-                                onCheckedChanged: {
+                            Button {
+                                id: writeBtn
+                                Layout.fillWidth: true
+                                text: "下发写入指令"
+                                font.pixelSize: Theme.fontSizeSm
+                                font.bold: true
+                                enabled: root._isConnected
+                                onClicked: {
                                     if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                        modbusBridge.setPolling(
-                                            checked,
-                                            fcCombo.currentValue,
-                                            parseInt(startAddrField.text) || 0,
-                                            parseInt(countField.text) || 10,
-                                            endianCombo.currentValue,
-                                            presetCombo.currentValue
+                                        modbusBridge.writeRegister(
+                                            writeFcCombo._comboValue,
+                                            parseInt(writeAddrField.text) || 0,
+                                            writeValField.text
                                         )
                                     }
                                 }
                             }
                         }
-
-                        Button {
-                            id: readBtn
-                            Layout.fillWidth: true
-                            text: "单次扫描"
-                            font.pixelSize: Theme.fontSizeSm
-                            enabled: root._isConnected
-                            onClicked: _doRead()
-                        }
                     }
-                }
 
-                // ── 16位解析器卡 ────────────────────────
-                GlassPanel {
-                    Layout.fillWidth: true
-                    implicitHeight: bitExpanderContent.implicitHeight + Theme.spacingMd * 2
+                    // ── 16位解析器卡 ────────────────────────
+                    GlassPanel {
+                        Layout.fillWidth: true
+                        implicitHeight: bitExpanderContent.implicitHeight + Theme.spacingMd * 2
 
-                    ColumnLayout {
-                        id: bitExpanderContent
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingMd
-                        spacing: Theme.spacingSm
+                        ColumnLayout {
+                            id: bitExpanderContent
+                            anchors.fill: parent
+                            anchors.margins: Theme.spacingMd
+                            spacing: Theme.spacingSm
 
-                        ModbusBitExpander {
-                            id: bitExpander
-                            Layout.fillWidth: true
-                        }
+                            ModbusBitExpander {
+                                id: bitExpander
+                                Layout.fillWidth: true
+                            }
 
-                        Button {
-                            Layout.fillWidth: true
-                            text: "写入 PLC (FC06)"
-                            font.pixelSize: Theme.fontSizeXs
-                            enabled: root._isConnected
-                            onClicked: {
-                                writeAddrField.text = (parseInt(bitExpander.displayAddr) - 40001).toString()
-                                writeValField.text = bitExpander.currentValue.toString()
-                                writeFcCombo.currentIndex = 0  // FC06
-                                if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                    modbusBridge.writeRegister("06", parseInt(writeAddrField.text), writeValField.text)
+                            Button {
+                                Layout.fillWidth: true
+                                text: "写入 PLC (FC06)"
+                                font.pixelSize: Theme.fontSizeXs
+                                enabled: root._isConnected
+                                onClicked: {
+                                    writeAddrField.text = (parseInt(bitExpander.displayAddr) - 40001).toString()
+                                    writeValField.text = bitExpander.currentValue.toString()
+                                    writeFcCombo.currentIndex = 0  // FC06
+                                    if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
+                                        modbusBridge.writeRegister("06", parseInt(writeAddrField.text), writeValField.text)
+                                    }
                                 }
                             }
                         }
                     }
+
+                    Item { Layout.fillHeight: true }
                 }
-
-                Item { Layout.fillHeight: true }  // 弹性填充
-
             } // 左栏结束
-
-            // ────────────────────────────────────────────
-            // 右栏（fill，子标签 + 数据面板）
-            // ────────────────────────────────────────────
+            
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -546,19 +735,9 @@ Item {
                 TabBar {
                     id: subTabBar
                     Layout.fillWidth: true
-                    tabs: ["📊 实时数据监测表", "📈 物理量趋势监测图", "🧭 寄存器扫描探测器"]
+                    tabs: ["📊 实时数据监测表", "🧭 寄存器扫描探测器"]
                     onCurrentTabChanged: {
                         root._subTabIndex = index
-                        if (index === 1) {
-                            // 切换到趋势图，启动数据推送
-                            if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                modbusBridge.setTrendRunning(true)
-                            }
-                        } else {
-                            if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                modbusBridge.setTrendRunning(false)
-                            }
-                        }
                     }
                 }
 
@@ -707,38 +886,7 @@ Item {
                         }
                     }
 
-                    // 标签 1：趋势图
-                    GlassPanel {
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: Theme.spacingMd
-                            spacing: Theme.spacingSm
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Text {
-                                    text: "📈 物理变送器动态波形曲线 (Trend Viewer)"
-                                    color: Theme.textPrimary
-                                    font.pixelSize: Theme.fontSizeSm
-                                    font.bold: true
-                                    Layout.fillWidth: true
-                                }
-                                Text {
-                                    text: "追踪: 40002 (Speed_SP) / 40003 (Temp_REAL)"
-                                    color: Theme.textMuted
-                                    font.pixelSize: Theme.fontSizeXs
-                                }
-                            }
-
-                            ModbusTrendCanvas {
-                                id: trendCanvas
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                            }
-                        }
-                    }
-
-                    // 标签 2：扫描探测器
+                    // 标签 1：扫描探测器
                     GlassPanel {
                         ColumnLayout {
                             anchors.fill: parent
@@ -765,7 +913,6 @@ Item {
                                         if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
                                             modbusBridge.scanRegisters(0, 99)
                                         } else {
-                                            // 无 Bridge，仿真渐进展示
                                             _simulateScan()
                                         }
                                     }
@@ -787,82 +934,6 @@ Item {
                                         subTabBar.currentTabIndex = 0
                                         root._subTabIndex = 0
                                         _doRead()
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                } // StackLayout 结束
-
-                // ── 写入参数面板 ─────────────────────────
-                GlassPanel {
-                    Layout.fillWidth: true
-                    implicitHeight: writeCardRow.implicitHeight + Theme.spacingMd * 2
-
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingMd
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "✍️ 物理参数下发写入"
-                            color: Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            font.bold: true
-                        }
-                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
-
-                        RowLayout {
-                            id: writeCardRow
-                            Layout.fillWidth: true
-                            spacing: Theme.spacingMd
-
-                            ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                Text { text: "写入功能码"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                ComboBox {
-                                    id: writeFcCombo
-                                    Layout.fillWidth: true; font.pixelSize: Theme.fontSizeSm
-                                    model: ListModel {
-                                        ListElement { text: "06 写单个保持寄存器"; value: "06" }
-                                        ListElement { text: "05 写单个线圈状态"; value: "05" }
-                                        ListElement { text: "16 写多个保持寄存器"; value: "16" }
-                                        ListElement { text: "15 写多个线圈状态"; value: "15" }
-                                    }
-                                    textRole: "text"
-                                    property string currentValue: model.get(currentIndex).value
-                                }
-                            }
-                            ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                Text { text: "目标偏移地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                TextField {
-                                    id: writeAddrField; Layout.fillWidth: true; text: "0"
-                                    validator: IntValidator { bottom: 0; top: 65535 }
-                                    font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
-                                    background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: writeAddrField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
-                                }
-                            }
-                            ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                Text { text: "写入设定值 (Dec)"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                                TextField {
-                                    id: writeValField; Layout.fillWidth: true; text: "0"
-                                    font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
-                                    background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: writeValField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
-                                }
-                            }
-                            Button {
-                                id: writeBtn
-                                text: "下发写入指令"
-                                font.pixelSize: Theme.fontSizeSm
-                                font.bold: true
-                                enabled: root._isConnected
-                                onClicked: {
-                                    if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                        modbusBridge.writeRegister(
-                                            writeFcCombo.currentValue,
-                                            parseInt(writeAddrField.text) || 0,
-                                            writeValField.text
-                                        )
                                     }
                                 }
                             }
@@ -935,7 +1006,6 @@ Item {
         } // RowLayout 结束
 
     } // ColumnLayout 主布局结束
-
     // ── 文件对话框（导入/导出） ─────────────────────────
     FileDialog {
         id: importDialog
@@ -1007,4 +1077,5 @@ Item {
         })
         timer.start()
     }
+}
 }

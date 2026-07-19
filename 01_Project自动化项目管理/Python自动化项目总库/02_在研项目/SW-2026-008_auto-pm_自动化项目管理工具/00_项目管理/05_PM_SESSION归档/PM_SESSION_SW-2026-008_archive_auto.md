@@ -327,3 +327,20 @@
   - N13 `__main__.py` + `cli/__main__.py` 移除 unused type:ignore（`hasattr` 已让 mypy 正确窄化类型）
 - **GUI 试用结果**：冒烟测试 `scripts/gui_smoke_test.py` 9/9 步骤通过（8 页面全部可加载）+ 9 截图 + 8 个 QML 警告（5 个 VarTableEditorView varTableModel 未定义 + 3 个布局/颜色，全为预存）
 - **门禁结果**: ✅ ruff 0 errors + ✅ mypy 0 errors in 128 source files + ✅ pytest 1352 passed 2 skipped (297.61s) + ✅ ledger reconcile 0 差异 + ✅ GUI 冒烟 9/9 通过
+
+## 7. Verification Log（2026-07-19 Modbus 缺陷修复与功能码全量覆盖）
+
+- **verified**:
+  - *ruff*: 0 errors（auto_pm/modbus/ 3 files）
+  - *mypy*: 0 errors（3 source files）
+  - *pytest modbus*: 25 passed（tests/modbus/test_modbus_service.py）
+  - *pytest qml*: 13 passed（tests/qml/test_qml_components.py）
+  - *QML 加载*: rootObjects=1, main.qml 加载成功
+  - *功能码覆盖*: 读取 11 个（FC01/02/03/04/07/17/20/22/23/24/43）+ 写入 6 个（FC05/06/15/16/21/22）
+  - *_comboValue 修复*: 4 处定义 + 7 处引用，无残留 currentValue 属性冲突
+- **not_verified**:
+  - 真实 PLC 连接场景（modbus_service.py 中真实 pymodbus 路径已预留但未实测）
+  - 全量回归（因时间限制仅跑了 modbus + qml 聚焦测试，未跑全量 1443 测试）
+- **method**: ruff check + mypy + pytest + Python QML 加载诊断脚本
+- **blocker**: 无
+

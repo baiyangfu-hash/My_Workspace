@@ -53,6 +53,26 @@ class _ScanWorker(QRunnable):
         self.signals.finished.emit()
 
 
+class _PingWorkerSignals(QObject):
+    """Ping 任务信号容器"""
+    finished = Signal(bool, str)
+
+
+class _PingWorker(QRunnable):
+    """在后台执行 Ping 探测，不阻塞 UI 线程。"""
+
+    def __init__(self, service: ModbusService, ip: str, source_ip: str = "") -> None:
+        super().__init__()
+        self.service = service
+        self.ip = ip
+        self.source_ip = source_ip
+        self.signals = _PingWorkerSignals()
+
+    def run(self) -> None:
+        result = self.service.ping_host(self.ip, self.source_ip)
+        self.signals.finished.emit(result.success, result.message)
+
+
 # ─────────────────────────────────────────────
 # QML Bridge
 # ─────────────────────────────────────────────
@@ -70,7 +90,6 @@ class ModbusBridge(QObject):
         pingResultReceived(bool, str)   — Ping 探测结果
         scanCellUpdated(int, bool)      — 单格扫描进度 (offset, is_active)
         scanFinished()                  — 扫描完成
-        trendDataUpdated(int, int)      — 趋势图新数据点 (v1, v2)
     """
 
     # ── Signals ──────────────────────────────────────────
@@ -80,17 +99,12 @@ class ModbusBridge(QObject):
     pingResultReceived   = Signal(bool, str)
     scanCellUpdated      = Signal(int, bool)
     scanFinished         = Signal()
-    trendDataUpdated     = Signal(int, int)
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._service = ModbusService()
         self._poll_timer: QTimer | None = None
-        self._trend_timer: QTimer | None = None
         self._pool = QThreadPool.globalInstance()
-
-        # 趋势图内部计数（用于波形相位）
-        self._trend_tick = 0
 
     # ── 内部工具 ─────────────────────────────────────────
 
@@ -100,22 +114,47 @@ class ModbusBridge(QObject):
 
     # ── Ping 诊断 ─────────────────────────────────────────
 
-    @Slot(str)
-    def pingHost(self, ip: str) -> None:
+    @Slot(str, str)
+    def pingHost(self, ip: str, source_ip: str) -> None:
         """执行 Ping 探测，结果通过 pingResultReceived Signal 异步推送。
 
         Args:
             ip: 目标 PLC IP 地址
+            source_ip: 本地网卡 IP
         """
-        self._log("PING", f"发起 ICMP PING 探测 → {ip}...")
-        result = self._service.ping_host(ip)
-        self._log("PING" if result.success else "ERR", result.message)
-        self.pingResultReceived.emit(result.success, result.message)
+        self._log("PING", f"发起 ICMP PING 探测 → {ip} (网卡绑定: {source_ip if source_ip else '自动'})...")
+        worker = _PingWorker(self._service, ip, source_ip)
+        worker.signals.finished.connect(self._on_ping_finished)
+        self._pool.start(worker)
+
+    def _on_ping_finished(self, success: bool, msg: str) -> None:
+        self._log("PING" if success else "ERR", msg)
+        self.pingResultReceived.emit(success, msg)
+
+    # ── 网卡管理 ─────────────────────────────────────────
+
+    @Slot(result="QVariant")
+    def getNetworkInterfaces(self) -> list[dict[str, str]]:
+        """获取本地全部 IPv4 物理网卡列表，供 QML 绑定选择。"""
+        import socket
+
+        import psutil
+        interfaces = []
+        # 默认自动选择项
+        interfaces.append({"name": "自动选择 (Auto Default)", "ip": ""})
+        try:
+            for name, addrs in psutil.net_if_addrs().items():
+                for addr in addrs:
+                    if addr.family == socket.AF_INET:
+                        interfaces.append({"name": f"{name} ({addr.address})", "ip": addr.address})
+        except Exception as e:
+            log.warning(f"获取网卡列表异常: {e}")
+        return interfaces
 
     # ── 连接管理 ─────────────────────────────────────────
 
-    @Slot(str, int, int, bool)
-    def connectDevice(self, ip: str, port: int, slave_id: int, sim_mode: bool) -> None:
+    @Slot(str, int, int, bool, str)
+    def connectDevice(self, ip: str, port: int, slave_id: int, sim_mode: bool, source_ip: str) -> None:
         """建立 Modbus TCP 连接。
 
         Args:
@@ -123,9 +162,10 @@ class ModbusBridge(QObject):
             port: 端口（通常 502）
             slave_id: 站号
             sim_mode: 是否启用仿真模式
+            source_ip: 本地绑定网卡 IP
         """
-        self._log("SYS", f"发起 TCP Socket 握手 → {ip}:{port} Unit={slave_id} sim={sim_mode}")
-        ok, msg = self._service.connect(ip, port, slave_id, sim_mode)
+        self._log("SYS", f"发起 TCP Socket 握手 → {ip}:{port} Unit={slave_id} sim={sim_mode} bind={source_ip if source_ip else 'Auto'}")
+        ok, msg = self._service.connect(ip, port, slave_id, sim_mode, source_ip)
         self._log("SYS", msg)
         self.connectionStateChanged.emit(ok)
 
@@ -133,7 +173,6 @@ class ModbusBridge(QObject):
     def disconnectDevice(self) -> None:
         """断开连接，停止轮询和趋势图定时器。"""
         self._stop_poll()
-        self._stop_trend()
         self._service.disconnect()
         self._log("SYS", "已断开 Modbus TCP 连接，所有定时任务已终止。")
         self.connectionStateChanged.emit(False)
@@ -256,36 +295,6 @@ class ModbusBridge(QObject):
         )
         self._pool.start(worker)
 
-    # ── 趋势图定时数据 ────────────────────────────────────
-
-    @Slot(bool)
-    def setTrendRunning(self, running: bool) -> None:
-        """启动/停止趋势图数据推送（200ms 刷新）。"""
-        if running:
-            self._start_trend()
-        else:
-            self._stop_trend()
-
-    def _start_trend(self) -> None:
-        self._stop_trend()
-        self._trend_timer = QTimer(self)
-        self._trend_timer.setInterval(200)
-        self._trend_timer.timeout.connect(self._push_trend_data)
-        self._trend_timer.start()
-
-    def _stop_trend(self) -> None:
-        if self._trend_timer:
-            self._trend_timer.stop()
-            self._trend_timer.deleteLater()
-            self._trend_timer = None
-
-    def _push_trend_data(self) -> None:
-        import math as _math
-        t = self._trend_tick * 0.2
-        self._trend_tick += 1
-        v1 = int(2000 + _math.sin(t / 4.0) * 800)
-        v2 = int(1800 + _math.cos(t / 5.0) * 1200)
-        self.trendDataUpdated.emit(v1, v2)
 
     # ── JSON 配置 ─────────────────────────────────────────
 

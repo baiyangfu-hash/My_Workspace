@@ -1,10 +1,10 @@
-"""ModbusService 单元测试（V1.0.0 仿真模式）
+"""ModbusService 单元测试（V1.1.0 仿真模式）
 
 覆盖所有核心功能路径：
 - Ping 诊断（仿真/无效IP）
 - 连接管理
-- 功能码读取（FC01/02/03/04/17）
-- 功能码写入（FC05/06/15/16）
+- 功能码读取（FC01/02/03/04/07/17/20/22/23/24/43）— 11 个全覆盖
+- 功能码写入（FC05/06/15/16/21/22）— 6 个全覆盖
 - CDAB 浮点解码
 - JSON 配置导入导出
 - 寄存器扫描探测
@@ -243,3 +243,99 @@ class TestJsonConfig:
         ok, msg, loaded = svc_disconnected.import_config("/nonexistent/path/config.json")
         assert ok is False
         assert loaded == {}
+
+
+# ─────────────────────────────────────────────
+# 8. 新增读取功能码（CHG-133 补齐，CHG-136 测试覆盖）
+#    FC02/07/20/22/23/24/43
+# ─────────────────────────────────────────────
+
+class TestReadNewFunctionCodes:
+    """测试 CHG-133 新增的 7 个读取功能码。"""
+
+    def test_read_discrete_inputs_fc02(self, svc: ModbusService) -> None:
+        """FC02 读离散输入应返回 is_coil=True 且物理地址前缀为 1。"""
+        result = svc.read_registers("02", 0, 4)
+        assert result.success is True
+        assert len(result.registers) == 4
+        for entry in result.registers:
+            assert entry.is_coil is True
+            assert entry.physical.startswith("1")
+
+    def test_read_discrete_inputs_fc02_physical_range(self, svc: ModbusService) -> None:
+        """FC02 起始地址 5 时第一条物理地址应为 10006。"""
+        result = svc.read_registers("02", 5, 1)
+        assert result.success is True
+        assert result.registers[0].physical == "10006"  # 10001 + 5
+
+    def test_read_exception_status_fc07(self, svc: ModbusService) -> None:
+        """FC07 读异常状态应返回 1 条特殊标记条目。"""
+        result = svc.read_registers("07", 0, 1)
+        assert result.success is True
+        assert len(result.registers) == 1
+        assert "FC07" in result.registers[0].tag
+
+    def test_read_file_record_fc20(self, svc: ModbusService) -> None:
+        """FC20 读文件记录应返回 4 条寄存器。"""
+        result = svc.read_registers("20", 0, 4)
+        assert result.success is True
+        assert len(result.registers) == 4
+        assert result.registers[0].physical == "40001"
+
+    def test_read_mask_write_fc22(self, svc: ModbusService) -> None:
+        """FC22 掩码写应返回当前值条目（读回）。"""
+        result = svc.read_registers("22", 10, 1)
+        assert result.success is True
+        assert len(result.registers) == 1
+        assert "Mask Write (FC22)" in result.registers[0].tag
+
+    def test_read_write_multiple_fc23(self, svc: ModbusService) -> None:
+        """FC23 读/写多寄存器应返回指定数量的寄存器。"""
+        result = svc.read_registers("23", 0, 6)
+        assert result.success is True
+        assert len(result.registers) == 6
+        assert result.registers[0].physical == "40001"
+
+    def test_read_write_multiple_fc23_float_decode(self, svc: ModbusService) -> None:
+        """FC23 读/写多寄存器 + CDAB 浮点解码应返回有效浮点值。"""
+        result = svc.read_registers("23", 0, 2, endian="CDAB")
+        assert result.success is True
+        assert result.registers[0].float_decoded != "—"
+
+    def test_read_fifo_queue_fc24(self, svc: ModbusService) -> None:
+        """FC24 读 FIFO 队列应返回多个条目（含队列计数+数据）。"""
+        result = svc.read_registers("24", 0, 4)
+        assert result.success is True
+        assert len(result.registers) == 4
+        # FIFO 第一条为队列计数值（mock 返回 3）
+        assert result.registers[0].dec == 3
+
+    def test_read_device_identification_fc43(self, svc: ModbusService) -> None:
+        """FC43 读设备标识应返回 1 条设备信息条目。"""
+        result = svc.read_registers("43", 0, 1)
+        assert result.success is True
+        assert len(result.registers) == 1
+        assert "FC43" in result.registers[0].tag
+
+
+# ─────────────────────────────────────────────
+# 9. 新增写入功能码（CHG-133 补齐，CHG-136 测试覆盖）
+#    FC21/22
+# ─────────────────────────────────────────────
+
+class TestWriteNewFunctionCodes:
+    """测试 CHG-133 新增的 2 个写入功能码。"""
+
+    def test_write_file_record_fc21(self, svc: ModbusService) -> None:
+        """FC21 写文件记录应成功并返回报文。"""
+        result = svc.write_register("21", 0, 100)
+        assert result.success is True
+        assert result.tx_hex
+        assert "FC21" in result.message
+
+    def test_write_mask_write_register_fc22(self, svc: ModbusService) -> None:
+        """FC22 掩码写寄存器应成功并返回报文。"""
+        result = svc.write_register("22", 10, 255)
+        assert result.success is True
+        assert result.tx_hex
+        assert "FC22" in result.message

@@ -138,7 +138,7 @@ Rectangle {
 
                 Repeater {
                     model: 8  // Bit 15..8
-                    delegate: _LedDot {
+                    delegate: LedDot {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 14
                         bitIndex: 15 - index  // Bit 15, 14, 13...8
@@ -186,7 +186,7 @@ Rectangle {
 
                 Repeater {
                     model: 8  // Bit 7..0
-                    delegate: _LedDot {
+                    delegate: LedDot {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 14
                         bitIndex: 7 - index  // Bit 7, 6, 5...0
@@ -233,7 +233,7 @@ Rectangle {
     }
 
     // ── 内联 LED 点组件 ────────────────────────────────────
-    component _LedDot: Item {
+    component LedDot: Item {
         property int bitIndex: 0
         property bool bitActive: false
         signal toggled()
