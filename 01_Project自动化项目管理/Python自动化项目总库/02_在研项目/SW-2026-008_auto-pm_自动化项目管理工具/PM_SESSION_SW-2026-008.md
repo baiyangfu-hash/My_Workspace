@@ -1,5 +1,3 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿shang
-
 # PM_SESSION_SW-2026-008
 
 ## 0. Meta
@@ -7,7 +5,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-07-19
+- last_updated: 2026-07-21
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -18,8 +16,8 @@
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: **CHG-SCPT-2026-135 Modbus 测试失真修复与 PM_SESSION 真源同步已闭环**（2026-07-19，第 66/67 次 dogfooding 闭环 closed）。**Modbus 模块质量收口**：CHG-136 补齐 CHG-133 缺失的 11 个功能码测试用例（FC02/07/20/22/23/24/43 读 + FC21/22 写），modbus 测试 25→36 passed；CHG-135 同步 PM_SESSION §2/§3 到最新状态（CHG-133/134/135/136 全部记录）。代码基线 V1.1.0 不变。
-- previous_focus: V1.0.0 架构文档化完成（2026-07-13）。**零代码改动，仅通过注释 and 文档建立 PLC/HMI 概念映射**：14 个关键 Python 文件头部添加 PLC 概念注释（OB1/FB/HMI 变量表/SFB 库函数/UDT 数据类型）+ 项目根目录创建 ARCHITECTURE.md（架构对照图）。
+- current_focus: **CHG-SCPT-2026-138 约束工作流系统 Phase 2 完整约束体系与工作流引擎已闭环**（2026-07-21，第 69 次 dogfooding 闭环 closed）。完成了 8 个约束 YAML 全量定义载入、Checker 检查器、Healer 自愈器及 Workflow 编排引擎核心实现，挂载 CLI `workflow` 命令组，补齐单元与 CLI 测试（46 tests passed），三轨门禁全绿（Ruff 0, Mypy 0, pytest全通）。
+- previous_focus: **CHG-SCPT-2026-137 约束工作流系统 MVP Phase 1 实施与收尾已闭环**（2026-07-20，第 68 次 dogfooding 闭环 closed）。
 - milestone: 代码基线 **V1.1.0 Modbus 联调工坊 + 缺陷修复已闭环**。四阶段 CHG 规划：CHG-1（已闭环）视觉+导航骨架 → CHG-2（已闭环）变更中心 Split/Ledger → CHG-3 工作台 KPI+状态机+时间线 → CHG-4 Loading+收尾+V1.0.0 / PRD V3.0.0-draft
 - acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
 - plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-07-11_M5_规范与台账管理_迭代计划.md（当前进行中）+ 00_项目管理/03_执行过程/2026-07-08_V0.9.2_治理收口迭代计划.md（最近）+ 00_项目管理/03_执行过程/2026-07-04_V0.6.0_QML重构_4周迭代计划.md（里程碑）+ 00_项目管理/03_执行过程/归档/（V0.4.x~V0.5.3 历史迭代，2026-07-12 归档）+ 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md + 09_整改项/V0.4.2-glm执行输入清单.md
@@ -32,8 +30,10 @@
   - V1.0.0 规划：性能 FPS 实测（万行数据 FPS ≥ 30）+ 电气部门真实试用反馈 + 发布评估
   - V2.2 规范中心整合迭代（已完成 Week1-3，转入 V2.3 主线）：吸收 specmgr（规范文档健康检查/索引/Frontmatter/auto-fix），吸收方式为 GUI 全局功能页"规范中心"
 - completed:
+  - **CHG-SCPT-2026-138 约束工作流系统 Phase 2 完整约束体系与工作流引擎**（2026-07-21，第 69 次 dogfooding 闭环 closed）：实现 8 约束全量 YAML 定义加载、`ConstraintChecker` 检查器、`ConstraintHealer` 自愈器及 `WorkflowEngine` 编排引擎核心功能，挂载 CLI `workflow list/run/status/history` 命令组，补齐单元与 CLI 测试（46 tests passed），三轨门禁全绿（Ruff 0, MyPy 0, pytest 100%）。
+  - **CHG-SCPT-2026-137 约束工作流系统 MVP Phase 1 实施与收尾**（2026-07-20，第 68 次 dogfooding 闭环 closed）：实现文件修改快照守护（`FileGuard`）及 BOM 累积检测与自愈；部署 `constraint list/check/guard/verify/heal` 命令组；补齐 `tests/cli/test_constraint.py`（7 tests）与核心库单元测试（26 tests），三轨门禁全绿（Ruff 0, MyPy 0, pytest 100%）。
   - **CHG-SCPT-2026-136 Modbus 测试失真修复**（2026-07-19，第 67 次 dogfooding 闭环 closed）：补齐 CHG-133 缺失的 11 个功能码测试用例（FC02/07/20/22/23/24/43 读 + FC21/22 写），Modbus 单元测试 25→36 passed。ruff 0 + mypy 0。CHG-133 已知失真已修复。
-  - **CHG-DOCU-2026-002 PM_SESSION §2/§3 真源同步**（2026-07-19，第 66 次 dogfooding 闭环 closed，retrofit 模式补单）：PM_SESSION §2 current_focus 更新到 CHG-135/136；§3 completed 补登 CHG-133/134/135/136；§3 spec_compliance 更新到 2026-07-19 基线（dogfooding 61→67 次闭环，V1.0.0→V1.1.0）。
+  - **CHG-SCPT-2026-135 PM_SESSION 真源同步**（2026-07-19，第 66 次 dogfooding 闭环 closed，retrofit 模式补单）：PM_SESSION §2 current_focus 更新到 CHG-135/136；§3 completed 补登 CHG-133/134/135/136；§3 spec_compliance 更新到 2026-07-19 基线（dogfooding 61→67 次闭环，V1.0.0→V1.1.0）。
   - **CHG-SCPT-2026-134 ModbusDebuggerView.qml 重复 id 与失真注释修复**（2026-07-19，第 65 次 dogfooding 闭环 closed，retrofit 模式补单）：CHG-133 闭环后发现 ModbusDebuggerView.qml 残留 5 类问题：(1) 5 个 id (ipField/portField/slaveField/connectBtn/simChk) 在两个 GlassPanel 中各定义一次，QML 引擎取最后一个导致第一个 GlassPanel 的 connectBtn.onClicked 跨面板引用第二个 GlassPanel 的 ipField，数据流混乱；第一个 GlassPanel connectBtn 调 4 参数版 connectDevice，第二个调 5 参数版（含 nicCombo.currentIp），行为不一致；(2) 两个 GlassPanel 都渲染连接参数面板，UI 重复；(3) 文件头注释 L6/L7 功能码列表过时（6 读+4 写 vs 实际 11 读+6 写）；(4) L9 "三标签子视图" + L34 _subTabIndex 注释与实际 TabBar 2 个标签不符；(5) L201 与 L420 重复注释行。修复：删除第一个 GlassPanel 中的连接参数 + 分隔线冗余段（原 L211-L331，121 行），保留 Ping 诊断 ColumnLayout，第一个 GlassPanel 变为纯 Ping 诊断面板；连接参数统一由第二个 GlassPanel（带 nicCombo 升级版）承担；文件头注释校正（L6/L7/L9/L34）；删除重复注释。文件总行数 1203→984（删除 219 行）。三轨门禁全绿（ruff 0 + modbus 25 passed + QML 170 passed 可见模式 + 台账对账无差异 67 条记录）。代码基线 V1.1.0 不变。
   - **CHG-SCPT-2026-133 Modbus 缺陷修复与功能码全量覆盖**（2026-07-19，第 64 次 dogfooding 闭环 closed，retrofit 模式补单）：修复 P0 阻断（ModbusDebuggerView.qml 4 处 ComboBox `currentValue` 与 Qt Quick Controls FINAL 属性冲突，重命名为 `_comboValue`，4 处定义 + 7 处引用）；基于 pymodbus v3.14.0 API 补齐全部 11 读 + 6 写功能码（新增 FC07/20/22/23/24/43 读 + FC21/22 写）；`_MockModbusClient` 同步补齐 7 个 mock 方法；`fcCombo` 4→11 选项，`writeFcCombo` 4→6 选项。三轨门禁全绿（ruff 0 + mypy 0 + modbus 25 passed + QML 170 passed）。**代码基线升级 V1.0.0 → V1.1.0**（pyproject.toml + CHANGELOG + PM_SESSION §2 三件套一致）。**已知失真**：CHG-133 §10.1/§11 声称"25+11=36 passed"实际仅 25 passed（11 个新测试未实际添加到测试文件），已通过 CHG-136 补齐（modbus 25→36 passed）。
   - **CHG-SCPT-2026-132 集成全局公共 Modbus TCP 联调调试模块**（2026-07-19，第 63 次 dogfooding 闭环 closed）：在 auto_pm 中集成全局公共 Modbus 调试工坊，通过 ModbusService 支持 FC01-FC06 仿真读取和写入、活跃地址并发扫描与波形趋势监测展示，修改 main.qml 侧边栏及 qml_main_window.py 上下文挂载。三轨门禁全绿（ruff 0 + mypy 0 + pytest 1443 passed）。
@@ -82,8 +82,8 @@
   - `plc check` 对 Python 项目的"不适用"口径已通过 V0.4.1 Step 3 修复（CheckResult.not_applicable 标记 + DashboardService 防御性条件 + UI 透明展示）
   - Week 3 已固化资产字段契约第一版，Week 4 文档刷新已按最小口径落地；下一步做真实试运行时仍需继续约束缺省值策略、空值展示口径和工站命名一致性
 - spec_compliance:
-  - last_check: 2026-07-19
-  - result: 代码基线 V1.1.0（M5 全部 6 项完成 CHG-116/117/118/119/120/121 + M4 全部 7 项完成 + CHG-123 项目变更Tab驾驶舱模式优化 + CHG-124 5 功能子项统收 + CHG-125 V1.0.0 架构文档化补单 + CHG-126 P0 阻断修复+优化补单 + CHG-128 Pre-commit 门禁与 Handoff 自愈 + CHG-129 文档浏览器原生卡片组件渲染 + CHG-130 通用分类大纲联动与 PDF 离线导出）。dogfooding 67 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/080 全 closed，CHG-SCPT-2026-130 已闭环 closed）。**CHG-122 Python 项目规范检查与一键修复**：新增 PythonProjectService 核心服务，打通 CLI python repair 命令和 GUI 一键修复按钮（2026-07-12 创建，retrofit 模式 closed，前次 §3 漏写已补登）。**CHG-123 项目变更Tab驾驶舱模式**：将项目详情页变更Tab从简单列表升级为驾驶舱模式，包含 KpiGrid（变更总数/进行中/待审批/本周新增 4 卡片）+ DashboardStateMachine（9 步状态流转可视化）+ ActivityTimeline（变更活动时间线）+ Split View（变更列表 + ChangeDetailPanel 详情面板）。验证：QML 测试 161 passed 与修改前一致。**CHG-124 5 功能子项统收（DocBrowserView+变量表 IO 读写+EditChangeDialog GlassPanel+AboutDialog/GlobalSettingsDialog 接入+spec_facade PLC repair）**：retrofit 模式补单，13 文件改动，三轨门禁全绿（ruff 0 + mypy 0 + pytest 27 passed）。**CHG-125 V1.0.0 架构文档化补单**（2026-07-14 retrofit 补单，对应提交 7a96213）：14 个关键 Python 文件头部添加 PLC 概念注释（OB1/FB/HMI 变量表/SFB 库函数/UDT 数据类型）+ 项目根目录创建 ARCHITECTURE.md 架构对照图，零代码改动仅文档化。**CHG-126 P0 阻断修复+优化补单**（2026-07-14 retrofit 补单，对应提交 a655655）：修复 3 个 P0 阻断（--version 命令崩溃 / Windows 终端中文乱码 / python check 命令显示异常）+ 5 项优化（PM_SESSION 扫描排除归档 / doc refresh PLC 类型检查 / 变更单排序 key 类型注解 / GUI 烟雾测试服务注入 / QML varTableModel 未定义报错），21 文件 +1251/-290
+  - last_check: 2026-07-21
+  - result: 代码基线 V1.1.0（M5 全部 6 项完成 CHG-116/117/118/119/120/121 + M4 全部 7 项完成 + CHG-123 项目变更Tab驾驶舱模式优化 + CHG-124 5 功能子项统收 + CHG-125 V1.0.0 架构文档化补单 + CHG-126 P0 阻断修复+优化补单 + CHG-128 Pre-commit 门禁与 Handoff 自愈 + CHG-129 文档浏览器原生卡片组件渲染 + CHG-130 通用分类大纲联动与 PDF 离线导出 + CHG-137 约束工作流 MVP Phase 1 实施与收尾 + CHG-138 约束工作流系统 Phase 2 完整约束体系与工作流引擎已闭环）。dogfooding 69 次闭环（CHG-001/062/063/064/072/073/074/075/077/078/079/080/081/082/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/137/138/080 全 closed，CHG-SCPT-2026-138 已闭环 closed）。
 
 ## 4. Artifacts Index（文档索引）
 
@@ -92,6 +92,8 @@
 - dsn: 02_设计/003_详细设计说明书_DSN.md
 - tec: 02_设计/004_技术方案文档_TEC.md
 - ui_arch_prototype_v13: 02_设计/Html原型预览/018_UI架构原型_V13.html (2026-07-19 新增，集成 Modbus 调试工坊与波形监测的 UI 架构原型)
+- chg_138: 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-138.md (约束工作流系统 Phase 2 完整约束体系与工作流引擎变更单，SCPT+OPT+LOCAL，状态 closed，第 69 次 dogfooding 闭环，2026-07-21 创建)
+- chg_137: 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-137.md (约束工作流系统 MVP Phase 1 实施与收尾变更单，SCPT+OPT+LOCAL，状态 closed，第 68 次 dogfooding 闭环，2026-07-20 创建)
 - chg_132: 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-132.md (Modbus TCP 联调工坊变更单，SCPT+REQ+MODULE+SYSTEM，状态 closed，第 63 次 dogfooding 闭环，2026-07-19 创建)
 - chg: 已归档（原 00_项目基础信息/005_变更记录_CHG.md 已在 V0.7.0 CHG-089 退役，新真源为 CHANGELOG.md + auto-pm change list + CHG-*.md §9/§10，详见 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md）
 - tech_debt: 00_项目基础信息/006_技术债评估报告.md
@@ -118,6 +120,8 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-07-21 约束工作流系统 Phase 2 完整约束体系与工作流引擎（CHG-SCPT-2026-138 closed，第 69 次 dogfooding 闭环）：完成 8 约束全量 YAML 定义加载、`ConstraintChecker` 检查器、`ConstraintHealer` 自愈器及 `WorkflowEngine` 编排引擎核心实现，挂载 CLI `workflow list/run/status/history` 命令组，补齐单元与 CLI 测试（46 tests passed），三轨门禁全绿（Ruff 0, MyPy 0, pytest 100%）。
+  - 2026-07-20 约束工作流系统 MVP Phase 1 实施与收尾（CHG-SCPT-2026-137 closed，第 68 次 dogfooding 闭环）：实现核心 models/loader/guard 代码及 YAML 规范定义，部署 CLI `constraint` 命令组，补齐 CLI 单元测试 `test_constraint.py`。修复 `json.dumps` 输出中富文本导致的控制字符缺陷以实现无污染高亮。三轨门禁全绿（Ruff 0, MyPy 0, pytest全通）。
   - 2026-07-19 Modbus 联调工坊新功能补单（CHG-SCPT-2026-132 retrofit 模式补单）：用户开发完毕 Modbus 调试新功能后，使用 pm-workflow 的 --retrofit 模式进行变更单补齐。新增 `auto_pm/modbus/` 核心服务与桥接、`ModbusDebuggerView.qml` 及其辅助控件、`tests/modbus/` 测试套件，修改 `main.qml` 与 `qml_main_window.py` 进行挂载和注册。静态检查与类型检查 0 errors，pytest 跑通 25 个新增测试及 1443 个全量测试（三轨门禁全绿）。台账对账无差异。
   - 2026-07-14 缺失变更单补齐（CHG-SCPT-2026-125/126 retrofit 模式补单）：用户发现"有些提交没有变更单，需要补变更单"。pm-workflow 模式分析 git log 全量提交（80 条）vs 已有 CHG-*.md 文件（56 个），过滤非 SW-2026-008 项目提交后，识别出 2 个有实质代码变更但缺单 of 提交：① 7a96213（2026-07-13 V1.0.0 架构文档化，14 个 Python 文件头部 PLC 概念注释 + ARCHITECTURE.md）；② a655655（2026-07-13 修复 3 个 P0 阻断 + 5 项优化，21 文件 +1251/-290）。通过 `auto-pm change create --retrofit` CLI 补单：CHG-SCPT-2026-125（SCPT+OPT+MODULE+SYSTEM，V1.0.0 架构文档化）+ CHG-SCPT-2026-126（SCPT+DEF+MODULE+SYSTEM，P0 修复+优化），两张变更单直接创建为 closed 状态。台账对账无差异（ledger reconcile：缺失 0 / 孤儿 0 / 状态不一致 0）。同步修正 §3 spec_compliance（补登漏写的 122 + 新建 of 125/126 + dogfooding 54→56 次 + last_check 2026-07-11→2026-07-14）。eb1d8a4（AI 占位符提交，仅 09_整改项 文档同步）经用户确认不单独补单。
   - 2026-07-10 V0.9.2 深度审查整改闭环（B4 数据库联合主键与 UI 项目参数路由 + CLI 对账闭环 + 改进项收口）：修复多项目同名变更覆盖冲突的 SQLite 主键缺陷，将 `change_requests` 和 `impact_analysis` 表重构为 `(project_id, change_number)` 联合主键；打通 QML 视图到后端的 `project_id` 传参链路，解决变更详情错乱“串台”问题。使用 CLI 状态机完成 `CHG-SCPT-2026-109/110/114/115` 四张滞后变更单的状态推演闭环（状态全闭环为 `closed`）。更新所有文档中的 UI 架构原型 V7 路径引用。MyPy 静态分析 0 错误（含修复 2 个预存 unreachable 警告），Ruff 0 错误，单元与集成测试 1311 项全数通过，三轨门禁达到 all-green，机器证据 gate_result.json 已生成。

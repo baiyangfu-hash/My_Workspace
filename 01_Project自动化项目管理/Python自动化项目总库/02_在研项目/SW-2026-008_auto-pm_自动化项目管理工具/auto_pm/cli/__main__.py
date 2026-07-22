@@ -59,6 +59,8 @@ from auto_pm.cli.session import pm_session_group  # noqa: E402
 from auto_pm.cli.spec import spec_group  # noqa: E402
 from auto_pm.cli.template import template_group  # noqa: E402
 from auto_pm.cli.vartable import vartable_group  # noqa: E402
+from auto_pm.cli.constraint import constraint_group  # noqa: E402
+from auto_pm.cli.workflow import workflow_group  # noqa: E402
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -99,6 +101,8 @@ cli.add_command(vartable_group)
 cli.add_command(gui_command)
 cli.add_command(pm_session_group)
 cli.add_command(ledger_group)
+cli.add_command(constraint_group)
+cli.add_command(workflow_group)
 
 
 if __name__ == "__main__":

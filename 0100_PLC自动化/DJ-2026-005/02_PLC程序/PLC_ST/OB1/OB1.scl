@@ -1,5 +1,5 @@
 // ============================================================================
-// OB1.scl - 边框缓存机主组织块 (V6.0.1)
+// OB1.scl - 边框缓存机主组织块 (V7.1.1)
 // ============================================================================
 // 描述:
 //   DJ-2026-005 边框缓存机 PLC 控制系统主循环程序.
@@ -12,11 +12,11 @@
 //   - 所有 I/O 映射通过 GlobalVars 数据块完成
 //
 // FB 调用顺序（按工艺流程）:
-//   1. FB\_ExternalDeviceInteraction   - 外部设备交互/安全门/急停
-//   2. FB\_1001\_Conveyor4Layer         - 四层输送机控制
-//   3. FB\_1003\_PickPlace              - 取放料机构
-//   4. FB\_1004\_GlueMachineFeeder      - 打胶机送料机构
-//   5. FB\_2001\_CommonAlarm            - 公共报警管理
+//   1. FB_ExternalDeviceInteraction   - 外部设备交互/安全门/急停
+//   2. 4×FB_1002_SingleLayerConveyor  - 四层输送机展开调用 (L1~L4)
+//   3. FB_1003_PickPlace              - 取放料机构
+//   4. FB_1004_GlueMachineFeeder      - 打胶机送料机构
+//   5. FB_2001_CommonAlarm            - 公共报警管理
 //
 // 变更记录:
 //   V7.1.1 (2026-05-20): 修复FB_1003 i_iPickLayer输入源 (TC11 Bug修复)
@@ -26,17 +26,35 @@
 //          - FB_1003调用新增VAR_IN_OUT: io_stZAxis/io_stX1Axis => astServoAxis[1..2]
 //          - GlobalVars.db新增astServoAxis[1..3]: ST_ServoAxis数组
 //   V7.0.0 (2026-05-18): Conveyor子系统V7.0.0重构对齐
-//          - 取消FB\_1001容器, 展开调用4×FB\_1002 (L1\~L4)
-//          - 新增汇总逻辑: q\_bRunning(4层OR)/q\_bFault(4层OR)/q\_iAlarmCode(MIN优先级)
-//          - 下游引用更新: PickPlace取q\_aLayerFeedDone, FB\_2001取q\_iAlarmCode
+//          - 取消FB_1001容器, 展开调用4×FB_1002 (L1~L4)
+//          - 新增汇总逻辑: q_bRunning(4层OR)/q_bFault(4层OR)/q_iAlarmCode(MIN优先级)
+//          - 下游引用更新: PickPlace取q_aLayerFeedDone, FB_2001取q_iAlarmCode
 //   V6.0.1 (2026-05-18): 修复 - 所有GlobalVars成员引用对齐GlobalVars.db实际定义
-//          - stExternal: 匹配FB\_ExternalDeviceInteraction实际27输入/16输出引脚
-//          - stConveyor: 匹配FB\_1001实际34输入/30输出(含ARRAY\[1..4])引脚
-//          - stPickPlace: 匹配FB\_1003 V6.0.0实际51输入/20输出引脚
-//          - stFeeder: 匹配FB\_1004 V6.0.0实际14输入/9输出引脚
-//          - stGlobal: 匹配FB\_2001实际3-INT输入/10输出引脚
+//          - stExternal: 匹配FB_ExternalDeviceInteraction实际27输入/16输出引脚
+//          - stConveyor: 匹配FB_1001实际34输入/30输出(含ARRAY[1..4])引脚
+//          - stPickPlace: 匹配FB_1003 V6.0.0实际51输入/20输出引脚
+//          - stFeeder: 匹配FB_1004 V6.0.0实际14输入/9输出引脚
+//          - stGlobal: 匹配FB_2001实际3-INT输入/10输出引脚
 //   V6.0.0 (2026-05-18): Phase 3全部重写 - 同步所有FB V6.0.0新接口
 // ============================================================================
+
+// [中途省略至 427 行]
+
+// ============================================================================
+// 第5部分：公共报警管理 (FB_2001 V2.1.0)
+// ============================================================================
+GlobalVars.fbCommonAlarm(
+    i_iConveyorAlarm             := GlobalVars.stConveyor.q_iAlarmCode,
+    i_iPickPlaceAlarm            := GlobalVars.stPickPlace.o_iStationAlarmCode,
+    i_iFeederAlarm               := GlobalVars.stFeeder.o_iStationAlarmCode,
+    i_bReset                     := GlobalVars.stGlobal.i_bReset,
+
+    q_wGlobalAlarmWord           => GlobalVars.stGlobal.o_wGlobalAlarmWord,
+    q_iCurrentAlarmCode          => GlobalVars.stGlobal.o_iCurrentAlarmCode,
+    q_bAnyAlarmActive            => GlobalVars.stGlobal.o_bAnyAlarmActive,
+    q_iMESAlarmCount             => GlobalVars.stGlobal.o_iMESAlarmCount,
+    q_iMESAlarmQueue             => GlobalVars.stGlobal.o_iMESAlarmQueue
+);
 
 ORGANIZATION_BLOCK OB1
 
@@ -433,16 +451,16 @@ GlobalVars.fbCommonAlarm(
     i_iFeederAlarm               := GlobalVars.stFeeder.o_iStationAlarmCode,
     i_bReset                     := GlobalVars.stGlobal.i_bReset,
 
-    o_wGlobalAlarmWord           => GlobalVars.stGlobal.o_wGlobalAlarmWord,
-    o_iCurrentAlarmCode          => GlobalVars.stGlobal.o_iCurrentAlarmCode,
-    o_bAnyAlarmActive            => GlobalVars.stGlobal.o_bAnyAlarmActive,
-    o_iMESAlarmCount             => GlobalVars.stGlobal.o_iMESAlarmCount,
-    o_iMESAlarmQueue             => GlobalVars.stGlobal.o_iMESAlarmQueue,
-    o_bNewAlarmFlag              => GlobalVars.stGlobal.o_bNewAlarmFlag,
-    o_iStationAlarmStatus        => GlobalVars.stGlobal.o_iStationAlarmStatus,
-    o_bConveyorAlarmActive       => GlobalVars.stGlobal.o_bConveyorAlarmActive,
-    o_bPickPlaceAlarmActive      => GlobalVars.stGlobal.o_bPickPlaceAlarmActive,
-    o_bFeederAlarmActive         => GlobalVars.stGlobal.o_bFeederAlarmActive
+    q_wGlobalAlarmWord           => GlobalVars.stGlobal.o_wGlobalAlarmWord,
+    q_iCurrentAlarmCode          => GlobalVars.stGlobal.o_iCurrentAlarmCode,
+    q_bAnyAlarmActive            => GlobalVars.stGlobal.o_bAnyAlarmActive,
+    q_iMESAlarmCount             => GlobalVars.stGlobal.o_iMESAlarmCount,
+    q_iMESAlarmQueue             => GlobalVars.stGlobal.o_iMESAlarmQueue,
+    q_bNewAlarmFlag              => GlobalVars.stGlobal.o_bNewAlarmFlag,
+    q_iStationAlarmStatus        => GlobalVars.stGlobal.o_iStationAlarmStatus,
+    q_bConveyorAlarmActive       => GlobalVars.stGlobal.o_bConveyorAlarmActive,
+    q_bPickPlaceAlarmActive      => GlobalVars.stGlobal.o_bPickPlaceAlarmActive,
+    q_bFeederAlarmActive         => GlobalVars.stGlobal.o_bFeederAlarmActive
 );
 
 END_ORGANIZATION_BLOCK

@@ -124,11 +124,14 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-07-22 CHG-PLC-2026-008 现有PLC自动化生态迭代升级: 坚守现有西门子 SCL + Dynamic Siemens Support + 008工具 + SysLib 生态, 完成 SKILL.md 与 refs/siemens-lsp-and-testing.md 升级, 增加终端控制台动态测试规范、SysLib 依赖预警与统一对账闭环 | 技能库迭代完成,已对账
+  - 2026-07-22 CHG-PLC-2026-007 FB_2001输出变量前缀修补与OB1注释清洗: FB_2001 VAR_OUTPUT 变量前缀统一升级为 q_ (符合LSP-905 §3), 清理 //#region 非标注释; OB1.scl 头部版本更正为 V7.1.1, 架构注释更新为 4×FB_1002 调度, 同步引脚映射到 q_ 前缀 | 规范修补完成,已对账
   - 2026-05-21 .scltest断言注释规范: basic_test.scltest全部27条ASSERT行追加//中文后缀注释(来源GlobalVars.db V7.1.1行内注释); 801编码规范升级V1.0.6→V1.0.7新增§4.3.5(强制规则+格式标准+注释来源优先级+自检清单第12项); 适用范围: 0100_PLC自动化下所有现有及未来项目 | 规范增强完成,待推广
-- refactor_log:
   - 2026-05-18 Conveyor子系统高内聚低耦合重构PRD: 取消FB_1001(87接口→0), FB_1002瘦身为编排器(39→33接口), 抽取FB_1011气缸控制(10接口,复用×2)和FB_1012电机控制(11接口), 系统总接口从126降到54(-57%)。FB_1011/FB_1012文档搬迁至01_SharedLibraries/SysLib/actuator/ 作为通用执行器库。9步Step_S状态机逻辑不变。旧6份PRD归档至archive_V6.0.0 | PRD阶段完成,待人工审核
   - 2026-05-18 INT→WORD类型重构: FB_2001报警码(wAlarmCode:WORD) + MES队列(aMesQueue:WORD[10]) + 字面量(ALM_NONE:WORD:=16#0000); FOR/算术/索引变量保留INT(移植性); FB_1002/1003/1004/External原始INT保持(避免跨FB引用断裂); 801规范V1.0.6新增w/dw前缀; DSN/IFC同步更新
   - 2026-05-18 ST code validation: Ran LSP diagnostics on all .scl files; no errors detected.
+- refactor_log:
+  - (Log entries archived)
 - bug_log:
   - 2026-05-20 TC11自动模式Z轴定位测试失效: o_iCurrentPickLayer(输出)被用作i_iPickLayer(输入)来源(OB1反馈回路), FB_1003每周期用内部iPickLayer(=0)覆盖导致S20→S21转换条件(i_iPickLayer>0)永远FALSE; 同时缺少X1轴使能验证+o_bRunning断言时序错误 | P0 | ✅已修复(V7.1.1架构修复)
   - 2026-05-18 OB1针脚不匹配: GlobalVars.stGlobal中q_iCurrentAlarmCode→q_wCurrentAlarmCode(INT→WORD)和q_aMesQueue(INT→WORD)未同步FB_2001 V6.0.0 WORD类型, 导致OB1编译报错 | P0 | ✅已修复
