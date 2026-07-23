@@ -7,6 +7,14 @@
 
 ## [Unreleased]
 
+### Added - CHG-SCPT-2026-141 消除 CLI 与 GUI 缓存鸿沟的文件监听同步桥接层
+
+- **FileWatcherBridge 桥接层新建**：新增 `auto_pm/ui/qml/bridges/file_watcher_bridge.py`，QFileSystemWatcher 监听业务文件变化（排除 NOISE_DIRS），1s 去抖后 QRunnable 后台子线程 sync_to_cache（SyncWorker 自建 DB 连接规避 SQLite 线程亲和性），QTimer 50ms 轮询回传结果规避 PySide6 6.11 QRunnable 子线程信号析构问题。
+- **QmlMainWindow 集成**：注入 fileWatcherBridge context property；reload_workspace 回调 prepareForReload/rebuild 处理工作空间切换；启动时 toggleWatcher(True) 自动监听。
+- **QML 全局常驻工具栏**：main.qml 新增全局常驻工具栏（同步按钮+监听开关+状态反馈+手动折叠/展开），每页可点击，Connections 绑定 syncStarted/syncFinished/syncError/watcherToggled 信号驱动项目/变更视图缓存自动刷新。
+- **关闭态拦截修复**：_on_debounce_timeout 新增 _watcher_enabled 检查，QFileSystemWatcher.removePaths 在 Windows 上对部分路径失败致 directories() 残留，残留路径触发 fileChanged 后不再引发 sync。
+- **集成测试扩展**：scripts/gui_smoke_test.py 扩展 4 步（工具栏可见/手动同步/toggle/自动同步），可见模式实测 13/13 通过；tests/qml/test_file_watcher_bridge.py 14 用例全通过。
+
 ## [1.1.0] - 2026-07-19
 
 ### Added - CHG-SCPT-2026-132 集成全局公共 Modbus TCP 联调调试模块
