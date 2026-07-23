@@ -52,6 +52,13 @@ ApplicationWindow {
     property string currentProjectPhase: "developing"
     property string currentProjectStack: "python"
 
+    // ── 文件监听同步工具栏状态（CHG-SCPT-2026-141）──
+    // 全局常驻工具栏：同步按钮 + 监听开关 + 状态反馈，可手动折叠/展开
+    property bool watcherToolbarExpanded: true       // 工具栏展开状态（手动开关）
+    property bool watcherEnabled: false              // 监听开关状态（watcherToggled 信号同步）
+    property bool syncInProgress: false              // 同步进行中（syncStarted/syncFinished 信号同步）
+    property string watcherStatusText: "就绪"         // 状态反馈文本
+
     // ── 背景层：AmbientOrb 光晕装饰（对齐原型 V7 .ambient-orb）──
     Item {
         id: ambientLayer
@@ -1163,6 +1170,119 @@ ApplicationWindow {
                 color: Theme.textMuted
                 font.pixelSize: Theme.fontSizeXs
             }
+        }
+    }
+
+    // ── 文件监听同步工具栏（全局常驻，可折叠）── CHG-SCPT-2026-141 ──
+    // 用户要求：每页可点击 + 常驻显示 + 手动关闭/打开
+    Rectangle {
+        id: fileWatcherToolbar
+        anchors.right: parent.right
+        anchors.bottom: statusbar.top
+        anchors.rightMargin: Theme.spacingMd
+        anchors.bottomMargin: Theme.spacingSm
+        width: watcherToolbarExpanded ? 460 : 52
+        height: 40
+        radius: Theme.radiusMd
+        color: Qt.rgba(0.02, 0.02, 0.09, 0.92)
+        border.color: Theme.glassBorder
+        border.width: 1
+        z: 100  // 浮于内容之上，确保每页可点击
+
+        Behavior on width { NumberAnimation { duration: 150 } }
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: Theme.spacingSm
+            anchors.rightMargin: Theme.spacingSm
+            spacing: Theme.spacingSm
+
+            // 同步按钮（手动触发 sync_to_cache，展开时显示）
+            PrimaryButton {
+                text: syncInProgress ? "⏳ 同步中" : "🔄 同步"
+                type: "ghost"
+                Layout.preferredHeight: 32
+                enabled: !syncInProgress
+                visible: watcherToolbarExpanded
+                onClicked: {
+                    if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) {
+                        fileWatcherBridge.syncNow()
+                    }
+                }
+            }
+
+            // 监听开关（onToggled 仅响应用户点击，避免信号回环）
+            Switch {
+                checked: mainWindow.watcherEnabled
+                Layout.preferredHeight: 32
+                visible: watcherToolbarExpanded
+                onToggled: {
+                    if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) {
+                        fileWatcherBridge.toggleWatcher(checked)
+                    }
+                }
+            }
+
+            Text {
+                text: "监听"
+                color: Theme.textSecondary
+                font.pixelSize: Theme.fontSizeXs
+                visible: watcherToolbarExpanded
+            }
+
+            // 状态反馈文本（上次同步时间/同步中/错误）
+            Text {
+                text: watcherStatusText
+                color: syncInProgress ? Theme.primary : Theme.textSecondary
+                font.pixelSize: Theme.fontSizeXs
+                Layout.fillWidth: true
+                elide: Text.ElideRight
+                visible: watcherToolbarExpanded
+            }
+
+            // 折叠/展开按钮（始终显示，手动开关工具栏）
+            PrimaryButton {
+                text: watcherToolbarExpanded ? "›" : "‹"
+                type: "ghost"
+                Layout.preferredWidth: 32
+                Layout.preferredHeight: 32
+                onClicked: mainWindow.watcherToolbarExpanded = !mainWindow.watcherToolbarExpanded
+            }
+        }
+    }
+
+    // ── FileWatcherBridge 信号绑定（状态反馈 + 缓存刷新）── CHG-SCPT-2026-141 ──
+    Connections {
+        target: typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null ? fileWatcherBridge : null
+        function onWatcherToggled(enabled) {
+            mainWindow.watcherEnabled = enabled
+        }
+        function onSyncStarted() {
+            mainWindow.syncInProgress = true
+            mainWindow.watcherStatusText = "同步中..."
+        }
+        function onSyncFinished(projects, changes, ms) {
+            mainWindow.syncInProgress = false
+            var t = ""
+            if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) {
+                t = fileWatcherBridge.lastSyncTime()
+            }
+            mainWindow.watcherStatusText = "已同步 " + projects + " 项 · " + t
+            // CLI 改文件后 DB 缓存已由 worker 更新，重新加载项目/变更视图
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                workbenchBridge.refreshProjects()
+                var ps = workbenchBridge.listProjects()
+                projectModel.setProjects(ps)
+            }
+            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+                changeBridge.refreshChanges()
+            }
+            console.log("[FileWatcher] 同步完成: " + projects + " 项目, " + changes + " 变更, " + ms + "ms")
+        }
+        function onSyncError(msg) {
+            mainWindow.syncInProgress = false
+            mainWindow.watcherStatusText = "同步失败: " + msg
+            console.warn("[FileWatcher] 同步失败: " + msg)
         }
     }
 
