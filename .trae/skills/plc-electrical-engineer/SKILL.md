@@ -72,7 +72,17 @@ plc-var-parser "<项目根>/PRD/接口文档_INT.md"
    ```
    若激活失败，**立即报告用户**（说明 venv 缺失及影响，`auto-pm` / `plc-var-parser` 不可用），不得隐瞒继续。
 
-2. **加载项目硬约束**：检测项目 `project_memory.md` 是否存在，若存在则读取 Hard Constraints，并在输出中提示已加载的硬约束规则。
+2. **接收上下文**：
+   - 若从 pm-workflow 调用，从 prompt 中提取 skill_context（项目 ID、变更单、领域、模式、pm_summary）
+   - 若独立触发（无 pm-workflow），执行 Step 1 读取 PM_SESSION
+   - **不再**直接读取 ai_context.json（入口统一由 pm-workflow 管理）
+
+3. **接收原型**（若 pm-workflow 已产出）：
+   - 检查 `PRD/原型/` 目录是否存在 HMI 原型 HTML 文件
+   - 若存在：读取原型作为 HMI 实现参考，按原型进行 SCL/HMI 编码
+   - 若不存在：自行从 PRD/需求文档推导 HMI 界面
+
+4. **加载项目硬约束**：检测项目 `project_memory.md` 是否存在，若存在则读取 Hard Constraints，并在输出中提示已加载的硬约束规则。
 
 ### Step 1：读取 PM_SESSION 与关联变更单 (CHG)
 

@@ -16,6 +16,7 @@ severity: error
 scope:
   patterns:
     - "**/*.md"
+    - ".trae/**/*.md"
     - "**/*.py"
     - "**/*.qml"
     - "**/*.yaml"
@@ -25,6 +26,7 @@ scope:
     - "**/.git/**"
     - "**/node_modules/**"
     - "**/coverage/**"
+    - ".trae/specs/**"
 rules:
   - type: "bom_count"
     max_count: 1

@@ -188,6 +188,37 @@ Rectangle {
                 }
 
                 PrimaryButton {
+                    text: "🤖 AI 辅助"
+                    type: "primary"
+                    Layout.preferredWidth: 90
+                    Layout.preferredHeight: 28
+                    enabled: typeof aiContextBridge !== "undefined"
+                             && aiContextBridge !== null
+                             && root.selectedChangeNumber !== ""
+                    onClicked: {
+                        var detail = root.selectedChangeDetail || {}
+                        var result = aiContextBridge.writeAiContext(
+                            root.selectedProjectId,
+                            mainWindow.currentProjectName,
+                            mainWindow.currentProjectStack,
+                            mainWindow.currentProjectPhase,
+                            root.selectedChangeNumber,
+                            detail.title || "",
+                            detail.domain || "",
+                            detail.business_nature || detail.nature || "",
+                            detail.status || "",
+                            mainWindow.currentPage
+                        )
+                        if (result && result.success) {
+                            console.log("[QML] AI 上下文已写入: " + result.file)
+                        } else {
+                            console.warn("[QML] AI 上下文写入失败: "
+                                + (result ? result.message : "未知错误"))
+                        }
+                    }
+                }
+
+                PrimaryButton {
                     text: "+ 新建变更"
                     type: "primary"
                     Layout.preferredWidth: 100

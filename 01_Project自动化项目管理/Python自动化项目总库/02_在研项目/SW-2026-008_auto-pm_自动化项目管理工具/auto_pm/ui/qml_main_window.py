@@ -55,6 +55,7 @@ from auto_pm.ui.factories import (
     make_spec_report_service,
     make_template_service,
 )
+from auto_pm.ui.qml.bridges.ai_context_bridge import AiContextBridge
 from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
 from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
@@ -178,6 +179,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     spec_bridge = SpecBridge(facade=registry.spec_facade)
     delivery_bridge = DeliveryBridge(facade=registry.delivery_facade)
     system_bridge = SystemBridge(facade=registry.system_facade)
+    ai_context_bridge = AiContextBridge(workspace_root=workspace_root)
     project_model = ProjectListModel()
     var_table_model = VarTableModel()
     modbus_bridge = ModbusBridge()  # Modbus 联调工坊 Bridge（无依赖 Service，直接实例化）
@@ -288,6 +290,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     engine.rootContext().setContextProperty("projectModel", project_model)
     engine.rootContext().setContextProperty("varTableModel", var_table_model)
     engine.rootContext().setContextProperty("modbusBridge", modbus_bridge)  # Modbus 联调工坊
+    engine.rootContext().setContextProperty("aiContextBridge", ai_context_bridge)  # AI 上下文桥接
 
     # 6. 加载 QML 文件
     qml_url = QUrl.fromLocalFile(str(main_qml_path))

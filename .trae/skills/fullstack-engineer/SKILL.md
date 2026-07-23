@@ -33,9 +33,18 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
    ```
    若激活失败，**立即报告用户**，说明 venv 缺失及影响（Python 工具/依赖不可用），不要跳过继续。
 
-2. 读取 `PM_SESSION_<项目编号>.md` — 若不存在，转给 `pm-workflow` 初始化
-3. 提取：`current_focus`、最近一条 `implementation_log`/`verification_log`/`handoff_notes`、`next_actions`
-4. 读取本轮相关代码、配置、测试、页面
+2. **接收上下文**：
+   - 若从 pm-workflow 调用，从 prompt 中提取 skill_context（项目 ID、变更单、模式、pm_summary）
+   - 若独立触发（无 pm-workflow），读取 PM_SESSION 走原有完整流程
+   - **不再**直接读取 ai_context.json（入口统一由 pm-workflow 管理）
+
+3. **接收原型**（若 pm-workflow 已产出）：
+   - 检查 `PRD/原型/` 目录是否存在 HTML 原型文件
+   - 若存在：读取原型作为 UI 实现参考
+   - 若不存在：自行从 PRD/需求文档推导界面
+
+4. 读取 PM_SESSION（若从 pm-workflow 调用且上下文完整则可跳过）
+5. 读取本轮相关代码、配置、测试、页面
 
 ### 结束后
 

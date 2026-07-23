@@ -178,6 +178,10 @@
 
 ## 9. Next Actions
 
+### 长期规则（已固化到约束系统）
+
+- **[CST-SKILL-001] 技能变更必须通过 CHG 流程**（已固化为 `auto_pm/constraint/definitions/skill_change_requires_chg.yaml`，`constraint list` 可查）。规则：修改 `.trae/skills/` 下任何技能文件（SKILL.md / refs/*.md / README.md）必须先创建 CHG-SCPT 变更单挂靠在 SW-2026-008 项目下，使用 `auto-pm change create --pid SW-2026-008 --domain SCPT`。参考模板：CHG-SCPT-2026-139（技能与驾驶舱上下文桥接）。该约束在 `constraint check` 时自动执行，违规记 WARNING。
+
 - - **CHG-113 done_when** ✅ 已完成：修复 GUI 新建项目无法创建，第 44 次 dogfooding 闭环
 - - **CLI vs GUI 差异分析 done_when** [已验证] 已完成：CLI 11 个命令组 40+ 子命令 vs GUI 5 个 Bridge 30+ Slot 逐一对比，输出三类差异（已落地 15 项 / Bridge 待接入 6 项 / 完全缺失 20 项），结果已回写 §6 和 §8
 - - **M4/M5 GUI 补全优先级排序 done_when** ✅ 已完成：M4（变更管理完整闭环+项目管理补齐 7 项）/ M5（规范与台账管理 6 项）/ M6（领域专用工具 9 项），用户已确认方案，结果已回写 §6 和 §8

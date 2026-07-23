@@ -57,6 +57,51 @@ auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] 
    - 禁止用 Python 脚本直接写磁盘修改项目文件（用 Edit/Write 工具）
    - 文件命名规范禁止版本号后缀（见下方"文件命名规范"）
    - GUI 测试默认可见模式（禁止默认 offscreen）
+7. **BOM 预检**（在修改任何文件前执行）：
+   - 对即将修改的文件，先运行 `auto-pm -w "<工作空间根>" constraint heal --file <文件路径>` 剥离多余 BOM
+   - 若文件 BOM 数量 > 1，必须 heal 后再使用 Edit/Write 工具，否则会导致缓冲区陈旧
+   - 对技能文件（`.trae/skills/*/SKILL.md`）和 PM_SESSION 文件尤其重要
+   - 修改完成后，运行 `auto-pm -w "<工作空间根>" constraint check --file <文件路径>` 确认编码健康
+
+### Step 0.5：检查 cockpit AI 上下文（若存在则跳过 Step 0-1，直接分发到子技能）
+
+1. 检查 `<工作空间根>/.auto-pm/ai_context.json` 是否存在
+2. **若存在**：
+   - 读取 JSON，提取 `active_project`、`active_change`、`active_page`
+   - 从 `active_project` 获取：项目 ID、名称、技术栈、阶段
+   - 从 `active_change` 获取：变更单号、标题、领域、性质、状态
+   - **跳过 Step 0**（venv 激活、`project show`、PM_SESSION 读取、健康检查）
+   - **跳过 Step 1**（模式选择），模式由 `active_page` 推断：
+     - `changeCenter` → 变更/缺陷/发布模式
+     - `workspace` → 项目推进模式
+     - `specCenter` → 规范模式
+   - **跳过 Step 2**（最小提问），上下文已包含变更单详情
+   - 在状态摘要中标注"上下文来源: cockpit AI 辅助"
+   - **域判断 + 技能分发**：
+     - `domain == "PLC"` → 构建 skill_context，调用 `Skill: plc-electrical-engineer`
+     - `domain == "SCPT"` / `"PYTHON"` → 构建 skill_context，调用 `Skill: fullstack-engineer`
+   - **skill_context 结构**（传递给子技能的 prompt 摘要）：
+     ```json
+     {
+       "source": "pm-workflow",
+       "project_id": "DJ-2026-005",
+       "project_name": "周单机模板",
+       "stack": "plc",
+       "change_number": "CHG-PLC-2026-001",
+       "change_title": "修复阀门控制时序错误",
+       "change_domain": "PLC",
+       "change_nature": "DEF",
+       "change_status": "draft",
+       "mode": "变更/缺陷/发布",
+       "pm_summary": "上下文已通过 cockpit AI 辅助恢复，跳过项目识别、PM_SESSION 读取、模式选择。"
+     }
+     ```
+   - **子技能返回后**：
+     - 解析子技能返回结果（changed_files、lint_result、test_result、risks）
+     - 继续执行 Step 4（回写 PM_SESSION §6-§9）
+     - 写入 cockpit 反馈：`.auto-pm/ai_feedback.json`
+     - 输出摘要给用户
+3. **若不存在**：继续执行原有 Step 0 和 Step 1（不受影响）
 
 ### Step 1：判定本轮模式（必须用 AskUserQuestion 呈现选项）
 
@@ -87,11 +132,23 @@ auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] 
 |------|---------|
 | 需求 | 问题定义、用户/角色、业务价值、成功指标、非目标、风险 |
 | PRD | Executive Summary、Problem/Solution、Personas、Stories、Acceptance Criteria、Non-Goals、Technical Constraints |
-| 方案 | 页面清单、主流程、状态覆盖（空/错/加载/权限）、差异说明 |
+| 方案/线框 | 页面清单、主流程、状态覆盖（空/错/加载/权限）、差异说明、**HTML 原型**（新增，见下方规范） |
 | 拆解 | Epic→Feature→Story→Test、优先级、依赖、DoR/DoD；结果必须写入 `01_项目文档/03_执行过程/` 并更新 PM_SESSION §4 |
 | 变更/Bug | 触发原因、影响范围、回归清单、验收清单 |
 | 初始化 | 调用 `auto-pm project create` 自动生成目录结构+文档模板+hooks+handoffs+Spec Snapshot |
 | 补完 | 调用 `auto-pm project retrofit` 注入 hooks+handoffs+Spec Snapshot（不修改现有文件） |
+
+### HTML 原型产出规范（方案/线框模式专用）
+
+当模式为"方案/线框"时，**必须**产出 HTML 原型作为交付物：
+
+- **全栈（Python/Web）项目**：输出可浏览器打开的 Web UI 原型（页面布局、组件结构、交互模拟）
+- **PLC 项目**：输出 HMI 画面原型（按钮、状态指示灯、报警列表、趋势图占位、变量绑定标注）
+- **原型文件存放**：`PRD/原型/` 目录
+- **原型作为交接物**：fullstack/plc 子技能接收原型 HTML 后进行编码实现
+- **原型产出后**：pm-workflow 根据域判断调用子技能：
+  - PLC 域 → `Skill: plc-electrical-engineer`（传递原型路径）
+  - 软件域 → `Skill: fullstack-engineer`（传递原型路径）
 
 ### 文件命名规范（强制）
 
