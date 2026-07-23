@@ -58,6 +58,7 @@ from auto_pm.ui.factories import (
 from auto_pm.ui.qml.bridges.ai_context_bridge import AiContextBridge
 from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
 from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
+from auto_pm.ui.qml.bridges.file_watcher_bridge import FileWatcherBridge
 from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
@@ -183,11 +184,16 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     project_model = ProjectListModel()
     var_table_model = VarTableModel()
     modbus_bridge = ModbusBridge()  # Modbus 联调工坊 Bridge（无依赖 Service，直接实例化）
+    # FileWatcherBridge：监听业务文件变化 → 后台 sync_to_cache → syncFinished 驱动 QML 刷新
+    # 消除 CLI 改文件后 GUI 缓存鸿沟（CHG-SCPT-2026-141）。自建 DB 连接，不依赖共享 db。
+    file_watcher_bridge = FileWatcherBridge(workspace_root)
 
     # 3.5 注册运行时工作空间切换重载回调
     def reload_workspace(new_path: str) -> None:
         nonlocal db
         try:
+            # 0. 暂停文件监听（拒绝新 sync，清空监听路径，避免切换期间误触发）
+            file_watcher_bridge.prepareForReload()
             # 1. 关闭旧连接
             db.close()
             # 2. 新建 DatabaseManager 并初始化 schema
@@ -261,7 +267,9 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
             spec_bridge.set_facade(registry.spec_facade)
             delivery_bridge.set_facade(registry.delivery_facade)
             system_bridge.set_facade(registry.system_facade)
-            
+
+            # 6. 重建文件监听（更新工作空间路径，恢复监听）
+            file_watcher_bridge.rebuild(new_path)
             log.info("工作空间已成功重载并同步：%s", new_path)
         except Exception as e:
             sys.stderr.write(f"[ERROR] 重载工作空间失败: {e}\n")
@@ -291,6 +299,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     engine.rootContext().setContextProperty("varTableModel", var_table_model)
     engine.rootContext().setContextProperty("modbusBridge", modbus_bridge)  # Modbus 联调工坊
     engine.rootContext().setContextProperty("aiContextBridge", ai_context_bridge)  # AI 上下文桥接
+    engine.rootContext().setContextProperty("fileWatcherBridge", file_watcher_bridge)  # 文件监听同步
 
     # 6. 加载 QML 文件
     qml_url = QUrl.fromLocalFile(str(main_qml_path))
@@ -305,6 +314,15 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     if debug:
         sys.stderr.write(f"[DEBUG] QML root object: {type(root_obj).__name__}\n")
         sys.stderr.write(f"[DEBUG] workspace_root: {workspace_root}\n")
+
+    # 7.5 启动文件监听（用户要求：每次启动 GUI 时开始监听业务文件变化）
+    # 2.1 已完成首次阻塞式 sync_to_cache 保证缓存新鲜，此处仅启用监听处理运行时变更。
+    file_watcher_bridge.toggleWatcher(True)
+    if debug:
+        sys.stderr.write(
+            f"[DEBUG] 文件监听已启用，监听目录数: "
+            f"{file_watcher_bridge.watchedDirectoryCount()}\n"
+        )
 
     # 8. 启动事件循环
     return app.exec()
