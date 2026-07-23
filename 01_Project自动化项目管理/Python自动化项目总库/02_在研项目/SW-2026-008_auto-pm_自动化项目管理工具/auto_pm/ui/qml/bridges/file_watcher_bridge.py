@@ -353,6 +353,11 @@ class FileWatcherBridge(QObject):
         """去抖超时 → 触发 sync（含并发控制）"""
         if self._reload_pending:
             return
+        if not self._watcher_enabled:
+            # 监听已关闭：QFileSystemWatcher.removePaths 在 Windows 上对部分路径
+            # 会失败（directories() 残留），残留路径仍可能触发 fileChanged →
+            # debounce。此处拦截，确保 toggleWatcher(False) 后绝不触发 sync。
+            return
         if self._sync_in_progress:
             # sync 进行中，累积变化，完成后补一次
             self._pending_sync = True
