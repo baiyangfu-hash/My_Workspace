@@ -27,6 +27,7 @@ import time
 import traceback
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
 
 from PySide6.QtCore import QObject, QTimer, QtMsgType, QUrl
 from PySide6.QtGui import QGuiApplication
@@ -34,6 +35,9 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuick import QQuickWindow
 from PySide6.QtQuickControls2 import QQuickStyle
 from PySide6.QtTest import QSignalSpy
+
+if TYPE_CHECKING:
+    from auto_pm.ui.qml.bridges.file_watcher_bridge import FileWatcherBridge
 
 
 class GuiTestRunner(QObject):
@@ -55,9 +59,9 @@ class GuiTestRunner(QObject):
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
         self.workspace_root = workspace_root
 
-        self.warnings: list[dict] = []
-        self.screenshots: list[dict] = []
-        self.test_steps: list[dict] = []
+        self.warnings: list[dict[str, Any]] = []
+        self.screenshots: list[dict[str, Any]] = []
+        self.test_steps: list[dict[str, Any]] = []
         self.current_step = 0
         self.step_index = 0
 
@@ -65,7 +69,7 @@ class GuiTestRunner(QObject):
 
     def _install_message_handler(self) -> None:
         """安装 Qt 消息处理器，捕获 QML 警告和错误"""
-        def handler(mode, context, message):
+        def handler(mode: QtMsgType, context: Any, message: str) -> None:
             if mode in (QtMsgType.QtWarningMsg, QtMsgType.QtCriticalMsg, QtMsgType.QtFatalMsg):
                 type_name = {
                     QtMsgType.QtWarningMsg: "Warning",
@@ -107,7 +111,7 @@ class GuiTestRunner(QObject):
         filepath = self.screenshots_dir / filename
 
         image = window.grabWindow()
-        image.save(str(filepath), "PNG")
+        image.save(str(filepath), "PNG")  # type: ignore[call-overload]
 
         rel_path = f"screenshots/{filename}"
         self.screenshots.append({
@@ -141,7 +145,7 @@ class GuiTestRunner(QObject):
         window.setProperty("currentPage", page_key)
         return True
 
-    def run(self) -> dict:
+    def run(self) -> dict[str, Any]:
         """执行所有测试步骤
 
         Returns:
@@ -151,7 +155,7 @@ class GuiTestRunner(QObject):
 
         steps = self._build_test_steps()
 
-        def execute_next_step():
+        def execute_next_step() -> None:
             if self.step_index >= len(steps):
                 self._finish_test(start_time)
                 return
@@ -184,7 +188,7 @@ class GuiTestRunner(QObject):
 
         return {}
 
-    def _build_test_steps(self) -> list[dict]:
+    def _build_test_steps(self) -> list[dict[str, Any]]:
         """构建测试步骤列表"""
         return [
             {
@@ -345,9 +349,12 @@ class GuiTestRunner(QObject):
 
     # ── CHG-SCPT-2026-141：FileWatcherBridge 集成测试步骤 ──
 
-    def _get_file_watcher_bridge(self):
+    def _get_file_watcher_bridge(self) -> FileWatcherBridge | None:
         """获取 FileWatcherBridge context property"""
-        return self.engine.rootContext().contextProperty("fileWatcherBridge")
+        prop = self.engine.rootContext().contextProperty("fileWatcherBridge")
+        if prop is None:
+            return None
+        return cast(FileWatcherBridge, prop)
 
     def _wait_for_signal(self, spy: QSignalSpy, timeout_ms: int = 15000) -> bool:
         """循环 processEvents 等待信号触发（GUI 可见模式）。

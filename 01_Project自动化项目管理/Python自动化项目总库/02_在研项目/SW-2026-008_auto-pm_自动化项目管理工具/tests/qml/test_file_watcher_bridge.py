@@ -83,6 +83,7 @@ def test_debounce_coalesces_events(qapp, tmp_workspace):
 def test_concurrent_sync_blocked(qapp, tmp_workspace):
     """sync 进行中再次触发去抖，累积为 pending，不启动新 sync"""
     bridge = FileWatcherBridge(str(tmp_workspace))
+    bridge._watcher_enabled = True  # 启用监听（_on_debounce_timeout 前置条件）
     bridge._sync_in_progress = True  # 模拟 sync 进行中
     calls: list[int] = []
     bridge._start_sync = lambda: calls.append(1)
