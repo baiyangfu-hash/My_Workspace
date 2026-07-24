@@ -344,3 +344,103 @@
 - **method**: ruff check + mypy + pytest + Python QML 加载诊断脚本
 - **blocker**: 无
 
+## 9. Next Actions
+
+### 长期规则（已固化到约束系统）
+
+- **[CST-SKILL-001] 技能变更必须通过 CHG 流程**（已固化为 `auto_pm/constraint/definitions/skill_change_requires_chg.yaml`，`constraint list` 可查）。规则：修改 `.trae/skills/` 下任何技能文件（SKILL.md / refs/*.md / README.md）必须先创建 CHG-SCPT 变更单挂靠在 SW-2026-008 项目下，使用 `auto-pm change create --pid SW-2026-008 --domain SCPT`。参考模板：CHG-SCPT-2026-139（技能与驾驶舱上下文桥接）。该约束在 `constraint check` 时自动执行，违规记 WARNING。
+
+- - **CHG-113 done_when** ✅ 已完成：修复 GUI 新建项目无法创建，第 44 次 dogfooding 闭环
+- - **CLI vs GUI 差异分析 done_when** [已验证] 已完成：CLI 11 个命令组 40+ 子命令 vs GUI 5 个 Bridge 30+ Slot 逐一对比，输出三类差异（已落地 15 项 / Bridge 待接入 6 项 / 完全缺失 20 项），结果已回写 §6 和 §8
+- - **M4/M5 GUI 补全优先级排序 done_when** ✅ 已完成：M4（变更管理完整闭环+项目管理补齐 7 项）/ M5（规范与台账管理 6 项）/ M6（领域专用工具 9 项），用户已确认方案，结果已回写 §6 和 §8
+- **M4 变更管理+项目管理 GUI 补全** precondition: 差异分析已完成 ✅ + 迭代规划已确认 ✅，done_when: ① ✅ 通过 CLI 创建 M4 CHG 变更单（CHG-SCPT-2026-114，dogfooding）；② ✅ 变更管理 1/4 项 QML 落地（change create 对话框已完成）；③ ✅ 项目管理 3/3 项 Bridge+QML 落地（CHG-115 project edit/delete/template apply 已闭环）；④ ✅ 模板应用 1/1 项 QML 落地（template apply 已闭环）；⑤ ✅ 全量门禁 6 项全绿（ruff 0 + mypy 2 预存 + 40 facade/bridge + 139 qml + 128 spec + PM_SESSION size 9）；⑥ ✅ CHG-114 状态流转 closed；⑦ ✅ CHG-115 状态流转 closed（第 46 次 dogfooding）。**M4 全部 7 项完成**：变更管理 4 项（CHG-114 NewChangeDialog + CHG-103 ChangeDetailPanel 状态流转/时间线/验证）+ 项目管理 3 项（CHG-115 edit/delete/template）
+
+### 2026-07-13 第二轮审查修复后的 Next Actions
+
+- [precondition: 无] [待启动] done_when: **N4 项目重复警告清理**——① 删除或重命名 `02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具` 残骸目录；② 或降级重复警告为 logging.debug；③ CLI 运行不再输出重复警告
+- [precondition: 无] [待启动] done_when: **N7 `change show` 支持 project_id**——① `change show` 新增 `--pid` 或位置参数；② 跨项目同名变更单可正确区分；③ 与 `change list PROJECT_ID` 接口风格一致
+- [precondition: 无] [待启动] done_when: **N9/N10 文档小问题修复**——① PM_SESSION 文档中 `--pid` 与实际 CLI 位置参数统一；② vartable `detect`→`detect-format` 命令名更新；③ 文档与 CLI `--help` 一致
+
+### 2026-07-11 M5 规范与台账管理迭代 Next Actions（6 个独立 CHG，用户已确认）
+
+- [precondition: M4 闭环 ✅ + M5 迭代计划已确认 ✅] [✅已完成] done_when: **CHG-116 delivery asset（交付资产管理对话框，第 47 次 dogfooding）**——① ✅ 通过 CLI `auto-pm change create` 创建 CHG-SCPT-2026-116；② ✅ 关键发现：CHG-111 已完成 QML 接入（WorkspaceView.qml 第 322-438 行资产汇总 Card），无需新建 AssetSummaryDialog.qml；③ ✅ 注释清理：delivery_bridge.py 第 4/67/77 行 TODO M5 注释 + WorkspaceView.qml 第 322 行注释更新；④ ✅ 全量门禁 6 项全绿（ruff 0 + mypy 0 + 149 qml + 128 spec + 27 delivery + PM_SESSION 89.5KB/285 行）；⑤ ✅ CHG-116 §5-§11 填写 + 状态流转 closed + 台帐对账无差异
+- [precondition: CHG-116 闭环 ✅] [✅已完成] done_when: **CHG-117 pm-session archive（PM_SESSION 归档对话框，第 48 次 dogfooding）**——① ✅ 通过 CLI 创建 CHG-SCPT-2026-117；② ✅ system_facade.py 新增 `archive_pm_session(section, keep_recent, dry_run)` 方法（复用 PmSessionArchiveService CHG-109）；③ ✅ system_bridge.py 新增 `archivePmSession(section, keepRecent, dryRun)` Slot；④ ✅ 新建 `PmSessionArchiveDialog.qml`（章节选择 + 保留数量 + 预览/执行）；⑤ ✅ main.qml 注册 + SettingsView 触发；⑥ ✅ facade 4 测试 + bridge 2 测试 + 更新 _MockSystemFacade + 更新 no_facade 降级断言；⑦ ✅ 全量门禁全绿（ruff 0 + mypy 0 + 32 modified + 292 broader pass + PM_SESSION 297 行）；⑧ ✅ CHG-117 状态流转 closed + 台帐对账无差异
+- [precondition: CHG-117 闭环 ✅] [✅已完成] done_when: **CHG-118 ledger reconcile（变更台账对账对话框，第 49 次 dogfooding）**——① ✅ 通过 CLI 创建 CHG-SCPT-2026-118；② ✅ change_facade.py 新增 `reconcile_ledger(project_id, auto_fix)` 方法（复用 LedgerReconciler CHG-108）+ `__init__` 增加 `project_service`/`ledger_reconciler` 可选依赖；③ ✅ change_bridge.py 新增 `reconcileLedger(projectId, autoFix)` Slot（`@Slot(str, bool, result="QVariant")`）；④ ✅ 新建 `LedgerReconcileDialog.qml`（项目 ID 输入 + "🔍 仅对账"/"🔧 自动修复" 双按钮 + 结果展示区：缺失/孤儿/状态不一致/自动修复标记）；⑤ ✅ main.qml 注册 + ChangeCenterView 触发（`requestReconcileLedger()` 信号 + "📊 台账对账"按钮）；⑥ ✅ facade 6 测试 + bridge 2 测试 + 降级断言更新；⑦ ✅ 全量门禁全绿（ruff 0 + mypy 0 + 33 modified + 309 broader pass + PM_SESSION 285 行）；⑧ ✅ CHG-118 状态流转 closed + 台帐对账无差异
+- [precondition: CHG-118 闭环 ✅] [✅已完成] done_when: **CHG-119 spec index（规范索引生成对话框，第 50 次 dogfooding）**——① ✅ 通过 CLI 创建 CHG-SCPT-2026-119；② ✅ spec_facade.py 新增 `generate_spec_index(domain="all")` 方法 + `index_service` 可选依赖；③ ✅ spec_bridge.py 新增 `generateSpecIndex(domain)` Slot；④ ✅ 新建 `SpecIndexDialog.qml`（域选择 ComboBox + 生成按钮 + 结果展示区 + GlassPanel）；⑤ ✅ main.qml 注册 + SpecCenterView 触发（`requestGenerateSpecIndex()` 信号 + "📝 生成索引"按钮）；⑥ ✅ facade 6 测试 + bridge 2 测试 + test_facade_registry 更新；⑦ ✅ 全量门禁全绿（ruff 0 + mypy 0 + 24 modified + 1333 broader pass + 2 skipped + 6 pre-existing errors）；⑧ ✅ CHG-119 状态流转 closed + 台帐对账无差异
+- [precondition: CHG-119 闭环] [✅已完成] done_when: **CHG-120 spec report（规范报告生成对话框，第 51 次 dogfooding）**——① ✅ 通过 CLI 创建 CHG-SCPT-2026-120；② ✅ spec_facade.py 新增 `generate_spec_report(fmt)` 方法 + report_service 可选依赖；③ ✅ spec_bridge.py 新增 `generateSpecReport(fmt)` Slot；④ ✅ 新建 `SpecReportDialog.qml`（格式选择 ComboBox + 生成按钮 + 内容预览 + GlassPanel）；⑤ ✅ main.qml 注册 + SpecCenterView 触发（`requestGenerateSpecReport()` 信号 + "📊 生成报告"按钮）；⑥ ✅ facade 5 测试 + bridge 2 测试 + test_facade_registry 更新；⑦ ✅ 全量门禁全绿（ruff 0 + mypy 0 + 31 modified + 315 broader pass + 6 pre-existing errors）；⑧ ✅ CHG-120 状态流转 closed + 台帐对账无差异
+- [precondition: CHG-120 闭环] [✅已完成] done_when: **CHG-121 spec frontmatter（规范 Frontmatter 检查/修复对话框，第 52 次 dogfooding）**——① ✅ 通过 CLI 创建 CHG-SCPT-2026-121；② ✅ spec_facade.py 新增 `check_spec_frontmatter(auto_fix)` 方法 + frontmatter_service 可选依赖；③ ✅ spec_bridge.py 新增 `checkSpecFrontmatter(autoFix)` Slot；④ ✅ 新建 `SpecFrontmatterDialog.qml`（369 行，"🔍 仅检查"/"🔧 检查并修复" 双按钮 + 结果展示区 + GlassPanel）；⑤ ✅ main.qml 注册 + SpecCenterView 触发（`requestCheckSpecFrontmatter()` 信号 + "🔍 检查 Frontmatter"按钮）；⑥ ✅ facade 5 测试 + bridge 2 测试 + test_facade_registry 更新；⑦ ✅ 全量门禁全绿（ruff 0 + mypy 0 + 38 modified + 450 broader + 6 pre-existing errors）；⑧ ✅ CHG-121 状态流转 closed（9 步）；⑨ ✅ M5 全部 6 项完成，PM_SESSION §3 spec_compliance dogfooding 51→52
+
+### 2026-07-11 M5 全量回归测试后的 Next Actions
+
+- [precondition: M5 6 项闭环 ✅ + 回归测试全绿 ✅] [✅已完成 2026-07-11] done_when: **预存技术债治理（4 类 bug 全部修复）**——① ✅ ruff 修复 `scripts/diag_change_cross_project_bug.py` E402×2（加 `# noqa: E402`）；② ✅ ruff 修复 `tests/change/test_change_service_db.py` I001×1（import 重排）；③ ✅ pytest 修复 `tests/application/test_change_facade_int.py` 6 个 FOREIGN KEY constraint failed（fixture 补 `project_id="SW-2026-001"` 到 ImpactAnalysis + 2 个 ApprovalRecord）；④ ✅ PM_SESSION 318>300 行超限（归档 §6 CHG-119/120/121 详细条目为摘要，318→289 行）；⑤ ✅ `auto_pm/cli/gui.py` 命令名 bug（`@click.command()` 默认 `gui-command` → 显式 `@click.command("gui")`）；⑥ ✅ 全量门禁全绿（ruff 0 + mypy 0 + pytest 1194 passed + PM_SESSION size 9）；⑦ open_question: tests/qml/ 未重跑（gui.py 改动不影响 QML 测试逻辑），全量 pytest 含 GUI 时卡在 95% 疑似 GUI 窗口阻塞待后续诊断
+- [precondition: M5 回归测试全绿 ✅] [待启动] done_when: **V1.0.0 性能 FPS 实测**——① 万行数据 FPS ≥ 30 实测证据（QML TableView 原生虚拟化）；② TableView 滚动流畅度验证（60 FPS 滚动）；③ 内存占用基线建立（万行数据 < 200MB）；④ 性能测试报告归档到 09_整改项/
+- [precondition: M5 回归测试全绿 ✅] [待启动] done_when: **V1.0.0 电气部门真实试用**——① 用户确认试用范围（电气工程师人数/试用周期/反馈收集方式）；② 基于测试项目 DJ-2026-100_电气部门试用样例 进行试用培训；③ 试用反馈收集机制建立（试用日志 + 问题清单 + 每周复盘）；④ 试用期间问题记录到 PM_SESSION §6 + 创建 CHG-SCPT-2026-122+ 走 dogfooding 闭环
+- [precondition: M5 回归测试全绿 ✅] [待启动] done_when: **V1.0.0 发布评估**——① 基于 FPS 实测 + 电气部门试用反馈综合评估发布就绪度；② 更新 README/CHANGELOG/006 到 V1.0.0 发布版；③ CHG-SCPT-2026-122+ 走 dogfooding 闭环；④ PM_SESSION §2 milestone V1.0.0 发布版已闭环
+
+> **§9 已完成的 Next Actions（V0.3.0~V0.6.0 时代 30+ 条 ✅）已归档到 [archive_V0.6.0.md](00_项目管理/05_PM_SESSION归档/PM_SESSION_SW-2026-008_archive_V0.6.0.md) §6 Implementation Log 早期归档**。
+> 用户硬约束：记录全部都要，迭代走过的路是教训也是经验。
+
+### 2026-07-13 CHG-124 5 功能子项统收后的 Next Actions
+
+- [precondition: M5 6 项闭环 ✅ + CHG-123 闭环 ✅] [✅已完成 2026-07-13] done_when: **CHG-124 5 功能子项统收（retrofit 模式，第 54 次 dogfooding）**——① ✅ 通过 CLI `auto-pm change create --retrofit` 创建 CHG-SCPT-2026-124（SCPT+OPT+MODULE，状态 closed）；② ✅ T1 DocBrowserView.qml 新建 269 行 + qml_main_window 注册；③ ✅ T2 delivery_bridge.py 新增 4 Slot（loadVarTable/saveVarTable/listProjectDocs/renderMarkdown），80→219 行；④ ✅ T3 main.qml +23 行注册 AboutDialog/GlobalSettingsDialog + 信号路由；⑤ ✅ T4 EditChangeDialog.qml +65 行 GlassPanel 改造；⑥ ✅ T5 spec_facade.py +15 行补齐 PLC stack repair 分支 + SpecCheckServiceProtocol.run 签名更新；⑦ ✅ T6 var_table_model.py +17 行新增 setEntries/getEntries 方法；⑧ ✅ T7 测试更新 27 passed；⑨ ✅ T8 三轨门禁全绿（ruff 0 + mypy 0 + pytest 27 passed）+ §10.1 V1-V10 全部通过；⑩ ✅ PM_SESSION §3/§6/§8/§9 回写 + 台帐对账无差异
+
+### 2026-07-09 台账治标后的 Next Actions（治本 CHG 规划）
+
+- [precondition: 台账治标完成] [✅ 已完成 2026-07-09] done_when: **治本 CHG-SCPT-2026-108 台账一致性治理专项（合并原 108/109/110 三个 CHG 为单个，一次性修复 3 个代码缺陷）**——① **缺陷 1：新增 `auto-pm ledger reconcile` 命令** + LedgerReconciler 类（扫描 01_变更单/ 所有 CHG-*.md vs 台账记录，输出 diff 报告 + 自动补建缺失行 + 修复状态不一致）；② **缺陷 2：LedgerUpdater.update_status() 自愈**——找不到行时自动补建（不再静默 warning），补建时从 CHG-*.md 解析元信息（申请人/申请日期/描述/状态）；③ **缺陷 3：新增 `change create --retrofit` 选项**支持"先实施后补"工作流（跳过状态流转直接创建 closed 状态变更单 + 台账补建）+ `auto-pm change verify --ledger-check` 对账门禁（变更单文件 vs 台账记录一致性校验，差异时报错）；④ **顺带修复 CHG-104 文件 §3.4 状态字段滞后**（implementing→closed）；⑤ 测试覆盖（缺失行补建、状态不一致修复、--retrofit 场景、对账门禁场景、CHG-104 状态滞后场景）；⑥ 全量门禁 6 项全绿（ruff 0 + mypy 0 + tests/change + tests/qml + tests/spec + PM_SESSION size）；⑦ 通过 CLI `auto-pm change create` 创建变更单（用户硬约束 dogfooding）
+- [precondition: CHG-108 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-SCPT-2026-109 §8 条目级归档（PM_SESSION §8 归档 Edit 工具无法处理超长 skill_handoff 单行的长期方案）**——① 新增 `archive_section_8()` 方法实现 §8 条目级归档（区别于 `archive_section()` 行级归档，按 skill_handoff 条目识别，current_state 始终保留）；② CLI `cmd_archive` 对 §8 路由特殊处理 + 预览输出适配；③ `_resolve_archive_file()` 归档文件版本切分（超 200KB 自动创建带日期后缀新文件）；④ 11 测试覆盖（TestArchiveSection8 8 测试 + TestResolveArchiveFile 3 测试）；⑤ 全量门禁全绿（ruff 0 + mypy 0 + tests/change+core+application+cli 651 + tests/qml+spec 267 + PM_SESSION size 9）；⑥ dry-run 功能验证正确输出"归档模式: 条目级（§8 倒序结构，CHG-109）"；⑦ 通过 CLI `auto-pm change create` 创建变更单（用户硬约束 dogfooding）
+- [precondition: CHG-109 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-SCPT-2026-110 §4 过时资产引用清理**——① 清理 PM_SESSION §4 Artifacts Index 中 3 个过时引用键（execution_plan_6week V0.4.2 / execution_plan_week2_batch2 V0.4.0 / execution_plan_v060_qml V0.6.0）；② 对应文件保留在 03_执行过程/ 不删除（被 CHG-075/077/084 等变更单引用为背景依据）；③ 全量门禁全绿（ruff 0 + mypy 0 + 918 passed + PM_SESSION 143.8KB/290 行）；④ 通过 CLI `auto-pm change create` 创建变更单（用户硬约束 dogfooding）
+
+### 2026-07-09 CHG-102 闭环后的 Next Actions（HTML 原型 V7 落地四阶段规划）
+
+- [precondition: CHG-102 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-1 视觉系统升级 + 导航框架重构**——① Theme.qml V0.6.0 浅色→V0.9.3 深色玻璃拟物化 ✅；② GlassPanel + AmbientOrb + ContextCard + SidebarBadge + BackendStatus 5 新组件 ✅；③ main.qml 三轨道导航 + Header 72px + 集成 5 新组件 ✅；④ T6 全量门禁 5 项全绿 ✅；⑤ T7 GUI 冒烟 9/9 通过 ✅；⑥ T8 PM_SESSION 回写 + CHG-102 状态流转 closed ✅
+- [precondition: CHG-1 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-2 变更中心 Split/Ledger 视图切换**——① 变更中心页面 Split View（左侧变更单列表 + 右侧详情）✅；② Ledger 台账视图切换（列表视图/台账视图 toggle）✅；③ 变更单详情面板交互补齐（状态流转按钮 + 验证项清单 + 实施记录展示）✅；④ 全量门禁 5 项全绿 + GUI 冒烟通过 ✅
+- [precondition: CHG-2 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-104 006/005 文档基线对齐 + TD-A04 登记**——① 006 技术债报告同步（frontmatter + §0.1 总览表 + §4 TD-A04 + §10 变更记录）✅；② 005 里程碑计划同步（§3.1 基线 V0.9.3 + §3.2 HTML 原型 V7 四阶段规划）✅；③ PM_SESSION §6/§8/§9 回写 + CHG-104 状态流转 closed ✅
+- [precondition: CHG-104 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-105 TD-A04 跨项目单号过滤缺陷修复**——① find_change_file 增加 project_id 可选参数（核心层）✅；② ChangeService 4 方法透传 project_id（Service 层）✅；③ ChangeFacade 3 方法 + TransitionChangeCommand 新增 project_id 字段 + Protocol 接口契约同步（Facade 层）✅；④ CLI cmd_show/cmd_transition/cmd_edit 新增 --pid 选项（CLI 层）✅；⑤ 新增测试覆盖跨项目单号场景 8 测试用例 ✅；⑥ 全量门禁 6 项全绿（ruff 0 + mypy 0 + tests/change 173 + tests/qml 138 + tests/spec 128+1skip + PM_SESSION size 9）✅
+- [precondition: CHG-105 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-3 工作台 KPI 网格 + 状态机 + 时间线**（实为 CHG-106，对应原型 view-platform-dashboard）——① PlatformDashboardView.qml 新建平台驾驶舱视图（KpiGrid + DashboardStateMachine + ActivityTimeline 三大组件）✅；② KpiGrid 4 卡片（开发阶段/技术债/测试通过率/活跃变更单）✅；③ DashboardStateMachine 4 节点简化状态机（12 状态映射 Draft/Review/Implementing/Closed + 进度条 + 脉冲动画 + 终态处理）✅；④ ActivityTimeline 时间线组件（圆点+连接线+_typeColor 函数）✅；⑤ 后端数据源扩展（DashboardSummaryDTO/DashboardSnapshotDTO 新增 4 字段 + _collect_tech_debt_summary/_collect_test_summary + workspace_root 传播链 + recent_activities 格式升级 list[dict]）✅；⑥ Bridge 层 getActiveChangeStatus Slot + Facade get_active_change_status 方法 + 6 新测试 ✅；⑦ main.qml 路由扩展 7→8 分支 + 侧边栏"📊 平台驾驶舱大盘"入口 ✅；⑧ 全量门禁 6 项全绿（ruff 0 + mypy 0 + change/core/app 510 + qml 139 + spec 128+1skip + session size 9）✅
+- [precondition: CHG-3 闭环] [✅ 已完成 2026-07-09] done_when: **CHG-4 Loading Overlay + Future Capability + 收尾门禁**（实为 CHG-107，对应 V7 原型收尾阶段）——① Loading Overlay 组件（异步操作加载指示）✅；② Future Capability 占位区（未实现功能灰化提示）✅；③ pyproject.toml 版本号 0.9.2→V1.0.0 + CHANGELOG [1.0.0] + 006 frontmatter V1.0.0 ✅；④ 全量门禁 6 项全绿 + GUI 冒烟通过 + V1.0.0 发布评估 ✅（ruff 0 + mypy 0 + change/core/app 510 + qml 139 + spec 128+1skip + session size 9 + LoadingOverlay/FutureCapability 2/2 OK）
+
+### 2026-07-08 V0.9.2 闭环后的 Next Actions（V1.0.0 规划）
+
+- [precondition: V0.9.2 Phase 2 完成] [✅ 已完成 2026-07-08] done_when: **Phase 3 文档收口**——① `README.md` 删除 QWidget/QWizard/QMainWindow 时代描述，改写为 V0.9.0 的 QML 单入口现状 ✅（7 处过时描述修复）；② 清理 `auto_pm/ui/qml_main_window.py` 中 `--qml`、QWidget 回退等过时注释 ✅（2 处 docstring 更新）；③ 评估并移除 `pyproject.toml` 中未再使用的 `pywebview` 依赖 ✅（无需修改，Claude #6 pywebview 依赖声明失真，dependencies 中无 pywebview）；④ 核查其他文档对 V0.9.0 的描述一致性 ✅；⑤ 形成 1 份小型 CHG 并完成最小回归 ✅（合并到 Phase 6 CHG-SCPT-2026-101）
+- [precondition: V0.9.2 Phase 3 完成] [✅ 已完成 2026-07-08] done_when: **Phase 4 测试污染定位 + GUI 修复**——① 定位 pytest 全量回归卡在 96% 的测试污染根因 ✅（**未复现"卡在 96%"问题**，全量 pytest 207.10s 完成 2 failed + 1258 passed + 2 skipped，2 个失败根因是 PM_SESSION 文件大小超阈非测试污染）；② 修复测试污染问题 ✅（运行 auto-pm pm-session archive 归档 §6 早期 24 行，PM_SESSION 156.6KB→109.7KB，9 passed 恢复通过）；③ 修复 `VarTableEditorView.qml` L259 "Cannot assign to non-existent property onFocusLost" 属性问题 ✅（onFocusLost→onEditingFinished）；④ GUI 可见模式冒烟测试 ✅（tests/qml/ 138 passed 可见模式 + 8 个 QML view 全部可加载）；⑤ 全量回归 0 failed + ruff 0 + mypy 0 ✅
+- [precondition: V0.9.2 Phase 4 完成] [✅ 已完成 2026-07-08] done_when: **Phase 5 质量加固评估**——① Ruff 扩展规则集评估 ✅（RUF/SIM/PLR 实测 3951 errors，规模过大建议后续专门迭代）；② AutoPmConfig 配置类评估 ✅（auto_pm/config/app_config.py 已有 AutoPmConfig(BaseSettings) 2 字段 app_name + log_level，后续逐步收口硬编码）；③ 其他 Claude P2-P4 剩余建议核查 ✅（Phase 2 已全部核查，7/7 严重失真，0 项需修改）；④ 全量回归 0 failed + ruff 0 + mypy 0 ✅（三轨门禁全绿）
+- [precondition: V0.9.2 Phase 3-5 完成] [✅ 已完成 2026-07-08] done_when: **Phase 6 dogfooding 闭环**——① 创建 CHG-SCPT-2026-101 走 dogfooding 闭环（第 32 次），记录 V0.9.2 治理收口迭代全部变更 ✅（12 章节完整，状态 closed）；② CHG 状态 draft→closed 9 步状态流转 ✅；③ PM_SESSION §3 spec_compliance dogfooding 计数 30→32 ✅；④ 版本号三件套升级（pyproject 0.9.1→0.9.2 + CHANGELOG [0.9.2] + 006 frontmatter V0.9.2）✅；⑤ PM_SESSION §2 milestone V0.9.2 已闭环 ✅
+- [precondition: V0.9.2 已闭环] [待启动] done_when: **V1.0.0 性能 FPS 实测**——① 万行数据 FPS ≥ 30 实测证据（QML TableView 原生虚拟化）；② TableView 滚动流畅度验证（60 FPS 滚动）；③ 内存占用基线建立（万行数据 < 200MB）；④ 性能测试报告归档到 09_整改项/
+- [precondition: V0.9.2 已闭环] [待启动] done_when: **V1.0.0 电气部门真实试用**——① 用户确认试用范围（电气工程师人数/试用周期/反馈收集方式）；② 基于测试项目 DJ-2026-100_电气部门试用样例 进行试用培训；③ 试用反馈收集机制建立（试用日志 + 问题清单 + 每周复盘）；④ 试用期间问题记录到 PM_SESSION §6 + 创建 CHG-SCPT-2026-102+ 走 dogfooding 闭环
+- [precondition: V0.9.2 已闭环] [待启动] done_when: **V1.0.0 发布评估**——① 基于 FPS 实测 + 电气部门试用反馈综合评估发布就绪度；② 更新 README/CHANGELOG/006 到 V1.0.0；③ CHG-SCPT-2026-103+ 走 dogfooding 闭环；④ PM_SESSION §2 milestone V1.0.0 已闭环
+- [precondition: V0.9.2 已闭环] [可选，建议专门迭代] done_when: **Ruff 扩展规则集治理**——① RUF/SIM/PLR 3951 errors 分批治理（按规则类别分批，每批 ≤500 errors）；② 每批治理后全量回归 0 failed + ruff 0 + mypy 0；③ 治理完成后登记到 006 技术债报告
+
+### 2026-07-07 重新诊断后的 P0 阻断性修复（✅ 已全部完成）
+
+- [precondition: 用户决策立即修复] [✅ 已完成] done_when: **修复 protocols.py 断裂导入（N1）**——T1 已执行：L15-20 导入 + L71 返回类型 ProjectCardDTO→ProjectListItem。验证：`python -c "from auto_pm.core.protocols import ProjectServiceProtocol"` 正常
+- [precondition: N1 修复完成] [✅ 已完成] done_when: **修复 workbench_bridge.py 方法名（N2）**——T3 已执行：L49 get_dashboard_summary()→get_dashboard_snapshot()
+- [precondition: N1 修复完成] [✅ 已完成] done_when: **同步 tests/qml/test_qml_bridge_v08.py（N3）**——T5 已执行：删除该文件 + 追加删除 4 个同类失效测试文件
+- [precondition: N1 修复完成] [✅ 已完成] done_when: **修复 project_service.py 重复定义（N4）**——T2 已执行：导入改 ProjectListItem + 方法签名 + 实现改用 ProjectListItem
+- [precondition: N1 修复完成] [✅ 已完成] done_when: **修复 project_service.py ProjectCardDTO 字段（N5）**——T2 已执行：改用 ProjectListItem（6→8 字段，含 path + business_line）
+- [precondition: N1-N5 修复完成] [✅ 已完成] done_when: **修复 PySide6 DLL 加载失败（N11）**——T7 已执行：pip install --force-reinstall --no-deps PySide6 PySide6_Addons PySide6_Essentials shiboken6。验证：`python -c "from PySide6.QtCore import QObject"` 正常
+- [precondition: 无] [✅ 已完成] done_when: **删除 clean_bridge.py 临时文件（N12）**——T6 已执行：删除 clean_bridge.py + 2 个 scratch 文件
+- [precondition: P0 全部修复完成] [✅ 已完成] done_when: **修复后全量回归验证**——T9 已执行：① ruff check . 0 errors ✅；② mypy auto_pm/ 24 errors（P1/P2 非阻断，从 34 降至 24）；③ pytest 1115 passed 2 skipped ✅；④ PM_SESSION §3 spec_compliance 已更新为实测通过状态；⑤ PM_SESSION §6 已追加修复实施记录
+
+### 2026-07-06 熟悉项目 + `claude_plan` 评估后的建议动作
+
+- [precondition: 无] [待决策] done_when: **确认 V1.0 主线是否继续 QML 稳定化而非立即 Web 重写**——① 用户明确近期目标是“桌面单机稳定交付”还是“浏览器部署/多人协作/远程访问”；② 若目标仍是单机桌面，确认 V1.0 主线为“性能 + 试用 + Bridge 拆分 + 文档/依赖收口”；③ 若目标改为 Web 化，单独创建 CHG/迭代文档，不与当前 V0.9.0 稳定线混做；④ 该决策回写 PM_SESSION §2/§8
+- [precondition: 用户确认近期不切 Web 主线] [✅ 已完成 2026-07-08] done_when: **拆薄 `QmlBridge`，但不改 GUI 技术栈**——① 按领域把当前桥接对象拆成项目/变更/规范/报告/设置等 adapter 或 façade ✅（已拆分为 5 个域 bridge：change_bridge/workbench_bridge/delivery_bridge/system_bridge/spec_bridge）；② 保持 QML 页面和 CLI 外部行为不变，避免大范围回归 ✅；③ 新增针对各 adapter 的 focused tests，替代继续把行为堆进单一 `QmlBridge` ✅（tests/qml/test_*_bridge.py 已存在）；④ 拆分后 `QmlBridge` 只保留装配、少量信号和公共转换入口 ✅（qml_bridge.py 已删除）。**[2026-07-08 V0.9.2 Phase 1 recheck 确认]**：Glob 搜索 qml_bridge.py 无结果，5 个域 bridge 落地在 auto_pm/ui/qml/bridges/ 目录
+- [precondition: 架构主线确认] [待启动] done_when: **收口文档与依赖的时效性偏差**——① `README.md` 删除 QWidget/QWizard/QMainWindow 时代描述，改写为 V0.9.0 的 QML 单入口现状；② 清理 `auto_pm/ui/qml_main_window.py` 中 `--qml`、QWidget 回退等过时注释；③ 评估并移除 `pyproject.toml` 中未再使用的 `pywebview` 依赖；④ 形成 1 份小型 CHG 并完成最小回归
+- [precondition: QML 单入口稳定基线保持不变] [待启动] done_when: **先拿运行时证据，再决定是否做 V1.0 架构升级**——① 完成万行变量表 FPS / 内存占用基线；② 完成至少 1 轮电气部门真实试用并收集问题；③ 将试用问题按“可用性 / 性能 / 架构性”分类；④ 只有当架构性问题反复出现时，才升级为 FastAPI/Web 化方案评估
+
+### 2026-07-06 架构重设计方案后的建议动作
+
+- [precondition: 用户认可 `02_设计` 下的新方案包] [✅ 已完成] done_when: **冻结架构主线为“接口优先、运行时后置”**——① PRD/INT/DSN/TEC 作为设计真源生效；② 后续讨论不再直接围绕“QML 还是 Web”打转，而以接口层稳定度为主判断；③ PM_SESSION §2/§8 引用新的主线表述
+- [precondition: 架构主线已冻结] [✅ 已完成] done_when: **启动 M1 接口层骨架实施**——① 建立 `application/` Facade 层；② 建立 `ui/contracts/` 下的 DTO/Command/Event；③ 以 Workbench 域为第一批落地对象；④ `QmlBridge` 不再继续扩容为总入口
+- [precondition: M1 骨架完成] [待启动] done_when: **按 30 周路线推进 M2：逐步接管 Workbench 域**——① `QmlBridge` 中的 dashboard 和 project_list 方法切换为调用 `WorkbenchFacade`；② 重构或扩展真实的 service 层映射代码；③ 跑通 QML UI 上的驾驶舱数据显示；④ 验证零回归
+- [precondition: M2 完成] [待启动] done_when: **继续按 30 周路线推进 M3-M9**——① 变更中心 → 规范/报告/设置逐域迁移；② 建立 FPS/内存基线；③ 完成真实试用；④ 根据真实问题决定是否做 Web 试点
+
+### V0.7 QML 完整覆盖（已合并到 V0.8.0 完成）
+
+> V0.7 计划的 QML 完整覆盖 + 旧代码激进清理已在 V0.8.0 完成（CHG-090/091/092 三连闭环，第 21/22/23 次 dogfooding）。性能 FPS 实测 + 电气部门真实试用 + main_window.py 完整移除推到 V0.9。
+
+- [precondition: V0.6.0 已闭环] [✅ 已完成 V0.8.0] done_when: **V0.7 QML 完整覆盖**——① SpecCenterView.qml 规范中心 QML 化 ✅（V0.8.0 Phase 2 CHG-091 644 行 3 Tab）；② ReportView.qml 报告页 QML 化 ✅（V0.8.0 Phase 2 CHG-091 378 行）；③ TemplateView.qml 模板页 QML 化 ✅（V0.8.0 Phase 2 CHG-091 282 行）；④ GlobalSettingsView.qml 全局设置页 QML 化 ✅（V0.8.0 Phase 2 CHG-091 SettingsView 476 行）；⑤ main.qml 占位替换为真实页面 ✅（V0.8.0 Phase 1+2 全部 7 页真实）；⑥ CHG-SCPT-2026-090/091/092 创建走 dogfooding 闭环 ✅（第 21/22/23 次闭环 closed）；⑦ ruff 0 + mypy 0 + 全量回归 0 回归 ✅（tests/qml/ 200 passed + tests/ui/ 433 passed）
+- [precondition: V0.7 QML 完整覆盖完成] [✅ 部分完成 V0.8.0] done_when: **V0.7 旧代码激进清理**——① 删除 global_pages/ 4 主页面 + spec_center_tabs/ 7 文件 ✅（V0.8.0 Phase 3 CHG-092 已删 11 文件）；② 删除对应 tests/ui/ 旧 pytest-qt 测试 ✅（V0.8.0 Phase 3 CHG-092 已删 6 文件）；③ main_window.py / project_list/ / workspace/ / change_center/ / dialogs/ / vartable/ 旧 QWidget 模块完整删除 ⏳ 推到 V0.9（main_window.py 仍被 17 测试依赖，本期用 try/except 占位兼容）；④ auto_pm/ui/styles.py QSS ⏳ 推到 V0.9；⑤ 全量回归 0 回归 ✅
+- [precondition: V0.8.0 闭环] [⏳ 推到 V0.9] done_when: **性能 FPS 实测**——① 万行数据 FPS ≥ 30 实测证据（QML TableView 原生虚拟化）；② TableView 滚动流畅度验证（60 FPS 滚动）；③ 内存占用基线建立（万行数据 < 200MB）；④ 性能测试报告归档到 09_整改项/
+
+### V0.9 完整移除 main_window.py + 电气部门真实试用
