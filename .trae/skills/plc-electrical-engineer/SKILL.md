@@ -7,6 +7,20 @@ description: "Siemens TIA Portal PLC / 电气工程主入口。主适配西门�
 
 Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-1200 / S7-1500 + SCL/ST。
 
+> **架构定位**（CHG-SCPT-2026-140）：本技能为**纯执行者**。pm-workflow 是驾驶舱唯一入口和统筹者，负责 venv 激活、cockpit 上下文桥接、PM_SESSION 读取、HTML 原型产出。本技能接收 pm-workflow 的 skill_context 后执行领域工作。
+>
+> **通用规则单一真源**：以下规则统一在 [refs/skill_coordination.md](refs/skill_coordination.md) 中定义，本技能不重复维护：
+> - Bug 诊断前置纪律（§1）
+> - dogfooding 闭环质量门禁（§2）
+> - 真源一致性前置校验（§3）
+> - 门禁实测强制检查（§4）
+> - 台账对账检查（§5）
+> - 审查报告验证模式（§6）
+> - retrofit 模式（§7）
+> - 文件命名规范（§8）
+> - 文件写入策略（§9）
+> - PM_SESSION 双层结构归档规则（§10）
+
 ## 你负责什么
 
 - 读写/评审西门子 `.scl`、`.db`（FB/FC/DB/UDT/实例 DB）源程序
@@ -21,6 +35,7 @@ Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-
 - 非西门子 SCL 平台的程序（如 `AutoShop`, `Works3` 等非 SCL 项目完全忽略，如 `DJ-2026-009`）
 - 需求/PRD/迭代/变更单全生命周期流转 → `pm-workflow`
 - Python / Web / 非 PLC 开发 → `fullstack-engineer`
+- venv 激活 / cockpit 上下文桥接 / PM_SESSION 读取入口 → `pm-workflow`（本技能仅接收上下文）
 
 ## 本地规范索引（必须遵循，输出前应读取确认版本）
 
@@ -36,7 +51,7 @@ Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-
 ## 工具依赖与 CLI 指南
 
 ```powershell
-# 1. 激活虚拟环境 (必须在工具调用前最先执行)
+# 1. 激活虚拟环境 (若独立触发且 pm-workflow 未激活则自行激活)
 & "<工作空间根>\.venv\Scripts\Activate.ps1"
 
 # 2. auto-pm PLC 子命令 (项目初始化/合规性检查/自动修复/标准化)
@@ -65,7 +80,7 @@ plc-var-parser "<项目根>/PRD/接口文档_INT.md"
 
 ### Step 0：前置校验与硬约束加载
 
-1. **激活虚拟环境**（必须最先执行）：
+1. **激活虚拟环境**（若独立触发且 pm-workflow 未激活则自行激活）：
    ```powershell
    & "<工作空间根>\.venv\Scripts\Activate.ps1"
    python --version
@@ -92,9 +107,10 @@ plc-var-parser "<项目根>/PRD/接口文档_INT.md"
    - **未提单但属于紧急修复/补单**：可调用 `auto-pm change create --retrofit` 进行免审批补单。
    - **常规新需求/大变更**：若尚未建单，提醒用户或无缝切回 `pm-workflow` 进行需求/变更澄清。
 
-### Step 2：PLC 缺陷诊断与实证先行纪律 (Bug 修复模式专用)
+### Step 2：PLC 缺陷诊断（Bug 修复模式专用）
 
-当任务为 Bug 修复、超时、报错诊断时，**必须**遵循实证纪律，禁止单凭 SCL 代码阅读直接下结论：
+当任务为 Bug 修复、超时、报错诊断时，遵循 [refs/skill_coordination.md](refs/skill_coordination.md) §1 Bug 诊断前置纪律的通用规则，并补充 PLC 域特定纪律：
+
 1. **获取完整证据**：读取完整的 PLC 报警日志、扫描周期异常或测试输出。
 2. **逻辑/校验脚本先行**：推测的根因**必须**用 `auto-pm plc check` 或逻辑仿真/断言脚本验证后再给出修复方案。
 3. **未验证隔离**：未经本地 LSP/工具校验的推测结论，**禁止**作为已确切结论写入 `PM_SESSION`，必须标注 `[待验证]`。
@@ -117,22 +133,27 @@ refs 路径见 `refs/INDEX.md`。
 
 ### Step 4：门禁与本地 LSP 实测强制检查（回写前必做）
 
-在修改 SCL 或回写 PM_SESSION 前后，**必须**实际运行本地 LSP 合规检查：
+通用规则见 [refs/skill_coordination.md](refs/skill_coordination.md) §4 门禁实测强制检查。PLC 域特定要求：在修改 SCL 或回写 PM_SESSION 前后，**必须**实际运行本地 LSP 合规检查：
+
 ```powershell
 auto-pm -w "<工作空间根>" plc check <项目ID> --json
 ```
-记录真实检查结果（如 `violations_count` / `errors`），**严禁凭推断声明“规范全绿”或“0 错误”**。
+
+记录真实检查结果（如 `violations_count` / `errors`），**严禁凭推断声明"规范全绿"或"0 错误"**。
 
 ### Step 5：外部 AI 审查报告校验模式
+
+通用规则见 [refs/skill_coordination.md](refs/skill_coordination.md) §6 审查报告验证模式。PLC 域特定要求：
 
 若收到外部 AI（如 Claude/DeepSeek 等）产出的 PLC 审查报告：
 1. **禁止直接采信**其对 SCL 语法、变量命名或极性逻辑的批评。
 2. 必须运行 `auto-pm plc check` 或 `view_file` 读取源码逐条实测核验。
 3. 在 PM_SESSION 中记录实测核验结果（如：✅ 已验证为真 / ❌ 已验证失真）。
 
-### Step 6：技能退出与 PM 联动闭环（Step 7）
+### Step 6：技能退出与 PM 联动闭环
 
-按顺序完成以下退出步序，不可跳过：
+按顺序完成以下退出步序，不可跳过（通用规则见 [refs/skill_coordination.md](refs/skill_coordination.md) §2 dogfooding 闭环质量门禁 + §5 台账对账检查）：
+
 1. **文档同步**：同步更新 `PRD/` 目录下的 REQ/INT/DSN 文档版本与内容。
 2. **变更单 (CHG) 回写**：若关联 `CHG-xxx`，回写其 §9 实施记录与 §10 验证结论。
 3. **PM_SESSION 回写**：
@@ -140,7 +161,7 @@ auto-pm -w "<工作空间根>" plc check <项目ID> --json
    - §7 Verification Log（标注 `[已验证]` 或 `[待验证]`，其中已验证指本地 LSP 验证通过）。
    - §8 Handoff Notes（严格遵循标准化结构：`current_state`, `next_focus`, `skill_handoff` **仅保留 1 条**最新, `watchouts`, `read_first`）。
 4. **台账对账校验**：若涉及变更单修改，运行 `auto-pm ledger reconcile <项目ID>` 确保台账一致。
-5. **根因与绕过标记**：若属于“补回写”，标注 `★ 注: 本次修改绕过PLC技能, 于<日期>补回写`。
+5. **根因与绕过标记**：若属于"补回写"，标注 `★ 注: 本次修改绕过PLC技能, 于<日期>补回写`。
 6. **SysLib 变量表自动输出**（SysLib FB 专项）：
    - 当 changed_files 包含 `PRD/接口文档_INT.md` 且路径在 `01_SharedLibraries/SysLib/` 下时，自动调用 `plc-var-parser` 输出 `.xlsx` 变量表。
 7. **输出摘要**：向用户输出本轮 PLC 变更摘要（注明已完成本地 LSP 验证）。
@@ -151,7 +172,7 @@ auto-pm -w "<工作空间根>" plc check <项目ID> --json
 2. **LSP 语法禁用**：严禁在 SCL 中使用 `METHOD` 语法；定时器 `PT`/`ET` 参数类型必须声明为 `DINT`（毫秒）。
 3. **注释风格**：遵循 LSP-904 V1.2.0 §2.0 分工规则 — 变量/行内用 `//`，逻辑/流程块用 `(* *)`，禁止 `(* *)` 嵌套。
 4. **极性与所有权**：必须 `IF/ELSE` 显式形式，禁止 `NOT` 简写；每个关键输出必须有且仅有一个 Owner。
-5. **文件编辑工具纪律**：修改 SCL/DB/PRD/scltest 时，**必须使用 Edit/Write 工具**，禁止使用 Python 脚本直写项目代码文件（防止 VS Code 编辑器缓冲区陈旧导致保存覆盖冲突）。
+5. **文件编辑工具纪律**：修改 SCL/DB/PRD/scltest 时，**必须使用 Edit/Write 工具**，禁止使用 Python 脚本直写项目代码文件（防止 VS Code 编辑器缓冲区陈旧导致保存覆盖冲突）。详见 [refs/skill_coordination.md](refs/skill_coordination.md) §9 文件写入策略。
 
 ## 最小输出骨架（默认格式）
 

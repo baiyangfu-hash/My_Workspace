@@ -7,6 +7,20 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 统一入口：前端 / 后端 / 全栈联调 / 代码评审 / 调试 / 小程序。避免在多个开发技能间切换。
 
+> **架构定位**（CHG-SCPT-2026-140）：本技能为**纯执行者**。pm-workflow 是驾驶舱唯一入口和统筹者，负责 venv 激活、cockpit 上下文桥接、PM_SESSION 读取、HTML 原型产出。本技能接收 pm-workflow 的 skill_context 后执行领域工作。
+>
+> **通用规则单一真源**：以下规则统一在 [refs/skill_coordination.md](refs/skill_coordination.md) 中定义，本技能不重复维护：
+> - Bug 诊断前置纪律（§1）
+> - dogfooding 闭环质量门禁（§2）
+> - 真源一致性前置校验（§3）
+> - 门禁实测强制检查（§4）
+> - 台账对账检查（§5）
+> - 审查报告验证模式（§6）
+> - retrofit 模式（§7）
+> - 文件命名规范（§8）
+> - 文件写入策略（§9）
+> - PM_SESSION 双层结构归档规则（§10）
+
 ## 适用项目
 
 - Python / Web / 前后端项目（已有代码库，非从零新建）
@@ -21,12 +35,13 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 - 需求/PRD/任务拆解/迭代推进 → `pm-workflow`
 - PLC/SCL 编码与电气文档 → `plc-electrical-engineer`
 - 从零创建新网站/Web App → `web-dev`
+- venv 激活 / cockpit 上下文桥接 / PM_SESSION 读取入口 → `pm-workflow`（本技能仅接收上下文）
 
 ## 项目连续性规则
 
 ### 开始前
 
-1. **激活虚拟环境**（必须最先执行）：
+1. **激活虚拟环境**（若独立触发，pm-workflow 未激活则自行激活）：
    ```powershell
    & "<工作空间根>\.venv\Scripts\Activate.ps1"
    python --version; pip --version
@@ -43,8 +58,7 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
    - 若存在：读取原型作为 UI 实现参考
    - 若不存在：自行从 PRD/需求文档推导界面
 
-4. 读取 PM_SESSION（若从 pm-workflow 调用且上下文完整则可跳过）
-5. 读取本轮相关代码、配置、测试、页面
+4. 读取本轮相关代码、配置、测试、页面
 
 ### 结束后
 
@@ -118,46 +132,11 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 
 ### Step 4：回写 PM_SESSION §6-§9（含门禁实测前置检查）
 
-**回写前必做**（若本轮有代码改动）：实际运行 ruff/mypy/pytest 并记录真实输出，禁止基于推断声明门禁状态。详见 `pm-workflow` Step 3.8 门禁实测强制检查。
+**回写前必做**（若本轮有代码改动）：实际运行 ruff/mypy/pytest 并记录真实输出，禁止基于推断声明门禁状态。详见 [refs/skill_coordination.md](refs/skill_coordination.md) §4 门禁实测强制检查。
 
 ## 工程实践规范
 
-以下规范基于实战经验沉淀，执行软件域任务时**必须遵循**。
-
-### Bug 诊断前置纪律
-
-测试失败或遇到 bug 时，**禁止**凭代码阅读直接下结论，必须按以下顺序执行：
-
-1. **完整证据获取**：
-   - 测试失败必须用 `--tb=long`（或至少 `--tb=short`）获取完整 traceback
-   - **禁止**用 `--tb=no` 隐藏错误详情
-   - 必须读取完整的 WARNING/ERROR 日志行，不可只看断言失败信息
-
-2. **诊断脚本先行**：
-   - 读代码形成的假设，**必须**用最小诊断脚本（`python -c "..."`）验证后才能下结论
-   - 诊断脚本应直接调用被测函数，打印实际返回值
-   - 禁止"读了代码 → 推测根因 → 直接输出修复计划"的跳跃
-
-3. **测试问题 vs 生产问题分离**：
-   - 测试失败时，**先检查 fixture 是否完整**（项目标志文件、路径结构、mock 配置）
-   - 再怀疑生产代码
-   - 特别警惕"假通过"：`if x is not None:` 类条件断言会掩盖 fixture 缺陷
-
-4. **fixture 健康检查清单**（测试失败时先查 fixture，再查生产代码）：
-   - fixture 是否创建了项目标志文件？（PM_SESSION_*.md / .copier-answers.yml / .plc.json）
-   - fixture 的路径结构是否与生产环境一致？（如 02_PLC程序/PLC_ST/ 目录层级）
-   - fixture 的 mock 配置是否返回非 None 值？（打印 mock.return_value 确认）
-   - 测试中是否有 `if x is not None:` 类条件断言？（改为 `assert x is not None` + `assert x.字段 == 期望值`）
-   - fixture 的 scope 是否合理？（session 级 fixture 修改后会影响后续测试）
-
-   **条件断言检测规则**（以下模式视为"假通过风险"，必须改为无条件断言）：
-   - `if result is not None: assert ...` → `assert result is not None` + `assert result.xxx`
-   - `if cr: assert ...` → `assert cr is not None` + `assert cr.xxx`
-   - `try: assert ... except AssertionError: pass` → 删除 try/except，直接 assert
-
-5. **未验证禁止回写**：
-   - 诊断结论未经运行时验证，**禁止**写入 PM_SESSION §8/§9
-   - 必须标注"已验证"或"待验证"，未验证的结论只能放在 `open_questions`
+以下规范为 fullstack-engineer **领域特定**内容（通用规则见 [refs/skill_coordination.md](refs/skill_coordination.md)）。
 
 ### GUI 测试基础设施规范
 
@@ -225,20 +204,6 @@ mypy 类型标注时易踩的坑，修改测试或生产代码前先查阅：
 3. **Rich Table 防截断**：
    - `expand=True` + `overflow="fold"` + `wide_console(width=200)` 避免长字段截断
    - 短列 `min_width` + `no_wrap`，标题列 `ratio=1` 吸收剩余空间
-
-### 文件写入策略（VS Code buffer staleness）
-
-1. **读取时**：Edit/Write 工具可能返回缓存内容与磁盘不一致，诊断时用 Python `read_text()` 直接读磁盘确认真实状态
-
-2. **写入时**：
-   - **必须**用 Edit/Write 工具（通过 VS Code API 修改可正确同步缓冲区）
-   - **禁止**用 Python 脚本直接写磁盘修改项目文件（`Path.write_text()` 绕过 VS Code 文件监听，导致编辑器缓冲区陈旧、用户保存时冲突）
-
-3. **Edit 失败处理**：
-   - 若 Edit 工具 `old_string` 不匹配（因缓存），先 Read 重新读取最新内容，再重试 Edit
-   - 若仍失败用 Write 工具整体覆盖
-
-4. **降级方案**：仅当 Edit/Write 工具均连续失败时，才可用 Python 脚本写入，但**必须立即提醒用户**"文件已被外部脚本修改，请关闭后重新打开"
 
 ### 后台任务监控纪律
 
