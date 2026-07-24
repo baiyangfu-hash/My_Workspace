@@ -23,6 +23,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
+from auto_pm.core.paths import PG_CLOSING_DIR
+
 # 章节标题正则：## N. Title（N 为数字）
 SECTION_HEADER_PATTERN = re.compile(r"^##\s+(\d+)\.\s+(.+)$")
 
@@ -35,9 +37,11 @@ REQUIRED_SECTIONS = {"0", "1", "2", "3", "4", "5", "6", "8", "9"}
 # §7 应该不存在（已归档）
 DEPRECATED_SECTIONS = {"7"}
 
-# 归档目录约定
-ARCHIVE_DIR_NAME = "05_PM_SESSION归档"
-ARCHIVE_DIR_PARENT = "00_项目管理"
+# 归档目录约定（CHG-SCPT-2026-146: 5大过程组，归档归入 05_收尾）
+ARCHIVE_DIR_NAME = "PM_SESSION归档"
+ARCHIVE_DIR_PARENT = PG_CLOSING_DIR
+# 旧归档路径（向后兼容，阶段3.5物理迁移后移除）
+LEGACY_ARCHIVE_DIR_PARENT = "00_项目管理"
 ARCHIVE_FILE_PATTERN = "PM_SESSION_{project_id}_archive_{version}.md"
 
 # §8 Handoff Notes 条目识别前缀（CHG-109 条目级归档）

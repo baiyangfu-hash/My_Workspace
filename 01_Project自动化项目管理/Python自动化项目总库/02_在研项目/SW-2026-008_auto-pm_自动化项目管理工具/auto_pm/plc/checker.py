@@ -21,9 +21,9 @@ from typing import cast
 
 from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
-    _LEGACY_PM_DIR_PLC,
     _LEGACY_PROJECT_INIT_PLC_PATH,
     NAMING_RULES,
+    PM_DIR_CANDIDATES,
     REQUIRED_PLC_JSON_FIELDS,
     SKIP_PLC_JSON_TYPES,
     STD_DIRS,
@@ -158,8 +158,8 @@ class PlcChecker:
         except OSError:
             entries = set()
 
-        # standard: 有 00_项目管理 目录（CHG-SCPT-2026-146: 旧路径暂保留，阶段3.2迁移）
-        if _LEGACY_PM_DIR_PLC in entries:
+        # standard: 有项目管理目录（01_启动 或 00_项目管理，CHG-SCPT-2026-146 双向兼容）
+        if any(c in entries for c in PM_DIR_CANDIDATES):
             return "standard"
 
         # shared-library: 有共享库特征目录
@@ -522,11 +522,25 @@ class PlcChecker:
         return matches
 
     def _check_directory_structure(self, project_path: str, result: CheckResult) -> None:
-        """检查目录结构是否符合 LSP-907 §3.1"""
+        """检查目录结构是否符合 LSP-907 §3.1
+
+        CHG-SCPT-2026-146: 双向兼容 01_启动（新模板）和 00_项目管理（旧项目）
+        """
         for d in STD_DIRS:
             full_path = os.path.join(project_path, d)
             if os.path.isdir(full_path):
                 result.add(f"目录 {d}", "pass", "存在")
+            # 项目管理目录：接受任一候选（01_启动 或 00_项目管理）
+            elif d in PM_DIR_CANDIDATES and any(
+                os.path.isdir(os.path.join(project_path, c))
+                for c in PM_DIR_CANDIDATES
+            ):
+                # 找到实际存在的候选目录名用于报告
+                actual = next(
+                    c for c in PM_DIR_CANDIDATES
+                    if os.path.isdir(os.path.join(project_path, c))
+                )
+                result.add(f"目录 {actual}", "pass", "存在（5大过程组兼容）")
             else:
                 result.add(f"目录 {d}", "fail", f"缺少目录 {d}（LSP-907 §3.1）")
 

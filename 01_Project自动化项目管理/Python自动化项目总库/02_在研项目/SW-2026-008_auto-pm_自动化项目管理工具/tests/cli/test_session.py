@@ -144,7 +144,7 @@ class TestPmSessionArchive:
         assert "## 6. Implementation Log" not in content
         # 归档文件已创建
         archive_files = list(
-            (workspace_with_pm_session / "00_项目管理" / "05_PM_SESSION归档").glob("*.md")
+            (workspace_with_pm_session / "05_收尾" / "PM_SESSION归档").glob("*.md")
         )
         assert len(archive_files) > 0
 

@@ -129,8 +129,8 @@ def test_plc_check_fix(cli_runner: CliRunner, tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code == 0
-    # 修复后应创建标准目录（检查其中一个）
-    assert (project_dir / "00_项目管理").is_dir()
+    # 修复后应创建标准目录（检查其中一个，CHG-SCPT-2026-146: 01_启动）
+    assert (project_dir / "01_启动").is_dir()
 
 
 # ── V0.4.1 Step 3: Python 项目不适用口径 CLI 集成测试 ──────
@@ -307,7 +307,8 @@ def test_plc_init_default_mode(cli_runner: CliRunner, tmp_path: Path) -> None:
     project_dir = tmp_path / f"{project_id}_默认模式项目"
     assert project_dir.is_dir()
     # standard-project 模板生成 12 个标准目录
-    assert (project_dir / "00_项目管理").is_dir()
+    # CHG-SCPT-2026-146: 模板已迁移到5大过程组，01_启动 替代 00_项目管理
+    assert (project_dir / "01_启动").is_dir()
     assert (project_dir / "02_PLC程序").is_dir()
 
 
@@ -381,8 +382,8 @@ def test_plc_repair(cli_runner: CliRunner, tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code == 0
-    # 修复后应创建标准目录和 PM_SESSION
-    assert (project_dir / "00_项目管理").is_dir()
+    # 修复后应创建标准目录和 PM_SESSION（CHG-SCPT-2026-146: 01_启动）
+    assert (project_dir / "01_启动").is_dir()
     assert (project_dir / f"PM_SESSION_{project_id}.md").is_file()
 
 
@@ -397,8 +398,8 @@ def test_plc_repair_dry_run(cli_runner: CliRunner, tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code == 0
-    # dry_run 模式不应创建目录
-    assert not (project_dir / "00_项目管理").exists()
+    # dry_run 模式不应创建目录（CHG-SCPT-2026-146: 01_启动）
+    assert not (project_dir / "01_启动").exists()
 
 
 def test_plc_repair_not_found(cli_runner: CliRunner, tmp_workspace: Path) -> None:

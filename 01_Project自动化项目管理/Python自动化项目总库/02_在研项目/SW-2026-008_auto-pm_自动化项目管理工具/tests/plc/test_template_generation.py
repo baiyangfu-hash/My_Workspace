@@ -77,13 +77,20 @@ class TestTemplateGeneration:
     def test_plc_standard_project_has_12_std_dirs(
         self, template_service: TemplateService
     ) -> None:
-        """plc-standard-project 模板含 12 个标准目录"""
-        from auto_pm.plc.models import STD_DIRS
+        """plc-standard-project 模板含 12 个标准目录（CHG-SCPT-2026-146: 01_启动 替代 00_项目管理）"""
+        from auto_pm.plc.models import PM_DIR_CANDIDATES, STD_DIRS
 
         path = template_service.get_template_path("plc-standard-project")
         template_dir = os.path.join(path, "template")
         for d in STD_DIRS:
-            assert os.path.isdir(os.path.join(template_dir, d)), f"缺少标准目录: {d}"
+            # 项目管理目录：接受任一候选（01_启动 或 00_项目管理）
+            if d == "00_项目管理":
+                assert any(
+                    os.path.isdir(os.path.join(template_dir, c))
+                    for c in PM_DIR_CANDIDATES
+                ), f"缺少项目管理目录（候选: {PM_DIR_CANDIDATES}）"
+            else:
+                assert os.path.isdir(os.path.join(template_dir, d)), f"缺少标准目录: {d}"
 
     def test_plc_standard_project_includes_week2_assets_and_overview(
         self, template_service: TemplateService

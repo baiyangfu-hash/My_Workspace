@@ -77,8 +77,8 @@ class TestPlcServiceCheck:
         svc = PlcService(str(tmp_path))
         svc.check(str(project_dir), fix=True)
 
-        # 修复后应创建标准目录（STD_DIRS 已更新为 12 个，检查其中一个即可）
-        assert (project_dir / "00_项目管理").is_dir()
+        # 修复后应创建标准目录（CHG-SCPT-2026-146: 01_启动 替代 00_项目管理）
+        assert (project_dir / "01_启动").is_dir()
 
 
 class TestPlcServiceRepair:
