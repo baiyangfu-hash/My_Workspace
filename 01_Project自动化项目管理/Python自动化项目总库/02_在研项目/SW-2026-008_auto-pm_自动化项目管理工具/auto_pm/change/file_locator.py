@@ -34,10 +34,7 @@ from auto_pm.change.path_resolver import (
     find_ledger_file,
     scan_change_files,
 )
-from auto_pm.core.paths import (
-    CHANGE_REQUESTS_PLC_PATH,
-    CHANGE_REQUESTS_PYTHON_PATH,
-)
+from auto_pm.core.paths import CHANGE_REQUESTS_PATH
 from auto_pm.models import ChangeSummary
 from auto_pm.utils.file_utils import read_file
 
@@ -47,14 +44,16 @@ log = logging.getLogger(__name__)
 class ChangeFileLocator:
     """变更单文件路径定位器
 
-    封装变更单文件的路径约定（PLC / Python 两套目录结构）和查找逻辑。
+    CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后不再区分 PLC / Python。
+    封装变更单文件的路径约定（04_监控/01_变更管理/）和查找逻辑。
     """
 
-    # 变更单搜索路径（按优先级排列，与 path_resolver._CHANGE_SEARCH_PATHS 对齐）
-    # M3-Iter6: 从 core.paths 读取，消除硬编码
+    # 变更单搜索路径（直接拼接 CHG-{domain}/{change_number}.md 的基础路径，含 01_变更单）
+    # CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径
+    # 注：path_resolver._CHANGE_SEARCH_PATHS 用 CHANGE_SCAN_PATH（不含 01_变更单）做递归扫描；
+    #     此处需要含 01_变更单 的完整路径以直接定位文件
     CHANGE_FILE_SEARCH_PATHS = [
-        os.path.join(*CHANGE_REQUESTS_PLC_PATH),
-        os.path.join(*CHANGE_REQUESTS_PYTHON_PATH),
+        os.path.join(*CHANGE_REQUESTS_PATH),
     ]
 
     def __init__(self, workspace_root: str, parser: ChgParser) -> None:
@@ -213,11 +212,11 @@ class ChangeFileLocator:
             base_dir = os.path.join(project_path, rel_path, f"CHG-{domain}")
             if os.path.isdir(base_dir):
                 return os.path.join(base_dir, f"{change_number}.md")
-        # 未匹配已有目录 → 使用 PLC 约定路径（默认创建路径）
-        # M3-Iter6: 从 core.paths 读取，消除硬编码
+        # 未匹配已有目录 → 使用5大过程组统一路径（默认创建路径）
+        # CHG-SCPT-2026-146: 统一路径 04_监控/01_变更管理/01_变更单/
         return os.path.join(
             project_path,
-            *CHANGE_REQUESTS_PLC_PATH,
+            *CHANGE_REQUESTS_PATH,
             f"CHG-{domain}",
             f"{change_number}.md",
         )

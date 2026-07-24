@@ -41,7 +41,7 @@ from auto_pm.change.guard_checker import TransitionGuardChecker
 from auto_pm.change.markdown_editor import ChangeMarkdownEditor
 from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
-from auto_pm.core.paths import PM_DIR_PLC, PM_DIR_PYTHON
+from auto_pm.core.paths import PG_MONITORING_DIR
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.models import ApprovalRecord
@@ -167,8 +167,8 @@ class ChangeService:
         """
         current = os.path.dirname(os.path.abspath(file_path))
         while current and current != os.path.dirname(current):
-            if os.path.isdir(os.path.join(current, PM_DIR_PLC)) or \
-               os.path.isdir(os.path.join(current, PM_DIR_PYTHON)):
+            # CHG-SCPT-2026-146: 5大过程组统一路径，通过监控过程组目录识别项目根
+            if os.path.isdir(os.path.join(current, PG_MONITORING_DIR)):
                 return current
             current = os.path.dirname(current)
         return None

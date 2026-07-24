@@ -5,14 +5,20 @@
 
 --- 原始注释 ---
 
-统一路径约定常量（M3-Iter6）
+统一路径约定常量（CHG-SCPT-2026-146 5大过程组重组）
 
 集中定义工作空间和项目内的目录结构约定，消除散落在各模块的硬编码路径。
 
 目录约定来源：
-- LSP-907 907_项目配置规范_LSP §3.1：PLC 项目目录结构
-- CHG-040 §2：变更管理目录结构
+- PROJ-016 V1.2.0：5大过程组项目结构模板（启动/规划/执行/监控/收尾）
+- 043 V2.0.0：变更管理目录结构（04_监控/01_变更管理/）
 - 210/211/220：Python 项目目录结构
+
+破坏性切换说明（CHG-SCPT-2026-146）：
+- 删除 PM_DIR_PLC/PM_DIR_PYTHON/PROJECT_INFO_DIR 等旧常量
+- 新增5大过程组目录常量（PG_INITIATING_DIR 等）
+- 变更管理路径统一为 04_监控/01_变更管理/（不再区分 PLC/Python）
+- PLC 项目旧路径（00_项目管理/）暂由 plc/checker.py 硬编码保留，阶段3.2更新模板时统一迁移
 """
 
 from __future__ import annotations
@@ -26,21 +32,37 @@ from typing import Final
 WORKSPACE_PROJECTS_SUBDIR: Final[str] = "02_在研项目"
 
 
-# ── 项目管理目录名（CHG-SCPT-2026-144 集中定义） ──────────
+# ── 5大过程组目录（CHG-SCPT-2026-146） ─────────────────────
 
-#: PLC 项目管理目录名
-PM_DIR_PLC: Final[str] = "00_项目管理"
+#: 启动过程组目录（项目基础信息、立项表）
+PG_INITIATING_DIR: Final[str] = "01_启动"
 
-#: Python/通用项目文档目录名
-PM_DIR_PYTHON: Final[str] = "01_项目文档"
+#: 规划过程组目录（PRD/INT/DSN/TEC/里程碑）
+PG_PLANNING_DIR: Final[str] = "02_规划"
 
-#: Python 项目基础信息目录名
-PROJECT_INFO_DIR: Final[str] = "00_项目基础信息"
+#: 执行过程组目录（迭代计划、迭代记录）
+PG_EXECUTING_DIR: Final[str] = "03_执行"
+
+#: 监控过程组目录（变更管理、整改项、台账对账）
+PG_MONITORING_DIR: Final[str] = "04_监控"
+
+#: 收尾过程组目录（发布说明、交付清单、PM_SESSION归档）
+PG_CLOSING_DIR: Final[str] = "05_收尾"
+
+#: 5大过程组目录列表（用于项目识别和结构检查）
+PROCESS_GROUP_DIRS: Final[list[str]] = [
+    PG_INITIATING_DIR,
+    PG_PLANNING_DIR,
+    PG_EXECUTING_DIR,
+    PG_MONITORING_DIR,
+    PG_CLOSING_DIR,
+]
 
 
 # ── 项目级目录（PLC 项目，LSP-907 §3.1） ────────────────────
+# 注：PLC_STD_DIRS 暂保留旧结构，阶段3.2更新 PLC 模板时统一迁移到5大过程组
 
-#: PLC 项目根目录下的标准子目录（LSP-907 §3.1）
+#: PLC 项目根目录下的标准子目录（LSP-907 §3.1，暂保留旧结构）
 PLC_STD_DIRS: Final[list[str]] = [
     "02_PLC程序/通用ST程序及变量表",
     "03_HMI设计",
@@ -53,43 +75,28 @@ PLC_STD_DIRS: Final[list[str]] = [
 PRD_DIR: Final[str] = "PRD"
 
 
-# ── 变更管理目录（CHG-040 §2） ─────────────────────────────
+# ── 变更管理目录（CHG-SCPT-2026-146 5大过程组统一） ────────
 
-#: 变更单存放目录（PLC 项目约定）
-CHANGE_REQUESTS_PLC_PATH: Final[list[str]] = [
-    PM_DIR_PLC, "04_变更管理", "01_变更单"
+#: 变更单存放目录（5大过程组统一路径，不再区分 PLC/Python）
+CHANGE_REQUESTS_PATH: Final[list[str]] = [
+    PG_MONITORING_DIR, "01_变更管理", "01_变更单"
 ]
 
-#: 变更单存放目录（Python/通用项目约定）
-CHANGE_REQUESTS_PYTHON_PATH: Final[list[str]] = [
-    PM_DIR_PYTHON, "03_执行过程", "02_变更管理", "01_变更单"
+#: 变更记录存放目录（5大过程组统一路径）
+CHANGE_RECORDS_PATH: Final[list[str]] = [
+    PG_MONITORING_DIR, "01_变更管理", "02_变更记录"
 ]
 
-#: 变更记录存放目录（PLC 项目约定）
-CHANGE_RECORDS_PLC_PATH: Final[list[str]] = [
-    PM_DIR_PLC, "04_变更管理", "04_变更记录"
+#: 变更单扫描路径（不含最后的 01_变更单，用于递归扫描）
+CHANGE_SCAN_PATH: Final[list[str]] = [
+    PG_MONITORING_DIR, "01_变更管理"
 ]
 
-#: 变更记录存放目录（Python/通用项目约定）
-CHANGE_RECORDS_PYTHON_PATH: Final[list[str]] = [
-    PM_DIR_PYTHON, "03_执行过程", "02_变更管理", "04_变更记录"
-]
-
-#: 立项与需求目录（PLC 项目约定）
-PROJECT_INIT_PLC_PATH: Final[list[str]] = [
-    PM_DIR_PLC, "01_立项与需求"
-]
-
-#: 立项表搜索路径（Python/通用项目约定）
-PROJECT_INIT_PYTHON_PATH: Final[list[str]] = [PROJECT_INFO_DIR]
-
-#: 变更单扫描路径（Python/通用项目约定，不含最后的 01_变更单，用于递归扫描）
-CHANGE_SCAN_PYTHON_PATH: Final[list[str]] = [
-    PM_DIR_PYTHON, "03_执行过程", "02_变更管理"
-]
+#: 立项表搜索路径（5大过程组统一路径）
+PROJECT_INIT_PATH: Final[list[str]] = [PG_INITIATING_DIR]
 
 #: Python 项目规范必需目录
-PYTHON_REQUIRED_DIRS: Final[list[str]] = ["tests", PROJECT_INFO_DIR]
+PYTHON_REQUIRED_DIRS: Final[list[str]] = ["tests", PG_INITIATING_DIR]
 
 
 # ── PRD 文档命名（LSP-907 + SysLib FB 标准） ───────────────
@@ -146,22 +153,27 @@ def get_projects_subdir(workspace_root: str) -> str:
 
 
 def get_change_requests_paths(project_path: str) -> list[str]:
-    """获取变更单存放目录的所有候选路径（按优先级）
+    """获取变更单存放目录路径（5大过程组统一路径，CHG-SCPT-2026-146）
 
-    PLC 约定优先，Python 约定次之。
+    Args:
+        project_path: 项目根目录
+
+    Returns:
+        包含变更单目录绝对路径的列表（单元素，破坏性切换后不再有多路径回退）
     """
-    return [
-        os.path.join(project_path, *CHANGE_REQUESTS_PLC_PATH),
-        os.path.join(project_path, *CHANGE_REQUESTS_PYTHON_PATH),
-    ]
+    return [os.path.join(project_path, *CHANGE_REQUESTS_PATH)]
 
 
 def get_change_records_paths(project_path: str) -> list[str]:
-    """获取变更记录存放目录的所有候选路径（按优先级）"""
-    return [
-        os.path.join(project_path, *CHANGE_RECORDS_PLC_PATH),
-        os.path.join(project_path, *CHANGE_RECORDS_PYTHON_PATH),
-    ]
+    """获取变更记录存放目录路径（5大过程组统一路径，CHG-SCPT-2026-146）
+
+    Args:
+        project_path: 项目根目录
+
+    Returns:
+        包含变更记录目录绝对路径的列表（单元素）
+    """
+    return [os.path.join(project_path, *CHANGE_RECORDS_PATH)]
 
 
 def get_prd_dir(project_path: str) -> str:

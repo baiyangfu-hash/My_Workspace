@@ -17,7 +17,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from auto_pm.core.paths import PM_DIR_PLC
 from auto_pm.models.plc import (  # noqa: F401
     CheckItem,
     CheckResult,
@@ -26,6 +25,11 @@ from auto_pm.models.plc import (  # noqa: F401
     RepairResult,
     StandardizeResult,
 )
+
+# CHG-SCPT-2026-146: PLC 项目旧路径常量（阶段3.2更新 PLC 模板时迁移到5大过程组）
+# 暂保留旧结构（00_项目管理/）供 plc/checker.py 做项目识别和兼容检测
+_LEGACY_PM_DIR_PLC: str = "00_项目管理"
+_LEGACY_PROJECT_INIT_PLC_PATH: list[str] = ["00_项目管理", "01_立项与需求"]
 
 # 显式导出（mypy strict 模式要求）
 __all__ = [
@@ -40,8 +44,9 @@ __all__ = [
 # ── 常量 ──────────────────────────────────────────────────
 
 # 标准 PLC 项目目录结构（LSP-907 §3.1）
+# 注：CHG-SCPT-2026-146 后 PLC 项目仍保留旧结构，阶段3.2迁移到5大过程组
 STD_DIRS: list[str] = [
-    PM_DIR_PLC,
+    _LEGACY_PM_DIR_PLC,
     "01_需求与设计",
     "02_PLC程序",
     "03_HMI设计",

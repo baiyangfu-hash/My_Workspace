@@ -7,9 +7,12 @@
 
 路径解析（工作空间约定）
 
-支持两套目录约定：
-  - PLC 项目：00_项目管理/01_立项与需求/*_PROJ.md
-  - 通用项目：00_项目基础信息/*立项表*.md 或 00_项目基础信息/*_PM.md
+CHG-SCPT-2026-146 5大过程组重组后统一目录约定：
+  - 所有项目：04_监控/01_变更管理/01_变更单/CHG-*.md
+  - 立项表：01_启动/*_PROJ.md 或 *_PM.md
+  - 台帐：04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md
+
+破坏性切换：不再区分 PLC / Python 两套路径，统一使用 5大过程组路径。
 """
 
 from __future__ import annotations
@@ -18,14 +21,9 @@ import os
 import re
 
 from auto_pm.core.paths import (
-    CHANGE_RECORDS_PLC_PATH,
-    CHANGE_RECORDS_PYTHON_PATH,
-    CHANGE_REQUESTS_PLC_PATH,
-    CHANGE_SCAN_PYTHON_PATH,
-    PM_DIR_PLC,
-    PM_DIR_PYTHON,
-    PROJECT_INIT_PLC_PATH,
-    PROJECT_INIT_PYTHON_PATH,
+    CHANGE_RECORDS_PATH,
+    CHANGE_SCAN_PATH,
+    PROJECT_INIT_PATH,
 )
 
 # ── 安全校验 ──────────────────────────────────────────────
@@ -124,11 +122,10 @@ def validate_path_within_workspace(path: str, workspace_root: str) -> str:
 # ── 目录约定 ──────────────────────────────────────────────
 
 # 立项表搜索路径（按优先级排列，命中即停）
+# CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径
 _PROJ_SEARCH_PATHS = [
-    # PLC 项目约定
-    tuple(PROJECT_INIT_PLC_PATH),
-    # Python/通用项目约定
-    tuple(PROJECT_INIT_PYTHON_PATH),
+    # 5大过程组统一路径：01_启动/
+    tuple(PROJECT_INIT_PATH),
     # 兼容：直接在项目根目录下
     (),
 ]
@@ -141,11 +138,9 @@ _PROJ_FILE_PATTERNS = [
 ]
 
 # 变更单搜索路径（按优先级排列）
+# CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径（递归扫描 04_监控/01_变更管理/）
 _CHANGE_SEARCH_PATHS = [
-    # PLC 项目约定
-    os.path.join(*CHANGE_REQUESTS_PLC_PATH),
-    # Python/通用项目约定（递归扫描，不含最后的 01_变更单）
-    os.path.join(*CHANGE_SCAN_PYTHON_PATH),
+    os.path.join(*CHANGE_SCAN_PATH),
 ]
 
 
@@ -170,9 +165,7 @@ def find_proj_file(project_path: str) -> str | None:
 def scan_change_files(project_path: str) -> list[str]:
     """扫描变更单文件
 
-    按优先级搜索多套目录约定，合并结果。
-    PLC 项目: 00_项目管理/04_变更管理/01_变更单/CHG-*/CHG-*.md
-    通用项目: 01_项目文档/03_执行过程/02_变更管理/ 下的 CHG-*.md
+    CHG-SCPT-2026-146: 5大过程组统一路径，递归扫描 04_监控/01_变更管理/ 下的 CHG-*.md
     """
     results: list[str] = []
     for rel_path in _CHANGE_SEARCH_PATHS:
@@ -200,11 +193,10 @@ def _scan_change_dir(base_dir: str, results: list[str], depth: int = 0, max_dept
 
 
 # 台帐搜索路径（按优先级排列）
+# CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径
 _LEDGER_SEARCH_PATHS = [
-    # PLC 项目约定
-    os.path.join(*CHANGE_RECORDS_PLC_PATH),
-    # Python/通用项目约定
-    os.path.join(*CHANGE_RECORDS_PYTHON_PATH),
+    # 5大过程组统一路径：04_监控/01_变更管理/02_变更记录/
+    os.path.join(*CHANGE_RECORDS_PATH),
 ]
 
 # 台帐文件名匹配模式
@@ -217,9 +209,7 @@ _LEDGER_FILE_PATTERNS = [
 def find_ledger_file(project_path: str) -> str | None:
     """查找版本变更台帐文件
 
-    按优先级搜索多套目录约定（PLC / Python），命中即返回。
-    PLC 项目: 00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md
-    Python 项目: 01_项目文档/03_执行过程/02_变更管理/04_变更记录/01_版本变更台帐.md
+    CHG-SCPT-2026-146: 5大过程组统一路径，搜索 04_监控/01_变更管理/02_变更记录/ 下的台帐文件。
     """
     for rel_path in _LEDGER_SEARCH_PATHS:
         search_dir = os.path.join(project_path, rel_path)
@@ -237,15 +227,9 @@ def find_ledger_file(project_path: str) -> str | None:
 def get_or_create_ledger_file(project_path: str) -> str | None:
     """查找或创建版本变更台帐文件
 
-    V0.2.1-P2-8: 若台帐文件不存在，按 PLC 约定路径自动创建
-    （00_项目管理/04_变更管理/04_变更记录/01_版本变更台帐.md），
+    CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后不再区分 PLC / Python。
+    若台帐文件不存在，按统一路径自动创建（04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md），
     含「变更单索引」表格骨架，供 LedgerUpdater 追加记录。
-
-    V0.3.0-M0.5-Phase1: 修复跨栈路径策略。不再固定走 PLC 路径，
-    而是按项目类型标记自动选择：
-    - PLC 项目（有 .plc.json 或 00_项目管理/ 目录）→ PLC 约定路径
-    - Python 项目（有 pyproject.toml 或 01_项目文档/ 目录）→ Python 约定路径
-    - 默认回退 → PLC 约定路径（向后兼容）
 
     Args:
         project_path: 项目根目录
@@ -258,9 +242,8 @@ def get_or_create_ledger_file(project_path: str) -> str | None:
     if existing:
         return existing
 
-    # 2. 未找到 → 按项目类型选择创建路径
-    ledger_rel_path = _detect_ledger_path_for_project(project_path)
-    ledger_dir = os.path.join(project_path, ledger_rel_path)
+    # 2. 未找到 → 按统一路径创建
+    ledger_dir = os.path.join(project_path, _LEDGER_SEARCH_PATHS[0])
     ledger_path = os.path.join(ledger_dir, "01_版本变更台帐.md")
 
     try:
@@ -278,37 +261,6 @@ def get_or_create_ledger_file(project_path: str) -> str | None:
         return ledger_path
     except OSError:
         return None
-
-
-def _detect_ledger_path_for_project(project_path: str) -> str:
-    """按项目类型标记检测应使用的台帐路径（V0.3.0-M0.5-Phase1）
-
-    判据优先级：
-    1. 已有目录结构（00_项目管理/ → PLC；01_项目文档/ → Python）
-    2. 标记文件（.plc.json → PLC；pyproject.toml → Python）
-    3. 默认回退 → PLC 约定路径（向后兼容）
-
-    Returns:
-        台帐目录的相对路径（os.path.join 拼接的字符串）
-    """
-    # 判据 1: 已有目录结构
-    plc_dir = os.path.join(project_path, PM_DIR_PLC)
-    python_dir = os.path.join(project_path, PM_DIR_PYTHON)
-    if os.path.isdir(plc_dir):
-        return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
-    if os.path.isdir(python_dir):
-        return _LEDGER_SEARCH_PATHS[1]  # Python 约定
-
-    # 判据 2: 标记文件
-    has_plc_json = os.path.isfile(os.path.join(project_path, ".plc.json"))
-    has_pyproject = os.path.isfile(os.path.join(project_path, "pyproject.toml"))
-    if has_plc_json and not has_pyproject:
-        return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
-    if has_pyproject and not has_plc_json:
-        return _LEDGER_SEARCH_PATHS[1]  # Python 约定
-
-    # 判据 3: 默认回退（向后兼容）
-    return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
 
 
 def get_project_id_from_path(project_path: str) -> str:

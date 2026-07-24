@@ -150,7 +150,7 @@ class TestGetProjectPathIntegration:
         project_id = "SW-2026-008"
         project_dir = tmp_path / f"{project_id}_auto-pm"
         # 创建变更单目录结构
-        chg_dir = project_dir / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU"
+        chg_dir = project_dir / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-DOCU"
         chg_dir.mkdir(parents=True)
         # 写入一个最小变更单文件
         (chg_dir / "CHG-DOCU-2026-001.md").write_text(

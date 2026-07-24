@@ -96,7 +96,7 @@ def workspace_root(tmp_dir: str) -> str:
         f.write("# PM_SESSION\n")
     # 创建变更单目录
     chg_dir = os.path.join(
-        project_path, "00_项目管理", "04_变更管理", "01_变更单", "CHG-DOCU"
+        project_path, "04_监控", "01_变更管理", "01_变更单", "CHG-DOCU"
     )
     os.makedirs(chg_dir, exist_ok=True)
     # 写入一个样例变更单
@@ -105,7 +105,7 @@ def workspace_root(tmp_dir: str) -> str:
         f.write(_build_sample_chg_for_workspace())
     # 创建台帐目录和文件
     ledger_dir = os.path.join(
-        project_path, "00_项目管理", "04_变更管理", "04_变更记录"
+        project_path, "04_监控", "01_变更管理", "02_变更记录"
     )
     os.makedirs(ledger_dir, exist_ok=True)
     ledger_file = os.path.join(ledger_dir, "01_版本变更台帐.md")
@@ -125,7 +125,7 @@ def chg_file(workspace_root: str) -> str:
     """变更单文件路径"""
     return os.path.join(
         workspace_root, "TEST-2026-001",
-        "00_项目管理", "04_变更管理", "01_变更单",
+        "04_监控", "01_变更管理", "01_变更单",
         "CHG-DOCU", "CHG-DOCU-2026-001.md",
     )
 

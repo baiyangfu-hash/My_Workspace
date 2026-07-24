@@ -109,7 +109,7 @@ def _create_chg_file(workspace: str, change_number: str, domain: str, content: s
     with open(os.path.join(project_path, "PM_SESSION_TEST-2026-001.md"), "w", encoding="utf-8") as f:
         f.write("# PM_SESSION\n")
     chg_dir = os.path.join(
-        project_path, "00_项目管理", "04_变更管理", "01_变更单", f"CHG-{domain}"
+        project_path, "04_监控", "01_变更管理", "01_变更单", f"CHG-{domain}"
     )
     os.makedirs(chg_dir, exist_ok=True)
     file_path = os.path.join(chg_dir, f"{change_number}.md")
@@ -534,7 +534,7 @@ def _create_chg_file_for_project(
     ) as f:
         f.write("# PM_SESSION\n")
     chg_dir = os.path.join(
-        project_path, "00_项目管理", "04_变更管理", "01_变更单", f"CHG-{domain}"
+        project_path, "04_监控", "01_变更管理", "01_变更单", f"CHG-{domain}"
     )
     os.makedirs(chg_dir, exist_ok=True)
     file_path = os.path.join(chg_dir, f"{change_number}.md")

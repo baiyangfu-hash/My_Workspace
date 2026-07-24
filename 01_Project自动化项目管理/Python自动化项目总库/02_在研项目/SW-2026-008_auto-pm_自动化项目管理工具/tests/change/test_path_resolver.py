@@ -103,7 +103,7 @@ class TestFindProjFile:
 
     def test_find_proj_file_plc_convention(self, tmp_path: Path) -> None:
         """PLC 项目约定路径"""
-        proj_dir = tmp_path / "00_项目管理" / "01_立项与需求"
+        proj_dir = tmp_path / "01_启动"
         proj_dir.mkdir(parents=True)
         (proj_dir / "DJ-2026-005_PROJ.md").write_text("# 立项表\n", encoding="utf-8")
 
@@ -113,7 +113,7 @@ class TestFindProjFile:
 
     def test_find_proj_file_python_convention(self, tmp_path: Path) -> None:
         """Python 项目约定路径"""
-        proj_dir = tmp_path / "00_项目基础信息"
+        proj_dir = tmp_path / "01_启动"
         proj_dir.mkdir(parents=True)
         (proj_dir / "立项表_SW-2026-008.md").write_text("# 立项表\n", encoding="utf-8")
 
@@ -132,7 +132,7 @@ class TestScanChangeFiles:
 
     def test_scan_plc_convention(self, tmp_path: Path) -> None:
         """PLC 项目变更单目录"""
-        chg_dir = tmp_path / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-PLC"
+        chg_dir = tmp_path / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-PLC"
         chg_dir.mkdir(parents=True)
         (chg_dir / "CHG-PLC-2026-001.md").write_text("# 变更单\n", encoding="utf-8")
 
@@ -151,7 +151,7 @@ class TestFindLedgerFile:
 
     def test_find_ledger_file(self, tmp_path: Path) -> None:
         """存在台帐文件"""
-        ledger_dir = tmp_path / "00_项目管理" / "04_变更管理" / "04_变更记录"
+        ledger_dir = tmp_path / "04_监控" / "01_变更管理" / "02_变更记录"
         ledger_dir.mkdir(parents=True)
         (ledger_dir / "01_版本变更台帐.md").write_text("# 台帐\n", encoding="utf-8")
 

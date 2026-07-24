@@ -105,7 +105,7 @@ def python_project_factory(tmp_path: Path):
                 (project_dir / f).write_text(f"# {f}\n", encoding="utf-8")
             (project_dir / "tests").mkdir(exist_ok=True)
             (project_dir / "tests" / "conftest.py").write_text("# conftest\n", encoding="utf-8")
-            (project_dir / "00_项目基础信息").mkdir(exist_ok=True)
+            (project_dir / "01_启动").mkdir(exist_ok=True)
             (project_dir / f"PM_SESSION_{project_id}.md").write_text(
                 "# PM_SESSION\n", encoding="utf-8"
             )

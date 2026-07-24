@@ -1,8 +1,8 @@
 """Bug-2 回归测试: _sync_changes 路径错误
 
-问题: SyncService._sync_changes 在 ``04_变更管理`` 查找变更单，
-      实际路径是 ``00_项目管理/04_变更管理/01_变更单/CHG-{domain}/CHG-*.md``。
-修复: 修正扫描路径为 ``00_项目管理/04_变更管理/01_变更单``，
+问题: SyncService._sync_changes 在 ``04_监控/01_变更管理`` 查找变更单，
+      实际路径是 ``04_监控/01_变更管理/01_变更单/CHG-{domain}/CHG-*.md``。
+修复: 修正扫描路径为 ``04_监控/01_变更管理/01_变更单``，
       并让 _find_change_file 搜索 ``CHG-{domain}/`` 子目录。
 """
 
@@ -33,9 +33,9 @@ def db(tmp_path: Path) -> DatabaseManager:
 def _make_change_file(project_dir: Path, change_number: str, domain: str) -> str:
     """在项目目录下创建变更单文件（正确路径结构）
 
-    路径: 00_项目管理/04_变更管理/01_变更单/CHG-{domain}/CHG-*.md
+    路径: 04_监控/01_变更管理/01_变更单/CHG-{domain}/CHG-*.md
     """
-    chg_dir = project_dir / "00_项目管理" / "04_变更管理" / "01_变更单" / f"CHG-{domain}"
+    chg_dir = project_dir / "04_监控" / "01_变更管理" / "01_变更单" / f"CHG-{domain}"
     chg_dir.mkdir(parents=True, exist_ok=True)
     chg_file = chg_dir / f"{change_number}.md"
     chg_file.write_text(
@@ -68,7 +68,7 @@ def workspace_with_change(tmp_path: Path) -> Path:
     """创建包含变更单的工作空间
 
     项目目录命名为 {project_id}_{project_name}（实际约定），
-    变更单位于 00_项目管理/04_变更管理/01_变更单/CHG-DOCU/ 下。
+    变更单位于 04_监控/01_变更管理/01_变更单/CHG-DOCU/ 下。
     """
     project_dir = tmp_path / "DJ-2026-001_测试项目"
     project_dir.mkdir()
@@ -134,7 +134,7 @@ class TestSyncChangesPath:
     def test_sync_changes_finds_change_in_correct_path(
         self, db: DatabaseManager, workspace_with_change: Path
     ) -> None:
-        """_sync_changes 应在 00_项目管理/04_变更管理/01_变更单/ 下找到变更单"""
+        """_sync_changes 应在 04_监控/01_变更管理/01_变更单/ 下找到变更单"""
         project_service = ProjectService(str(workspace_with_change))
         change_service = ChangeService(str(workspace_with_change))
         sync = SyncService(db, project_service, change_service)

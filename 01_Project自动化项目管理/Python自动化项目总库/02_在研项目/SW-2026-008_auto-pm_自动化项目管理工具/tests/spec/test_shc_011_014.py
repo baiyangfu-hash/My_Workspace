@@ -20,7 +20,6 @@ from auto_pm.spec.core.config import WorkspaceConfig
 from auto_pm.spec.core.registry import SpecRegistry
 from auto_pm.spec.core.scanner import SpecScanner
 
-
 # ── Fixture ──────────────────────────────────────────────
 
 

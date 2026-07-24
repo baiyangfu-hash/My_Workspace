@@ -1,6 +1,7 @@
 """单元测试：Markdown 结构化解析器 (markdown_parser)"""
 from auto_pm.utils.markdown_parser import parse_markdown_to_blocks
 
+
 def test_parse_headers() -> None:
     content = """
 # Heading 1

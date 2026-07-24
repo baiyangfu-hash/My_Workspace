@@ -61,7 +61,7 @@ def _make_python_project(
         # 创建必需目录
         (project_dir / "tests").mkdir(exist_ok=True)
         (project_dir / "tests" / "conftest.py").write_text("# conftest\n", encoding="utf-8")
-        (project_dir / "00_项目基础信息").mkdir(exist_ok=True)
+        (project_dir / "01_启动").mkdir(exist_ok=True)
         # PM_SESSION 文件
         (project_dir / f"PM_SESSION_{project_id}.md").write_text(
             "# PM_SESSION\n", encoding="utf-8"

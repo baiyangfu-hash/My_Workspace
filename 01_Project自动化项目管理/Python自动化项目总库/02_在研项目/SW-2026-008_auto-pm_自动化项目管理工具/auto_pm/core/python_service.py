@@ -19,7 +19,7 @@ from typing import Any
 
 import yaml
 
-from auto_pm.core.paths import PROJECT_INFO_DIR, PYTHON_REQUIRED_DIRS
+from auto_pm.core.paths import PG_INITIATING_DIR, PYTHON_REQUIRED_DIRS
 
 log = logging.getLogger(__name__)
 
@@ -222,12 +222,12 @@ class PythonProjectService:
                     f.write("# conftest for pytest\n")
             repaired_items.append("Restored tests/conftest.py")
 
-        # 00_项目基础信息
-        info_dir = os.path.join(project_path, PROJECT_INFO_DIR)
+        # 01_启动（CHG-SCPT-2026-146: 5大过程组统一路径，原 00_项目基础信息）
+        info_dir = os.path.join(project_path, PG_INITIATING_DIR)
         if not os.path.exists(info_dir):
             if not dry_run:
                 os.makedirs(info_dir, exist_ok=True)
-            repaired_items.append(f"Created directory {PROJECT_INFO_DIR}")
+            repaired_items.append(f"Created directory {PG_INITIATING_DIR}")
 
         # PM_SESSION 文件
         # 扫描是否存在 PM_SESSION_*.md

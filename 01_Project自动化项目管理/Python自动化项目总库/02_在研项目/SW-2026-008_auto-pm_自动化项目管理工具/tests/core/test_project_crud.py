@@ -148,7 +148,7 @@ class TestInitProjectPmFramework:
         assert (project_dir / ".copier-answers.yml").exists()
 
         # 2. 验证 PLC 专属目录和立项表生成
-        proj_doc = project_dir / "00_项目管理" / "01_立项与需求" / "DJ-2026-000_PROJ.md"
+        proj_doc = project_dir / "01_启动" / "DJ-2026-000_PROJ.md"
         assert proj_doc.exists()
         content = proj_doc.read_text(encoding="utf-8")
         assert "Westwell PLC 项目立项需求说明书" in content
@@ -181,7 +181,7 @@ class TestInitProjectPmFramework:
         assert (project_dir / ".copier-answers.yml").exists()
 
         # 2. 验证 Python 专属目录和立项表生成
-        proj_doc = project_dir / "00_项目基础信息" / "SW-2026-001_PM.md"
+        proj_doc = project_dir / "01_启动" / "SW-2026-001_PM.md"
         assert proj_doc.exists()
         content = proj_doc.read_text(encoding="utf-8")
         assert "Westwell Python 项目立项表" in content
@@ -206,7 +206,7 @@ class TestInitProjectPmFramework:
             author="test_user",
         )
 
-        proj_doc = project_dir / "00_项目基础信息" / "SW-2026-002_PM.md"
+        proj_doc = project_dir / "01_启动" / "SW-2026-002_PM.md"
         content = proj_doc.read_text(encoding="utf-8")
         assert "**主设计人**：test_user" in content
         assert "fubai" not in content

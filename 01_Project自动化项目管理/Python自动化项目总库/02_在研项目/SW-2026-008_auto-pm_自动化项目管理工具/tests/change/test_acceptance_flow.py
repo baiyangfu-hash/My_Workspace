@@ -136,13 +136,13 @@ def acceptance_workspace(tmp_path: Path) -> str:
     (project_path / f"PM_SESSION_{project_id}.md").write_text(
         "# PM_SESSION\n", encoding="utf-8"
     )
-    chg_dir = project_path / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU"
+    chg_dir = project_path / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-DOCU"
     chg_dir.mkdir(parents=True, exist_ok=True)
     chg_file = chg_dir / "CHG-DOCU-2026-001.md"
     chg_file.write_text(_build_chg_with_implementation(), encoding="utf-8")
 
     # 创建台帐目录
-    ledger_dir = project_path / "00_项目管理" / "04_变更管理" / "04_变更记录"
+    ledger_dir = project_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
     (ledger_dir / "01_版本变更台帐.md").write_text(
         "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
@@ -161,13 +161,13 @@ def acceptance_workspace_no_sec9(tmp_path: Path) -> str:
     (project_path / f"PM_SESSION_{project_id}.md").write_text(
         "# PM_SESSION\n", encoding="utf-8"
     )
-    chg_dir = project_path / "00_项目管理" / "04_变更管理" / "01_变更单" / "CHG-DOCU"
+    chg_dir = project_path / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-DOCU"
     chg_dir.mkdir(parents=True, exist_ok=True)
     chg_file = chg_dir / "CHG-DOCU-2026-001.md"
     chg_file.write_text(_build_chg_without_section9(), encoding="utf-8")
 
     # 创建台帐目录
-    ledger_dir = project_path / "00_项目管理" / "04_变更管理" / "04_变更记录"
+    ledger_dir = project_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
     (ledger_dir / "01_版本变更台帐.md").write_text(
         "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",

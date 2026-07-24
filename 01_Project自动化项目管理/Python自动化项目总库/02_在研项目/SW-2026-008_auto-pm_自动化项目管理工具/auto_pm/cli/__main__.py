@@ -48,6 +48,7 @@ from rich.console import Console  # noqa: E402
 
 from auto_pm.app_context import AppContext  # noqa: E402
 from auto_pm.cli.change import change_group  # noqa: E402
+from auto_pm.cli.constraint import constraint_group  # noqa: E402
 from auto_pm.cli.delivery import delivery_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
 from auto_pm.cli.gui import gui_command  # noqa: E402
@@ -59,7 +60,6 @@ from auto_pm.cli.session import pm_session_group  # noqa: E402
 from auto_pm.cli.spec import spec_group  # noqa: E402
 from auto_pm.cli.template import template_group  # noqa: E402
 from auto_pm.cli.vartable import vartable_group  # noqa: E402
-from auto_pm.cli.constraint import constraint_group  # noqa: E402
 from auto_pm.cli.workflow import workflow_group  # noqa: E402
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])

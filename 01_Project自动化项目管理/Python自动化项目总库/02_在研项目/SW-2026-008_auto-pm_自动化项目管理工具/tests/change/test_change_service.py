@@ -174,7 +174,7 @@ class TestChangeService:
         # 把已有的 CHG-DOCU-2026-001.md 状态改为 closed
         chg_path = os.path.join(
             workspace_root, project_id,
-            "00_项目管理", "04_变更管理", "01_变更单",
+            "04_监控", "01_变更管理", "01_变更单",
             "CHG-DOCU", "CHG-DOCU-2026-001.md",
         )
         with open(chg_path, "r", encoding="utf-8") as f:
@@ -223,7 +223,7 @@ class TestChangeService:
         with open(os.path.join(project_path, f"PM_SESSION_{project_id}.md"), "w", encoding="utf-8") as f:
             f.write("# PM_SESSION\n")
         # 完整台账骨架（含 ## 变更单索引 标题 + 8列结构）
-        ledger_dir = os.path.join(project_path, "00_项目管理", "04_变更管理", "04_变更记录")
+        ledger_dir = os.path.join(project_path, "04_监控", "01_变更管理", "02_变更记录")
         os.makedirs(ledger_dir, exist_ok=True)
         ledger_path = os.path.join(ledger_dir, "01_版本变更台帐.md")
         with open(ledger_path, "w", encoding="utf-8") as f:

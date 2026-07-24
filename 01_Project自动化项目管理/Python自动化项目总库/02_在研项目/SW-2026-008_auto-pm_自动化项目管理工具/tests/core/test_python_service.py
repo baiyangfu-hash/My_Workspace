@@ -54,7 +54,7 @@ def test_python_project_check_and_repair(tmp_path: Path) -> None:
     assert (proj_dir / ".ruff.toml").exists()
     assert (proj_dir / "pyproject.toml").exists()
     assert (proj_dir / "tests" / "conftest.py").exists()
-    assert (proj_dir / "00_项目基础信息").exists()
+    assert (proj_dir / "01_启动").exists()
     assert (proj_dir / "PM_SESSION_SW-2026-PYT.md").exists()
 
     # 4. 再次运行 check，应该完全通过

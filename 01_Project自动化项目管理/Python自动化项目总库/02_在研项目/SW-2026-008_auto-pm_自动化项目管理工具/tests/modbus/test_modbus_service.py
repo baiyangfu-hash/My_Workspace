@@ -20,7 +20,6 @@ import pytest
 
 from auto_pm.modbus.modbus_service import ModbusService
 
-
 # ─────────────────────────────────────────────
 # Fixtures
 # ─────────────────────────────────────────────

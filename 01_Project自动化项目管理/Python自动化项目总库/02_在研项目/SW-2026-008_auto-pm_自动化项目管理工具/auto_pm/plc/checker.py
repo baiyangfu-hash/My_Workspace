@@ -19,9 +19,10 @@ import os
 import re
 from typing import cast
 
-from auto_pm.core.paths import PM_DIR_PLC, PROJECT_INIT_PLC_PATH
 from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
+    _LEGACY_PM_DIR_PLC,
+    _LEGACY_PROJECT_INIT_PLC_PATH,
     NAMING_RULES,
     REQUIRED_PLC_JSON_FIELDS,
     SKIP_PLC_JSON_TYPES,
@@ -49,7 +50,7 @@ _KEY_FILES = [
 # 真实历史 PLC 项目中常见的 PRD 文档落点。
 # 仅在这些已知目录中做兼容识别，避免把任意散落文档误判为标准 PRD。
 _LEGACY_PRD_DIRS = [
-    os.path.join(*PROJECT_INIT_PLC_PATH),
+    os.path.join(*_LEGACY_PROJECT_INIT_PLC_PATH),
     "01_需求与设计",
     "01_需求与设计/13_软件方案",
     "02_PLC程序/PLC_ST/PRD",
@@ -157,8 +158,8 @@ class PlcChecker:
         except OSError:
             entries = set()
 
-        # standard: 有 00_项目管理 目录
-        if PM_DIR_PLC in entries:
+        # standard: 有 00_项目管理 目录（CHG-SCPT-2026-146: 旧路径暂保留，阶段3.2迁移）
+        if _LEGACY_PM_DIR_PLC in entries:
             return "standard"
 
         # shared-library: 有共享库特征目录
