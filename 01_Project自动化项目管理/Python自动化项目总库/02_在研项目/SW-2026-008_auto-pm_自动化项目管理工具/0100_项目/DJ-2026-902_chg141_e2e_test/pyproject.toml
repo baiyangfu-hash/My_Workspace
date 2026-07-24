@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chg141_e2e_test"
+version = "V1.0.0"
+description = "CHG-SCPT-2026-141 FileWatcherBridge end-to-end verification test project"
+authors = [
+    { name = "fubai" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.10",
+    "pydantic-settings>=2.6",
+    "click>=8.1",
+    "rich>=14",
+    "pyyaml>=6.0",
+]
+
+[project.urls]
+homepage = "https://github.com/fubai/chg141_e2e_test"
+source = "https://github.com/fubai/chg141_e2e_test"
+
+[project.scripts]
+chg141-e2e-test = "chg141_e2e_test.cli.__main__:cli"
+
+[dependency-groups]
+dev = [
+    "mypy>=1,<2",
+    "pre-commit>=3,<4",
+    "pytest>=8,<9",
+    "pytest-cov>=5,<6",
+    "ruff>=0.5,<0.6",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["chg141_e2e_test"]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+warn_unreachable = true
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+    "chg141_e2e_test",
+]
+testpaths = ["tests"]
+addopts = [
+    "--cov=chg141_e2e_test/",
+    "--cov-report=term",
+    "--cov-report=html:coverage/html",
+    "--color=yes",
+]
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+]
