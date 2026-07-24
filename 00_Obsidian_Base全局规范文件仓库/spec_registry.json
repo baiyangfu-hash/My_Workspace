@@ -1327,8 +1327,8 @@
     "SW-2026-008": {
         "title": "auto-pm 自动化项目管理工具",
         "number": "008",
-        "canonical_path": "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/00_项目基础信息/001_产品需求文档_PRD.md",
-        "version": "V2.0.0",
+        "canonical_path": "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/001_产品需求文档_PRD.md",
+        "version": "V1.1.0",
         "type_prefix": "SW",
         "domain": "python",
         "lifecycle": "active",
