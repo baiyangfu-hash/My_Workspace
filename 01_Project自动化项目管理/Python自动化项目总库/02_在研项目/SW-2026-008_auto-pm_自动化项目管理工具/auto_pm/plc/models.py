@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from auto_pm.core.paths import PM_DIR_PLC
 from auto_pm.models.plc import (  # noqa: F401
     CheckItem,
     CheckResult,
@@ -40,7 +41,7 @@ __all__ = [
 
 # 标准 PLC 项目目录结构（LSP-907 §3.1）
 STD_DIRS: list[str] = [
-    "00_项目管理",
+    PM_DIR_PLC,
     "01_需求与设计",
     "02_PLC程序",
     "03_HMI设计",

@@ -27,6 +27,7 @@ import re
 from datetime import datetime
 from typing import Any
 
+from auto_pm.core.paths import PROJECT_INFO_DIR
 from auto_pm.models import DashboardSummaryDTO
 
 log = logging.getLogger(__name__)
@@ -416,7 +417,7 @@ class DashboardService:
             for project in projects:
                 if getattr(project, "stack", "") == "python":
                     candidate = os.path.join(
-                        project.path, "00_项目基础信息", "006_技术债评估报告.md"
+                        project.path, PROJECT_INFO_DIR, "006_技术债评估报告.md"
                     )
                     if os.path.isfile(candidate):
                         return candidate
@@ -425,7 +426,7 @@ class DashboardService:
 
         if self._workspace_root:
             candidate = os.path.join(
-                self._workspace_root, "00_项目基础信息", "006_技术债评估报告.md"
+                self._workspace_root, PROJECT_INFO_DIR, "006_技术债评估报告.md"
             )
             if os.path.isfile(candidate):
                 return candidate

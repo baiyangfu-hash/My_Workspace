@@ -35,6 +35,8 @@ from PySide6.QtCore import (
 if TYPE_CHECKING:
     pass
 
+from auto_pm.delivery.constants import DIR_DELIVERY, DIR_PACKAGE
+
 log = logging.getLogger(__name__)
 
 
@@ -160,8 +162,8 @@ class FileWatcherBridge(QObject):
             "node_modules",
             ".idea",
             ".vscode",
-            "06_交付物",
-            "06_交付物打包",
+            DIR_DELIVERY,
+            DIR_PACKAGE,
             "output",
             "test_screenshots",
             ".auto-pm",

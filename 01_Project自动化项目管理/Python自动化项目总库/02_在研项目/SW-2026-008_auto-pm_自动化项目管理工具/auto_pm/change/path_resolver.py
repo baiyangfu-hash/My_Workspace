@@ -17,6 +17,17 @@ from __future__ import annotations
 import os
 import re
 
+from auto_pm.core.paths import (
+    CHANGE_RECORDS_PLC_PATH,
+    CHANGE_RECORDS_PYTHON_PATH,
+    CHANGE_REQUESTS_PLC_PATH,
+    CHANGE_SCAN_PYTHON_PATH,
+    PM_DIR_PLC,
+    PM_DIR_PYTHON,
+    PROJECT_INIT_PLC_PATH,
+    PROJECT_INIT_PYTHON_PATH,
+)
+
 # ── 安全校验 ──────────────────────────────────────────────
 
 # project_id 允许的字符：字母、数字、连字符、下划线
@@ -115,9 +126,9 @@ def validate_path_within_workspace(path: str, workspace_root: str) -> str:
 # 立项表搜索路径（按优先级排列，命中即停）
 _PROJ_SEARCH_PATHS = [
     # PLC 项目约定
-    ("00_项目管理", "01_立项与需求"),
+    tuple(PROJECT_INIT_PLC_PATH),
     # Python/通用项目约定
-    ("00_项目基础信息",),
+    tuple(PROJECT_INIT_PYTHON_PATH),
     # 兼容：直接在项目根目录下
     (),
 ]
@@ -132,9 +143,9 @@ _PROJ_FILE_PATTERNS = [
 # 变更单搜索路径（按优先级排列）
 _CHANGE_SEARCH_PATHS = [
     # PLC 项目约定
-    os.path.join("00_项目管理", "04_变更管理", "01_变更单"),
-    # Python/通用项目约定
-    os.path.join("01_项目文档", "03_执行过程", "02_变更管理"),
+    os.path.join(*CHANGE_REQUESTS_PLC_PATH),
+    # Python/通用项目约定（递归扫描，不含最后的 01_变更单）
+    os.path.join(*CHANGE_SCAN_PYTHON_PATH),
 ]
 
 
@@ -191,9 +202,9 @@ def _scan_change_dir(base_dir: str, results: list[str], depth: int = 0, max_dept
 # 台帐搜索路径（按优先级排列）
 _LEDGER_SEARCH_PATHS = [
     # PLC 项目约定
-    os.path.join("00_项目管理", "04_变更管理", "04_变更记录"),
+    os.path.join(*CHANGE_RECORDS_PLC_PATH),
     # Python/通用项目约定
-    os.path.join("01_项目文档", "03_执行过程", "02_变更管理", "04_变更记录"),
+    os.path.join(*CHANGE_RECORDS_PYTHON_PATH),
 ]
 
 # 台帐文件名匹配模式
@@ -281,8 +292,8 @@ def _detect_ledger_path_for_project(project_path: str) -> str:
         台帐目录的相对路径（os.path.join 拼接的字符串）
     """
     # 判据 1: 已有目录结构
-    plc_dir = os.path.join(project_path, "00_项目管理")
-    python_dir = os.path.join(project_path, "01_项目文档")
+    plc_dir = os.path.join(project_path, PM_DIR_PLC)
+    python_dir = os.path.join(project_path, PM_DIR_PYTHON)
     if os.path.isdir(plc_dir):
         return _LEDGER_SEARCH_PATHS[0]  # PLC 约定
     if os.path.isdir(python_dir):

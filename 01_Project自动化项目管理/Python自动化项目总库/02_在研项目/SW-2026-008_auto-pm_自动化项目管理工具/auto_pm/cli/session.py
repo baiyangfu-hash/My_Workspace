@@ -29,6 +29,8 @@ import click
 from rich.console import Console
 
 from auto_pm.core.pm_session_service import (
+    ARCHIVE_DIR_NAME,
+    ARCHIVE_DIR_PARENT,
     MAX_FILE_LINES,
     MAX_FILE_SIZE_KB,
     PmSessionArchiveService,
@@ -265,7 +267,7 @@ def cmd_archive(
 
     # 自动生成归档文件路径
     if archive_file is None:
-        archive_dir = root / "00_项目管理" / "05_PM_SESSION归档"
+        archive_dir = root / ARCHIVE_DIR_PARENT / ARCHIVE_DIR_NAME
         # 从 PM_SESSION 文件名提取 project_id
         stem = pm_file.stem  # PM_SESSION_SW-2026-008
         pid = stem.replace("PM_SESSION_", "") if stem.startswith("PM_SESSION_") else "PROJECT"

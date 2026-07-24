@@ -25,6 +25,7 @@ from datetime import datetime
 from typing import Any
 
 from auto_pm.change.change_service import ChangeService
+from auto_pm.core.paths import get_change_requests_paths
 from auto_pm.core.project_service import ProjectService
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import (
@@ -220,10 +221,13 @@ class SyncService:
         for proj in db_projects:
             # 查找项目目录下的变更单文件
             # 实际路径: 00_项目管理/04_变更管理/01_变更单/CHG-{domain}/CHG-*.md
-            change_dir = os.path.join(
-                proj.path, "00_项目管理", "04_变更管理", "01_变更单"
-            )
-            if not os.path.isdir(change_dir):
+            # CHG-SCPT-2026-144: 改为遍历 get_change_requests_paths 支持多套目录约定
+            change_dir = None
+            for candidate in get_change_requests_paths(proj.path):
+                if os.path.isdir(candidate):
+                    change_dir = candidate
+                    break
+            if not change_dir:
                 continue
 
             try:

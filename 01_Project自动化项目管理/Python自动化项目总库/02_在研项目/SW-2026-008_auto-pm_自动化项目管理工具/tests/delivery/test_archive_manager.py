@@ -33,11 +33,11 @@ from auto_pm.delivery.constants import (
 
 @pytest.fixture
 def project_dir(tmp_path: Path) -> Path:
-    """创建模拟项目目录，含 06_交付物/ 和 06_交付物打包/"""
+    """创建模拟项目目录，含 06_交付物/（合并后 ZIP 也在该目录）"""
     project = tmp_path / "test_project"
     project.mkdir()
 
-    # 06_交付物/
+    # 06_交付物/（CHG-SCPT-2026-145 合并后 ZIP 与交付物内容同在此目录）
     delivery_dir = project / DIR_DELIVERY
     delivery_dir.mkdir()
     (delivery_dir / DIR_EXECUTABLE).mkdir()
@@ -47,10 +47,8 @@ def project_dir(tmp_path: Path) -> Path:
     (delivery_dir / "CHANGELOG.md").write_text("## [1.0.0]\n- init\n", encoding="utf-8")
     (delivery_dir / DIR_RELEASE_NOTES).mkdir()
 
-    # 06_交付物打包/
-    package_dir = project / DIR_PACKAGE
-    package_dir.mkdir()
-    zip_path = package_dir / "test_V1.0.0_20260701.zip"
+    # ZIP 文件直接放在 06_交付物/ 根目录（合并后不再有独立的 06_交付物打包/ 目录）
+    zip_path = delivery_dir / "test_V1.0.0_20260701.zip"
     zip_path.write_bytes(b"\x00" * (2 * MB))  # 2MB fake zip
 
     return project

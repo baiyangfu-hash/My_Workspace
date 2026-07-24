@@ -22,6 +22,7 @@ from rich.console import Console
 from rich.table import Table
 
 from auto_pm.app_context import AppContext
+from auto_pm.core.paths import PYTHON_REQUIRED_DIRS
 from auto_pm.core.project_service import ProjectService
 from auto_pm.core.template_service import TemplateService
 
@@ -38,8 +39,8 @@ _REQUIRED_FILES = [
     "Taskfile.yml",
 ]
 
-# Python 项目规范必需目录
-_REQUIRED_DIRS = ["tests", "00_项目基础信息"]
+# Python 项目规范必需目录（CHG-SCPT-2026-144: 引用集中常量）
+_REQUIRED_DIRS = PYTHON_REQUIRED_DIRS
 
 
 @click.group(name="python")

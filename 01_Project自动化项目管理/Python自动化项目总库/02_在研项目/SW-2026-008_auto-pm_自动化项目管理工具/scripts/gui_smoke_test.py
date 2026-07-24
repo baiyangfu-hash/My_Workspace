@@ -354,7 +354,8 @@ class GuiTestRunner(QObject):
         prop = self.engine.rootContext().contextProperty("fileWatcherBridge")
         if prop is None:
             return None
-        return cast(FileWatcherBridge, prop)
+        # cast 第一个参数用字符串形式，避免运行时求值 TYPE_CHECKING 导入的符号
+        return cast("FileWatcherBridge", prop)
 
     def _wait_for_signal(self, spy: QSignalSpy, timeout_ms: int = 15000) -> bool:
         """循环 processEvents 等待信号触发（GUI 可见模式）。

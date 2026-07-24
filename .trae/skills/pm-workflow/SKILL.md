@@ -219,6 +219,23 @@ auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] 
 
 在 Step 4 同步回 PM_SESSION **之前**，必须校验以下一致性，不一致则**禁止**同步：
 
+**首选方式：自动检查（CHG-SCPT-2026-145 新增，强制）**
+
+```powershell
+auto-pm -w "<工作空间根>" spec check --check-id SHC-011,SHC-012,SHC-013,SHC-014
+```
+
+| 检查器 | 检查项 | 对应人工校验点 |
+|--------|--------|----------------|
+| SHC-011 | 版本号四件套一致性（pyproject.toml / CHANGELOG.md / PM_SESSION §2·§8） | 第 1 点 |
+| SHC-012 | 测试数一致性（PM_SESSION §3 / 实际 pytest 结果） | 第 2 点 |
+| SHC-013 | 验证状态标注（§8 Handoff Notes / §9 Next Actions 未验证结论处理） | 第 4、5 点 |
+| SHC-014 | 文档索引有效性（§4 Artifacts Index 路径有效 + PRD/INT/DSN/TEC 齐全） | 第 3 点 |
+
+- **ERROR 级问题必须修复后才能同步回 PM_SESSION**；INFO/WARNING 可记录后继续
+- 该命令同时会在 `change transition --done`（CHG 闭环门禁）中自动执行 SHC-011 和 SHC-014，详见 Step 3.6
+- 若 CLI 不可用或检查器未覆盖项目场景，按以下细则人工校验：
+
 1. **版本号一致性**：
    - `pyproject.toml` 版本号 == `CHANGELOG.md` 最新条目版本号
    - `PM_SESSION §2` Current Focus 中的版本号 == `PM_SESSION §8` Handoff Notes 中的版本号
@@ -258,6 +275,17 @@ auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] 
 **若门禁未通过**：§3 必须如实记录失败状态，**禁止**声明"全绿"或"0 errors"。
 
 **例外**：纯文档/注释改动且无代码逻辑变更时，可只运行 ruff（mypy/pytest 跳过），但必须在 §3 标注"本次为文档改动，仅运行 ruff"。
+
+**门禁实测后复检（CHG-SCPT-2026-145 新增，强制）**：
+
+门禁实测完成后，必须重新运行 SHC-012 确认 PM_SESSION §3 测试通过数与实际 pytest 结果一致：
+
+```powershell
+auto-pm -w "<工作空间根>" spec check --check-id SHC-012
+```
+
+- 若 pytest 实际通过数与 PM_SESSION §3 声明不一致，必须先更新 §3 再同步回 PM_SESSION
+- 该复检确保 Step 3.8 的实测结果被准确回写，避免"声明 1500 passed，实际 1477 passed"的失真
 
 ### Step 4：同步回 PM_SESSION（双层结构）
 

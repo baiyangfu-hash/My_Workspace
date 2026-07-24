@@ -19,6 +19,8 @@ from typing import Any
 
 import yaml
 
+from auto_pm.core.paths import PROJECT_INFO_DIR, PYTHON_REQUIRED_DIRS
+
 log = logging.getLogger(__name__)
 
 # Python 项目规范必需文件（210 规范）
@@ -31,8 +33,8 @@ _REQUIRED_FILES = [
     "Taskfile.yml",
 ]
 
-# Python 项目规范必需目录
-_REQUIRED_DIRS = ["tests", "00_项目基础信息"]
+# Python 项目规范必需目录（CHG-SCPT-2026-144: 引用集中常量）
+_REQUIRED_DIRS = PYTHON_REQUIRED_DIRS
 
 
 class PythonProjectService:
@@ -221,11 +223,11 @@ class PythonProjectService:
             repaired_items.append("Restored tests/conftest.py")
 
         # 00_项目基础信息
-        info_dir = os.path.join(project_path, "00_项目基础信息")
+        info_dir = os.path.join(project_path, PROJECT_INFO_DIR)
         if not os.path.exists(info_dir):
             if not dry_run:
                 os.makedirs(info_dir, exist_ok=True)
-            repaired_items.append("Created directory 00_项目基础信息")
+            repaired_items.append(f"Created directory {PROJECT_INFO_DIR}")
 
         # PM_SESSION 文件
         # 扫描是否存在 PM_SESSION_*.md

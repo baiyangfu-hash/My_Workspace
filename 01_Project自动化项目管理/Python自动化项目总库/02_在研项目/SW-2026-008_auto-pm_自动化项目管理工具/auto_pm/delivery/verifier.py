@@ -25,6 +25,7 @@ from auto_pm.delivery.constants import (
     DCHECK_DELIVERY_MIN_FILES,
     DCHECK_EXE_MIN_MB,
     DCHECK_INTERNAL_MIN_FILES,
+    DIR_RELEASE_NOTES,
     MB,
 )
 
@@ -142,7 +143,7 @@ class DeliveryVerifier:
             report.add(CheckResult("D2", "_internal 目录缺失", True, "可能为 onefile 模式", "warn"))
 
         # D3: 发布说明
-        docs_dir = delivery_dir / "02_发布说明"
+        docs_dir = delivery_dir / DIR_RELEASE_NOTES
         if docs_dir.exists() and any(docs_dir.iterdir()):
             dcount = len(list(docs_dir.iterdir()))
             report.add(CheckResult("D3", "发布说明存在", True, f"{dcount} files", "pass"))

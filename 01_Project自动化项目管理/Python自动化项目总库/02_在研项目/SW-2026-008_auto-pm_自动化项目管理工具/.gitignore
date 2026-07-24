@@ -58,7 +58,6 @@ output/
 # auto-pm runtime
 .auto-pm/
 06_交付物/
-06_交付物打包/
 
 # Python
 __pycache__/

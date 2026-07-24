@@ -134,7 +134,7 @@ class DeliveryService:
                 shutil.copy2(str(src_f), str(dst_f))
 
         # 复制发布说明文档
-        release_dir = self._project_root / "02_发布说明"
+        release_dir = self._project_root / DIR_RELEASE_NOTES
         if release_dir.exists():
             for doc_name in [f"{version}_更新说明.md", f"01_交付清单_DEL-{version}.md"]:
                 src_f = release_dir / doc_name
@@ -170,7 +170,7 @@ class DeliveryService:
         """打包交付物为 ZIP。
 
         流程:
-          1. 归档旧 ZIP → 06_交付物打包/archive/
+          1. 归档旧 ZIP → 06_交付物/archive/
           2. 从 06_交付物/ 创建新 ZIP
           3. 执行 CHK-checks 验证
 

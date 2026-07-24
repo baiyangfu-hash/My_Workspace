@@ -52,10 +52,11 @@ class ArchiveManager:
         if not self._delivery_dir.exists():
             return None
 
-        # 收集要归档的项（排除 archive/ 子目录本身）
+        # 收集要归档的项（排除 archive/ 子目录本身和 ZIP 文件）
+        # CHG-SCPT-2026-145: ZIP 文件由 archive_package 独立归档，不随 delivery 归档移动
         items = [
             p for p in self._delivery_dir.iterdir()
-            if p.name != DIR_ARCHIVE
+            if p.name != DIR_ARCHIVE and p.suffix.lower() != ".zip"
         ]
         if not items:
             return None
@@ -86,7 +87,7 @@ class ArchiveManager:
     def archive_package(
         self, old_version: str, new_version: str, summary: str = ""
     ) -> Path | None:
-        """将当前 06_交付物打包/ 根目录 ZIP 归档到 archive/ 子目录。
+        """将当前 06_交付物/ 根目录 ZIP 归档到 archive/ 子目录。
 
         Args:
             old_version: 被归档的版本号

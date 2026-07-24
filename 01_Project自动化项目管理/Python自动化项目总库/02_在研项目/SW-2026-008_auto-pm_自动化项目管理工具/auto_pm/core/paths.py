@@ -26,6 +26,18 @@ from typing import Final
 WORKSPACE_PROJECTS_SUBDIR: Final[str] = "02_在研项目"
 
 
+# ── 项目管理目录名（CHG-SCPT-2026-144 集中定义） ──────────
+
+#: PLC 项目管理目录名
+PM_DIR_PLC: Final[str] = "00_项目管理"
+
+#: Python/通用项目文档目录名
+PM_DIR_PYTHON: Final[str] = "01_项目文档"
+
+#: Python 项目基础信息目录名
+PROJECT_INFO_DIR: Final[str] = "00_项目基础信息"
+
+
 # ── 项目级目录（PLC 项目，LSP-907 §3.1） ────────────────────
 
 #: PLC 项目根目录下的标准子目录（LSP-907 §3.1）
@@ -45,28 +57,39 @@ PRD_DIR: Final[str] = "PRD"
 
 #: 变更单存放目录（PLC 项目约定）
 CHANGE_REQUESTS_PLC_PATH: Final[list[str]] = [
-    "00_项目管理", "04_变更管理", "01_变更单"
+    PM_DIR_PLC, "04_变更管理", "01_变更单"
 ]
 
 #: 变更单存放目录（Python/通用项目约定）
 CHANGE_REQUESTS_PYTHON_PATH: Final[list[str]] = [
-    "01_项目文档", "03_执行过程", "02_变更管理", "01_变更单"
+    PM_DIR_PYTHON, "03_执行过程", "02_变更管理", "01_变更单"
 ]
 
 #: 变更记录存放目录（PLC 项目约定）
 CHANGE_RECORDS_PLC_PATH: Final[list[str]] = [
-    "00_项目管理", "04_变更管理", "04_变更记录"
+    PM_DIR_PLC, "04_变更管理", "04_变更记录"
 ]
 
 #: 变更记录存放目录（Python/通用项目约定）
 CHANGE_RECORDS_PYTHON_PATH: Final[list[str]] = [
-    "01_项目文档", "03_执行过程", "02_变更管理", "04_变更记录"
+    PM_DIR_PYTHON, "03_执行过程", "02_变更管理", "04_变更记录"
 ]
 
 #: 立项与需求目录（PLC 项目约定）
 PROJECT_INIT_PLC_PATH: Final[list[str]] = [
-    "00_项目管理", "01_立项与需求"
+    PM_DIR_PLC, "01_立项与需求"
 ]
+
+#: 立项表搜索路径（Python/通用项目约定）
+PROJECT_INIT_PYTHON_PATH: Final[list[str]] = [PROJECT_INFO_DIR]
+
+#: 变更单扫描路径（Python/通用项目约定，不含最后的 01_变更单，用于递归扫描）
+CHANGE_SCAN_PYTHON_PATH: Final[list[str]] = [
+    PM_DIR_PYTHON, "03_执行过程", "02_变更管理"
+]
+
+#: Python 项目规范必需目录
+PYTHON_REQUIRED_DIRS: Final[list[str]] = ["tests", PROJECT_INFO_DIR]
 
 
 # ── PRD 文档命名（LSP-907 + SysLib FB 标准） ───────────────

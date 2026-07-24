@@ -138,8 +138,8 @@ def cmd_package(
     """打包交付物为 ZIP。
 
     流程:
-      1. 归档旧 ZIP → 06_交付物打包/archive/
-      2. 从 06_交付物/ 创建新 ZIP（Python zipfile）
+      1. 归档旧 ZIP → 06_交付物/archive/
+      2. 从 06_交付物/ 创建新 ZIP
       3. 执行 CHK-checks 验证
 
     示例:
@@ -322,14 +322,14 @@ def cmd_status(
     else:
         console.print("\n[dim]06_交付物/ 不存在[/dim]")
 
-    # 打包信息
+    # 打包信息（CHG-SCPT-2026-145: 合并后 ZIP 与交付物同在 06_交付物/ 根目录）
     package = status.get("package")
     if package:
-        console.print("\n[bold]06_交付物打包/[/bold]")
+        console.print("\n[bold]06_交付物/ ZIP 打包[/bold]")
         console.print(f"  当前 ZIP: {package.get('name', '—')}")
         console.print(f"  大小: {package.get('size_mb', 0)} MB")
         console.print(f"  归档数: {status.get('package_archive_count', 0)}")
     else:
-        console.print("\n[dim]06_交付物打包/ 无 ZIP[/dim]")
+        console.print("\n[dim]06_交付物/ 无 ZIP[/dim]")
 
     console.print()

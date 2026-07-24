@@ -41,6 +41,7 @@ from auto_pm.change.guard_checker import TransitionGuardChecker
 from auto_pm.change.markdown_editor import ChangeMarkdownEditor
 from auto_pm.change.parser import ChgParser
 from auto_pm.change.path_resolver import find_ledger_file, get_or_create_ledger_file
+from auto_pm.core.paths import PM_DIR_PLC, PM_DIR_PYTHON
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
 from auto_pm.models import ApprovalRecord
@@ -166,8 +167,8 @@ class ChangeService:
         """
         current = os.path.dirname(os.path.abspath(file_path))
         while current and current != os.path.dirname(current):
-            if os.path.isdir(os.path.join(current, "00_项目管理")) or \
-               os.path.isdir(os.path.join(current, "01_项目文档")):
+            if os.path.isdir(os.path.join(current, PM_DIR_PLC)) or \
+               os.path.isdir(os.path.join(current, PM_DIR_PYTHON)):
                 return current
             current = os.path.dirname(current)
         return None
@@ -441,6 +442,55 @@ class ChangeService:
 
         return pending
 
+    def _check_doc_sync(self, project_id: str | None) -> list[str]:
+        """运行文档同步检查（SHC-011, SHC-014）（CHG-SCPT-2026-145）
+
+        在 CHG 流转到 completed 前调用，检查版本号一致性和文档索引有效性。
+        返回 ERROR 级别的检查结果描述列表（空列表表示通过）。
+
+        Args:
+            project_id: 项目编号（如 SW-2026-008）
+
+        Returns:
+            ERROR 级别检查结果描述列表
+        """
+        if not project_id:
+            return []
+
+        try:
+            from pathlib import Path
+
+            from auto_pm.spec.core.checker_base import HealthChecker, Severity
+            from auto_pm.spec.core.config import WorkspaceConfig
+            from auto_pm.spec.core.registry import SpecRegistry
+            from auto_pm.spec.core.scanner import SpecScanner
+        except ImportError:
+            log.warning("文档同步检查依赖不可用，跳过")
+            return []
+
+        workspace = Path(self.workspace_root)
+        # 查找项目根目录（包含 PM_SESSION_{project_id}*.md 的目录）
+        pm_files = list(workspace.rglob(f"PM_SESSION_{project_id}*.md"))
+        if not pm_files:
+            return []  # 找不到 PM_SESSION 文件时跳过
+
+        project_root = pm_files[0].parent
+        config = WorkspaceConfig(workspace=workspace)
+        scanner = SpecScanner(
+            workspace=workspace, config=config, project_root=project_root
+        )
+        registry = SpecRegistry(workspace)
+        registry.load()  # 显式加载，确保依赖 registry 数据的检查器可正常工作
+
+        hc = HealthChecker()
+        errors: list[str] = []
+        for check_id in ("SHC-011", "SHC-014"):
+            results = hc.run_by_id(check_id, registry, scanner)
+            for r in results:
+                if r.severity == Severity.ERROR:
+                    errors.append(f"[{check_id}] {r.message}: {r.details}")
+        return errors
+
     def transition_status(
         self,
         change_number: str,
@@ -516,6 +566,15 @@ class ChangeService:
                 final_conclusion = (
                     f"{verification_conclusion} [部分验证闭环] "
                     f"待验证项：{pending_str}；其余项已验证通过"
+                )
+
+            # [CHG-SCPT-2026-145 门禁3] 文档同步检查：SHC-011 版本号一致性 + SHC-014 文档索引有效性
+            # 确保变更闭环前 PRD/INT/DSN/TEC 索引有效、版本号四件套一致
+            doc_errors = self._check_doc_sync(project_id)
+            if doc_errors:
+                raise TransitionGuardError(
+                    f"变更单 {change_number} 文档同步检查失败（SHC-011/SHC-014）：\n"
+                    + "\n".join(f"  - {e}" for e in doc_errors)
                 )
 
             # 门禁通过：写入验证行和验证结论到§10

@@ -6,6 +6,8 @@
 from pathlib import Path
 from typing import Any
 
+from auto_pm.core.pm_session_service import ARCHIVE_DIR_NAME, ARCHIVE_DIR_PARENT
+
 
 def make_spec_check_service(workspace_root: str) -> Any | None:
     """工厂函数：构造 SpecCheckService（避免硬依赖，方便测试 mock）
@@ -215,7 +217,7 @@ def make_pm_session_service(workspace_root: str) -> Any | None:
                 section_total_lines = section_obj.end_line - section_obj.start_line
 
                 # 构造归档文件路径
-                archive_dir = file_path.parent / "00_项目管理" / "05_PM_SESSION归档"
+                archive_dir = file_path.parent / ARCHIVE_DIR_PARENT / ARCHIVE_DIR_NAME
                 stem = file_path.stem
                 pid = stem.replace("PM_SESSION_", "") if stem.startswith("PM_SESSION_") else "PROJECT"
                 archive_file = archive_dir / f"PM_SESSION_{pid}_archive_auto.md"

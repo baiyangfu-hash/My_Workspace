@@ -27,7 +27,7 @@ from typing import Any, cast
 import yaml
 
 from auto_pm.core.constants import get_template_name
-from auto_pm.core.paths import WORKSPACE_PROJECTS_SUBDIR
+from auto_pm.core.paths import PROJECT_INFO_DIR, PROJECT_INIT_PLC_PATH, WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.project_scanner import ProjectScanner
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository, ProjectRepository
@@ -571,7 +571,7 @@ class ProjectService:
         # 2. 根据 stack_type 补齐基础 PM 目录
         today_str = datetime.now().strftime("%Y-%m-%d")
         if stack_type == "plc":
-            pm_dir = os.path.join(project_path, "00_项目管理", "01_立项与需求")
+            pm_dir = os.path.join(project_path, *PROJECT_INIT_PLC_PATH)
             proj_doc_name = f"{project_id}_PROJ.md"
             proj_doc_template = (
                 f"# Westwell PLC 项目立项需求说明书（{project_id}）\n\n"
@@ -584,7 +584,7 @@ class ProjectService:
                 f"- 初始化项目框架与基础文档。\n"
             )
         else:
-            pm_dir = os.path.join(project_path, "00_项目基础信息")
+            pm_dir = os.path.join(project_path, PROJECT_INFO_DIR)
             proj_doc_name = f"{project_id}_PM.md"
             proj_doc_template = (
                 f"# Westwell Python 项目立项表（{project_id}）\n\n"

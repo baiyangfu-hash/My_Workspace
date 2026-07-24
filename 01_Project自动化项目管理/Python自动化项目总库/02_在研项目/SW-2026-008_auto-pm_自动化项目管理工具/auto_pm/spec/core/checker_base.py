@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import re
+import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum
@@ -581,6 +582,380 @@ class SpecCrossRefChecker(BaseChecker):
         return results
 
 
+class VersionConsistencyChecker(BaseChecker):
+    """SHC-011: 版本号四件套一致性检查（CHG-SCPT-2026-145）
+
+    检查 pyproject.toml version ↔ CHANGELOG.md 最新版本 ↔ PM_SESSION §2 ↔ PM_SESSION §8
+    四处版本号是否一致。基于 project-rule.md "迭代文档同步规则（强制）"。
+    """
+
+    _PYPROJECT_VERSION_RE = re.compile(
+        r'^version\s*=\s*["\']([^"\']+)["\']', re.MULTILINE
+    )
+    _CHANGELOG_VERSION_RE = re.compile(
+        r'^##\s*\[(?!Unreleased)([^\]]+)\]', re.MULTILINE
+    )
+    _PM_VERSION_RE = re.compile(
+        r'(?:代码基线|版本基线|基线)\s*\*{0,2}V?(\d+(?:\.\d+)+)\*{0,2}'
+    )
+    _NEXT_SECTION_RE = re.compile(r'^##\s*\d', re.MULTILINE)
+
+    @staticmethod
+    def _normalize_version(v: str) -> str:
+        return v.lstrip("Vv")
+
+    def _extract_section(self, content: str, section_num: int) -> str:
+        pattern = re.compile(rf'^##\s*{section_num}\.?\s', re.MULTILINE)
+        m = pattern.search(content)
+        if not m:
+            return ""
+        start = m.start()
+        rest = content[start + len(m.group(0)):]
+        nm = self._NEXT_SECTION_RE.search(rest)
+        if nm:
+            return content[start : start + len(m.group(0)) + nm.start()]
+        return content[start:]
+
+    def _read_pyproject_version(self, path: Path) -> str | None:
+        if not path.exists():
+            return None
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return None
+        m = self._PYPROJECT_VERSION_RE.search(content)
+        return m.group(1) if m else None
+
+    def _read_changelog_version(self, path: Path) -> str | None:
+        if not path.exists():
+            return None
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return None
+        m = self._CHANGELOG_VERSION_RE.search(content)
+        return m.group(1) if m else None
+
+    def _extract_pm_version(self, section_content: str) -> str | None:
+        if not section_content:
+            return None
+        m = self._PM_VERSION_RE.search(section_content)
+        return m.group(1) if m else None
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        pm_files = scanner.iter_pm_session_files()
+        if not pm_files:
+            return results
+
+        for pm_file in pm_files:
+            project_root = pm_file.parent
+            try:
+                pm_content = pm_file.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            pyproject_ver = self._read_pyproject_version(project_root / "pyproject.toml")
+            changelog_ver = self._read_changelog_version(project_root / "CHANGELOG.md")
+            pm_s2_ver = self._extract_pm_version(self._extract_section(pm_content, 2))
+            pm_s8_ver = self._extract_pm_version(self._extract_section(pm_content, 8))
+
+            versions: dict[str, str | None] = {
+                "pyproject.toml": pyproject_ver,
+                "CHANGELOG.md": changelog_ver,
+                "PM_SESSION §2": pm_s2_ver,
+                "PM_SESSION §8": pm_s8_ver,
+            }
+
+            # 基准版本优先级：pyproject.toml > CHANGELOG.md > §2
+            canonical = pyproject_ver or changelog_ver or pm_s2_ver
+            if not canonical:
+                continue
+
+            canonical_norm = self._normalize_version(canonical)
+            for source, ver in versions.items():
+                if ver is None:
+                    # pyproject.toml/CHANGELOG.md 可能不存在（非Python项目），跳过
+                    if source in ("pyproject.toml", "CHANGELOG.md"):
+                        continue
+                    results.append(
+                        CheckResult(
+                            check_id="SHC-011",
+                            severity=Severity.ERROR,
+                            message=f"{source} 未找到版本号",
+                            details=f"PM文件: {pm_file.name}, 期望版本: {canonical}",
+                            fix_suggestion=f"在 {source} 中补充版本号 {canonical}",
+                        )
+                    )
+                elif self._normalize_version(ver) != canonical_norm:
+                    results.append(
+                        CheckResult(
+                            check_id="SHC-011",
+                            severity=Severity.ERROR,
+                            message=f"{source} 版本号不一致",
+                            details=f"{source}: {ver}, 期望: {canonical}, PM文件: {pm_file.name}",
+                            fix_suggestion=f"将 {source} 的版本号统一为 {canonical}",
+                        )
+                    )
+        return results
+
+
+class TestCountConsistencyChecker(BaseChecker):
+    """SHC-012: 测试数一致性检查（CHG-SCPT-2026-145）
+
+    检查 PM_SESSION §3 中声明的 pytest 通过数 ↔ 实际 junit xml 结果一致性。
+    依赖 pytest 配置 --junitxml=coverage/junit/test-results.xml。
+    """
+
+    _PASSED_RE = re.compile(r'pytest\s+(\d+)\s+passed')
+    _SECTION_3_RE = re.compile(r'^##\s*3\.?\s', re.MULTILINE)
+    _NEXT_SECTION_RE = re.compile(r'^##\s*\d', re.MULTILINE)
+    _JUNIT_CANDIDATES = [
+        "coverage/junit/test-results.xml",
+        "test_reports/junit.xml",
+        "test-results/junit.xml",
+    ]
+
+    def _extract_section_3(self, content: str) -> str:
+        m = self._SECTION_3_RE.search(content)
+        if not m:
+            return ""
+        start = m.start()
+        rest = content[start + len(m.group(0)):]
+        nm = self._NEXT_SECTION_RE.search(rest)
+        if nm:
+            return content[start : start + len(m.group(0)) + nm.start()]
+        return content[start:]
+
+    def _read_junit_test_count(self, project_root: Path) -> int | None:
+        for rel_path in self._JUNIT_CANDIDATES:
+            junit_path = project_root / rel_path
+            if not junit_path.exists():
+                continue
+            try:
+                tree = ET.parse(str(junit_path))
+                root = tree.getroot()
+                # junit xml: <testsuites tests="N"> 或 <testsuite tests="N">
+                tests_attr = root.get("tests")
+                if tests_attr is None:
+                    suite = root.find(".//testsuite")
+                    if suite is not None:
+                        tests_attr = suite.get("tests")
+                if tests_attr:
+                    return int(tests_attr)
+            except (ET.ParseError, ValueError, OSError):
+                continue
+        return None
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        pm_files = scanner.iter_pm_session_files()
+        if not pm_files:
+            return results
+
+        for pm_file in pm_files:
+            project_root = pm_file.parent
+            try:
+                pm_content = pm_file.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            section3 = self._extract_section_3(pm_content)
+            # 取最后一个 "pytest N passed" 作为最新声明
+            matches = self._PASSED_RE.findall(section3)
+            if not matches:
+                continue  # §3 中没有测试数声明，跳过
+
+            declared_count = int(matches[-1])
+            actual_count = self._read_junit_test_count(project_root)
+
+            if actual_count is None:
+                results.append(
+                    CheckResult(
+                        check_id="SHC-012",
+                        severity=Severity.WARNING,
+                        message="未找到 junit xml 测试结果文件",
+                        details=(
+                            f"PM文件: {pm_file.name}, §3声明: {declared_count} passed, "
+                            f"查找路径: {', '.join(self._JUNIT_CANDIDATES)}"
+                        ),
+                        fix_suggestion="运行 pytest 生成 junit xml，或配置 --junitxml 参数",
+                    )
+                )
+            elif actual_count != declared_count:
+                results.append(
+                    CheckResult(
+                        check_id="SHC-012",
+                        severity=Severity.WARNING,
+                        message=f"测试通过数不一致: §3声明 {declared_count} vs junit xml {actual_count}",
+                        details=f"PM文件: {pm_file.name}",
+                        fix_suggestion="重新运行 pytest 并更新 PM_SESSION §3 中的测试数声明",
+                    )
+                )
+        return results
+
+
+class VerificationStatusChecker(BaseChecker):
+    """SHC-013: 验证状态标注检查（CHG-SCPT-2026-145）
+
+    检查 PM_SESSION §8 Handoff Notes 中是否标注 [已验证]/[待验证]。
+    基于 project_memory "未验证禁止回写" 约束。
+    """
+
+    _SECTION_8_RE = re.compile(r'^##\s*8\.?\s', re.MULTILINE)
+    _NEXT_SECTION_RE = re.compile(r'^##\s*\d', re.MULTILINE)
+    _VERIFIED_RE = re.compile(r'\[已验证\]|\[待验证\]')
+
+    def _extract_section_8(self, content: str) -> str:
+        m = self._SECTION_8_RE.search(content)
+        if not m:
+            return ""
+        start = m.start()
+        rest = content[start + len(m.group(0)):]
+        nm = self._NEXT_SECTION_RE.search(rest)
+        if nm:
+            return content[start : start + len(m.group(0)) + nm.start()]
+        return content[start:]
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        pm_files = scanner.iter_pm_session_files()
+        if not pm_files:
+            return results
+
+        for pm_file in pm_files:
+            try:
+                pm_content = pm_file.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            section8 = self._extract_section_8(pm_content)
+            if not section8:
+                continue
+
+            if not self._VERIFIED_RE.search(section8):
+                results.append(
+                    CheckResult(
+                        check_id="SHC-013",
+                        severity=Severity.WARNING,
+                        message="PM_SESSION §8 缺少验证状态标注",
+                        details=(
+                            f"PM文件: {pm_file.name}, "
+                            f"§8 中未发现 [已验证] 或 [待验证] 标注"
+                        ),
+                        fix_suggestion=(
+                            "在 §8 的结论性条目后标注 [已验证] 或 [待验证]，"
+                            "确保未验证结论不作为决策依据"
+                        ),
+                    )
+                )
+        return results
+
+
+class DocIndexValidityChecker(BaseChecker):
+    """SHC-014: 文档索引有效性检查（CHG-SCPT-2026-145）
+
+    检查 PM_SESSION §4 Artifacts Index 中 PRD/INT/DSN/TEC：
+    1. 四类核心文档是否齐全
+    2. 路径是否有效（相对于 PM_SESSION 所在目录）
+    与 SHC-009 的差异：SHC-009 检查所有路径引用，SHC-014 聚焦 req/int/dsn/tec 齐全性。
+    """
+
+    _SECTION_4_RE = re.compile(r'^##\s*4\.?\s', re.MULTILINE)
+    _NEXT_SECTION_RE = re.compile(r'^##\s*\d', re.MULTILINE)
+    _DOC_ENTRY_RE = re.compile(
+        r'^-\s*(req|int|dsn|tec)\s*:\s*(.+)$', re.MULTILINE | re.IGNORECASE
+    )
+    _REQUIRED_DOCS = {"req", "int", "dsn", "tec"}
+
+    def _extract_section_4(self, content: str) -> str:
+        m = self._SECTION_4_RE.search(content)
+        if not m:
+            return ""
+        start = m.start()
+        rest = content[start + len(m.group(0)):]
+        nm = self._NEXT_SECTION_RE.search(rest)
+        if nm:
+            return content[start : start + len(m.group(0)) + nm.start()]
+        return content[start:]
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        pm_files = scanner.iter_pm_session_files()
+        if not pm_files:
+            return results
+
+        for pm_file in pm_files:
+            project_root = pm_file.parent
+            try:
+                pm_content = pm_file.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            section4 = self._extract_section_4(pm_content)
+            if not section4:
+                continue  # 没有 §4 章节则跳过
+
+            # 解析文档条目
+            found_docs: dict[str, str] = {}
+            for match in self._DOC_ENTRY_RE.finditer(section4):
+                doc_type = match.group(1).lower()
+                doc_path_str = match.group(2).strip().split()[0]  # 取路径部分（去掉注释）
+                found_docs[doc_type] = doc_path_str
+
+            # 检查必需文档是否齐全
+            missing = self._REQUIRED_DOCS - set(found_docs.keys())
+            if missing:
+                results.append(
+                    CheckResult(
+                        check_id="SHC-014",
+                        severity=Severity.ERROR,
+                        message=f"PM_SESSION §4 缺少必需文档索引: {', '.join(sorted(missing))}",
+                        details=f"PM文件: {pm_file.name}",
+                        fix_suggestion=(
+                            f"在 §4 Artifacts Index 中补充 "
+                            f"{', '.join(sorted(missing))} 文档路径"
+                        ),
+                    )
+                )
+
+            # 检查路径有效性
+            for doc_type, doc_path_str in found_docs.items():
+                if doc_path_str.startswith(("http:", "https:")):
+                    continue
+                doc_path = project_root / doc_path_str
+                if not doc_path.exists():
+                    results.append(
+                        CheckResult(
+                            check_id="SHC-014",
+                            severity=Severity.ERROR,
+                            message=f"§4 文档索引路径无效: {doc_type} → {doc_path_str}",
+                            details=f"PM文件: {pm_file.name}, 完整路径: {doc_path}",
+                            fix_suggestion=(
+                                f"确认 {doc_path_str} 文件是否存在，"
+                                f"或更新 §4 中的路径"
+                            ),
+                        )
+                    )
+        return results
+
+
 _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-001": DuplicateChecker,
     "SHC-002": VersionMismatchChecker,
@@ -592,6 +967,10 @@ _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-008": RulesPathChecker,
     "SHC-009": PMSessionRefChecker,
     "SHC-010": SpecCrossRefChecker,
+    "SHC-011": VersionConsistencyChecker,
+    "SHC-012": TestCountConsistencyChecker,
+    "SHC-013": VerificationStatusChecker,
+    "SHC-014": DocIndexValidityChecker,
 }
 
 
