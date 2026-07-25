@@ -13,6 +13,10 @@
 - generateSpecIndex(domain) → dict (M5 CHG-119 新增)
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 from auto_pm.ui.contracts.dto.spec_dto import (
     SpecCenterEntryDTO,
     SpecCenterOverviewDTO,
@@ -31,7 +35,7 @@ class _MockSpecFacade:
     的调用参数（filter_domain 透传验证）和 generate_spec_index 的调用参数（domain 透传验证）。
     """
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
         run_check_result=None,
         overview_result=None,
@@ -55,35 +59,35 @@ class _MockSpecFacade:
         self.check_calls: list[str] = []
         self.repair_calls: list[str] = []
 
-    def run_spec_check(self, project_id=""):
+    def run_spec_check(self, project_id: str = "") -> Any:
         self.check_calls.append(project_id)
         return self._run_check_result
 
-    def get_spec_center_overview(self):
+    def get_spec_center_overview(self) -> Any:
         return self._overview_result
 
-    def list_spec_center_entries(self, filter_domain=None):
+    def list_spec_center_entries(self, filter_domain: Any = None) -> Any:
         self.list_entries_calls.append(filter_domain)
         return self._list_entries_result
 
-    def generate_spec_index(self, domain="all"):
+    def generate_spec_index(self, domain: str = "all") -> Any:
         self.generate_index_calls.append(domain)
         return self._generate_index_result
 
-    def generate_spec_report(self, fmt="markdown"):
+    def generate_spec_report(self, fmt: str = "markdown") -> Any:
         self.generate_report_calls.append(fmt)
         return self._generate_report_result
 
-    def check_spec_frontmatter(self, auto_fix=False):
+    def check_spec_frontmatter(self, auto_fix: bool = False) -> Any:
         self.check_frontmatter_calls.append(auto_fix)
         return self._check_frontmatter_result
 
-    def run_spec_repair(self, project_id):
+    def run_spec_repair(self, project_id) -> None:  # type: ignore[no-untyped-def]
         self.repair_calls.append(project_id)
-        return self._repair_result
+        return self._repair_result  # type: ignore[no-any-return]
 
 
-def _make_check_result_dto(**overrides):
+def _make_check_result_dto(**overrides) -> Any:  # type: ignore[no-untyped-def]
     return SpecCheckResultDTO(
         error_count=overrides.get("error_count", 2),
         warning_count=overrides.get("warning_count", 3),
@@ -93,7 +97,7 @@ def _make_check_result_dto(**overrides):
     )
 
 
-def _make_overview_dto(**overrides):
+def _make_overview_dto(**overrides) -> Any:  # type: ignore[no-untyped-def]
     return SpecCenterOverviewDTO(
         spec_count=overrides.get("spec_count", 10),
         domain_counts=overrides.get("domain_counts", {"plc": 6, "python": 4}),
@@ -110,7 +114,7 @@ def _make_overview_dto(**overrides):
     )
 
 
-def _make_entry_dto(**overrides):
+def _make_entry_dto(**overrides) -> Any:  # type: ignore[no-untyped-def]
     return SpecCenterEntryDTO(
         spec_id=overrides.get("spec_id", "SW-2026-006"),
         title=overrides.get("title", "SpecMgr 规范管理"),
@@ -123,7 +127,7 @@ def _make_entry_dto(**overrides):
     )
 
 
-def test_spec_bridge_run_check(qapp):
+def test_spec_bridge_run_check(qapp) -> None:  # type: ignore[no-untyped-def]
     """runSpecCheck() 返回 dict + emit specCheckCompleted 信号"""
     from PySide6.QtTest import QSignalSpy
 
@@ -133,7 +137,7 @@ def test_spec_bridge_run_check(qapp):
     mock_facade = _MockSpecFacade(
         run_check_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     spy = QSignalSpy(bridge.specCheckCompleted)
     result = bridge.runSpecCheck()
@@ -153,7 +157,7 @@ def test_spec_bridge_run_check(qapp):
     assert int(args[2]) == 1
 
 
-def test_spec_bridge_get_overview(qapp):
+def test_spec_bridge_get_overview(qapp) -> None:  # type: ignore[no-untyped-def]
     """getSpecOverview() 返回 dict"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -161,7 +165,7 @@ def test_spec_bridge_get_overview(qapp):
     mock_facade = _MockSpecFacade(
         overview_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
     result = bridge.getSpecOverview()
 
     assert isinstance(result, dict)
@@ -172,7 +176,7 @@ def test_spec_bridge_get_overview(qapp):
     assert result["health_summary"]["exit_code"] == 0
 
 
-def test_spec_bridge_list_entries(qapp):
+def test_spec_bridge_list_entries(qapp) -> None:  # type: ignore[no-untyped-def]
     """listSpecEntries() 返回 list[dict]"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -187,7 +191,7 @@ def test_spec_bridge_list_entries(qapp):
             success=True, message="OK", payload=entries
         )
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
     result = bridge.listSpecEntries("python")
 
     assert isinstance(result, list)
@@ -202,7 +206,7 @@ def test_spec_bridge_list_entries(qapp):
     assert mock_facade.list_entries_calls == ["python"]
 
 
-def test_spec_bridge_no_facade(qapp):
+def test_spec_bridge_no_facade(qapp) -> None:  # type: ignore[no-untyped-def]
     """facade=None 时 4 个 Slot 都返回降级值，不抛异常"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -221,7 +225,7 @@ def test_spec_bridge_no_facade(qapp):
     assert bridge.checkSpecFrontmatter(False) == {"success": False, "message": "未初始化"}
 
 
-def test_spec_bridge_run_check_failure(qapp):
+def test_spec_bridge_run_check_failure(qapp) -> None:  # type: ignore[no-untyped-def]
     """Facade 返回失败时，runSpecCheck 返回 {"error_count": -1, "message": ...}"""
     from PySide6.QtTest import QSignalSpy
 
@@ -232,7 +236,7 @@ def test_spec_bridge_run_check_failure(qapp):
             success=False, message="Spec check failed", payload=None
         )
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     spy = QSignalSpy(bridge.specCheckCompleted)
     result = bridge.runSpecCheck()
@@ -245,7 +249,7 @@ def test_spec_bridge_run_check_failure(qapp):
 # ── generateSpecIndex 测试（M5 CHG-119 新增）──────────────
 
 
-def _make_index_result_dto(**overrides):
+def _make_index_result_dto(**overrides) -> Any:  # type: ignore[no-untyped-def]
     return SpecIndexResultDTO(
         domain=overrides.get("domain", "all"),
         generated_files=overrides.get("generated_files", ["/tmp/index_pm.md", "/tmp/index_plc.md"]),
@@ -253,7 +257,7 @@ def _make_index_result_dto(**overrides):
     )
 
 
-def test_spec_bridge_generate_spec_index(qapp):
+def test_spec_bridge_generate_spec_index(qapp) -> None:  # type: ignore[no-untyped-def]
     """generateSpecIndex() 返回 dict（asdict 转换）+ domain 透传验证（M5 CHG-119）"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -265,7 +269,7 @@ def test_spec_bridge_generate_spec_index(qapp):
     mock_facade = _MockSpecFacade(
         generate_index_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.generateSpecIndex("plc")
 
@@ -277,7 +281,7 @@ def test_spec_bridge_generate_spec_index(qapp):
     assert mock_facade.generate_index_calls == ["plc"]
 
 
-def test_spec_bridge_generate_spec_index_error(qapp):
+def test_spec_bridge_generate_spec_index_error(qapp) -> None:  # type: ignore[no-untyped-def]
     """generateSpecIndex() service 返回失败时透传 success=False + message（M5 CHG-119）"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -286,7 +290,7 @@ def test_spec_bridge_generate_spec_index_error(qapp):
             success=False, message="No index_service", payload=None
         )
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.generateSpecIndex("all")
 
@@ -299,7 +303,7 @@ def test_spec_bridge_generate_spec_index_error(qapp):
 # ── generateSpecReport 测试（M5 CHG-120 新增）──────────────
 
 
-def _make_report_result_dto(**overrides):
+def _make_report_result_dto(**overrides) -> Any:  # type: ignore[no-untyped-def]
     return SpecReportResultDTO(
         fmt=overrides.get("fmt", "markdown"),
         output_path=overrides.get("output_path", "/tmp/规范元数据汇总报告.md"),
@@ -308,7 +312,7 @@ def _make_report_result_dto(**overrides):
     )
 
 
-def test_spec_bridge_generate_spec_report(qapp):
+def test_spec_bridge_generate_spec_report(qapp) -> None:  # type: ignore[no-untyped-def]
     """generateSpecReport() 返回 dict（asdict 转换）+ fmt 透传验证（M5 CHG-120）"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -321,7 +325,7 @@ def test_spec_bridge_generate_spec_report(qapp):
     mock_facade = _MockSpecFacade(
         generate_report_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.generateSpecReport("json")
 
@@ -334,7 +338,7 @@ def test_spec_bridge_generate_spec_report(qapp):
     assert mock_facade.generate_report_calls == ["json"]
 
 
-def test_spec_bridge_generate_spec_report_error(qapp):
+def test_spec_bridge_generate_spec_report_error(qapp) -> None:  # type: ignore[no-untyped-def]
     """generateSpecReport() service 返回失败时透传 success=False + message（M5 CHG-120）"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -343,7 +347,7 @@ def test_spec_bridge_generate_spec_report_error(qapp):
             success=False, message="No report_service", payload=None
         )
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.generateSpecReport("markdown")
 
@@ -356,7 +360,7 @@ def test_spec_bridge_generate_spec_report_error(qapp):
 # ── checkSpecFrontmatter 测试（M5 CHG-121 新增）──────────────
 
 
-def _make_frontmatter_result_dto(**overrides):
+def _make_frontmatter_result_dto(**overrides) -> Any:  # type: ignore[no-untyped-def]
     return SpecFrontmatterResultDTO(
         items=overrides.get("items", []),
         total_count=overrides.get("total_count", 1),
@@ -368,7 +372,7 @@ def _make_frontmatter_result_dto(**overrides):
     )
 
 
-def test_spec_bridge_check_spec_frontmatter(qapp):
+def test_spec_bridge_check_spec_frontmatter(qapp) -> None:  # type: ignore[no-untyped-def]
     """checkSpecFrontmatter() 返回 dict（asdict 转换）+ autoFix 透传验证（M5 CHG-121）"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -382,7 +386,7 @@ def test_spec_bridge_check_spec_frontmatter(qapp):
     mock_facade = _MockSpecFacade(
         check_frontmatter_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.checkSpecFrontmatter(True)
 
@@ -396,7 +400,7 @@ def test_spec_bridge_check_spec_frontmatter(qapp):
     assert mock_facade.check_frontmatter_calls == [True]
 
 
-def test_spec_bridge_check_spec_frontmatter_error(qapp):
+def test_spec_bridge_check_spec_frontmatter_error(qapp) -> None:  # type: ignore[no-untyped-def]
     """checkSpecFrontmatter() service 返回失败时透传 success=False + message（M5 CHG-121）"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -405,7 +409,7 @@ def test_spec_bridge_check_spec_frontmatter_error(qapp):
             success=False, message="No frontmatter_service", payload=None
         )
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.checkSpecFrontmatter(False)
 
@@ -415,7 +419,7 @@ def test_spec_bridge_check_spec_frontmatter_error(qapp):
     assert mock_facade.check_frontmatter_calls == [False]
 
 
-def test_spec_bridge_run_spec_check_with_project_id(qapp):
+def test_spec_bridge_run_spec_check_with_project_id(qapp) -> None:  # type: ignore[no-untyped-def]
     """测试 runSpecCheck(project_id) 透传 project_id 到 facade"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
@@ -423,21 +427,21 @@ def test_spec_bridge_run_spec_check_with_project_id(qapp):
     mock_facade = _MockSpecFacade(
         run_check_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.runSpecCheck("SW-2026-PYT")
     assert isinstance(result, dict)
     assert mock_facade.check_calls == ["SW-2026-PYT"]
 
 
-def test_spec_bridge_repair_spec(qapp):
+def test_spec_bridge_repair_spec(qapp) -> None:  # type: ignore[no-untyped-def]
     """测试 repairSpec(project_id) 槽函数调用"""
     from auto_pm.ui.qml.bridges.spec_bridge import SpecBridge
 
     mock_facade = _MockSpecFacade(
         repair_result=CommandResult(success=True, message="修复成功", payload={"repaired_items": []})
     )
-    bridge = SpecBridge(facade=mock_facade)
+    bridge = SpecBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.repairSpec("SW-2026-PYT")
     assert isinstance(result, dict)

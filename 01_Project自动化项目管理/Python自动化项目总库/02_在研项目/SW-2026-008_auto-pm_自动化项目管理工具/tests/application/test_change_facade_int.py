@@ -23,7 +23,7 @@ from auto_pm.models.project import ProjectRecord
 
 
 @pytest.fixture
-def temp_workspace(tmp_path):
+def temp_workspace(tmp_path: Path) -> None:  # type: ignore[misc, name-defined]
     ws_dir = tmp_path / "workspace"
     ws_dir.mkdir()
     proj_dir = ws_dir / "02_在研项目" / "SW-2026-001_Test"
@@ -37,7 +37,7 @@ def temp_workspace(tmp_path):
 
 
 @pytest.fixture
-def change_facade_with_db(temp_workspace):
+def change_facade_with_db(temp_workspace) -> None:  # type: ignore[misc, no-untyped-def]
     """构造含 DB 缓存的 ChangeFacade，预置 1 个项目 + 1 个变更单 + 1 条影响分析 + 2 条审批历史"""
     db = DatabaseManager(temp_workspace)
     db.init_schema()
@@ -146,7 +146,7 @@ def change_facade_with_db(temp_workspace):
         title="测试变更单",
         urgency="normal",
     )
-    change_service.get_change_request = lambda cn, project_id=None: mock_cr if cn == "CHG-2026-001" else None
+    change_service.get_change_request = lambda cn, project_id=None: mock_cr if cn == "CHG-2026-001" else None  # type: ignore[assignment, method-assign]
 
     facade = ChangeFacade(change_service=change_service)
     yield facade
@@ -155,7 +155,7 @@ def change_facade_with_db(temp_workspace):
     gc.collect()
 
 
-def test_change_facade_int_list_changes(change_facade_with_db):
+def test_change_facade_int_list_changes(change_facade_with_db) -> None:  # type: ignore[no-untyped-def]
     """集成测试：list_change_requests 从 DB 读取变更单列表"""
     result = change_facade_with_db.list_change_requests()
     assert result.success is True
@@ -168,7 +168,7 @@ def test_change_facade_int_list_changes(change_facade_with_db):
     assert summary.impact_scope == ["LOCAL"]
 
 
-def test_change_facade_int_get_detail(change_facade_with_db):
+def test_change_facade_int_get_detail(change_facade_with_db) -> None:  # type: ignore[no-untyped-def]
     """集成测试：get_change_detail 从 DB 读取变更单详情"""
     result = change_facade_with_db.get_change_detail("CHG-2026-001")
     assert result.success is True
@@ -177,7 +177,7 @@ def test_change_facade_int_get_detail(change_facade_with_db):
     assert result.payload.applicant == "user1"
 
 
-def test_change_facade_int_get_timeline(change_facade_with_db):
+def test_change_facade_int_get_timeline(change_facade_with_db) -> None:  # type: ignore[no-untyped-def]
     """集成测试：get_change_timeline 从 DB 读取审批历史"""
     result = change_facade_with_db.get_change_timeline("CHG-2026-001")
     assert result.success is True
@@ -191,7 +191,7 @@ def test_change_facade_int_get_timeline(change_facade_with_db):
     assert result.payload[1].transition_date == "2026-07-08T11:00:00"
 
 
-def test_change_facade_int_get_validation_summary(change_facade_with_db):
+def test_change_facade_int_get_validation_summary(change_facade_with_db) -> None:  # type: ignore[no-untyped-def]
     """集成测试：get_change_validation_summary 聚合 ImpactAnalysis + ApprovalHistory"""
     result = change_facade_with_db.get_change_validation_summary("CHG-2026-001")
     assert result.success is True
@@ -207,7 +207,7 @@ def test_change_facade_int_get_validation_summary(change_facade_with_db):
     assert summary.related_changes == ["CHG-2026-000"]
 
 
-def test_change_facade_int_full_flow(change_facade_with_db):
+def test_change_facade_int_full_flow(change_facade_with_db) -> None:  # type: ignore[no-untyped-def]
     """集成测试：端到端流程 list → get_detail → get_timeline → get_validation_summary"""
     # 1. list
     list_result = change_facade_with_db.list_change_requests()
@@ -231,7 +231,7 @@ def test_change_facade_int_full_flow(change_facade_with_db):
     assert summary_result.payload.risk_level == "high"
 
 
-def test_change_facade_int_not_found(change_facade_with_db):
+def test_change_facade_int_not_found(change_facade_with_db) -> None:  # type: ignore[no-untyped-def]
     """集成测试：change_id 不存在时返回 success=False"""
     result = change_facade_with_db.get_change_detail("NOT-EXIST")
     assert result.success is False

@@ -1,11 +1,13 @@
 """Facade Registry 单元测试"""
 
+from __future__ import annotations
+
 from unittest.mock import MagicMock
 
 from auto_pm.ui.registry import FacadeRegistry
 
 
-def test_registry_initialization():
+def test_registry_initialization() -> None:
     """验证 FacadeRegistry 能成功装配 5 个 Facades 且无循环依赖报错"""
     # Arrange
     registry = FacadeRegistry()
@@ -27,7 +29,7 @@ def test_registry_initialization():
     }
     
     # Act
-    registry.initialize(mock_services)
+    registry.initialize(mock_services)  # type: ignore[arg-type]
     
     # Assert
     assert registry.workbench_facade is not None

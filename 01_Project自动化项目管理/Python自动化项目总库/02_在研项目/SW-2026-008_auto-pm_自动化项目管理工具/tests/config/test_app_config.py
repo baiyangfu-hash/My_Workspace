@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from auto_pm.config.app_config import AutoPmConfig
 
 

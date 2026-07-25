@@ -9,6 +9,8 @@
 Workbench Facade 接口层"""
 
 import logging
+import os
+from datetime import datetime, timezone
 from typing import Any
 
 from auto_pm.core.protocols import (
@@ -244,6 +246,36 @@ class WorkbenchFacade:
         except Exception as e:
             return QueryResult(success=False, message=str(e), errors=[str(e)])
 
+    @staticmethod
+    def _get_last_activity_at(project_path: str) -> str | None:
+        """从项目目录的 file_mtime 获取最后活动时间（ISO 格式字符串）"""
+        try:
+            mtime = os.path.getmtime(project_path)
+            return datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat()
+        except (OSError, FileNotFoundError):
+            return None
+
+    def _build_pending_actions(self, project_id: str) -> list[dict[str, Any]]:
+        """从 DashboardService 获取项目待办操作列表"""
+        actions: list[dict[str, Any]] = []
+        if self._dashboard_service:
+            try:
+                cs = self._dashboard_service.get_change_summary_for_project(project_id)
+                total = cs.get("kpi", {}).get("total", 0)
+                if total > 0:
+                    implementing = cs.get("kpi", {}).get("implementing", 0)
+                    pending_review = cs.get("kpi", {}).get("pending_review", 0)
+                    actions.append({
+                        "type": "open_changes",
+                        "label": f"{total} 个开放变更单",
+                        "count": total,
+                        "implementing": implementing,
+                        "pending_review": pending_review,
+                    })
+            except Exception:
+                pass
+        return actions
+
     def list_project_cards(self) -> QueryResult[list[ProjectCardDTO]]:
         """获取项目列表卡片
 
@@ -264,9 +296,9 @@ class WorkbenchFacade:
                         stack=str(p.stack),
                         phase=str(p.phase),
                         version=p.version,
-                        health_status="Unknown",  # TODO M3: 接入 Change 域实时状态
+                        health_status="Unknown",  # 无 DB 缓存，无法查询变更单状态
                         open_change_count=0,
-                        last_activity_at=None,  # TODO M3: 从 file_mtime 转换
+                        last_activity_at=self._get_last_activity_at(p.path),
                         path=p.path,
                         business_line=str(p.business_line),
                     )
@@ -282,9 +314,9 @@ class WorkbenchFacade:
                     stack=str(item.stack),
                     phase=str(item.phase),
                     version=item.version,
-                    health_status="Unknown",  # TODO M3: 接入 Change 域实时状态
+                    health_status="Has Changes" if item.change_count > 0 else "Normal",
                     open_change_count=item.change_count,
-                    last_activity_at=None,  # TODO M3: 从 file_mtime 转换
+                    last_activity_at=self._get_last_activity_at(item.path),
                     path=item.path,
                     business_line=str(item.business_line),
                 )
@@ -320,9 +352,9 @@ class WorkbenchFacade:
                 project_id=project_id,
                 summary=summary,
                 asset_summary=asset_summary,
-                document_status=None,  # TODO M3/M4: 接入 DocumentService
-                vartable_status=None,  # TODO M3/M4: 接入 VartableService
-                pending_actions=[],    # TODO M3: 从 ChangeService 查询 open changes
+                document_status=None,  # M4: 需新建 DocumentService（检查项目文档完整性/刷新状态），当前无此服务
+                vartable_status=None,  # M4: 需新建 VartableService（解析 io_points.csv 等变量表），当前仅有 CLI 命令
+                pending_actions=self._build_pending_actions(project_id),
             )
             return QueryResult(success=True, message="Success", payload=dto)
         except Exception as e:

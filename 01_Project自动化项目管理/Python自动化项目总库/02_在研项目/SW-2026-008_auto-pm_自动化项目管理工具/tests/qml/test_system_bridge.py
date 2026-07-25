@@ -16,6 +16,10 @@
 - archivePmSession(section, keepRecent, dryRun) → dict（asdict 转换，M5 CHG-117 新增）
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 from auto_pm.ui.contracts.dto.system_dto import (
     ApplyTemplateResultDTO,
     PmSessionArchiveResultDTO,
@@ -29,7 +33,7 @@ from auto_pm.ui.contracts.result import CommandResult, QueryResult
 class _MockSystemFacade:
     """Mock SystemFacade，记录方法调用并返回预设结果。"""
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
         list_templates_result=None,
         get_template_path_result=None,
@@ -51,40 +55,40 @@ class _MockSystemFacade:
         self.apply_template_calls: list[tuple[str, str]] = []
         self.archive_pm_session_calls: list[tuple[str, int, bool]] = []
 
-    def list_templates(self):
+    def list_templates(self) -> Any:
         return self._list_templates_result
 
-    def get_template_path(self, template_name):
+    def get_template_path(self, template_name: Any) -> Any:
         self.get_template_path_calls.append(template_name)
         return self._get_template_path_result
 
-    def get_template_detail(self, template_name):
+    def get_template_detail(self, template_name: Any) -> Any:
         self.get_template_detail_calls.append(template_name)
         return self._get_template_detail_result
 
-    def get_pm_session_view(self):
+    def get_pm_session_view(self) -> Any:
         return self._pm_session_view_result
 
-    def run_pm_session_check(self):
+    def run_pm_session_check(self) -> Any:
         return self._run_pm_session_check_result
 
-    def apply_template(self, project_id, template_name):
+    def apply_template(self, project_id: Any, template_name: Any) -> Any:
         self.apply_template_calls.append((project_id, template_name))
         return self._apply_template_result
 
-    def archive_pm_session(self, section, keep_recent, dry_run):
+    def archive_pm_session(self, section: Any, keep_recent: Any, dry_run: Any) -> Any:
         self.archive_pm_session_calls.append((section, keep_recent, dry_run))
         return self._archive_pm_session_result
 
 
-def test_system_bridge_list_templates(qapp):
+def test_system_bridge_list_templates(qapp) -> None:  # type: ignore[no-untyped-def]
     """listTemplates() 返回 list[str]"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
     mock_facade = _MockSystemFacade(
         list_templates_result=QueryResult(success=True, message="OK", payload=["python-tpl", "plc-tpl"])
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.listTemplates()
 
@@ -92,14 +96,14 @@ def test_system_bridge_list_templates(qapp):
     assert result == ["python-tpl", "plc-tpl"]
 
 
-def test_system_bridge_get_template_path(qapp):
+def test_system_bridge_get_template_path(qapp) -> None:  # type: ignore[no-untyped-def]
     """getTemplatePath() 返回 str + template_name 透传验证"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
     mock_facade = _MockSystemFacade(
         get_template_path_result=QueryResult(success=True, message="OK", payload="/templates/python-tpl")
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getTemplatePath("python-tpl")
 
@@ -108,7 +112,7 @@ def test_system_bridge_get_template_path(qapp):
     assert mock_facade.get_template_path_calls == ["python-tpl"]
 
 
-def test_system_bridge_get_template_detail(qapp):
+def test_system_bridge_get_template_detail(qapp) -> None:  # type: ignore[no-untyped-def]
     """getTemplateDetail() 返回 dict（asdict 转换）+ template_name 透传验证"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
@@ -123,7 +127,7 @@ def test_system_bridge_get_template_detail(qapp):
     mock_facade = _MockSystemFacade(
         get_template_detail_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getTemplateDetail("python-tpl")
 
@@ -137,7 +141,7 @@ def test_system_bridge_get_template_detail(qapp):
     assert mock_facade.get_template_detail_calls == ["python-tpl"]
 
 
-def test_system_bridge_get_pm_session_view(qapp):
+def test_system_bridge_get_pm_session_view(qapp) -> None:  # type: ignore[no-untyped-def]
     """getPmSessionView() 返回 dict（asdict 转换）"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
@@ -145,7 +149,7 @@ def test_system_bridge_get_pm_session_view(qapp):
     mock_facade = _MockSystemFacade(
         pm_session_view_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getPmSessionView()
 
@@ -153,7 +157,7 @@ def test_system_bridge_get_pm_session_view(qapp):
     assert result["data"] == {"status": "ok", "version": "1.0"}
 
 
-def test_system_bridge_run_pm_session_check(qapp):
+def test_system_bridge_run_pm_session_check(qapp) -> None:  # type: ignore[no-untyped-def]
     """runPmSessionCheck() 返回 dict（asdict 转换）"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
@@ -161,7 +165,7 @@ def test_system_bridge_run_pm_session_check(qapp):
     mock_facade = _MockSystemFacade(
         run_pm_session_check_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.runPmSessionCheck()
 
@@ -169,7 +173,7 @@ def test_system_bridge_run_pm_session_check(qapp):
     assert result["data"] == {"errors": 0, "warnings": 2}
 
 
-def test_system_bridge_apply_template(qapp):
+def test_system_bridge_apply_template(qapp) -> None:  # type: ignore[no-untyped-def]
     """applyTemplate() 返回 dict（asdict 转换）+ project_id/template_name 透传验证"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
@@ -181,7 +185,7 @@ def test_system_bridge_apply_template(qapp):
     mock_facade = _MockSystemFacade(
         apply_template_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.applyTemplate("PROJ-001", "python-tpl")
 
@@ -192,7 +196,7 @@ def test_system_bridge_apply_template(qapp):
     assert mock_facade.apply_template_calls == [("PROJ-001", "python-tpl")]
 
 
-def test_system_bridge_archive_pm_session(qapp):
+def test_system_bridge_archive_pm_session(qapp) -> None:  # type: ignore[no-untyped-def]
     """archivePmSession() 返回 dict（asdict 转换）+ section/keepRecent/dryRun 透传验证（M5 CHG-117）"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
@@ -210,7 +214,7 @@ def test_system_bridge_archive_pm_session(qapp):
     mock_facade = _MockSystemFacade(
         archive_pm_session_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.archivePmSession("6", 20, True)
 
@@ -228,14 +232,14 @@ def test_system_bridge_archive_pm_session(qapp):
     assert mock_facade.archive_pm_session_calls == [("6", 20, True)]
 
 
-def test_system_bridge_archive_pm_session_error(qapp):
+def test_system_bridge_archive_pm_session_error(qapp) -> None:  # type: ignore[no-untyped-def]
     """archivePmSession() service 返回 error 时透传 success=False + message（M5 CHG-117）"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 
     mock_facade = _MockSystemFacade(
         archive_pm_session_result=CommandResult(success=False, message="章节 §99 不存在", payload=None)
     )
-    bridge = SystemBridge(facade=mock_facade)
+    bridge = SystemBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.archivePmSession("99", 0, False)
 
@@ -245,7 +249,7 @@ def test_system_bridge_archive_pm_session_error(qapp):
     assert mock_facade.archive_pm_session_calls == [("99", 0, False)]
 
 
-def test_system_bridge_no_facade(qapp):
+def test_system_bridge_no_facade(qapp) -> None:  # type: ignore[no-untyped-def]
     """facade=None 时 7 个 Slot 都返回降级值，不抛异常"""
     from auto_pm.ui.qml.bridges.system_bridge import SystemBridge
 

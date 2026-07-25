@@ -15,10 +15,12 @@ import pytest
 
 from auto_pm.vartable.parsers.scl_parser import SclParser
 
+# 工作空间根目录（从 tests/vartable 推导：7 级父目录）
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[6]
+
 # DJ-2026-005 真实 SCL 样例根路径 (引用而非拷贝)
-_DJ_2026_005_ST_ROOT = Path(
-    r"c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化"
-    r"\DJ-2026-005\02_PLC程序\PLC_ST"
+_DJ_2026_005_ST_ROOT = (
+    _WORKSPACE_ROOT / "0100_PLC自动化" / "DJ-2026-005" / "02_PLC程序" / "PLC_ST"
 )
 OB1_SCL = _DJ_2026_005_ST_ROOT / "OB1" / "OB1.scl"
 FB_2001_SCL = (

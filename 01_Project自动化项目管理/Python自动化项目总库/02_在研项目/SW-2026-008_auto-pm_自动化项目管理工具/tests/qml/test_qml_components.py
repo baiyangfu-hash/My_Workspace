@@ -81,22 +81,22 @@ def _load_component(
 def test_card_default_properties(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """Card 默认 title/subtitle/bodyText 为空字符串"""
     card = _load_component(qml_engine, _COMPONENTS_DIR / "Card.qml")
-    assert card.property("title") == ""
-    assert card.property("subtitle") == ""
-    assert card.property("bodyText") == ""
+    assert card.property("title") == ""  # type: ignore[attr-defined]
+    assert card.property("subtitle") == ""  # type: ignore[attr-defined]
+    assert card.property("bodyText") == ""  # type: ignore[attr-defined]
 
 
 def test_card_set_properties(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """Card 设置 title/subtitle/bodyText 后应正确读取"""
     card = _load_component(qml_engine, _COMPONENTS_DIR / "Card.qml")
-    card.setProperty("title", "项目名称")
-    card.setProperty("subtitle", "SW-2026-008")
-    card.setProperty("bodyText", "项目描述")
+    card.setProperty("title", "项目名称")  # type: ignore[attr-defined]
+    card.setProperty("subtitle", "SW-2026-008")  # type: ignore[attr-defined]
+    card.setProperty("bodyText", "项目描述")  # type: ignore[attr-defined]
 
     qapp.processEvents()
-    assert card.property("title") == "项目名称"
-    assert card.property("subtitle") == "SW-2026-008"
-    assert card.property("bodyText") == "项目描述"
+    assert card.property("title") == "项目名称"  # type: ignore[attr-defined]
+    assert card.property("subtitle") == "SW-2026-008"  # type: ignore[attr-defined]
+    assert card.property("bodyText") == "项目描述"  # type: ignore[attr-defined]
 
 
 # ── Badge.qml ─────────────────────────────────────────────
@@ -105,19 +105,19 @@ def test_card_set_properties(qapp: QApplication, qml_engine: QQmlEngine) -> None
 def test_badge_default_properties(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """Badge 默认 text 为空，type 为 'default'"""
     badge = _load_component(qml_engine, _COMPONENTS_DIR / "Badge.qml")
-    assert badge.property("text") == ""
-    assert badge.property("type") == "default"
+    assert badge.property("text") == ""  # type: ignore[attr-defined]
+    assert badge.property("type") == "default"  # type: ignore[attr-defined]
 
 
 def test_badge_set_text_and_type(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """Badge 设置 text + type 后应正确读取"""
     badge = _load_component(qml_engine, _COMPONENTS_DIR / "Badge.qml")
-    badge.setProperty("text", "PLC")
-    badge.setProperty("type", "plc")
+    badge.setProperty("text", "PLC")  # type: ignore[attr-defined]
+    badge.setProperty("type", "plc")  # type: ignore[attr-defined]
     qapp.processEvents()
 
-    assert badge.property("text") == "PLC"
-    assert badge.property("type") == "plc"
+    assert badge.property("text") == "PLC"  # type: ignore[attr-defined]
+    assert badge.property("type") == "plc"  # type: ignore[attr-defined]
 
 
 # ── TabBar.qml ────────────────────────────────────────────
@@ -126,21 +126,21 @@ def test_badge_set_text_and_type(qapp: QApplication, qml_engine: QQmlEngine) -> 
 def test_tabbar_default_properties(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """TabBar 默认 tabs 为空数组，currentTabIndex 为 0"""
     tabbar = _load_component(qml_engine, _COMPONENTS_DIR / "TabBar.qml")
-    tabs = tabbar.property("tabs")
+    tabs = tabbar.property("tabs")  # type: ignore[attr-defined]
     # QJSValue 转 Python list
     if hasattr(tabs, "toVariant"):
         tabs = tabs.toVariant()
     assert tabs is None or len(tabs) == 0
-    assert tabbar.property("currentTabIndex") == 0
+    assert tabbar.property("currentTabIndex") == 0  # type: ignore[attr-defined]
 
 
 def test_tabbar_set_tabs(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """TabBar 设置 tabs 数组后应正确读取"""
     tabbar = _load_component(qml_engine, _COMPONENTS_DIR / "TabBar.qml")
-    tabbar.setProperty("tabs", ["概览", "变更", "检查", "文档", "变量表"])
+    tabbar.setProperty("tabs", ["概览", "变更", "检查", "文档", "变量表"])  # type: ignore[attr-defined]
     qapp.processEvents()
 
-    tabs = tabbar.property("tabs")
+    tabs = tabbar.property("tabs")  # type: ignore[attr-defined]
     if hasattr(tabs, "toVariant"):
         tabs = tabs.toVariant()
     assert tabs is not None
@@ -152,11 +152,11 @@ def test_tabbar_set_tabs(qapp: QApplication, qml_engine: QQmlEngine) -> None:
 def test_tabbar_set_currentTabIndex(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """TabBar 设置 currentTabIndex 后应正确读取"""
     tabbar = _load_component(qml_engine, _COMPONENTS_DIR / "TabBar.qml")
-    tabbar.setProperty("tabs", ["A", "B", "C"])
-    tabbar.setProperty("currentTabIndex", 2)
+    tabbar.setProperty("tabs", ["A", "B", "C"])  # type: ignore[attr-defined]
+    tabbar.setProperty("currentTabIndex", 2)  # type: ignore[attr-defined]
     qapp.processEvents()
 
-    assert tabbar.property("currentTabIndex") == 2
+    assert tabbar.property("currentTabIndex") == 2  # type: ignore[attr-defined]
 
 
 # ── PrimaryButton.qml ─────────────────────────────────────
@@ -167,9 +167,9 @@ def test_primaryButton_default_properties(
 ) -> None:
     """PrimaryButton 默认 text 为空，type 为 'primary'，enabled 为 True"""
     btn = _load_component(qml_engine, _COMPONENTS_DIR / "PrimaryButton.qml")
-    assert btn.property("text") == ""
-    assert btn.property("type") == "primary"
-    assert btn.property("enabled") is True
+    assert btn.property("text") == ""  # type: ignore[attr-defined]
+    assert btn.property("type") == "primary"  # type: ignore[attr-defined]
+    assert btn.property("enabled") is True  # type: ignore[attr-defined]
 
 
 def test_primaryButton_set_properties(
@@ -177,14 +177,14 @@ def test_primaryButton_set_properties(
 ) -> None:
     """PrimaryButton 设置 text/type/enabled 后应正确读取"""
     btn = _load_component(qml_engine, _COMPONENTS_DIR / "PrimaryButton.qml")
-    btn.setProperty("text", "删除")
-    btn.setProperty("type", "danger")
-    btn.setProperty("enabled", False)
+    btn.setProperty("text", "删除")  # type: ignore[attr-defined]
+    btn.setProperty("type", "danger")  # type: ignore[attr-defined]
+    btn.setProperty("enabled", False)  # type: ignore[attr-defined]
     qapp.processEvents()
 
-    assert btn.property("text") == "删除"
-    assert btn.property("type") == "danger"
-    assert btn.property("enabled") is False
+    assert btn.property("text") == "删除"  # type: ignore[attr-defined]
+    assert btn.property("type") == "danger"  # type: ignore[attr-defined]
+    assert btn.property("enabled") is False  # type: ignore[attr-defined]
 
 
 # ── Dialog.qml ────────────────────────────────────────────
@@ -193,12 +193,12 @@ def test_primaryButton_set_properties(
 def test_dialog_default_properties(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """Dialog 默认 title 为空，visible 为 False，okText 为 '确定'"""
     dialog = _load_component(qml_engine, _COMPONENTS_DIR / "Dialog.qml")
-    assert dialog.property("title") == ""
-    assert dialog.property("visible") is False
-    assert dialog.property("okText") == "确定"
-    assert dialog.property("cancelText") == "取消"
-    assert dialog.property("dialogWidth") == 480
-    assert dialog.property("dialogHeight") == 320
+    assert dialog.property("title") == ""  # type: ignore[attr-defined]
+    assert dialog.property("visible") is False  # type: ignore[attr-defined]
+    assert dialog.property("okText") == "确定"  # type: ignore[attr-defined]
+    assert dialog.property("cancelText") == "取消"  # type: ignore[attr-defined]
+    assert dialog.property("dialogWidth") == 480  # type: ignore[attr-defined]
+    assert dialog.property("dialogHeight") == 320  # type: ignore[attr-defined]
 
 
 def test_dialog_open_close(qapp: QApplication, qml_engine: QQmlEngine) -> None:
@@ -210,25 +210,25 @@ def test_dialog_open_close(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     dialog = _load_component(qml_engine, _COMPONENTS_DIR / "Dialog.qml")
 
     # 初始 _isOpen=False
-    assert dialog.property("_isOpen") is False
+    assert dialog.property("_isOpen") is False  # type: ignore[attr-defined]
 
     # 设置 _isOpen=True
-    dialog.setProperty("_isOpen", True)
+    dialog.setProperty("_isOpen", True)  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dialog.property("_isOpen") is True
+    assert dialog.property("_isOpen") is True  # type: ignore[attr-defined]
 
     # 设置 _isOpen=False
-    dialog.setProperty("_isOpen", False)
+    dialog.setProperty("_isOpen", False)  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dialog.property("_isOpen") is False
+    assert dialog.property("_isOpen") is False  # type: ignore[attr-defined]
 
 
 def test_dialog_set_title(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """Dialog 设置 title 后应正确读取"""
     dialog = _load_component(qml_engine, _COMPONENTS_DIR / "Dialog.qml")
-    dialog.setProperty("title", "新建项目")
+    dialog.setProperty("title", "新建项目")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dialog.property("title") == "新建项目"
+    assert dialog.property("title") == "新建项目"  # type: ignore[attr-defined]
 
 
 # ── Theme.qml 单例（间接验证） ────────────────────────────
@@ -238,10 +238,10 @@ def test_theme_singleton_loadable(qapp: QApplication, qml_engine: QQmlEngine) ->
     """Theme.qml 应能被 QML 组件 import 并解析所有 token（间接验证 5 组件均能引用 Theme）"""
     # 加载 Badge（依赖 Theme）若成功即说明 Theme 单例可访问
     badge = _load_component(qml_engine, _COMPONENTS_DIR / "Badge.qml")
-    badge.setProperty("type", "plc")
+    badge.setProperty("type", "plc")  # type: ignore[attr-defined]
     qapp.processEvents()
     # _bgColor 是私有 property，通过 _colorMap 间接验证
-    color_map = badge.property("_colorMap")
+    color_map = badge.property("_colorMap")  # type: ignore[attr-defined]
     # QJSValue 转 Python dict
     if hasattr(color_map, "toVariant"):
         color_map = color_map.toVariant()

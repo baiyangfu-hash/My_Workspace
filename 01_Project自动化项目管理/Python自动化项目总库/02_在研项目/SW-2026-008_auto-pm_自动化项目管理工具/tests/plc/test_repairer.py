@@ -14,13 +14,34 @@ from auto_pm.plc.repairer import PlcRepairer
 
 @pytest.fixture
 def broken_project(tmp_path: Path) -> Path:
-    """创建一个缺少多个标准文件的项目"""
+    """创建一个缺少多个标准文件的项目（有 .plc.json 可被 scan 识别）"""
     project_dir = tmp_path / "DJ-2026-BROKEN_损坏项目"
     project_dir.mkdir()
-    # 创建 PM_SESSION 以便 check_workspace 能识别为项目
-    # 但缺少 .plc.json、PRD 目录、标准目录等
+    (project_dir / ".plc.json").write_text(
+        json.dumps(
+            {
+                "name": "DJ-2026-BROKEN",
+                "version": "V1.0.0",
+                "description": "损坏项目",
+                "type": "standard",
+                "libraries": [],
+            }
+        ),
+        encoding="utf-8",
+    )
     (project_dir / "PM_SESSION_DJ-2026-BROKEN.md").write_text(
         "# PM_SESSION_DJ-2026-BROKEN\n", encoding="utf-8"
+    )
+    return tmp_path
+
+
+@pytest.fixture
+def project_without_plc_json(tmp_path: Path) -> Path:
+    """创建一个缺少 .plc.json 的项目（仅 PM_SESSION）"""
+    project_dir = tmp_path / "DJ-2026-NOPLC_无配置文件"
+    project_dir.mkdir()
+    (project_dir / "PM_SESSION_DJ-2026-NOPLC.md").write_text(
+        "# PM_SESSION_DJ-2026-NOPLC\n", encoding="utf-8"
     )
     return tmp_path
 
@@ -118,10 +139,10 @@ def complete_project(tmp_path: Path) -> Path:
 class TestRepairProject:
     """单项目修复测试"""
 
-    def test_repair_missing_plc_json(self, broken_project: Path) -> None:
+    def test_repair_missing_plc_json(self, project_without_plc_json: Path) -> None:
         """修复缺少 .plc.json 的项目"""
-        project_dir = broken_project / "DJ-2026-BROKEN_损坏项目"
-        repairer = PlcRepairer(str(broken_project))
+        project_dir = project_without_plc_json / "DJ-2026-NOPLC_无配置文件"
+        repairer = PlcRepairer(str(project_without_plc_json))
         result = repairer.repair_project(str(project_dir))
 
         assert result.fixed_count >= 1
@@ -177,10 +198,10 @@ class TestRepairProject:
         ]
         assert len(dir_actions) >= 1
 
-    def test_repair_dry_run(self, broken_project: Path) -> None:
+    def test_repair_dry_run(self, project_without_plc_json: Path) -> None:
         """dry_run 模式不创建文件"""
-        project_dir = broken_project / "DJ-2026-BROKEN_损坏项目"
-        repairer = PlcRepairer(str(broken_project))
+        project_dir = project_without_plc_json / "DJ-2026-NOPLC_无配置文件"
+        repairer = PlcRepairer(str(project_without_plc_json))
         result = repairer.repair_project(str(project_dir), dry_run=True)
 
         # dry_run 模式不应创建文件

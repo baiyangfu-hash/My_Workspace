@@ -136,9 +136,17 @@ def cmd_check(
     # 确定检查目标
     if check_all:
         all_projects = svc.list_projects()
-        targets = [p for p in all_projects if p.stack == "python"]
+        python_candidates = [p for p in all_projects if p.stack == "python"]
+        # V0.5.4: 过滤非 Python 项目（无 pyproject.toml 且 .copier-answers.yml 中无 python stack）
+        targets = [p for p in python_candidates if _is_python_project(p.path)]
         if not targets:
-            console.print("[yellow]未发现 Python 项目[/yellow]")
+            if python_candidates:
+                skipped = len(python_candidates) - len(targets)
+                console.print(
+                    f"[yellow]未发现 Python 项目（跳过 {skipped} 个非 Python 项目）[/yellow]"
+                )
+            else:
+                console.print("[yellow]未发现 Python 项目[/yellow]")
             return
     elif project_id:
         proj = svc.get_project(project_id)
@@ -150,6 +158,13 @@ def cmd_check(
                 f"[red]错误: 项目 {project_id} 不是 Python 项目（stack={proj.stack}）[/red]"
             )
             ctx.exit(1)
+        # V0.5.4: 单项目模式也检查是否为实际 Python 项目
+        if not _is_python_project(proj.path):
+            console.print(
+                f"[yellow]警告: 项目 {project_id} 缺少 pyproject.toml 且 .copier-answers.yml 中无 python stack，"
+                f"可能不是 Python 项目[/yellow]"
+            )
+            console.print("[dim]仍将执行检查，但结果可能不准确。建议使用 --all 模式自动过滤。[/dim]")
         targets = [proj]
     else:
         console.print("[red]错误: 请指定项目编号或使用 --all[/red]")
@@ -224,3 +239,31 @@ def _check_python_project(project_path: str, project_id: str) -> dict[str, Any]:
     templates_dir = os.path.join(package_dir, "templates")
     svc = PythonProjectService(os.path.dirname(project_path), templates_dir=templates_dir)
     return svc.check_project_spec(project_path, project_id)
+
+
+def _is_python_project(project_path: str) -> bool:
+    """判断项目是否为 Python 项目（V0.5.4）
+
+    判断规则：
+    - 有 pyproject.toml → Python 项目
+    - 有 .copier-answers.yml 且 _src_path 含 "python" → Python 项目
+    - 其他 → 非 Python 项目（如遗留 PLC 项目、仅含 PM_SESSION 的混合项目）
+    """
+    # 有 pyproject.toml → 确定是 Python 项目
+    if os.path.isfile(os.path.join(project_path, "pyproject.toml")):
+        return True
+
+    # 有 .copier-answers.yml 且 _src_path 含 python → Python 项目
+    copier_path = os.path.join(project_path, ".copier-answers.yml")
+    if os.path.isfile(copier_path):
+        try:
+            import yaml
+            with open(copier_path, encoding="utf-8") as f:
+                answers = yaml.safe_load(f) or {}
+            src_path = answers.get("_src_path", "")
+            if "python" in src_path.lower():
+                return True
+        except Exception:
+            pass
+
+    return False

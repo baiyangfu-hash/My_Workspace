@@ -13,6 +13,10 @@
 - getAssetSummary → dict
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 from auto_pm.ui.contracts.dto.delivery_dto import (
     AssetSummaryDTO,
     ChangeReportDTO,
@@ -28,7 +32,7 @@ from auto_pm.ui.contracts.result import CommandResult, QueryResult
 class _MockDeliveryFacade:
     """Mock DeliveryFacade，记录方法调用并返回预设结果。"""
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
         project_report_result=None,
         change_report_result=None,
@@ -49,32 +53,32 @@ class _MockDeliveryFacade:
         self.refresh_asset_calls: list[str] = []
         self.asset_summary_calls: list[str] = []
 
-    def get_project_report(self):
+    def get_project_report(self) -> Any:
         return self._project_report_result
 
-    def get_change_report(self):
+    def get_change_report(self) -> Any:
         return self._change_report_result
 
-    def get_spec_report(self):
+    def get_spec_report(self) -> Any:
         return self._spec_report_result
 
-    def get_scan_report(self):
+    def get_scan_report(self) -> Any:
         return self._scan_report_result
 
-    def refresh_project_docs(self, project_id, dry_run=False):
+    def refresh_project_docs(self, project_id: Any, dry_run: bool = False) -> Any:
         self.refresh_docs_calls.append((project_id, dry_run))
         return self._refresh_docs_result
 
-    def refresh_asset_summary(self, project_id):
+    def refresh_asset_summary(self, project_id: Any) -> Any:
         self.refresh_asset_calls.append(project_id)
         return self._refresh_asset_result
 
-    def get_asset_summary(self, project_id):
+    def get_asset_summary(self, project_id: Any) -> Any:
         self.asset_summary_calls.append(project_id)
         return self._asset_summary_result
 
 
-def test_delivery_bridge_get_project_report(qapp):
+def test_delivery_bridge_get_project_report(qapp) -> None:  # type: ignore[no-untyped-def]
     """getProjectReport() 返回 dict（asdict 转换细化字段 DTO）"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -87,7 +91,7 @@ def test_delivery_bridge_get_project_report(qapp):
     mock_facade = _MockDeliveryFacade(
         project_report_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getProjectReport()
 
@@ -98,7 +102,7 @@ def test_delivery_bridge_get_project_report(qapp):
     assert result["by_business_line"] == {"SW": 5}
 
 
-def test_delivery_bridge_get_change_report(qapp):
+def test_delivery_bridge_get_change_report(qapp) -> None:  # type: ignore[no-untyped-def]
     """getChangeReport() 返回 dict（asdict 转换细化字段 DTO）"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -110,7 +114,7 @@ def test_delivery_bridge_get_change_report(qapp):
     mock_facade = _MockDeliveryFacade(
         change_report_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getChangeReport()
 
@@ -120,7 +124,7 @@ def test_delivery_bridge_get_change_report(qapp):
     assert result["by_domain"] == {"ELEC": 10}
 
 
-def test_delivery_bridge_get_spec_report(qapp):
+def test_delivery_bridge_get_spec_report(qapp) -> None:  # type: ignore[no-untyped-def]
     """getSpecReport() 返回 dict（asdict 转换细化字段 DTO）"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -134,7 +138,7 @@ def test_delivery_bridge_get_spec_report(qapp):
     mock_facade = _MockDeliveryFacade(
         spec_report_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getSpecReport()
 
@@ -145,7 +149,7 @@ def test_delivery_bridge_get_spec_report(qapp):
     assert result["missing_codes"] == ["LSP-001"]
 
 
-def test_delivery_bridge_get_scan_report(qapp):
+def test_delivery_bridge_get_scan_report(qapp) -> None:  # type: ignore[no-untyped-def]
     """getScanReport() 返回 dict（asdict 转换细化字段 DTO）"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -157,7 +161,7 @@ def test_delivery_bridge_get_scan_report(qapp):
     mock_facade = _MockDeliveryFacade(
         scan_report_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getScanReport()
 
@@ -167,7 +171,7 @@ def test_delivery_bridge_get_scan_report(qapp):
     assert result["is_cache_available"] is True
 
 
-def test_delivery_bridge_refresh_project_docs(qapp):
+def test_delivery_bridge_refresh_project_docs(qapp) -> None:  # type: ignore[no-untyped-def]
     """refreshProjectDocs() 返回 dict（asdict 转换细化字段 DTO）+ project_id/dry_run 透传验证"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -181,7 +185,7 @@ def test_delivery_bridge_refresh_project_docs(qapp):
     mock_facade = _MockDeliveryFacade(
         refresh_docs_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.refreshProjectDocs("PROJ-001", True)
 
@@ -196,7 +200,7 @@ def test_delivery_bridge_refresh_project_docs(qapp):
     assert mock_facade.refresh_docs_calls == [("PROJ-001", True)]
 
 
-def test_delivery_bridge_refresh_asset_summary(qapp):
+def test_delivery_bridge_refresh_asset_summary(qapp) -> None:  # type: ignore[no-untyped-def]
     """refreshAssetSummary(project_id) 返回 dict（asdict 转换）+ project_id 透传验证"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -204,7 +208,7 @@ def test_delivery_bridge_refresh_asset_summary(qapp):
     mock_facade = _MockDeliveryFacade(
         refresh_asset_result=CommandResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.refreshAssetSummary("PROJ-001")
 
@@ -214,7 +218,7 @@ def test_delivery_bridge_refresh_asset_summary(qapp):
     assert mock_facade.refresh_asset_calls == ["PROJ-001"]
 
 
-def test_delivery_bridge_get_asset_summary(qapp):
+def test_delivery_bridge_get_asset_summary(qapp) -> None:  # type: ignore[no-untyped-def]
     """getAssetSummary(project_id) 返回 dict（asdict 转换）+ project_id 透传验证"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -222,7 +226,7 @@ def test_delivery_bridge_get_asset_summary(qapp):
     mock_facade = _MockDeliveryFacade(
         asset_summary_result=QueryResult(success=True, message="OK", payload=dto)
     )
-    bridge = DeliveryBridge(facade=mock_facade)
+    bridge = DeliveryBridge(facade=mock_facade)  # type: ignore[arg-type]
 
     result = bridge.getAssetSummary("PROJ-001")
 
@@ -232,7 +236,7 @@ def test_delivery_bridge_get_asset_summary(qapp):
     assert mock_facade.asset_summary_calls == ["PROJ-001"]
 
 
-def test_delivery_bridge_no_facade(qapp):
+def test_delivery_bridge_no_facade(qapp) -> None:  # type: ignore[no-untyped-def]
     """facade=None 时 Slot 都返回降级值，不抛异常"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -255,7 +259,7 @@ def test_delivery_bridge_no_facade(qapp):
     assert "文件不存在" in bridge.renderMarkdown("nonexistent.md")
 
 
-def test_delivery_bridge_parse_markdown_to_blocks(qapp, tmp_path):
+def test_delivery_bridge_parse_markdown_to_blocks(qapp, tmp_path: Path) -> None:  # type: ignore[name-defined, no-untyped-def]
     """测试 parseMarkdownToBlocks() 在读取 Markdown 文件时返回结构化块列表"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
@@ -277,7 +281,7 @@ def test_delivery_bridge_parse_markdown_to_blocks(qapp, tmp_path):
     assert "Some text." in res[1]["html"]
 
 
-def test_delivery_bridge_export_doc_to_pdf(qapp, tmp_path):
+def test_delivery_bridge_export_doc_to_pdf(qapp, tmp_path: Path) -> None:  # type: ignore[name-defined, no-untyped-def]
     """测试 exportDocToPdf() 能否通过 QTextDocument 离线输出 PDF"""
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 

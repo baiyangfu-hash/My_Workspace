@@ -76,7 +76,9 @@ class SystemBridge(QObject):
 
     @Slot(str, str, result="QVariant")
     def applyTemplate(self, project_id: str, template_name: str) -> dict[str, Any]:
-        # TODO M5: QML 端接入模板应用对话框
+        # TODO M5 (TD-M5-02): QML 端接入模板应用对话框（TemplateApplyDialog），
+        # 让用户选择模板并应用到指定项目。当前 Slot 仅暴露接口。
+        # 已登记技术债：006_技术债评估报告.md §TD-M5-02
         if self._facade:
             res = self._facade.apply_template(project_id, template_name)
             if res.success and res.payload:

@@ -84,8 +84,13 @@ class ChangeBridge(QObject):
 
     # ── M3 新增 Slot ──────────────────────────────────────────
     # 说明：以下 4 个 Slot 为 M3 新增接口，QML 端尚未接入对应 UI。
-    # TODO M5: QML 端需新增对应 UI（创建变更单对话框 / 流转操作按钮 /
-    #          时间线视图 / 验证摘要面板），当前 Slot 仅暴露接口供后续接入。
+    # TODO M5 (TD-M5-01): QML 端需新增对应 UI：
+    #   - 创建变更单对话框（QML CreateChangeDialog，含 project_id/domain/nature/background/necessity 字段）
+    #   - 流转操作按钮（状态机流转触发 transitionChange Slot）
+    #   - 时间线视图（审批历史 Timeline 组件）
+    #   - 验证摘要面板（risk_level/mitigation/propagation_chain 展示）
+    #   当前 Slot 仅暴露接口供后续 QML 接入。
+    #   已登记技术债：006_技术债评估报告.md §TD-M5-01
     # ─────────────────────────────────────────────────────────
 
     @Slot("QVariant", result="QVariant")

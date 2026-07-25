@@ -190,7 +190,7 @@ class TestChangeService:
         # mock 编号生成器返回已存在的编号
         monkeypatch.setattr(
             svc._locator, "generate_change_number",
-            lambda *_args: "CHG-DOCU-2026-001",
+            lambda *args: "CHG-DOCU-2026-001",
         )
 
         with pytest.raises(ValueError, match="终态"):

@@ -17,12 +17,12 @@
     python scripts/build_delivery.py --version V1.0.0 --skip-build   # 跳过编译
     python scripts/build_delivery.py --version V1.0.0 --verify-only  # 仅验证已有zip
 """
-import os
-import sys
-import shutil
-import zipfile
 import argparse
+import os
+import shutil
 import subprocess
+import sys
+import zipfile
 from datetime import datetime
 from pathlib import Path
 
@@ -196,7 +196,7 @@ def step3_verify_delivery():
         ok(f"[D1] exe: {size_mb:.2f} MB OK")
         checks_passed += 1
     else:
-        fail(f"[D1] exe missing or too small")
+        fail("[D1] exe missing or too small")
 
     # CHK-D2: _internal 存在且有足够文件
     internal_dir = DELIVERY_DIR / "01_可执行文件" / "_internal"
@@ -352,9 +352,12 @@ def step5_verify_zip(zip_path):
             results["pass"].append(f"[CHK-007] top dir complete ({sorted(top_dirs)})")
 
     # 输出结果
-    for r in results["pass"]: ok(r)
-    for r in results["warn"]: warn(r)
-    for r in results["fail"]: fail(r)
+    for r in results["pass"]:
+        ok(r)
+    for r in results["warn"]:
+        warn(r)
+    for r in results["fail"]:
+        fail(r)
 
     status = "FAIL" if results["fail"] else ("WARN" if results["warn"] else "PASS")
     info(f"> Standard ZIP validation: {status} (Pass:{len(results['pass'])} Warn:{len(results['warn'])} Fail:{len(results['fail'])})")

@@ -7,6 +7,8 @@
 - generate_spec_index (M5 CHG-119 新增)
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -73,10 +75,10 @@ def _make_entry(**overrides: Any) -> SimpleNamespace:
     )
 
 
-def _raise(exc: Exception):
+def _raise(exc: Exception) -> Any:
     """返回一个调用即抛出指定异常的函数（兼容任意参数签名）"""
 
-    def _fn(*_args, **_kwargs):
+    def _fn(*args: Any, **kwargs: Any) -> Any:
         raise exc
 
     return _fn
@@ -85,7 +87,7 @@ def _raise(exc: Exception):
 # ── run_spec_check 测试 ──────────────────────────────────────
 
 
-def test_run_spec_check_success():
+def test_run_spec_check_success() -> None:
     """正常调用返回 SpecCheckResultDTO 且字段正确"""
     output = _make_check_output()
     service = SimpleNamespace(run=lambda: output)
@@ -108,7 +110,7 @@ def test_run_spec_check_success():
     assert item["fix_suggestion"] == "suggestion"
 
 
-def test_run_spec_check_no_service():
+def test_run_spec_check_no_service() -> None:
     """spec_check_service=None 时返回 success=False + payload=None"""
     facade = SpecFacade(spec_check_service=None)
 
@@ -119,7 +121,7 @@ def test_run_spec_check_no_service():
     assert "No spec_check_service" in result.message
 
 
-def test_run_spec_check_exception():
+def test_run_spec_check_exception() -> None:
     """service.run() 抛异常时返回 success=False + payload=None"""
     service = SimpleNamespace(run=_raise(Exception("check boom")))
     facade = SpecFacade(spec_check_service=service)
@@ -134,7 +136,7 @@ def test_run_spec_check_exception():
 # ── get_spec_center_overview 测试 ────────────────────────────
 
 
-def test_get_spec_center_overview_success():
+def test_get_spec_center_overview_success() -> None:
     """正常调用返回 SpecCenterOverviewDTO 且字段正确"""
     overview = _make_overview()
     service = SimpleNamespace(get_overview=lambda: overview)
@@ -155,7 +157,7 @@ def test_get_spec_center_overview_success():
     }
 
 
-def test_get_spec_center_overview_no_service():
+def test_get_spec_center_overview_no_service() -> None:
     """spec_center_service=None 时返回 success=False + payload=None"""
     facade = SpecFacade(spec_center_service=None)
 
@@ -166,7 +168,7 @@ def test_get_spec_center_overview_no_service():
     assert "No spec_center_service" in result.message
 
 
-def test_get_spec_center_overview_exception():
+def test_get_spec_center_overview_exception() -> None:
     """service.get_overview() 抛异常时返回 success=False + payload=None"""
     service = SimpleNamespace(get_overview=_raise(Exception("overview boom")))
     facade = SpecFacade(spec_center_service=service)
@@ -181,7 +183,7 @@ def test_get_spec_center_overview_exception():
 # ── list_spec_center_entries 测试 ────────────────────────────
 
 
-def test_list_spec_center_entries_success():
+def test_list_spec_center_entries_success() -> None:
     """正常调用返回 list[SpecCenterEntryDTO] 且字段正确"""
     entries = [
         _make_entry(spec_id="SW-001"),
@@ -209,11 +211,11 @@ def test_list_spec_center_entries_success():
     assert result.payload[1].domain == "Python"
 
 
-def test_list_spec_center_entries_with_filter():
+def test_list_spec_center_entries_with_filter() -> None:
     """带 filter_domain 参数调用，验证 filter_domain 透传给 service.list_entries()"""
-    captured: dict = {}
+    captured: dict[str, Any] = {}
 
-    def _list_entries(filter_domain=None):
+    def _list_entries(filter_domain: str | None = None) -> Any:
         captured["filter_domain"] = filter_domain
         return [_make_entry(domain="PLC")]
 
@@ -230,7 +232,7 @@ def test_list_spec_center_entries_with_filter():
     assert result.payload[0].domain == "PLC"
 
 
-def test_list_spec_center_entries_no_service():
+def test_list_spec_center_entries_no_service() -> None:
     """spec_center_service=None 时返回 success=False + payload=[]"""
     facade = SpecFacade(spec_center_service=None)
 
@@ -241,7 +243,7 @@ def test_list_spec_center_entries_no_service():
     assert "No spec_center_service" in result.message
 
 
-def test_list_spec_center_entries_exception():
+def test_list_spec_center_entries_exception() -> None:
     """service.list_entries() 抛异常时返回 success=False + payload=[]"""
     service = SimpleNamespace(list_entries=_raise(Exception("entries boom")))
     facade = SpecFacade(spec_center_service=service)
@@ -266,7 +268,7 @@ def _make_index_output(**overrides: Any) -> SimpleNamespace:
     )
 
 
-def test_generate_spec_index_success():
+def test_generate_spec_index_success() -> None:
     """正常调用返回 SpecIndexResultDTO 且 Path→str 转换正确（domain='all'）"""
     output = _make_index_output()
     service = SimpleNamespace(run=lambda domains=None: output)
@@ -286,12 +288,12 @@ def test_generate_spec_index_success():
     assert result.payload.errors == []
 
 
-def test_generate_spec_index_domain_filter():
+def test_generate_spec_index_domain_filter() -> None:
     """domain='plc' 时 service.run(domains=['plc']) 透传验证"""
-    captured: dict = {}
+    captured: dict[str, Any] = {}
     output = _make_index_output(generated_files=[Path("/tmp/index_plc.md")])
 
-    def _run(domains=None):
+    def _run(domains=None) -> Any:  # type: ignore[no-untyped-def]
         captured["domains"] = domains
         return output
 
@@ -301,16 +303,16 @@ def test_generate_spec_index_domain_filter():
     result = facade.generate_spec_index(domain="plc")
 
     assert result.success is True
-    assert result.payload.domain == "plc"
+    assert result.payload.domain == "plc"  # type: ignore[union-attr]
     assert captured["domains"] == ["plc"]  # domain="plc" → domains=["plc"]
 
 
-def test_generate_spec_index_all_domains_none():
+def test_generate_spec_index_all_domains_none() -> None:
     """domain='all' 时 service.run(domains=None) 透传验证"""
-    captured: dict = {}
+    captured: dict[str, Any] = {}
     output = _make_index_output()
 
-    def _run(domains=None):
+    def _run(domains=None) -> Any:  # type: ignore[no-untyped-def]
         captured["domains"] = domains
         return output
 
@@ -323,7 +325,7 @@ def test_generate_spec_index_all_domains_none():
     assert captured["domains"] is None  # domain="all" → domains=None
 
 
-def test_generate_spec_index_no_service():
+def test_generate_spec_index_no_service() -> None:
     """index_service=None 时返回 success=False + payload=None"""
     facade = SpecFacade(index_service=None)
 
@@ -334,7 +336,7 @@ def test_generate_spec_index_no_service():
     assert "No index_service" in result.message
 
 
-def test_generate_spec_index_exception():
+def test_generate_spec_index_exception() -> None:
     """service.run() 抛异常时返回 success=False + payload=None"""
     service = SimpleNamespace(run=_raise(Exception("index boom")))
     facade = SpecFacade(index_service=service)
@@ -346,7 +348,7 @@ def test_generate_spec_index_exception():
     assert "index boom" in result.message
 
 
-def test_generate_spec_index_with_errors():
+def test_generate_spec_index_with_errors() -> None:
     """output.errors 非空时仍返回 success=True（部分成功）"""
     output = _make_index_output(
         generated_files=[Path("/tmp/index_pm.md")],
@@ -358,8 +360,8 @@ def test_generate_spec_index_with_errors():
     result = facade.generate_spec_index()
 
     assert result.success is True
-    assert result.payload.errors == ["plc 域生成失败: 注册表为空"]
-    assert result.payload.generated_files == [str(Path("/tmp/index_pm.md"))]
+    assert result.payload.errors == ["plc 域生成失败: 注册表为空"]  # type: ignore[union-attr]
+    assert result.payload.generated_files == [str(Path("/tmp/index_pm.md"))]  # type: ignore[union-attr]
 
 
 # ── generate_spec_report 测试（M5 CHG-120 新增）──────────────
@@ -400,7 +402,7 @@ def _make_frontmatter_output(**overrides: Any) -> SimpleNamespace:
     )
 
 
-def test_generate_spec_report_success():
+def test_generate_spec_report_success() -> None:
     """正常调用返回 SpecReportResultDTO 且 Path→str 转换正确 + file_size=len(content)"""
     output = _make_report_output()
     service = SimpleNamespace(generate=lambda fmt="markdown", output_path=None: output)
@@ -417,12 +419,12 @@ def test_generate_spec_report_success():
     assert result.payload.file_size == len("# 规范元数据汇总报告\n\n总览...")
 
 
-def test_generate_spec_report_fmt_json():
+def test_generate_spec_report_fmt_json() -> None:
     """fmt='json' 时 service.generate(fmt='json') 透传验证"""
-    captured: dict = {}
+    captured: dict[str, Any] = {}
     output = _make_report_output(fmt="json", content='{"specs": {}}', output_path=Path("/tmp/report.json"))
 
-    def _generate(fmt="markdown", output_path=None):
+    def _generate(fmt="markdown", output_path=None) -> Any:  # type: ignore[no-untyped-def]
         captured["fmt"] = fmt
         return output
 
@@ -432,13 +434,13 @@ def test_generate_spec_report_fmt_json():
     result = facade.generate_spec_report(fmt="json")
 
     assert result.success is True
-    assert result.payload.fmt == "json"
+    assert result.payload.fmt == "json"  # type: ignore[union-attr]
     assert captured["fmt"] == "json"  # fmt 透传验证
-    assert result.payload.content == '{"specs": {}}'
-    assert result.payload.file_size == len('{"specs": {}}')
+    assert result.payload.content == '{"specs": {}}'  # type: ignore[union-attr]
+    assert result.payload.file_size == len('{"specs": {}}')  # type: ignore[union-attr]
 
 
-def test_generate_spec_report_no_service():
+def test_generate_spec_report_no_service() -> None:
     """report_service=None 时返回 success=False + payload=None"""
     facade = SpecFacade(report_service=None)
 
@@ -449,7 +451,7 @@ def test_generate_spec_report_no_service():
     assert "No report_service" in result.message
 
 
-def test_generate_spec_report_exception():
+def test_generate_spec_report_exception() -> None:
     """service.generate() 抛异常时返回 success=False + payload=None"""
     service = SimpleNamespace(generate=_raise(Exception("report boom")))
     facade = SpecFacade(report_service=service)
@@ -461,7 +463,7 @@ def test_generate_spec_report_exception():
     assert "report boom" in result.message
 
 
-def test_generate_spec_report_file_size_accuracy():
+def test_generate_spec_report_file_size_accuracy() -> None:
     """file_size 准确反映 content 长度（含中文多字节字符）"""
     content = "# 报告\n\n中文内容测试\n" * 10
     output = _make_report_output(content=content)
@@ -471,14 +473,14 @@ def test_generate_spec_report_file_size_accuracy():
     result = facade.generate_spec_report()
 
     assert result.success is True
-    assert result.payload.file_size == len(content)
-    assert result.payload.content == content
+    assert result.payload.file_size == len(content)  # type: ignore[union-attr]
+    assert result.payload.content == content  # type: ignore[union-attr]
 
 
 # ── check_spec_frontmatter 测试（M5 CHG-121 新增）──────────────
 
 
-def test_check_spec_frontmatter_success():
+def test_check_spec_frontmatter_success() -> None:
     """正常调用（auto_fix=False）返回 DTO + items Path→str 转换 + 状态统计"""
     items = [
         _make_frontmatter_item(spec_id="SW-006", status="pending"),
@@ -503,16 +505,16 @@ def test_check_spec_frontmatter_success():
     assert result.payload.items[0]["status"] == "pending"
 
 
-def test_check_spec_frontmatter_auto_fix():
+def test_check_spec_frontmatter_auto_fix() -> None:
     """auto_fix=True 时调用 apply(pending_items) + modified_count 从 apply 结果获取"""
     items = [
         _make_frontmatter_item(spec_id="SW-006", status="pending"),
         _make_frontmatter_item(spec_id="SW-007", status="skipped", has_frontmatter=True),
     ]
     apply_output = _make_frontmatter_output(modified_count=1)
-    apply_calls: list = []
+    apply_calls: list = []  # type: ignore[type-arg]
 
-    def _apply(pending_items):
+    def _apply(pending_items) -> Any:  # type: ignore[no-untyped-def]
         apply_calls.append(pending_items)
         return apply_output
 
@@ -522,34 +524,34 @@ def test_check_spec_frontmatter_auto_fix():
     result = facade.check_spec_frontmatter(auto_fix=True)
 
     assert result.success is True
-    assert result.payload.modified_count == 1
-    assert result.payload.auto_fixed is True
-    assert result.payload.pending_count == 1  # 基于 preview 原始 items 统计
+    assert result.payload.modified_count == 1  # type: ignore[union-attr]
+    assert result.payload.auto_fixed is True  # type: ignore[union-attr]
+    assert result.payload.pending_count == 1  # type: ignore[union-attr]  # 基于 preview 原始 items 统计
     # apply 只接收 pending items
     assert len(apply_calls) == 1
     assert len(apply_calls[0]) == 1
     assert apply_calls[0][0].spec_id == "SW-006"
 
 
-def test_check_spec_frontmatter_auto_fix_no_pending():
+def test_check_spec_frontmatter_auto_fix_no_pending() -> None:
     """auto_fix=True 但无 pending items 时不调用 apply"""
     items = [_make_frontmatter_item(spec_id="SW-007", status="skipped", has_frontmatter=True)]
-    apply_calls: list = []
+    apply_calls: list = []  # type: ignore[type-arg]
     service = SimpleNamespace(
         preview=lambda: items,
-        apply=lambda pending: apply_calls.append(pending) or _make_frontmatter_output(modified_count=0),
+        apply=lambda pending: apply_calls.append(pending) or _make_frontmatter_output(modified_count=0),  # type: ignore[func-returns-value]
     )
     facade = SpecFacade(frontmatter_service=service)
 
     result = facade.check_spec_frontmatter(auto_fix=True)
 
     assert result.success is True
-    assert result.payload.modified_count == 0
-    assert result.payload.pending_count == 0
+    assert result.payload.modified_count == 0  # type: ignore[union-attr]
+    assert result.payload.pending_count == 0  # type: ignore[union-attr]
     assert len(apply_calls) == 0  # 无 pending，不调用 apply
 
 
-def test_check_spec_frontmatter_no_service():
+def test_check_spec_frontmatter_no_service() -> None:
     """frontmatter_service=None 时返回 success=False + payload=None"""
     facade = SpecFacade(frontmatter_service=None)
 
@@ -560,7 +562,7 @@ def test_check_spec_frontmatter_no_service():
     assert "No frontmatter_service" in result.message
 
 
-def test_check_spec_frontmatter_exception():
+def test_check_spec_frontmatter_exception() -> None:
     """service.preview() 抛异常时返回 success=False + payload=None"""
     service = SimpleNamespace(preview=_raise(Exception("frontmatter boom")))
     facade = SpecFacade(frontmatter_service=service)
@@ -572,7 +574,7 @@ def test_check_spec_frontmatter_exception():
     assert "frontmatter boom" in result.message
 
 
-def test_run_spec_check_python_project(tmp_path):
+def test_run_spec_check_python_project(tmp_path: Path) -> None:
     """测试通过 SpecFacade 路由 Python 项目规范检查"""
     proj = SimpleNamespace(project_id="SW-2026-PYT", name="Python项目", stack="python", path=str(tmp_path))
     proj_service = SimpleNamespace(
@@ -593,7 +595,7 @@ def test_run_spec_check_python_project(tmp_path):
     assert result.payload.error_count > 0
 
 
-def test_run_spec_repair_python_project(tmp_path):
+def test_run_spec_repair_python_project(tmp_path: Path) -> None:
     """测试通过 SpecFacade 路由 Python 项目一键修复"""
     proj = SimpleNamespace(project_id="SW-2026-PYT", name="Python项目", stack="python", path=str(tmp_path))
     proj_service = SimpleNamespace(

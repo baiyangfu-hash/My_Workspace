@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 from pathlib import Path
-from typing import Generator
+from typing import Callable, Generator
 from unittest.mock import Mock, patch
 
 import pytest
@@ -30,7 +32,7 @@ def cli_env(mock_logger: logging.Logger) -> Generator[None, None, None]:
 
 
 @pytest.fixture
-def plc_project_factory(tmp_path: Path):
+def plc_project_factory(tmp_path: Path) -> Callable[..., Path]:
     """创建轻量 PLC 项目的工厂函数（绕过 Copier，快）
 
     返回 factory 函数，调用方式：
@@ -72,7 +74,7 @@ def plc_project_factory(tmp_path: Path):
 
 
 @pytest.fixture
-def python_project_factory(tmp_path: Path):
+def python_project_factory(tmp_path: Path) -> Callable[..., Path]:
     """创建轻量 Python 项目的工厂函数
 
     返回 factory 函数，调用方式：

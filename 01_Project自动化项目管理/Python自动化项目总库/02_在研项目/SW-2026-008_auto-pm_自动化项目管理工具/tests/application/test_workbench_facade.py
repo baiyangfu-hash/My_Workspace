@@ -1,11 +1,13 @@
 """Workbench Facade 单元测试"""
 
+from __future__ import annotations
+
 from unittest.mock import MagicMock
 
 from auto_pm.application.workbench_facade import WorkbenchFacade
 
 
-def test_get_dashboard_snapshot_success():
+def test_get_dashboard_snapshot_success() -> None:
     """验证从 DashboardService 获取的数据能正确映射为 DashboardSnapshotDTO"""
     # Arrange
     mock_dashboard_service = MagicMock()
@@ -43,7 +45,7 @@ def test_get_dashboard_snapshot_success():
     assert result.payload.recent_activities == [{"action": "test"}]
     assert result.payload.risk_hints == [{"risk": "high"}]
 
-def test_get_dashboard_snapshot_failure():
+def test_get_dashboard_snapshot_failure() -> None:
     """验证服务抛出异常时能被 QueryResult 正确捕获"""
     # Arrange
     mock_dashboard_service = MagicMock()
@@ -68,7 +70,7 @@ def test_get_dashboard_snapshot_failure():
 # ── get_active_change_status 测试（CHG-106 新增） ──────
 
 
-def test_get_active_change_status_success():
+def test_get_active_change_status_success() -> None:
     """验证获取活跃变更单状态机数据：12 状态 implementing → 4 节点 node[2] active"""
     mock_dashboard_service = MagicMock()
     mock_change = MagicMock()
@@ -86,11 +88,11 @@ def test_get_active_change_status_success():
     result = facade.get_active_change_status("SW-2026-008")
 
     assert result.success is True
-    assert result.payload["active"] is True
-    assert result.payload["change_number"] == "CHG-SCPT-2026-106"
-    assert result.payload["title"] == "工作台 KPI 网格"
-    assert result.payload["status"] == "implementing"
-    sm = result.payload["state_machine"]
+    assert result.payload["active"] is True  # type: ignore[index]
+    assert result.payload["change_number"] == "CHG-SCPT-2026-106"  # type: ignore[index]
+    assert result.payload["title"] == "工作台 KPI 网格"  # type: ignore[index]
+    assert result.payload["status"] == "implementing"  # type: ignore[index]
+    sm = result.payload["state_machine"]  # type: ignore[index]
     assert sm["current_node"] == 2
     assert sm["current_node_name"] == "实施中 (Implementing)"
     assert sm["progress"] == 66
@@ -101,7 +103,7 @@ def test_get_active_change_status_success():
     assert sm["nodes"][3]["status"] == "pending"
 
 
-def test_get_active_change_status_no_active_change():
+def test_get_active_change_status_no_active_change() -> None:
     """验证无活跃变更单时返回 active=False 的空状态"""
     mock_dashboard_service = MagicMock()
     mock_dashboard_service.get_active_change_for_project.return_value = None
@@ -114,14 +116,14 @@ def test_get_active_change_status_no_active_change():
     result = facade.get_active_change_status("SW-2026-008")
 
     assert result.success is True
-    assert result.payload["active"] is False
-    assert result.payload["change_number"] == ""
+    assert result.payload["active"] is False  # type: ignore[index]
+    assert result.payload["change_number"] == ""  # type: ignore[index]
     # 状态机仍返回 Draft 节点结构
-    assert result.payload["state_machine"]["current_node"] == 0
-    assert len(result.payload["state_machine"]["nodes"]) == 4
+    assert result.payload["state_machine"]["current_node"] == 0  # type: ignore[index]
+    assert len(result.payload["state_machine"]["nodes"]) == 4  # type: ignore[index]
 
 
-def test_get_active_change_status_closed_progress_100():
+def test_get_active_change_status_closed_progress_100() -> None:
     """验证 closed 状态映射到 node[3] 且 progress=100"""
     mock_dashboard_service = MagicMock()
     mock_change = MagicMock()
@@ -139,13 +141,13 @@ def test_get_active_change_status_closed_progress_100():
     result = facade.get_active_change_status("SW-2026-008")
 
     assert result.success is True
-    sm = result.payload["state_machine"]
+    sm = result.payload["state_machine"]  # type: ignore[index]
     assert sm["current_node"] == 3
     assert sm["progress"] == 100
     assert all(n["status"] == "done" for n in sm["nodes"])
 
 
-def test_get_active_change_status_no_dashboard_service():
+def test_get_active_change_status_no_dashboard_service() -> None:
     """验证 DashboardService 未启用时返回失败"""
     facade = WorkbenchFacade(
         dashboard_service=None,
@@ -160,7 +162,7 @@ def test_get_active_change_status_no_dashboard_service():
 
 # ── list_project_cards 测试 ──────────────────────────────
 
-def test_list_project_cards_empty():
+def test_list_project_cards_empty() -> None:
     """空列表时返回 success + []"""
     mock_project_service = MagicMock()
     mock_project_service.list_projects_with_change_count.return_value = []
@@ -177,7 +179,7 @@ def test_list_project_cards_empty():
     assert result.payload == []
 
 
-def test_list_project_cards_normal():
+def test_list_project_cards_normal() -> None:
     """正常列表，验证 ProjectCardDTO 字段映射（含 change_count）"""
     mock_item = MagicMock()
     mock_item.project_id = "SW-2026-001"
@@ -201,17 +203,17 @@ def test_list_project_cards_normal():
     result = facade.list_project_cards()
 
     assert result.success is True
-    assert len(result.payload) == 1
-    card = result.payload[0]
+    assert len(result.payload) == 1  # type: ignore[arg-type]
+    card = result.payload[0]  # type: ignore[index]
     assert card.project_id == "SW-2026-001"
     assert card.name == "Test Project"
     assert card.open_change_count == 3
-    assert card.health_status == "Unknown"
+    assert card.health_status == "Has Changes"  # change_count=3 > 0
     assert card.path == "/tmp/test"
     assert card.business_line == "SW"
 
 
-def test_list_project_cards_service_exception():
+def test_list_project_cards_service_exception() -> None:
     """Service 抛异常时返回 success=False"""
     mock_project_service = MagicMock()
     mock_project_service.list_projects_with_change_count.side_effect = Exception("DB Error")
@@ -228,7 +230,7 @@ def test_list_project_cards_service_exception():
     assert "DB Error" in result.message
 
 
-def test_list_project_cards_no_db_fallback():
+def test_list_project_cards_no_db_fallback() -> None:
     """无 DB 时降级为 list_projects() + change_count=0"""
     mock_project = MagicMock()
     mock_project.project_id = "SW-2026-002"
@@ -253,15 +255,15 @@ def test_list_project_cards_no_db_fallback():
     result = facade.list_project_cards()
 
     assert result.success is True
-    assert len(result.payload) == 1
-    card = result.payload[0]
+    assert len(result.payload) == 1  # type: ignore[arg-type]
+    card = result.payload[0]  # type: ignore[index]
     assert card.project_id == "SW-2026-002"
     assert card.open_change_count == 0  # 降级时 change_count=0
 
 
 # ── get_project_workspace 测试 ──────────────────────────────
 
-def test_get_project_workspace_not_found():
+def test_get_project_workspace_not_found() -> None:
     """项目不存在时返回 success=False"""
     mock_project_service = MagicMock()
     mock_project_service.get_project.return_value = None
@@ -278,7 +280,7 @@ def test_get_project_workspace_not_found():
     assert "Project not found" in result.message
 
 
-def test_get_project_workspace_normal():
+def test_get_project_workspace_normal() -> None:
     """正常项目，验证 summary + asset_summary"""
     mock_project = MagicMock()
     mock_project.project_id = "SW-2026-001"
@@ -302,13 +304,13 @@ def test_get_project_workspace_normal():
     result = facade.get_project_workspace("SW-2026-001")
 
     assert result.success is True
-    assert result.payload.project_id == "SW-2026-001"
-    assert result.payload.asset_summary["status"] == "healthy"
-    assert result.payload.document_status is None  # TODO M3/M4
-    assert result.payload.pending_actions == []  # TODO M3
+    assert result.payload.project_id == "SW-2026-001"  # type: ignore[union-attr]
+    assert result.payload.asset_summary["status"] == "healthy"  # type: ignore[union-attr, index]
+    assert result.payload.document_status is None  # type: ignore[union-attr]  # TODO M3/M4
+    assert result.payload.pending_actions == []  # type: ignore[union-attr]  # TODO M3
 
 
-def test_get_project_workspace_python_project():
+def test_get_project_workspace_python_project() -> None:
     """Python 项目 asset_summary 为 not_applicable"""
     mock_project = MagicMock()
     mock_project.project_id = "SW-2026-003"
@@ -336,12 +338,12 @@ def test_get_project_workspace_python_project():
     result = facade.get_project_workspace("SW-2026-003")
 
     assert result.success is True
-    assert result.payload.asset_summary["status"] == "not_applicable"
+    assert result.payload.asset_summary["status"] == "not_applicable"  # type: ignore[union-attr, index]
 
 
 # ── get_settings_summary 测试 ──────────────────────────────
 
-def test_get_settings_summary_no_db():
+def test_get_settings_summary_no_db() -> None:
     """无 DB 时 db_available=False"""
     mock_project_service = MagicMock()
     mock_project_service.workspace_root = "/tmp/ws"
@@ -359,12 +361,12 @@ def test_get_settings_summary_no_db():
     result = facade.get_settings_summary()
 
     assert result.success is True
-    assert result.payload.db_available is False
-    assert result.payload.project_count == 0
-    assert result.payload.workspace_root == "/tmp/ws"
+    assert result.payload.db_available is False  # type: ignore[union-attr]
+    assert result.payload.project_count == 0  # type: ignore[union-attr]
+    assert result.payload.workspace_root == "/tmp/ws"  # type: ignore[union-attr]
 
 
-def test_get_settings_summary_with_db():
+def test_get_settings_summary_with_db() -> None:
     """有 DB 时返回正确统计 + DTO 字段"""
     mock_project_service = MagicMock()
     mock_project_service.workspace_root = "/tmp/ws"
@@ -382,13 +384,13 @@ def test_get_settings_summary_with_db():
     result = facade.get_settings_summary()
 
     assert result.success is True
-    assert result.payload.db_available is True
-    assert result.payload.project_count == 5
-    assert "auto_pm.db" in result.payload.db_path
-    assert result.payload.last_sync == "2026-07-07 10:00"
+    assert result.payload.db_available is True  # type: ignore[union-attr]
+    assert result.payload.project_count == 5  # type: ignore[union-attr]
+    assert "auto_pm.db" in result.payload.db_path  # type: ignore[union-attr]
+    assert result.payload.last_sync == "2026-07-07 10:00"  # type: ignore[union-attr]
 
 
-def test_get_settings_summary_exception():
+def test_get_settings_summary_exception() -> None:
     """异常降级"""
     mock_project_service = MagicMock()
     mock_project_service.get_db_path.side_effect = Exception("FS Error")
@@ -407,7 +409,7 @@ def test_get_settings_summary_exception():
 
 # ── clear_cache 测试 ──────────────────────────────
 
-def test_clear_cache_no_db():
+def test_clear_cache_no_db() -> None:
     """无 DB 时 success=False"""
     mock_project_service = MagicMock()
     mock_project_service.is_cache_available.return_value = False
@@ -421,11 +423,11 @@ def test_clear_cache_no_db():
     result = facade.clear_cache()
 
     assert result.success is False
-    assert result.payload.success is False
-    assert "DB 未初始化" in result.payload.message
+    assert result.payload.success is False  # type: ignore[union-attr]
+    assert "DB 未初始化" in result.payload.message  # type: ignore[union-attr]
 
 
-def test_clear_cache_success():
+def test_clear_cache_success() -> None:
     """正常清除后验证 db 重建"""
     mock_project_service = MagicMock()
     mock_project_service.is_cache_available.return_value = True
@@ -443,13 +445,13 @@ def test_clear_cache_success():
     result = facade.clear_cache()
 
     assert result.success is True
-    assert result.payload.success is True
-    assert "缓存已清除" in result.payload.message
+    assert result.payload.success is True  # type: ignore[union-attr]
+    assert "缓存已清除" in result.payload.message  # type: ignore[union-attr]
 
 
 # ── rebuild_index 测试 ──────────────────────────────
 
-def test_rebuild_index_no_db():
+def test_rebuild_index_no_db() -> None:
     """无 DB 时 success=False"""
     mock_project_service = MagicMock()
     mock_project_service.is_cache_available.return_value = False
@@ -463,11 +465,11 @@ def test_rebuild_index_no_db():
     result = facade.rebuild_index()
 
     assert result.success is False
-    assert result.payload.projects_found == 0
-    assert result.payload.changes_found == 0
+    assert result.payload.projects_found == 0  # type: ignore[union-attr]
+    assert result.payload.changes_found == 0  # type: ignore[union-attr]
 
 
-def test_rebuild_index_success():
+def test_rebuild_index_success() -> None:
     """正常重建后验证 projects_found/changes_found"""
     mock_project_service = MagicMock()
     mock_project_service.is_cache_available.return_value = True
@@ -485,15 +487,15 @@ def test_rebuild_index_success():
     result = facade.rebuild_index()
 
     assert result.success is True
-    assert result.payload.projects_found == 3
-    assert result.payload.changes_found == 2
-    assert "发现 3 个项目" in result.payload.message
+    assert result.payload.projects_found == 3  # type: ignore[union-attr]
+    assert result.payload.changes_found == 2  # type: ignore[union-attr]
+    assert "发现 3 个项目" in result.payload.message  # type: ignore[union-attr]
 
 
 # ── edit_project / delete_project 测试（M4 CHG-115 新增） ──
 
 
-def test_edit_project_success():
+def test_edit_project_success() -> None:
     """验证编辑项目元数据成功"""
     mock_project = MagicMock()
     mock_project.model_dump.return_value = {"project_id": "SW-2026-001", "phase": "production"}
@@ -510,13 +512,13 @@ def test_edit_project_success():
 
     assert result.success is True
     assert "已更新" in result.message
-    assert result.payload["project_id"] == "SW-2026-001"
+    assert result.payload["project_id"] == "SW-2026-001"  # type: ignore[index]
     mock_project_service.update_project_meta.assert_called_once_with(
         "SW-2026-001", phase="production", description="已上线"
     )
 
 
-def test_edit_project_not_found():
+def test_edit_project_not_found() -> None:
     """验证编辑不存在的项目返回失败"""
     mock_project_service = MagicMock()
     mock_project_service.update_project_meta.side_effect = FileNotFoundError("项目不存在")
@@ -532,7 +534,7 @@ def test_edit_project_not_found():
     assert "项目不存在" in result.message
 
 
-def test_edit_project_exception():
+def test_edit_project_exception() -> None:
     """验证编辑时异常降级返回失败"""
     mock_project_service = MagicMock()
     mock_project_service.update_project_meta.side_effect = Exception("IO Error")
@@ -548,7 +550,7 @@ def test_edit_project_exception():
     assert "IO Error" in result.message
 
 
-def test_delete_project_success():
+def test_delete_project_success() -> None:
     """验证删除项目成功"""
     import shutil as _shutil
     from unittest.mock import patch
@@ -570,11 +572,11 @@ def test_delete_project_success():
 
     assert result.success is True
     assert "已删除" in result.message
-    assert result.payload["project_id"] == "SW-2026-001"
+    assert result.payload["project_id"] == "SW-2026-001"  # type: ignore[index]
     mock_project_service.sync_to_cache.assert_called_once_with(force_full=True)
 
 
-def test_delete_project_not_found():
+def test_delete_project_not_found() -> None:
     """验证删除不存在的项目返回失败"""
     mock_project_service = MagicMock()
     mock_project_service.get_project.return_value = None
@@ -590,7 +592,7 @@ def test_delete_project_not_found():
     assert "项目不存在" in result.message
 
 
-def test_delete_project_exception():
+def test_delete_project_exception() -> None:
     """验证删除时异常降级返回失败"""
     mock_project_service = MagicMock()
     mock_project_service.get_project.side_effect = Exception("Permission Denied")

@@ -1,0 +1,38 @@
+﻿tests\application\test_spec_facade.py: note: In function "test_check_spec_frontmatter_auto_fix":
+tests\application\test_spec_facade.py:529:12: error: Item "None" of
+"SpecFrontmatterResultDTO | None" has no attribute "pending_count"  [union-attr]
+        assert result.payload.pending_count == 1  # 基于 preview 原始 items 统计...
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests\application\test_workbench_facade.py: note: In function "test_get_project_workspace_normal":
+tests\application\test_workbench_facade.py:308:12: error: Item "None" of
+"ProjectWorkspaceDTO | None" has no attribute "asset_summary"  [union-attr]
+        assert result.payload.asset_summary["status"] == "healthy"  # type...
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests\application\test_workbench_facade.py:308:12: note: Error code "union-attr" not covered by "type: ignore[index]" comment
+tests\application\test_workbench_facade.py:309:12: error: Item "None" of
+"ProjectWorkspaceDTO | None" has no attribute "document_status"  [union-attr]
+        assert result.payload.document_status is None  # TODO M3/M4  # typ...
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests\application\test_workbench_facade.py:310:12: error: Item "None" of
+"ProjectWorkspaceDTO | None" has no attribute "pending_actions"  [union-attr]
+        assert result.payload.pending_actions == []  # TODO M3  # type: ig...
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests\application\test_workbench_facade.py: note: In function "test_get_project_workspace_python_project":
+tests\application\test_workbench_facade.py:341:12: error: Item "None" of
+"ProjectWorkspaceDTO | None" has no attribute "asset_summary"  [union-attr]
+        assert result.payload.asset_summary["status"] == "not_applicable" ...
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests\application\test_workbench_facade.py:341:12: note: Error code "union-attr" not covered by "type: ignore[index]" comment
+tests\qml\test_file_watcher_bridge.py: note: In function "test_debounce_coalesces_events":
+tests\qml\test_file_watcher_bridge.py:68:5: error: Cannot assign to a method 
+[method-assign]
+        bridge._start_sync = lambda: calls.append(1)  # mock，不启动真实 worker ...
+        ^~~~~~~~~~~~~~~~~~
+tests\application\test_system_facade_int.py:148: error: Unused
+"type: ignore[str]" comment  [unused-ignore]
+        assert len(list_result.payload) == 2  # type: ignore[arg-type, str...
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests\application\test_system_facade_int.py:151: error: Unused
+"type: ignore[str]" comment  [unused-ignore]
+        template_name = list_result.payload[0]  # type: ignore[index, str]
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

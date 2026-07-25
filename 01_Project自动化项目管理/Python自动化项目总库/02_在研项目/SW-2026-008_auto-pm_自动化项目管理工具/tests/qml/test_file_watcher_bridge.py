@@ -44,7 +44,7 @@ def _wait_for_signal(spy: QSignalSpy, timeout_ms: int = 10000) -> bool:
 # ── 逻辑测试 ────────────────────────────────────────────
 
 
-def test_toggle_watcher_enable_disable(qapp, tmp_workspace):
+def test_toggle_watcher_enable_disable(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """toggleWatcher 开关切换 + watcherToggled 信号"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     spy = QSignalSpy(bridge.watcherToggled)
@@ -60,12 +60,12 @@ def test_toggle_watcher_enable_disable(qapp, tmp_workspace):
     assert spy.count() == 2  # 两次切换各发一次信号
 
 
-def test_debounce_coalesces_events(qapp, tmp_workspace):
+def test_debounce_coalesces_events(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """连续多次 fileChanged 只触发 1 次 sync（1s 去抖合并）"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge.toggleWatcher(True)
     calls: list[int] = []
-    bridge._start_sync = lambda: calls.append(1)  # mock，不启动真实 worker
+    bridge._start_sync = lambda: calls.append(1)  # type: ignore[method-assign]  # mock，不启动真实 worker
 
     # 连发 3 次变化信号
     bridge._on_file_changed("/fake/a")
@@ -80,13 +80,13 @@ def test_debounce_coalesces_events(qapp, tmp_workspace):
     assert len(calls) == 1  # 3 次变化合并为 1 次 sync
 
 
-def test_concurrent_sync_blocked(qapp, tmp_workspace):
+def test_concurrent_sync_blocked(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """sync 进行中再次触发去抖，累积为 pending，不启动新 sync"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge._watcher_enabled = True  # 启用监听（_on_debounce_timeout 前置条件）
     bridge._sync_in_progress = True  # 模拟 sync 进行中
     calls: list[int] = []
-    bridge._start_sync = lambda: calls.append(1)
+    bridge._start_sync = lambda: calls.append(1)  # type: ignore[method-assign]
 
     bridge._on_debounce_timeout()  # 去抖超时
 
@@ -95,7 +95,7 @@ def test_concurrent_sync_blocked(qapp, tmp_workspace):
     assert bridge._sync_in_progress is True  # 状态未变
 
 
-def test_pending_sync_resubmits_after_finish(qapp, tmp_workspace):
+def test_pending_sync_resubmits_after_finish(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """sync 完成后检查 pending，若有则重启去抖定时器补一次"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge._sync_in_progress = True
@@ -109,7 +109,7 @@ def test_pending_sync_resubmits_after_finish(qapp, tmp_workspace):
     assert bridge._debounce_timer.isActive() is True  # 重启去抖补一次
 
 
-def test_prepare_for_reload_blocks_sync(qapp, tmp_workspace):
+def test_prepare_for_reload_blocks_sync(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """prepareForReload 后拒绝新 sync + 清空监听"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge.toggleWatcher(True)
@@ -126,19 +126,19 @@ def test_prepare_for_reload_blocks_sync(qapp, tmp_workspace):
     assert bridge._sync_in_progress is False  # 未启动
 
 
-def test_reload_pending_skips_debounce(qapp, tmp_workspace):
+def test_reload_pending_skips_debounce(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """reload_pending 时去抖超时不触发 sync"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge._reload_pending = True
     calls: list[int] = []
-    bridge._start_sync = lambda: calls.append(1)
+    bridge._start_sync = lambda: calls.append(1)  # type: ignore[method-assign]
 
     bridge._on_debounce_timeout()
 
     assert len(calls) == 0
 
 
-def test_rebuild_restores_watcher(qapp, tmp_workspace):
+def test_rebuild_restores_watcher(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """rebuild 后恢复监听"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge.toggleWatcher(True)
@@ -151,7 +151,7 @@ def test_rebuild_restores_watcher(qapp, tmp_workspace):
     assert bridge.watchedDirectoryCount() > 0  # 监听已重建
 
 
-def test_noise_dir_excluded(qapp, tmp_workspace):
+def test_noise_dir_excluded(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """_scan_business_dirs 排除噪声目录"""
     (tmp_workspace / ".git").mkdir()
     (tmp_workspace / ".venv").mkdir()
@@ -171,7 +171,7 @@ def test_noise_dir_excluded(qapp, tmp_workspace):
     assert len(dirs) >= 1
 
 
-def test_refresh_paths_diff_idempotent(qapp, tmp_workspace):
+def test_refresh_paths_diff_idempotent(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """重复 refreshPaths 幂等，不重复 addPath"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     bridge.toggleWatcher(True)
@@ -183,7 +183,7 @@ def test_refresh_paths_diff_idempotent(qapp, tmp_workspace):
     assert count1 == count2  # 幂等，数量不变
 
 
-def test_last_sync_time_updated(qapp, tmp_workspace):
+def test_last_sync_time_updated(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """sync 完成后 lastSyncTime 更新"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     assert bridge.lastSyncTime() == ""
@@ -193,7 +193,7 @@ def test_last_sync_time_updated(qapp, tmp_workspace):
     assert bridge.lastSyncTime() != ""  # 已更新为 HH:MM:SS
 
 
-def test_sync_error_emits_signal(qapp, tmp_workspace):
+def test_sync_error_emits_signal(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """sync 失败时发 syncError 信号"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     spy = QSignalSpy(bridge.syncError)
@@ -208,7 +208,7 @@ def test_sync_error_emits_signal(qapp, tmp_workspace):
 # ── 集成测试（真实 DB + QSignalSpy）─────────────────────
 
 
-def test_sync_worker_creates_own_db(qapp, tmp_workspace):
+def test_sync_worker_creates_own_db(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """SyncWorker 在 worker 线程自建 DB 连接，不抛线程亲和性异常。
 
     关键验证：connection.py:54 默认 check_same_thread=True，若 SyncWorker
@@ -236,7 +236,7 @@ def test_sync_worker_creates_own_db(qapp, tmp_workspace):
     assert bridge._current_worker is None
 
 
-def test_sync_worker_direct_instantiation(qapp, tmp_workspace):
+def test_sync_worker_direct_instantiation(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """直接实例化 _SyncWorker 验证 run() 写 result/done（同步调用）"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     worker = _SyncWorker(str(tmp_workspace), bridge)
@@ -252,7 +252,7 @@ def test_sync_worker_direct_instantiation(qapp, tmp_workspace):
     assert error_msg == ""
 
 
-def test_sync_finished_emits_counts(qapp, tmp_workspace):
+def test_sync_finished_emits_counts(qapp, tmp_workspace) -> None:  # type: ignore[no-untyped-def]
     """syncFinished 信号携带 (projects, changes, ms) 三参数"""
     bridge = FileWatcherBridge(str(tmp_workspace))
     spy = QSignalSpy(bridge.syncFinished)

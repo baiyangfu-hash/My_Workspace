@@ -1,4 +1,8 @@
 """tests"""
+from __future__ import annotations
+
+from pathlib import Path
+
 import pytest
 
 from auto_pm.delivery.constants import DIR_DELIVERY, DIR_EXECUTABLE, DIR_PACKAGE, MB
@@ -6,7 +10,7 @@ from auto_pm.delivery.delivery_service import DeliveryService
 
 
 @pytest.fixture
-def proj(tmp_path):
+def proj(tmp_path: Path) -> Path:
     p = tmp_path / "tp"
     p.mkdir()
     d = p / "dist" / "auto-pm"
@@ -19,16 +23,16 @@ def proj(tmp_path):
     return p
 
 class TestBuild:
-    def test_ok(self, proj):
+    def test_ok(self, proj: Path) -> None:
         svc = DeliveryService(proj)
         r = svc.build(version="V1.0.1", skip_pyinstaller=True, auto_package=False, product_name="auto-pm", summary="t")
         assert r["success"]
-    def test_no_dist(self, tmp_path):
+    def test_no_dist(self, tmp_path: Path) -> None:
         p = tmp_path / "nd"
         p.mkdir()
         r = DeliveryService(p).build(version="V1.0.1", skip_pyinstaller=True, product_name="auto-pm")
         assert not r["success"]
-    def test_with_archive(self, proj):
+    def test_with_archive(self, proj: Path) -> None:
         dd = proj / DIR_DELIVERY
         dd.mkdir()
         (dd / DIR_EXECUTABLE).mkdir()
@@ -38,12 +42,12 @@ class TestBuild:
         assert r["success"] and r["archive_path"] is not None
 
 class TestPackage:
-    def test_no_del(self, tmp_path):
+    def test_no_del(self, tmp_path: Path) -> None:
         p = tmp_path / "nd"
         p.mkdir()
         r = DeliveryService(p).package(version="V1.0.1", product_name="auto-pm")
         assert not r["success"]
-    def test_verify(self, tmp_path):
+    def test_verify(self, tmp_path: Path) -> None:
         p = tmp_path / "nz"
         p.mkdir()
         (p / DIR_PACKAGE).mkdir()
@@ -51,7 +55,7 @@ class TestPackage:
         assert not r["success"]
 
 class TestStatus:
-    def test_empty(self, tmp_path):
+    def test_empty(self, tmp_path: Path) -> None:
         p = tmp_path / "em"
         p.mkdir()
         s = DeliveryService(p).status()

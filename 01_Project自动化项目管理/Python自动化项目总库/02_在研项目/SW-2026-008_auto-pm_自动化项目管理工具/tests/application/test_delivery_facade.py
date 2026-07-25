@@ -13,6 +13,8 @@ M4 第 2 批重构后：方法返回带类型 DTO（不再是裸 dict）。
 - refresh_asset_summary/get_asset_summary 改为接收 project_id，调 build_summary
 """
 
+from __future__ import annotations
+
 from types import SimpleNamespace
 from typing import Any
 
@@ -30,10 +32,10 @@ from auto_pm.ui.contracts.dto.delivery_dto import (
 # ── mock helpers ──────────────────────────────────────
 
 
-def _raise(exc: Exception):
+def _raise(exc: Exception) -> Any:
     """返回一个调用即抛出指定异常的函数（兼容任意参数签名）"""
 
-    def _fn(*_args, **_kwargs):
+    def _fn(*args: Any, **kwargs: Any) -> Any:
         raise exc
 
     return _fn
@@ -64,13 +66,13 @@ def _make_project_service(*projects: Any) -> SimpleNamespace:
     if not projects:
         projects = (_make_project_info(),)
 
-    def _get_cached(pid: str):
+    def _get_cached(pid: str) -> Any:
         for p in projects:
             if p.project_id == pid:
                 return p
         return None  # DB 缓存未命中（不抛异常，让 Facade fallback 到 list_projects）
 
-    def _list():
+    def _list() -> Any:
         return list(projects)
 
     return SimpleNamespace(
@@ -91,7 +93,7 @@ def _make_doc_refresh_result(**overrides: Any) -> SimpleNamespace:
     }
     data.update(overrides)
 
-    def _to_dict():
+    def _to_dict() -> Any:
         return data
 
     obj = SimpleNamespace(**data)
@@ -104,9 +106,9 @@ def _make_doc_refresh_service(**overrides: Any) -> SimpleNamespace:
 
     refresh_project_documents(project_info, dry_run) — 接收 ProjectInfo 对象
     """
-    captured: dict = {}
+    captured: dict[str, Any] = {}
 
-    def _refresh(project_info, dry_run=False):
+    def _refresh(project_info, dry_run=False) -> Any:  # type: ignore[no-untyped-def]
         captured["project_info"] = project_info
         captured["dry_run"] = dry_run
         project_id = getattr(project_info, "project_id", "PROJ-001")
@@ -116,7 +118,7 @@ def _make_doc_refresh_service(**overrides: Any) -> SimpleNamespace:
         )
 
     svc = SimpleNamespace(refresh_project_documents=_refresh)
-    svc.captured = captured  # type: ignore[attr-defined]
+    svc.captured = captured
     return svc
 
 
@@ -147,23 +149,23 @@ def _make_asset_service(**overrides: Any) -> SimpleNamespace:
 
     build_summary(project_path, stack, project_type) — 阶段 C bug #2/#3 修复后的正确接口
     """
-    captured: dict = {}
+    captured: dict[str, Any] = {}
 
-    def _build_summary(project_path, stack, project_type=""):
+    def _build_summary(project_path, stack, project_type="") -> Any:  # type: ignore[no-untyped-def]
         captured["project_path"] = project_path
         captured["stack"] = stack
         captured["project_type"] = project_type
         return overrides.get("result", {"assets": 100})
 
     svc = SimpleNamespace(build_summary=_build_summary)
-    svc.captured = captured  # type: ignore[attr-defined]
+    svc.captured = captured
     return svc
 
 
 # ── refresh_project_docs 测试 ──────────────────────────────
 
 
-def test_refresh_project_docs_success():
+def test_refresh_project_docs_success() -> None:
     """正常调用返回 RefreshProjectDocsResultDTO 且字段正确"""
     svc = _make_doc_refresh_service()
     project_svc = _make_project_service()
@@ -184,7 +186,7 @@ def test_refresh_project_docs_success():
     assert svc.captured["dry_run"] is False
 
 
-def test_refresh_project_docs_dry_run_pass_through():
+def test_refresh_project_docs_dry_run_pass_through() -> None:
     """dry_run=True 透传给 service.refresh_project_documents()"""
     svc = _make_doc_refresh_service()
     project_svc = _make_project_service()
@@ -193,11 +195,11 @@ def test_refresh_project_docs_dry_run_pass_through():
     res = facade.refresh_project_docs("PROJ-001", dry_run=True)
 
     assert res.success is True
-    assert res.payload.dry_run is True
+    assert res.payload.dry_run is True  # type: ignore[union-attr]
     assert svc.captured["dry_run"] is True
 
 
-def test_refresh_project_docs_no_service():
+def test_refresh_project_docs_no_service() -> None:
     """doc_refresh_service=None 时返回 success=False + payload=None"""
     facade = DeliveryFacade()
 
@@ -208,7 +210,7 @@ def test_refresh_project_docs_no_service():
     assert "No doc_refresh_service" in res.message
 
 
-def test_refresh_project_docs_no_project_service():
+def test_refresh_project_docs_no_project_service() -> None:
     """project_service=None 时返回 '项目不存在或未注入 project_service'"""
     svc = _make_doc_refresh_service()
     facade = DeliveryFacade(doc_refresh_service=svc, project_service=None)
@@ -220,7 +222,7 @@ def test_refresh_project_docs_no_project_service():
     assert "未注入 project_service" in res.message
 
 
-def test_refresh_project_docs_project_not_found():
+def test_refresh_project_docs_project_not_found() -> None:
     """project_service 未找到对应项目时返回 success=False"""
     svc = _make_doc_refresh_service()
     project_svc = _make_project_service()  # 默认含 PROJ-001
@@ -233,7 +235,7 @@ def test_refresh_project_docs_project_not_found():
     assert "项目不存在" in res.message
 
 
-def test_refresh_project_docs_exception():
+def test_refresh_project_docs_exception() -> None:
     """service.refresh_project_documents() 抛异常时返回 success=False + payload=None"""
     svc = SimpleNamespace(refresh_project_documents=_raise(Exception("doc boom")))
     project_svc = _make_project_service()
@@ -249,7 +251,7 @@ def test_refresh_project_docs_exception():
 # ── get_project_report 测试 ──────────────────────────────
 
 
-def test_get_project_report_success():
+def test_get_project_report_success() -> None:
     """正常调用返回 ProjectReportDTO 且字段正确（细化字段）"""
     svc = _make_report_service(
         get_project_overview=lambda: {"total": 5, "by_stack": {"plc": 3, "python": 2}, "by_phase": {"developing": 5}, "by_business_line": {"SW": 5}},
@@ -266,7 +268,7 @@ def test_get_project_report_success():
     assert res.payload.by_business_line == {"SW": 5}
 
 
-def test_get_project_report_no_service():
+def test_get_project_report_no_service() -> None:
     """report_service=None 时返回 success=False + payload=None"""
     facade = DeliveryFacade()
 
@@ -280,7 +282,7 @@ def test_get_project_report_no_service():
 # ── get_change_report / get_spec_report / get_scan_report 测试 ──
 
 
-def test_get_change_report_success():
+def test_get_change_report_success() -> None:
     """正常调用返回 ChangeReportDTO 且字段正确（细化字段）"""
     svc = _make_report_service(
         get_change_overview=lambda: {"total": 10, "by_status": {"draft": 5, "closed": 5}, "by_domain": {"ELEC": 10}},
@@ -296,7 +298,7 @@ def test_get_change_report_success():
     assert res.payload.by_domain == {"ELEC": 10}
 
 
-def test_get_spec_report_success():
+def test_get_spec_report_success() -> None:
     """正常调用返回 SpecReportDTO 且字段正确（细化字段）"""
     svc = _make_report_service(
         get_spec_report=lambda: {"total": 2, "found": 1, "missing": 1, "by_stack": {"plc": {"total": 1, "found": 1, "missing": []}}, "missing_codes": ["LSP-001"]},
@@ -313,7 +315,7 @@ def test_get_spec_report_success():
     assert res.payload.missing_codes == ["LSP-001"]
 
 
-def test_get_scan_report_success():
+def test_get_scan_report_success() -> None:
     """正常调用返回 ScanReportDTO 且字段正确（细化字段）"""
     svc = _make_report_service(
         get_scan_report=lambda: {"latest": {"timestamp": "2026-07-07T10:00"}, "last_sync_time": "2026-07-07 10:00", "is_cache_available": True},
@@ -332,7 +334,7 @@ def test_get_scan_report_success():
 # ── refresh_asset_summary 测试 ──────────────────────────────
 
 
-def test_refresh_asset_summary_success():
+def test_refresh_asset_summary_success() -> None:
     """正常调用返回 RefreshAssetSummaryResultDTO 且 result 字段正确"""
     svc = _make_asset_service(result={"refreshed": True, "count": 50})
     project_svc = _make_project_service()
@@ -348,7 +350,7 @@ def test_refresh_asset_summary_success():
     assert svc.captured["project_type"] == "single_machine"
 
 
-def test_refresh_asset_summary_no_service():
+def test_refresh_asset_summary_no_service() -> None:
     """asset_summary_service=None 时返回 success=False + payload=None"""
     facade = DeliveryFacade()
 
@@ -359,7 +361,7 @@ def test_refresh_asset_summary_no_service():
     assert "No asset_summary_service" in res.message
 
 
-def test_refresh_asset_summary_missing_project_id():
+def test_refresh_asset_summary_missing_project_id() -> None:
     """缺 project_id 参数时返回 success=False"""
     svc = _make_asset_service()
     project_svc = _make_project_service()
@@ -372,7 +374,7 @@ def test_refresh_asset_summary_missing_project_id():
     assert "缺少 project_id 参数" in res.message
 
 
-def test_refresh_asset_summary_no_project_service():
+def test_refresh_asset_summary_no_project_service() -> None:
     """project_service=None 时返回 '未注入 project_service'"""
     svc = _make_asset_service()
     facade = DeliveryFacade(asset_summary_service=svc, project_service=None)
@@ -384,7 +386,7 @@ def test_refresh_asset_summary_no_project_service():
     assert "未注入 project_service" in res.message
 
 
-def test_refresh_asset_summary_exception():
+def test_refresh_asset_summary_exception() -> None:
     """service.build_summary() 抛异常时返回 success=False + payload=None"""
     svc = SimpleNamespace(build_summary=_raise(Exception("asset boom")))
     project_svc = _make_project_service()
@@ -400,7 +402,7 @@ def test_refresh_asset_summary_exception():
 # ── get_asset_summary 测试 ──────────────────────────────
 
 
-def test_get_asset_summary_success():
+def test_get_asset_summary_success() -> None:
     """正常调用返回 AssetSummaryDTO 且 data 字段正确"""
     svc = _make_asset_service(result={"assets": 100, "healthy": 95})
     project_svc = _make_project_service()
@@ -413,7 +415,7 @@ def test_get_asset_summary_success():
     assert res.payload.data == {"assets": 100, "healthy": 95}
 
 
-def test_get_asset_summary_no_service():
+def test_get_asset_summary_no_service() -> None:
     """asset_summary_service=None 时返回 success=False + payload=None"""
     facade = DeliveryFacade()
 
@@ -424,7 +426,7 @@ def test_get_asset_summary_no_service():
     assert "No asset_summary_service" in res.message
 
 
-def test_get_asset_summary_missing_project_id():
+def test_get_asset_summary_missing_project_id() -> None:
     """缺 project_id 参数时返回 success=False"""
     svc = _make_asset_service()
     project_svc = _make_project_service()

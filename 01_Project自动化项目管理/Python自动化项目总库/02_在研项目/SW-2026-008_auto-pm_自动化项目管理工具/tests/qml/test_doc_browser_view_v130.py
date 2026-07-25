@@ -45,28 +45,28 @@ def test_doc_browser_view_generic_categories(qapp: QApplication, qml_engine: QQm
         {"name": "PM_SESSION_SW-2026-008.md", "path": "/path/session.md", "category": "log"},
         {"name": "README.md", "path": "/path/readme.md", "category": "other"},
     ]
-    view.setProperty("docList", docs)
+    view.setProperty("docList", docs)  # type: ignore[attr-defined]
     qapp.processEvents()
     
     # 默认全部文档
-    view.setProperty("selectedCategory", "all")
+    view.setProperty("selectedCategory", "all")  # type: ignore[attr-defined]
     qapp.processEvents()
-    filtered = _to_variant(view.property("filteredDocList"))
-    assert len(filtered) == 5
+    filtered = _to_variant(view.property("filteredDocList"))  # type: ignore[attr-defined]
+    assert len(filtered) == 5  # type: ignore[arg-type]
     
     # 筛选项目管理文档
-    view.setProperty("selectedCategory", "pm")
+    view.setProperty("selectedCategory", "pm")  # type: ignore[attr-defined]
     qapp.processEvents()
-    filtered = _to_variant(view.property("filteredDocList"))
-    assert len(filtered) == 1
-    assert filtered[0]["name"] == "00_项目管理/01_PM_Plan.md"
+    filtered = _to_variant(view.property("filteredDocList"))  # type: ignore[attr-defined]
+    assert len(filtered) == 1  # type: ignore[arg-type]
+    assert filtered[0]["name"] == "00_项目管理/01_PM_Plan.md"  # type: ignore[index]
     
     # 筛选技术文档
-    view.setProperty("selectedCategory", "tech")
+    view.setProperty("selectedCategory", "tech")  # type: ignore[attr-defined]
     qapp.processEvents()
-    filtered = _to_variant(view.property("filteredDocList"))
-    assert len(filtered) == 1
-    assert filtered[0]["name"] == "01_技术文档/01_Architecture.md"
+    filtered = _to_variant(view.property("filteredDocList"))  # type: ignore[attr-defined]
+    assert len(filtered) == 1  # type: ignore[arg-type]
+    assert filtered[0]["name"] == "01_技术文档/01_Architecture.md"  # type: ignore[index]
 
 def test_doc_browser_view_outline_extraction(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """测试 DocBrowserView 自动从 blocks 中提取 h1, h2 级别的大纲模型"""
@@ -79,15 +79,15 @@ def test_doc_browser_view_outline_extraction(qapp: QApplication, qml_engine: QQm
         {"type": "code", "code": "print(1)", "lang": "python"},
         {"type": "h3", "text": "Sub Sub Heading Three"}, # 不提取 h3 保持清爽
     ]
-    view.setProperty("docBlocks", blocks)
+    view.setProperty("docBlocks", blocks)  # type: ignore[attr-defined]
     qapp.processEvents()
     
-    outline = _to_variant(view.property("outlineModel"))
-    assert len(outline) == 2
-    assert outline[0]["text"] == "Heading One"
-    assert outline[0]["type"] == "h1"
-    assert outline[0]["blockIndex"] == 0
+    outline = _to_variant(view.property("outlineModel"))  # type: ignore[attr-defined]
+    assert len(outline) == 2  # type: ignore[arg-type]
+    assert outline[0]["text"] == "Heading One"  # type: ignore[index]
+    assert outline[0]["type"] == "h1"  # type: ignore[index]
+    assert outline[0]["blockIndex"] == 0  # type: ignore[index]
     
-    assert outline[1]["text"] == "Sub Heading Two"
-    assert outline[1]["type"] == "h2"
-    assert outline[1]["blockIndex"] == 2
+    assert outline[1]["text"] == "Sub Heading Two"  # type: ignore[index]
+    assert outline[1]["type"] == "h2"  # type: ignore[index]
+    assert outline[1]["blockIndex"] == 2  # type: ignore[index]

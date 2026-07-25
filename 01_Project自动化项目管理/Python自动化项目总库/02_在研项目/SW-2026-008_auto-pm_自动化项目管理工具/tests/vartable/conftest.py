@@ -6,9 +6,21 @@ from pathlib import Path
 
 import pytest
 
+
+@pytest.fixture(scope="session")
+def workspace_root() -> Path:
+    """工作空间根目录（从 conftest.py 位置推导）
+
+    tests/vartable/conftest.py → ... → My_Workspace（7 级父目录）
+    """
+    return Path(__file__).resolve().parents[6]
+
+
 # 真实 DJ-2026-005 io_points.csv 路径（只读，不修改）
 DJ_2026_005_IO_POINTS = (
-    Path(r"c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005")
+    Path(__file__).resolve().parents[6]
+    / "0100_PLC自动化"
+    / "DJ-2026-005"
     / "02_PLC程序"
     / "工程资产"
     / "io_points.csv"

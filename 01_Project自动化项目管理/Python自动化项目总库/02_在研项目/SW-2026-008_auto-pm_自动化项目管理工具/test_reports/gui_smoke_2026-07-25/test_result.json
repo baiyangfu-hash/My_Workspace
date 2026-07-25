@@ -1,16 +1,16 @@
 {
   "test_name": "auto-pm QML GUI 冒烟测试",
   "version": "V1.0.0",
-  "start_time": "2026-07-25T01:30:40.876303",
-  "end_time": "2026-07-25T01:30:52.653258",
-  "duration_seconds": 11.776955,
+  "start_time": "2026-07-25T10:57:43.130961",
+  "end_time": "2026-07-25T10:57:54.849340",
+  "duration_seconds": 11.718379,
   "workspace_root": "C:\\Users\\fubai\\Desktop\\My_Workspace",
   "summary": {
     "total_steps": 13,
-    "passed": 9,
+    "passed": 13,
     "failed": 0,
-    "errors": 4,
-    "total_screenshots": 9,
+    "errors": 0,
+    "total_screenshots": 13,
     "total_warnings": 0
   },
   "test_steps": [
@@ -19,99 +19,91 @@
       "name": "应用启动",
       "description": "验证应用启动成功，主窗口可见",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:43.473220"
+      "timestamp": "2026-07-25T10:57:44.621626"
     },
     {
       "index": 1,
       "name": "项目列表页",
       "description": "导航到项目列表页，验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:44.322069"
+      "timestamp": "2026-07-25T10:57:45.263561"
     },
     {
       "index": 2,
       "name": "变更中心页",
       "description": "导航到变更中心页，验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:45.125515"
+      "timestamp": "2026-07-25T10:57:45.912624"
     },
     {
       "index": 3,
       "name": "规范中心页",
       "description": "导航到规范中心页，验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:45.886418"
+      "timestamp": "2026-07-25T10:57:46.558773"
     },
     {
       "index": 4,
       "name": "报告中心页",
       "description": "导航到报告中心页，验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:46.655577"
+      "timestamp": "2026-07-25T10:57:47.192104"
     },
     {
       "index": 5,
       "name": "模板管理页",
       "description": "导航到模板管理页，验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:47.409536"
+      "timestamp": "2026-07-25T10:57:47.831640"
     },
     {
       "index": 6,
       "name": "设置页",
       "description": "导航到设置页，验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:48.165640"
+      "timestamp": "2026-07-25T10:57:48.479126"
     },
     {
       "index": 7,
       "name": "工作台页",
       "description": "导航到工作台页（通过选中第一个项目），验证页面加载",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:49.361069"
+      "timestamp": "2026-07-25T10:57:49.281564"
     },
     {
       "index": 8,
       "name": "返回项目列表",
       "description": "从工作台返回项目列表页",
       "status": "passed",
-      "timestamp": "2026-07-25T01:30:50.153484"
+      "timestamp": "2026-07-25T10:57:49.926782"
     },
     {
       "index": 9,
       "name": "文件监听工具栏可见",
       "description": "验证全局文件监听工具栏可见且监听已启动",
-      "status": "error",
-      "error": "name 'FileWatcherBridge' is not defined",
-      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 165, in execute_next_step\n    result = step[\"action\"]()\n             ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 377, in _step_watcher_toolbar_visible\n    bridge = self._get_file_watcher_bridge()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 357, in _get_file_watcher_bridge\n    return cast(FileWatcherBridge, prop)\n                ^^^^^^^^^^^^^^^^^\nNameError: name 'FileWatcherBridge' is not defined\n",
-      "timestamp": "2026-07-25T01:30:50.647991"
+      "status": "passed",
+      "timestamp": "2026-07-25T10:57:50.567434"
     },
     {
       "index": 10,
       "name": "手动同步触发",
       "description": "点击同步按钮触发 syncNow，等待 syncFinished 信号",
-      "status": "error",
-      "error": "name 'FileWatcherBridge' is not defined",
-      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 165, in execute_next_step\n    result = step[\"action\"]()\n             ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 391, in _step_manual_sync\n    bridge = self._get_file_watcher_bridge()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 357, in _get_file_watcher_bridge\n    return cast(FileWatcherBridge, prop)\n                ^^^^^^^^^^^^^^^^^\nNameError: name 'FileWatcherBridge' is not defined\n",
-      "timestamp": "2026-07-25T01:30:51.145300"
+      "status": "passed",
+      "timestamp": "2026-07-25T10:57:51.561474"
     },
     {
       "index": 11,
       "name": "监听开关 toggle",
       "description": "关闭监听验证目录数归零，再重新开启",
-      "status": "error",
-      "error": "name 'FileWatcherBridge' is not defined",
-      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 165, in execute_next_step\n    result = step[\"action\"]()\n             ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 416, in _step_watcher_toggle\n    bridge = self._get_file_watcher_bridge()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 357, in _get_file_watcher_bridge\n    return cast(FileWatcherBridge, prop)\n                ^^^^^^^^^^^^^^^^^\nNameError: name 'FileWatcherBridge' is not defined\n",
-      "timestamp": "2026-07-25T01:30:51.649580"
+      "status": "passed",
+      "timestamp": "2026-07-25T10:57:52.335890"
     },
     {
       "index": 12,
       "name": "业务文件自动同步",
       "description": "创建临时业务文件，等待 debounce+sync 自动触发",
-      "status": "error",
-      "error": "name 'FileWatcherBridge' is not defined",
-      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 165, in execute_next_step\n    result = step[\"action\"]()\n             ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 455, in _step_auto_sync_on_file_change\n    bridge = self._get_file_watcher_bridge()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\fubai\\Desktop\\My_Workspace\\01_Project自动化项目管理\\Python自动化项目总库\\02_在研项目\\SW-2026-008_auto-pm_自动化项目管理工具\\scripts\\gui_smoke_test.py\", line 357, in _get_file_watcher_bridge\n    return cast(FileWatcherBridge, prop)\n                ^^^^^^^^^^^^^^^^^\nNameError: name 'FileWatcherBridge' is not defined\n",
-      "timestamp": "2026-07-25T01:30:52.150304"
+      "status": "passed",
+      "timestamp": "2026-07-25T10:57:54.349289"
     }
   ],
   "screenshots": [
@@ -119,64 +111,92 @@
       "step": 0,
       "name": "app_launch",
       "description": "应用启动后主窗口初始状态",
-      "path": "screenshots/00_app_launch_20260725_013043.png",
-      "timestamp": "2026-07-25T01:30:43.471538"
+      "path": "screenshots/00_app_launch_20260725_105744.png",
+      "timestamp": "2026-07-25T10:57:44.620144"
     },
     {
       "step": 1,
       "name": "project_list",
       "description": "项目列表页 - 显示所有项目",
-      "path": "screenshots/01_project_list_20260725_013043.png",
-      "timestamp": "2026-07-25T01:30:44.319631"
+      "path": "screenshots/01_project_list_20260725_105745.png",
+      "timestamp": "2026-07-25T10:57:45.262052"
     },
     {
       "step": 2,
       "name": "change_center",
       "description": "变更中心页 - 显示所有变更单",
-      "path": "screenshots/02_change_center_20260725_013044.png",
-      "timestamp": "2026-07-25T01:30:45.124007"
+      "path": "screenshots/02_change_center_20260725_105745.png",
+      "timestamp": "2026-07-25T10:57:45.910626"
     },
     {
       "step": 3,
       "name": "spec_center",
       "description": "规范中心页 - 显示规范概览/索引/检查",
-      "path": "screenshots/03_spec_center_20260725_013045.png",
-      "timestamp": "2026-07-25T01:30:45.885590"
+      "path": "screenshots/03_spec_center_20260725_105746.png",
+      "timestamp": "2026-07-25T10:57:46.554738"
     },
     {
       "step": 4,
       "name": "report_center",
       "description": "报告中心页 - 显示报告模板和生成入口",
-      "path": "screenshots/04_report_center_20260725_013046.png",
-      "timestamp": "2026-07-25T01:30:46.654040"
+      "path": "screenshots/04_report_center_20260725_105747.png",
+      "timestamp": "2026-07-25T10:57:47.190590"
     },
     {
       "step": 5,
       "name": "template_manage",
       "description": "模板管理页 - 显示项目模板列表",
-      "path": "screenshots/05_template_manage_20260725_013047.png",
-      "timestamp": "2026-07-25T01:30:47.407788"
+      "path": "screenshots/05_template_manage_20260725_105747.png",
+      "timestamp": "2026-07-25T10:57:47.830637"
     },
     {
       "step": 6,
       "name": "settings",
       "description": "设置页 - 显示应用设置选项",
-      "path": "screenshots/06_settings_20260725_013047.png",
-      "timestamp": "2026-07-25T01:30:48.162771"
+      "path": "screenshots/06_settings_20260725_105748.png",
+      "timestamp": "2026-07-25T10:57:48.476618"
     },
     {
       "step": 7,
       "name": "workspace",
       "description": "工作台页 - 项目概览和详情",
-      "path": "screenshots/07_workspace_20260725_013049.png",
-      "timestamp": "2026-07-25T01:30:49.358022"
+      "path": "screenshots/07_workspace_20260725_105749.png",
+      "timestamp": "2026-07-25T10:57:49.279557"
     },
     {
       "step": 8,
       "name": "back_to_project_list",
       "description": "返回项目列表页 - 验证导航往返正常",
-      "path": "screenshots/08_back_to_project_list_20260725_013049.png",
-      "timestamp": "2026-07-25T01:30:50.153484"
+      "path": "screenshots/08_back_to_project_list_20260725_105749.png",
+      "timestamp": "2026-07-25T10:57:49.924784"
+    },
+    {
+      "step": 9,
+      "name": "watcher_toolbar",
+      "description": "文件监听工具栏 - 全局常驻同步按钮+监听开关",
+      "path": "screenshots/09_watcher_toolbar_20260725_105750.png",
+      "timestamp": "2026-07-25T10:57:50.565925"
+    },
+    {
+      "step": 10,
+      "name": "manual_sync",
+      "description": "手动同步后 - 状态反馈显示已同步",
+      "path": "screenshots/10_manual_sync_20260725_105751.png",
+      "timestamp": "2026-07-25T10:57:51.560465"
+    },
+    {
+      "step": 11,
+      "name": "watcher_toggle",
+      "description": "监听开关 toggle - 关闭后重新开启",
+      "path": "screenshots/11_watcher_toggle_20260725_105752.png",
+      "timestamp": "2026-07-25T10:57:52.333887"
+    },
+    {
+      "step": 12,
+      "name": "auto_sync",
+      "description": "业务文件改动后自动同步 - 状态反馈更新",
+      "path": "screenshots/12_auto_sync_20260725_105754.png",
+      "timestamp": "2026-07-25T10:57:54.346780"
     }
   ],
   "warnings": []

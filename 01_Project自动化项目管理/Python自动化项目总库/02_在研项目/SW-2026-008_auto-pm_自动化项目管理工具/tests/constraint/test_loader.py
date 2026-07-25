@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from auto_pm.constraint.loader import ConstraintLoader, ConstraintLoadError
+
+if TYPE_CHECKING:
+    from _pytest.monkeypatch import MonkeyPatch
 
 
 class TestConstraintLoader:
@@ -86,12 +90,12 @@ class TestConstraintLoader:
         assert definitions_dir.is_dir()
         assert definitions_dir.name == "definitions"
 
-    def test_constraint_load_error_raised_for_bad_path(self, tmp_path: Path, monkeypatch) -> None:
+    def test_constraint_load_error_raised_for_bad_path(self, tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
         """无效工作空间且包路径不存在时抛出 ConstraintLoadError"""
         import auto_pm.constraint.loader as loader_module
 
         # Mock _find_definitions_dir 使其跳过包路径查找，直接使用工作空间搜索
-        def _mock_find(self):
+        def _mock_find(self: ConstraintLoader) -> Path:
             # 跳过包路径，直接走降级搜索
             import os
             for root_str, dirs, _files in os.walk(str(self._workspace_root)):

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest.mock import MagicMock
 
 import pytest
@@ -13,14 +15,14 @@ from auto_pm.ui.contracts.dto.change_dto import LedgerReconcileResultDTO
 
 
 @pytest.fixture
-def mock_change_service():
-    return MagicMock(spec=ChangeService)
+def mock_change_service() -> None:
+    return MagicMock(spec=ChangeService)  # type: ignore[return-value]
 
 @pytest.fixture
-def change_facade(mock_change_service):
-    return ChangeFacade(mock_change_service)
+def change_facade(mock_change_service) -> None:  # type: ignore[no-untyped-def]
+    return ChangeFacade(mock_change_service)  # type: ignore[return-value]
 
-def _make_summary(**overrides):
+def _make_summary(**overrides) -> Any:  # type: ignore[name-defined, no-untyped-def]
     """构造 ChangeSummary mock"""
     mock = MagicMock()
     mock.change_number = overrides.get("change_number", "CHG-123")
@@ -36,7 +38,7 @@ def _make_summary(**overrides):
     mock.urgency = overrides.get("urgency", "normal")
     return mock
 
-def _make_request(**overrides):
+def _make_request(**overrides) -> Any:  # type: ignore[name-defined, no-untyped-def]
     """构造 ChangeRequest mock（含详情字段）"""
     mock = MagicMock()
     mock.change_number = overrides.get("change_number", "CHG-123")
@@ -60,7 +62,7 @@ def _make_request(**overrides):
     mock.sections = overrides.get("sections", {})
     return mock
 
-def _make_approval(**overrides):
+def _make_approval(**overrides) -> Any:  # type: ignore[name-defined, no-untyped-def]
     """构造 ApprovalRecord mock"""
     mock = MagicMock()
     mock.from_status = overrides.get("from_status", "draft")
@@ -70,7 +72,7 @@ def _make_approval(**overrides):
     mock.transition_date = overrides.get("transition_date", "2026-07-07T10:00:00")
     return mock
 
-def _make_impact(**overrides):
+def _make_impact(**overrides) -> Any:  # type: ignore[name-defined, no-untyped-def]
     """构造 ImpactAnalysis mock"""
     mock = MagicMock()
     mock.change_number = overrides.get("change_number", "CHG-123")
@@ -85,20 +87,20 @@ def _make_impact(**overrides):
 
 # ── 已有 3 个测试（保留并补充 impact_scope 断言） ────────────────
 
-def test_list_change_requests(change_facade, mock_change_service):
+def test_list_change_requests(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     mock_change_service.list_all_changes.return_value = [_make_summary()]
     result = change_facade.list_change_requests()
     assert result.success is True
     assert len(result.payload) == 1
     assert result.payload[0].change_number == "CHG-123"
 
-def test_get_change_detail(change_facade, mock_change_service):
+def test_get_change_detail(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     mock_change_service.get_change_request.return_value = _make_request()
     result = change_facade.get_change_detail("CHG-123")
     assert result.success is True
     assert result.payload.change_number == "CHG-123"
 
-def test_create_change_request(change_facade, mock_change_service):
+def test_create_change_request(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     cmd = CreateChangeCommand(
         project_id="PRJ-123",
         title="Test Title",
@@ -120,7 +122,7 @@ def test_create_change_request(change_facade, mock_change_service):
 
 # ── M3 新增测试 ──────────────────────────────────────────
 
-def test_create_change_request_with_impact_scope(change_facade, mock_change_service):
+def test_create_change_request_with_impact_scope(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """M3: impact_scope 从 command 透传到 Service"""
     cmd = CreateChangeCommand(
         project_id="PRJ-123",
@@ -139,7 +141,7 @@ def test_create_change_request_with_impact_scope(change_facade, mock_change_serv
     assert kwargs["impact_scope"] == ["约束A", "约束B"]
 
 
-def test_transition_change(change_facade, mock_change_service):
+def test_transition_change(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """transition_change 正常流转"""
     cmd = TransitionChangeCommand(
         change_id="CHG-123",
@@ -158,7 +160,7 @@ def test_transition_change(change_facade, mock_change_service):
     assert kwargs["approver"] == "user1"
 
 
-def test_transition_change_service_exception(change_facade, mock_change_service):
+def test_transition_change_service_exception(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """Service 抛异常时返回 success=False"""
     cmd = TransitionChangeCommand(
         change_id="CHG-123",
@@ -173,7 +175,7 @@ def test_transition_change_service_exception(change_facade, mock_change_service)
     assert "Status transition not allowed" in result.message
 
 
-def test_get_change_timeline_empty(change_facade, mock_change_service):
+def test_get_change_timeline_empty(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """无审批历史时返回空列表"""
     mock_change_service.list_approval_history.return_value = []
     result = change_facade.get_change_timeline("CHG-123")
@@ -181,7 +183,7 @@ def test_get_change_timeline_empty(change_facade, mock_change_service):
     assert result.payload == []
 
 
-def test_get_change_timeline_normal(change_facade, mock_change_service):
+def test_get_change_timeline_normal(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """多条审批记录按时间顺序返回"""
     mock_change_service.list_approval_history.return_value = [
         _make_approval(from_status="draft", to_status="submitted", transition_date="2026-07-07T10:00:00"),
@@ -195,7 +197,7 @@ def test_get_change_timeline_normal(change_facade, mock_change_service):
     assert result.payload[1].transition_date == "2026-07-08T11:00:00"
 
 
-def test_get_change_timeline_service_exception(change_facade, mock_change_service):
+def test_get_change_timeline_service_exception(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """Service 抛异常时返回 success=False"""
     mock_change_service.list_approval_history.side_effect = Exception("DB Error")
     result = change_facade.get_change_timeline("CHG-123")
@@ -203,7 +205,7 @@ def test_get_change_timeline_service_exception(change_facade, mock_change_servic
     assert result.payload == []
 
 
-def test_get_change_validation_summary_no_impact(change_facade, mock_change_service):
+def test_get_change_validation_summary_no_impact(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """无影响分析时，risk_level/mitigation 等字段为空"""
     mock_change_service.get_change_request.return_value = _make_request(status="draft")
     mock_change_service.get_impact_analysis.return_value = None
@@ -218,7 +220,7 @@ def test_get_change_validation_summary_no_impact(change_facade, mock_change_serv
     assert result.payload.related_changes == []
 
 
-def test_get_change_validation_summary_normal(change_facade, mock_change_service):
+def test_get_change_validation_summary_normal(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """含影响分析 + 审批历史时，聚合字段正确"""
     mock_change_service.get_change_request.return_value = _make_request(status="approved")
     mock_change_service.get_impact_analysis.return_value = _make_impact(
@@ -244,7 +246,7 @@ def test_get_change_validation_summary_normal(change_facade, mock_change_service
     assert result.payload.related_changes == ["CHG-122", "CHG-121"]
 
 
-def test_get_change_validation_summary_not_found(change_facade, mock_change_service):
+def test_get_change_validation_summary_not_found(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """change_id 不存在时返回 success=False"""
     mock_change_service.get_change_request.return_value = None
     result = change_facade.get_change_validation_summary("NOT-EXIST")
@@ -252,7 +254,7 @@ def test_get_change_validation_summary_not_found(change_facade, mock_change_serv
     assert "not found" in result.message
 
 
-def test_get_change_validation_summary_service_exception(change_facade, mock_change_service):
+def test_get_change_validation_summary_service_exception(change_facade, mock_change_service) -> None:  # type: ignore[no-untyped-def]
     """Service 抛异常时返回 success=False"""
     mock_change_service.get_change_request.side_effect = Exception("DB Error")
     result = change_facade.get_change_validation_summary("CHG-123")
@@ -262,7 +264,7 @@ def test_get_change_validation_summary_service_exception(change_facade, mock_cha
 
 # ── service=None 降级测试 ──────────────────────────────
 
-def test_list_change_requests_no_service():
+def test_list_change_requests_no_service() -> None:
     """facade=None 时 list 返回 success=False + 空列表"""
     facade = ChangeFacade(change_service=None)
     result = facade.list_change_requests()
@@ -270,7 +272,7 @@ def test_list_change_requests_no_service():
     assert result.payload == []
 
 
-def test_create_change_request_no_service():
+def test_create_change_request_no_service() -> None:
     """facade=None 时 create 返回 success=False + None"""
     facade = ChangeFacade(change_service=None)
     cmd = CreateChangeCommand(
@@ -287,7 +289,7 @@ def test_create_change_request_no_service():
     assert result.payload is None
 
 
-def test_get_change_timeline_no_service():
+def test_get_change_timeline_no_service() -> None:
     """facade=None 时 timeline 返回 success=False + 空列表"""
     facade = ChangeFacade(change_service=None)
     result = facade.get_change_timeline("CHG-123")
@@ -295,7 +297,7 @@ def test_get_change_timeline_no_service():
     assert result.payload == []
 
 
-def test_get_change_validation_summary_no_service():
+def test_get_change_validation_summary_no_service() -> None:
     """facade=None 时 validation_summary 返回 success=False + None"""
     facade = ChangeFacade(change_service=None)
     result = facade.get_change_validation_summary("CHG-123")
@@ -306,7 +308,7 @@ def test_get_change_validation_summary_no_service():
 # ── reconcile_ledger 测试（M5 CHG-118 新增）──────────────
 
 
-def _make_diff(**overrides):
+def _make_diff(**overrides) -> Any:  # type: ignore[name-defined, no-untyped-def]
     """构造 ReconcileDiff mock"""
     return ReconcileDiff(
         missing_in_ledger=overrides.get("missing_in_ledger", []),
@@ -315,7 +317,7 @@ def _make_diff(**overrides):
     )
 
 
-def test_reconcile_ledger_success():
+def test_reconcile_ledger_success() -> None:
     """正常调用返回 LedgerReconcileResultDTO 且字段正确（auto_fix=False）"""
     diff = _make_diff(
         missing_in_ledger=["CHG-SCPT-2026-001"],
@@ -349,7 +351,7 @@ def test_reconcile_ledger_success():
     mock_reconciler.auto_fix.assert_not_called()
 
 
-def test_reconcile_ledger_auto_fix():
+def test_reconcile_ledger_auto_fix() -> None:
     """auto_fix=True 时调用 auto_fix 且 auto_fixed=True"""
     diff = _make_diff()  # clean diff
     mock_project_svc = MagicMock()
@@ -366,13 +368,13 @@ def test_reconcile_ledger_auto_fix():
     result = facade.reconcile_ledger("SW-2026-008", auto_fix=True)
 
     assert result.success is True
-    assert result.payload.is_clean is True
-    assert result.payload.auto_fixed is True
+    assert result.payload.is_clean is True  # type: ignore[union-attr]
+    assert result.payload.auto_fixed is True  # type: ignore[union-attr]
     mock_reconciler.auto_fix.assert_called_once_with("/tmp/project")
     mock_reconciler.reconcile.assert_not_called()
 
 
-def test_reconcile_ledger_no_project_service():
+def test_reconcile_ledger_no_project_service() -> None:
     """project_service=None 时返回 success=False"""
     facade = ChangeFacade(change_service=None, project_service=None, ledger_reconciler=MagicMock())
     result = facade.reconcile_ledger("SW-2026-008")
@@ -381,7 +383,7 @@ def test_reconcile_ledger_no_project_service():
     assert result.payload is None
 
 
-def test_reconcile_ledger_no_reconciler():
+def test_reconcile_ledger_no_reconciler() -> None:
     """ledger_reconciler=None 时返回 success=False"""
     facade = ChangeFacade(change_service=None, project_service=MagicMock(), ledger_reconciler=None)
     result = facade.reconcile_ledger("SW-2026-008")
@@ -390,7 +392,7 @@ def test_reconcile_ledger_no_reconciler():
     assert result.payload is None
 
 
-def test_reconcile_ledger_project_not_found():
+def test_reconcile_ledger_project_not_found() -> None:
     """project_service.find_project_path 返回 None 时返回 success=False"""
     mock_project_svc = MagicMock()
     mock_project_svc.find_project_path.return_value = None
@@ -405,7 +407,7 @@ def test_reconcile_ledger_project_not_found():
     assert result.payload is None
 
 
-def test_reconcile_ledger_exception():
+def test_reconcile_ledger_exception() -> None:
     """reconciler.reconcile() 抛异常时返回 success=False"""
     mock_project_svc = MagicMock()
     mock_project_svc.find_project_path.return_value = "/tmp/project"

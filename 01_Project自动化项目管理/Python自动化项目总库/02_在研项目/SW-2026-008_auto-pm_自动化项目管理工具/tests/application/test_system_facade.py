@@ -10,6 +10,8 @@
 M4 第 2 批重构后：方法返回带类型 DTO（list_templates/get_template_path 除外，保持基础类型）。
 """
 
+from __future__ import annotations
+
 from types import SimpleNamespace
 from typing import Any
 
@@ -25,10 +27,10 @@ from auto_pm.ui.contracts.dto.system_dto import (
 # ── mock helpers ──────────────────────────────────────
 
 
-def _raise(exc: Exception):
+def _raise(exc: Exception) -> Any:
     """返回一个调用即抛出指定异常的函数（兼容任意参数签名）"""
 
-    def _fn(*_args, **_kwargs):
+    def _fn(*args: Any, **kwargs: Any) -> Any:
         raise exc
 
     return _fn
@@ -103,13 +105,13 @@ def _make_project_service(*projects: Any) -> SimpleNamespace:
     if not projects:
         projects = (_make_project_info(),)
 
-    def _get_cached(pid: str):
+    def _get_cached(pid: str) -> Any:
         for p in projects:
             if p.project_id == pid:
                 return p
         return None
 
-    def _list():
+    def _list() -> Any:
         return list(projects)
 
     return SimpleNamespace(
@@ -122,7 +124,7 @@ def _make_project_service(*projects: Any) -> SimpleNamespace:
 # ── get_pm_session_view 测试 ──────────────────────────────
 
 
-def test_get_pm_session_view_success():
+def test_get_pm_session_view_success() -> None:
     """正常调用返回 PmSessionViewDTO 且 data 字段正确"""
     svc = _make_pm_service(generate_view=lambda: {"status": "ok", "version": "1.0"})
     facade = SystemFacade(pm_session_service=svc)
@@ -134,7 +136,7 @@ def test_get_pm_session_view_success():
     assert res.payload.data == {"status": "ok", "version": "1.0"}
 
 
-def test_get_pm_session_view_no_service():
+def test_get_pm_session_view_no_service() -> None:
     """pm_session_service=None 时返回 success=False + payload=None"""
     facade = SystemFacade(pm_session_service=None)
 
@@ -145,7 +147,7 @@ def test_get_pm_session_view_no_service():
     assert "No pm_session_service" in res.message
 
 
-def test_get_pm_session_view_exception():
+def test_get_pm_session_view_exception() -> None:
     """service.generate_view() 抛异常时返回 success=False + payload=None"""
     svc = SimpleNamespace(generate_view=_raise(Exception("view boom")), check=lambda: {})
     facade = SystemFacade(pm_session_service=svc)
@@ -160,7 +162,7 @@ def test_get_pm_session_view_exception():
 # ── run_pm_session_check 测试 ──────────────────────────────
 
 
-def test_run_pm_session_check_success():
+def test_run_pm_session_check_success() -> None:
     """正常调用返回 PmSessionCheckResultDTO 且 data 字段正确"""
     svc = _make_pm_service(check=lambda: {"errors": 0, "warnings": 2, "passed": 10})
     facade = SystemFacade(pm_session_service=svc)
@@ -172,7 +174,7 @@ def test_run_pm_session_check_success():
     assert res.payload.data == {"errors": 0, "warnings": 2, "passed": 10}
 
 
-def test_run_pm_session_check_no_service():
+def test_run_pm_session_check_no_service() -> None:
     """pm_session_service=None 时返回 success=False + payload=None"""
     facade = SystemFacade(pm_session_service=None)
 
@@ -183,7 +185,7 @@ def test_run_pm_session_check_no_service():
     assert "No pm_session_service" in res.message
 
 
-def test_run_pm_session_check_exception():
+def test_run_pm_session_check_exception() -> None:
     """service.check() 抛异常时返回 success=False + payload=None"""
     svc = SimpleNamespace(generate_view=lambda: {}, check=_raise(Exception("check boom")))
     facade = SystemFacade(pm_session_service=svc)
@@ -198,7 +200,7 @@ def test_run_pm_session_check_exception():
 # ── list_templates 测试 ──────────────────────────────
 
 
-def test_list_templates_success():
+def test_list_templates_success() -> None:
     """正常调用返回 list[str]"""
     svc = _make_template_service(list_templates=lambda: ["python-tpl", "plc-tpl"])
     facade = SystemFacade(pm_session_service=None, template_service=svc)
@@ -209,7 +211,7 @@ def test_list_templates_success():
     assert res.payload == ["python-tpl", "plc-tpl"]
 
 
-def test_list_templates_no_service():
+def test_list_templates_no_service() -> None:
     """template_service=None 时返回 success=False + payload=[]"""
     facade = SystemFacade(pm_session_service=None, template_service=None)
 
@@ -223,7 +225,7 @@ def test_list_templates_no_service():
 # ── get_template_path 测试 ──────────────────────────────
 
 
-def test_get_template_path_success():
+def test_get_template_path_success() -> None:
     """正常调用返回 str 路径"""
     svc = _make_template_service(get_template_path=lambda name: f"/templates/{name}")
     facade = SystemFacade(pm_session_service=None, template_service=svc)
@@ -234,7 +236,7 @@ def test_get_template_path_success():
     assert res.payload == "/templates/python-tpl"
 
 
-def test_get_template_path_no_service():
+def test_get_template_path_no_service() -> None:
     """template_service=None 时返回 success=False + payload=''"""
     facade = SystemFacade(pm_session_service=None, template_service=None)
 
@@ -248,7 +250,7 @@ def test_get_template_path_no_service():
 # ── get_template_detail 测试 ──────────────────────────────
 
 
-def test_get_template_detail_success(tmp_path):
+def test_get_template_detail_success(tmp_path: Path) -> None:  # type: ignore[name-defined]
     """正常调用返回 TemplateDetailDTO 且 6 个字段正确（含 copier.yml 解析 + stack 推断 + usage_count 统计）"""
     # 创建 copier.yml
     copier_yml = tmp_path / "copier.yml"
@@ -272,7 +274,7 @@ def test_get_template_detail_success(tmp_path):
     assert res.payload.path == str(tmp_path)
 
 
-def test_get_template_detail_no_copier_yml(tmp_path):
+def test_get_template_detail_no_copier_yml(tmp_path: Path) -> None:  # type: ignore[name-defined]
     """copier.yml 不存在时使用默认值 version=unknown + description=暂无描述"""
     template_svc = _make_template_service(get_template_path=lambda name: str(tmp_path))
     facade = SystemFacade(pm_session_service=None, template_service=template_svc, project_service=None)
@@ -287,7 +289,7 @@ def test_get_template_detail_no_copier_yml(tmp_path):
     assert res.payload.usage_count == 0  # project_service=None
 
 
-def test_get_template_detail_no_service():
+def test_get_template_detail_no_service() -> None:
     """template_service=None 时返回 success=False + payload=None"""
     facade = SystemFacade(pm_session_service=None, template_service=None)
 
@@ -298,7 +300,7 @@ def test_get_template_detail_no_service():
     assert "No template_service" in res.message
 
 
-def test_get_template_detail_path_not_exist():
+def test_get_template_detail_path_not_exist() -> None:
     """template_service.get_template_path 返回空字符串时返回 success=False"""
     template_svc = _make_template_service(get_template_path=lambda name: "")
     facade = SystemFacade(pm_session_service=None, template_service=template_svc)
@@ -313,7 +315,7 @@ def test_get_template_detail_path_not_exist():
 # ── apply_template 测试 ──────────────────────────────
 
 
-def test_apply_template_success():
+def test_apply_template_success() -> None:
     """正常调用返回 ApplyTemplateResultDTO 且字段正确
 
     阶段 C bug #6 修复后：调 copy_template(template_name, dest_path, data, overwrite=True)
@@ -341,7 +343,7 @@ def test_apply_template_success():
     assert res.payload.result["data"]["stack"] == "python"
 
 
-def test_apply_template_no_service():
+def test_apply_template_no_service() -> None:
     """template_service=None 时返回 success=False + payload=None"""
     facade = SystemFacade(pm_session_service=None, template_service=None)
 
@@ -352,7 +354,7 @@ def test_apply_template_no_service():
     assert "No template_service" in res.message
 
 
-def test_apply_template_no_project_service():
+def test_apply_template_no_project_service() -> None:
     """project_service=None 时返回 '未注入 project_service'"""
     svc = _make_template_service()
     facade = SystemFacade(pm_session_service=None, template_service=svc, project_service=None)
@@ -364,7 +366,7 @@ def test_apply_template_no_project_service():
     assert "未注入 project_service" in res.message
 
 
-def test_apply_template_project_not_found():
+def test_apply_template_project_not_found() -> None:
     """project_service 未找到项目时返回 success=False"""
     svc = _make_template_service()
     project_svc = _make_project_service()  # 默认含 PROJ-001
@@ -377,7 +379,7 @@ def test_apply_template_project_not_found():
     assert "项目不存在" in res.message
 
 
-def test_apply_template_exception():
+def test_apply_template_exception() -> None:
     """service.copy_template() 抛异常时返回 success=False + payload=None"""
     svc = SimpleNamespace(
         list_templates=lambda: [],
@@ -397,7 +399,7 @@ def test_apply_template_exception():
 # ── archive_pm_session 测试（M5 CHG-117 新增）──────────────
 
 
-def test_archive_pm_session_success():
+def test_archive_pm_session_success() -> None:
     """正常调用返回 PmSessionArchiveResultDTO 且字段正确"""
     svc = _make_pm_service()
     facade = SystemFacade(pm_session_service=svc)
@@ -417,7 +419,7 @@ def test_archive_pm_session_success():
     assert res.payload.keep_recent == 20
 
 
-def test_archive_pm_session_no_service():
+def test_archive_pm_session_no_service() -> None:
     """pm_session_service=None 时返回 success=False + payload=None"""
     facade = SystemFacade(pm_session_service=None)
 
@@ -428,7 +430,7 @@ def test_archive_pm_session_no_service():
     assert "No pm_session_service" in res.message
 
 
-def test_archive_pm_session_error_response():
+def test_archive_pm_session_error_response() -> None:
     """service.archive() 返回 error 字段时返回 success=False"""
     svc = _make_pm_service(archive=lambda section, keep_recent, dry_run: {"error": f"章节 §{section} 不存在"})
     facade = SystemFacade(pm_session_service=svc)
@@ -440,7 +442,7 @@ def test_archive_pm_session_error_response():
     assert "章节 §99 不存在" in res.message
 
 
-def test_archive_pm_session_exception():
+def test_archive_pm_session_exception() -> None:
     """service.archive() 抛异常时返回 success=False + payload=None"""
     svc = SimpleNamespace(
         generate_view=lambda: {},

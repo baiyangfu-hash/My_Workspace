@@ -59,7 +59,7 @@ def system_facade_real(
     )
 
 
-def test_system_facade_int_list_templates(system_facade_real: SystemFacade):
+def test_system_facade_int_list_templates(system_facade_real: SystemFacade) -> None:
     """集成测试：list_templates 从 templates_dir 扫描模板列表
 
     templates_dir fixture 预置 2 个模板（plc-standard + python-standard）+ 1 个无 copier.yml 目录。
@@ -76,7 +76,7 @@ def test_system_facade_int_list_templates(system_facade_real: SystemFacade):
     assert "not-a-template" not in templates
 
 
-def test_system_facade_int_get_template_path(system_facade_real: SystemFacade):
+def test_system_facade_int_get_template_path(system_facade_real: SystemFacade) -> None:
     """集成测试：get_template_path 返回模板绝对路径"""
     result = system_facade_real.get_template_path("plc-standard")
     assert result.success is True
@@ -87,14 +87,14 @@ def test_system_facade_int_get_template_path(system_facade_real: SystemFacade):
     assert (Path(path) / "copier.yml").exists()
 
 
-def test_system_facade_int_get_template_path_not_exist(system_facade_real: SystemFacade):
+def test_system_facade_int_get_template_path_not_exist(system_facade_real: SystemFacade) -> None:
     """集成测试：get_template_path 模板不存在时返回 success=False"""
     result = system_facade_real.get_template_path("not-exist-template")
     assert result.success is False
     assert "模板不存在" in result.message or "not" in result.message.lower()
 
 
-def test_system_facade_int_get_template_detail_plc(system_facade_real: SystemFacade):
+def test_system_facade_int_get_template_detail_plc(system_facade_real: SystemFacade) -> None:
     """集成测试：get_template_detail 读取 plc-standard 模板详情
 
     - version 从 copier.yml 的 _commit 读取（fixture 设为 v1.2.0）
@@ -115,7 +115,7 @@ def test_system_facade_int_get_template_detail_plc(system_facade_real: SystemFac
     assert dto.path.endswith("plc-standard")
 
 
-def test_system_facade_int_get_template_detail_python(system_facade_real: SystemFacade):
+def test_system_facade_int_get_template_detail_python(system_facade_real: SystemFacade) -> None:
     """集成测试：get_template_detail 读取 python-standard 模板详情
 
     - stack 推断为 'python'（template_name 含 'python'）
@@ -134,33 +134,33 @@ def test_system_facade_int_get_template_detail_python(system_facade_real: System
     assert dto.path.endswith("python-standard")
 
 
-def test_system_facade_int_get_template_detail_not_exist(system_facade_real: SystemFacade):
+def test_system_facade_int_get_template_detail_not_exist(system_facade_real: SystemFacade) -> None:
     """集成测试：get_template_detail 模板不存在时返回 success=False"""
     result = system_facade_real.get_template_detail("not-exist")
     assert result.success is False
 
 
-def test_system_facade_int_full_flow(system_facade_real: SystemFacade):
+def test_system_facade_int_full_flow(system_facade_real: SystemFacade) -> None:
     """集成测试：端到端流程 list → get_path → get_detail"""
     # 1. list
     list_result = system_facade_real.list_templates()
     assert list_result.success
-    assert len(list_result.payload) == 2
+    assert len(list_result.payload) == 2  # type: ignore[arg-type]
 
     # 2. get_path
-    template_name = list_result.payload[0]
+    template_name = list_result.payload[0]  # type: ignore[index]
     path_result = system_facade_real.get_template_path(template_name)
     assert path_result.success
-    assert path_result.payload.endswith(template_name)
+    assert path_result.payload.endswith(template_name)  # type: ignore[union-attr]
 
     # 3. get_detail
     detail_result = system_facade_real.get_template_detail(template_name)
     assert detail_result.success
-    assert detail_result.payload.name == template_name
-    assert detail_result.payload.stack in ("plc", "python", "pm")
+    assert detail_result.payload.name == template_name  # type: ignore[union-attr]
+    assert detail_result.payload.stack in ("plc", "python", "pm")  # type: ignore[union-attr]
 
 
-def test_system_facade_int_no_template_service():
+def test_system_facade_int_no_template_service() -> None:
     """集成测试：未注入 TemplateService 时 template 方法返回 success=False"""
     facade = SystemFacade(
         pm_session_service=None,
@@ -173,7 +173,7 @@ def test_system_facade_int_no_template_service():
     assert facade.get_template_detail("any").success is False
 
 
-def test_system_facade_int_get_template_detail_no_project_service(templates_dir: Path):
+def test_system_facade_int_get_template_detail_no_project_service(templates_dir: Path) -> None:
     """集成测试：未注入 ProjectService 时 get_template_detail 仍能成功（usage_count=0）
 
     SystemFacade.get_template_detail 中 project_service 为 None 时跳过 usage_count 统计。
@@ -196,7 +196,7 @@ def test_system_facade_int_get_template_detail_no_project_service(templates_dir:
 
 
 @pytest.fixture
-def system_facade_with_apply_template(
+def system_facade_with_apply_template(  # type: ignore[no-untyped-def]
     temp_workspace: str,
     db_manager,
     project_repo_with_data,
@@ -211,7 +211,7 @@ def system_facade_with_apply_template(
     # mock template_service：记录 copy_template 调用参数
     captured: dict[str, Any] = {}
 
-    def _copy_template(template_name, dest_path, data, overwrite=False):
+    def _copy_template(template_name, dest_path, data, overwrite=False) -> Any:  # type: ignore[no-untyped-def]
         captured["template_name"] = template_name
         captured["dest_path"] = dest_path
         captured["data"] = data
@@ -234,7 +234,7 @@ def system_facade_with_apply_template(
 
 def test_system_facade_int_apply_template_success(
     system_facade_with_apply_template: SystemFacade,
-):
+) -> None:
     """集成测试：apply_template 正确查询 ProjectInfo 并传给 copy_template
 
     bug #6 修复后链路：Facade → project_service.get_project_cached → copy_template(dest_path, data, overwrite=True)
@@ -260,7 +260,7 @@ def test_system_facade_int_apply_template_success(
 
 def test_system_facade_int_apply_template_project_not_found(
     system_facade_with_apply_template: SystemFacade,
-):
+) -> None:
     """集成测试：apply_template 项目不存在时返回 success=False"""
     result = system_facade_with_apply_template.apply_template("NOT-EXIST-999", "plc-standard")
     assert result.success is False
@@ -268,7 +268,7 @@ def test_system_facade_int_apply_template_project_not_found(
     assert "项目不存在" in result.message
 
 
-def test_system_facade_int_apply_template_no_project_service(templates_dir: Path):
+def test_system_facade_int_apply_template_no_project_service(templates_dir: Path) -> None:
     """集成测试：project_service=None 时 apply_template 返回 '未注入 project_service'"""
     template_service = TemplateService(templates_dir=str(templates_dir))
     facade = SystemFacade(
@@ -352,7 +352,7 @@ def system_facade_with_pm_session(pm_session_workspace: Path) -> SystemFacade:
 def test_system_facade_int_get_pm_session_view(
     system_facade_with_pm_session: SystemFacade,
     pm_session_workspace: Path,
-):
+) -> None:
     """集成测试：get_pm_session_view 通过 _PmSessionViewAggregator 生成视图
 
     bug #4 误判验证：make_pm_session_service 创建的 _PmSessionViewAggregator 已正确封装
@@ -374,7 +374,7 @@ def test_system_facade_int_get_pm_session_view(
 
 def test_system_facade_int_run_pm_session_check(
     system_facade_with_pm_session: SystemFacade,
-):
+) -> None:
     """集成测试：run_pm_session_check 通过 _PmSessionViewAggregator 运行健康检查
 
     bug #5 误判验证：make_pm_session_service 创建的 _PmSessionViewAggregator 已正确封装
@@ -393,7 +393,7 @@ def test_system_facade_int_run_pm_session_check(
     assert result.payload.data["missing_required"] == []
 
 
-def test_system_facade_int_get_pm_session_view_no_service():
+def test_system_facade_int_get_pm_session_view_no_service() -> None:
     """集成测试：pm_session_service=None 时 get_pm_session_view 返回 success=False"""
     facade = SystemFacade(pm_session_service=None)
     result = facade.get_pm_session_view()
@@ -401,7 +401,7 @@ def test_system_facade_int_get_pm_session_view_no_service():
     assert "No pm_session_service" in result.message
 
 
-def test_system_facade_int_run_pm_session_check_no_service():
+def test_system_facade_int_run_pm_session_check_no_service() -> None:
     """集成测试：pm_session_service=None 时 run_pm_session_check 返回 success=False"""
     facade = SystemFacade(pm_session_service=None)
     result = facade.run_pm_session_check()

@@ -32,8 +32,6 @@
 
 ## 4. Artifacts Index（文档索引）
 - req: PRD/需求分析文档_REQ.md
-- int: PRD/接口文档_INT.md
-- dsn: PRD/详细设计说明书_DSN.md
 - tec: PRD/技术方案文档_TEC.md
 
 ## 5. Logs（按事件沉淀）

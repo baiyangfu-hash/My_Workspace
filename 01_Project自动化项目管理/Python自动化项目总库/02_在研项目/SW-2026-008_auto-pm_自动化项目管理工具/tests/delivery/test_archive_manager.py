@@ -63,14 +63,14 @@ def am(project_dir: Path) -> ArchiveManager:
 
 
 class TestArchiveDelivery:
-    def test_archive_delivery_creates_archive_subdir(self, am: ArchiveManager):
+    def test_archive_delivery_creates_archive_subdir(self, am: ArchiveManager) -> None:
         """归档后应在 archive/ 下创建子目录"""
         result = am.archive_delivery("V1.0.0", "V1.0.1", "升级测试")
         assert result is not None
         assert result.exists()
         assert result.parent.name == DIR_ARCHIVE
 
-    def test_archive_delivery_generates_archive_info(self, am: ArchiveManager):
+    def test_archive_delivery_generates_archive_info(self, am: ArchiveManager) -> None:
         """归档后应生成 archive_info.md"""
         result = am.archive_delivery("V1.0.0", "V1.0.1", "升级测试")
         assert result is not None
@@ -81,7 +81,7 @@ class TestArchiveDelivery:
         assert "V1.0.1" in content
         assert "升级测试" in content
 
-    def test_archive_delivery_moves_files(self, am: ArchiveManager):
+    def test_archive_delivery_moves_files(self, am: ArchiveManager) -> None:
         """归档后根目录下原有文件应被移走"""
         result = am.archive_delivery("V1.0.0", "V1.0.1", "升级")
         assert result is not None
@@ -94,7 +94,7 @@ class TestArchiveDelivery:
         delivery_dir = am._delivery_dir
         assert not (delivery_dir / "README.md").exists()
 
-    def test_archive_delivery_empty_dir(self, tmp_path: Path):
+    def test_archive_delivery_empty_dir(self, tmp_path: Path) -> None:
         """空交付物目录应返回 None"""
         project = tmp_path / "empty"
         project.mkdir()
@@ -103,7 +103,7 @@ class TestArchiveDelivery:
         result = am.archive_delivery("V1.0.0", "V1.0.1")
         assert result is None
 
-    def test_archive_delivery_no_delivery_dir(self, tmp_path: Path):
+    def test_archive_delivery_no_delivery_dir(self, tmp_path: Path) -> None:
         """无交付物目录应返回 None"""
         project = tmp_path / "no_delivery"
         project.mkdir()
@@ -116,14 +116,14 @@ class TestArchiveDelivery:
 
 
 class TestArchivePackage:
-    def test_archive_package_moves_zip(self, am: ArchiveManager):
+    def test_archive_package_moves_zip(self, am: ArchiveManager) -> None:
         """归档 ZIP 应移动到 archive/ 下"""
         result = am.archive_package("V1.0.0", "V1.0.1", "打包升级")
         assert result is not None
         assert result.parent.name == DIR_ARCHIVE
         assert result.suffix == ".zip"
 
-    def test_archive_package_updates_manifest(self, am: ArchiveManager):
+    def test_archive_package_updates_manifest(self, am: ArchiveManager) -> None:
         """归档 ZIP 后应更新 archive_manifest.md"""
         result = am.archive_package("V1.0.0", "V1.0.1", "打包升级")
         assert result is not None
@@ -132,7 +132,7 @@ class TestArchivePackage:
         content = manifest.read_text(encoding="utf-8")
         assert "V1.0.0" in content
 
-    def test_archive_package_no_zip(self, tmp_path: Path):
+    def test_archive_package_no_zip(self, tmp_path: Path) -> None:
         """无 ZIP 时应返回 None"""
         project = tmp_path / "no_zip"
         project.mkdir()
@@ -146,20 +146,20 @@ class TestArchivePackage:
 
 
 class TestListArchives:
-    def test_list_delivery_archives(self, am: ArchiveManager):
+    def test_list_delivery_archives(self, am: ArchiveManager) -> None:
         """列出交付物归档"""
         am.archive_delivery("V1.0.0", "V1.0.1", "v1")
         archives = am.list_archives("delivery")
         assert len(archives) >= 1
         assert any("V1.0.0" in a["version"] for a in archives)
 
-    def test_list_package_archives(self, am: ArchiveManager):
+    def test_list_package_archives(self, am: ArchiveManager) -> None:
         """列出交付物打包归档"""
         am.archive_package("V1.0.0", "V1.0.1", "v1")
         archives = am.list_archives("package")
         assert len(archives) >= 1
 
-    def test_list_empty_archives(self, tmp_path: Path):
+    def test_list_empty_archives(self, tmp_path: Path) -> None:
         """无归档时返回空列表"""
         project = tmp_path / "empty"
         project.mkdir()
@@ -172,7 +172,7 @@ class TestListArchives:
 
 
 class TestRestoreDelivery:
-    def test_restore_delivery(self, am: ArchiveManager):
+    def test_restore_delivery(self, am: ArchiveManager) -> None:
         """恢复归档后根目录应恢复原始文件"""
         # 先归档
         am.archive_delivery("V1.0.0", "V1.0.1", "升级")
@@ -185,7 +185,7 @@ class TestRestoreDelivery:
         # 根目录应恢复
         assert (am._delivery_dir / "README.md").exists()
 
-    def test_restore_nonexistent(self, tmp_path: Path):
+    def test_restore_nonexistent(self, tmp_path: Path) -> None:
         """恢复不存在的版本应返回 False"""
         project = tmp_path / "no_archive"
         project.mkdir()
@@ -198,7 +198,7 @@ class TestRestoreDelivery:
 
 
 class TestCleanArchives:
-    def test_clean_dry_run(self, am: ArchiveManager):
+    def test_clean_dry_run(self, am: ArchiveManager) -> None:
         """dry_run 模式不应实际删除"""
         am.archive_delivery("V1.0.0", "V1.0.1", "v1")
         removed = am.clean_archives("delivery", keep=0, dry_run=True)
@@ -206,7 +206,7 @@ class TestCleanArchives:
         # 归档目录应仍然存在
         assert (am._delivery_dir / DIR_ARCHIVE).exists()
 
-    def test_clean_actual(self, am: ArchiveManager):
+    def test_clean_actual(self, am: ArchiveManager) -> None:
         """实际清理应删除旧归档"""
         am.archive_delivery("V1.0.0", "V1.0.1", "v1")
         removed = am.clean_archives("delivery", keep=0, dry_run=False)
@@ -217,12 +217,12 @@ class TestCleanArchives:
 
 
 class TestGetCurrentVersion:
-    def test_detect_from_changelog(self, am: ArchiveManager):
+    def test_detect_from_changelog(self, am: ArchiveManager) -> None:
         """从 CHANGELOG.md 检测版本号"""
         version = am.get_current_version()
         assert version == "V1.0.0"
 
-    def test_no_delivery_dir(self, tmp_path: Path):
+    def test_no_delivery_dir(self, tmp_path: Path) -> None:
         """无交付物目录时返回 None"""
         project = tmp_path / "no_del"
         project.mkdir()
@@ -235,14 +235,14 @@ class TestGetCurrentVersion:
 
 
 class TestGetInfo:
-    def test_get_delivery_info(self, am: ArchiveManager):
+    def test_get_delivery_info(self, am: ArchiveManager) -> None:
         """获取交付物信息"""
         info = am.get_delivery_info()
         assert info is not None
         assert info["total_files"] > 0
         assert len(info["exe_files"]) > 0
 
-    def test_get_package_info(self, am: ArchiveManager):
+    def test_get_package_info(self, am: ArchiveManager) -> None:
         """获取打包信息"""
         info = am.get_package_info()
         assert info is not None

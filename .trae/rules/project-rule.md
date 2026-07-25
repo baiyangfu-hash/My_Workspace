@@ -35,7 +35,7 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
   - 变更管理：`auto-pm -w "<工作空间根>" change create|list|show|transition ...`
   - 台账对账：`auto-pm -w "<工作空间根>" ledger reconcile <项目ID> [--auto-fix]`
 - specmgr（SW-2026-006）已被 auto-pm 吸收为 `auto-pm spec` 子命令
-- pm-mgr（SW-2026-007）已被 auto-pm 取代
+- pm-mgr 已被 auto-pm 取代
 - `-w` 必须放在子命令之前；详细用法见 `pm-workflow` 技能
 
 ## 技术栈适配

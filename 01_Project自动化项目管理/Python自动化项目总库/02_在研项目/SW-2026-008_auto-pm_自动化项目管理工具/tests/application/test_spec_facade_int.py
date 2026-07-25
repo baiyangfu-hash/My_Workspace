@@ -35,12 +35,12 @@ def spec_facade_real(spec_registry_workspace: Path) -> SpecFacade:
     check_service = CheckService(workspace=spec_registry_workspace)
     center_service = SpecCenterAdapter(workspace=spec_registry_workspace)
     return SpecFacade(
-        spec_check_service=check_service,
+        spec_check_service=check_service,  # type: ignore[arg-type]
         spec_center_service=center_service,
     )
 
 
-def test_spec_facade_int_get_overview(spec_facade_real: SpecFacade):
+def test_spec_facade_int_get_overview(spec_facade_real: SpecFacade) -> None:
     """集成测试：get_spec_center_overview 从 SpecRegistry 读取规范列表
 
     spec_registry.json 预置 2 条规范（plc + python），均 lifecycle=active。
@@ -61,35 +61,35 @@ def test_spec_facade_int_get_overview(spec_facade_real: SpecFacade):
     assert dto.health_summary["exit_code"] == 0
 
 
-def test_spec_facade_int_list_entries_all(spec_facade_real: SpecFacade):
+def test_spec_facade_int_list_entries_all(spec_facade_real: SpecFacade) -> None:
     """集成测试：list_spec_center_entries 返回全部规范条目"""
     result = spec_facade_real.list_spec_center_entries(filter_domain=None)
     assert result.success is True
-    assert len(result.payload) == 2
+    assert len(result.payload) == 2  # type: ignore[arg-type]
 
-    spec_ids = {e.spec_id for e in result.payload}
+    spec_ids = {e.spec_id for e in result.payload}  # type: ignore[union-attr]
     assert spec_ids == {"LSP-905", "CODE-210"}
 
     # 每个条目都是 SpecCenterEntryDTO
-    for entry in result.payload:
+    for entry in result.payload:  # type: ignore[union-attr]
         assert isinstance(entry, SpecCenterEntryDTO)
         assert entry.lifecycle == "active"
 
 
-def test_spec_facade_int_list_entries_filter_plc(spec_facade_real: SpecFacade):
+def test_spec_facade_int_list_entries_filter_plc(spec_facade_real: SpecFacade) -> None:
     """集成测试：list_spec_center_entries(filter_domain='plc') 仅返回 plc 域规范"""
     result = spec_facade_real.list_spec_center_entries(filter_domain="plc")
     assert result.success is True
-    assert len(result.payload) == 1
+    assert len(result.payload) == 1  # type: ignore[arg-type]
 
-    entry = result.payload[0]
+    entry = result.payload[0]  # type: ignore[index]
     assert entry.spec_id == "LSP-905"
     assert entry.domain == "plc"
     assert entry.title == "SCL 编程规范"
     assert entry.number == "905"
 
 
-def test_spec_facade_int_list_entries_file_exists(spec_facade_real: SpecFacade):
+def test_spec_facade_int_list_entries_file_exists(spec_facade_real: SpecFacade) -> None:
     """集成测试：list_spec_center_entries 反映规范文件是否真实存在
 
     LSP-905 文件存在（fixture 创建），CODE-210 文件 missing（fixture 故意不创建）。
@@ -97,23 +97,23 @@ def test_spec_facade_int_list_entries_file_exists(spec_facade_real: SpecFacade):
     result = spec_facade_real.list_spec_center_entries(filter_domain=None)
     assert result.success is True
 
-    by_id = {e.spec_id: e for e in result.payload}
+    by_id = {e.spec_id: e for e in result.payload}  # type: ignore[union-attr]
     assert by_id["LSP-905"].file_exists is True
     assert by_id["CODE-210"].file_exists is False
 
 
-def test_spec_facade_int_list_entries_filter_python(spec_facade_real: SpecFacade):
+def test_spec_facade_int_list_entries_filter_python(spec_facade_real: SpecFacade) -> None:
     """集成测试：list_spec_center_entries(filter_domain='python') 返回 python 域规范"""
     result = spec_facade_real.list_spec_center_entries(filter_domain="python")
     assert result.success is True
-    assert len(result.payload) == 1
+    assert len(result.payload) == 1  # type: ignore[arg-type]
 
-    entry = result.payload[0]
+    entry = result.payload[0]  # type: ignore[index]
     assert entry.spec_id == "CODE-210"
     assert entry.domain == "python"
 
 
-def test_spec_facade_int_run_check(spec_facade_real: SpecFacade):
+def test_spec_facade_int_run_check(spec_facade_real: SpecFacade) -> None:
     """集成测试：run_spec_check 执行真实健康检查并返回 CheckOutput
 
     CheckService.run() 返回 CheckOutput，Facade 转 SpecCheckResultDTO。
@@ -134,25 +134,25 @@ def test_spec_facade_int_run_check(spec_facade_real: SpecFacade):
     assert dto.exit_code in (0, 1)
 
 
-def test_spec_facade_int_full_flow(spec_facade_real: SpecFacade):
+def test_spec_facade_int_full_flow(spec_facade_real: SpecFacade) -> None:
     """集成测试：端到端流程 overview → list_entries → run_check"""
     # 1. overview
     overview_result = spec_facade_real.get_spec_center_overview()
     assert overview_result.success
-    assert overview_result.payload.spec_count == 2
+    assert overview_result.payload.spec_count == 2  # type: ignore[union-attr]
 
     # 2. list_entries
     list_result = spec_facade_real.list_spec_center_entries()
     assert list_result.success
-    assert len(list_result.payload) == 2
+    assert len(list_result.payload) == 2  # type: ignore[arg-type]
 
     # 3. run_check
     check_result = spec_facade_real.run_spec_check()
     assert check_result.success
-    assert isinstance(check_result.payload.error_count, int)
+    assert isinstance(check_result.payload.error_count, int)  # type: ignore[union-attr]
 
 
-def test_spec_facade_int_no_service():
+def test_spec_facade_int_no_service() -> None:
     """集成测试：未注入 Service 时返回 success=False"""
     facade = SpecFacade(spec_check_service=None, spec_center_service=None)
 

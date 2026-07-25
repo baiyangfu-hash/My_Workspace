@@ -1,4 +1,6 @@
 """单元测试：Markdown 结构化解析器 (markdown_parser)"""
+from __future__ import annotations
+
 from auto_pm.utils.markdown_parser import parse_markdown_to_blocks
 
 
@@ -31,7 +33,7 @@ Another paragraph.
 def test_parse_code_blocks() -> None:
     content = """
 ```python
-def test():
+def test() -> None:
     pass
 ```
     """
@@ -40,7 +42,7 @@ def test():
     assert blocks[0] == {
         "type": "code",
         "lang": "python",
-        "code": "def test():\n    pass"
+        "code": "def test() -> None:\n    pass"
     }
 
 def test_parse_alerts() -> None:

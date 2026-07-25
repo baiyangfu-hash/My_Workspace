@@ -41,7 +41,7 @@ from auto_pm.ui.contracts.dto.delivery_dto import (
 
 
 @pytest.fixture
-def delivery_facade_with_db(
+def delivery_facade_with_db(  # type: ignore[no-untyped-def]
     temp_workspace: str,
     db_manager,
     project_repo_with_data,
@@ -94,7 +94,7 @@ def delivery_facade_with_spec(
     )
 
 
-def test_delivery_facade_int_get_project_report(delivery_facade_with_db: DeliveryFacade):
+def test_delivery_facade_int_get_project_report(delivery_facade_with_db: DeliveryFacade) -> None:
     """集成测试：get_project_report 从 DB 读取项目统计
 
     fixture 预置 2 个项目：DJ-2026-001(plc/developing/SW) + SW-2026-001(python/production/DJ)
@@ -117,7 +117,7 @@ def test_delivery_facade_int_get_project_report(delivery_facade_with_db: Deliver
     assert dto.by_business_line["DJ"] == 1
 
 
-def test_delivery_facade_int_get_change_report(delivery_facade_with_db: DeliveryFacade):
+def test_delivery_facade_int_get_change_report(delivery_facade_with_db: DeliveryFacade) -> None:
     """集成测试：get_change_report 从 DB 读取变更统计
 
     fixture 预置 1 个变更：CHG-2026-001(DOCU/approved)
@@ -132,7 +132,7 @@ def test_delivery_facade_int_get_change_report(delivery_facade_with_db: Delivery
     assert dto.by_domain == {"DOCU": 1}
 
 
-def test_delivery_facade_int_get_spec_report(delivery_facade_with_spec: DeliveryFacade):
+def test_delivery_facade_int_get_spec_report(delivery_facade_with_spec: DeliveryFacade) -> None:
     """集成测试：get_spec_report 从 spec_registry.json 读取规范覆盖统计
 
     spec_registry_workspace 预置 2 条规范：
@@ -159,7 +159,7 @@ def test_delivery_facade_int_get_spec_report(delivery_facade_with_spec: Delivery
     assert "CODE-210" in dto.by_stack["python"]["missing"]
 
 
-def test_delivery_facade_int_get_scan_report(delivery_facade_with_db: DeliveryFacade):
+def test_delivery_facade_int_get_scan_report(delivery_facade_with_db: DeliveryFacade) -> None:
     """集成测试：get_scan_report 从 DB 读取扫描日志
 
     fixture 未预置扫描日志记录，latest 应为 None，last_sync_time 为 '—'。
@@ -175,25 +175,25 @@ def test_delivery_facade_int_get_scan_report(delivery_facade_with_db: DeliveryFa
     assert dto.is_cache_available is True
 
 
-def test_delivery_facade_int_full_flow(delivery_facade_with_db: DeliveryFacade):
+def test_delivery_facade_int_full_flow(delivery_facade_with_db: DeliveryFacade) -> None:
     """集成测试：端到端 4 个 report 流程"""
     # 1. project report
     project_result = delivery_facade_with_db.get_project_report()
     assert project_result.success
-    assert project_result.payload.total == 2
+    assert project_result.payload.total == 2  # type: ignore[union-attr]
 
     # 2. change report
     change_result = delivery_facade_with_db.get_change_report()
     assert change_result.success
-    assert change_result.payload.total == 1
+    assert change_result.payload.total == 1  # type: ignore[union-attr]
 
     # 3. scan report
     scan_result = delivery_facade_with_db.get_scan_report()
     assert scan_result.success
-    assert scan_result.payload.is_cache_available is True
+    assert scan_result.payload.is_cache_available is True  # type: ignore[union-attr]
 
 
-def test_delivery_facade_int_no_report_service():
+def test_delivery_facade_int_no_report_service() -> None:
     """集成测试：未注入 ReportService 时 4 个 report 方法返回 success=False"""
     facade = DeliveryFacade(
         doc_refresh_service=None,
@@ -207,7 +207,7 @@ def test_delivery_facade_int_no_report_service():
     assert facade.get_scan_report().success is False
 
 
-def test_delivery_facade_int_spec_report_no_workspace():
+def test_delivery_facade_int_spec_report_no_workspace() -> None:
     """集成测试：ReportService 未注入 workspace_root 时 get_spec_report 返回 success=False
 
     RuntimeError("未注入 workspace_root") 被 Facade except 捕获转 success=False。
@@ -232,7 +232,7 @@ def test_delivery_facade_int_spec_report_no_workspace():
     assert "workspace_root" in result.message or "未注入" in result.message
 
 
-def test_delivery_facade_int_scan_report_no_db():
+def test_delivery_facade_int_scan_report_no_db() -> None:
     """集成测试：ReportService 未注入 db 时 get_scan_report 返回 success=False
 
     RuntimeError("未注入 DatabaseManager") 被 Facade except 捕获转 success=False。
@@ -260,7 +260,7 @@ def test_delivery_facade_int_scan_report_no_db():
 
 
 @pytest.fixture
-def delivery_facade_with_doc_refresh(
+def delivery_facade_with_doc_refresh(  # type: ignore[no-untyped-def]
     temp_workspace: str,
     db_manager,
     project_repo_with_data,
@@ -281,7 +281,7 @@ def delivery_facade_with_doc_refresh(
 
 
 @pytest.fixture
-def delivery_facade_with_asset_summary(
+def delivery_facade_with_asset_summary(  # type: ignore[no-untyped-def]
     temp_workspace: str,
     db_manager,
     project_repo_with_data,
@@ -303,7 +303,7 @@ def delivery_facade_with_asset_summary(
 
 def test_delivery_facade_int_refresh_project_docs_plc_dry_run(
     delivery_facade_with_doc_refresh: DeliveryFacade,
-):
+) -> None:
     """集成测试：refresh_project_docs 对 PLC 项目 dry_run=True
 
     bug #1 修复后链路：Facade → project_service.get_project_cached → DocRefreshService.refresh_project_documents(project_info, dry_run)
@@ -320,23 +320,23 @@ def test_delivery_facade_int_refresh_project_docs_plc_dry_run(
 
 def test_delivery_facade_int_refresh_project_docs_python_project(
     delivery_facade_with_doc_refresh: DeliveryFacade,
-):
+) -> None:
     """集成测试：refresh_project_docs 对 Python 项目返回 success=True + issues 含"仅 PLC"
 
     Python 项目 stack != plc，DocRefreshService 直接返回 issues=["仅 PLC 项目支持 doc refresh"]。
     """
     result = delivery_facade_with_doc_refresh.refresh_project_docs("SW-2026-001", dry_run=False)
     assert result.success is True
-    assert result.payload.project_id == "SW-2026-001"
-    assert result.payload.dry_run is False
-    assert result.payload.updated is False
+    assert result.payload.project_id == "SW-2026-001"  # type: ignore[union-attr]
+    assert result.payload.dry_run is False  # type: ignore[union-attr]
+    assert result.payload.updated is False  # type: ignore[union-attr]
     # issues 应含"仅 PLC 项目支持 doc refresh"
-    assert any("仅 PLC" in issue for issue in result.payload.issues)
+    assert any("仅 PLC" in issue for issue in result.payload.issues)  # type: ignore[union-attr]
 
 
 def test_delivery_facade_int_refresh_project_docs_project_not_found(
     delivery_facade_with_doc_refresh: DeliveryFacade,
-):
+) -> None:
     """集成测试：refresh_project_docs 项目不存在时返回 success=False
 
     project_service.get_project_cached 未命中 + list_projects 未命中 → "项目不存在"
@@ -349,7 +349,7 @@ def test_delivery_facade_int_refresh_project_docs_project_not_found(
 
 def test_delivery_facade_int_refresh_project_docs_no_project_service(
     temp_workspace: str,
-):
+) -> None:
     """集成测试：project_service=None 时 refresh_project_docs 返回 '未注入 project_service'"""
     doc_refresh_service = DocRefreshService(workspace_root=temp_workspace)
     facade = DeliveryFacade(
@@ -366,7 +366,7 @@ def test_delivery_facade_int_refresh_project_docs_no_project_service(
 
 def test_delivery_facade_int_refresh_asset_summary_plc(
     delivery_facade_with_asset_summary: DeliveryFacade,
-):
+) -> None:
     """集成测试：refresh_asset_summary 对 PLC 项目返回 build_summary 结果
 
     bug #2 修复后链路：Facade → project_service 查 ProjectInfo → AssetSummaryService.build_summary(path, stack, project_type)
@@ -385,7 +385,7 @@ def test_delivery_facade_int_refresh_asset_summary_plc(
 
 def test_delivery_facade_int_refresh_asset_summary_python_not_applicable(
     delivery_facade_with_asset_summary: DeliveryFacade,
-):
+) -> None:
     """集成测试：refresh_asset_summary 对 Python 项目返回 not_applicable
 
     Python 项目 stack != plc，build_summary 直接返回 status="not_applicable"。
@@ -399,7 +399,7 @@ def test_delivery_facade_int_refresh_asset_summary_python_not_applicable(
 
 def test_delivery_facade_int_refresh_asset_summary_missing_project_id(
     delivery_facade_with_asset_summary: DeliveryFacade,
-):
+) -> None:
     """集成测试：refresh_asset_summary 缺 project_id 时返回 success=False"""
     result = delivery_facade_with_asset_summary.refresh_asset_summary("")
     assert result.success is False
@@ -409,7 +409,7 @@ def test_delivery_facade_int_refresh_asset_summary_missing_project_id(
 
 def test_delivery_facade_int_refresh_asset_summary_no_project_service(
     temp_workspace: str,
-):
+) -> None:
     """集成测试：project_service=None 时 refresh_asset_summary 返回 '未注入 project_service'"""
     asset_summary_service = AssetSummaryService()
     facade = DeliveryFacade(
@@ -426,7 +426,7 @@ def test_delivery_facade_int_refresh_asset_summary_no_project_service(
 
 def test_delivery_facade_int_get_asset_summary_plc(
     delivery_facade_with_asset_summary: DeliveryFacade,
-):
+) -> None:
     """集成测试：get_asset_summary 对 PLC 项目返回 build_summary 结果
 
     bug #3 修复后链路：同 refresh_asset_summary，但返回 AssetSummaryDTO（data 字段）。
@@ -441,7 +441,7 @@ def test_delivery_facade_int_get_asset_summary_plc(
 
 def test_delivery_facade_int_get_asset_summary_python_not_applicable(
     delivery_facade_with_asset_summary: DeliveryFacade,
-):
+) -> None:
     """集成测试：get_asset_summary 对 Python 项目返回 not_applicable"""
     result = delivery_facade_with_asset_summary.get_asset_summary("SW-2026-001")
     assert result.success is True

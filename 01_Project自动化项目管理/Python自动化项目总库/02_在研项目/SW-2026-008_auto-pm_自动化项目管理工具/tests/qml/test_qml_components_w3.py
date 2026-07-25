@@ -75,9 +75,9 @@ def test_approval_timeline_default_properties(
 ) -> None:
     """ApprovalTimeline 默认 approvals 为空数组，emptyText 默认值正确"""
     timeline = _load_component(qml_engine, _COMPONENTS_DIR / "ApprovalTimeline.qml")
-    approvals = _to_variant(timeline.property("approvals"))
-    assert approvals is None or len(approvals) == 0
-    assert timeline.property("emptyText") == "暂无审批记录"
+    approvals = _to_variant(timeline.property("approvals"))  # type: ignore[attr-defined]
+    assert approvals is None or len(approvals) == 0  # type: ignore[arg-type]
+    assert timeline.property("emptyText") == "暂无审批记录"  # type: ignore[attr-defined]
 
 
 def test_approval_timeline_set_approvals(
@@ -89,12 +89,12 @@ def test_approval_timeline_set_approvals(
         {"approver": "张三", "date": "2026-07-01", "conclusion": "approved", "comment": "同意"},
         {"approver": "李四", "date": "2026-07-02", "conclusion": "rejected", "comment": "需修改"},
     ]
-    timeline.setProperty("approvals", test_data)
+    timeline.setProperty("approvals", test_data)  # type: ignore[attr-defined]
     qapp.processEvents()
 
-    approvals = _to_variant(timeline.property("approvals"))
+    approvals = _to_variant(timeline.property("approvals"))  # type: ignore[attr-defined]
     assert approvals is not None
-    assert len(approvals) == 2
+    assert len(approvals) == 2  # type: ignore[arg-type]
 
 
 def test_approval_timeline_conclusion_color_mapping(
@@ -104,7 +104,7 @@ def test_approval_timeline_conclusion_color_mapping(
     timeline = _load_component(qml_engine, _COMPONENTS_DIR / "ApprovalTimeline.qml")
 
     # 调用 QML 函数 _conclusionColor
-    color_approved = timeline.property("_conclusionColor")
+    color_approved = timeline.property("_conclusionColor")  # type: ignore[attr-defined]
     # 间接验证：函数存在即可（QML 函数从 Python 调用较复杂，通过加载成功间接验证）
     assert color_approved is not None or color_approved is None  # 函数引用返回 None 或对象
 
@@ -126,9 +126,9 @@ def test_propagation_view_default_properties(
 ) -> None:
     """PropagationView 默认 nodes 为空数组，emptyText 默认值正确"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PropagationView.qml")
-    nodes = _to_variant(view.property("nodes"))
-    assert nodes is None or len(nodes) == 0
-    assert view.property("emptyText") == "无传播链数据"
+    nodes = _to_variant(view.property("nodes"))  # type: ignore[attr-defined]
+    assert nodes is None or len(nodes) == 0  # type: ignore[arg-type]
+    assert view.property("emptyText") == "无传播链数据"  # type: ignore[attr-defined]
 
 
 def test_propagation_view_set_nodes(
@@ -141,12 +141,12 @@ def test_propagation_view_set_nodes(
         {"label": "SW-2026-008", "type": "project"},
         {"label": "auto_pm/ui", "type": "module"},
     ]
-    view.setProperty("nodes", test_data)
+    view.setProperty("nodes", test_data)  # type: ignore[attr-defined]
     qapp.processEvents()
 
-    nodes = _to_variant(view.property("nodes"))
+    nodes = _to_variant(view.property("nodes"))  # type: ignore[attr-defined]
     assert nodes is not None
-    assert len(nodes) == 3
+    assert len(nodes) == 3  # type: ignore[arg-type]
 
 
 def test_propagation_view_implicit_dimensions(
@@ -154,8 +154,8 @@ def test_propagation_view_implicit_dimensions(
 ) -> None:
     """PropagationView 默认尺寸应为 700×80"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PropagationView.qml")
-    assert view.property("implicitWidth") == 700
-    assert view.property("implicitHeight") == 80
+    assert view.property("implicitWidth") == 700  # type: ignore[attr-defined]
+    assert view.property("implicitHeight") == 80  # type: ignore[attr-defined]
 
 
 # ── StatusMachineView.qml (W3-S3) ─────────────────────────
@@ -166,7 +166,7 @@ def test_status_machine_view_default_status(
 ) -> None:
     """StatusMachineView 默认 currentStatus 应为 'draft'"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "StatusMachineView.qml")
-    assert view.property("currentStatus") == "draft"
+    assert view.property("currentStatus") == "draft"  # type: ignore[attr-defined]
 
 
 def test_status_machine_view_default_status_order(
@@ -174,11 +174,11 @@ def test_status_machine_view_default_status_order(
 ) -> None:
     """StatusMachineView 默认 statusOrder 应有 7 个状态（不含 rejected/refused）"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "StatusMachineView.qml")
-    order = _to_variant(view.property("statusOrder"))
+    order = _to_variant(view.property("statusOrder"))  # type: ignore[attr-defined]
     assert order is not None
-    assert len(order) == 7
-    assert order[0] == "draft"
-    assert order[6] == "closed"
+    assert len(order) == 7  # type: ignore[arg-type]
+    assert order[0] == "draft"  # type: ignore[index]
+    assert order[6] == "closed"  # type: ignore[index]
 
 
 def test_status_machine_view_status_labels(
@@ -186,19 +186,19 @@ def test_status_machine_view_status_labels(
 ) -> None:
     """StatusMachineView statusLabels 应包含 9 种状态（含 rejected/refused）"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "StatusMachineView.qml")
-    labels = _to_variant(view.property("statusLabels"))
+    labels = _to_variant(view.property("statusLabels"))  # type: ignore[attr-defined]
     assert labels is not None
-    assert "draft" in labels
-    assert "submitted" in labels
-    assert "reviewing" in labels
-    assert "approved" in labels
-    assert "implementing" in labels
-    assert "verifying" in labels
-    assert "closed" in labels
-    assert "rejected" in labels
-    assert "refused" in labels
-    assert labels["draft"] == "草稿"
-    assert labels["closed"] == "已关闭"
+    assert "draft" in labels  # type: ignore[operator]
+    assert "submitted" in labels  # type: ignore[operator]
+    assert "reviewing" in labels  # type: ignore[operator]
+    assert "approved" in labels  # type: ignore[operator]
+    assert "implementing" in labels  # type: ignore[operator]
+    assert "verifying" in labels  # type: ignore[operator]
+    assert "closed" in labels  # type: ignore[operator]
+    assert "rejected" in labels  # type: ignore[operator]
+    assert "refused" in labels  # type: ignore[operator]
+    assert labels["draft"] == "草稿"  # type: ignore[index]
+    assert labels["closed"] == "已关闭"  # type: ignore[index]
 
 
 def test_status_machine_view_set_current_status(
@@ -206,9 +206,9 @@ def test_status_machine_view_set_current_status(
 ) -> None:
     """StatusMachineView 设置 currentStatus 后应正确读取"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "StatusMachineView.qml")
-    view.setProperty("currentStatus", "implementing")
+    view.setProperty("currentStatus", "implementing")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert view.property("currentStatus") == "implementing"
+    assert view.property("currentStatus") == "implementing"  # type: ignore[attr-defined]
 
 
 def test_status_machine_view_implicit_dimensions(
@@ -216,8 +216,8 @@ def test_status_machine_view_implicit_dimensions(
 ) -> None:
     """StatusMachineView 默认尺寸应为 800×80"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "StatusMachineView.qml")
-    assert view.property("implicitWidth") == 800
-    assert view.property("implicitHeight") == 80
+    assert view.property("implicitWidth") == 800  # type: ignore[attr-defined]
+    assert view.property("implicitHeight") == 80  # type: ignore[attr-defined]
 
 
 # ── PhaseProgress.qml (W3-S4) ─────────────────────────────
@@ -228,7 +228,7 @@ def test_phase_progress_default_phase(
 ) -> None:
     """PhaseProgress 默认 currentPhase 应为 'developing'"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PhaseProgress.qml")
-    assert view.property("currentPhase") == "developing"
+    assert view.property("currentPhase") == "developing"  # type: ignore[attr-defined]
 
 
 def test_phase_progress_default_phases(
@@ -236,11 +236,11 @@ def test_phase_progress_default_phases(
 ) -> None:
     """PhaseProgress 默认 phases 应为 4 阶段"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PhaseProgress.qml")
-    phases = _to_variant(view.property("phases"))
+    phases = _to_variant(view.property("phases"))  # type: ignore[attr-defined]
     assert phases is not None
-    assert len(phases) == 4
-    assert phases[0] == "developing"
-    assert phases[3] == "archived"
+    assert len(phases) == 4  # type: ignore[arg-type]
+    assert phases[0] == "developing"  # type: ignore[index]
+    assert phases[3] == "archived"  # type: ignore[index]
 
 
 def test_phase_progress_phase_labels(
@@ -248,12 +248,12 @@ def test_phase_progress_phase_labels(
 ) -> None:
     """PhaseProgress phaseLabels 应包含 4 个阶段中文标签"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PhaseProgress.qml")
-    labels = _to_variant(view.property("phaseLabels"))
+    labels = _to_variant(view.property("phaseLabels"))  # type: ignore[attr-defined]
     assert labels is not None
-    assert labels["developing"] == "开发中"
-    assert labels["commissioning"] == "调试中"
-    assert labels["production"] == "生产中"
-    assert labels["archived"] == "已归档"
+    assert labels["developing"] == "开发中"  # type: ignore[index]
+    assert labels["commissioning"] == "调试中"  # type: ignore[index]
+    assert labels["production"] == "生产中"  # type: ignore[index]
+    assert labels["archived"] == "已归档"  # type: ignore[index]
 
 
 def test_phase_progress_set_current_phase(
@@ -261,9 +261,9 @@ def test_phase_progress_set_current_phase(
 ) -> None:
     """PhaseProgress 设置 currentPhase 后应正确读取"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PhaseProgress.qml")
-    view.setProperty("currentPhase", "production")
+    view.setProperty("currentPhase", "production")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert view.property("currentPhase") == "production"
+    assert view.property("currentPhase") == "production"  # type: ignore[attr-defined]
 
 
 def test_phase_progress_implicit_dimensions(
@@ -271,5 +271,5 @@ def test_phase_progress_implicit_dimensions(
 ) -> None:
     """PhaseProgress 默认尺寸应为 600×70"""
     view = _load_component(qml_engine, _COMPONENTS_DIR / "PhaseProgress.qml")
-    assert view.property("implicitWidth") == 600
-    assert view.property("implicitHeight") == 70
+    assert view.property("implicitWidth") == 600  # type: ignore[attr-defined]
+    assert view.property("implicitHeight") == 70  # type: ignore[attr-defined]

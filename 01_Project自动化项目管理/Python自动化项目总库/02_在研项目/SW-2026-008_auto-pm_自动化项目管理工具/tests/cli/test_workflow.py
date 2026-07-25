@@ -6,11 +6,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from click.testing import CliRunner
 
 from auto_pm.cli.workflow import workflow_group
+
+if TYPE_CHECKING:
+    from _pytest.monkeypatch import MonkeyPatch
 
 
 @pytest.fixture
@@ -30,7 +34,7 @@ class TestWorkflowCLI:
         assert "status" in result.output
         assert "history" in result.output
 
-    def test_list_workflows(self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch) -> None:
+    def test_list_workflows(self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch: MonkeyPatch) -> None:
         """workflow list 列出工作流"""
         monkeypatch.setattr("auto_pm.cli.workflow._resolve_workspace", lambda ctx: temp_workspace)
 
@@ -39,7 +43,7 @@ class TestWorkflowCLI:
         assert "file-modify" in result.output
         assert "pre-commit" in result.output
 
-    def test_run_file_modify(self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch) -> None:
+    def test_run_file_modify(self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch: MonkeyPatch) -> None:
         """workflow run file-modify 成功运行"""
         monkeypatch.setattr("auto_pm.cli.workflow._resolve_workspace", lambda ctx: temp_workspace)
 
@@ -51,7 +55,7 @@ class TestWorkflowCLI:
         assert "执行成功" in result.output
 
     def test_workflow_history_and_status(
-        self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch
+        self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch: MonkeyPatch
     ) -> None:
         """workflow history 和 status"""
         monkeypatch.setattr("auto_pm.cli.workflow._resolve_workspace", lambda ctx: temp_workspace)

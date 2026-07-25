@@ -79,13 +79,13 @@ def test_new_project_wizard_default_properties(
 ) -> None:
     """NewProjectWizard 默认 _isOpen=False，currentStep=0，totalSteps=3"""
     wizard = _load_component(qml_engine, _DIALOGS_DIR / "NewProjectWizard.qml")
-    assert wizard.property("_isOpen") is False
-    assert wizard.property("currentStep") == 0
-    assert wizard.property("totalSteps") == 3
-    assert wizard.property("projectId") == ""
-    assert wizard.property("stack") == "python"
-    assert wizard.property("businessLine") == "SW"
-    assert wizard.property("mode") == "standard"
+    assert wizard.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert wizard.property("currentStep") == 0  # type: ignore[attr-defined]
+    assert wizard.property("totalSteps") == 3  # type: ignore[attr-defined]
+    assert wizard.property("projectId") == ""  # type: ignore[attr-defined]
+    assert wizard.property("stack") == "python"  # type: ignore[attr-defined]
+    assert wizard.property("businessLine") == "SW"  # type: ignore[attr-defined]
+    assert wizard.property("mode") == "standard"  # type: ignore[attr-defined]
 
 
 def test_new_project_wizard_set_step(
@@ -93,9 +93,9 @@ def test_new_project_wizard_set_step(
 ) -> None:
     """NewProjectWizard 设置 currentStep 后应正确读取"""
     wizard = _load_component(qml_engine, _DIALOGS_DIR / "NewProjectWizard.qml")
-    wizard.setProperty("currentStep", 2)
+    wizard.setProperty("currentStep", 2)  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert wizard.property("currentStep") == 2
+    assert wizard.property("currentStep") == 2  # type: ignore[attr-defined]
 
 
 def test_new_project_wizard_set_project_id(
@@ -103,9 +103,9 @@ def test_new_project_wizard_set_project_id(
 ) -> None:
     """NewProjectWizard 设置 projectId 后应正确读取"""
     wizard = _load_component(qml_engine, _DIALOGS_DIR / "NewProjectWizard.qml")
-    wizard.setProperty("projectId", "SW-2026-008")
+    wizard.setProperty("projectId", "SW-2026-008")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert wizard.property("projectId") == "SW-2026-008"
+    assert wizard.property("projectId") == "SW-2026-008"  # type: ignore[attr-defined]
 
 
 # ── NewChangeDialog.qml (W3-S11) ─────────────────────────
@@ -116,11 +116,11 @@ def test_new_change_dialog_default_properties(
 ) -> None:
     """NewChangeDialog 默认字段值正确"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "NewChangeDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("changeTitle") == ""
-    assert dlg.property("projectId") == ""
-    assert dlg.property("domain") == "PLC"
-    assert dlg.property("nature") == "REQ"
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("changeTitle") == ""  # type: ignore[attr-defined]
+    assert dlg.property("projectId") == ""  # type: ignore[attr-defined]
+    assert dlg.property("domain") == "PLC"  # type: ignore[attr-defined]
+    assert dlg.property("nature") == "REQ"  # type: ignore[attr-defined]
 
 
 def test_new_change_dialog_set_fields(
@@ -128,15 +128,15 @@ def test_new_change_dialog_set_fields(
 ) -> None:
     """NewChangeDialog 设置字段后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "NewChangeDialog.qml")
-    dlg.setProperty("changeTitle", "新增功能")
-    dlg.setProperty("projectId", "SW-2026-008")
-    dlg.setProperty("domain", "SCPT")
-    dlg.setProperty("nature", "OPT")
+    dlg.setProperty("changeTitle", "新增功能")  # type: ignore[attr-defined]
+    dlg.setProperty("projectId", "SW-2026-008")  # type: ignore[attr-defined]
+    dlg.setProperty("domain", "SCPT")  # type: ignore[attr-defined]
+    dlg.setProperty("nature", "OPT")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("changeTitle") == "新增功能"
-    assert dlg.property("projectId") == "SW-2026-008"
-    assert dlg.property("domain") == "SCPT"
-    assert dlg.property("nature") == "OPT"
+    assert dlg.property("changeTitle") == "新增功能"  # type: ignore[attr-defined]
+    assert dlg.property("projectId") == "SW-2026-008"  # type: ignore[attr-defined]
+    assert dlg.property("domain") == "SCPT"  # type: ignore[attr-defined]
+    assert dlg.property("nature") == "OPT"  # type: ignore[attr-defined]
 
 
 # ── ProjectSettingsDialog.qml (W3-S12) ───────────────────
@@ -147,12 +147,12 @@ def test_project_settings_dialog_default_properties(
 ) -> None:
     """ProjectSettingsDialog 默认字段值正确"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "ProjectSettingsDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("projectId") == ""
-    assert dlg.property("version") == "0.1.0"
-    assert dlg.property("phase") == "developing"
-    assert dlg.property("stack") == "python"
-    assert dlg.property("businessLine") == "SW"
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("projectId") == ""  # type: ignore[attr-defined]
+    assert dlg.property("version") == "0.1.0"  # type: ignore[attr-defined]
+    assert dlg.property("phase") == "developing"  # type: ignore[attr-defined]
+    assert dlg.property("stack") == "python"  # type: ignore[attr-defined]
+    assert dlg.property("businessLine") == "SW"  # type: ignore[attr-defined]
 
 
 def test_project_settings_dialog_set_version(
@@ -160,9 +160,9 @@ def test_project_settings_dialog_set_version(
 ) -> None:
     """ProjectSettingsDialog 设置 version 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "ProjectSettingsDialog.qml")
-    dlg.setProperty("version", "0.6.0")
+    dlg.setProperty("version", "0.6.0")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("version") == "0.6.0"
+    assert dlg.property("version") == "0.6.0"  # type: ignore[attr-defined]
 
 
 # ── SyncCacheDialog.qml (W3-S13) ─────────────────────────
@@ -173,10 +173,10 @@ def test_sync_cache_dialog_default_properties(
 ) -> None:
     """SyncCacheDialog 默认 progress=0，isRunning=False"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "SyncCacheDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("progress") == 0.0
-    assert dlg.property("isRunning") is False
-    assert dlg.property("statusText") == "准备同步..."
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("progress") == 0.0  # type: ignore[attr-defined]
+    assert dlg.property("isRunning") is False  # type: ignore[attr-defined]
+    assert dlg.property("statusText") == "准备同步..."  # type: ignore[attr-defined]
 
 
 def test_sync_cache_dialog_set_progress(
@@ -184,9 +184,9 @@ def test_sync_cache_dialog_set_progress(
 ) -> None:
     """SyncCacheDialog 设置 progress 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "SyncCacheDialog.qml")
-    dlg.setProperty("progress", 0.5)
+    dlg.setProperty("progress", 0.5)  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("progress") == 0.5
+    assert dlg.property("progress") == 0.5  # type: ignore[attr-defined]
 
 
 # ── ImportProjectDialog.qml (W3-S14) ─────────────────────
@@ -197,10 +197,10 @@ def test_import_project_dialog_default_properties(
 ) -> None:
     """ImportProjectDialog 默认字段值正确"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "ImportProjectDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("projectPath") == ""
-    assert dlg.property("detectedId") == ""
-    assert dlg.property("isDetecting") is False
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("projectPath") == ""  # type: ignore[attr-defined]
+    assert dlg.property("detectedId") == ""  # type: ignore[attr-defined]
+    assert dlg.property("isDetecting") is False  # type: ignore[attr-defined]
 
 
 def test_import_project_dialog_set_path(
@@ -208,9 +208,9 @@ def test_import_project_dialog_set_path(
 ) -> None:
     """ImportProjectDialog 设置 projectPath 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "ImportProjectDialog.qml")
-    dlg.setProperty("projectPath", "D:\\Projects\\TestProject")
+    dlg.setProperty("projectPath", "D:\\Projects\\TestProject")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("projectPath") == "D:\\Projects\\TestProject"
+    assert dlg.property("projectPath") == "D:\\Projects\\TestProject"  # type: ignore[attr-defined]
 
 
 # ── AboutDialog.qml (W3-S15) ─────────────────────────────
@@ -221,11 +221,11 @@ def test_about_dialog_default_properties(
 ) -> None:
     """AboutDialog 默认应用信息正确"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "AboutDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("appName") == "auto-pm"
-    assert dlg.property("appVersion") == "1.0.0"
-    assert dlg.property("license") == "MIT"
-    assert "PySide6" in dlg.property("techStack")
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("appName") == "auto-pm"  # type: ignore[attr-defined]
+    assert dlg.property("appVersion") == "1.0.0"  # type: ignore[attr-defined]
+    assert dlg.property("license") == "MIT"  # type: ignore[attr-defined]
+    assert "PySide6" in dlg.property("techStack")  # type: ignore[attr-defined]
 
 
 def test_about_dialog_set_version(
@@ -233,9 +233,9 @@ def test_about_dialog_set_version(
 ) -> None:
     """AboutDialog 设置 appVersion 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "AboutDialog.qml")
-    dlg.setProperty("appVersion", "1.0.0")
+    dlg.setProperty("appVersion", "1.0.0")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("appVersion") == "1.0.0"
+    assert dlg.property("appVersion") == "1.0.0"  # type: ignore[attr-defined]
 
 
 # ── ReportDialog.qml (W3-S16) ────────────────────────────
@@ -246,12 +246,12 @@ def test_report_dialog_default_properties(
 ) -> None:
     """ReportDialog 默认字段值正确"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "ReportDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("reportType") == "summary"
-    assert dlg.property("outputFormat") == "markdown"
-    assert dlg.property("outputPath") == ""
-    assert dlg.property("isGenerating") is False
-    assert dlg.property("progress") == 0.0
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("reportType") == "summary"  # type: ignore[attr-defined]
+    assert dlg.property("outputFormat") == "markdown"  # type: ignore[attr-defined]
+    assert dlg.property("outputPath") == ""  # type: ignore[attr-defined]
+    assert dlg.property("isGenerating") is False  # type: ignore[attr-defined]
+    assert dlg.property("progress") == 0.0  # type: ignore[attr-defined]
 
 
 def test_report_dialog_set_output_path(
@@ -259,9 +259,9 @@ def test_report_dialog_set_output_path(
 ) -> None:
     """ReportDialog 设置 outputPath 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "ReportDialog.qml")
-    dlg.setProperty("outputPath", "/tmp/report.md")
+    dlg.setProperty("outputPath", "/tmp/report.md")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("outputPath") == "/tmp/report.md"
+    assert dlg.property("outputPath") == "/tmp/report.md"  # type: ignore[attr-defined]
 
 
 # ── GlobalSettingsDialog.qml (W3-S17) ────────────────────
@@ -272,14 +272,14 @@ def test_global_settings_dialog_default_properties(
 ) -> None:
     """GlobalSettingsDialog 默认设置值正确"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "GlobalSettingsDialog.qml")
-    assert dlg.property("_isOpen") is False
-    assert dlg.property("workspaceRoot") == ""
-    assert dlg.property("theme") == "light"
-    assert dlg.property("language") == "zh-CN"
-    assert dlg.property("autoRefresh") is True
-    assert dlg.property("refreshInterval") == 30
-    assert dlg.property("confirmBeforeDelete") is True
-    assert dlg.property("enableDebugLog") is False
+    assert dlg.property("_isOpen") is False  # type: ignore[attr-defined]
+    assert dlg.property("workspaceRoot") == ""  # type: ignore[attr-defined]
+    assert dlg.property("theme") == "light"  # type: ignore[attr-defined]
+    assert dlg.property("language") == "zh-CN"  # type: ignore[attr-defined]
+    assert dlg.property("autoRefresh") is True  # type: ignore[attr-defined]
+    assert dlg.property("refreshInterval") == 30  # type: ignore[attr-defined]
+    assert dlg.property("confirmBeforeDelete") is True  # type: ignore[attr-defined]
+    assert dlg.property("enableDebugLog") is False  # type: ignore[attr-defined]
 
 
 def test_global_settings_dialog_set_workspace(
@@ -287,9 +287,9 @@ def test_global_settings_dialog_set_workspace(
 ) -> None:
     """GlobalSettingsDialog 设置 workspaceRoot 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "GlobalSettingsDialog.qml")
-    dlg.setProperty("workspaceRoot", "C:\\Users\\test\\workspace")
+    dlg.setProperty("workspaceRoot", "C:\\Users\\test\\workspace")  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("workspaceRoot") == "C:\\Users\\test\\workspace"
+    assert dlg.property("workspaceRoot") == "C:\\Users\\test\\workspace"  # type: ignore[attr-defined]
 
 
 def test_global_settings_dialog_set_refresh_interval(
@@ -297,9 +297,9 @@ def test_global_settings_dialog_set_refresh_interval(
 ) -> None:
     """GlobalSettingsDialog 设置 refreshInterval 后应正确读取"""
     dlg = _load_component(qml_engine, _DIALOGS_DIR / "GlobalSettingsDialog.qml")
-    dlg.setProperty("refreshInterval", 60)
+    dlg.setProperty("refreshInterval", 60)  # type: ignore[attr-defined]
     qapp.processEvents()
-    assert dlg.property("refreshInterval") == 60
+    assert dlg.property("refreshInterval") == 60  # type: ignore[attr-defined]
 
 
 # ── 全部 8 个对话框加载验证（汇总） ─────────────────────
@@ -320,4 +320,4 @@ def test_all_8_dialogs_loadable(qapp: QApplication, qml_engine: QQmlEngine) -> N
     for filename in dialog_files:
         obj = _load_component(qml_engine, _DIALOGS_DIR / filename)
         assert obj is not None, f"对话框加载失败: {filename}"
-        assert obj.property("_isOpen") is False, f"{filename} 默认 _isOpen 应为 False"
+        assert obj.property("_isOpen") is False, f"{filename} 默认 _isOpen 应为 False"  # type: ignore[attr-defined]

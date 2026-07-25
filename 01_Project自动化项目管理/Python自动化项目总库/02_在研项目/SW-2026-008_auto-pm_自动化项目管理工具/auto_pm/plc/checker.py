@@ -82,18 +82,28 @@ class PlcChecker:
         result = CheckResult(project_path=project_path)
 
         # V0.4.1 Step 3: Python 项目不适用 PLC 检查
-        if not self._find_plc_json(project_path) and os.path.isfile(
-            os.path.join(project_path, "pyproject.toml")
-        ):
-            result.not_applicable = True
-            result.not_applicable_reason = (
-                "Python 项目（无 .plc.json + 有 pyproject.toml），PLC 检查不适用"
-            )
-            log.info(
-                "Python 项目跳过 PLC 检查（not_applicable=True）: %s",
-                os.path.basename(project_path),
-            )
-            return result
+        if not self._find_plc_json(project_path):
+            if os.path.isfile(os.path.join(project_path, "pyproject.toml")):
+                result.not_applicable = True
+                result.not_applicable_reason = (
+                    "Python 项目（无 .plc.json + 有 pyproject.toml），PLC 检查不适用"
+                )
+                log.info(
+                    "Python 项目跳过 PLC 检查（not_applicable=True）: %s",
+                    os.path.basename(project_path),
+                )
+                return result
+            # V0.5.4: 位于 Python 项目管理区域且无 .plc.json 的遗留项目，PLC 检查不适用
+            if self._is_in_python_area(project_path):
+                result.not_applicable = True
+                result.not_applicable_reason = (
+                    "Python 区域遗留项目（无 .plc.json），PLC 检查不适用"
+                )
+                log.info(
+                    "Python 区域遗留项目跳过 PLC 检查（not_applicable=True）: %s",
+                    os.path.basename(project_path),
+                )
+                return result
 
         # 检测项目类型
         project_type = self._detect_project_type(project_path)
@@ -581,30 +591,63 @@ class PlcChecker:
         """判断目录是否为 PLC 项目
 
         识别规则（满足任一）：
-        - 存在 .plc.json（根目录或子目录）
-        - 存在 PM_SESSION_*.md 且非 Python 项目
+        - 存在 .plc.json（仅根目录，不递归查找，避免将容器目录误判为项目）
+        - 存在 PM_SESSION_*.md 且位于 PLC 区域
         - 目录名以 FB_ 开头（SysLib FB 项目）
 
-        排除规则：存在 pyproject.toml 且无 .plc.json → Python 项目，跳过
+        排除规则：
+        - 存在 pyproject.toml 且无 .plc.json → Python 项目，跳过
+        - 位于 Python 项目管理区域且无 .plc.json → 非 PLC 项目，跳过
+        - 仅靠 PM_SESSION 识别且不在 PLC 区域 → 非 PLC 项目（如 SYS-2026-001 跨域治理项目），跳过
         """
-        # .plc.json（根目录或递归查找）
-        if PlcChecker._find_plc_json(project_path):
+        # .plc.json（仅根目录，不递归查找，防止将 0100_PLC自动化 等容器目录误判为项目）
+        if os.path.isfile(os.path.join(project_path, ".plc.json")):
             return True
 
         # 排除 Python 项目（有 pyproject.toml 且无 .plc.json）
         if os.path.isfile(os.path.join(project_path, "pyproject.toml")):
             return False
 
-        # PM_SESSION_*.md
+        # 排除 Python 项目管理区域的项目（无 .plc.json 且位于 Python 项目目录下）
+        if PlcChecker._is_in_python_area(project_path):
+            return False
+
+        # PM_SESSION_*.md（仅 PLC 区域内的项目，避免将 SYS-2026-001 等跨域项目误判为 PLC 项目）
+        has_pm_session = False
         try:
             for f in os.listdir(project_path):
                 if f.startswith("PM_SESSION_") and f.endswith(".md"):
-                    return True
+                    has_pm_session = True
+                    break
         except OSError:
             pass
+
+        if has_pm_session and PlcChecker._is_in_plc_area(project_path):
+            return True
 
         # FB_ 开头（SysLib FB 项目）
         if os.path.basename(project_path).startswith("FB_"):
             return True
 
         return False
+
+    @staticmethod
+    def _is_in_python_area(project_path: str) -> bool:
+        """判断项目路径是否位于 Python 项目管理区域
+
+        用于在 PLC 扫描中排除非 PLC 项目。
+        规则：路径中包含 01_Project自动化项目管理/Python自动化项目总库 即视为 Python 区域。
+        """
+        norm_path = project_path.replace("/", os.sep)
+        python_marker = "01_Project自动化项目管理" + os.sep + "Python自动化项目总库" + os.sep
+        return python_marker in norm_path
+
+    @staticmethod
+    def _is_in_plc_area(project_path: str) -> bool:
+        """判断项目路径是否位于 PLC 自动化区域
+
+        规则：路径中包含 0100_PLC自动化 即视为 PLC 区域。
+        """
+        norm_path = project_path.replace("/", os.sep)
+        plc_marker = os.sep + "0100_PLC自动化" + os.sep
+        return plc_marker in norm_path

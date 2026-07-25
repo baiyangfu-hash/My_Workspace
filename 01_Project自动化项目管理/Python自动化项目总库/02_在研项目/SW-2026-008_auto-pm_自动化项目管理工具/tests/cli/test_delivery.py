@@ -1,4 +1,8 @@
 """CLI delivery tests"""
+from __future__ import annotations
+
+from pathlib import Path
+
 import pytest
 from click.testing import CliRunner
 
@@ -7,11 +11,11 @@ from auto_pm.delivery.constants import MB
 
 
 @pytest.fixture
-def runner():
+def runner() -> CliRunner:
     return CliRunner()
 
 @pytest.fixture
-def proj(tmp_path):
+def proj(tmp_path: Path) -> Path:
     p = tmp_path / "tp"
     p.mkdir()
     d = p / "dist" / "auto-pm"
@@ -24,29 +28,29 @@ def proj(tmp_path):
     return p
 
 class TestDeliveryCLI:
-    def test_build(self, runner, proj):
+    def test_build(self, runner: CliRunner, proj: Path) -> None:
         r = runner.invoke(cli, ["-w", str(proj), "delivery", "build", "--version", "V1.0.1", "--summary", "test"])
         assert r.exit_code == 0
 
-    def test_status(self, runner, tmp_path):
+    def test_status(self, runner: CliRunner, tmp_path: Path) -> None:
         p = tmp_path / "em"
         p.mkdir()
         r = runner.invoke(cli, ["-w", str(p), "delivery", "status"])
         assert r.exit_code == 0
 
-    def test_archive_list(self, runner, tmp_path):
+    def test_archive_list(self, runner: CliRunner, tmp_path: Path) -> None:
         p = tmp_path / "al"
         p.mkdir()
         r = runner.invoke(cli, ["-w", str(p), "delivery", "archive", "list"])
         assert r.exit_code == 0
 
-    def test_archive_clean(self, runner, tmp_path):
+    def test_archive_clean(self, runner: CliRunner, tmp_path: Path) -> None:
         p = tmp_path / "ac"
         p.mkdir()
         r = runner.invoke(cli, ["-w", str(p), "delivery", "archive", "clean", "--dry-run"])
         assert r.exit_code == 0
 
-    def test_package_no_delivery(self, runner, tmp_path):
+    def test_package_no_delivery(self, runner: CliRunner, tmp_path: Path) -> None:
         p = tmp_path / "np"
         p.mkdir()
         r = runner.invoke(cli, ["-w", str(p), "delivery", "package", "--version", "V1.0.1"])
