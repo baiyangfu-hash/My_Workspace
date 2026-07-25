@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from datetime import datetime
 from typing import Any, cast
 
@@ -36,6 +37,19 @@ from auto_pm.models.project import extract_business_line
 from auto_pm.utils.file_utils import StaleFileError, get_mtime, write_file
 
 log = logging.getLogger(__name__)
+
+# C Fix (CHG-SCPT-2026-148): import 阶段自动生成 SHC-014 兼容索引
+# 按文件名后缀扫描 req/int/tec/dsn 文档，追加到 PM_SESSION §4
+_SHC014_SCAN_PATTERNS: list[tuple[str, str]] = [
+    ("req", "_REQ"),
+    ("int", "_INT"),
+    ("tec", "_TEC"),
+    ("dsn", "_DSN"),
+]
+_SHC014_MARKER = "<!-- auto-pm SHC-014 兼容索引，由 import 自动生成 -->"
+_SHC014_SEC4_RE = re.compile(r"^## 4[.\s]", re.MULTILINE)
+_SHC014_ENTRY_RE = re.compile(r"^-\s*(req|int|dsn|tec)\s*:", re.MULTILINE | re.IGNORECASE)
+_SHC014_NEXT_SEC_RE = re.compile(r"^## \d", re.MULTILINE)
 
 
 class ProjectService:
@@ -504,21 +518,47 @@ class ProjectService:
         description = ""
         version = ""
         stack = "unknown"
+        plc_extra: dict[str, str] = {}
 
         plc_info = self._read_plc_json(project_path)
         if plc_info is not None:
+            # 根目录存在 .plc.json
             project_id = plc_info.project_id
             project_name = plc_info.name
             description = plc_info.description
             version = plc_info.version
             stack = "plc"
+            for key in ("project_type", "equipment_type", "plc_vendor", "plc_model"):
+                value = getattr(plc_info, key, "")
+                if value:
+                    plc_extra[key] = value
         else:
-            session_info = self._read_pm_session(project_path)
-            if session_info is not None:
-                project_id = session_info.project_id
+            # B1 Fix: 根目录无 .plc.json 时递归查找子目录
+            # 适配 02_PLC程序/PLC_ST/.plc.json 嵌套结构（V0.2.1-P2-11 已有该能力）
+            plc_json_nested = self._scanner._find_plc_json_recursive(project_path)
+            if plc_json_nested:
+                try:
+                    with open(plc_json_nested, encoding="utf-8") as _f:
+                        _cfg = json.load(_f)
+                    stack = "plc"
+                    project_name = _cfg.get("name", "") or project_name
+                    description = _cfg.get("description", "")
+                    version = _cfg.get("version", "") or version
+                    for key in ("project_type", "equipment_type", "plc_vendor", "plc_model"):
+                        val = _cfg.get(key, "")
+                        if val:
+                            plc_extra[key] = val
+                except (OSError, json.JSONDecodeError):
+                    pass
+
+            if stack == "unknown":
+                # 仍未识别为 PLC，尝试从 PM_SESSION 读取 project_id
+                session_info = self._read_pm_session(project_path)
+                if session_info is not None:
+                    project_id = session_info.project_id
 
         template_name = get_template_name(stack)
-        content = {
+        content: dict[str, str] = {
             "_commit": "HEAD",
             "_src_path": f"templates/{template_name}",
             "project_id": project_id,
@@ -526,16 +566,144 @@ class ProjectService:
             "description": description or project_name,
             "version": version or "V1.0.0",
         }
-        if plc_info is not None:
-            for key in ("project_type", "equipment_type", "plc_vendor", "plc_model"):
-                value = getattr(plc_info, key, "")
-                if value:
-                    content[key] = value
+        content.update(plc_extra)
 
         write_file(answers_path, yaml.safe_dump(content, allow_unicode=True, sort_keys=False))
 
+        # C Fix (CHG-SCPT-2026-148): PLC 项目接管后自动追加 SHC-014 兼容文档索引
+        # 让存量项目无需手动补条目即可通过 CHG completed 门禁
+        if stack == "plc":
+            doc_index = self._scan_doc_index_candidates(project_path)
+            self._append_shc014_index_to_pm_session(project_path, doc_index)
+
         log.info("已补全 .copier-answers.yml: %s", answers_path)
         return answers_path
+
+    @staticmethod
+    def _scan_doc_index_candidates(
+        project_path: str,
+        max_depth: int = 5,
+    ) -> dict[str, str]:
+        """递归扫描项目目录，按文件名后缀识别 req/int/tec/dsn 文档
+
+        适配 LSP-907 命名规范（*_REQ.md / *_INT.md / *_TEC.md / *_DSN.md）。
+        仅返回实际存在的文档（路径相对于 project_path），不生成占位符。
+        每类文档取找到的第一个，跳过隐藏目录和缓存目录。
+
+        Args:
+            project_path: 项目根目录
+            max_depth: 最大递归深度（默认 5 层）
+
+        Returns:
+            {doc_type: relative_path_from_project_root}，如 {"req": "00_doc\\xxx_REQ.md"}
+        """
+        found: dict[str, str] = {}
+        total = len(_SHC014_SCAN_PATTERNS)
+
+        def _walk(dir_path: str, depth: int) -> None:
+            if depth > max_depth or len(found) >= total:
+                return
+            try:
+                entries = sorted(os.listdir(dir_path))
+            except OSError:
+                return
+            for entry in entries:
+                if entry.startswith(".") or entry.startswith("__"):
+                    continue
+                entry_path = os.path.join(dir_path, entry)
+                if os.path.isfile(entry_path) and entry.upper().endswith(".MD"):
+                    name_upper = entry.upper()
+                    for doc_type, suffix in _SHC014_SCAN_PATTERNS:
+                        if doc_type not in found and suffix in name_upper:
+                            rel = os.path.relpath(entry_path, project_path)
+                            found[doc_type] = rel
+                            break
+                elif os.path.isdir(entry_path):
+                    _walk(entry_path, depth + 1)
+
+        _walk(project_path, 0)
+        return found
+
+    def _append_shc014_index_to_pm_session(
+        self,
+        project_path: str,
+        doc_index: dict[str, str],
+    ) -> bool:
+        """在 PM_SESSION §4 末尾追加 SHC-014 兼容的标准索引条目
+
+        幂等设计：已存在的条目不重复追加，标记已注入时跳过。
+        仅在找到 §4 章节时才写入；无 PM_SESSION 或无 §4 时静默跳过。
+
+        Args:
+            project_path: 项目根目录
+            doc_index: _scan_doc_index_candidates 的返回值
+
+        Returns:
+            True 表示文件被修改，False 表示跳过（无需修改或无可追加条目）
+        """
+        if not doc_index:
+            return False
+
+        # 找 PM_SESSION_*.md（取第一个）
+        pm_files = [
+            os.path.join(project_path, f)
+            for f in os.listdir(project_path)
+            if f.startswith("PM_SESSION_") and f.endswith(".md")
+        ]
+        if not pm_files:
+            log.debug("未找到 PM_SESSION_*.md，跳过 SHC-014 索引追加: %s", project_path)
+            return False
+        pm_path = pm_files[0]
+
+        try:
+            raw = open(pm_path, encoding="utf-8").read()
+        except OSError as exc:
+            log.warning("读取 PM_SESSION 失败，跳过 SHC-014 索引追加: %s", exc)
+            return False
+
+        # §4 章节必须存在
+        m4 = _SHC014_SEC4_RE.search(raw)
+        if not m4:
+            log.debug("PM_SESSION 无 §4 章节，跳过 SHC-014 索引追加: %s", pm_path)
+            return False
+
+        # 幂等：标记已存在则跳过（防止重复 import）
+        if _SHC014_MARKER in raw:
+            log.debug("SHC-014 兼容索引已存在，跳过: %s", pm_path)
+            return False
+
+        # 找已有的标准关键词条目，避免重复
+        existing = {m.group(1).lower() for m in _SHC014_ENTRY_RE.finditer(raw)}
+        missing = {k: v for k, v in doc_index.items() if k not in existing}
+        if not missing:
+            log.debug("所有 SHC-014 条目已存在，跳过追加: %s", pm_path)
+            return False
+
+        # 定位插入点：§4 结束处（下一个 ## N 章节之前，或文件末尾）
+        sec4_start = m4.start()
+        rest_after_sec4 = raw[sec4_start + len(m4.group(0)):]
+        nm = _SHC014_NEXT_SEC_RE.search(rest_after_sec4)
+        insert_pos = (
+            sec4_start + len(m4.group(0)) + nm.start()
+            if nm
+            else len(raw)
+        )
+
+        # 构建追加块
+        lines = [f"\n{_SHC014_MARKER}\n"]
+        for doc_type in ("req", "int", "tec", "dsn"):
+            if doc_type in missing:
+                lines.append(f"- {doc_type}: {missing[doc_type]}\n")
+        lines.append("\n")
+
+        new_raw = raw[:insert_pos] + "".join(lines) + raw[insert_pos:]
+        write_file(pm_path, new_raw)
+        log.info(
+            "已在 PM_SESSION §4 追加 SHC-014 兼容索引 %d 条: %s",
+            len(missing),
+            pm_path,
+        )
+        return True
 
     def init_project_pm_framework(
         self,

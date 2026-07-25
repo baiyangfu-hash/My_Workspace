@@ -91,10 +91,10 @@
 
 ## 4. Artifacts Index（文档索引）
 
-- req: 02_设计/001_产品需求文档_PRD.md
-- int: 02_设计/002_接口文档_INT.md
-- dsn: 02_设计/003_详细设计说明书_DSN.md
-- tec: 02_设计/004_技术方案文档_TEC.md
+- req: 02_规划/001_产品需求文档_PRD.md
+- int: 02_规划/002_接口文档_INT.md
+- dsn: 02_规划/003_详细设计说明书_DSN.md
+- tec: 02_规划/004_技术方案文档_TEC.md
 - ui_arch_prototype_v13: 02_设计/Html原型预览/018_UI架构原型_V13.html (2026-07-19 新增，集成 Modbus 调试工坊与波形监测的 UI 架构原型)
 - chg_138: 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-138.md (约束工作流系统 Phase 2 完整约束体系与工作流引擎变更单，SCPT+OPT+LOCAL，状态 closed，第 69 次 dogfooding 闭环，2026-07-21 创建)
 - chg_137: 00_项目管理/04_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-137.md (约束工作流系统 MVP Phase 1 实施与收尾变更单，SCPT+OPT+LOCAL，状态 closed，第 68 次 dogfooding 闭环，2026-07-20 创建)

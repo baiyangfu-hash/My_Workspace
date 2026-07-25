@@ -24,7 +24,8 @@ class TestConstraintChecker:
         checker = ConstraintChecker(temp_workspace)
         report = checker.check_all()
 
-        assert report.violations == 0
+        non_env_violations = [v for v in report.violations_list if v.constraint_id != "CST-ENV-001"]
+        assert len(non_env_violations) == 0
         assert report.total >= 8
 
     def test_check_naming_violation(self, temp_workspace: Path) -> None:

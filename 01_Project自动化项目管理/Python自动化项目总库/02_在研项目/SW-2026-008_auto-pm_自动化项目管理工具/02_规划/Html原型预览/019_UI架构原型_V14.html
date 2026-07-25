@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>auto-pm | V14 架构原型 (三轨导航 + 全功能 Modbus 豪华工坊 + 高保真工控 Design System)</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-surface: rgba(12, 18, 34, 0.95);
+            --bg-card: rgba(18, 26, 46, 0.7);
+            --bg-card-hover: rgba(26, 37, 62, 0.85);
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --secondary: #0ea5e9;
+            --secondary-glow: rgba(14, 165, 233, 0.3);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.3);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --sidebar-width: 260px;
+            --header-height: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(79, 70, 229, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.06) 0%, transparent 45%);
+        }
+
+        /* 顶部 Header */
+        .app-header {
+            height: var(--header-height);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 0 16px var(--primary-glow);
+            font-size: 1.2rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            width: 320px;
+            transition: all 0.2s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            outline: none;
+            width: 100%;
+            font-size: 0.85rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 全局离线仿真 Mode Toggle */
+        .sim-toggle-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        /* 主界面 Layout */
+        .app-body {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - var(--header-height));
+            overflow: hidden;
+        }
+
+        /* 三轨 Shell 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 14px;
+            gap: 22px;
+            overflow-y: auto;
+            backdrop-filter: blur(12px);
+        }
+
+        .track-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .track-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 0 10px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.05);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 16px var(--primary-glow);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* View Container */
+        .view-container {
+            flex: 1;
+            background: var(--bg-base);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .view-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+            padding: 24px;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .view-content.active {
+            display: flex;
+        }
+
+        /* 通用 Glass Card & Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 按钮系统 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, var(--danger));
+            color: white;
+            box-shadow: 0 4px 12px var(--danger-glow);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, var(--success));
+            color: white;
+            box-shadow: 0 4px 12px var(--success-glow);
+        }
+
+        .form-control {
+            background: rgba(6, 9, 19, 0.8);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            outline: none;
+            width: 100%;
+            font-family: var(--font-sans);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* ── Modbus 豪华调试工坊 V14 专属版面 (左右双栏 + 底部 Console) ── */
+        .modbus-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 16px;
+        }
+
+        .modbus-grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 18px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* 左栏控制区 */
+        .modbus-left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .ping-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(6, 9, 19, 0.6);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            font-size: 0.82rem;
+        }
+
+        .ping-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .ping-indicator.active {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        /* 16 位二进制 LED 解析器 (QModMaster style) */
+        .bit-expander-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(6, 9, 19, 0.7);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: var(--radius-md);
+        }
+
+        .bit-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .bit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .bit-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .bit-led-btn {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bit-led-btn.active {
+            background: var(--primary-light);
+            border-color: white;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* 右栏数据与分析区 */
+        .modbus-right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-height: 0;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2px;
+        }
+
+        .tab-link {
+            padding: 10px 18px;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .tab-link.active {
+            color: var(--text-primary);
+            background: var(--bg-card);
+            border-color: var(--glass-border);
+            border-bottom-color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .tab-pane {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            flex-direction: column;
+        }
+
+        .tab-pane.active {
+            display: flex;
+        }
+
+        /* 数据表格 (完美排版，绝对无文字覆盖错位) */
+        .rich-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        .rich-table th {
+            text-align: left;
+            padding: 12px 14px;
+            background: rgba(6, 9, 19, 0.8);
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .rich-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+        }
+
+        .rich-table tr:hover td {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        /* 矩阵 LED 行列 */
+        .matrix-bits {
+            display: flex;
+            gap: 3px;
+        }
+
+        .mini-bit {
+            width: 12px;
+            height: 14px;
+            border-radius: 2px;
+            background: #1e293b;
+            color: #64748b;
+            font-size: 0.6rem;
+            font-family: var(--font-mono);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mini-bit.on {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 0 6px var(--secondary-glow);
+        }
+
+        /* 寄存器扫描网格 0~99 */
+        .scan-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .scan-cell {
+            background: rgba(6, 9, 19, 0.7);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 6px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .scan-cell.active {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 0 8px var(--success-glow);
+        }
+
+        /* 伸缩报文 Terminal (防盖字，完美独立 Flex 沉底) */
+        .modbus-console {
+            height: 180px;
+            background: #04060c;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .console-topbar {
+            height: 36px;
+            background: rgba(12, 18, 34, 0.95);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .console-stream {
+            flex: 1;
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 0.83rem;
+            overflow-y: auto;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tag-tx { color: #818cf8; }
+        .tag-rx { color: var(--success); }
+        .tag-sys { color: var(--text-muted); }
+        .tag-err { color: var(--danger); }
+        .tag-ping { color: var(--warning); }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部 Header -->
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="brand-logo"><i class="ph-bold ph-cpu"></i></div>
+            <span>auto-pm 自动化项目管理工具 <span style="font-size:0.75rem; background:rgba(99,102,241,0.2); color:var(--primary-light); padding:2px 8px; border-radius:12px; font-weight:normal; border:1px solid var(--border);">V14 豪华工控版</span></span>
+        </div>
+
+        <div class="search-box">
+            <i class="ph-bold ph-magnifying-glass" style="color:var(--text-muted);"></i>
+            <input type="text" placeholder="搜索项目 / 变更单 / 规则 / 寄存器...">
+        </div>
+
+        <div class="header-actions">
+            <div class="sim-toggle-box">
+                <i class="ph-bold ph-broadcast" style="color:var(--success);"></i>
+                <span>全局离线仿真模式</span>
+                <label class="switch">
+                    <input type="checkbox" id="simModeToggle" checked onchange="onSimToggleChange(this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" onclick="location.reload()"><i class="ph-bold ph-arrows-clockwise"></i> 刷新</button>
+        </div>
+    </header>
+
+    <!-- 主界面 App Body -->
+    <div class="app-body">
+        <!-- 三轨导航侧边栏 -->
+        <nav class="sidebar">
+            <!-- 轨 1: Cockpit -->
+            <div class="track-section">
+                <div class="track-title"><i class="ph-bold ph-chart-pie-slice"></i> 📊 Cockpit 驾驶舱轨</div>
+                <div class="nav-item active" onclick="navigate(this, 'view-dashboard')">
+                    <i class="ph-bold ph-chart-line-up"></i>
+                    <span>平台驾驶舱大盘</span>
+                </div>
+                <div class="nav-item" onclick="navigate(this, 'view-projects')">
+                    <i class="ph-bold ph-squares-four"></i>
+                    <span>项目大厅 (纳管库)</span>
+                </div>
+            </div>
+
+            <!-- 轨 2: Workbench -->
+            <div class="track-section">
+                <div class="track-title"><i class="ph-bold ph-kanban"></i> 🛠️ Workbench 工作台轨</div>
+                <div class="nav-item" onclick="navigate(this, 'view-changes')">
+                    <i class="ph-bold ph-git-branch"></i>
+                    <span>变更单管理 (12态)</span>
+                </div>
+                <div class="nav-item" onclick="navigate(this, 'view-constraints')">
+                    <i class="ph-bold ph-shield-check"></i>
+                    <span>约束规范检查器</span>
+                </div>
+            </div>
+
+            <!-- 轨 3: Toolbox -->
+            <div class="track-section">
+                <div class="track-title"><i class="ph-bold ph-wrench"></i> 🔌 Toolbox 调试工坊轨</div>
+                <div class="nav-item" onclick="navigate(this, 'view-modbus')">
+                    <i class="ph-bold ph-plugs"></i>
+                    <span>Modbus 联调工坊 V14</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主视图 Mount Point -->
+        <main class="view-container">
+
+            <!-- 视图 1: 平台驾驶舱大盘 -->
+            <div id="view-dashboard" class="view-content active">
+                <div class="page-header">
+                    <div class="page-title"><i class="ph-bold ph-chart-line-up" style="color:var(--primary-light);"></i> 平台驾驶舱大盘</div>
+                </div>
+                <div class="glass-card">
+                    <h3>项目整体运行全景</h3>
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">共纳管 4 个项目 (DJ-2026-005 太阳能边框缓存机、SysLib 共享库、DJ-2026-000 测试套件)，三层校验门禁状态全绿。</p>
+                </div>
+            </div>
+
+            <!-- 视图 2: 项目大厅 -->
+            <div id="view-projects" class="view-content">
+                <div class="page-header">
+                    <div class="page-title"><i class="ph-bold ph-squares-four" style="color:var(--secondary);"></i> 项目大厅</div>
+                </div>
+                <div class="glass-card">
+                    <h3>已纳管项目档案</h3>
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">支持就地纳管、副本导入与工程资产识别。</p>
+                </div>
+            </div>
+
+            <!-- 视图 3: 变更单管理 -->
+            <div id="view-changes" class="view-content">
+                <div class="page-header">
+                    <div class="page-title"><i class="ph-bold ph-git-branch" style="color:var(--success);"></i> 变更单管理 (12态双轨)</div>
+                </div>
+                <div class="glass-card">
+                    <h3>Quick Track 与 Full Track 分流</h3>
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">已成功完成 CHG-148/149/150 闭环验证。</p>
+                </div>
+            </div>
+
+            <!-- 视图 4: 约束规范检查器 -->
+            <div id="view-constraints" class="view-content">
+                <div class="page-header">
+                    <div class="page-title"><i class="ph-bold ph-shield-check" style="color:var(--warning);"></i> 约束规范检查器</div>
+                </div>
+                <div class="glass-card">
+                    <h3>CST-CHG-002 双轨通道约束</h3>
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">10 项规范规则均正常运行中。</p>
+                </div>
+            </div>
+
+            <!-- 视图 5: Modbus 联调测试工坊 V14 (豪华版面 + 无盖字错位) -->
+            <div id="view-modbus" class="view-content">
+                <div class="page-header">
+                    <div class="page-title">
+                        <i class="ph-bold ph-plugs" style="color:var(--primary-light);"></i> PLC Modbus 联调测试工坊 
+                        <span style="font-size:0.75rem; background:rgba(99,102,241,0.2); color:var(--primary-light); padding:2px 8px; border-radius:12px; border:1px solid var(--border);">V14 豪华工控版</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-secondary" onclick="alert('配置文件 Presets.json 导入成功！')"><i class="ph-bold ph-upload-simple"></i> 导入配置</button>
+                        <button class="btn btn-secondary" onclick="alert('导出 Modbus_Export_Config.json 成功！')"><i class="ph-bold ph-download-simple"></i> 导出配置</button>
+                    </div>
+                </div>
+
+                <div class="modbus-wrapper">
+                    <!-- 双栏 Grid 布局 -->
+                    <div class="modbus-grid">
+
+                        <!-- 左栏: 参数配置与 16 位解析器 -->
+                        <div class="modbus-left-panel">
+                            <!-- Card 1: 连接与 Ping -->
+                            <div class="glass-card" style="padding:16px;">
+                                <div style="font-size:0.95rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                                    <span>🔌 Modbus TCP 连接参数</span>
+                                    <span id="connStatusTag" style="font-size:0.75rem; color:var(--warning); background:rgba(245,158,11,0.15); padding:2px 6px; border-radius:6px;">未连接</span>
+                                </div>
+
+                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                    <label style="font-size:0.78rem; color:var(--text-muted);">本地物理网卡绑定选择</label>
+                                    <select class="form-control">
+                                        <option>自动选择 (Auto Default)</option>
+                                        <option>以太网卡 192.168.1.100 (LAN)</option>
+                                    </select>
+                                </div>
+
+                                <div style="display:flex; gap:8px;">
+                                    <div style="flex:1;">
+                                        <label style="font-size:0.78rem; color:var(--text-muted);">目标 PLC IP 地址</label>
+                                        <input type="text" id="inputIp" class="form-control" value="192.168.1.88">
+                                    </div>
+                                    <button class="btn btn-secondary" style="align-self:flex-end;" onclick="runPing()"><i class="ph-bold ph-globe-hemisphere-west"></i> Ping</button>
+                                </div>
+
+                                <!-- 内嵌 Ping 条 -->
+                                <div class="ping-bar">
+                                    <div class="ping-indicator" id="pingLed"></div>
+                                    <span id="pingMsg" style="color:var(--text-muted);">点击 Ping 探测 ICMP 连通性</span>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                    <div>
+                                        <label style="font-size:0.78rem; color:var(--text-muted);">端口 (Port)</label>
+                                        <input type="number" class="form-control" value="502">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.78rem; color:var(--text-muted);">站号 (Unit ID)</label>
+                                        <input type="number" class="form-control" value="1">
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" id="btnToggleConn" onclick="toggleConn()"><i class="ph-bold ph-plug"></i> 连接设备</button>
+                            </div>
+
+                            <!-- Card 2: 读取测试参数 -->
+                            <div class="glass-card" style="padding:16px;">
+                                <div style="font-size:0.95rem; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">🔍 寄存器读取测试</div>
+                                <div>
+                                    <label style="font-size:0.78rem; color:var(--text-muted);">功能码</label>
+                                    <select class="form-control">
+                                        <option>03 读保持寄存器 (Holding Register)</option>
+                                        <option>01 读线圈状态 (Read Coils)</option>
+                                        <option>04 读输入寄存器 (Input Register)</option>
+                                        <option>02 读离散输入 (Discrete Inputs)</option>
+                                    </select>
+                                </div>
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                    <div>
+                                        <label style="font-size:0.78rem; color:var(--text-muted);">起始地址</label>
+                                        <input type="number" class="form-control" value="0">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.78rem; color:var(--text-muted);">读取长度</label>
+                                        <input type="number" class="form-control" value="10">
+                                    </div>
+                                </div>
+                                <button class="btn btn-success" onclick="readOnce()"><i class="ph-bold ph-play"></i> 单次触发扫描</button>
+                            </div>
+
+                            <!-- Card 3: 16位寄存器位解析器 (Bit Expander) -->
+                            <div class="bit-expander-panel">
+                                <div style="font-size:0.85rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:6px;">
+                                    <span>💡 16位寄存器位解析器</span>
+                                    <span style="font-family:var(--font-mono); color:var(--secondary); font-size:0.8rem;">40001 (0x0000)</span>
+                                </div>
+
+                                <!-- Bit 15 ~ 8 -->
+                                <div class="bit-grid">
+                                    <div class="bit-item"><span class="bit-label">15</span><div class="bit-led-btn active" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">14</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">13</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">12</span><div class="bit-led-btn active" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">11</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">10</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">9</span><div class="bit-led-btn active" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">8</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                </div>
+
+                                <!-- Bit 7 ~ 0 -->
+                                <div class="bit-grid">
+                                    <div class="bit-item"><span class="bit-label">7</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">6</span><div class="bit-led-btn active" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">5</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">4</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">3</span><div class="bit-led-btn active" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">2</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">1</span><div class="bit-led-btn" onclick="toggleLed(this)"></div></div>
+                                    <div class="bit-item"><span class="bit-label">0</span><div class="bit-led-btn active" onclick="toggleLed(this)"></div></div>
+                                </div>
+
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; padding-top:4px;">
+                                    <span>Dec: <b style="color:white;">37165</b></span>
+                                    <span>Hex: <b style="color:var(--warning); font-family:var(--font-mono);">0x912D</b></span>
+                                    <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="alert('已将 0x912D 写入 40001 寄存器！')">写入 PLC</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右栏: 实时监测与分析 -->
+                        <div class="modbus-right-panel glass-card" style="padding:16px;">
+                            <div class="tab-nav">
+                                <div class="tab-link active" onclick="switchTab(this, 'pane-monitor')"><i class="ph-bold ph-table"></i> 实时数据监测表</div>
+                                <div class="tab-link" onclick="switchTab(this, 'pane-trend')"><i class="ph-bold ph-chart-line"></i> 动态波形曲线监控</div>
+                                <div class="tab-link" onclick="switchTab(this, 'pane-scanner')"><i class="ph-bold ph-radar"></i> 寄存器扫描探测器</div>
+                            </div>
+
+                            <!-- Tab 1: 实时数据表 -->
+                            <div id="pane-monitor" class="tab-pane active">
+                                <table class="rich-table">
+                                    <thead>
+                                        <tr>
+                                            <th>寄存器地址</th>
+                                            <th>描述</th>
+                                            <th>16进制 (Hex)</th>
+                                            <th>10进制无符号</th>
+                                            <th>16位 Bit Matrix LED</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-family:var(--font-mono); color:var(--secondary);">40001 (0x0000)</td>
+                                            <td>风机运行指令与状态字</td>
+                                            <td style="font-family:var(--font-mono); color:var(--primary-light);">0x912D</td>
+                                            <td>37165</td>
+                                            <td>
+                                                <div class="matrix-bits">
+                                                    <div class="mini-bit on">1</div><div class="mini-bit">0</div><div class="mini-bit on">1</div><div class="mini-bit">0</div>
+                                                    <div class="mini-bit">0</div><div class="mini-bit on">1</div><div class="mini-bit">0</div><div class="mini-bit on">1</div>
+                                                </div>
+                                            </td>
+                                            <td><button class="btn btn-secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="alert('加载 40001 到解析器！')">解析</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-family:var(--font-mono); color:var(--secondary);">40002 (0x0001)</td>
+                                            <td>主轴转速 (RPM)</td>
+                                            <td style="font-family:var(--font-mono); color:var(--primary-light);">0x05DC</td>
+                                            <td>1500</td>
+                                            <td>
+                                                <div class="matrix-bits">
+                                                    <div class="mini-bit">0</div><div class="mini-bit on">1</div><div class="mini-bit">0</div><div class="mini-bit">0</div>
+                                                    <div class="mini-bit on">1</div><div class="mini-bit">0</div><div class="mini-bit">0</div><div class="mini-bit">0</div>
+                                                </div>
+                                            </td>
+                                            <td><button class="btn btn-secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="alert('加载 40002 到解析器！')">解析</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Tab 2: 动态波形监控 Canvas -->
+                            <div id="pane-trend" class="tab-pane">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <span style="font-size:0.85rem; color:var(--text-muted);">实时波形渲染器 (0x05DC 主轴转速动态)</span>
+                                    <span style="font-size:0.8rem; color:var(--success);">● 采样率: 50ms</span>
+                                </div>
+                                <canvas id="trendCanvas" width="700" height="240" style="background:#04060c; border:1px solid var(--border); border-radius:8px; width:100%; height:240px;"></canvas>
+                            </div>
+
+                            <!-- Tab 3: 寄存器扫描网格 -->
+                            <div id="pane-scanner" class="tab-pane">
+                                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">探测 0~99 寄存器区间响应度：</div>
+                                <div class="scan-grid">
+                                    <div class="scan-cell active">00: 40001</div>
+                                    <div class="scan-cell active">01: 40002</div>
+                                    <div class="scan-cell">02: --</div>
+                                    <div class="scan-cell active">03: 40004</div>
+                                    <div class="scan-cell">04: --</div>
+                                    <div class="scan-cell">05: --</div>
+                                    <div class="scan-cell active">06: 40007</div>
+                                    <div class="scan-cell">07: --</div>
+                                    <div class="scan-cell">08: --</div>
+                                    <div class="scan-cell active">09: 40010</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 伸缩报文 Console (彻底沉底，告别混乱覆盖) -->
+                    <div class="modbus-console">
+                        <div class="console-topbar">
+                            <span><i class="ph-bold ph-terminal-window"></i> Modbus TCP 网口物理报文链路 (Live Traffic Traffic Log)</span>
+                            <div style="display:flex; gap:10px;">
+                                <span style="cursor:pointer;" onclick="clearStream()"><i class="ph-bold ph-trash"></i> 清空</span>
+                            </div>
+                        </div>
+                        <div class="console-stream" id="consoleStream">
+                            <div class="tag-sys">[SYS] Modbus TCP Socket 网口链路初始化完成...</div>
+                            <div class="tag-tx">[TX] 00 01 00 00 00 06 01 03 00 00 00 0A</div>
+                            <div class="tag-rx">[RX] 00 01 00 00 00 17 01 03 14 91 2D 05 DC 00 00 00 00 00 00 00 00 00 00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏页面导航切换
+        function navigate(el, viewId) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+
+            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            if (viewId === 'view-modbus') {
+                initCanvas();
+            }
+        }
+
+        // Modbus Sub-Tab 切换
+        function switchTab(el, paneId) {
+            document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+            el.classList.add('active');
+
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.getElementById(paneId).classList.add('active');
+
+            if (paneId === 'pane-trend') {
+                initCanvas();
+            }
+        }
+
+        // Ping 探测
+        function runPing() {
+            const ip = document.getElementById('inputIp').value;
+            const led = document.getElementById('pingLed');
+            const msg = document.getElementById('pingMsg');
+
+            led.className = 'ping-indicator';
+            msg.innerText = '正在 Ping ' + ip + ' ...';
+
+            setTimeout(() => {
+                led.className = 'ping-indicator active';
+                msg.innerText = 'ICMP 连通成功 (延迟 2ms)';
+                pushLog('tag-ping', '[PING] Reply from ' + ip + ': bytes=32 time=2ms TTL=64');
+            }, 500);
+        }
+
+        // 连接切换
+        let connected = false;
+        function toggleConn() {
+            connected = !connected;
+            const btn = document.getElementById('btnToggleConn');
+            const tag = document.getElementById('connStatusTag');
+
+            if (connected) {
+                btn.innerHTML = '<i class="ph-bold ph-plug-zap"></i> 断开连接';
+                btn.className = 'btn btn-danger';
+                tag.innerText = '已连接';
+                tag.style.background = 'rgba(16,185,129,0.15)';
+                tag.style.color = 'var(--success)';
+                pushLog('tag-sys', '[SYS] Modbus TCP 已与 192.168.1.88:502 建立通信连接。');
+            } else {
+                btn.innerHTML = '<i class="ph-bold ph-plug"></i> 连接设备';
+                btn.className = 'btn btn-primary';
+                tag.innerText = '未连接';
+                tag.style.background = 'rgba(245,158,11,0.15)';
+                tag.style.color = 'var(--warning)';
+                pushLog('tag-sys', '[SYS] 通信连接已断开。');
+            }
+        }
+
+        // 单次读取
+        function readOnce() {
+            pushLog('tag-tx', '[TX] 00 03 00 00 00 06 01 03 00 00 00 0A');
+            setTimeout(() => {
+                pushLog('tag-rx', '[RX] 00 03 00 00 00 17 01 03 14 91 2D 05 DC 00 00 00 00 00 00 00 00 00 00');
+            }, 180);
+        }
+
+        // LED 切换
+        function toggleLed(btn) {
+            btn.classList.toggle('active');
+        }
+
+        // 写入 Console 日志
+        function pushLog(cls, text) {
+            const stream = document.getElementById('consoleStream');
+            const line = document.createElement('div');
+            line.className = cls;
+            line.innerText = text;
+            stream.appendChild(line);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function clearStream() {
+            document.getElementById('consoleStream').innerHTML = '';
+        }
+
+        function onSimToggleChange(checked) {
+            pushLog('tag-sys', '[SYS] 离线仿真模式状态变更: ' + (checked ? 'ACTIVE' : 'INACTIVE'));
+        }
+
+        // 波形 Canvas 渲染
+        let animId = null;
+        function initCanvas() {
+            const canvas = document.getElementById('trendCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let data = new Array(50).fill(120);
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 网格
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 40) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 40) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+                }
+
+                // 新数据
+                data.push(120 + Math.sin(Date.now() / 300) * 40 + (Math.random() - 0.5) * 10);
+                data.shift();
+
+                // 曲线
+                ctx.beginPath();
+                ctx.strokeStyle = '#0ea5e9';
+                ctx.lineWidth = 2;
+                const step = canvas.width / (data.length - 1);
+                data.forEach((val, i) => {
+                    const x = i * step;
+                    const y = canvas.height - val;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                animId = requestAnimationFrame(render);
+            }
+
+            if (animId) cancelAnimationFrame(animId);
+            render();
+        }
+    </script>
+</body>
+</html>

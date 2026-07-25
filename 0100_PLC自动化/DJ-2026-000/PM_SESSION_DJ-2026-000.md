@@ -46,6 +46,13 @@
 - doc:
   - 定时器实现详解.md
 
+
+<!-- auto-pm SHC-014 兼容索引，由 import 自动生成 -->
+- req: PRD\需求分析文档_REQ.md
+- int: PRD\接口文档_INT.md
+- tec: PRD\技术方案文档_TEC.md
+- dsn: PRD\详细设计说明书_DSN.md
+
 ## 5. Logs（按事件沉淀）
 - change_log:
   - 2026-06-18 V3.2.0 FB_1011 V13.0.0 引脚前缀: OB1 stCmd→i_stCmd, stSts→q_stSts; 对齐LSP-905 §3.1

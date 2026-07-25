@@ -138,17 +138,24 @@ class ModbusBridge(QObject):
         """获取本地全部 IPv4 物理网卡列表，供 QML 绑定选择。"""
         import socket
 
-        import psutil
         interfaces = []
         # 默认自动选择项
         interfaces.append({"name": "自动选择 (Auto Default)", "ip": ""})
         try:
+            import psutil
             for name, addrs in psutil.net_if_addrs().items():
                 for addr in addrs:
                     if addr.family == socket.AF_INET:
                         interfaces.append({"name": f"{name} ({addr.address})", "ip": addr.address})
         except Exception as e:
-            log.warning(f"获取网卡列表异常: {e}")
+            log.warning(f"获取网卡列表异常，回退到 socket 模式: {e}")
+            try:
+                hostname = socket.gethostname()
+                _, _, ip_list = socket.gethostbyname_ex(hostname)
+                for ip in ip_list:
+                    interfaces.append({"name": f"LAN ({ip})", "ip": ip})
+            except Exception:
+                pass
         return interfaces
 
     # ── 连接管理 ─────────────────────────────────────────

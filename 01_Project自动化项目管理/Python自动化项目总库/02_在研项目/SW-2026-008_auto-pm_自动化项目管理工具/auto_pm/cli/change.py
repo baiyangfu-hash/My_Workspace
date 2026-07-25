@@ -34,6 +34,7 @@ from auto_pm.change.constants import (
     STATUS_LABELS,
     URGENCY_LEVELS,
 )
+from auto_pm.change.track_classifier import ChangeTrack, ChangeTrackClassifier
 from auto_pm.models import ChangeRequest
 
 console = Console()
@@ -454,7 +455,16 @@ def cmd_create(
             urgency=urgency,
             retrofit=retrofit,
         )
+        track = ChangeTrackClassifier.classify(
+            domain=domain,
+            nature=business_nature,
+            scope=impact_scope,
+        )
         console.print(f"[green]变更单创建成功: {cr.change_number}[/green]")
+        if track == ChangeTrack.QUICK:
+            console.print("  [cyan]通道: Quick Track (轻量通道) ⚡ - 局部改动，推荐简化审批/先实施后补[/cyan]")
+        else:
+            console.print("  [blue]通道: Full Track (完整通道) 🛡️ - 架构/全局改动，需走完整 12 态门禁流转[/blue]")
         if retrofit:
             console.print("  [yellow]模式: retrofit（先实施后补，直接 closed）[/yellow]")
         console.print(f"  领域: {domain} ({DOMAINS[domain]})")

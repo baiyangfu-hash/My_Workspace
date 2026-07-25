@@ -83,6 +83,13 @@
   - types/ST_StationSafety.scl (V1.0.0)
   - types/ST_InfeedSensors.scl (V1.0.0)
 
+
+<!-- auto-pm SHC-014 兼容索引，由 import 自动生成 -->
+- req: PRD\需求分析文档_REQ.md
+- int: PRD\接口文档_INT.md
+- tec: PRD\技术方案文档_TEC.md
+- dsn: PRD\详细设计说明书_DSN.md
+
 ## 5. Logs（按事件沉淀）
 - change_log:
   - 2026-05-30 FB1014 V4.2.0文档完善: 从IFC/DSN/SCL三份源文件提取需求与工艺, 生成PRD(16项功能需求+5项非功能需求+追溯矩阵)和PFL(6步正常流程+4类异常流程+功能切换映射表+时序参数); V4.2.0核心变更: 传感器/气缸功能随方向切换(单口双向复用) 范围:actuator/PRD/ 完成

@@ -76,9 +76,13 @@ __pycache__/
 # auto-pm 临时文件（CHG-SCPT-2026-100）
 *.bak_*
 pytest_*.txt
+mypy_output*.txt
+fix_*.py
+*_tmp.*
 claude_plan
 test_screenshots/
 
 # 测试报告与输出（临时产物，不入库）
 test_reports/
 test_output/
+

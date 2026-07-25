@@ -469,12 +469,20 @@ class ChangeService:
             return []
 
         workspace = Path(self.workspace_root)
-        # 查找项目根目录（包含 PM_SESSION_{project_id}*.md 的目录）
+        workspace = Path(self.workspace_root)
+        # 查找项目根目录（优先使用包含标志文件的根目录，避免命中子目录测试/历史 PM_SESSION）
         pm_files = list(workspace.rglob(f"PM_SESSION_{project_id}*.md"))
         if not pm_files:
             return []  # 找不到 PM_SESSION 文件时跳过
 
-        project_root = pm_files[0].parent
+        target_pm = pm_files[0]
+        for f in pm_files:
+            p = f.parent
+            if (p / ".copier-answers.yml").exists() or (p / ".plc.json").exists() or (p / "pyproject.toml").exists():
+                target_pm = f
+                break
+
+        project_root = target_pm.parent
         config = WorkspaceConfig(workspace=workspace)
         scanner = SpecScanner(
             workspace=workspace, config=config, project_root=project_root

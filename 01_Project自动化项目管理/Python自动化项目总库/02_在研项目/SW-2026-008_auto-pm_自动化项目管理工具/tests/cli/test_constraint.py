@@ -46,7 +46,7 @@ class TestConstraintCLI:
         assert result.exit_code == 0
         assert "CST-FILE-001" in result.output
         assert "CST-FILE-002" in result.output
-        assert "共 9 个约束定义" in result.output
+        assert "共 10 个约束定义" in result.output
 
     def test_check_clean(self, cli_runner: CliRunner, temp_workspace: Path, monkeypatch: MonkeyPatch) -> None:
         """constraint check 没有违规"""

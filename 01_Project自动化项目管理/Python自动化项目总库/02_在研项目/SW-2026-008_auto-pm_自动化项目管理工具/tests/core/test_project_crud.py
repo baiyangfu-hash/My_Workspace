@@ -116,6 +116,105 @@ class TestRetrofitProjectByPath:
         with pytest.raises(FileNotFoundError, match="项目目录不存在"):
             svc.retrofit_project_by_path(str(tmp_path / "nonexistent"))
 
+    def test_retrofit_appends_shc014_index_for_nested_plc_json(
+        self, tmp_path: Path
+    ) -> None:
+        """C Fix: 嵌套 .plc.json + PM_SESSION §4 时，retrofit 自动追加 SHC-014 兼容索引
+
+        验证：存量 PLC 项目（.plc.json 在子目录）接管后，PM_SESSION §4 被注入
+        req/int/tec/dsn 标准索引条目，使 SHC-014 门禁可通过。
+        """
+        project_dir = tmp_path / "DJ-2026-SHC"
+        project_dir.mkdir()
+
+        # 嵌套 .plc.json（适配 02_PLC程序/PLC_ST/ 结构）
+        plc_st = project_dir / "02_PLC程序" / "PLC_ST"
+        plc_st.mkdir(parents=True)
+        (plc_st / ".plc.json").write_text(
+            json.dumps(
+                {"name": "DJ-2026-SHC", "version": "V1.0.0", "description": "测试"},
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+
+        # 文档文件（含标准后缀）
+        doc_dir = project_dir / "00_doc"
+        doc_dir.mkdir()
+        (doc_dir / "001_DJ-2026-SHC_需求分析_REQ.md").write_text("# REQ", encoding="utf-8")
+        (doc_dir / "002_DJ-2026-SHC_技术方案_TEC.md").write_text("# TEC", encoding="utf-8")
+
+        prd_dir = plc_st / "PRD"
+        prd_dir.mkdir()
+        (prd_dir / "接口文档_INT.md").write_text("# INT", encoding="utf-8")
+        (prd_dir / "详细设计说明书_DSN.md").write_text("# DSN", encoding="utf-8")
+
+        # PM_SESSION 含 §4
+        (project_dir / "PM_SESSION_DJ-2026-SHC.md").write_text(
+            "## 4. Artifacts Index\n- arc: some_arc.md\n\n## 5. Change Records\n",
+            encoding="utf-8",
+        )
+
+        svc = ProjectService(str(tmp_path))
+        svc.retrofit_project_by_path(str(project_dir))
+
+        pm_content = (project_dir / "PM_SESSION_DJ-2026-SHC.md").read_text(encoding="utf-8")
+
+        # 验证四类条目全部注入
+        assert "- req:" in pm_content
+        assert "- int:" in pm_content
+        assert "- tec:" in pm_content
+        assert "- dsn:" in pm_content
+        # 验证标记存在（幂等保护）
+        assert "auto-pm SHC-014" in pm_content
+        # 验证条目在 §4 和 §5 之间（插入点正确）
+        sec4_pos = pm_content.index("## 4.")
+        sec5_pos = pm_content.index("## 5.")
+        req_pos = pm_content.index("- req:")
+        assert sec4_pos < req_pos < sec5_pos
+
+        # 同时验证 .copier-answers.yml stack=plc
+        answers = yaml.safe_load(
+            (project_dir / ".copier-answers.yml").read_text(encoding="utf-8")
+        )
+        assert answers["_src_path"] == "templates/plc-standard-project"
+
+    def test_retrofit_shc014_index_is_idempotent(self, tmp_path: Path) -> None:
+        """C Fix 幂等性：重复 retrofit 时不重复追加 SHC-014 条目"""
+        project_dir = tmp_path / "DJ-2026-IDEM"
+        project_dir.mkdir()
+
+        (project_dir / ".plc.json").write_text(
+            json.dumps({"name": "DJ-2026-IDEM", "version": "V1.0.0"}),
+            encoding="utf-8",
+        )
+        (project_dir / "001_需求_REQ.md").write_text("# REQ", encoding="utf-8")
+        (project_dir / "PM_SESSION_DJ-2026-IDEM.md").write_text(
+            "## 4. Artifacts Index\n\n## 5. Other\n",
+            encoding="utf-8",
+        )
+
+        svc = ProjectService(str(tmp_path))
+        svc.retrofit_project_by_path(str(project_dir))
+
+        pm_after_first = (project_dir / "PM_SESSION_DJ-2026-IDEM.md").read_text(
+            encoding="utf-8"
+        )
+        req_count_first = pm_after_first.count("- req:")
+
+        # 删除 .copier-answers.yml 再次 retrofit（模拟重复操作）
+        (project_dir / ".copier-answers.yml").unlink()
+        svc2 = ProjectService(str(tmp_path))
+        svc2.retrofit_project_by_path(str(project_dir))
+
+        pm_after_second = (project_dir / "PM_SESSION_DJ-2026-IDEM.md").read_text(
+            encoding="utf-8"
+        )
+        req_count_second = pm_after_second.count("- req:")
+
+        # 条目数量不应增加
+        assert req_count_second == req_count_first
+
 
 class TestInitProjectPmFramework:
     """ProjectService.init_project_pm_framework 测试"""

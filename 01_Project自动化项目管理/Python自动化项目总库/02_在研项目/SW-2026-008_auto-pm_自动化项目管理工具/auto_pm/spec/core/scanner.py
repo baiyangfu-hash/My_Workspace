@@ -59,6 +59,8 @@ class SpecScanner:
         base_dir = self.project_root or self.workspace
         if not base_dir.exists():
             return []
+        if self.project_root:
+            return sorted(base_dir.glob("PM_SESSION_*.md"))
         return sorted(base_dir.rglob("PM_SESSION_*.md"))
 
     def _extract_spec_number(self, file_path: Path) -> str | None:
