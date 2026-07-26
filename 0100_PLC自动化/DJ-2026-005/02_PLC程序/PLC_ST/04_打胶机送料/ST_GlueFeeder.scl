@@ -12,10 +12,11 @@ STRUCT
     i_bLx_X2Axis_JogFwd         : BOOL := FALSE;   // 手动: X2正向点动
     i_bLx_X2Axis_JogRev         : BOOL := FALSE;   // 手动: X2反向点动
 
-    // === 工艺参数 ===
+    // === 工艺参数 (V9.1.0 演进) ===
     i_rFeedSpeed                : REAL := 120.0;   // X2轴送料速度(mm/s)
     rStandbyPosition            : REAL := 0.0;     // 待机位置(mm)
     rPickupPosition             : REAL := 300.0;   // 取料位置(mm)
+    i_dDebounceMs               : DINT := 100;     // 动态传感器消抖时间(ms)
 
     // === 传感器与信号输入 ===
     i_bX2Axis_Home              : BOOL := FALSE;   // X2原点

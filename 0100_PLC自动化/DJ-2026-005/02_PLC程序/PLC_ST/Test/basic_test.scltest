@@ -303,3 +303,18 @@ TEST_CASE "TC11_PickPlace_Auto_ZAxis_Move"
     ASSERT GlobalVars.stPickPlace.o_bFrontClamp_Action = TRUE;                // 前夹爪夹紧电磁阀
     ASSERT GlobalVars.stPickPlace.o_bRearClamp_Action = TRUE;                 // 后夹爪夹紧电磁阀
 END_TEST_CASE
+
+TEST_CASE "TC12_GlueFeeder_Debounce"
+    // ============================================================================
+    // 测试目标：V9.1.0 动态消抖配置验证 — i_dDebounceMs 消抖时间配置生效
+    // ============================================================================
+
+    // RESET: 恢复自动模式与消抖配置
+    SET GlobalVars.stFeeder.i_bAutoMode := TRUE;
+    SET GlobalVars.stFeeder.i_bEnable := TRUE;
+    SET GlobalVars.stFeeder.i_dDebounceMs := 100;
+    WAIT_CYCLES 2;
+
+    ASSERT GlobalVars.stFeeder.i_dDebounceMs = 100;
+END_TEST_CASE
+

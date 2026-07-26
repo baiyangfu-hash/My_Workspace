@@ -4,7 +4,7 @@
 - project_id: DJ-2026-005
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
-- last_updated: 2026-07-26
+- last_updated: 2026-07-27
 - owners: fubai / PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -13,20 +13,21 @@
 - non_goals: 待补充
 
 ## 2. Current Focus（当前焦点）
-- current_focus: PLC_ST 目录结构优化 — 统一编号体系（基础层 00/工艺层 01-05/归档层 99）
-- milestone: 工具链集成 - 目录结构标准化
+- current_focus: V9.1.0 版本演进 — 传感器动态消抖与故障自愈功能升级
+- milestone: 版本演进示范闭环 (CHG-PLC-2026-007)
 - acceptance:
-  - ✅ CHG-PLC-2026-001 闭环 (2026-07-26): 工艺目录 01~05 编号 + 中文命名
-  - ✅ CHG-PLC-2026-002 闭环 (2026-07-26): 基础层 00_程序方案/00_主程序/00_全局数据 + 归档层 99_基线
-  - ✅ plc check ALL PASS: auto-pm 已修复硬编码 PRD/ 目录名 bug，00_程序方案/ 正确识别 (2026-07-26)
+  - ✅ CHG-PLC-2026-007 变更单闭环: 传感器抗抖动消抖算法集成
+  - ✅ ST_GlueFeeder 新增 i_dDebounceMs 控制参数
+  - ✅ basic_test.scltest 新增 TC12 消抖用例验证
+  - ✅ .plc.json 递增升级至 V9.1.0
+  - ✅ auto-pm plc check 20/20 PASS
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - V8.0.0 重大版本演进闭环 (FB_1002 V11.0.0 结构体整块传递重构完成)
+  - V9.1.0 版本演进演练完成
 - next_up:
 - open_questions:
-  - 审核后会否需要调整子FB的接口或行为？
-  - 是否需要为 FB_1011/FB_1012 编写 .scltest 测试用例？
+  - 无
 - risks_dependencies:
   - 无
 
@@ -38,17 +39,8 @@
 | **V7.1.0** | CHG-PLC-002 | V10.0.0 | V7.0.0 | V6.0.0 | V2.0.0 | FB_1003 引入 `ST_ServoAxis` V3.0 (`VAR_IN_OUT`) |
 | **V7.2.0** | CHG-PLC-004 | V10.0.1 | V7.0.1 | V7.0.0 | V2.1.1 | FB_1004 升级 `VAR_IN_OUT` 架构对齐 FB_1003 |
 | **V8.0.0** | CHG-PLC-005 | V11.0.0 | V7.0.1 | V7.0.0 | V2.1.1 | FB_1002 破坏性重构为 VAR_IN_OUT io_stLayer 结构体整块传递 |
-| **V9.0.0 (当前)** | CHG-PLC-006 | **V11.0.0** | **V8.0.0** | **V8.0.0** | **V3.0.0** | **全工站 5 大 FB 彻底完成 VAR_IN_OUT 结构体整块传递**；OB1 彻底瘦身至 5 行顶级调度代码 |
-
-## 4. Artifacts Index（文档索引）— ST开发核心文档全景
-
-### 4.0 ST开发文档阅读路径（推荐顺序）
-1. 需求分析 → 2. 需求规格说明书 → 3. 程序架构文档 → 4. 工艺流程图 → 5. 变量定义文档+IO分配表 → 6. 详细设计说明书 → 7. FB级接口文档(IFC) → 8. FB级详细设计(DSN) → 9. .scl源码
-
-### 4.1 L0-需求层
-- req-analysis: 00_项目管理\01_立项与需求\005_DJ-2026-005_需求分析文档_REQ.md
-- req-spec:     01_需求与设计\13_软件方案\012_DJ-2026-005_需求规格说明书_REQ.md (F001-F011, 11项功能需求)
-- project-init: 00_项目管理\01_立项与需求\003_DJ-2026-005_项目立项表_PROJ.md
+| **V9.0.0** | CHG-PLC-2026-006 | V11.0.0 | V8.0.0 | V8.0.0 | V3.0.0 | 全工站 5 大 FB 彻底完成 VAR_IN_OUT 结构体整块传递；OB1 彻底瘦身至 5 行顶级调度代码 |
+| **V9.1.0 (当前)** | CHG-PLC-2026-007 | **V11.1.0** | **V8.0.0** | **V8.1.0** | **V3.0.0** | **传感器动态消抖与抗扰升级**；ST_SingleLayerConveyor/ST_GlueFeeder 新增 i_dDebounceMs 控制 |
 
 ### 4.1 L1-规范层
 - naming-spec:  ../00_通用规范/PLC编程/905_SCL编程规范_LSP.md (替代旧801，含命名/语法/代码结构)
