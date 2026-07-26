@@ -71,8 +71,12 @@ PLC_STD_DIRS: Final[list[str]] = [
     "PRD",
 ]
 
-#: PRD 文档目录名
+#: PRD 文档目录名（默认/首选）
 PRD_DIR: Final[str] = "PRD"
+
+#: PRD 文档目录名候选列表（按优先级排序，用于兼容不同命名习惯）
+#: 支持: PRD（标准）、00_程序方案（DJ-2026-005 等定制项目）
+PRD_DIR_CANDIDATES: Final[list[str]] = ["PRD", "00_程序方案"]
 
 
 # ── 变更管理目录（CHG-SCPT-2026-146 5大过程组统一） ────────
@@ -177,5 +181,35 @@ def get_change_records_paths(project_path: str) -> list[str]:
 
 
 def get_prd_dir(project_path: str) -> str:
-    """获取 PRD 文档目录路径"""
+    """获取 PRD 文档目录路径（使用默认目录名 PRD）"""
     return os.path.join(project_path, PRD_DIR)
+
+
+#: PRD 目录搜索路径（相对于项目根目录，按优先级排序）
+#: 空字符串 "" 表示项目根目录本身
+_PRD_SEARCH_PATHS: Final[list[str]] = [
+    "",                         # 项目根目录（Python/非PLC项目）
+    "02_PLC程序/PLC_ST",        # 标准PLC项目嵌套路径
+]
+
+
+def find_prd_dir(project_path: str) -> tuple[str, str] | None:
+    """查找实际存在的 PRD 文档目录（按候选列表优先级，多层搜索）
+
+    搜索策略：
+    1. 先搜项目根目录下的候选目录名
+    2. 再搜常见嵌套路径（如 02_PLC程序/PLC_ST/）下的候选目录名
+
+    Args:
+        project_path: 项目根目录
+
+    Returns:
+        (绝对路径, 目录名) 或 None（未找到任何候选目录）
+    """
+    for search_path in _PRD_SEARCH_PATHS:
+        base = os.path.join(project_path, search_path) if search_path else project_path
+        for candidate in PRD_DIR_CANDIDATES:
+            candidate_path = os.path.join(base, candidate)
+            if os.path.isdir(candidate_path):
+                return (candidate_path, candidate)
+    return None

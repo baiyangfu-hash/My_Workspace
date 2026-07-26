@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modbus TCP 联调测试工坊 V15 工业级原型</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --panel-bg: rgba(18, 26, 43, 0.75);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-glow: rgba(59, 130, 246, 0.35);
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-sub: #6b7280;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            height: 56px;
+            padding: 0 24px;
+            background: rgba(13, 19, 32, 0.9);
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: -0.3px;
+        }
+        .brand-badge {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: #059669; border-color: #059669; color: #fff; }
+
+        .workspace-grid {
+            flex: 1;
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .ribbon-section {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 16px;
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-title svg { color: var(--primary); }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+        .form-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .input-control, .select-control {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            padding: 7px 10px;
+            font-size: 12px;
+            font-family: var(--font-code);
+            outline: none;
+            transition: border-color 0.2s ease;
+            width: 100%;
+        }
+        .input-control:focus, .select-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .main-stage {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 16px;
+            height: 480px;
+        }
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .grid-table th {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--panel-border);
+            font-size: 11px;
+        }
+        .grid-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-family: var(--font-code);
+        }
+        .grid-table tr:hover {
+            background: rgba(59, 130, 246, 0.08);
+            cursor: pointer;
+        }
+        .grid-table tr.selected {
+            background: rgba(59, 130, 246, 0.18);
+            border-left: 3px solid var(--primary);
+        }
+
+        .tag-pill {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .bit-expander-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .bit-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .bit-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-sm);
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .bit-btn.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+        .bit-num { font-size: 10px; color: var(--text-sub); }
+        .bit-val { font-size: 13px; font-weight: 700; font-family: var(--font-code); }
+        .bit-btn.active .bit-val { color: var(--accent); }
+
+        .bottom-console {
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .console-tabs {
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+        .console-tab {
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .console-tab.active {
+            color: var(--primary);
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .log-terminal {
+            flex: 1;
+            background: #040711;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            font-family: var(--font-code);
+            font-size: 11px;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+        .log-line { display: flex; gap: 12px; margin-bottom: 2px; }
+        .log-time { color: var(--text-sub); }
+        .log-tx { color: #60a5fa; }
+        .log-rx { color: #34d399; }
+        .log-hex { color: #f3f4f6; letter-spacing: 1px; }
+
+        footer {
+            height: 28px;
+            background: #080c14;
+            border-top: 1px solid var(--panel-border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-sub);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <span>⚡ auto-pm</span>
+            <span class="brand-badge">Modbus TCP 联调工坊 V15 原型</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn">⬆ 导入配置 (JSON)</button>
+            <button class="btn">⬇ 导出配置</button>
+            <button class="btn btn-primary" onclick="toggleConnect()" id="connectMainBtn">🔌 连接 PLC 设备</button>
+        </div>
+    </header>
+
+    <div class="workspace-grid">
+        <div class="ribbon-section">
+            
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    连接参数配置
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">物理网卡选择</label>
+                        <select class="select-control" id="nicSelect">
+                            <option>自动选择 (Auto Default)</option>
+                            <option>以太网 1 (192.168.1.100)</option>
+                            <option>USB 工业以太网 (192.168.1.50)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex:2;">
+                        <label class="form-label">目标 PLC IP 地址</label>
+                        <div style="display:flex; gap:6px;">
+                            <input type="text" class="input-control" value="192.168.1.88" id="ipInput">
+                            <button class="btn" style="padding:4px 10px;" onclick="runPing()">📡 Ping</button>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">端口</label>
+                        <input type="text" class="input-control" value="502">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">站号 (Unit ID)</label>
+                        <input type="text" class="input-control" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                    Modbus Polling 指令与浮点解码配置
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">预设配置 (Presets)</label>
+                        <select class="select-control">
+                            <option>-- 自定义物理调试 --</option>
+                            <option selected>西门子 S7-1200 风机控制 (03 Holding)</option>
+                            <option>多路 PT100 温度传感器 (04 Input)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">功能码 (Function Code)</label>
+                        <select class="select-control" id="fcSelect">
+                            <option value="03">03 读保持寄存器 (Holding Register)</option>
+                            <option value="04">04 读输入寄存器 (Input Register)</option>
+                            <option value="01">01 读线圈 (Coils)</option>
+                            <option value="02">02 读离散输入 (Discrete Inputs)</option>
+                            <option value="16">16 写多寄存器 (Write Multiple)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="max-width: 120px;">
+                        <label class="form-label">起始地址 (Offset)</label>
+                        <input type="number" class="input-control" value="0">
+                    </div>
+                    <div class="form-group" style="max-width: 100px;">
+                        <label class="form-label">长度 (Count)</label>
+                        <input type="number" class="input-control" value="10">
+                    </div>
+                </div>
+                <div class="form-row" style="align-items: flex-end;">
+                    <div class="form-group">
+                        <label class="form-label">Float 32 字节序 (Byte Swap)</label>
+                        <select class="select-control">
+                            <option selected>CDAB (Little-Endian / 西门子默认)</option>
+                            <option>ABCD (Big-Endian)</option>
+                            <option>BADC (Mid-Little-Endian)</option>
+                            <option>DCBA (Little-Endian Byte Swap)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; height:32px; padding:0 8px;">
+                        <input type="checkbox" id="pollChk" checked style="accent-color:var(--primary);">
+                        <label for="pollChk" style="font-size:12px; cursor:pointer;">周期轮询 (1000ms)</label>
+                    </div>
+                    <button class="btn btn-success" style="height:32px;" onclick="triggerRead()">⚡ 单次扫描 / 读取</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="main-stage">
+            <div class="glass-panel table-container">
+                <div class="table-toolbar">
+                    <div class="panel-title" style="margin:0;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        实时数据监视表 (Live Registers Monitor)
+                    </div>
+                    <span style="font-size:11px; color:var(--text-sub);">💡 提示：双击任意行填入写操作缓存区</span>
+                </div>
+
+                <div style="flex:1; overflow-y:auto;">
+                    <table class="grid-table">
+                        <thead>
+                            <tr>
+                                <th>物理地址</th>
+                                <th>Modbus 寻址</th>
+                                <th>绑定 Tag 符号</th>
+                                <th>十进制 (Dec)</th>
+                                <th>十六进制 (Hex)</th>
+                                <th>Float32 解码</th>
+                                <th style="text-align:right;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr class="selected" onclick="selectRow(this, 0, 40001, 1500)">
+                                <td style="color:var(--primary);">VW0 (0)</td>
+                                <td>40001</td>
+                                <td><span class="tag-pill">FAN_SPEED_RPM</span></td>
+                                <td>1500</td>
+                                <td style="color:var(--warning);">0x05DC</td>
+                                <td>1500.00</td>
+                                <td style="text-align:right;"><button class="btn" style="padding:2px 8px; font-size:10px;">✍ 写入</button></td>
+                            </tr>
+                            <tr onclick="selectRow(this, 1, 40002, 385)">
+                                <td style="color:var(--primary);">VW2 (1)</td>
+                                <td>40002</td>
+                                <td><span class="tag-pill">MOTOR_TEMP_C</span></td>
+                                <td>385</td>
+                                <td style="color:var(--warning);">0x0181</td>
+                                <td>38.50 ℃</td>
+                                <td style="text-align:right;"><button class="btn" style="padding:2px 8px; font-size:10px;">✍ 写入</button></td>
+                            </tr>
+                            <tr onclick="selectRow(this, 2, 40003, 0)">
+                                <td style="color:var(--primary);">VW4 (2)</td>
+                                <td>40003</td>
+                                <td><span class="tag-pill">SYS_STATUS_WORD</span></td>
+                                <td>16389</td>
+                                <td style="color:var(--warning);">0x4005</td>
+                                <td>--</td>
+                                <td style="text-align:right;"><button class="btn" style="padding:2px 8px; font-size:10px;">✍ 写入</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="glass-panel bit-expander-panel">
+                <div class="panel-title">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                    16位二进制位解析器 (Bit Expander)
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
+                    当前选中: <span id="selectedRegText" style="color:var(--accent); font-weight:600;">40001 (VW0)</span>
+                </div>
+
+                <div class="bit-grid">
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B15</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn active" onclick="toggleBit(this)"><span class="bit-num">B14</span><span class="bit-val">1</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B13</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B12</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B11</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B10</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B9</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B8</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B7</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B6</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B5</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B4</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B3</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn active" onclick="toggleBit(this)"><span class="bit-num">B2</span><span class="bit-val">1</span></div>
+                    <div class="bit-btn" onclick="toggleBit(this)"><span class="bit-num">B1</span><span class="bit-val">0</span></div>
+                    <div class="bit-btn active" onclick="toggleBit(this)"><span class="bit-num">B0</span><span class="bit-val">1</span></div>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top:auto; width:100%;" onclick="writeBitVal()">✍ 写入反转值到 PLC (FC06)</button>
+            </div>
+
+        </div>
+
+        <div class="glass-panel bottom-console">
+            <div class="console-tabs">
+                <div class="console-tab active">📟 Modbus TCP 网口物理报文链路 (Live Traffic Trace)</div>
+                <div class="console-tab">🧭 0-99 寄存器区段扫描探测器 (Interrogator Scanner)</div>
+                <button class="btn" style="margin-left:auto; font-size:10px; padding:2px 8px;" onclick="clearLog()">清空日志</button>
+            </div>
+            
+            <div class="log-terminal" id="terminal">
+                <div class="log-line">
+                    <span class="log-time">[10:45:00]</span>
+                    <span class="log-tx">[TX 链路发送]</span>
+                    <span class="log-hex">00 01 00 00 00 06 01 03 00 00 00 03</span>
+                </div>
+                <div class="log-line">
+                    <span class="log-time">[10:45:00]</span>
+                    <span class="log-rx">[RX 物理响应]</span>
+                    <span class="log-hex">00 01 00 00 00 09 01 03 06 05 DC 01 81 40 05</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div>
+            <span class="status-indicator"></span>
+            <span id="statusText">Modbus TCP 物理链路就绪 | IP: 192.168.1.88:502 (Unit ID: 1)</span>
+        </div>
+        <div>轮询状态: 1000ms | 报文收发: TX 42 / RX 42</div>
+    </footer>
+
+    <script>
+        let isConnected = false;
+        function toggleConnect() {
+            isConnected = !isConnected;
+            const btn = document.getElementById('connectMainBtn');
+            const statusText = document.getElementById('statusText');
+            if (isConnected) {
+                btn.innerText = '🔌 断开连接';
+                btn.style.background = '#ef4444';
+                statusText.innerText = '已建立 Modbus TCP 物理通信 | IP: 192.168.1.88:502';
+                appendLog('TX', '00 02 00 00 00 06 01 03 00 00 00 0A');
+                appendLog('RX', '00 02 00 00 00 17 01 03 14 05 DC 01 81 40 05 00 00');
+            } else {
+                btn.innerText = '🔌 连接 PLC 设备';
+                btn.style.background = 'var(--primary)';
+                statusText.innerText = '物理链路已断开';
+            }
+        }
+
+        function runPing() {
+            appendLog('SYS', '正在执行 ICMP 链路探测 192.168.1.88...');
+            setTimeout(() => {
+                appendLog('SYS', '来自 192.168.1.88 的回复: 字节=32 时间<1ms TTL=64 (链路优秀)');
+            }, 300);
+        }
+
+        function appendLog(type, text) {
+            const term = document.getElementById('terminal');
+            const now = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            let tag = type === 'TX' ? '<span class="log-tx">[TX 发送]</span>' : (type === 'RX' ? '<span class="log-rx">[RX 响应]</span>' : '<span style="color:var(--warning);">[SYS 诊断]</span>');
+            div.innerHTML = `<span class="log-time">[${now}]</span> ${tag} <span class="log-hex">${text}</span>`;
+            term.appendChild(div);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('terminal').innerHTML = '';
+        }
+
+        function selectRow(el, idx, addr, val) {
+            document.querySelectorAll('.grid-table tr').forEach(r => r.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('selectedRegText').innerText = `${addr} (VW${idx*2})`;
+        }
+
+        function toggleBit(btn) {
+            btn.classList.toggle('active');
+            const valSpan = btn.querySelector('.bit-val');
+            valSpan.innerText = btn.classList.contains('active') ? '1' : '0';
+        }
+
+        function triggerRead() {
+            appendLog('TX', '00 03 00 00 00 06 01 03 00 00 00 0A');
+            setTimeout(() => {
+                appendLog('RX', '00 03 00 00 00 17 01 03 14 05 DC 01 81 40 05 00 00');
+            }, 100);
+        }
+    </script>
+</body>
+</html>

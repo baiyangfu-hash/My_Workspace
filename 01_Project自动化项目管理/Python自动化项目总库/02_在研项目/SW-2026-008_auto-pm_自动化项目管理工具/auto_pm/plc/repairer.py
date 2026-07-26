@@ -22,6 +22,7 @@ import re
 import shutil
 from datetime import datetime
 
+from auto_pm.core.paths import PRD_DIR, PRD_DIR_CANDIDATES, find_prd_dir
 from auto_pm.plc.checker import PlcChecker
 from auto_pm.plc.models import (
     NAMING_RULES,
@@ -40,6 +41,30 @@ class PlcRepairer:
     def __init__(self, workspace_root: str) -> None:
         self.workspace_root = os.path.abspath(workspace_root)
         self._checker = PlcChecker(workspace_root)
+
+    # ── PRD 目录解析辅助 ──────────────────────────────────
+
+    @staticmethod
+    def _is_prd_doc_item(item_name: str) -> str | None:
+        """判断检查项是否为 PRD 文档项，返回文档名（如 需求分析文档_REQ.md）
+
+        兼容 item 名格式：
+        - "PRD/需求分析文档_REQ.md"（标准命名）
+        - "00_程序方案/需求分析文档_REQ.md"（定制命名）
+        """
+        for candidate in PRD_DIR_CANDIDATES:
+            prefix = candidate + "/"
+            if item_name.startswith(prefix):
+                return item_name[len(prefix):]
+        return None
+
+    @staticmethod
+    def _resolve_prd_path(project_path: str) -> str:
+        """解析实际存在的 PRD 目录路径，若都不存在则返回默认 PRD_DIR 路径"""
+        found = find_prd_dir(project_path)
+        if found is not None:
+            return found[0]
+        return os.path.join(project_path, PRD_DIR)
 
     # ── 单项目修复 ────────────────────────────────────────
 
@@ -87,8 +112,8 @@ class PlcRepairer:
                 self._repair_spec_snapshot(project_path, result, dry_run)
             elif item.item == "PRD 目录":
                 self._repair_prd_dir(project_path, project_id, project_name, result, dry_run)
-            elif item.item.startswith("PRD/"):
-                doc_name = item.item.split("/", 1)[1]
+            elif self._is_prd_doc_item(item.item) is not None:
+                doc_name = self._is_prd_doc_item(item.item)
                 self._repair_prd_doc(
                     project_path, project_id, project_name, doc_name, result, dry_run
                 )
@@ -168,7 +193,7 @@ class PlcRepairer:
         log.info("开始标准化文档: %s (apply=%s)", project_path, apply)
 
         result = StandardizeResult(project_path=project_path)
-        prd_path = os.path.join(project_path, "PRD")
+        prd_path = self._resolve_prd_path(project_path)
 
         if not os.path.isdir(prd_path):
             log.warning("PRD 目录不存在，跳过标准化: %s", prd_path)
@@ -509,7 +534,7 @@ class PlcRepairer:
         dry_run: bool,
     ) -> None:
         """修复 PRD 目录（创建缺失目录）"""
-        prd_path = os.path.join(project_path, "PRD")
+        prd_path = os.path.join(project_path, PRD_DIR)
         if not dry_run:
             os.makedirs(prd_path, exist_ok=True)
         result.add(
@@ -530,14 +555,17 @@ class PlcRepairer:
         dry_run: bool,
     ) -> None:
         """修复 PRD 文档（创建缺失文档）"""
-        doc_path = os.path.join(project_path, "PRD", doc_name)
+        prd_path = self._resolve_prd_path(project_path)
+        doc_path = os.path.join(prd_path, doc_name)
         content = self._minimal_prd_doc(doc_name, project_id, project_name)
 
         if not dry_run:
             from auto_pm.utils.file_utils import write_file
             write_file(doc_path, content)
+        # 使用实际目录名构造 item 名，兼容 PRD 和 00_程序方案 等命名
+        prd_dir_name = os.path.basename(prd_path)
         result.add(
-            item=f"PRD/{doc_name}",
+            item=f"{prd_dir_name}/{doc_name}",
             action=f"创建 {doc_name}",
             destructive=False,
             status="fixed",
@@ -585,7 +613,7 @@ class PlcRepairer:
             return
 
         actual_filename = match.group(1).strip()
-        prd_path = os.path.join(project_path, "PRD")
+        prd_path = self._resolve_prd_path(project_path)
         old_path = os.path.join(prd_path, actual_filename)
 
         # 推断标准名
@@ -737,10 +765,10 @@ class PlcRepairer:
   - result: 待检查
 
 ## 4. Artifacts Index（文档索引）
-- req: PRD/需求分析文档_REQ.md
-- int: PRD/接口文档_INT.md
-- dsn: PRD/详细设计说明书_DSN.md
-- tec: PRD/技术方案文档_TEC.md
+- req: {PRD_DIR}/需求分析文档_REQ.md
+- int: {PRD_DIR}/接口文档_INT.md
+- dsn: {PRD_DIR}/详细设计说明书_DSN.md
+- tec: {PRD_DIR}/技术方案文档_TEC.md
 
 ## 5. Logs（按事件沉淀）
 - change_log:

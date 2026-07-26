@@ -19,6 +19,7 @@ import os
 import re
 from typing import cast
 
+from auto_pm.core.paths import find_prd_dir
 from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
     _LEGACY_PROJECT_INIT_PLC_PATH,
@@ -442,39 +443,43 @@ class PlcChecker:
 
     def _check_prd_docs(self, project_path: str, result: CheckResult) -> None:
         """检查 PRD 文档完整性"""
-        prd_path = os.path.join(project_path, "PRD")
+        found = find_prd_dir(project_path)
         legacy_dirs = self._get_existing_legacy_prd_dirs(project_path)
-        if not os.path.isdir(prd_path):
+
+        if found is None:
             if legacy_dirs:
                 result.add(
                     "PRD 目录",
                     "warn",
-                    "未使用 root PRD/，检测到历史文档目录: "
+                    "未使用 root PRD/ 或 00_程序方案/，检测到历史文档目录: "
                     + ", ".join(legacy_dirs),
                 )
             else:
-                result.add("PRD 目录", "fail", "缺少 PRD/ 目录")
+                result.add("PRD 目录", "fail", "缺少 PRD/（或 00_程序方案/）目录")
                 return
         else:
-            result.add("PRD 目录", "pass", "PRD/ 目录存在")
+            prd_path, prd_name = found
+            result.add("PRD 目录", "pass", f"{prd_name}/ 目录存在")
 
         existing: set[str] = set()
         try:
-            if os.path.isdir(prd_path):
+            if found is not None:
+                prd_path = found[0]
                 existing = {f for f in os.listdir(prd_path) if f.endswith(".md")}
         except OSError:
             pass
 
+        prd_display_name = found[1] if found else "PRD"
         for doc in STD_PRDS:
             if doc in existing:
-                result.add(f"PRD/{doc}", "pass", "存在")
+                result.add(f"{prd_display_name}/{doc}", "pass", "存在")
             else:
                 # 尝试模糊匹配
                 prefix = doc.split("_")[0]
                 matched = [f for f in existing if f.startswith(prefix)]
                 if matched:
                     result.add(
-                        f"PRD/{doc}",
+                        f"{prd_display_name}/{doc}",
                         "warn",
                         f"命名不匹配，实际文件: {', '.join(matched)}",
                     )
@@ -482,14 +487,16 @@ class PlcChecker:
                     legacy_matches = self._find_legacy_prd_docs(project_path, doc)
                     if legacy_matches:
                         result.add(
-                            f"PRD/{doc}",
+                            f"{prd_display_name}/{doc}",
                             "warn",
                             "历史路径存在: "
                             + ", ".join(legacy_matches)
-                            + "，建议后续收口到 PRD/",
+                            + f"，建议后续收口到 {prd_display_name}/",
                         )
                     else:
-                        result.add(f"PRD/{doc}", "fail", f"缺少 {doc}")
+                        result.add(
+                            f"{prd_display_name}/{doc}", "fail", f"缺少 {doc}"
+                        )
 
     @staticmethod
     def _get_existing_legacy_prd_dirs(project_path: str) -> list[str]:

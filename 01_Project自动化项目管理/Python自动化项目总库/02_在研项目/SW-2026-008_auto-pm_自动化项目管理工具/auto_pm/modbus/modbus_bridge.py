@@ -114,8 +114,9 @@ class ModbusBridge(QObject):
 
     # ── Ping 诊断 ─────────────────────────────────────────
 
+    @Slot(str)
     @Slot(str, str)
-    def pingHost(self, ip: str, source_ip: str) -> None:
+    def pingHost(self, ip: str, source_ip: str = "") -> None:
         """执行 Ping 探测，结果通过 pingResultReceived Signal 异步推送。
 
         Args:

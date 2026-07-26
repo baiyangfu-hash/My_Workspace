@@ -17,6 +17,7 @@ import logging
 import os
 import re
 
+from auto_pm.core.paths import find_prd_dir
 from auto_pm.models.plc import CheckResult
 
 log = logging.getLogger(__name__)
@@ -74,16 +75,15 @@ class SubstanceChecker:
         result = CheckResult(project_path=project_path)
         result.project_type = "substance_check"
 
-        prd_dir = os.path.join(project_path, "PRD")
-
-        # 1. 检查 PRD 目录是否存在
-        if not os.path.isdir(prd_dir):
+        found = find_prd_dir(project_path)
+        if found is None:
             result.add(
                 item="PRD 目录",
                 status="fail",
-                message=f"PRD 目录不存在: {prd_dir}",
+                message=f"PRD 目录不存在: {project_path}",
             )
             return result
+        prd_dir, _prd_name = found
 
         # 2. 逐个检查 PRD 文档
         for doc_type, filename in self.PRD_DOCS:
@@ -241,7 +241,7 @@ class SubstanceChecker:
 
             # 判断是否是项目目录（有 PRD 目录或 .plc.json 或 .copier-answers.yml）
             if (
-                os.path.isdir(os.path.join(entry_path, "PRD"))
+                find_prd_dir(entry_path) is not None
                 or os.path.isfile(os.path.join(entry_path, ".plc.json"))
                 or os.path.isfile(os.path.join(entry_path, ".copier-answers.yml"))
             ):
