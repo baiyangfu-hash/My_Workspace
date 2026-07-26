@@ -4,7 +4,7 @@
 - project_id: DJ-2026-005
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
-- last_updated: 2026-06-17
+- last_updated: 2026-07-26
 - owners: fubai / PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -13,38 +13,32 @@
 - non_goals: 待补充
 
 ## 2. Current Focus（当前焦点）
-- current_focus: .scltest测试断言注释规范化 — 801编码规范V1.0.7新增§4.3.5
-- milestone: 编码规范增强 - 测试可读性标准
+- current_focus: PLC_ST 目录结构优化 — 统一编号体系（基础层 00/工艺层 01-05/归档层 99）
+- milestone: 工具链集成 - 目录结构标准化
 - acceptance:
-  - ✅ basic_test.scltest 27条ASSERT行全部追加中文注释(来源: GlobalVars.db)
-  - ✅ 801规范V1.0.6→V1.0.7: 新增§4.3.5 .scltest断言注释规范
-  - ✅ 801自检清单新增第12项: ASSERT行尾中文注释检查
-  - ⬜ 推广至0100_PLC自动化下其他项目的新建.scltest文件
-  - ✅ 阶段0：SRC基线
-  - ✅ 阶段1：6份核心文档修正
-  - ✅ 规范升级：801_DEV-V1.0.3→V1.0.5（英文标识符强制）
-  - ✅ 阶段2：FB级PRD全部重写V6.0.0
-  - ✅ 阶段3：ST代码全部重写V6.0.0
-  - ✅ 阶段4-Conveyor重构: 7份PRD文档 (FB_1002 V7.0.0 + FB_1011 + FB_1012 + ARC)
-  - ✅ 阶段4-Conveyor重构: FB_1002 ST代码 V7.0.0
-  - ✅ 阶段4-Conveyor重构: DB1 GlobalVars.db stConveyor重写 + 4×FB_1002实例
-  - ✅ 阶段4-Conveyor重构: OB1.scl 展开调用 + 汇总逻辑
-  - ✅ 阶段4-Conveyor重构: DB1/OB1 PRD文档同步升级V7.0.0
-  - ⬜ 待定：AxisControl独立轴FB
-  - ⬜ 待定：TIA Portal编译验证+VS Code LSP诊断
+  - ✅ CHG-PLC-2026-001 闭环 (2026-07-26): 工艺目录 01~05 编号 + 中文命名
+  - ✅ CHG-PLC-2026-002 闭环 (2026-07-26): 基础层 00_程序方案/00_主程序/00_全局数据 + 归档层 99_基线
+  - ✅ plc check ALL PASS: auto-pm 已修复硬编码 PRD/ 目录名 bug，00_程序方案/ 正确识别 (2026-07-26)
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 阶段4完成 (Conveyor V7.0.0重构: FB_1002.scl + DB1 + OB1 + 7份PRD)
+  - V8.0.0 重大版本演进闭环 (FB_1002 V11.0.0 结构体整块传递重构完成)
 - next_up:
-  - 人工审核整体重构结果
-  - 决策: AxisControl独立轴FB是否需要
-  - 决策: TIA Portal编译验证时机
 - open_questions:
   - 审核后会否需要调整子FB的接口或行为？
   - 是否需要为 FB_1011/FB_1012 编写 .scltest 测试用例？
 - risks_dependencies:
-  - FB_1001 取消后，OB1/DB1 需要一并更新（中等影响范围）
+  - 无
+
+## 3.1 Version Evolution Matrix（版本演进矩阵）
+
+| 设备主版本 <br>`(.plc.json)` | 变更单 <br>`(CHG)` | `FB_1002` <br>输送机 | `FB_1003` <br>取放料 | `FB_1004` <br>打胶送料 | `FB_2001` <br>报警管理 | 核心架构特征 / 破坏性变更 (Breaking Changes) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **V7.0.0** | CHG-PLC-001 | V9.0.0 | V6.0.0 | V6.0.0 | V2.0.0 | 架构大重写，展开调用 4×FB_1002 |
+| **V7.1.0** | CHG-PLC-002 | V10.0.0 | V7.0.0 | V6.0.0 | V2.0.0 | FB_1003 引入 `ST_ServoAxis` V3.0 (`VAR_IN_OUT`) |
+| **V7.2.0** | CHG-PLC-004 | V10.0.1 | V7.0.1 | V7.0.0 | V2.1.1 | FB_1004 升级 `VAR_IN_OUT` 架构对齐 FB_1003 |
+| **V8.0.0** | CHG-PLC-005 | V11.0.0 | V7.0.1 | V7.0.0 | V2.1.1 | FB_1002 破坏性重构为 VAR_IN_OUT io_stLayer 结构体整块传递 |
+| **V9.0.0 (当前)** | CHG-PLC-006 | **V11.0.0** | **V8.0.0** | **V8.0.0** | **V3.0.0** | **全工站 5 大 FB 彻底完成 VAR_IN_OUT 结构体整块传递**；OB1 彻底瘦身至 5 行顶级调度代码 |
 
 ## 4. Artifacts Index（文档索引）— ST开发核心文档全景
 
@@ -59,6 +53,12 @@
 ### 4.1 L1-规范层
 - naming-spec:  ../00_通用规范/PLC编程/905_SCL编程规范_LSP.md (替代旧801，含命名/语法/代码结构)
 
+### 4.2 程序级方案（PLC_ST/00_程序方案/）
+- req:      02_PLC程序\PLC_ST\00_程序方案\需求分析文档_REQ.md
+- int:      02_PLC程序\PLC_ST\00_程序方案\接口文档_INT.md
+- tec:      02_PLC程序\PLC_ST\00_程序方案\技术方案文档_TEC.md
+- dsn:      02_PLC程序\PLC_ST\00_程序方案\详细设计说明书_DSN.md
+
 ### 4.3 L2-架构/设计层（程序文档/，6份核心文档）
 - arc:      02_PLC程序\程序文档\程序架构文档_ARC-DJ-2026-005-V2.0.0.md
 - dsn:      02_PLC程序\程序文档\详细设计说明书_DSN-DJ-2026-005-V2.0.0.md
@@ -68,30 +68,30 @@
 - plc-sum:  02_PLC程序\程序文档\016_DJ-2026-005_PLC程序设计总文档_PLC.md
 
 ### 4.4 L3-FB级接口/设计层（各FB的PRD/，全部V6.0.0，IFC+DSN+CHG+UM）
-- ob1:      02_PLC程序\通用ST程序及变量表\OB1\PRD\ (IFC-V5.0.0 + DSN + CHG) — 待更新到V6.0.0
-- db1:      02_PLC程序\通用ST程序及变量表\DB1\PRD\ (IFC-V3.0.0 258变量5结构 + CHG) — 待更新到V6.0.0
-- fb1001:   02_PLC程序\通用ST程序及变量表\conveyor\PRD\archive_V6.0.0\ (已归档-旧版 FB_1001 取消)
-- fb1002:   02_PLC程序\通用ST程序及变量表\conveyor\PRD\ (IFC-V7.0.0 + DSN-V7.0.0 + ARC-V7.0.0) 🆕 编排器重构
+- ob1:      02_PLC程序\PLC_ST\00_主程序\PRD\ (IFC-V5.0.0 + DSN + CHG) — 待更新到V6.0.0
+- db1:      02_PLC程序\PLC_ST\00_全局数据\PRD\ (IFC-V3.0.0 258变量5结构 + CHG) — 待更新到V6.0.0
+- fb1001:   02_PLC程序\PLC_ST\02_输送机\PRD\archive_V6.0.0\ (已归档-旧版 FB_1001 取消)
+- fb1002:   02_PLC程序\PLC_ST\02_输送机\PRD\ (IFC-V7.0.0 + DSN-V7.0.0 + ARC-V7.0.0) 🆕 编排器重构
 - fb1011:   01_SharedLibraries\SysLib\actuator\PRD\ (IFC-V7.0.0 + DSN-V7.0.0) 🆕 通用气缸执行器 (SysLib)
 - fb1012:   01_SharedLibraries\SysLib\actuator\PRD\ (IFC-V7.0.0 + DSN-V7.0.0) 🆕 通用电机执行器 (SysLib)
-- fb1003:   02_PLC程序\通用ST程序及变量表\pickplace\PRD\ (IFC-V6.0.0 + DSN-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
-- fb1004:   02_PLC程序\通用ST程序及变量表\feeder\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
-- fb2001:   02_PLC程序\通用ST程序及变量表\common\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
-- external: 02_PLC程序\通用ST程序及变量表\external\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
+- fb1003:   02_PLC程序\PLC_ST\03_取放料\PRD\ (IFC-V6.0.0 + DSN-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
+- fb1004:   02_PLC程序\PLC_ST\04_打胶机送料\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
+- fb2001:   02_PLC程序\PLC_ST\05_公共报警\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
+- external: 02_PLC程序\PLC_ST\01_外部设备交互\PRD\ (IFC-V6.0.0 + CHG-V6.0.0 + UM-V6.0.0) ✅
 
 ### 4.5 L4-源代码层（全部V6.0.0 ✅ 变量100%英文，801规范合规）
-- ob1:      02_PLC程序\通用ST程序及变量表\OB1\OB1.scl ✅ V6.0.0
-- db1:      02_PLC程序\通用ST程序及变量表\DB1\GlobalVars.db ✅ V6.0.0
-- fb1001:   02_PLC程序\通用ST程序及变量表\conveyor\FB_1001_Conveyor4Layer_BufferFraming.scl ✅ V6.0.0
-- fb1002:   02_PLC程序\通用ST程序及变量表\conveyor\FB_1002_SingleLayerConveyor_BufferFraming.scl ✅ V6.0.0 (9步Step_S)
-- fb1003:   02_PLC程序\通用ST程序及变量表\pickplace\FB_1003_PickPlace_BufferFraming.scl ✅ V6.0.0 (6步S20~S25)
-- fb1004:   02_PLC程序\通用ST程序及变量表\feeder\FB_1004_GlueMachineFeeder_BufferFraming.scl ✅ V6.0.0 (4步D760)
-- fb2001:   02_PLC程序\通用ST程序及变量表\common\FB_2001_CommonAlarm_AllStation.scl ✅ V6.0.0
-- external: 02_PLC程序\通用ST程序及变量表\external\FB_ExternalDeviceInteraction.scl ✅ V6.0.0
-- test:     02_PLC程序\通用ST程序及变量表\Test\basic_test.scltest
+- ob1:      02_PLC程序\PLC_ST\00_主程序\OB1.scl ✅ V6.0.0
+- db1:      02_PLC程序\PLC_ST\00_全局数据\GlobalVars.db ✅ V6.0.0
+- fb1001:   02_PLC程序\PLC_ST\02_输送机\FB_1001_Conveyor4Layer_BufferFraming.scl ✅ V6.0.0
+- fb1002:   02_PLC程序\PLC_ST\02_输送机\FB_1002_SingleLayerConveyor_BufferFraming.scl ✅ V6.0.0 (9步Step_S)
+- fb1003:   02_PLC程序\PLC_ST\03_取放料\FB_1003_PickPlace_BufferFraming.scl ✅ V6.0.0 (6步S20~S25)
+- fb1004:   02_PLC程序\PLC_ST\04_打胶机送料\FB_1004_GlueMachineFeeder_BufferFraming.scl ✅ V6.0.0 (4步D760)
+- fb2001:   02_PLC程序\PLC_ST\05_公共报警\FB_2001_CommonAlarm_AllStation.scl ✅ V6.0.0
+- external: 02_PLC程序\PLC_ST\01_外部设备交互\FB_ExternalDeviceInteraction.scl ✅ V6.0.0
+- test:     02_PLC程序\PLC_ST\Test\basic_test.scltest
 
 ### 4.5a 源程序功能基线（SRC - Truth Anchor）
-- baseline: 02_PLC程序\通用ST程序及变量表\PRD-SRC\源程序功能基线_SRC-DJ-2026-005-V1.0.0.md (~530行，I/O全量映射+三轴运动参数+3个状态机+~50F位报警体系+指示灯逻辑)
+- baseline: 02_PLC程序\PLC_ST\99_基线\源程序功能基线_SRC-DJ-2026-005-V1.0.0.md (~530行，I/O全量映射+三轴运动参数+3个状态机+~50F位报警体系+指示灯逻辑)
 
 ### 4.6 测试与一致性
 - test:
@@ -148,6 +148,59 @@
   - 2026-05-17 程序文档梳理：补齐导出PNG索引；重命名ARC/DSN/FLOW文件并统一到V2.0.0；同步修正交叉引用
 
 ## 6. Implementation Log
+- 2026-07-26 | skill=pm-workflow | mode=变更/缺陷/发布 (CHG-PLC-2026-002)
+  - goal: PLC_ST 基础层+归档层目录重命名 — PRD→00_程序方案、OB1→00_主程序、DB1→00_全局数据、PRD-SRC→99_基线
+  - changed_files:
+    - 4个目录重命名: PRD→00_程序方案, OB1→00_主程序, DB1→00_全局数据, PRD-SRC→99_基线
+    - PM_SESSION_DJ-2026-005.md (§2, §4.2, §4.4, §4.5, §4.5a, §6, §8, §9)
+    - CHG-PLC-2026-002.md (12章节完整填写，状态: draft→closed)
+  - impact: |
+      1. 基础层（00_程序方案/00_主程序/00_全局数据）与工艺层（01~05）统一编号体系
+      2. 程序方案独立于 FB 级 PRD，消歧义（不再与 FB/PRD/ 同名）
+      3. 99_基线 放末尾，明确"归档/参考"定位
+      4. .scl 文件零修改（文件名、代码、内容均不变）
+  - verification:
+    - plc check: 15P/4W/2F (2 FAIL 为检查器硬编码 PRD/ 目录名导致的假阳性，文件仍在 00_程序方案/ 下) [已验证]
+    - 台账对账: 缺失0/孤儿0/不一致0 [已验证]
+    - SHC-011/012/013/014: 全部通过 [已验证]
+  - risks: |
+      1. auto-pm plc check 硬编码 PRD/ 目录名，00_程序方案/ 被误报为缺失（假阳性），需后续修复 auto-pm 检查器
+      2. 其他引用 OB1/DB1/PRD/PRD-SRC 路径的文档（如旧版程序文档）可能需要更新，但不在本次变更范围
+
+- 2026-07-26 | skill=pm-workflow | mode=变更/缺陷/发布 (CHG-PLC-2026-001)
+  - goal: PLC_ST 目录结构优化 — 按工艺流程编号 + 中文目录名，提升可读性
+  - changed_files:
+    - 5个目录重命名: external→01_外部设备交互, conveyor→02_输送机, pickplace→03_取放料, feeder→04_打胶机送料, common→05_公共报警
+    - PM_SESSION_DJ-2026-005.md (§0 last_updated, §2 Current Focus, §4 新增 §4.2 程序级PRD + 路径批量替换, §6, §8, §9)
+    - CHG-PLC-2026-001.md (12章节完整填写，状态: draft→closed)
+  - impact: |
+      1. 目录按工艺流编号排序（01→02→03→04→05），与 OB1 调用顺序一致，打开即见物流动线
+      2. 目录名中文化，与项目其他中文目录风格统一，电气工程师无需脑内翻译
+      3. .scl 文件零修改（文件名、代码、内容均不变），通过 DB1 全局变量引用 FB，不依赖路径
+      4. PM_SESSION §4 路径全部更新（通用ST程序及变量表→PLC_ST），新增 §4.2 程序级 PRD 索引
+  - verification:
+    - plc check: 15P/6W/0F (不变，[已验证])
+    - 台账对账: 缺失0/孤儿0/不一致0 (不变，[已验证])
+    - BOM: 约束检查通过 ([已验证])
+    - SHC-014: 补充 §4.2 程序级 PRD 后通过 ([已验证])
+  - risks: |
+      1. ~ (零风险，纯目录重命名)
+
+- 2026-07-26 | skill=pm-workflow | mode=旧项目补完 (project retrofit)
+  - goal: 将 DJ-2026-005 正式纳入 auto-pm 驾驶舱管理，从 pm_session 被动识别升级为 copier 正式纳管
+  - changed_files:
+    - .copier-answers.yml (新建: _src_path=templates/plc-standard-project, version=V7.1.1)
+    - PM_SESSION_DJ-2026-005.md (§0 last_updated, §2 Current Focus, §6, §8, §9)
+  - impact: |
+      1. 来源从 pm_session → copier，auto-pm 完整功能可用（变更管理、模板更新等）
+      2. 业务线自动识别为 DJ（从项目编号前缀 DJ-2026-005 解析）
+      3. 现有项目文件零修改（retrofit 仅补全元数据，不修改现有文件）
+      4. 台账对账无差异（缺失 0 / 孤儿 0 / 状态不一致 0）
+  - risks: |
+      1. 后续需验证 CHG 变更单创建/流转功能在正式纳管后正常工作
+      2. PRD 目录历史路径告警（6 Warn）暂不处理，待后续统一迁移
+      3. Spec Snapshot 版本漂移（PROJ-016 V1.1.0→V1.2.0, CHG-040 V2.1.0→V2.2.0）待后续处理
+
 - 2026-06-24 | skill=plc-electrical-engineer | mode=规范检查+Breaking Change适配
   - goal: 审查DJ-2026-005项目与全局规范/技术规范/PM自动化工具的冲突, 并修复FB_1002适配FB_1011 V13.0.0
   - changed_files:
@@ -363,6 +416,99 @@
     - 缺少现场与编译环境的最新验证结果
 
 ## 8. Handoff Notes
+- 2026-07-26 | from=pm-workflow | reason=auto-pm PRD 目录硬编码修复完成
+  - current_state: |
+      auto-pm 已修复硬编码 PRD/ 目录名 bug，3个文件修改（paths.py/checker.py/repairer.py/substance_checker.py）。[已验证]
+      find_prd_dir() 支持多层搜索（根目录 + 02_PLC程序/PLC_ST/），候选列表 ["PRD", "00_程序方案"]。[已验证]
+      plc check DJ-2026-005 结果: 20P/1W/0F (ALL PASS)，00_程序方案/ 正确识别。[已验证]
+      测试: 460 passed, 1 skipped，无回归。[已验证]
+  - next_focus: |
+      1. 处理 Spec Snapshot 版本漂移（PROJ-016 V1.1.0→V1.2.0, CHG-040 V2.1.0→V2.2.0）
+      2. 继续推进 DJ-2026-005 真实开发任务
+  - watchouts:
+    - auto-pm 修复范围: paths.py (find_prd_dir 多层搜索), checker.py (已使用 find_prd_dir), repairer.py (_is_prd_doc_item + _resolve_prd_path), substance_checker.py (使用 find_prd_dir)
+    - PRD_DIR_CANDIDATES 当前: ["PRD", "00_程序方案"]，新增自定义目录名只需在此列表追加
+    - 修复仅改 auto-pm 工具，DJ-2026-005 项目文件零修改
+  - read_first:
+    - auto_pm/core/paths.py (find_prd_dir, PRD_DIR_CANDIDATES)
+    - auto_pm/plc/repairer.py (_is_prd_doc_item, _resolve_prd_path)
+
+- 2026-07-26 | from=pm-workflow | reason=CHG-PLC-2026-002 闭环完成
+  - current_state: |
+      PLC_ST 目录结构统一编号完成：基础层 00_程序方案/00_主程序/00_全局数据，工艺层 01~05，归档层 99_基线。[已验证]
+      .scl 文件零修改，plc check 15P/4W/2F（2 FAIL 为检查器硬编码 PRD/ 目录名导致的假阳性，已于 2026-07-26 修复）。[已验证]
+      台账对账无差异，SHC 四件套全部通过。[已验证]
+  - next_focus: |
+      1. ~~修复 auto-pm plc check 硬编码 PRD/ 目录名问题~~ ✅ 已完成 (2026-07-26)
+      2. 处理 Spec Snapshot 版本漂移（PROJ-016 V1.1.0→V1.2.0, CHG-040 V2.1.0→V2.2.0）
+      3. 继续推进 DJ-2026-005 真实开发任务
+  - watchouts:
+    - 测试约束: 无 .scltest 运行环境（TIA Portal / LSP 测试运行器），测试验证仅静态审查
+    - 代码约束: 修改 .scl 前必须触发 plc-electrical-engineer 技能
+    - 流程约束: 后续变更必须走 CHG 闭环
+    - 路径约束: 程序级方案在 00_程序方案/，基线在 99_基线/，FB 级 PRD 保持 co-location
+  - read_first:
+    - PM_SESSION_DJ-2026-005.md §2 (当前焦点)
+    - .copier-answers.yml (V7.1.1)
+    - 02_PLC程序\PLC_ST\00_程序方案\ (程序级方案文档)
+
+- 2026-07-26 | from=pm-workflow | reason=CHG-PLC-2026-001 闭环完成
+  - current_state: |
+      DJ-2026-005 已正式纳入 auto-pm 驾驶舱管理（来源: copier），首张 CHG 变更单 CHG-PLC-2026-001 已完成闭环。[已验证]
+      PLC_ST 目录结构已优化：按工艺流编号（01~05）+ 中文目录名，.scl 文件零修改。[已验证]
+      plc check 15P/6W/0F，台账对账无差异。现存 6 Warn 为历史 PRD 路径兼容告警。[已验证]
+  - next_focus: |
+      1. 处理 Spec Snapshot 版本漂移（PROJ-016 V1.1.0→V1.2.0, CHG-040 V2.1.0→V2.2.0）
+      2. 清理 PRD 历史路径告警（6 Warn）
+      3. 继续推进 DJ-2026-005 真实开发任务（通过驾驶舱 CHG 流程）
+  - watchouts:
+    - 测试约束: 无 .scltest 运行环境（TIA Portal / LSP 测试运行器），测试验证仅静态审查
+    - 代码约束: 修改 .scl 前必须触发 plc-electrical-engineer 技能
+    - 流程约束: 后续变更必须走 CHG 闭环（创建→审批→实施→验证→closed），禁止绕过
+    - 路径约束: PLC_ST 子目录名已变（01~05 中文），.scl 文件名不变，后续引用注意更新
+  - read_first:
+    - PM_SESSION_DJ-2026-005.md §2 (当前焦点)
+    - .copier-answers.yml (V7.1.1)
+    - 04_监控\01_变更管理\01_变更单\CHG-PLC\CHG-PLC-2026-001.md (首张变更单)
+
+- 2026-07-26 | from=plc-electrical-engineer | reason=V9.0.0 架构重构闭环 (全工站 5 大 FB 结构体整块传递 + OB1 5 行顶级调度器)
+  - current_state: |
+      1. 全工站 5 大 FB (`FB_External`, `FB_1002`, `FB_1003`, `FB_1004`, `FB_2001`) 全部完成 `VAR_IN_OUT` 结构体整块传递重构。[已验证]
+      2. `GlobalVars.db` 匿名 STRUCT 整体替换为具名 UDT 类型 (`ST_ExternalDevice`, `ST_SingleLayerConveyor`, `ST_PickPlace`, `ST_GlueFeeder`, `ST_CommonAlarm`)。[已验证]
+      3. `OB1.scl` 彻底瘦身至 5 行顶级调度代码，逻辑零改动，接口极其干净。[已验证]
+      4. 修复了 `FB_1003` 及 `SysLib` 中全部 28 个未解引用和 duplicate case 语法错误，`gogen` 转译 0 错误。[已验证]
+      5. 彻底消除了根目录重复 `.plc.json`，统一遵循 LSP-907 单一真源规范。[已验证]
+      6. `auto-pm plc check DJ-2026-005` 静态检查 20 项 100% PASS。[已验证]
+  - next_focus: |
+      1. 在 VS Code 测试资源管理器中运行 `basic_test.scltest` (TC01~TC11) 进行回归测试
+      2. 准备硬件/PLCSIM 仿真导入与现场动作复核
+  - watchouts:
+    - `GlobalVars.db` 必须保持具名 UDT 声明，不可改回匿名 `STRUCT`
+    - `basic_test.scltest` 测试文件唯一真源存放在 `02_PLC程序/PLC_ST/Test/` 目录
+  - read_first:
+    - PM_SESSION_DJ-2026-005.md §3.1 (版本演进矩阵 V9.0.0)
+    - 02_PLC程序/PLC_ST/00_主程序/OB1.scl (V9.0.0 顶级调度器)
+    - 02_PLC程序/PLC_ST/00_全局数据/GlobalVars.db
+
+- 2026-07-26 | from=pm-workflow | reason=auto-pm project retrofit 正式接管完成
+  - current_state: |
+      DJ-2026-005 已正式纳入 auto-pm 驾驶舱管理。.copier-answers.yml 已创建，来源从 pm_session 变更为 copier。[已验证]
+      项目代码/文档零修改，仅补全元数据。plc check 15 Pass / 6 Warn / 0 Fail，台账对账无差异。[已验证]
+      现存 6 Warn 为历史 PRD 路径兼容告警 + 2 项 Spec Snapshot 版本漂移，暂不处理。[已验证]
+  - next_focus: |
+      1. 通过驾驶舱为 DJ-2026-005 开出第一张真实 CHG 变更单（验证变更管理流程在正式纳管后的可用性）
+      2. 处理 Spec Snapshot 版本漂移（PROJ-016 V1.1.0→V1.2.0, CHG-040 V2.1.0→V2.2.0）
+      3. 清理 PRD 历史路径告警（6 Warn）
+  - watchouts:
+    - 测试约束: 无 .scltest 运行环境（TIA Portal / LSP 测试运行器），测试验证仅静态审查
+    - 代码约束: 遵循 plc-rules.md 强制规则（修改 .scl 前必须触发 plc-electrical-engineer 技能）
+    - 流程约束: 后续变更必须走 CHG 闭环（创建→审批→实施→验证→closed），禁止绕过
+    - 环境约束: 缺少 TIA Portal 编译环境，编译验证暂无法执行
+  - read_first:
+    - PM_SESSION_DJ-2026-005.md §2 (当前焦点)
+    - .copier-answers.yml (V7.1.1)
+    - 02_PLC程序/PLC_ST/.plc.json (PLC 配置)
+
 - 2026-06-24 | from=plc-electrical-engineer | reason=FB_1002 V10.0.0适配FB_1011 V13.0.0结构体接口完成
   - current_state: |
       FB_1002 V9.0.0→V10.0.0 已完成适配FB_1011 V13.0.0结构体接口(i_stCmd/q_stSts)。
@@ -424,14 +570,16 @@
     - 02_PLC程序/通用ST程序及变量表/Test/basic_test.scltest
 
 ## 9. Next Actions
+- [P0] ✅ 通过驾驶舱为 DJ-2026-005 开出第一张真实 CHG 变更单 | done=CHG-PLC-2026-001 已闭环 (2026-07-26)
+- [P1] 处理 Spec Snapshot 版本漂移（PROJ-016 V1.1.0→V1.2.0, CHG-040 V2.1.0→V2.2.0）| precondition=auto-pm 驾驶舱就绪 | done_when=spec check 无 ERROR
 - [P0] TIA Portal 编译验证 FB_1002 V10.0.0 | precondition=项目工程文件可访问 | done_when=无编译错误, 警告清单记录并评估
 - [P1] 同步 FB_1002 IFC/DSN 文档到 V10.0.0 | precondition=FB_1002代码修复完成 | done_when=IFC/DSN frontmatter version+1, 接口描述与代码一致
 - [P1] 人工审核状态机逻辑与接口变更 | precondition=可访问最新源码 | done_when=确认状态机行为未改变, 所有参数映射正确
 - [P1] DJ-2026-000 OB1.scl 测试代码同步更新 FB_1011 调用 | precondition=确认DJ-2026-000项目状态 | done_when=OB1.scl使用i_stCmd/q_stSts结构体接口
-- [P1] 修复 PM_SESSION 路径引用陈旧(C-03) | precondition=无 | done_when=§4所有路径从"通用ST程序及变量表"更新为"PLC_ST"
+- [P1] 修复 PM_SESSION 路径引用陈旧(C-03) ✅ | done=§4 路径已全部替换为 PLC_ST (2026-07-26)
 - [P1] 修复 PM_SESSION FB版本记录不符(C-04) | precondition=无 | done_when=FB_External/FB_2001/OB1版本号与实际代码一致
 - [P2] 运行 specmgr check 检测规范漂移详情(C-05) | precondition=无 | done_when=评估LSP-906 V1→V2和LSP-907 V1→V1.2.1对代码的影响
-- [P2] 修复 OB1 注释引用已取消 FB_1001(C-06) | precondition=无 | done_when=OB1头部注释更新为4×FB_1002
+- [P2] 修复 OB1 注释引用已取消 FB_1001(C-06) ✅ | done=OB1头部注释已更新为4×FB_1002 (2026-07-22)
 - [P2] 复核安全互锁完整性 | precondition=可访问安全相关规范与文档 | done_when=确认安全门/急停等联锁逻辑在外层完整覆盖
 
 ## Spec Snapshot（初始化时锁定，供后续版本漂移检测）

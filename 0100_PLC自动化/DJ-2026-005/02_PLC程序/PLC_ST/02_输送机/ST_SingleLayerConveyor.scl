@@ -1,0 +1,59 @@
+(* ================================================================= *)
+(*  类型名称：ST_SingleLayerConveyor                                  *)
+(*  功能描述：单层输送机交互与数据结构体                               *)
+(*  创建日期：2026-07-26                                              *)
+(*  版本号：V11.0.0                                                   *)
+(*  编制人：Trae                                                      *)
+(*                                                                     *)
+(*  遵循规范：                                                         *)
+(*    - LSP-905_SCL编程规范                                           *)
+(*    - LSP-904_SCL注释规范                                           *)
+(* ================================================================= *)
+
+TYPE ST_SingleLayerConveyor
+STRUCT
+    (* ------------------ 控制与模式输入 ------------------ *)
+    bAutoMode               : BOOL;     // 自动运行模式
+    bManualMode             : BOOL;     // 手动调试模式
+    bStart                  : BOOL;     // 自动循环启动
+    bStop                   : BOOL;     // 停止 电平有效
+    iLayerIndex             : INT;      // 层索引 1~4
+    dSeparateTimeoutMs      : DINT;     // 分料超时时间(ms)
+    dDebounceMs             : DINT;     // 传感器消抖时间(ms)
+
+    (* ------------------ 传感器输入 ------------------ *)
+    bPreSeparateSensor      : BOOL;     // 分料前接近开关
+    bPositionSensor1        : BOOL;     // 到位传感器1
+    bPositionSensor2        : BOOL;     // 到位传感器2 冗余
+    bBlockCylinderUp        : BOOL;     // 阻挡气缸上位
+    bBlockCylinderDown      : BOOL;     // 阻挡气缸下位
+    bSeparateCylinderUp     : BOOL;     // 分料气缸上位
+    bSeparateCylinderDown   : BOOL;     // 分料气缸下位
+
+    (* ------------------ 安全与外部联锁 ------------------ *)
+    bSafetyDoorOk           : BOOL;     // 安全门状态 TRUE=关闭OK
+    bVfdFault               : BOOL;     // 变频器故障
+    bPickupConfirmed        : BOOL;     // 取料机构已取走物料
+
+    (* ------------------ 手动操作指令 ------------------ *)
+    bManBlockExtend         : BOOL;     // 手动:阻挡下降
+    bManBlockRetract        : BOOL;     // 手动:阻挡上升
+    bManSeparatePush        : BOOL;     // 手动:分料推出
+    bManConveyorFwd         : BOOL;     // 手动:输送正转
+    bManConveyorRev         : BOOL;     // 手动:输送反转
+    bManConveyorSlow        : BOOL;     // 手动:输送慢速
+
+    (* ------------------ 执行器输出与状态 ------------------ *)
+    q_bBlockSolenoid        : BOOL;     // 阻挡电磁阀 TRUE=下降
+    q_bSeparateSolenoid     : BOOL;     // 分料电磁阀 TRUE=推出
+    q_bConveyorFwd          : BOOL;     // 输送带正转
+    q_bConveyorRev          : BOOL;     // 输送带反转
+    q_bConveyorSlow         : BOOL;     // 输送带慢速
+    q_iCurrentState         : INT;      // 当前步序 0~70
+    q_iAlarmCode            : INT;      // 本层报警码 0=正常
+    q_bRunning              : BOOL;     // 自动运行中
+    q_bFault                : BOOL;     // 本层有故障
+    q_bLayerFeedDone        : BOOL;     // 本层放料完成 脉冲
+    q_bAnySensorFault       : BOOL;     // 任一气缸传感器故障
+END_STRUCT
+END_TYPE

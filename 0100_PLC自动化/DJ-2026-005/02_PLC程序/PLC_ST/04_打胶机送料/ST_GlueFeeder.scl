@@ -1,0 +1,41 @@
+TYPE ST_GlueFeeder :
+STRUCT
+    // === 系统控制输入 ===
+    i_bEnable                   : BOOL := FALSE;   // 总使能
+    i_bAutoMode                 : BOOL := FALSE;   // 自动模式
+    i_bManualMode               : BOOL := FALSE;   // 手动模式
+    i_bStart                    : BOOL := FALSE;   // 启动按钮
+    i_bStop                     : BOOL := FALSE;   // 停止按钮
+    i_bReset                    : BOOL := FALSE;   // 复位按钮
+
+    // === 手动操作输入 ===
+    i_bLx_X2Axis_JogFwd         : BOOL := FALSE;   // 手动: X2正向点动
+    i_bLx_X2Axis_JogRev         : BOOL := FALSE;   // 手动: X2反向点动
+
+    // === 工艺参数 ===
+    i_rFeedSpeed                : REAL := 120.0;   // X2轴送料速度(mm/s)
+    rStandbyPosition            : REAL := 0.0;     // 待机位置(mm)
+    rPickupPosition             : REAL := 300.0;   // 取料位置(mm)
+
+    // === 传感器与信号输入 ===
+    i_bX2Axis_Home              : BOOL := FALSE;   // X2原点
+    i_bX2Axis_ForwardLimit      : BOOL := FALSE;   // X2正限位
+    i_bX2Axis_ReverseLimit      : BOOL := FALSE;   // X2负限位
+    i_bX2Axis_ServoFault         : BOOL := FALSE;   // X2伺服故障
+    i_bGlueMachine_AllowFeed    : BOOL := FALSE;   // 打胶机允许送料(X76)
+    i_bGlueMachine_PickupComplete: BOOL := FALSE;  // 打胶机取料完成(X102)
+    i_bPickPlace_FeedComplete   : BOOL := FALSE;   // 取放料放料完成
+
+    // === 执行器与信号输出 ===
+    o_bAllowPickup              : BOOL := FALSE;   // 允许抓料(Y44)
+    o_bX2Axis_RequestFwd        : BOOL := FALSE;   // X2正转请求
+    o_bX2Axis_RequestRev        : BOOL := FALSE;   // X2反转请求
+    o_bSafetyZoneSignal         : BOOL := FALSE;   // 打胶机安全区(Y47)
+    o_bRunning                  : BOOL := FALSE;   // 运行中
+    o_bFault                    : BOOL := FALSE;   // 本站故障
+    o_bX2Fault                  : BOOL := FALSE;   // X2轴故障
+    o_iCurrentState             : INT := 0;        // 当前状态(0~3)
+    o_rX2Axis_CurrentPosition   : REAL := 0.0;     // X2轴当前位置
+    o_iStationAlarmCode         : INT := 0;        // 本站报警代码
+END_STRUCT;
+END_TYPE

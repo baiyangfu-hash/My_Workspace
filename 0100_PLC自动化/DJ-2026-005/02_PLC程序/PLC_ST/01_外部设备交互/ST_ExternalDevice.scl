@@ -1,0 +1,64 @@
+TYPE ST_ExternalDevice :
+STRUCT
+    // === 系统控制输入 ===
+    i_bEnable                   : BOOL := FALSE;   // 系统总使能
+    i_bAutoMode                 : BOOL := FALSE;   // 自动模式选择
+    i_bManualMode               : BOOL := FALSE;   // 手动模式选择
+    i_bStart                    : BOOL := FALSE;   // 启动按钮
+    i_bStop                     : BOOL := FALSE;   // 停止按钮
+    i_bReset                    : BOOL := FALSE;   // 复位按钮
+
+    // === 组框机输入 ===
+    i_bFrameMachine_AutoRunning : BOOL := FALSE;   // 组框机自动运行中
+    i_bFrameMachine_AllowFeed   : BOOL := FALSE;   // 组框机允许向缓存机输送边框
+    i_bFrameMaterialRequest     : BOOL := FALSE;   // 组框机有边框需要送入缓存机
+    i_bDoorOpenRequest          : BOOL := FALSE;   // 组框机操作门打开(需本机暂停)
+    i_bFrameMachine_EStop       : BOOL := FALSE;   // 组框机急停信号(需联锁)
+    i_bFrameMachine_SafetyErr   : BOOL := FALSE;   // 组框机安全系统异常
+    i_bFrameMachine_CommErr     : BOOL := FALSE;   // 与组框机通讯异常
+
+    // === 打胶机输入 ===
+    i_bGlueMachine_AutoRunning  : BOOL := FALSE;   // 打胶机自动运行中
+    i_bGlueMachine_AllowFeed    : BOOL := FALSE;   // 打胶机准备好可接收边框
+    i_bGlueMachine_PickComplete : BOOL := FALSE;   // 打胶机已完成边框抓取
+    i_bGlueMachine_Fault        : BOOL := FALSE;   // 打胶机设备故障报警
+    i_bGlueMachine_EStop        : BOOL := FALSE;   // 打胶机急停状态
+    i_bGlueMachine_CommErr      : BOOL := FALSE;   // 与打胶机通讯中断
+
+    // === 机器人输入 (预留) ===
+    i_bRobot_AutoRunning        : BOOL := FALSE;   // 机器人自动运行中
+    i_bRobot_StackComplete      : BOOL := FALSE;   // 机器人完成码料
+    i_bRobot_Fault              : BOOL := FALSE;   // 机器人设备故障
+    i_bRobot_EStop              : BOOL := FALSE;   // 机器人急停状态
+    i_bRobot_CommErr            : BOOL := FALSE;   // 与机器人通讯异常
+
+    // === 本机状态输入 ===
+    i_bLocalReady               : BOOL := FALSE;   // 本机就绪状态
+    i_bAnyAlarmActive           : BOOL := FALSE;   // 本机有任何报警激活
+    i_bSystemFault              : BOOL := FALSE;   // 本机系统故障
+
+    // === 组框机输出 ===
+    o_bFrameMachine_RequestFeed : BOOL := FALSE;   // 向组框机请求输送边框
+    o_bFrameMachine_Pause       : BOOL := FALSE;   // 向组框机发送暂停指令
+    o_bFrameMachine_EStop       : BOOL := FALSE;   // 向组框机发送急停联锁信号
+    o_bDoorOpenRequest          : BOOL := FALSE;   // 向组框机申请开门操作
+    o_bFrameMachine_Ready       : BOOL := FALSE;   // 本机就绪, 可接收边框
+
+    // === 打胶机输出 ===
+    o_bGlueMachine_RequestRun   : BOOL := FALSE;   // 请求打胶机启动运行
+    o_bAllowPickup              : BOOL := FALSE;   // 通知打胶机可以抓取边框
+    o_bSafetyZoneSignal         : BOOL := FALSE;   // 安全区开放/关闭信号
+    o_bGlueMachine_ResetReq     : BOOL := FALSE;   // 向打胶机发送复位请求
+
+    // === 机器人输出 (预留) ===
+    o_bRobot_AllowStacking      : BOOL := FALSE;   // 允许机器人进行码料
+    o_bRobot_StopStacking       : BOOL := FALSE;   // 停止机器人码料
+    o_bRobot_ResetReq           : BOOL := FALSE;   // 向机器人发送复位请求
+
+    // === 状态与报警输出 ===
+    o_bFrameMachine_EmergencyStop : BOOL := FALSE; // 组框机急停/安全异常时强制本机停止
+    o_bExternalDeviceFault      : BOOL := FALSE;   // 外部设备故障标志
+    o_iExternalDeviceAlarmSummary : INT := 0;      // 外部设备故障报警码(300~399段)
+    o_bSystemSafetyConditionMet : BOOL := FALSE;   // 系统安全条件是否满足
+END_STRUCT;
+END_TYPE
