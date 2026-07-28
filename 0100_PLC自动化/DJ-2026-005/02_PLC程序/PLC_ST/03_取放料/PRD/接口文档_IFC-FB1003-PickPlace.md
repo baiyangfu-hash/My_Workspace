@@ -1,12 +1,12 @@
-﻿# 接口文档 FB_1003_PickPlace_BufferFraming
+# 接口文档 FB_1003_PickPlace_BufferFraming
 
 ## 0. 文档基础信息
 
 | 属性 | 值 |
 |------|-----|
 | **文档标题** | FB_1003 取放料机构接口定义 |
-| **文档版本** | V7.0.0 |
-| **关联源码** | pickplace/FB_1003_PickPlace_BufferFraming.scl |
+| **文档版本** | V8.0.0 |
+| **关联源码** | 03_取放料/FB_1003_PickPlace_BufferFraming.scl |
 | **编制日期** | 2026-05-20 |
 | **编制人** | Trae |
 | **遵循规范** | LSP-905, ST_ServoAxis V3.0(PLCopen MC Part 1) |

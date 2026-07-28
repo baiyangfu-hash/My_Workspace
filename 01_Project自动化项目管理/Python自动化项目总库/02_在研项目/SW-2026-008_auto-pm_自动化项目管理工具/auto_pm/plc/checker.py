@@ -498,6 +498,64 @@ class PlcChecker:
                             f"{prd_display_name}/{doc}", "fail", f"缺少 {doc}"
                         )
 
+        # 深度校验各 FB 模块 PRD 内容质量（关联源码路径有效性与版本滞后）
+        self._check_sub_prd_substance(project_path, result)
+
+    def _check_sub_prd_substance(self, project_path: str, result: CheckResult) -> None:
+        """深度校验 FB 模块 PRD 内容质量（关联源码路径有效性与版本滞后）"""
+        plc_st_path = os.path.join(project_path, "02_PLC程序", "PLC_ST")
+        if not os.path.isdir(plc_st_path):
+            plc_st_path = os.path.join(project_path, "PLC_ST")
+            if not os.path.isdir(plc_st_path):
+                return
+
+        for root, _dirs, files in os.walk(plc_st_path):
+            if os.path.basename(root) != "PRD":
+                continue
+            for f in sorted(files):
+                if not f.endswith(".md"):
+                    continue
+                file_path = os.path.join(root, f)
+                try:
+                    with open(file_path, encoding="utf-8", errors="ignore") as fp:
+                        content = fp.read()
+                except OSError:
+                    continue
+
+                # 校验关联源码路径
+                source_match = re.search(r"\|\s*\*\*关联源码\*\*\s*\|\s*([^|\r\n]+)\|", content)
+                if source_match:
+                    source_rel = source_match.group(1).strip()
+                    resolved_source = os.path.normpath(os.path.join(plc_st_path, source_rel))
+                    if not os.path.isfile(resolved_source):
+                        result.add(
+                            f"PRD内容质量 [{f}]",
+                            "warn",
+                            f"关联源码路径失效: '{source_rel}' (实际文件不存在)",
+                        )
+
+                # 校验文档版本与项目主版本滞后
+                version_match = re.search(r"\|\s*\*\*文档版本\*\*\s*\|\s*(V\d+\.\d+\.\d+)", content)
+                if version_match:
+                    doc_version = version_match.group(1).strip()
+                    plc_json_path = self._find_plc_json(project_path)
+                    if plc_json_path:
+                        try:
+                            with open(plc_json_path, encoding="utf-8") as jf:
+                                cfg = json.load(jf)
+                                main_version = cfg.get("version", "")
+                                if main_version and main_version.startswith("V") and doc_version.startswith("V"):
+                                    main_major = int(main_version[1:].split(".")[0])
+                                    doc_major = int(doc_version[1:].split(".")[0])
+                                    if main_major - doc_major >= 2:
+                                        result.add(
+                                            f"PRD内容质量 [{f}]",
+                                            "warn",
+                                            f"文档版本严重滞后: {doc_version} (项目主版本 {main_version})",
+                                        )
+                        except Exception:
+                            pass
+
     @staticmethod
     def _get_existing_legacy_prd_dirs(project_path: str) -> list[str]:
         """返回存在的历史 PRD 目录（相对路径，使用 / 分隔）"""

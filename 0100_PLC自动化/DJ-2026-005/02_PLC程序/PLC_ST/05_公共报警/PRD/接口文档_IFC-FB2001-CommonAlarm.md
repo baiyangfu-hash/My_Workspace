@@ -1,12 +1,12 @@
-﻿# 接口文档 FB_2001_CommonAlarm_AllStation
+# 接口文档 FB_2001_CommonAlarm_AllStation
 
 ## 0. 文档基础信息
 
 | 属性 | 值 |
 |------|-----|
 | **文档标题** | FB_2001 公共报警接口定义 |
-| **文档版本** | V6.0.0 |
-| **关联源码** | common/FB_2001_CommonAlarm_AllStation.scl |
+| **文档版本** | V9.1.0 |
+| **关联源码** | 05_公共报警/FB_2001_CommonAlarm_AllStation.scl |
 | **编制日期** | 2026-05-17 |
 | **编制人** | Trae |
 | **遵循规范** | LSP-905 |

@@ -1,12 +1,12 @@
-﻿# 详细设计说明书 FB_1002_SingleLayerConveyor
+# 详细设计说明书 FB_1002_SingleLayerConveyor
 
 ## 0. 文档基础信息
 
 | 属性 | 值 |
 |------|-----|
-| **文档标题** | FB_1002 单层输送机编排器详细设计 |
-| **文档版本** | V7.0.0 |
-| **关联源码** | conveyor/FB_1002_SingleLayerConveyor_BufferFraming.scl |
+| **文档标题** | FB_1002 单层输送机编排器详细设计说明书 |
+| **文档版本** | V11.1.0 |
+| **关联源码** | 02_输送机/FB_1002_SingleLayerConveyor_BufferFraming.scl |
 | **关联IFC** | 接口文档_IFC-FB1002-SingleLayerConveyor-V7.0.0.md |
 | **编制日期** | 2026-05-18 |
 | **编制人** | Trae |

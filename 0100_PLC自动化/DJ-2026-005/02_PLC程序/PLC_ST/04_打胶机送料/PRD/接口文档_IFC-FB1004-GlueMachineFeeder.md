@@ -1,12 +1,12 @@
-﻿# 接口文档 FB_1004_GlueMachineFeeder_BufferFraming
+# 接口文档 FB_1004_GlueMachineFeeder_BufferFraming
 
 ## 0. 文档基础信息
 
 | 属性 | 值 |
 |------|-----|
 | **文档标题** | FB_1004 打胶机送料接口定义 |
-| **文档版本** | V6.0.0 |
-| **关联源码** | feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl |
+| **文档版本** | V8.1.0 |
+| **关联源码** | 04_打胶机送料/FB_1004_GlueMachineFeeder_BufferFraming.scl |
 | **编制日期** | 2026-05-17 |
 | **编制人** | Trae |
 | **遵循规范** | LSP-905 |

@@ -1,12 +1,12 @@
-﻿# 接口文档 FB_ExternalDeviceInteraction
+# 接口文档 FB_ExternalDeviceInteraction
 
 ## 1. 文档基础信息
 
 | 属性 | 值 |
 |------|-----|
 | **文档标题** | FB_ExternalDeviceInteraction 外部设备交互接口定义 |
-| **文档版本** | V4.1.0 |
-| **关联源码** | external/FB_ExternalDeviceInteraction.scl |
+| **文档版本** | V9.1.0 |
+| **关联源码** | 01_外部设备交互/FB_ExternalDeviceInteraction.scl |
 | **编制日期** | 2026-04-27 |
 | **编制人** | Trae |
 | **遵循规范** | LSP-905 |

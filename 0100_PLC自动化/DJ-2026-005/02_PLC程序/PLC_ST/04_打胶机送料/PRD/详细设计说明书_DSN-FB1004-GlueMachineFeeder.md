@@ -1,4 +1,4 @@
-﻿# FB_1004_GlueMachineFeeder_BufferFraming 详细设计说明书
+# FB_1004_GlueMachineFeeder_BufferFraming 详细设计说明书
 
 ## 1. 文档基础信息
 
@@ -6,7 +6,7 @@
 |------|-----|
 | **文档标题** | 打胶机送料机构功能块详细设计说明书 |
 | **适用FB** | FB_1004_GlueMachineFeeder_BufferFraming |
-| **文档版本** | V4.1.0 |
+| **文档版本** | V8.1.0 |
 | **编制日期** | 2026-04-25 |
 | **编制人** | Trae |
 | **审核人** | [待审核] |
