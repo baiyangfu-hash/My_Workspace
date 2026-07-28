@@ -1,0 +1,516 @@
+(* ================================================================= *)
+(*  功能块名称：FB_1002_SingleLayerConveyor_BufferFraming              *)
+(*  功能描述：单层输送机编排器 - 9步状态机+手动模式分发（结构体整块传递）*)
+(*  版本号：V11.0.0                                                    *)
+(*  创建日期：2026-06-16                                              *)
+(*  编制人：Trae                                                      *)
+(*  审核人：人工                                                      *)
+(*                                                                     *)
+(*  遵循规范：                                                         *)
+(*    - LSP-905-V1.0.3 SCL编程规范                                    *)
+(*    - LSP-904-V1.2.0 SCL注释规范                                    *)
+(*    - LSP-903-V2.1.0 定时器使用规范                                *)
+(*                                                                     *)
+(*  V11.0.0变更 (2026-07-26, Breaking Change 结构体整块传递):         *)
+(*    - 重构: 删除36个散装VAR_INPUT/VAR_OUTPUT引脚                      *)
+(*    - 新增: VAR_IN_OUT io_stLayer : ST_SingleLayerConveyor           *)
+(*    - 优化: 彻底解决散装引脚搬运繁琐问题, OB1中单行传递结构体        *)
+(* ================================================================= *)
+
+FUNCTION_BLOCK FB_1002_SingleLayerConveyor_BufferFraming
+
+(* ==================== VAR_IN_OUT ==================== *)
+VAR_IN_OUT
+    io_stLayer                  : ST_SingleLayerConveyor;  // 单层输送机整块交互结构体
+END_VAR
+
+(* ==================== VAR ==================== *)
+VAR
+    (* 临时工作引脚变量 (结构体解包/封包映射) *)
+    i_bAutoMode                 : BOOL;
+    i_bManualMode               : BOOL;
+    i_bStart                    : BOOL;
+    i_bStop                     : BOOL;
+    i_iLayerIndex               : INT;
+    i_iSeparateTimeoutMs        : INT;
+    i_dSeparateTimeoutMs        : DINT;
+    i_dDebounceMs               : DINT;
+    i_bPreSeparateSensor        : BOOL;
+    i_bPositionSensor1          : BOOL;
+    i_bPositionSensor2          : BOOL;
+    i_bBlockCylinderUp          : BOOL;
+    i_bBlockCylinderDown        : BOOL;
+    i_bSeparateCylinderUp       : BOOL;
+    i_bSeparateCylinderDown     : BOOL;
+    i_bSafetyDoorOk             : BOOL;
+    i_bVfdFault                 : BOOL;
+    i_bPickupConfirmed          : BOOL;
+    i_bManBlockExtend           : BOOL;
+    i_bManBlockRetract          : BOOL;
+    i_bManSeparatePush          : BOOL;
+    i_bManConveyorFwd           : BOOL;
+    i_bManConveyorRev           : BOOL;
+    i_bManConveyorSlow          : BOOL;
+
+    q_bBlockSolenoid            : BOOL;
+    q_bSeparateSolenoid         : BOOL;
+    q_bConveyorFwd              : BOOL;
+    q_bConveyorRev              : BOOL;
+    q_bConveyorSlow             : BOOL;
+    q_iCurrentState             : INT;
+    q_iAlarmCode                : INT;
+    q_bRunning                  : BOOL;
+    q_bFault                    : BOOL;
+    q_bLayerFeedDone            : BOOL;
+    q_bAnySensorFault           : BOOL;
+
+    (* 子功能块实例 *)
+    fbBlock                     : FB_1011_CylinderControl;  // 阻挡气缸
+    fbSeparate                  : FB_1011_CylinderControl;  // 分料气缸
+    fbMotor                     : FB_1012_ConveyorMotor;    // 输送电机
+
+    (* FB_1011 V13.0.0 结构体接口 *)
+    stBlockCmd                  : ST_CylinderCmd;   // 阻挡气缸命令结构体
+    stBlockSts                  : ST_CylinderSts;   // 阻挡气缸状态结构体
+    stSeparateCmd               : ST_CylinderCmd;   // 分料气缸命令结构体
+    stSeparateSts               : ST_CylinderSts;   // 分料气缸状态结构体
+
+    (* 内部命令变量 *)
+    bBlockExtend                : BOOL;     // 阻挡气缸伸出命令
+    bBlockRetract               : BOOL;     // 阻挡气缸收回命令
+    bSeparateExtend             : BOOL;     // 分料气缸伸出命令
+    bSeparateRetract            : BOOL;     // 分料气缸收回命令
+    bMotorFwd                   : BOOL;     // 电机正转命令
+    bMotorRev                   : BOOL;     // 电机反转命令
+    bMotorSlow                  : BOOL;     // 电机慢速命令
+
+    (* 内部状态变量 *)
+    bBlockIsExtended            : BOOL;     // 阻挡气缸已伸出
+    bBlockIsRetracted           : BOOL;     // 阻挡气缸已收回
+    bBlockTimeout               : BOOL;     // 阻挡气缸超时
+    bBlockSensorFault           : BOOL;     // 阻挡气缸传感器故障
+    bSeparateIsExtended         : BOOL;     // 分料气缸已伸出
+    bSeparateIsRetracted        : BOOL;     // 分料气缸已收回
+    bSeparateTimeout            : BOOL;     // 分料气缸超时
+    bSeparateSensorFault        : BOOL;     // 分料气缸传感器故障
+    bMotorRunning               : BOOL;     // 电机运行中
+    bMotorVfdAlarm              : BOOL;     // 电机VFD报警
+
+    (* 状态机变量 *)
+    bStepEntry                  : BOOL;     // 新步入口标志
+    bRunning                    : BOOL;     // 运行标志 内部
+    bStartTriggered             : BOOL;     // 启动上升沿锁存
+    iCurrentState               : INT;      // 当前步序 内部
+    iAlarmCode                  : INT;      // 报警码 内部
+    dSeparateTimeoutMs          : DINT;     // 实际使用的超时时间 DINT
+END_VAR
+
+(* ==================== VAR_CONSTANT ==================== *)
+VAR CONSTANT
+    STEP_INIT                   : INT := 0;   // 初始化反转
+    STEP_WAIT_MATERIAL          : INT := 1;   // 等待来料
+    STEP_BLOCK_DOWN             : INT := 2;   // 阻挡下降
+    STEP_CONVEYOR_FWD           : INT := 10;  // 输送正转
+    STEP_POSITION_CHECK_BLOCK_UP : INT := 20; // 到位检测+阻挡上升
+    STEP_SEPARATE_PUSH          : INT := 30;  // 分料推出
+    STEP_CONVEYOR_SLOW          : INT := 50;  // 慢速送出
+    STEP_REQUEST_PICKUP         : INT := 60;  // 请求取料
+    STEP_SEPARATE_RETURN        : INT := 70;  // 分料复位
+END_VAR
+
+(* ==================== 结构体解包 (输入映射) ==================== *)
+i_bAutoMode                 := io_stLayer.bAutoMode;
+i_bManualMode               := io_stLayer.bManualMode;
+i_bStart                    := io_stLayer.bStart;
+i_bStop                     := io_stLayer.bStop;
+i_iLayerIndex               := io_stLayer.iLayerIndex;
+i_dSeparateTimeoutMs        := io_stLayer.dSeparateTimeoutMs;
+i_dDebounceMs               := io_stLayer.dDebounceMs;
+i_bPreSeparateSensor        := io_stLayer.bPreSeparateSensor;
+i_bPositionSensor1          := io_stLayer.bPositionSensor1;
+i_bPositionSensor2          := io_stLayer.bPositionSensor2;
+i_bBlockCylinderUp          := io_stLayer.bBlockCylinderUp;
+i_bBlockCylinderDown        := io_stLayer.bBlockCylinderDown;
+i_bSeparateCylinderUp       := io_stLayer.bSeparateCylinderUp;
+i_bSeparateCylinderDown     := io_stLayer.bSeparateCylinderDown;
+i_bSafetyDoorOk             := io_stLayer.bSafetyDoorOk;
+i_bVfdFault                 := io_stLayer.bVfdFault;
+i_bPickupConfirmed          := io_stLayer.bPickupConfirmed;
+i_bManBlockExtend           := io_stLayer.bManBlockExtend;
+i_bManBlockRetract          := io_stLayer.bManBlockRetract;
+i_bManSeparatePush          := io_stLayer.bManSeparatePush;
+i_bManConveyorFwd           := io_stLayer.bManConveyorFwd;
+i_bManConveyorRev           := io_stLayer.bManConveyorRev;
+i_bManConveyorSlow          := io_stLayer.bManConveyorSlow;
+
+(* ==================== 超时参数转换: 兼容旧接口 ==================== *)
+IF i_dSeparateTimeoutMs > 0 THEN
+    dSeparateTimeoutMs := i_dSeparateTimeoutMs;
+ELSIF i_iSeparateTimeoutMs > 0 THEN
+    dSeparateTimeoutMs := i_iSeparateTimeoutMs;
+ELSE
+    dSeparateTimeoutMs := 5000;
+END_IF;
+
+(* ==================== 模式使能检查 ==================== *)
+IF NOT i_bAutoMode AND NOT i_bManualMode THEN
+    bBlockExtend := FALSE;
+    bBlockRetract := FALSE;
+    bSeparateExtend := FALSE;
+    bSeparateRetract := FALSE;
+    bMotorFwd := FALSE;
+    bMotorRev := FALSE;
+    bMotorSlow := FALSE;
+
+    q_bLayerFeedDone := FALSE;
+    q_iAlarmCode := 0;
+    q_bAnySensorFault := FALSE;
+    q_bFault := FALSE;
+    q_bRunning := FALSE;
+
+    iCurrentState := STEP_INIT;
+    bRunning := FALSE;
+    bStartTriggered := FALSE;
+    bStepEntry := TRUE;
+    iAlarmCode := 0;
+
+    (* 调用子FB - FB_1011 V13.0.0 结构体接口 *)
+    stBlockCmd.Extend := FALSE;
+    stBlockCmd.Retract := FALSE;
+    stBlockCmd.ExtendedPos := i_bBlockCylinderDown;
+    stBlockCmd.RetractedPos := i_bBlockCylinderUp;
+    stBlockCmd.TimeoutMs := dSeparateTimeoutMs;
+    stBlockCmd.DebounceMs := i_dDebounceMs;
+    stBlockCmd.SolenoidType := INT#0;
+    stBlockCmd.ExtendPolarity := FALSE;
+    stBlockCmd.Mode := INT#0;
+    fbBlock(i_stCmd := stBlockCmd, q_stSts => stBlockSts);
+    q_bBlockSolenoid := stBlockSts.SolenoidA;
+    bBlockIsExtended := stBlockSts.IsExtended;
+    bBlockIsRetracted := stBlockSts.IsRetracted;
+    bBlockTimeout := stBlockSts.Timeout;
+    bBlockSensorFault := stBlockSts.SensorFault;
+
+    stSeparateCmd.Extend := FALSE;
+    stSeparateCmd.Retract := FALSE;
+    stSeparateCmd.ExtendedPos := i_bSeparateCylinderDown;
+    stSeparateCmd.RetractedPos := i_bSeparateCylinderUp;
+    stSeparateCmd.TimeoutMs := dSeparateTimeoutMs;
+    stSeparateCmd.DebounceMs := i_dDebounceMs;
+    stSeparateCmd.SolenoidType := INT#0;
+    stSeparateCmd.ExtendPolarity := FALSE;
+    stSeparateCmd.Mode := INT#0;
+    fbSeparate(i_stCmd := stSeparateCmd, q_stSts => stSeparateSts);
+    q_bSeparateSolenoid := stSeparateSts.SolenoidA;
+    bSeparateIsExtended := stSeparateSts.IsExtended;
+    bSeparateIsRetracted := stSeparateSts.IsRetracted;
+    bSeparateTimeout := stSeparateSts.Timeout;
+    bSeparateSensorFault := stSeparateSts.SensorFault;
+
+    fbMotor(
+        i_bFwdCmd := FALSE,
+        i_bRevCmd := FALSE,
+        i_bSlowCmd := FALSE,
+        i_bVfdFault := i_bVfdFault,
+        i_iCtrlMode := INT#0,
+        i_rSpeed := REAL#100.0,
+        q_bFwdOut => q_bConveyorFwd,
+        q_bRevOut => q_bConveyorRev,
+        q_bSlowOut => q_bConveyorSlow,
+        q_bRunning => bMotorRunning,
+        q_bVfdAlarm => bMotorVfdAlarm
+    );
+
+    RETURN;
+END_IF;
+
+(* ==================== 停止处理(含安全门联锁) ==================== *)
+IF (i_bStop AND bRunning) OR (NOT i_bSafetyDoorOk AND bRunning) THEN
+    iCurrentState := STEP_INIT;
+    bRunning := FALSE;
+    bStepEntry := TRUE;
+
+    bBlockExtend := FALSE;
+    bBlockRetract := TRUE;
+    bSeparateExtend := FALSE;
+    bSeparateRetract := TRUE;
+    bMotorFwd := FALSE;
+    bMotorRev := FALSE;
+    bMotorSlow := FALSE;
+
+    q_bLayerFeedDone := FALSE;
+END_IF;
+
+(* ==================== 模式分发 ==================== *)
+IF i_bAutoMode THEN
+
+    (* VFD故障互锁 *)
+    IF i_bVfdFault THEN
+        bMotorFwd := FALSE;
+        bMotorRev := FALSE;
+        bMotorSlow := FALSE;
+        iAlarmCode := 100 + i_iLayerIndex;
+    END_IF;
+
+    (* 启动触发 *)
+    IF i_bStart AND NOT bStartTriggered THEN
+        bStartTriggered := TRUE;
+        bRunning := TRUE;
+    END_IF;
+
+    (* ==================== 9步状态机 ==================== *)
+    CASE iCurrentState OF
+
+        STEP_INIT:
+            IF bStepEntry THEN
+                bBlockExtend := FALSE;
+                bBlockRetract := TRUE;
+                bSeparateExtend := FALSE;
+                bSeparateRetract := TRUE;
+                bMotorFwd := FALSE;
+                bMotorSlow := FALSE;
+                bMotorRev := TRUE;
+                q_bLayerFeedDone := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF bBlockIsRetracted THEN
+                bMotorRev := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_WAIT_MATERIAL;
+            END_IF;
+
+        STEP_WAIT_MATERIAL:
+            IF bStepEntry THEN
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF i_bPreSeparateSensor THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_BLOCK_DOWN;
+            END_IF;
+
+        STEP_BLOCK_DOWN:
+            IF bStepEntry THEN
+                bBlockExtend := TRUE;
+                bBlockRetract := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF bBlockIsExtended THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_CONVEYOR_FWD;
+            END_IF;
+
+        STEP_CONVEYOR_FWD:
+            IF bStepEntry THEN
+                bMotorFwd := TRUE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF i_bPositionSensor1 AND i_bPositionSensor2 THEN
+                bMotorFwd := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_POSITION_CHECK_BLOCK_UP;
+            END_IF;
+
+        STEP_POSITION_CHECK_BLOCK_UP:
+            IF bStepEntry THEN
+                bBlockExtend := FALSE;
+                bBlockRetract := TRUE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF bBlockIsRetracted THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_SEPARATE_PUSH;
+            END_IF;
+
+        STEP_SEPARATE_PUSH:
+            IF bStepEntry THEN
+                bSeparateExtend := TRUE;
+                bSeparateRetract := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF bSeparateTimeout THEN
+                iAlarmCode := 130 + i_iLayerIndex;
+            END_IF;
+
+            IF bSeparateIsExtended THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_CONVEYOR_SLOW;
+            END_IF;
+
+        STEP_CONVEYOR_SLOW:
+            IF bStepEntry THEN
+                bMotorSlow := TRUE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF i_bPositionSensor1 AND i_bPositionSensor2 THEN
+                bMotorSlow := FALSE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_REQUEST_PICKUP;
+            END_IF;
+
+        STEP_REQUEST_PICKUP:
+            IF bStepEntry THEN
+                q_bLayerFeedDone := FALSE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF i_bPickupConfirmed THEN
+                bStepEntry := TRUE;
+                iCurrentState := STEP_SEPARATE_RETURN;
+            END_IF;
+
+        STEP_SEPARATE_RETURN:
+            IF bStepEntry THEN
+                bSeparateExtend := FALSE;
+                bSeparateRetract := TRUE;
+                bStepEntry := FALSE;
+            END_IF;
+
+            IF bSeparateTimeout THEN
+                iAlarmCode := 130 + i_iLayerIndex;
+            END_IF;
+
+            IF bSeparateIsRetracted THEN
+                q_bLayerFeedDone := TRUE;
+                bStepEntry := TRUE;
+                iCurrentState := STEP_INIT;
+            END_IF;
+
+        ELSE
+            iCurrentState := STEP_INIT;
+            bRunning := FALSE;
+            bStepEntry := TRUE;
+
+    END_CASE;
+
+ELSIF i_bManualMode THEN
+    (* ==================== 手动模式 ==================== *)
+    bRunning := FALSE;
+    iCurrentState := STEP_INIT;
+    bStepEntry := TRUE;
+    q_bLayerFeedDone := FALSE;
+
+    bBlockExtend := i_bManBlockExtend;
+    bBlockRetract := i_bManBlockRetract AND NOT i_bManBlockExtend;
+
+    bSeparateExtend := i_bManSeparatePush;
+    bSeparateRetract := NOT i_bManSeparatePush;
+
+    bMotorFwd := i_bManConveyorFwd;
+    bMotorRev := i_bManConveyorRev;
+    bMotorSlow := i_bManConveyorSlow;
+
+END_IF;
+
+(* ==================== 调用子FB ==================== *)
+(* --- FB_1011 V13.0.0: 阻挡气缸 (结构体接口) --- *)
+stBlockCmd.Extend := bBlockExtend;
+stBlockCmd.Retract := bBlockRetract;
+stBlockCmd.ExtendedPos := i_bBlockCylinderDown;
+stBlockCmd.RetractedPos := i_bBlockCylinderUp;
+stBlockCmd.TimeoutMs := dSeparateTimeoutMs;
+stBlockCmd.DebounceMs := i_dDebounceMs;
+stBlockCmd.SolenoidType := INT#0;
+stBlockCmd.ExtendPolarity := FALSE;
+IF i_bAutoMode THEN
+    stBlockCmd.Mode := INT#1;
+ELSE
+    stBlockCmd.Mode := INT#0;
+END_IF;
+fbBlock(i_stCmd := stBlockCmd, q_stSts => stBlockSts);
+q_bBlockSolenoid := stBlockSts.SolenoidA;
+bBlockIsExtended := stBlockSts.IsExtended;
+bBlockIsRetracted := stBlockSts.IsRetracted;
+bBlockTimeout := stBlockSts.Timeout;
+bBlockSensorFault := stBlockSts.SensorFault;
+
+(* --- FB_1011 V13.0.0: 分料气缸 (结构体接口) --- *)
+stSeparateCmd.Extend := bSeparateExtend;
+stSeparateCmd.Retract := bSeparateRetract;
+stSeparateCmd.ExtendedPos := i_bSeparateCylinderDown;
+stSeparateCmd.RetractedPos := i_bSeparateCylinderUp;
+stSeparateCmd.TimeoutMs := dSeparateTimeoutMs;
+stSeparateCmd.DebounceMs := i_dDebounceMs;
+stSeparateCmd.SolenoidType := INT#0;
+stSeparateCmd.ExtendPolarity := FALSE;
+IF i_bAutoMode THEN
+    stSeparateCmd.Mode := INT#1;
+ELSE
+    stSeparateCmd.Mode := INT#0;
+END_IF;
+fbSeparate(i_stCmd := stSeparateCmd, q_stSts => stSeparateSts);
+q_bSeparateSolenoid := stSeparateSts.SolenoidA;
+bSeparateIsExtended := stSeparateSts.IsExtended;
+bSeparateIsRetracted := stSeparateSts.IsRetracted;
+bSeparateTimeout := stSeparateSts.Timeout;
+bSeparateSensorFault := stSeparateSts.SensorFault;
+
+fbMotor(
+    i_bFwdCmd := bMotorFwd,
+    i_bRevCmd := bMotorRev,
+    i_bSlowCmd := bMotorSlow,
+    i_bVfdFault := i_bVfdFault,
+    i_iCtrlMode := INT#0,
+    i_rSpeed := REAL#100.0,
+    q_bFwdOut => q_bConveyorFwd,
+    q_bRevOut => q_bConveyorRev,
+    q_bSlowOut => q_bConveyorSlow,
+    q_bRunning => bMotorRunning,
+    q_bVfdAlarm => bMotorVfdAlarm
+);
+
+(* ==================== 报警编码 自包含 ==================== *)
+iAlarmCode := 0;
+
+IF bMotorVfdAlarm THEN
+    iAlarmCode := 100 + i_iLayerIndex;
+END_IF;
+
+IF bBlockTimeout THEN
+    iAlarmCode := 110 + i_iLayerIndex;
+END_IF;
+
+IF bBlockSensorFault THEN
+    IF iAlarmCode = 0 THEN
+        iAlarmCode := 120 + i_iLayerIndex;
+    END_IF;
+END_IF;
+
+IF bSeparateTimeout THEN
+    iAlarmCode := 130 + i_iLayerIndex;
+END_IF;
+
+IF bSeparateSensorFault THEN
+    IF iAlarmCode = 0 THEN
+        iAlarmCode := 140 + i_iLayerIndex;
+    END_IF;
+END_IF;
+
+q_iAlarmCode := iAlarmCode;
+q_bAnySensorFault := bBlockSensorFault OR bSeparateSensorFault;
+q_bFault := (iAlarmCode > 0);
+
+(* ==================== 状态输出 ==================== *)
+q_bRunning := bRunning;
+q_iCurrentState := iCurrentState;
+
+(* ==================== 结构体封包 (输出映射) ==================== *)
+io_stLayer.q_bBlockSolenoid      := q_bBlockSolenoid;
+io_stLayer.q_bSeparateSolenoid   := q_bSeparateSolenoid;
+io_stLayer.q_bConveyorFwd        := q_bConveyorFwd;
+io_stLayer.q_bConveyorRev        := q_bConveyorRev;
+io_stLayer.q_bConveyorSlow       := q_bConveyorSlow;
+io_stLayer.q_iCurrentState       := q_iCurrentState;
+io_stLayer.q_iAlarmCode          := q_iAlarmCode;
+io_stLayer.q_bRunning            := q_bRunning;
+io_stLayer.q_bFault              := q_bFault;
+io_stLayer.q_bLayerFeedDone      := q_bLayerFeedDone;
+io_stLayer.q_bAnySensorFault     := q_bAnySensorFault;
+
+END_FUNCTION_BLOCK

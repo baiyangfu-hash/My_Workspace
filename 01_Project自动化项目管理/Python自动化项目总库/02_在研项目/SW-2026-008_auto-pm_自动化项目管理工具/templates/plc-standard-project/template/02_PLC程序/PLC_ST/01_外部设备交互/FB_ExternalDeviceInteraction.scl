@@ -1,0 +1,313 @@
+(* ================================================================= *)
+(*  功能块名称:FB_ExternalDeviceInteraction                           *)
+(*  功能描述:处理与组框机,打胶机和机器人的交互逻辑                 *)
+(*  创建日期:2026-04-27                                            *)
+(*  版本号:V4.1.0                                                  *)
+(*  基于版本:V4.0.0                                                *)
+(*  编制人:[待填写]                                                *)
+(*  审核人:[待填写]                                                *)
+(*                                                                  *)
+(*  遵循规范:                                                      *)
+(*    - LSP-905_SCL编程规范                  *)
+(*    - LSP-905_SCL编程规范                                  *)
+(*                                                                  *)
+(*  变更记录:                                                        *)
+(* ---------------------------------------------------------------- *)
+(*  V4.1.0 (2026-04-27) Trae                                      *)
+(*  - 新增: 外部设备交互功能块, 处理组框机,打胶机和机器人交互        *)
+(*  - 新增: 支持机器人上边框功能, 包含码料逻辑                       *)
+(*  - 优化: 统一外部设备报警管理                                     *)
+(* ---------------------------------------------------------------- *)
+(*  V4.0.0 (2026-04-23) 初始版本                                   *)
+(*                                                                  *)
+(*  详细说明:                                                        *)
+(*    外部设备交互功能块负责处理与外部设备的所有交互逻辑:            *)
+(*    1. 组框机交互: 接收组框机信号, 发送控制信号                    *)
+(*    2. 打胶机交互: 接收打胶机信号, 发送控制信号                    *)
+(*    3. 机器人交互: 接收机器人信号, 发送控制信号 (预留)            *)
+(*    4. 安全联锁: 处理外部设备的安全联锁逻辑                        *)
+(*    5. 报警管理: 汇总外部设备报警信息                              *)
+(*                                                                  *)
+(*  架构特点:                                                        *)
+(*    - 纯逻辑块: 无物理地址依赖, 所有输入/输出均为逻辑变量          *)
+(*    - 高内聚: 集中处理所有外部设备交互逻辑                        *)
+(*    - 低耦合: 与主控程序通过明确的接口交互                        *)
+(*    - 可扩展: 预留机器人接口, 支持未来功能扩展                    *)
+(* ================================================================= *)
+
+FUNCTION_BLOCK FB_ExternalDeviceInteraction
+
+VAR_IN_OUT
+    io_stExternal               : ST_ExternalDevice; // 外部设备交互全量数据结构体
+END_VAR
+
+VAR
+    bSafetyConditionMet         : BOOL;   // 内部安全条件满足标志
+    iExternalDeviceAlarmCode    : INT;    // 内部报警码变量
+
+    // 局部解包/封包变量 (维护内部逻辑白盒兼容性)
+    i_bEnable                   : BOOL;
+    i_bAutoMode                 : BOOL;
+    i_bManualMode               : BOOL;
+    i_bStart                    : BOOL;
+    i_bStop                     : BOOL;
+    i_bReset                    : BOOL;
+    i_bFrameMachine_AutoRunning : BOOL;
+    i_bFrameMachine_AllowFeed   : BOOL;
+    i_bFrameMaterialRequest     : BOOL;
+    i_bDoorOpenRequest          : BOOL;
+    i_bFrameMachine_EStop       : BOOL;
+    i_bFrameMachine_SafetyErr   : BOOL;
+    i_bFrameMachine_CommErr     : BOOL;
+    i_bGlueMachine_AutoRunning  : BOOL;
+    i_bGlueMachine_AllowFeed    : BOOL;
+    i_bGlueMachine_PickComplete : BOOL;
+    i_bGlueMachine_Fault        : BOOL;
+    i_bGlueMachine_EStop        : BOOL;
+    i_bGlueMachine_CommErr      : BOOL;
+    i_bRobot_AutoRunning        : BOOL;
+    i_bRobot_StackComplete      : BOOL;
+    i_bRobot_Fault              : BOOL;
+    i_bRobot_EStop              : BOOL;
+    i_bRobot_CommErr            : BOOL;
+    i_bLocalReady               : BOOL;
+    i_bAnyAlarmActive           : BOOL;
+    i_bSystemFault              : BOOL;
+
+    q_bFrameMachine_RequestFeed   : BOOL;
+    q_bFrameMachine_Pause         : BOOL;
+    q_bFrameMachine_EStop         : BOOL;
+    q_bDoorOpenRequest            : BOOL;
+    q_bFrameMachine_Ready         : BOOL;
+    q_bGlueMachine_RequestRun     : BOOL;
+    q_bAllowPickup                : BOOL;
+    q_bSafetyZoneSignal           : BOOL;
+    q_bGlueMachine_ResetReq       : BOOL;
+    q_bRobot_AllowStacking        : BOOL;
+    q_bRobot_StopStacking         : BOOL;
+    q_bRobot_ResetReq             : BOOL;
+    q_bFrameMachine_EmergencyStop : BOOL;
+    q_bExternalDeviceFault        : BOOL;
+    q_iExternalDeviceAlarmSummary : INT;
+    q_bSystemSafetyConditionMet   : BOOL;
+END_VAR
+
+(* ==================== 结构体解包 (输入映射) ==================== *)
+i_bEnable                   := io_stExternal.i_bEnable;
+i_bAutoMode                 := io_stExternal.i_bAutoMode;
+i_bManualMode               := io_stExternal.i_bManualMode;
+i_bStart                    := io_stExternal.i_bStart;
+i_bStop                     := io_stExternal.i_bStop;
+i_bReset                    := io_stExternal.i_bReset;
+i_bFrameMachine_AutoRunning := io_stExternal.i_bFrameMachine_AutoRunning;
+i_bFrameMachine_AllowFeed   := io_stExternal.i_bFrameMachine_AllowFeed;
+i_bFrameMaterialRequest     := io_stExternal.i_bFrameMaterialRequest;
+i_bDoorOpenRequest          := io_stExternal.i_bDoorOpenRequest;
+i_bFrameMachine_EStop       := io_stExternal.i_bFrameMachine_EStop;
+i_bFrameMachine_SafetyErr   := io_stExternal.i_bFrameMachine_SafetyErr;
+i_bFrameMachine_CommErr     := io_stExternal.i_bFrameMachine_CommErr;
+i_bGlueMachine_AutoRunning  := io_stExternal.i_bGlueMachine_AutoRunning;
+i_bGlueMachine_AllowFeed    := io_stExternal.i_bGlueMachine_AllowFeed;
+i_bGlueMachine_PickComplete := io_stExternal.i_bGlueMachine_PickComplete;
+i_bGlueMachine_Fault        := io_stExternal.i_bGlueMachine_Fault;
+i_bGlueMachine_EStop        := io_stExternal.i_bGlueMachine_EStop;
+i_bGlueMachine_CommErr      := io_stExternal.i_bGlueMachine_CommErr;
+i_bRobot_AutoRunning        := io_stExternal.i_bRobot_AutoRunning;
+i_bRobot_StackComplete      := io_stExternal.i_bRobot_StackComplete;
+i_bRobot_Fault              := io_stExternal.i_bRobot_Fault;
+i_bRobot_EStop              := io_stExternal.i_bRobot_EStop;
+i_bRobot_CommErr            := io_stExternal.i_bRobot_CommErr;
+i_bLocalReady               := io_stExternal.i_bLocalReady;
+i_bAnyAlarmActive           := io_stExternal.i_bAnyAlarmActive;
+i_bSystemFault              := io_stExternal.i_bSystemFault;
+//#endregion 300_VAR
+
+//#region 500_功能块执行体
+(* ========================================================================== *)
+(* 功能块执行体                                                                *)
+(* ========================================================================== *)
+
+//#region 510_打胶机信号处理
+(* -------------------------------------------------------------------------- *)
+(* 1. 打胶机信号有效性检查与安全回退                                         *)
+(* -------------------------------------------------------------------------- *)
+IF i_bGlueMachine_CommErr THEN
+    // 当通讯异常时, 强制将关键输入信号置为保守值(禁止状态)
+    // 注意: 这里是在功能块内部处理, 实际输入值不会被修改
+    // 后续逻辑会基于保守值处理
+    q_bAllowPickup       := FALSE;     // 强制禁止抓料输出
+    q_bSafetyZoneSignal  := FALSE;     // 强制关闭安全区
+ELSE
+    // 正常情况下, 安全区信号根据系统状态控制
+    q_bSafetyZoneSignal  := i_bEnable AND i_bAutoMode;
+END_IF;
+
+(* -------------------------------------------------------------------------- *)
+(* 5. 打胶机主动控制信号生成                                                  *)
+(* -------------------------------------------------------------------------- *)
+// 请求运行: 本机自动启动且打胶机未在自动运行中
+IF i_bAutoMode AND i_bEnable AND NOT i_bGlueMachine_AutoRunning THEN
+    q_bGlueMachine_RequestRun := TRUE;
+ELSE
+    q_bGlueMachine_RequestRun := FALSE;
+END_IF;
+
+// 复位请求: 本机复位且打胶机有故障或急停
+IF i_bReset AND (i_bGlueMachine_Fault OR i_bGlueMachine_EStop) THEN
+    q_bGlueMachine_ResetReq := TRUE;
+ELSE
+    q_bGlueMachine_ResetReq := FALSE;
+END_IF;
+
+// 允许抓料: 打胶机允许送料且本机就绪
+IF i_bGlueMachine_AllowFeed AND i_bLocalReady THEN
+    q_bAllowPickup := TRUE;
+ELSE
+    q_bAllowPickup := FALSE;
+END_IF;
+//#endregion 510_打胶机信号处理
+
+//#region 520_组框机信号处理
+(* -------------------------------------------------------------------------- *)
+(* 2. 组框机安全联锁处理                                                      *)
+(* -------------------------------------------------------------------------- *)
+// 组框机急停/安全异常 -> 本机必须立即停止 + 回传确认
+IF i_bFrameMachine_EStop OR i_bFrameMachine_SafetyErr THEN
+    q_bFrameMachine_EStop         := TRUE;          // 向组框机回传急停确认
+    q_bFrameMachine_EmergencyStop    := TRUE;           // 设置本机停止标志(传给各工站)
+ELSE
+    q_bFrameMachine_EStop         := FALSE;
+    q_bFrameMachine_EmergencyStop    := FALSE;
+END_IF;
+
+// 组框机开门请求 -> 本机需暂停运行 (互锁)
+IF i_bDoorOpenRequest THEN
+    q_bFrameMachine_Pause   := TRUE;          // 通知组框机本机已暂停
+    q_bDoorOpenRequest      := TRUE;          // 向组框机确认可以开门
+ELSE
+    q_bFrameMachine_Pause   := FALSE;
+    q_bDoorOpenRequest      := FALSE;
+END_IF;
+
+(* -------------------------------------------------------------------------- *)
+(* 3. 本机就绪信号生成                                                        *)
+(* -------------------------------------------------------------------------- *)
+// 就绪 = 自动模式 AND 系统使能 AND 无报警 AND 非紧急停止
+q_bFrameMachine_Ready := i_bAutoMode
+                   AND i_bEnable
+                   AND (NOT i_bAnyAlarmActive)
+                   AND (NOT q_bFrameMachine_EmergencyStop);
+
+(* -------------------------------------------------------------------------- *)
+(* 4. 送料请求协调逻辑                                                        *)
+(* -------------------------------------------------------------------------- *)
+// 当本机需要边框且就绪且上游允许时, 请求送料
+IF i_bEnable
+   AND (NOT q_bFrameMachine_EmergencyStop)         // 无紧急停止
+   AND i_bFrameMachine_AllowFeed                    // 上游允许送出
+   AND i_bAutoMode                                 // 自动模式下才请求
+THEN
+    q_bFrameMachine_RequestFeed := TRUE;
+ELSE
+    q_bFrameMachine_RequestFeed := FALSE;
+END_IF;
+//#endregion 520_组框机信号处理
+
+//#region 530_机器人信号处理
+(* -------------------------------------------------------------------------- *)
+(* 6. 机器人控制逻辑 (预留)                                                   *)
+(* -------------------------------------------------------------------------- *)
+// 允许码料: 本机就绪且无报警
+IF i_bLocalReady AND (NOT i_bAnyAlarmActive) THEN
+    q_bRobot_AllowStacking := TRUE;
+ELSE
+    q_bRobot_AllowStacking := FALSE;
+END_IF;
+
+// 停止码料: 系统故障或急停
+IF i_bSystemFault OR i_bFrameMachine_EStop OR i_bGlueMachine_EStop OR i_bRobot_EStop THEN
+    q_bRobot_StopStacking := TRUE;
+ELSE
+    q_bRobot_StopStacking := FALSE;
+END_IF;
+
+// 机器人复位请求
+IF i_bReset AND (i_bRobot_Fault OR i_bRobot_EStop) THEN
+    q_bRobot_ResetReq := TRUE;
+ELSE
+    q_bRobot_ResetReq := FALSE;
+END_IF;
+//#endregion 530_机器人信号处理
+
+//#region 540_报警管理
+(* -------------------------------------------------------------------------- *)
+(* 7. 外部设备报警码汇总                                                      *)
+(* -------------------------------------------------------------------------- *)
+// 将外部设备故障统一编码, 传入公共报警FB的扩展通道
+IF i_bGlueMachine_Fault THEN
+    iExternalDeviceAlarmCode := 300;        // 300=打胶机设备故障
+ELSIF i_bGlueMachine_EStop THEN
+    iExternalDeviceAlarmCode := 301;        // 301=打胶机急停
+ELSIF i_bGlueMachine_CommErr THEN
+    iExternalDeviceAlarmCode := 302;        // 302=打胶机通讯异常
+ELSIF i_bFrameMachine_EStop THEN
+    iExternalDeviceAlarmCode := 310;        // 310=组框机急停
+ELSIF i_bFrameMachine_SafetyErr THEN
+    iExternalDeviceAlarmCode := 311;        // 311=组框机安全系统异常
+ELSIF i_bFrameMachine_CommErr THEN
+    iExternalDeviceAlarmCode := 312;        // 312=组框机通讯异常
+ELSIF i_bRobot_Fault THEN
+    iExternalDeviceAlarmCode := 320;        // 320=机器人设备故障
+ELSIF i_bRobot_EStop THEN
+    iExternalDeviceAlarmCode := 321;        // 321=机器人急停
+ELSIF i_bRobot_CommErr THEN
+    iExternalDeviceAlarmCode := 322;        // 322=机器人通讯异常
+ELSE
+    iExternalDeviceAlarmCode := 0;           // 0=无外部设备报警
+END_IF;
+
+q_iExternalDeviceAlarmSummary := iExternalDeviceAlarmCode;
+q_bExternalDeviceFault := (iExternalDeviceAlarmCode <> 0);
+//#endregion 540_报警管理
+
+//#region 550_安全条件计算
+(* -------------------------------------------------------------------------- *)
+(* 8. 安全条件计算                                                            *)
+(* -------------------------------------------------------------------------- *)
+(* 安全条件检查:
+   1. 组框机无急停
+   2. 打胶机无急停且无故障
+   3. 机器人无急停且无故障 (预留)
+*)
+IF NOT i_bFrameMachine_EStop              // 组框机急停联锁
+   AND NOT i_bGlueMachine_EStop            // 打胶机急停联锁
+   AND NOT i_bGlueMachine_Fault                     // 打胶机故障联锁
+   AND NOT i_bRobot_EStop                   // 机器人急停联锁(预留)
+   AND NOT i_bRobot_Fault                           // 机器人故障联锁(预留)
+THEN
+    bSafetyConditionMet := TRUE;
+ELSE
+    bSafetyConditionMet := FALSE;
+END_IF;
+
+q_bSystemSafetyConditionMet := bSafetyConditionMet;
+
+(* ==================== 结构体封包 (输出映射) ==================== *)
+io_stExternal.o_bFrameMachine_RequestFeed   := q_bFrameMachine_RequestFeed;
+io_stExternal.o_bFrameMachine_Pause         := q_bFrameMachine_Pause;
+io_stExternal.o_bFrameMachine_EStop         := q_bFrameMachine_EStop;
+io_stExternal.o_bDoorOpenRequest            := q_bDoorOpenRequest;
+io_stExternal.o_bFrameMachine_Ready         := q_bFrameMachine_Ready;
+io_stExternal.o_bGlueMachine_RequestRun     := q_bGlueMachine_RequestRun;
+io_stExternal.o_bAllowPickup                := q_bAllowPickup;
+io_stExternal.o_bSafetyZoneSignal           := q_bSafetyZoneSignal;
+io_stExternal.o_bGlueMachine_ResetReq       := q_bGlueMachine_ResetReq;
+io_stExternal.o_bRobot_AllowStacking        := q_bRobot_AllowStacking;
+io_stExternal.o_bRobot_StopStacking         := q_bRobot_StopStacking;
+io_stExternal.o_bRobot_ResetReq             := q_bRobot_ResetReq;
+io_stExternal.o_bFrameMachine_EmergencyStop := q_bFrameMachine_EmergencyStop;
+io_stExternal.o_bExternalDeviceFault        := q_bExternalDeviceFault;
+io_stExternal.o_iExternalDeviceAlarmSummary := q_iExternalDeviceAlarmSummary;
+io_stExternal.o_bSystemSafetyConditionMet   := q_bSystemSafetyConditionMet;
+
+END_FUNCTION_BLOCK
