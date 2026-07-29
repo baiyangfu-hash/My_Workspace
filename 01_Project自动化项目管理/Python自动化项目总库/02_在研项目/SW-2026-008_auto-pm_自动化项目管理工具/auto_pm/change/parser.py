@@ -107,7 +107,8 @@ class ChgParser:
         violations = self._validate_spec_compliance(cr, sections)
         if violations:
             for v in violations:
-                log.warning("规范校验违规 [%s]: %s", cr.change_number, v)
+                proj_prefix = f"{cr.project_id} | " if cr.project_id else ""
+                log.warning("规范校验违规 [%s%s]: %s", proj_prefix, cr.change_number, v)
 
         log.info("解析变更单完成: %s, domain=%s, nature=%s, status=%s",
                  cr.change_number, cr.domain, cr.business_nature, cr.status)
