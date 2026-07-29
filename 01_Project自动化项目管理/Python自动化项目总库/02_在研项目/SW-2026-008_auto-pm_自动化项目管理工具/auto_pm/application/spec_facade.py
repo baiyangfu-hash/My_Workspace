@@ -81,6 +81,28 @@ class SpecFacade:
                         results=results,
                     )
                     return CommandResult(success=True, message="Success", payload=dto)
+                elif proj and proj.stack == "plc":
+                    from auto_pm.plc.checker import PlcChecker
+                    plc_checker = PlcChecker(self._project_service.workspace_root)
+                    check_res = plc_checker.check_project(proj.path)
+                    results = [
+                        {
+                            "check_id": item.item,
+                            "severity": "ERROR" if item.status == "fail" else ("WARNING" if item.status == "warn" else "INFO"),
+                            "message": f"{item.item}: {item.message}",
+                            "details": item.message,
+                            "fix_suggestion": "查看 PLC 规范要求或进行一键修复" if item.status != "pass" else "",
+                        }
+                        for item in check_res.items
+                    ]
+                    dto = SpecCheckResultDTO(
+                        error_count=check_res.fail_count,
+                        warning_count=check_res.warn_count,
+                        info_count=check_res.pass_count,
+                        exit_code=1 if check_res.fail_count > 0 else 0,
+                        results=results,
+                    )
+                    return CommandResult(success=True, message="Success", payload=dto)
 
             if not self._spec_check_service:
                 return CommandResult(success=False, message="No spec_check_service", payload=None)

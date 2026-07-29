@@ -462,10 +462,10 @@ class ProjectScanner:
         except (json.JSONDecodeError, OSError):
             return info
 
-        # 仅补充空缺字段，不覆盖已有数据
+        # .plc.json 为 PLC 项目版本真源
         if info.stack == "unknown":
             info.stack = "plc"
-        if not info.version:
+        if cfg.get("version"):
             info.version = cfg.get("version", "")
         if not info.description:
             info.description = cfg.get("description", "")
