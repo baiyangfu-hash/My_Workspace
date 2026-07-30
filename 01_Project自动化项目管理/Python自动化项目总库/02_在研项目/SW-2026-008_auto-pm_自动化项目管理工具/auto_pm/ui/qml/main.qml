@@ -1111,9 +1111,14 @@ ApplicationWindow {
         onSaved: {
             console.log("[QML main] 全局配置保存成功, workspaceRoot: " + workspaceRoot)
             var res = workbenchBridge.saveWorkspaceRoot(workspaceRoot)
-            if (res && res.success) {
-                settingsView.resultMessage = res.message || "设置已保存，重启应用生效！"
+            if (res && res.config_saved) {
+                settingsView.resultMessage = res.message || "配置已保存"
                 settingsView.loadData()
+                if (res.runtime_reloaded) {
+                    workbenchBridge.refreshProjects()
+                    var projects = workbenchBridge.listProjects()
+                    projectModel.setProjects(projects)
+                }
             } else {
                 settingsView.resultMessage = "保存失败: " + (res ? res.message : "未知错误")
             }

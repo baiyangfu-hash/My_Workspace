@@ -10,7 +10,7 @@ Workbench Facade 接口层"""
 
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from auto_pm.core.protocols import (
@@ -251,7 +251,7 @@ class WorkbenchFacade:
         """从项目目录的 file_mtime 获取最后活动时间（ISO 格式字符串）"""
         try:
             mtime = os.path.getmtime(project_path)
-            return datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat()
+            return datetime.fromtimestamp(mtime, tz=UTC).isoformat()
         except (OSError, FileNotFoundError):
             return None
 
@@ -332,13 +332,11 @@ class WorkbenchFacade:
             project = self._project_service.get_project(project_id)
             if not project:
                 return QueryResult(success=False, message=f"Project not found: {project_id}", errors=["ProjectNotFound"])
-            
             summary = project.model_dump() if hasattr(project, "model_dump") else {}
             # stack 等枚举类型转字符串以匹配旧的行为
             for k, v in summary.items():
                 if hasattr(v, "value"):
                     summary[k] = str(v.value)
-            
             asset_summary = None
             if self._asset_summary_service:
                 stack_str = str(project.stack)
@@ -347,7 +345,6 @@ class WorkbenchFacade:
                     stack=stack_str,
                     project_type=project.project_type,
                 )
-            
             dto = ProjectWorkspaceDTO(
                 project_id=project_id,
                 summary=summary,
@@ -656,14 +653,22 @@ class WorkbenchFacade:
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)
 
-    def save_workspace_root(self, workspace_root: str) -> CommandResult[None]:
+    def save_workspace_root(self, workspace_root: str) -> CommandResult[dict[str, Any] | None]:
         """保存全局工作空间根目录设置"""
         try:
             import os
             # 校验路径合法性
             workspace_root = os.path.abspath(workspace_root)
             if not os.path.isdir(workspace_root):
-                return CommandResult(success=False, message=f"路径不存在或不是目录: {workspace_root}")
+                return CommandResult(
+                    success=False,
+                    message=f"路径不存在或不是目录: {workspace_root}",
+                    payload={
+                        "config_saved": False,
+                        "runtime_reloaded": False,
+                        "workspace_root": workspace_root,
+                    },
+                )
 
             # 写入 .auto-pm-workspace 配置文件
             from auto_pm.core.paths import get_config_file_path
@@ -671,19 +676,48 @@ class WorkbenchFacade:
             with open(cfg_file, "w", encoding="utf-8") as f:
                 f.write(workspace_root)
 
-            # 更新当前运行环境中的 workspace_root (以便能实时显示，尽管部分缓存库需要重启)
-            if self._project_service:
-                self._project_service.workspace_root = workspace_root
+            payload: dict[str, Any] = {
+                "config_saved": True,
+                "runtime_reloaded": False,
+                "workspace_root": workspace_root,
+            }
 
-            if getattr(self, "_reload_callback", None):
-                self._reload_callback(workspace_root)
+            reload_callback = getattr(self, "_reload_callback", None)
+            if reload_callback:
+                reload_result = reload_callback(workspace_root)
+                runtime_reloaded = bool(reload_result.get("success"))
+                payload["runtime_reloaded"] = runtime_reloaded
+                payload["reload_message"] = reload_result.get("message", "")
+                payload["reloaded_workspace_root"] = reload_result.get("workspace_root", workspace_root)
+
+                if runtime_reloaded:
+                    return CommandResult(
+                        success=True,
+                        message=f"配置已保存，运行态已重载到: {workspace_root}",
+                        payload=payload,
+                    )
+
+                return CommandResult(
+                    success=False,
+                    message=f"配置已保存，但运行态重载失败: {reload_result.get('message', '未知错误')}",
+                    payload=payload,
+                )
 
             return CommandResult(
                 success=True,
-                message=f"工作空间已成功更新并重载为: {workspace_root}！",
+                message=f"配置已保存到: {workspace_root}；当前运行态未执行重载",
+                payload=payload,
             )
         except Exception as e:
-            return CommandResult(success=False, message=f"保存失败: {str(e)}")
+            return CommandResult(
+                success=False,
+                message=f"保存失败: {str(e)}",
+                payload={
+                    "config_saved": False,
+                    "runtime_reloaded": False,
+                    "workspace_root": workspace_root,
+                },
+            )
 
     def initialize_project_pm(self, project_id: str) -> CommandResult[dict[str, Any]]:
         """为已有项目一键初始化 PM 框架与变更管理（含创世变更单创建与缓存同步）"""

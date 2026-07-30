@@ -495,6 +495,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.minimumHeight: 340
             spacing: Theme.spacingMd
 
             // 寄存器数据主表
@@ -534,18 +535,14 @@ Item {
                             anchors.fill: parent
                             anchors.leftMargin: Theme.spacingSm
                             anchors.rightMargin: Theme.spacingSm
-                            spacing: 0
+                            spacing: 8
 
-                            Repeater {
-                                model: ["物理地址", "绑定 Tag 符号", "十进制 (Dec)", "十六进制 (Hex)", "32位浮点解码", "快捷操作"]
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData
-                                    color: Theme.textSecondary
-                                    font.pixelSize: Theme.fontSizeXs
-                                    font.bold: true
-                                }
-                            }
+                            Text { text: "物理地址"; Layout.preferredWidth: 90; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; font.bold: true }
+                            Text { text: "绑定 Tag 符号"; Layout.fillWidth: true; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; font.bold: true }
+                            Text { text: "十进制 (Dec)"; Layout.preferredWidth: 90; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; font.bold: true }
+                            Text { text: "十六进制 (Hex)"; Layout.preferredWidth: 90; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; font.bold: true }
+                            Text { text: "32位浮点解码"; Layout.preferredWidth: 110; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; font.bold: true }
+                            Text { text: "快捷操作"; Layout.preferredWidth: 60; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; font.bold: true; horizontalAlignment: Text.AlignRight }
                         }
                     }
 
@@ -568,10 +565,10 @@ Item {
                                 anchors.fill: parent
                                 anchors.leftMargin: Theme.spacingSm
                                 anchors.rightMargin: Theme.spacingSm
-                                spacing: 0
+                                spacing: 8
 
                                 Text {
-                                    Layout.fillWidth: true
+                                    Layout.preferredWidth: 90
                                     text: model.physical || ""
                                     color: Theme.secondary
                                     font.pixelSize: Theme.fontSizeXs
@@ -585,29 +582,30 @@ Item {
                                     elide: Text.ElideRight
                                 }
                                 Text {
-                                    Layout.fillWidth: true
+                                    Layout.preferredWidth: 90
                                     text: model.dec !== undefined ? model.dec.toString() : ""
                                     color: Theme.textPrimary
                                     font.pixelSize: Theme.fontSizeXs
                                     font.family: "Consolas, Courier New, monospace"
                                 }
                                 Text {
-                                    Layout.fillWidth: true
+                                    Layout.preferredWidth: 90
                                     text: model.hex || ""
                                     color: Theme.warning
                                     font.pixelSize: Theme.fontSizeXs
                                     font.family: "Consolas, Courier New, monospace"
                                 }
                                 Text {
-                                    Layout.fillWidth: true
+                                    Layout.preferredWidth: 110
                                     text: model.float_decoded || ""
                                     color: Theme.textMuted
                                     font.pixelSize: Theme.fontSizeXs
                                 }
                                 Button {
+                                    Layout.preferredWidth: 60
                                     text: "✍ 填入"
                                     font.pixelSize: 10
-                                    implicitHeight: 22; implicitWidth: 50
+                                    implicitHeight: 22
                                     onClicked: root._fillWriteSlot(model.address, model.dec, model.physical)
                                 }
                             }
@@ -630,33 +628,38 @@ Item {
                 }
             }
 
-            // 右侧 16位 Bit Expander 解析面板
+            // 右侧 16位 Bit Expander & 写入控制面板 (用 ScrollView 严格限制卡片边界，彻底封印溢出)
             GlassPanel {
-                Layout.preferredWidth: 320
+                Layout.preferredWidth: 340
                 Layout.fillHeight: true
+                clip: true
 
-                ColumnLayout {
-                    id: bitExpanderContent
+                ScrollView {
                     anchors.fill: parent
-                    anchors.margins: Theme.spacingMd
-                    spacing: Theme.spacingSm
+                    anchors.margins: Theme.spacingSm
+                    clip: true
+                    ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-                    Text {
-                        text: "💡 16位二进制位解析器 (Bit Expander)"
-                        color: Theme.textPrimary
-                        font.pixelSize: Theme.fontSizeSm
-                        font.bold: true
-                    }
+                    ColumnLayout {
+                        width: parent.width - 12
+                        spacing: Theme.spacingSm
 
-                    ModbusBitExpander {
-                        id: bitExpander
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                    }
+                        ModbusBitExpander {
+                            id: bitExpander
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 180
+                        }
 
-                    // 写入配置行
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 4
+                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+
+                        Text {
+                            text: "✍️ 物理参数下发写入"
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSm
+                            font.bold: true
+                        }
+
                         ColumnLayout {
                             Layout.fillWidth: true; spacing: 2
                             Text { text: "写入功能码"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
@@ -676,47 +679,47 @@ Item {
                                 property string _comboValue: model.get(currentIndex).value
                             }
                         }
-                    }
 
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 4
-                        ColumnLayout {
-                            Layout.fillWidth: true; spacing: 2
-                            Text { text: "地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                            TextField {
-                                id: writeAddrField
-                                Layout.fillWidth: true; text: "0"
-                                validator: IntValidator { bottom: 0; top: 65535 }
-                                font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
-                                background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: writeAddrField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+                        RowLayout {
+                            Layout.fillWidth: true; spacing: 4
+                            ColumnLayout {
+                                Layout.fillWidth: true; spacing: 2
+                                Text { text: "地址"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                TextField {
+                                    id: writeAddrField
+                                    Layout.fillWidth: true; text: "0"
+                                    validator: IntValidator { bottom: 0; top: 65535 }
+                                    font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                    background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: writeAddrField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+                                }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true; spacing: 2
+                                Text { text: "数值"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
+                                TextField {
+                                    id: writeValField
+                                    Layout.fillWidth: true; text: "0"
+                                    font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
+                                    background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: writeValField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
+                                }
                             }
                         }
-                        ColumnLayout {
-                            Layout.fillWidth: true; spacing: 2
-                            Text { text: "数值"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
-                            TextField {
-                                id: writeValField
-                                Layout.fillWidth: true; text: "0"
-                                font.pixelSize: Theme.fontSizeSm; color: Theme.textPrimary
-                                background: Rectangle { color: Qt.rgba(0,0,0,0.2); radius: Theme.radiusSm; border.color: writeValField.activeFocus ? Theme.primary : Theme.border; border.width: 1 }
-                            }
-                        }
-                    }
 
-                    Button {
-                        id: writeBtn
-                        Layout.fillWidth: true
-                        text: "✍ 下发写入指令到 PLC"
-                        font.pixelSize: Theme.fontSizeSm
-                        font.bold: true
-                        enabled: root._isConnected
-                        onClicked: {
-                            if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                modbusBridge.writeRegister(
-                                    writeFcCombo._comboValue,
-                                    parseInt(writeAddrField.text) || 0,
-                                    writeValField.text
-                                )
+                        Button {
+                            id: writeBtn
+                            Layout.fillWidth: true
+                            text: "✍ 下发写入指令到 PLC"
+                            font.pixelSize: Theme.fontSizeSm
+                            font.bold: true
+                            enabled: root._isConnected
+                            onClicked: {
+                                if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
+                                    modbusBridge.writeRegister(
+                                        writeFcCombo._comboValue,
+                                        parseInt(writeAddrField.text) || 0,
+                                        writeValField.text
+                                    )
+                                }
                             }
                         }
                     }
@@ -728,6 +731,7 @@ Item {
         GlassPanel {
             Layout.fillWidth: true
             implicitHeight: 180
+            clip: true
 
             ColumnLayout {
                 anchors.fill: parent
@@ -749,73 +753,80 @@ Item {
                     Layout.fillHeight: true
                     clip: true
 
-                    // Tab 0: 物理报文 Trace
-                    Flickable {
-                        id: consoleFlickable
+                    // Tab 0: 物理报文 Trace (独立 Container)
+                    Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        contentHeight: consoleText.implicitHeight
-                        clip: true
 
-                        Text {
-                            id: consoleText
-                            width: consoleFlickable.width
-                            text: "[SYS] Modbus TCP 网口物理链路已就绪...\n"
-                            color: Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeXs
-                            font.family: "Consolas, Courier New, monospace"
-                            textFormat: Text.RichText
-                            wrapMode: Text.WrapAnywhere
+                        Flickable {
+                            id: consoleFlickable
+                            anchors.fill: parent
+                            contentHeight: consoleText.implicitHeight
+                            clip: true
+
+                            Text {
+                                id: consoleText
+                                width: consoleFlickable.width
+                                text: "[SYS] Modbus TCP 网口物理链路已就绪...\n"
+                                color: Theme.textSecondary
+                                font.pixelSize: Theme.fontSizeXs
+                                font.family: "Consolas, Courier New, monospace"
+                                textFormat: Text.RichText
+                                wrapMode: Text.WrapAnywhere
+                            }
                         }
                     }
 
-                    // Tab 1: 扫描探测器
-                    ColumnLayout {
+                    // Tab 1: 扫描探测器 (独立 Container)
+                    Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: Theme.spacingSm
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Text {
-                                text: "🧭 寄存器区段扫描探测器 (Interrogator Scanner 0-99)"
-                                color: Theme.textPrimary
-                                font.pixelSize: Theme.fontSizeSm
-                                font.bold: true
+                        ColumnLayout {
+                            anchors.fill: parent
+                            spacing: Theme.spacingSm
+
+                            RowLayout {
                                 Layout.fillWidth: true
-                            }
-                            Button {
-                                id: startScanBtn
-                                text: "⚡ 立即探测 (0-99)"
-                                font.pixelSize: Theme.fontSizeSm
-                                onClicked: {
-                                    scannerGrid.resetAll()
-                                    startScanBtn.enabled = false
-                                    startScanBtn.text = "扫描中..."
-                                    if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
-                                        modbusBridge.scanRegisters(0, 99)
-                                    } else {
-                                        _simulateScan()
+                                Text {
+                                    text: "🧭 寄存器区段扫描探测器 (Interrogator Scanner 0-99)"
+                                    color: Theme.textPrimary
+                                    font.pixelSize: Theme.fontSizeSm
+                                    font.bold: true
+                                    Layout.fillWidth: true
+                                }
+                                Button {
+                                    id: startScanBtn
+                                    text: "⚡ 立即探测 (0-99)"
+                                    font.pixelSize: Theme.fontSizeSm
+                                    onClicked: {
+                                        scannerGrid.resetAll()
+                                        startScanBtn.enabled = false
+                                        startScanBtn.text = "扫描中..."
+                                        if (typeof modbusBridge !== "undefined" && modbusBridge !== null) {
+                                            modbusBridge.scanRegisters(0, 99)
+                                        } else {
+                                            _simulateScan()
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        Flickable {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            contentHeight: scannerGrid.implicitHeight
-                            clip: true
+                            Flickable {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                contentHeight: scannerGrid.implicitHeight
+                                clip: true
 
-                            ModbusScannerGrid {
-                                id: scannerGrid
-                                width: parent.width
-                                startOffset: 0
-                                onCellClicked: {
-                                    startAddrField.text = offset.toString()
-                                    subTabBar.currentTabIndex = 0
-                                    root._subTabIndex = 0
-                                    _doRead()
+                                ModbusScannerGrid {
+                                    id: scannerGrid
+                                    width: parent.width
+                                    startOffset: 0
+                                    onCellClicked: {
+                                        startAddrField.text = offset.toString()
+                                        subTabBar.currentIndex = 0
+                                        _doRead()
+                                    }
                                 }
                             }
                         }

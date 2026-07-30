@@ -189,22 +189,19 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
     file_watcher_bridge = FileWatcherBridge(workspace_root)
 
     # 3.5 注册运行时工作空间切换重载回调
-    def reload_workspace(new_path: str) -> None:
+    def reload_workspace(new_path: str) -> dict[str, object]:
         nonlocal db
+        old_workspace_root = registry.workbench_facade._project_service.workspace_root if registry.workbench_facade else workspace_root
+        new_db = None
         try:
-            # 0. 暂停文件监听（拒绝新 sync，清空监听路径，避免切换期间误触发）
-            file_watcher_bridge.prepareForReload()
-            # 1. 关闭旧连接
-            db.close()
-            # 2. 新建 DatabaseManager 并初始化 schema
+            # 1. 先在旁路构建新运行态，成功后再切换，避免旧运行态半失效
             from auto_pm.db.connection import DatabaseManager
-            db = DatabaseManager(new_path)
-            db.init_schema()
+            new_db = DatabaseManager(new_path)
+            new_db.init_schema()
 
-            # 3. 重新创建所有 Services
-            new_project_service = ProjectService(workspace_root=new_path, db=db)
-            new_change_service = ChangeService(workspace_root=new_path, db=db)
-            
+            # 2. 重新创建所有 Services
+            new_project_service = ProjectService(workspace_root=new_path, db=new_db)
+            new_change_service = ChangeService(workspace_root=new_path, db=new_db)
             # 同步缓存
             try:
                 new_project_service.sync_to_cache()
@@ -228,7 +225,7 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
                 project_service=new_project_service,
                 change_service=new_change_service,
                 workspace_root=new_path,
-                db=db,
+                db=new_db,
             )
             new_template_service = make_template_service(new_path)
             new_pm_session_service = make_pm_session_service(new_path)
@@ -243,6 +240,11 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
             new_spec_index_service = make_spec_index_service(new_path)
             new_spec_report_service = make_spec_report_service(new_path)
             new_frontmatter_service = make_spec_frontmatter_service(new_path)
+
+            # 3. 新运行态准备完成后，再做切换
+            file_watcher_bridge.prepareForReload()
+            db.close()
+            db = new_db
 
             # 4. 重建 Facades 并更新 registry
             registry.initialize({
@@ -267,13 +269,29 @@ def run_qml_gui(workspace_root: str, debug: bool = False) -> int:
             spec_bridge.set_facade(registry.spec_facade)
             delivery_bridge.set_facade(registry.delivery_facade)
             system_bridge.set_facade(registry.system_facade)
+            ai_context_bridge.setWorkspaceRoot(new_path)
 
             # 6. 重建文件监听（更新工作空间路径，恢复监听）
             file_watcher_bridge.rebuild(new_path)
             log.info("工作空间已成功重载并同步：%s", new_path)
+            return {
+                "success": True,
+                "message": f"运行态已重载: {new_path}",
+                "workspace_root": new_path,
+            }
         except Exception as e:
             sys.stderr.write(f"[ERROR] 重载工作空间失败: {e}\n")
             log.exception("重载工作空间失败")
+            if new_db is not None and new_db is not db:
+                try:
+                    new_db.close()
+                except Exception:
+                    log.warning("关闭失败的新数据库连接时出错", exc_info=True)
+            return {
+                "success": False,
+                "message": str(e),
+                "workspace_root": old_workspace_root,
+            }
 
     registry.reload_callback = reload_workspace
     if registry.workbench_facade:

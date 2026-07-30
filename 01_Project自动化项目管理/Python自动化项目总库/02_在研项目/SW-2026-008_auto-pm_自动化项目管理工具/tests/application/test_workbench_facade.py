@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from unittest.mock import MagicMock
 
 from auto_pm.application.workbench_facade import WorkbenchFacade
@@ -11,7 +12,6 @@ def test_get_dashboard_snapshot_success() -> None:
     """验证从 DashboardService 获取的数据能正确映射为 DashboardSnapshotDTO"""
     # Arrange
     mock_dashboard_service = MagicMock()
-    
     # 模拟底座的返回
     mock_summary = MagicMock()
     mock_summary.total_projects = 10
@@ -24,16 +24,13 @@ def test_get_dashboard_snapshot_success() -> None:
     mock_summary.recent_activities = [{"action": "test"}]
     mock_summary.risk_hints = [{"risk": "high"}]
     mock_dashboard_service.get_summary.return_value = mock_summary
-    
     facade = WorkbenchFacade(
         dashboard_service=mock_dashboard_service,
         project_service=MagicMock(),
         asset_summary_service=MagicMock()
     )
-    
     # Act
     result = facade.get_dashboard_snapshot()
-    
     # Assert
     assert result.success is True
     assert result.payload is not None
@@ -56,7 +53,6 @@ def test_get_dashboard_snapshot_failure() -> None:
         project_service=MagicMock(),
         asset_summary_service=MagicMock()
     )
-
     # Act
     result = facade.get_dashboard_snapshot()
 
@@ -606,3 +602,53 @@ def test_delete_project_exception() -> None:
 
     assert result.success is False
     assert "Permission Denied" in result.message
+
+
+def test_save_workspace_root_success_with_runtime_reload(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """配置保存成功且运行态重载成功时，返回双状态可观测结果。"""
+    mock_project_service = MagicMock()
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    runtime_calls: list[str] = []
+
+    def _reload_callback(path: str) -> dict[str, object]:
+        runtime_calls.append(path)
+        return {"success": True, "message": "运行态已重载", "workspace_root": path}
+
+    facade._reload_callback = _reload_callback
+
+    result = facade.save_workspace_root(str(tmp_path))
+
+    assert result.success is True
+    assert result.payload is not None
+    assert result.payload["config_saved"] is True
+    assert result.payload["runtime_reloaded"] is True
+    assert result.payload["workspace_root"] == os.path.abspath(str(tmp_path))
+    assert runtime_calls == [os.path.abspath(str(tmp_path))]
+    assert "运行态已重载" in result.message
+
+
+def test_save_workspace_root_partial_success_when_runtime_reload_fails(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """配置已保存但运行态重载失败时，必须保留部分成功语义。"""
+    mock_project_service = MagicMock()
+    facade = WorkbenchFacade(
+        dashboard_service=MagicMock(),
+        project_service=mock_project_service,
+    )
+
+    def _reload_callback(path: str) -> dict[str, object]:
+        return {"success": False, "message": f"重载失败: {path}", "workspace_root": "/old/workspace"}
+
+    facade._reload_callback = _reload_callback
+
+    result = facade.save_workspace_root(str(tmp_path))
+
+    assert result.success is False
+    assert result.payload is not None
+    assert result.payload["config_saved"] is True
+    assert result.payload["runtime_reloaded"] is False
+    assert result.payload["reload_message"] == f"重载失败: {os.path.abspath(str(tmp_path))}"
+    assert "配置已保存，但运行态重载失败" in result.message

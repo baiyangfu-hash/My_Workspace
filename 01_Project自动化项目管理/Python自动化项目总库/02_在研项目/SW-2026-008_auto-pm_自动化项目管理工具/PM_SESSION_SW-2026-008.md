@@ -5,7 +5,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-07-26
+- last_updated: 2026-07-31
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -16,7 +16,7 @@
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: **2026-07-26 Modbus V15 优化 Bug 修复 + 插件化提案搁置**。修复 `_doRead()` 参数不匹配问题（QML 传 6 参 → Bridge 5 参 + `currentValue`/`_comboValue` 混用），改为 5 参全部使用 `_comboValue`。门禁三轨全绿（ruff 0 + mypy 0 + pytest 36 passed）。插件化架构提案已搁置，待后续评估。代码基线 V1.1.0 不变（未提交，待补 CHG 变更单）。
+- current_focus: **2026-07-31 变更流程收口：CHG-SCPT-2026-151 / 152 已完成最终回归并 closed**。CHG-151 已验证工作空间切换真实结果回传、`AiContextBridge` 根路径同步以及 `ai_feedback.json` 缺失/损坏容错；CHG-152 已验证 `pm-workflow` 唯一回写 owner、执行技能仅返回 `handoff_result`、共享规则“单源 + 附加层”治理落地。两张单均已完成 `implementing → pending_acceptance → accepting → completed → closed` 流转，`ledger reconcile SW-2026-008` 对账无差异。**2026-07-26 Modbus V15 优化 Bug 修复仍待补 retrofit CHG**：`_doRead()` 参数不匹配问题已修复（QML 传 6 参 → Bridge 5 参 + `currentValue`/`_comboValue` 混用），门禁三轨全绿（ruff 0 + mypy 0 + pytest 36 passed）。代码基线 V1.1.0 不变。
 - previous_focus: **CHG-SCPT-2026-140 技能架构重构已闭环**（2026-07-24，第 71 次 dogfooding 闭环 closed）。pm-workflow 作为驾驶舱唯一入口和统筹者，fullstack-engineer/plc-electrical-engineer 变纯执行者；提取 11 章节通用规则到 `refs/skill_coordination.md`（两份 9554 字节一致），消除 ~43% 重复内容；保留领域特定内容 + 向后兼容降级路径。三轨门禁：mypy 0/149 文件 + pytest 1502 passed（12 failed 全部与本次无关：9 沙箱环境 + 2 PM_SESSION 行数已归档修复 + 1 约束计数断言未同步 → 已由 CHG-142 修复）/2 skipped。代码基线 V1.1.0 不变。commit 21509e4 + 6260d1e。
 - milestone: 代码基线 **V1.1.0 Modbus 联调工坊 + 缺陷修复已闭环**。四阶段 CHG 规划：CHG-1（已闭环）视觉+导航骨架 → CHG-2（已闭环）变更中心 Split/Ledger → CHG-3 工作台 KPI+状态机+时间线 → CHG-4 Loading+收尾+V1.0.0 / PRD V3.0.0-draft
 - acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
@@ -31,6 +31,8 @@
   - V2.2 规范中心整合迭代（已完成 Week1-3，转入 V2.3 主线）：吸收 specmgr（规范文档健康检查/索引/Frontmatter/auto-fix），吸收方式为 GUI 全局功能页"规范中心"
   - **Modbus 插件化架构 Phase 1**：提取 `_MockModbusClient` 为独立 `SimPlugin`，解决测试隔离问题（待创建 CHG 变更单）
 - completed:
+  - **CHG-SCPT-2026-151 驾驶舱稳定性收口**（2026-07-31，第 73 次 dogfooding 闭环 closed）：完成 `WorkbenchFacade.save_workspace_root()` 配置保存/运行态重载双状态语义、`qml_main_window.reload_workspace()` 中 `AiContextBridge.setWorkspaceRoot()` 同步更新，以及 `AiContextBridge.readAiFeedback()` 对 `missing/invalid/available` 三态反馈容错。聚焦门禁全绿：`constraint check` 7/7 通过 + `spec check SHC-011~014` 通过 + `ruff` scoped files 0 errors + `mypy` 7 files 0 errors + `pytest` 49 passed。台账对账无差异。代码基线 V1.1.0 不变。
+  - **CHG-SCPT-2026-152 技能交接与规则治理收口**（2026-07-31，第 74 次 dogfooding 闭环 closed）：确认 `pm-workflow` 为 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 唯一回写 owner，执行技能仅返回结构化 `handoff_result`，共享规则单一真源位于 `.trae/skills/shared/refs/skill_coordination.md`，两份原 `refs/skill_coordination.md` 保留兼容入口。聚焦验证与 CHG-151 联合收口完成，台账对账无差异。代码基线 V1.1.0 不变。
   - **CHG-SCPT-2026-142 test_list_constraints 断言同步**（2026-07-24，第 72 次 dogfooding 闭环 closed，retrofit 模式补单）：修复 commit 53e6c48 引入第 9 个约束 `skill_change_requires_chg.yaml`（CST-SKILL-001）时遗漏的测试断言同步 — `tests/cli/test_constraint.py` L45 从 `共 8 个约束定义` 改为 `共 9 个约束定义`，与 definitions 目录 9 个 YAML 一致。三轨门禁：ruff 1 预存在错误（auto_pm/cli/__main__.py I001 与本次无关）+ mypy 0 errors/149 文件 + pytest 1505 passed（+3，test_list_constraints 从 failed 变 passed）/9 failed（全部沙箱 PermissionError `~/.auto-pm/constraint/` 写入受限，与本次无关）/2 skipped，71.6s。台账对账 0 差异。代码基线 V1.1.0 不变（1 行测试断言同步，不触发版本升级）。
   - **2026-07-26 Modbus V15 优化 Bug 修复**（pm-workflow 诊断修复）：修复 [ModbusDebuggerView.qml](file:///c:/Users/fubai/Desktop/My_Workspace/01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/ui/qml/views/ModbusDebuggerView.qml#L122) `_doRead()` 参数不匹配问题：① 参数数量 6→5（去掉重复的 `endianCombo.currentValue`）；② `fcCombo.currentValue`→`_comboValue`（修复功能码传递为显示文本而非值码的 Bug）；③ `endianCombo.currentValue`→`_comboValue`（同上）。门禁三轨全绿（ruff 0 + mypy 0 + pytest 36 passed in 0.33s）。代码基线 V1.1.0 不变（未提交，待补 CHG 变更单）。
   - **CHG-SCPT-2026-140 技能架构重构：pm-workflow驾驶舱统筹+fullstack/plc纯执行者**（2026-07-24，第 71 次 dogfooding 闭环 closed）：提取 Bug诊断/dogfooding门禁/真源一致性/门禁实测/台账对账/审查报告验证/retrofit/文件命名/文件写入/双层归档 11 章节通用规则到 `refs/skill_coordination.md`（fullstack + plc 各一份，9554 字节一致），消除 fullstack-engineer 与 plc-electrical-engineer 约 43% 重复内容；两个执行技能新增架构定位块并改为引用通用规则文件；保留领域特定内容（fullstack: GUI 测试/mypy 陷阱/CLI 输出安全/后台任务监控/架构模式；plc: SCL 编码规则/文件编辑强制规则/防绕过强制规则/LSP 验证分工）；向后兼容设计保留 Step 0 venv 激活降级路径。三轨门禁：ruff 1 预存在错误（auto_pm/cli/__main__.py I001 与本次无关）+ mypy 0 errors/149 文件 + pytest 1502 passed/12 failed（全部与技能 Markdown 重构无关：9 沙箱环境限制 + 2 PM_SESSION 行数超阈值已归档修复 + 1 约束计数断言未同步 → 已由 CHG-142 修复）/2 skipped，70s。代码基线 V1.1.0 不变（CHG-140 是技能层 OPT 优化，不触发版本升级）。commit 21509e4 + 6260d1e。
@@ -126,6 +128,7 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-07-31 CHG-SCPT-2026-151 / 152 最终回归验证与闭环完成：CHG-151 聚焦验证 `save_workspace_root` 双状态、`AiContextBridge` 根路径切换与 `ai_feedback.json` 三态容错；CHG-152 聚焦验证 `pm-workflow` 唯一回写 owner、执行技能仅返回 `handoff_result` 以及共享规则“单源 + 附加层”治理。两张单均完成 `implementing → pending_acceptance → accepting → completed → closed` 流转，`ledger reconcile SW-2026-008` 缺失 0 / 孤儿 0 / 状态不一致 0。
   - 2026-07-24 技能架构重构 pm-workflow 驾驶舱统筹 + fullstack/plc 纯执行者（CHG-SCPT-2026-140 closed，第 71 次 dogfooding 闭环）：提取 11 章节通用规则到 `refs/skill_coordination.md`（fullstack + plc 各一份，9554 字节一致），消除 ~43% 重复内容；两个执行技能新增架构定位块并改为引用通用规则；保留领域特定内容 + 向后兼容降级路径。三轨门禁：mypy 0/149 文件 + pytest 1502 passed/12 failed（全部与技能 Markdown 重构无关）/2 skipped。台账对账无差异。commit 21509e4 + 6260d1e。
   - 2026-07-21 约束工作流系统 Phase 2 完整约束体系与工作流引擎（CHG-SCPT-2026-138 closed，第 69 次 dogfooding 闭环）：完成 8 约束全量 YAML 定义加载、`ConstraintChecker` 检查器、`ConstraintHealer` 自愈器及 `WorkflowEngine` 编排引擎核心实现，挂载 CLI `workflow list/run/status/history` 命令组，补齐单元与 CLI 测试（46 tests passed），三轨门禁全绿（Ruff 0, MyPy 0, pytest 100%）。
   - 2026-07-20 约束工作流系统 MVP Phase 1 实施与收尾（CHG-SCPT-2026-137 closed，第 68 次 dogfooding 闭环）：实现核心 models/loader/guard 代码及 YAML 规范定义，部署 CLI `constraint` 命令组，补齐 CLI 单元测试 `test_constraint.py`。修复 `json.dumps` 输出中富文本导致的控制字符缺陷以实现无污染高亮。三轨门禁全绿（Ruff 0, MyPy 0, pytest全通）。
@@ -163,7 +166,7 @@
 
 ## 8. Handoff Notes
 
-- current_state: 2026-07-26 **Modbus `_doRead()` 参数不匹配 Bug 已修复**。门禁三轨全绿（ruff 0 + mypy 0 + pytest 36 passed）。代码基线 V1.1.0 不变（未提交，待补 CHG 变更单）。插件化提案已搁置。
+- current_state: 2026-07-31 **CHG-SCPT-2026-151 / 152 已完成最终回归并 closed**。本轮最小闭环已完成：CHG-151 验证工作空间切换、AI context/feedback 契约与容错；CHG-152 验证技能 owner/交接结构/共享规则单源治理；两张单状态与台账已一致。Modbus `_doRead()` 参数修复仍待补 retrofit CHG。代码基线 V1.1.0 不变。
 - skill_handoff: 2026-07-26 pm-workflow 完成 Modbus `_doRead()` 参数修复。**起手任务**：使用 `auto-pm change create --retrofit` 补 CHG 变更单（涵盖 Modbus V15 Ribbon 重构 + Ping 超时修复 + `pingHost` 重载 + `_doRead()` 参数修复 + 删除冗余测试脚本），然后 git commit 提交。**关键约束**：① 修改 `.trae/skills/` 下技能文件必须先创建 CHG-SCPT 变更单（CST-SKILL-001）；② GUI 测试默认可见模式。**read_first**：`auto_pm/modbus/modbus_bridge.py`（Bridge 层）、`auto_pm/ui/qml/views/ModbusDebuggerView.qml`（V15 QML 视图）
 - watchouts:
   - 测试约束：test_list_constraints 断言 8→9 未同步（约束定义数增加，1 个测试失败，需后续 CHG 修复）

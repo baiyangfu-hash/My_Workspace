@@ -599,10 +599,14 @@ Rectangle {
             path = decodeURIComponent(path)
 
             var res = workbenchBridge.saveWorkspaceRoot(path)
-            resultMessage = res.message
-            if (res.success) {
+            if (res && res.config_saved) {
+                resultMessage = res.message
                 loadData()
-                workbenchBridge.refreshProjects()
+                if (res.runtime_reloaded) {
+                    workbenchBridge.refreshProjects()
+                }
+            } else {
+                resultMessage = "保存失败: " + (res ? res.message : "未知错误")
             }
         }
     }

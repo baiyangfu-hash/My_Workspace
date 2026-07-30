@@ -1,3 +1,4 @@
+# ruff: noqa: N802
 """AiContext Bridge - 驾驶舱 ↔ AI 技能上下文桥接（双向）
 
 将当前驾驶舱状态（项目、变更单、页面）写入 JSON 文件，
@@ -12,7 +13,7 @@
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +30,31 @@ class AiContextBridge(QObject):
     def __init__(self, workspace_root: str, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._workspace_root = Path(workspace_root)
+
+    def _fallback_feedback(self, status: str, summary: str) -> dict[str, Any]:
+        return {
+            "generated_at": "",
+            "status": status,
+            "skill": "",
+            "change_number": "",
+            "changed_files": [],
+            "lint_result": {"violations": 0, "errors": 0},
+            "test_result": {"passed": 0, "failed": 0, "skipped": 0},
+            "plc_check_result": {"violations_count": 0},
+            "risks": [],
+            "verification": "[待反馈]",
+            "summary": summary,
+        }
+
+    @Slot(str, result="QVariant")
+    def setWorkspaceRoot(self, workspace_root: str) -> dict[str, Any]:
+        """更新运行态工作空间根目录。"""
+        self._workspace_root = Path(workspace_root)
+        return {
+            "success": True,
+            "workspace_root": str(self._workspace_root),
+            "message": f"AiContextBridge 已切换到: {self._workspace_root}",
+        }
 
     @Slot(str, str, str, str, str, str, str, str, str, str, result="QVariant")
     def writeAiContext(
@@ -65,7 +91,7 @@ class AiContextBridge(QObject):
             {"success": True/False, "file": str, "message": str}
         """
         context = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "source": "auto-pm cockpit",
             "workspace_root": str(self._workspace_root),
             "active_project": {
@@ -143,11 +169,30 @@ class AiContextBridge(QObject):
         fb_file = self._workspace_root / ".auto-pm" / "ai_feedback.json"
         try:
             if not fb_file.exists():
-                return {"success": False, "message": "暂无 AI 反馈"}
+                return {
+                    "success": False,
+                    "message": "暂无 AI 反馈，将按空反馈状态渲染",
+                    "feedback": self._fallback_feedback("missing", "暂无 AI 反馈"),
+                    "feedback_state": "missing",
+                }
             content = fb_file.read_text(encoding="utf-8")
             feedback = json.loads(content)
-            return {"success": True, "feedback": feedback}
+            return {
+                "success": True,
+                "feedback": feedback,
+                "feedback_state": "available",
+            }
         except json.JSONDecodeError as e:
-            return {"success": False, "message": f"反馈文件格式错误: {e}"}
+            return {
+                "success": False,
+                "message": f"反馈文件格式错误，将按异常反馈状态渲染: {e}",
+                "feedback": self._fallback_feedback("invalid", "AI 反馈文件格式错误"),
+                "feedback_state": "invalid",
+            }
         except Exception as e:
-            return {"success": False, "message": str(e)}
+            return {
+                "success": False,
+                "message": f"读取 AI 反馈失败，将按异常反馈状态渲染: {e}",
+                "feedback": self._fallback_feedback("error", "AI 反馈读取失败"),
+                "feedback_state": "error",
+            }

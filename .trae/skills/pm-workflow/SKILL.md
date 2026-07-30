@@ -18,6 +18,8 @@ description: "统一产品/项目管理主入口。适用于需求澄清、PRD/R
 - 每个项目根目录必须有 `PM_SESSION_<项目编号>.md`
 - 项目编号优先从目录名解析（如 `SW-2026-005_xxx` → `SW-2026-005`）
 - 若不存在：使用 `auto-pm project create` 或 `auto-pm project retrofit` 创建/补全
+- 跨技能公共契约的单一真源位于 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md)
+- `pm-workflow` 是 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 的唯一回写 owner
 
 ## 工具依赖
 
@@ -96,11 +98,11 @@ auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] 
        "pm_summary": "上下文已通过 cockpit AI 辅助恢复，跳过项目识别、PM_SESSION 读取、模式选择。"
      }
      ```
-   - **子技能返回后**：
-     - 解析子技能返回结果（changed_files、lint_result、test_result、risks）
-     - 继续执行 Step 4（回写 PM_SESSION §6-§9）
-     - 写入 cockpit 反馈：`.auto-pm/ai_feedback.json`
-     - 输出摘要给用户
+  - **子技能返回后**：
+    - 解析子技能返回的结构化 `handoff_result`（至少包含 `summary`、`changed_files`、`verification`、`risks`、`next_actions`、`watchouts`、`read_first`、`artifacts`、`chg_updates`）
+    - 继续执行 Step 4（由 `pm-workflow` 统一回写 PM_SESSION §6-§9）
+    - 由 `pm-workflow` 写入 cockpit 反馈：`.auto-pm/ai_feedback.json`
+    - 输出摘要给用户
 3. **若不存在**：继续执行原有 Step 0 和 Step 1（不受影响）
 
 ### Step 1：判定本轮模式（必须用 AskUserQuestion 呈现选项）
@@ -406,15 +408,22 @@ auto-pm -w "<工作空间根>" change create --retrofit --pid <项目ID> --domai
 - V0.9.2 Claude 诊断报告：P2-P4 项 7/7 严重失真
 - 2026-07-12 deepseek V0.9.2 深度审查：整体准确性高，但仍有 5 项数值性偏差
 
-### Step 5：执行技能必须回写 PM_SESSION
+### Step 5：执行技能必须返回结构化交接结果
 
-`fullstack-engineer` 和 `plc-electrical-engineer` 结束时必须在 PM_SESSION 中回写 §6-§9：
-- **§6 Implementation Log**：日期、skill、mode、goal、changed_files、impact、risks
-- **§7 Verification Log**：verified、not_verified、method、blocker
-- **§8 Handoff Notes**：current_state、next_focus、watchouts、read_first
-- **§9 Next Actions**：≥3 条，带 precondition + done_when
+`fullstack-engineer` 和 `plc-electrical-engineer` 结束时必须返回结构化 `handoff_result` 给 `pm-workflow`，至少包含：
+- `summary`
+- `changed_files`
+- `verification`（`lint_result` / `test_result` / `other_checks` / `not_run`）
+- `risks`
+- `next_actions`（带 `precondition` + `done_when`）
+- `watchouts`
+- `read_first`
+- `artifacts`
+- `chg_updates`
 
-不允许只改代码不留交接摘要；不允许新建独立状态文件替代 PM_SESSION。
+`pm-workflow` 收到 `handoff_result` 后，统一回写 PM_SESSION §6-§9，并统一写入 `.auto-pm/ai_feedback.json`。
+
+不允许只改代码不留交接摘要；不允许执行技能直接回写 PM_SESSION；不允许新建独立状态文件替代 PM_SESSION。
 
 ## 与其他技能的边界与跨技能切换（强制）
 

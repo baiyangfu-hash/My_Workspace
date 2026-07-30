@@ -1,3 +1,4 @@
+# ruff: noqa: N802, N815
 """PLC-HMI 概念映射：HMI 变量表（Workbench 域）
 
 像 HMI 触摸屏的变量表，定义了 QML 画面能访问的所有变量和方法：
@@ -225,7 +226,12 @@ class WorkbenchBridge(QObject):
         """保存全局工作空间根目录设置"""
         if self._facade and hasattr(self._facade, "save_workspace_root"):
             res = self._facade.save_workspace_root(workspace_root)
-            return {"success": res.success, "message": res.message}
+            payload = res.payload or {}
+            return {
+                "success": res.success,
+                "message": res.message,
+                **payload,
+            }
         return {"success": False, "message": "未初始化或功能不可用"}
 
     @Slot(str, result="QVariant")

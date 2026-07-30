@@ -1,0 +1,9 @@
+- [x] 已明确本次联合审查与既有技术债/文档类 spec 的边界
+- [x] 已记录当前开发进度基线（版本、驾驶舱现状、技能现状、剩余技术债）
+- [x] 已覆盖驾驶舱主链路：`PM_SESSION` / AI 上下文 / 窗口入口 / QML 页面 / Bridge / Facade / Service
+- [x] 已覆盖三个技能：`pm-workflow`、`fullstack-engineer`、`plc-electrical-engineer`
+- [x] 已核对共享规则文件 `refs/skill_coordination.md` 与技能私有规则的关系
+- [x] 每条审查结论都要求带证据状态（已验证 / 待验证）
+- [x] 每条高优先级问题都要求带影响范围与建议动作
+- [x] 审查输出已支持映射到 CHG / spec / 技术债 / PM_SESSION watchout
+- [x] tasks.md 的任务顺序与依赖关系可直接用于下一步执行

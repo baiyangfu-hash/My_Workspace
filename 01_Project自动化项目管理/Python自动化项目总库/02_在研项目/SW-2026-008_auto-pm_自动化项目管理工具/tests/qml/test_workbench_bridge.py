@@ -6,6 +6,7 @@ facade=None 时所有 Slot 应降级返回空值，不抛异常。
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import MagicMock
 
 from auto_pm.ui.contracts.dto.workbench_dto import (
@@ -16,7 +17,7 @@ from auto_pm.ui.contracts.result import CommandResult, QueryResult
 from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
 
 
-def _make_card(project_id="SW-2026-001", name="Test", open_change_count=2) -> Any:  # type: ignore[name-defined, no-untyped-def]
+def _make_card(project_id="SW-2026-001", name="Test", open_change_count=2) -> Any:  # type: ignore[no-untyped-def]
     return ProjectCardDTO(
         project_id=project_id,
         name=name,
@@ -31,7 +32,7 @@ def _make_card(project_id="SW-2026-001", name="Test", open_change_count=2) -> An
     )
 
 
-def _make_dashboard_snapshot() -> Any:  # type: ignore[name-defined]
+def _make_dashboard_snapshot() -> Any:
     return DashboardSnapshotDTO(
         total_projects=5,
         phase_counts={"developing": 3},
@@ -296,3 +297,27 @@ def test_workbench_bridge_initialize_project_pm_no_facade(qapp) -> None:  # type
 
     assert result["success"] is False
     assert result["message"] == "未初始化"
+
+
+def test_workbench_bridge_save_workspace_root_observable_states(qapp) -> None:  # type: ignore[no-untyped-def]
+    """saveWorkspaceRoot() 透传配置保存/运行态重载双状态。"""
+    mock_facade = MagicMock()
+    mock_facade.save_workspace_root.return_value = CommandResult(
+        success=False,
+        message="配置已保存，但运行态重载失败: reload error",
+        payload={
+            "config_saved": True,
+            "runtime_reloaded": False,
+            "workspace_root": "D:/workspace",
+            "reload_message": "reload error",
+        },
+    )
+
+    bridge = WorkbenchBridge(facade=mock_facade)
+    result = bridge.saveWorkspaceRoot("D:/workspace")
+
+    assert result["success"] is False
+    assert result["config_saved"] is True
+    assert result["runtime_reloaded"] is False
+    assert result["workspace_root"] == "D:/workspace"
+    assert result["reload_message"] == "reload error"

@@ -7,9 +7,9 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 统一入口：前端 / 后端 / 全栈联调 / 代码评审 / 调试 / 小程序。避免在多个开发技能间切换。
 
-> **架构定位**（CHG-SCPT-2026-140）：本技能为**纯执行者**。pm-workflow 是驾驶舱唯一入口和统筹者，负责 venv 激活、cockpit 上下文桥接、PM_SESSION 读取、HTML 原型产出。本技能接收 pm-workflow 的 skill_context 后执行领域工作。
+> **架构定位**（CHG-SCPT-2026-140 / CHG-SCPT-2026-152）：本技能为**纯执行者**。pm-workflow 是驾驶舱唯一入口和统筹者，负责 venv 激活、cockpit 上下文桥接、PM_SESSION 读取与回写、HTML 原型产出。本技能接收 pm-workflow 的 `skill_context` 后执行领域工作，结束时只返回结构化 `handoff_result`。
 >
-> **通用规则单一真源**：以下规则统一在 [refs/skill_coordination.md](refs/skill_coordination.md) 中定义，本技能不重复维护：
+> **通用规则单一真源**：以下规则统一在 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md) 中定义，本技能不重复维护：
 > - Bug 诊断前置纪律（§1）
 > - dogfooding 闭环质量门禁（§2）
 > - 真源一致性前置校验（§3）
@@ -35,7 +35,7 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 - 需求/PRD/任务拆解/迭代推进 → `pm-workflow`
 - PLC/SCL 编码与电气文档 → `plc-electrical-engineer`
 - 从零创建新网站/Web App → `web-dev`
-- venv 激活 / cockpit 上下文桥接 / PM_SESSION 读取入口 → `pm-workflow`（本技能仅接收上下文）
+- venv 激活 / cockpit 上下文桥接 / PM_SESSION 读取与回写入口 → `pm-workflow`（本技能仅接收上下文并返回交接结果）
 
 ## 项目连续性规则
 
@@ -62,13 +62,18 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 ### 结束后
 
-必须在 PM_SESSION 回写 §6-§9：
-- **§6 Implementation Log**：日期、`skill=fullstack-engineer`、mode、goal、changed_files、impact、risks
-- **§7 Verification Log**：verified、not_verified、method、blocker
-- **§8 Handoff Notes**：current_state、next_focus、watchouts、read_first
-- **§9 Next Actions**：≥3 条，带 precondition + done_when
+必须输出结构化 `handoff_result` 给 `pm-workflow`，至少包含：
+- `summary`
+- `changed_files`
+- `verification`（含 `lint_result` / `test_result` / `other_checks` / `not_run`）
+- `risks`
+- `next_actions`
+- `watchouts`
+- `read_first`
+- `artifacts`
+- `chg_updates`
 
-即使没改代码，也要记录分析了什么、结论、下次从哪里继续。
+即使没改代码，也要返回分析了什么、结论、下次从哪里继续。**不得**直接回写 PM_SESSION；**不得**直接写 `.auto-pm/ai_feedback.json`。
 
 ## 工具参考
 
@@ -106,9 +111,9 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 
 ### Step 0：理解上下文
 
-先读 `PM_SESSION` → 项目入口 → 核心模块 → 相关测试 → 用户提到的文件。若 PM_SESSION 不存在，停止，转 `pm-workflow`。
+优先读取 `skill_context`；若为独立触发且无 `skill_context`，可读取 `PM_SESSION` 恢复上下文。若 PM_SESSION 不存在，停止，转 `pm-workflow`。
 
-从 PM_SESSION 恢复：当前阶段、最近执行结果、当前阻塞、最高优先级动作。
+从 `skill_context` / PM_SESSION 恢复：当前阶段、最近执行结果、当前阻塞、最高优先级动作。
 
 **可用 auto-pm 命令**：
 - 了解工作空间项目列表：`auto-pm -w "<工作空间根>" project list`
@@ -130,13 +135,15 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 
 先读文件再改，尊重现有架构和命名风格，不在无关文件上扩散修改，变更后优先跑相关测试。
 
-### Step 4：回写 PM_SESSION §6-§9（含门禁实测前置检查）
+### Step 4：输出 `handoff_result`（含门禁实测前置检查）
 
-**回写前必做**（若本轮有代码改动）：实际运行 ruff/mypy/pytest 并记录真实输出，禁止基于推断声明门禁状态。详见 [refs/skill_coordination.md](refs/skill_coordination.md) §4 门禁实测强制检查。
+对外声明门禁状态前（若本轮有代码改动），必须实际运行 ruff/mypy/pytest 并记录真实输出，禁止基于推断声明门禁状态。详见 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md) §4 门禁实测强制检查。
+
+将本轮实施摘要、改动文件、验证结果、风险、下一步整理为 `handoff_result` 返回给 `pm-workflow`，由 `pm-workflow` 统一回写 PM_SESSION 与 cockpit 反馈。
 
 ## 工程实践规范
 
-以下规范为 fullstack-engineer **领域特定**内容（通用规则见 [refs/skill_coordination.md](refs/skill_coordination.md)）。
+以下规范为 fullstack-engineer **领域特定**内容（通用规则见 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md)）。
 
 ### GUI 测试基础设施规范
 
