@@ -442,6 +442,58 @@ class ChangeService:
 
         return pending
 
+    # CHG 章节完整性要求（12 章节需非空才能流转到 closed）
+    # 格式: (章节号, 章节名称, 检测正则)
+    _REQUIRED_CHAPTERS: list[tuple[str, str, str]] = [
+        ("5", "§5 变更前后", r"^###\s*§?\s*5\b"),
+        ("6.1", "§6.1 五大约束影响", r"^###\s*§?\s*6\.1\b"),
+        ("6.2", "§6.2 跨领域影响", r"^###\s*§?\s*6\.2\b"),
+        ("6.3", "§6.3 变更传播链", r"^###\s*§?\s*6\.3\b"),
+        ("7", "§7 实施计划", r"^###\s*§?\s*7\b"),
+        ("8.1", "§8.1 审批流程", r"^###\s*§?\s*8\.1\b"),
+        ("8.2", "§8.2 审批结论", r"^###\s*§?\s*8\.2\b"),
+        ("9", "§9 变更实施记录", r"^###\s*§?\s*9\b"),
+        ("10.1", "§10.1 验证项清单", r"^###\s*§?\s*10\.1\b"),
+        ("10.2", "§10.2 跨领域联动验证", r"^###\s*§?\s*10\.2\b"),
+        ("10.3", "§10.3 验证结论", r"^###\s*§?\s*10\.3\b"),
+        ("11", "§11 版本详细变更说明", r"^###\s*§?\s*11\b"),
+        ("12", "§12 附录", r"^###\s*§?\s*12\b"),
+    ]
+
+    def _check_chapter_completeness(self, content: str) -> list[str]:
+        """检查 CHG 变更单 12 章节完整性（P2-5）
+
+        在流转到 closed 前校验所有必需章节是否非空。
+        返回缺失的章节名称列表（空列表表示全部完整）。
+
+        Args:
+            content: CHG 文件完整内容
+
+        Returns:
+            缺失的章节名称列表
+        """
+        missing: list[str] = []
+        for _num, name, pattern in self._REQUIRED_CHAPTERS:
+            match = re.search(pattern, content, re.MULTILINE)
+            if not match:
+                missing.append(name)
+                continue
+            # 检查章节是否有实质内容（不只是标题行）
+            # match.end() 位于章节编号之后（如 "11" 之后），需跳过当前标题行剩余部分
+            # 否则标题文字（如 "版本详细变更说明"）会被误判为正文，导致空正文章节漏检
+            start = match.end()
+            line_end = content.find("\n", start)
+            if line_end != -1:
+                start = line_end + 1
+            # 找到下一个 ## 或 ### 标题
+            next_sec = re.search(r"^#{2,3}\s", content[start:], re.MULTILINE)
+            end = start + next_sec.start() if next_sec else len(content)
+            section_content = content[start:end].strip()
+            # 如果章节内容为空（只有标题），视为缺失
+            if not section_content or section_content in ("", "-", "无", "N/A"):
+                missing.append(name)
+        return missing
+
     def _check_doc_sync(self, project_id: str | None) -> list[str]:
         """运行文档同步检查（SHC-011, SHC-014）（CHG-SCPT-2026-145）
 
@@ -593,6 +645,19 @@ class ChangeService:
             content = self._editor.append_to_verification_table(content, verify_row)
             content = self._editor.update_verification_conclusion(content, final_conclusion)
             # 注意：§3.4 状态字段更新统一在下方第 299 行执行，避免时序 bug（KNOWN-1 修复）
+
+        elif new_status == "closed":
+            # [P2-5] completed → closed: 关闭变更单
+            # 门禁: 12 章节完整性检查（CHG-SCPT-2026-153: P2-5）
+            missing_chapters = self._check_chapter_completeness(content)
+            if missing_chapters:
+                raise TransitionGuardError(
+                    f"变更单 {change_number} 章节不完整，"
+                    f"缺失 {len(missing_chapters)} 个必需章节: "
+                    + ", ".join(missing_chapters)
+                    + "；请补全所有章节后再流转到 closed"
+                )
+            self._guard.check(current_cr, new_status, approver, comment)
 
         elif new_status == "archived":
             # [PM-042 V2.3.0 §5.2] completed → archived: 归档

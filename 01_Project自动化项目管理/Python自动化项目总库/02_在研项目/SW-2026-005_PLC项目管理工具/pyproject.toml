@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "plc项目管理工具"
-version = "{{ version }}"
-description = "{{ description }}"
+version = "9.0.0"
+description = "PLC项目看板 + 变更管理 + 标准化管理工具"
 authors = [
-    { name = "{{ author }}" }
+    { name = "fubai" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,8 +20,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/{{ author }}/plc项目管理工具"
-source = "https://github.com/{{ author }}/plc项目管理工具"
+homepage = "https://github.com/fubai/plc项目管理工具"
+source = "https://github.com/fubai/plc项目管理工具"
 
 [project.scripts]
 plc项目管理工具 = "plc项目管理工具.cli.__main__:cli"

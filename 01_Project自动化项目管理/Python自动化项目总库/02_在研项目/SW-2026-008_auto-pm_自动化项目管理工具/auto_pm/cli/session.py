@@ -218,8 +218,8 @@ def cmd_check(
 @click.option(
     "--section",
     "section_number",
-    required=True,
-    help="要归档的章节号（如 6/7/8）",
+    default=None,
+    help="要归档的章节号（如 6/7/8），--auto 模式下忽略",
 )
 @click.option(
     "--keep-recent",
@@ -235,17 +235,24 @@ def cmd_check(
 )
 @click.option("--dry-run", is_flag=True, help="仅预览归档操作，不实际修改文件")
 @click.option("--no-backup", is_flag=True, help="不创建主文件备份")
+@click.option(
+    "--auto",
+    "auto_mode",
+    is_flag=True,
+    help="自动批量归档：扫描工作空间所有 PM_SESSION，对超 150 行的文件自动归档 §5/§6/§8",
+)
 @click.pass_context
 def cmd_archive(
     ctx: click.Context,
     workspace: str | None,
     project_root: Path | None,
     project_id: str | None,
-    section_number: str,
+    section_number: str | None,
     keep_recent: int,
     archive_file: Path | None,
     dry_run: bool,
     no_backup: bool,
+    auto_mode: bool,
 ) -> None:
     """归档指定章节的早期内容到归档文件
 
@@ -253,11 +260,22 @@ def cmd_archive(
         auto-pm pm-session archive -w . --section 7
         auto-pm pm-session archive -w . --section 6 --keep-recent 20
         auto-pm pm-session archive -w . --section 8 --keep-recent 8
+        auto-pm pm-session archive -w . --auto --dry-run   # 预览批量归档
+        auto-pm pm-session archive -w . --auto              # 执行批量归档
 
     §8 特殊处理（CHG-109）：--keep-recent N 表示保留最新 N 条 skill_handoff 条目，
     current_state* 和归档说明始终保留，其余旧 skill_handoff 条目归档。
     """
     ws = _resolve_workspace(workspace, ctx)
+
+    if auto_mode:
+        _cmd_archive_auto(ws, dry_run, not no_backup)
+        return
+
+    if section_number is None:
+        console.print("[red]错误: 必须指定 --section 或使用 --auto 模式[/red]")
+        raise SystemExit(2)
+
     root = project_root if project_root else ws
     try:
         pm_file = _find_pm_session_file(root, project_id)
@@ -328,6 +346,114 @@ def cmd_archive(
     )
     if result.backup_file:
         console.print(f"  备份文件: {result.backup_file}")
+
+
+def _cmd_archive_auto(
+    ws: Path,
+    dry_run: bool,
+    create_backup: bool,
+) -> None:
+    """--auto 批量归档：扫描所有 PM_SESSION，对超 150 行的自动归档 §5/§6/§8
+
+    CHG-SCPT-2026-153: P1-3，基于 DJ-2026-005 实战中 PM_SESSION 膨胀问题，
+    提供 --auto 批量归档模式，避免逐个手动归档。
+    """
+    pm_files = _find_pm_session_files(ws)
+    if not pm_files:
+        console.print(f"[yellow]在 {ws} 及子目录中未找到 PM_SESSION_*.md 文件[/yellow]")
+        return
+
+    console.print(f"[cyan]--auto 批量归档: 扫描到 {len(pm_files)} 个 PM_SESSION 文件[/cyan]\n")
+
+    auto_sections = ["5", "6", "8"]  # 自动归档的章节
+    auto_threshold = 150  # 行数阈值
+    svc = PmSessionArchiveService()
+    total_archived = 0
+    total_files = 0
+
+    for pm_file in pm_files:
+        # 统计行数
+        line_count = 0
+        try:
+            with open(pm_file, encoding="utf-8", errors="ignore") as f:
+                for _ in f:
+                    line_count += 1
+        except OSError:
+            continue
+
+        if line_count <= auto_threshold:
+            rel_path = pm_file.relative_to(ws)
+            console.print(f"  [dim]{rel_path}: {line_count} 行，无需归档[/dim]")
+            continue
+
+        total_files += 1
+        rel_path = pm_file.relative_to(ws)
+        console.print(f"  [yellow]{rel_path}: {line_count} 行 -> 需归档[/yellow]")
+
+        # 自动生成归档文件路径
+        stem = pm_file.stem
+        pid = stem.replace("PM_SESSION_", "") if stem.startswith("PM_SESSION_") else "PROJECT"
+        archive_dir = pm_file.parent / ARCHIVE_DIR_PARENT / ARCHIVE_DIR_NAME
+        archive_file = archive_dir / f"PM_SESSION_{pid}_archive_auto.md"
+
+        file_archived = 0
+        for sec in auto_sections:
+            parser = PmSessionParser()
+            parse_result = parser.parse_file(pm_file)
+            section = parse_result.get_section(sec)
+            if section is None:
+                continue
+
+            section_lines = section.end_line - section.start_line
+            if section_lines <= 5:  # 章节太短，不归档
+                continue
+
+            # §8 保留最新 1 条 skill_handoff，§5/§6 保留最近 10 行
+            keep = 1 if sec == "8" else 10
+
+            if dry_run:
+                console.print(
+                    f"    [dim]§{sec}: {section_lines} 行 -> 保留 {keep} 行（dry-run）[/dim]"
+                )
+                file_archived += section_lines - keep
+                continue
+
+            try:
+                if sec == "8":
+                    result = svc.archive_section_8(
+                        main_file=pm_file,
+                        archive_file=archive_file,
+                        keep_entries=keep,
+                        create_backup=create_backup,
+                    )
+                else:
+                    result = svc.archive_section(
+                        main_file=pm_file,
+                        archive_file=archive_file,
+                        section_number=sec,
+                        keep_recent=keep,
+                        create_backup=create_backup,
+                    )
+                console.print(
+                    f"    [green]§{sec}: {result.archived_line_count} 行已归档[/green]"
+                )
+                file_archived += result.archived_line_count
+            except Exception as e:
+                console.print(f"    [red]§{sec}: 归档失败 - {e}[/red]")
+
+        total_archived += file_archived
+
+    if dry_run:
+        console.print(
+            f"\n[yellow]DRY-RUN 完成: {total_files} 个文件需归档，"
+            f"预计归档 {total_archived} 行[/yellow]"
+        )
+    else:
+        ok_icon = "✅" if _supports_unicode_output() else "[OK]"
+        console.print(
+            f"\n[green]{ok_icon} 批量归档完成: {total_files} 个文件，"
+            f"共归档 {total_archived} 行[/green]"
+        )
 
 
 @pm_session_group.command(name="view")

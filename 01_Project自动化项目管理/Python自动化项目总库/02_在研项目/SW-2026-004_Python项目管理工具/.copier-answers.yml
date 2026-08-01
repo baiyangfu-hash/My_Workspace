@@ -1,2 +1,13 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-{{ _copier_answers|to_nice_yaml }}
+_commit: 4d37b06
+_src_path: https://github.com/gotofritz/copier-python-template.git
+author_email: gotofritz@users.noreply.github.com
+author_name: fubai
+cli: true
+org_name: fubai
+package_name: pm_tool
+project_description: 自动化领域全生命周期项目管理工具，支持PLC/Python/上位机多技术栈，GUI+CLI双模式
+project_name: Python项目管理工具
+project_url: https://github.com/fubai/pm-tool
+python_version: '3.11'
+with_conventional_commits: true

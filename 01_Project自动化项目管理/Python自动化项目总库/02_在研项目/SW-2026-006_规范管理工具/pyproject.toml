@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "规范管理工具"
-version = "{{ version }}"
-description = "{{ description }}"
+version = "0.2.0"
+description = "规范管理体系的一站式管理工具（CLI + GUI），支持桌面操作和免安装exe分发"
 authors = [
-    { name = "{{ author }}" }
+    { name = "fubai" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,8 +20,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/{{ author }}/规范管理工具"
-source = "https://github.com/{{ author }}/规范管理工具"
+homepage = "https://github.com/fubai/规范管理工具"
+source = "https://github.com/fubai/规范管理工具"
 
 [project.scripts]
 规范管理工具 = "规范管理工具.cli.__main__:cli"

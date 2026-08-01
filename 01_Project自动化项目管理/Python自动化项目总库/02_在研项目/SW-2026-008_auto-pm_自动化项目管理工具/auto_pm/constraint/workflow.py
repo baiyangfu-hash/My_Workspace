@@ -24,9 +24,10 @@ class WorkflowEngine:
     """工作流引擎"""
 
     def __init__(self, workspace_root: Path, guard: FileGuard | None = None) -> None:
-        self._workspace_root = workspace_root
+        self._workspace_root = Path(workspace_root)
         self._guard = guard or FileGuard(workspace_root)
-        self._data_dir = Path.home() / ".auto-pm" / "constraint"
+        # 数据目录跟随工作空间（与 FileGuard 一致），测试传 tmp_path 自动隔离
+        self._data_dir = self._workspace_root / ".auto-pm" / "constraint"
         self._data_dir.mkdir(parents=True, exist_ok=True)
         self._runs_file = self._data_dir / "workflow_runs.json"
 

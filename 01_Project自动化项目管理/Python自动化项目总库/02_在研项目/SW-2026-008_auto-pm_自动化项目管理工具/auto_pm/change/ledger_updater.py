@@ -205,7 +205,11 @@ class LedgerUpdater:
         return max_seq + 1
 
     def _insert_row_to_index_table(self, content: str, new_row: str) -> str:
-        """在变更单索引表格中插入新行（在表头和分隔行之后）"""
+        """在变更单索引表格中插入新行（在表头和分隔行之后）
+
+        新行始终插入到表格顶部（表头分隔行下方），形成倒序排列。
+        变更单索引表格行间以空行分隔（new_row 末尾自带 \\n）。
+        """
         lines = content.split("\n")
         result_lines: list[str] = []
         in_index = False

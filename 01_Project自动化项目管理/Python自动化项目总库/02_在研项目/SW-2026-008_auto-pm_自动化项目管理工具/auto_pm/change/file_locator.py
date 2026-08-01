@@ -185,13 +185,30 @@ class ChangeFileLocator:
                     pass
 
         # 同步检查台帐中已记录的最大序号（防止文件删除后编号回退）
+        # 注意：必须解析台帐表格的"变更编号"列，而非全文正则匹配，
+        # 否则描述列中的 CHG 编号引用（如"原 CHG-PLC-2026-006"）会被误判为有效条目
         ledger_path = find_ledger_file(project_path)
         if ledger_path:
             ledger_content = read_file(ledger_path)
             if ledger_content:
-                for match in re.finditer(rf"{re.escape(prefix)}(\d+)", ledger_content):
-                    seq = int(match.group(1))
-                    max_seq = max(max_seq, seq)
+                for line in ledger_content.splitlines():
+                    line = line.strip()
+                    if not line.startswith("|"):
+                        continue
+                    cells = [c.strip() for c in line.split("|")]
+                    if len(cells) < 3:
+                        continue
+                    # 第2列是"变更编号"列（首列 | 后是空字符串，所以 cells[2] 是序号后的变更编号）
+                    # 跳过表头和分隔行
+                    cn_cell = cells[2]
+                    if "变更编号" in cn_cell or cn_cell.startswith("---"):
+                        continue
+                    # 跳过标记为缺失的条目
+                    if "缺失" in cn_cell:
+                        continue
+                    for match in re.finditer(rf"{re.escape(prefix)}(\d+)", cn_cell):
+                        seq = int(match.group(1))
+                        max_seq = max(max_seq, seq)
 
         next_seq = max_seq + 1
         result = f"CHG-{domain}-{year}-{next_seq:03d}"

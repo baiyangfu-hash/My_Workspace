@@ -604,8 +604,16 @@ def test_delete_project_exception() -> None:
     assert "Permission Denied" in result.message
 
 
-def test_save_workspace_root_success_with_runtime_reload(tmp_path) -> None:  # type: ignore[no-untyped-def]
+def test_save_workspace_root_success_with_runtime_reload(tmp_path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
     """配置保存成功且运行态重载成功时，返回双状态可观测结果。"""
+    # 隔离配置文件路径，避免污染真实的 .auto-pm-workspace
+    # 回归修复：测试残留导致 GUI 启动读到空 pytest 临时目录，整个界面变空架子
+    _isolated_cfg = tmp_path / ".auto-pm-workspace"
+    monkeypatch.setattr(
+        "auto_pm.core.paths.get_config_file_path",
+        lambda: str(_isolated_cfg),
+    )
+
     mock_project_service = MagicMock()
     facade = WorkbenchFacade(
         dashboard_service=MagicMock(),
@@ -631,8 +639,16 @@ def test_save_workspace_root_success_with_runtime_reload(tmp_path) -> None:  # t
     assert "运行态已重载" in result.message
 
 
-def test_save_workspace_root_partial_success_when_runtime_reload_fails(tmp_path) -> None:  # type: ignore[no-untyped-def]
+def test_save_workspace_root_partial_success_when_runtime_reload_fails(tmp_path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
     """配置已保存但运行态重载失败时，必须保留部分成功语义。"""
+    # 隔离配置文件路径，避免污染真实的 .auto-pm-workspace
+    # 回归修复：测试残留导致 GUI 启动读到空 pytest 临时目录，整个界面变空架子
+    _isolated_cfg = tmp_path / ".auto-pm-workspace"
+    monkeypatch.setattr(
+        "auto_pm.core.paths.get_config_file_path",
+        lambda: str(_isolated_cfg),
+    )
+
     mock_project_service = MagicMock()
     facade = WorkbenchFacade(
         dashboard_service=MagicMock(),

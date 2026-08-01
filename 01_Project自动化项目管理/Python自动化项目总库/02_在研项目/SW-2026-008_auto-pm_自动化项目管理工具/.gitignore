@@ -57,6 +57,8 @@ output/
 
 # auto-pm runtime
 .auto-pm/
+# 本地工作空间根配置（每台机器路径不同，禁止入库；测试须 monkeypatch 隔离）
+.auto-pm-workspace
 06_交付物/
 
 # Python

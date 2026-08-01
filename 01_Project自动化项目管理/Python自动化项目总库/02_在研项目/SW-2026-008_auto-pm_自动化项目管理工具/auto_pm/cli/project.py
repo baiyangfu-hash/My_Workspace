@@ -449,6 +449,16 @@ def cmd_show(ctx: click.Context, project_id: str, output_json: bool) -> None:
         console.print(f"[cyan]路径:[/cyan]   {proj.path}")
         _print_asset_summary(proj.extra)
 
+    # P3-8: 自动生成 ai_context.json 供 cockpit/AI 技能恢复上下文
+    from auto_pm.cli import write_ai_context
+    write_ai_context(
+        workspace_root=app_ctx.workspace_root,
+        project_id=proj.project_id,
+        project_name=proj.name,
+        stack=proj.stack,
+        phase=proj.phase or "",
+    )
+
 
 @project_group.command(name="edit")
 @click.argument("project_id")

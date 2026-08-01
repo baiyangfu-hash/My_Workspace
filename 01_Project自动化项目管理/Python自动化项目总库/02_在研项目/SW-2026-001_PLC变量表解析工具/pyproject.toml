@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "plc变量表解析工具"
-version = "{{ version }}"
-description = "{{ description }}"
+version = "1.0.0"
+description = "多格式PLC变量表解析与转换工具，支持AutoShop/CODESYS/Work3格式"
 authors = [
-    { name = "{{ author }}" }
+    { name = "fubai" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,8 +20,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/{{ author }}/plc变量表解析工具"
-source = "https://github.com/{{ author }}/plc变量表解析工具"
+homepage = "https://github.com/fubai/plc变量表解析工具"
+source = "https://github.com/fubai/plc变量表解析工具"
 
 [project.scripts]
 plc变量表解析工具 = "plc变量表解析工具.cli.__main__:cli"

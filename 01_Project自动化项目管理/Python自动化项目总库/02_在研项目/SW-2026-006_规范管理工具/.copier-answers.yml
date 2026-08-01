@@ -1,2 +1,13 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-{{ _copier_answers|to_nice_yaml }}
+_commit: 4d37b06
+_src_path: https://github.com/gotofritz/copier-python-template.git
+author_email: gotofritz@users.noreply.github.com
+author_name: fubai
+cli: true
+org_name: fubai
+package_name: specmgr
+project_description: 规范管理体系的一站式管理工具（CLI + GUI），支持桌面操作和免安装exe分发
+project_name: 规范管理工具
+project_url: https://github.com/fubai/specmgr
+python_version: '3.11'
+with_conventional_commits: true

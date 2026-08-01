@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "python项目管理工具"
-version = "{{ version }}"
-description = "{{ description }}"
+version = "2.8.0"
+description = "自动化领域全生命周期项目管理工具，支持PLC/Python/上位机多技术栈，GUI+CLI双模式"
 authors = [
-    { name = "{{ author }}" }
+    { name = "fubai" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,8 +20,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/{{ author }}/python项目管理工具"
-source = "https://github.com/{{ author }}/python项目管理工具"
+homepage = "https://github.com/fubai/python项目管理工具"
+source = "https://github.com/fubai/python项目管理工具"
 
 [project.scripts]
 python项目管理工具 = "python项目管理工具.cli.__main__:cli"

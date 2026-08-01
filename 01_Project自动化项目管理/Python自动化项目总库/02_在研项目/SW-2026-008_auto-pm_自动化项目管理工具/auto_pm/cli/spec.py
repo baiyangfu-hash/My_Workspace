@@ -118,6 +118,7 @@ def spec_group() -> None:
     help="工作空间配置文件路径(YAML，含 spec_dirs/registry_path/output_paths)",
 )
 @click.option("--quiet", is_flag=True, help="只输出 ERROR 级别结果 + 退出码")
+@click.option("--verbose", "-v", is_flag=True, help="显示详细 diff 信息（版本差异/文件路径等）")
 @click.pass_context
 def cmd_check(
     ctx: click.Context,
@@ -131,6 +132,7 @@ def cmd_check(
     project_root: Path | None,
     config_path: Path | None,
     quiet: bool,
+    verbose: bool,
 ) -> None:
     """运行规范健康检查（SHC-001~010）"""
     ws = _resolve_workspace(workspace, ctx)
@@ -170,9 +172,9 @@ def cmd_check(
             for r in error_results:
                 console.print(f"[red]ERROR [{r.check_id}]: {r.message}[/red]")
     elif fmt == "json":
-        _output_check_json(output.results, output.fix_results)
+        _output_check_json(output.results, output.fix_results, verbose=verbose)
     else:
-        _output_check_table(output.results, output.fix_results, auto_fix)
+        _output_check_table(output.results, output.fix_results, auto_fix, verbose=verbose)
 
     raise SystemExit(output.exit_code)
 
@@ -180,8 +182,9 @@ def cmd_check(
 def _output_check_json(
     results: list[CheckResult],
     fix_results: list[FixResult] | None = None,
+    verbose: bool = False,
 ) -> None:
-    data = [
+    data: list[dict[str, object]] = [
         {
             "check_id": r.check_id,
             "severity": r.severity.name,
@@ -192,7 +195,15 @@ def _output_check_json(
         }
         for r in results
     ]
-    out = {"check_results": data}
+    out: dict[str, object] = {"check_results": data}
+    if verbose:
+        out["verbose"] = True
+        out["summary"] = {
+            "total": len(results),
+            "error": sum(1 for r in results if r.severity == Severity.ERROR),
+            "warning": sum(1 for r in results if r.severity == Severity.WARNING),
+            "info": sum(1 for r in results if r.severity == Severity.INFO),
+        }
     if fix_results is not None:
         out["fix_results"] = [
             {"check_id": fr.check_id, "applied": fr.applied, "message": fr.message}
@@ -205,6 +216,7 @@ def _output_check_table(
     results: list[CheckResult],
     fix_results: list[FixResult] | None = None,
     show_fix: bool = False,
+    verbose: bool = False,
 ) -> None:
     unicode_output = _supports_unicode_output()
     severity_icons = (
@@ -217,16 +229,37 @@ def _output_check_table(
         console.print("[green]✅ 所有检查通过！[/green]" if unicode_output else "[green]所有检查通过[/green]")
         return
 
-    for r in results:
-        icon = severity_icons[r.severity]
-        label = _SEVERITY_LABELS[r.severity]
-        color = _SEVERITY_COLORS[r.severity]
-        fixable_tag = " [可自动修复]" if show_fix and can_auto_fix(r) else ""
-        console.print(f"[{color}]  {icon} {label}: {r.message}{fixable_tag}[/{color}]")
-        if r.details:
-            console.print(f"[dim]    详情: {r.details}[/dim]")
-        if r.fix_suggestion:
-            console.print(f"[cyan]    建议: {r.fix_suggestion}[/cyan]")
+    # verbose 模式：按 check_id 分组显示
+    if verbose:
+        from collections import defaultdict
+        grouped: dict[str, list[CheckResult]] = defaultdict(list)
+        for r in results:
+            grouped[r.check_id].append(r)
+
+        for check_id, items in sorted(grouped.items()):
+            console.print(f"\n[bold cyan]{'─' * 60}[/bold cyan]")
+            console.print(f"[bold cyan]  [{check_id}] 共 {len(items)} 项[/bold cyan]")
+            for i, r in enumerate(items, 1):
+                icon = severity_icons[r.severity]
+                color = _SEVERITY_COLORS[r.severity]
+                console.print(f"  [{color}]{icon} #{i} {r.message}[/{color}]")
+                if r.details:
+                    for detail_line in r.details.split("\n"):
+                        console.print(f"     [dim]│ {detail_line}[/dim]")
+                if r.fix_suggestion:
+                    console.print(f"     [cyan]└ 建议: {r.fix_suggestion}[/cyan]")
+        console.print(f"\n[bold cyan]{'─' * 60}[/bold cyan]")
+    else:
+        for r in results:
+            icon = severity_icons[r.severity]
+            label = _SEVERITY_LABELS[r.severity]
+            color = _SEVERITY_COLORS[r.severity]
+            fixable_tag = " [可自动修复]" if show_fix and can_auto_fix(r) else ""
+            console.print(f"[{color}]  {icon} {label}: {r.message}{fixable_tag}[/{color}]")
+            if r.details:
+                console.print(f"[dim]    详情: {r.details}[/dim]")
+            if r.fix_suggestion:
+                console.print(f"[cyan]    建议: {r.fix_suggestion}[/cyan]")
 
     console.print("")
     console.print("-" * 60)

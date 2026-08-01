@@ -53,7 +53,9 @@ class FileGuard:
             workspace_root: 工作空间根目录
         """
         self._workspace_root = Path(workspace_root)
-        self._data_dir = Path.home() / ".auto-pm" / "constraint"
+        # 数据目录跟随工作空间（非用户 home），测试传 tmp_path 自动隔离，
+        # 生产避免污染用户目录并符合本地化约束
+        self._data_dir = self._workspace_root / ".auto-pm" / "constraint"
         self._data_dir.mkdir(parents=True, exist_ok=True)
         self._snapshot_file = self._data_dir / "guard_snapshots.json"
 

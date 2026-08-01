@@ -72,6 +72,21 @@ STD_PRDS: list[str] = [
     "技术方案文档_TEC.md",
 ]
 
+# FB 级 PRD 四件套（L3 层，每个 FB 模块的 PRD/ 子目录下应包含）
+# CHG-SCPT-2026-153: 基于 DJ-2026-005 实战，plc check 原只检查 L2 级 REQ/INT/DSN/TEC，
+# 不检查 FB 级 IFC/DSN/CHG/UM，导致 4/7 模块四件套不完整仍 21/21 全绿通过
+FB_PRDS: list[tuple[str, str]] = [
+    ("IFC", "接口文档_IFC-"),
+    ("DSN", "详细设计说明书_DSN-"),
+    ("CHG", "变更记录_CHG-"),
+    ("UM", "使用说明_UM-"),
+]
+
+# FB PRD 扫描目录（PLC_ST 下各 FB 模块目录，排除 00_ 前缀的基础设施目录）
+# 00_主程序、00_全局数据、00_程序方案 的 PRD 在 L2 层 STD_PRDS 中已覆盖
+FB_PRD_SCAN_DIR: str = "02_PLC程序/PLC_ST"
+FB_PRD_SKIP_DIRS: set[str] = {"00_主程序", "00_全局数据", "00_程序方案", "99_基线", "Test", "PRD"}
+
 # .plc.json 必填字段（LSP-907 §1.1）
 REQUIRED_PLC_JSON_FIELDS: list[str] = ["name", "description", "version"]
 

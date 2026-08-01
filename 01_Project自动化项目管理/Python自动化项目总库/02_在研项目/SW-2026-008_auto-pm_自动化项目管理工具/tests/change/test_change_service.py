@@ -177,7 +177,7 @@ class TestChangeService:
             "04_监控", "01_变更管理", "01_变更单",
             "CHG-DOCU", "CHG-DOCU-2026-001.md",
         )
-        with open(chg_path, "r", encoding="utf-8") as f:
+        with open(chg_path, encoding="utf-8") as f:
             content = f.read()
         # 在 §3.4 部分插入"变更状态 | closed"行
         content = content.replace(
@@ -252,12 +252,12 @@ class TestChangeService:
         assert os.path.isfile(cr.file_path)
 
         # 2. CHG 文件 §3.4 状态字段为 closed
-        with open(cr.file_path, "r", encoding="utf-8") as f:
+        with open(cr.file_path, encoding="utf-8") as f:
             chg_content = f.read()
         assert "| 变更状态 | closed |" in chg_content, "CHG 文件 §3.4 状态字段应为 closed"
 
         # 3. 台账记录状态为 ✅已关闭 + 完成日期
-        with open(ledger_path, "r", encoding="utf-8") as f:
+        with open(ledger_path, encoding="utf-8") as f:
             ledger_content = f.read()
         assert cr.change_number in ledger_content, "台账应包含 retrofit 创建的变更编号"
         assert "✅已关闭" in ledger_content, "台账状态应为 ✅已关闭"
@@ -377,3 +377,224 @@ class TestChg085VerificationGate:
         ])
         pending = svc._check_all_verification_items_passed(content)
         assert pending == [2, 3, 4]
+
+
+# ── P2-5: CHG 章节完整性校验测试 ──────────────────────────
+
+
+class TestChapterCompleteness:
+    """P2-5: CHG 章节完整性校验测试（_check_chapter_completeness + closed 门禁）"""
+
+    def _make_service(self, tmp_path: Path) -> ChangeService:
+        """构造 ChangeService（_check_chapter_completeness 不依赖 workspace）"""
+        return ChangeService(str(tmp_path))
+
+    def _build_full_chapters_content(self) -> str:
+        """构建含全部 13 章节三级标题 + 实质内容 + completed 状态的 CHG markdown"""
+        return """# 变更单
+
+## 3. 变更基本信息
+
+### 3.5 变更状态
+| 字段 | 内容 |
+|------|------|
+| 变更状态 | completed |
+
+### §5 变更前后
+变更前内容描述
+变更后内容描述
+
+### §6.1 五大约束影响
+约束影响分析内容
+
+### §6.2 跨领域影响
+跨领域影响分析
+
+### §6.3 变更传播链
+传播链分析内容
+
+### §7 实施计划
+实施计划内容
+
+### §8.1 审批流程
+审批流程内容
+
+### §8.2 审批结论
+审批结论内容
+
+### §9 变更实施记录
+实施记录内容
+
+### §10.1 验证项清单
+验证项内容
+
+### §10.2 跨领域联动验证
+联动验证内容
+
+### §10.3 验证结论
+验证结论内容
+
+### §11 版本详细变更说明
+版本变更说明内容
+
+### §12 附录
+附录内容
+"""
+
+    def test_required_chapters_count(self) -> None:
+        """_REQUIRED_CHAPTERS 应包含 13 个章节"""
+        assert len(ChangeService._REQUIRED_CHAPTERS) == 13
+
+    def test_required_chapters_keys(self) -> None:
+        """13 章节编号正确"""
+        nums = [num for num, _name, _pattern in ChangeService._REQUIRED_CHAPTERS]
+        assert nums == [
+            "5", "6.1", "6.2", "6.3", "7",
+            "8.1", "8.2", "9", "10.1", "10.2", "10.3", "11", "12",
+        ]
+
+    def test_check_chapter_completeness_all_present(self, tmp_path: Path) -> None:
+        """13 章节齐全且非空时返回空列表"""
+        svc = self._make_service(tmp_path)
+        content = self._build_full_chapters_content()
+        missing = svc._check_chapter_completeness(content)
+        assert missing == [], f"应无缺失章节，实际缺失: {missing}"
+
+    def test_check_chapter_completeness_missing(self, tmp_path: Path) -> None:
+        """缺失 §11/§12 时返回对应章节名"""
+        svc = self._make_service(tmp_path)
+        content = self._build_full_chapters_content()
+        content = content.replace(
+            "### §11 版本详细变更说明\n版本变更说明内容\n\n", ""
+        )
+        content = content.replace("### §12 附录\n附录内容\n", "")
+        missing = svc._check_chapter_completeness(content)
+        assert "§11 版本详细变更说明" in missing
+        assert "§12 附录" in missing
+
+    def test_check_chapter_completeness_empty_section(self, tmp_path: Path) -> None:
+        """章节标题存在但正文为空视为缺失"""
+        svc = self._make_service(tmp_path)
+        content = self._build_full_chapters_content()
+        content = content.replace(
+            "### §11 版本详细变更说明\n版本变更说明内容\n",
+            "### §11 版本详细变更说明\n",
+        )
+        missing = svc._check_chapter_completeness(content)
+        assert "§11 版本详细变更说明" in missing
+
+    def test_check_chapter_completeness_legacy_format_no_section_sign(
+        self, tmp_path: Path
+    ) -> None:
+        """旧格式 `### 10.1`（不带 §）能被匹配（§? 可选匹配兼容性）"""
+        svc = self._make_service(tmp_path)
+        content = """# 变更单
+
+### 5 变更前后
+内容
+
+### 6.1 五大约束影响
+内容
+
+### 6.2 跨领域影响
+内容
+
+### 6.3 变更传播链
+内容
+
+### 7 实施计划
+内容
+
+### 8.1 审批流程
+内容
+
+### 8.2 审批结论
+内容
+
+### 9 变更实施记录
+内容
+
+### 10.1 验证项清单
+内容
+
+### 10.2 跨领域联动验证
+内容
+
+### 10.3 验证结论
+内容
+
+### 11 版本详细变更说明
+内容
+
+### 12 附录
+内容
+"""
+        missing = svc._check_chapter_completeness(content)
+        assert missing == [], f"旧格式（不带§）应兼容，实际缺失: {missing}"
+
+    def test_transition_to_closed_blocked_when_incomplete(self, tmp_path: Path) -> None:
+        """章节不完整时流转 closed 抛 TransitionGuardError"""
+        from auto_pm.change.constants import TransitionGuardError
+
+        project_id = "TEST-2026-001"
+        project_path = tmp_path / project_id
+        project_path.mkdir(parents=True, exist_ok=True)
+        (project_path / f"PM_SESSION_{project_id}.md").write_text(
+            "# PM_SESSION\n", encoding="utf-8"
+        )
+        chg_dir = (
+            project_path / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-DOCU"
+        )
+        chg_dir.mkdir(parents=True, exist_ok=True)
+        # completed 状态但无 §5-§12 三级标题章节
+        (chg_dir / "CHG-DOCU-2026-001.md").write_text(
+            "# 变更单\n\n## 3. 变更基本信息\n\n### 3.5 变更状态\n"
+            "| 字段 | 内容 |\n|------|------|\n| 变更状态 | completed |\n",
+            encoding="utf-8",
+        )
+        ledger_dir = (
+            project_path / "04_监控" / "01_变更管理" / "02_变更记录"
+        )
+        ledger_dir.mkdir(parents=True, exist_ok=True)
+        (ledger_dir / "01_版本变更台帐.md").write_text(
+            "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+            encoding="utf-8",
+        )
+
+        svc = ChangeService(str(tmp_path))
+        with pytest.raises(TransitionGuardError, match="章节不完整"):
+            svc.transition_status(
+                "CHG-DOCU-2026-001", "closed", approver="管理员"
+            )
+
+    def test_transition_to_closed_allowed_when_complete(self, tmp_path: Path) -> None:
+        """13 章节齐全时流转 closed 成功"""
+        project_id = "TEST-2026-001"
+        project_path = tmp_path / project_id
+        project_path.mkdir(parents=True, exist_ok=True)
+        (project_path / f"PM_SESSION_{project_id}.md").write_text(
+            "# PM_SESSION\n", encoding="utf-8"
+        )
+        chg_dir = (
+            project_path / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-DOCU"
+        )
+        chg_dir.mkdir(parents=True, exist_ok=True)
+        # completed 状态 + 全部 13 章节
+        (chg_dir / "CHG-DOCU-2026-001.md").write_text(
+            self._build_full_chapters_content(), encoding="utf-8"
+        )
+        ledger_dir = (
+            project_path / "04_监控" / "01_变更管理" / "02_变更记录"
+        )
+        ledger_dir.mkdir(parents=True, exist_ok=True)
+        (ledger_dir / "01_版本变更台帐.md").write_text(
+            "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+            encoding="utf-8",
+        )
+
+        svc = ChangeService(str(tmp_path))
+        cr = svc.transition_status(
+            "CHG-DOCU-2026-001", "closed", approver="管理员"
+        )
+        assert cr is not None
+        assert cr.status == "closed"

@@ -871,6 +871,8 @@ class DocIndexValidityChecker(BaseChecker):
     1. 四类核心文档是否齐全
     2. 路径是否有效（相对于 PM_SESSION 所在目录）
     与 SHC-009 的差异：SHC-009 检查所有路径引用，SHC-014 聚焦 req/int/dsn/tec 齐全性。
+
+    CHG-SCPT-2026-153: P1-2 修复 — 排除模板文件、占位符路径和忽略清单。
     """
 
     _SECTION_4_RE = re.compile(r'^##\s*4\.?\s', re.MULTILINE)
@@ -879,6 +881,28 @@ class DocIndexValidityChecker(BaseChecker):
         r'^-\s*(req|int|dsn|tec)\s*:\s*(.+)$', re.MULTILINE | re.IGNORECASE
     )
     _REQUIRED_DOCS = {"req", "int", "dsn", "tec"}
+
+    # 占位符/哨兵值（非真实路径，跳过有效性检查）
+    _PLACEHOLDER_VALUES: frozenset[str] = frozenset({
+        "-", "--", "---", "待补充", "(待补充)", "TBD", "N/A", "TODO",
+        "none", "None", "无", "略",
+    })
+
+    # 模板目录（避免扫描 PM_SESSION_TEMPLATE.md）
+    _TEMPLATE_DIR_MARKERS: tuple[str, ...] = (".trae", "project-bootstrap")
+
+    def _is_placeholder_path(self, path: str) -> bool:
+        """检查路径是否为占位符/哨兵值"""
+        normalized = path.strip().rstrip(".,;:)]}>")
+        return normalized in self._PLACEHOLDER_VALUES or len(normalized) <= 1
+
+    def _is_template_file(self, pm_file: Path) -> bool:
+        """检查 PM_SESSION 文件是否位于模板目录中"""
+        path_str = str(pm_file).replace("\\", "/")
+        for marker in self._TEMPLATE_DIR_MARKERS:
+            if f"/{marker}/" in path_str:
+                return True
+        return "PM_SESSION_TEMPLATE" in pm_file.name
 
     def _extract_section_4(self, content: str) -> str:
         m = self._SECTION_4_RE.search(content)
@@ -902,6 +926,10 @@ class DocIndexValidityChecker(BaseChecker):
             return results
 
         for pm_file in pm_files:
+            # 跳过模板文件（CHG-SCPT-2026-153: P1-2）
+            if self._is_template_file(pm_file):
+                continue
+
             project_root = pm_file.parent
             try:
                 pm_content = pm_file.read_text(encoding="utf-8")
@@ -912,11 +940,14 @@ class DocIndexValidityChecker(BaseChecker):
             if not section4:
                 continue  # 没有 §4 章节则跳过
 
-            # 解析文档条目
+            # 解析文档条目（跳过占位符路径）
             found_docs: dict[str, str] = {}
             for match in self._DOC_ENTRY_RE.finditer(section4):
                 doc_type = match.group(1).lower()
                 doc_path_str = match.group(2).strip().split()[0]  # 取路径部分（去掉注释）
+                # 跳过占位符（CHG-SCPT-2026-153: P1-2）
+                if self._is_placeholder_path(doc_path_str):
+                    continue
                 found_docs[doc_type] = doc_path_str
 
             # 检查必需文档是否齐全

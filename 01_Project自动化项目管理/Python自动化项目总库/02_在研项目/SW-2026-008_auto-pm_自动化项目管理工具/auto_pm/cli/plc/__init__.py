@@ -96,6 +96,7 @@ def cmd_init(
 @click.option("--json", "output_json", is_flag=True, help="以JSON格式输出结果")
 @click.option("--substance", is_flag=True, help="执行文档实质化检查（V2.0.1-B）")
 @click.option("--fix", is_flag=True, help="检查后自动修复非破坏性问题")
+@click.option("--list", "list_items", is_flag=True, help="列出所有检查项及说明")
 @click.pass_context
 def cmd_check(
     ctx: click.Context,
@@ -104,9 +105,15 @@ def cmd_check(
     output_json: bool,
     substance: bool,
     fix: bool,
+    list_items: bool,
 ) -> None:
     """检查项目结构是否符合 LSP-907 规范"""
     app_ctx: AppContext = ctx.obj
+
+    if list_items:
+        _print_check_items()
+        return
+
     svc = PlcService(app_ctx.workspace_root)
 
     if check_all:
@@ -158,6 +165,17 @@ def cmd_check(
         print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))  # noqa: T201
     else:
         _print_check_detail(result)
+
+    # P3-8: 自动生成 ai_context.json 供 cockpit/AI 技能恢复上下文
+    if not result.not_applicable:
+        from auto_pm.cli import write_ai_context
+        write_ai_context(
+            workspace_root=app_ctx.workspace_root,
+            project_id=project_id,
+            project_name=proj.name,
+            stack=proj.stack,
+            phase=proj.phase or "",
+        )
 
 
 @plc_group.command(name="repair")
@@ -229,6 +247,43 @@ def cmd_standardize(
 
 
 # ── 输出辅助 ──────────────────────────────────────────────
+
+def _print_check_items() -> None:
+    """打印所有检查项清单（--list 模式）"""
+    from auto_pm.plc.checker import PlcChecker
+
+    # 按 category 分组
+    categories: dict[str, list[dict[str, str]]] = {}
+    for item in PlcChecker.CHECK_ITEMS:
+        cat = item["category"]
+        if cat not in categories:
+            categories[cat] = []
+        categories[cat].append(item)
+
+    table = Table(title="PLC 检查项清单 (plc check)")
+    table.add_column("#", style="dim", width=3)
+    table.add_column("分类", style="cyan", width=6)
+    table.add_column("检查项", style="bold", width=22)
+    table.add_column("说明", style="white")
+    table.add_column("规范引用", style="dim", width=18)
+
+    # 按分类排序输出
+    cat_order = ["配置", "文档", "结构", "规范"]
+    for cat in cat_order:
+        items = categories.get(cat, [])
+        for item in items:
+            table.add_row(
+                item["id"],
+                item["category"],
+                item["item"],
+                item["description"],
+                item["spec"],
+            )
+
+    console.print(table)
+    console.print(f"\n[dim]共 {len(PlcChecker.CHECK_ITEMS)} 项检查，覆盖 4 个分类（配置/文档/结构/规范）[/dim]")
+    console.print("[dim]使用: auto-pm -w <工作空间根> plc check <项目ID> 执行检查[/dim]")
+
 
 def _print_check_summary(results: list[CheckResult]) -> None:
     """打印批量检查摘要

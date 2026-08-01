@@ -6,6 +6,7 @@ auto_pm 的 spec 命令组入口为 auto_pm.cli.spec:spec_group，每个子命�
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -409,3 +410,67 @@ class TestConfigQuietCommand:
         import json
         data = json.loads(result.output)
         assert "check_results" in data
+
+
+# ── P2-7: spec check --verbose 详细 diff 输出测试 ──────────
+
+
+class TestVerboseOption:
+    """P2-7: spec check --verbose/-v 详细 diff 输出测试"""
+
+    def test_spec_check_verbose_option_exists(self) -> None:
+        """spec check --help 应包含 --verbose 和 -v 选项"""
+        runner = CliRunner()
+        result = runner.invoke(spec_group, ["check", "--help"])
+        assert result.exit_code == 0
+        assert "--verbose" in result.output
+        assert "-v" in result.output
+
+    def test_spec_check_verbose_flag_runs(self, populated_workspace: Path) -> None:
+        """--verbose 标志应正常执行（不崩溃）"""
+        runner = CliRunner()
+        result = runner.invoke(
+            spec_group,
+            ["check", "-w", str(populated_workspace), "--verbose"],
+        )
+        assert result.exit_code in (0, 1, 2)
+
+    def test_spec_check_json_summary_with_verbose(self, workspace: Path) -> None:
+        """--verbose --format json 输出应含 summary 字段（total/error/warning/info）"""
+        runner = CliRunner()
+        result = runner.invoke(
+            spec_group,
+            ["check", "-w", str(workspace), "--format", "json", "--verbose"],
+        )
+        # workspace 无注册表，会触发 SHC-000 ERROR，exit_code != 0
+        assert result.exit_code != 0
+        data = json.loads(result.output)
+        assert "summary" in data, "verbose 模式 JSON 应含 summary 字段"
+        summary = data["summary"]
+        assert "total" in summary
+        assert "error" in summary
+        assert "warning" in summary
+        assert "info" in summary
+        assert summary["total"] >= 1, "应至少有 1 个检查结果"
+
+    def test_spec_check_json_without_verbose_no_summary(
+        self, workspace: Path
+    ) -> None:
+        """不带 --verbose 的 JSON 模式不应含 summary 字段"""
+        runner = CliRunner()
+        result = runner.invoke(
+            spec_group,
+            ["check", "-w", str(workspace), "--format", "json"],
+        )
+        data = json.loads(result.output)
+        assert "summary" not in data, "非 verbose 模式 JSON 不应含 summary 字段"
+
+    def test_spec_check_short_v_alias(self, workspace: Path) -> None:
+        """-v 是 --verbose 的别名（JSON 输出应含 summary）"""
+        runner = CliRunner()
+        result = runner.invoke(
+            spec_group,
+            ["check", "-w", str(workspace), "--format", "json", "-v"],
+        )
+        data = json.loads(result.output)
+        assert "summary" in data, "-v 别名应与 --verbose 等价，含 summary 字段"

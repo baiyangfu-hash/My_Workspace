@@ -1,2 +1,13 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-{{ _copier_answers|to_nice_yaml }}
+_commit: 4d37b06
+_src_path: https://github.com/gotofritz/copier-python-template.git
+author_email: gotofritz@users.noreply.github.com
+author_name: fubai
+cli: true
+org_name: fubai
+package_name: plc_var_parser
+project_description: 多格式PLC变量表解析与转换工具，支持AutoShop/CODESYS/Work3格式
+project_name: PLC变量表解析工具
+project_url: https://github.com/fubai/plc-var-parser
+python_version: '3.11'
+with_conventional_commits: true

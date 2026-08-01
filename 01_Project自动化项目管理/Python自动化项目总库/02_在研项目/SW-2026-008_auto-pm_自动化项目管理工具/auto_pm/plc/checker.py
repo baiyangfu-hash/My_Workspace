@@ -23,6 +23,9 @@ from auto_pm.core.paths import find_prd_dir
 from auto_pm.models.enums import ProjectType
 from auto_pm.plc.models import (
     _LEGACY_PROJECT_INIT_PLC_PATH,
+    FB_PRD_SCAN_DIR,
+    FB_PRD_SKIP_DIRS,
+    FB_PRDS,
     NAMING_RULES,
     PM_DIR_CANDIDATES,
     REQUIRED_PLC_JSON_FIELDS,
@@ -61,6 +64,81 @@ _LEGACY_PRD_DIRS = [
 
 class PlcChecker:
     """PLC 项目结构检查器（LSP-907）"""
+
+    # ── 检查项清单（静态定义，供 --list 使用） ──────────────
+
+    CHECK_ITEMS: list[dict[str, str]] = [
+        {
+            "id": "1",
+            "category": "配置",
+            "item": ".plc.json",
+            "description": "检查 .plc.json 配置文件存在性、JSON 格式有效性、必填字段完整性（name/description/version）",
+            "spec": "LSP-907 §1.1",
+        },
+        {
+            "id": "2",
+            "category": "配置",
+            "item": ".plc.json libraries",
+            "description": "检查 libraries 字段是否配置，库路径是否存在，关键文件（timer/counter/edge）是否完整",
+            "spec": "LSP-907 §1.2",
+        },
+        {
+            "id": "3",
+            "category": "文档",
+            "item": "PM_SESSION",
+            "description": "检查 PM_SESSION_<项目编号>.md 是否存在，文件名是否与项目编号匹配",
+            "spec": "PM-042",
+        },
+        {
+            "id": "4",
+            "category": "文档",
+            "item": "PM_SESSION 行数",
+            "description": "检查 PM_SESSION 行数是否超过阈值（>150 行 warn，>300 行 fail），建议归档",
+            "spec": "PM-042 双层结构",
+        },
+        {
+            "id": "5",
+            "category": "文档",
+            "item": "PRD 目录",
+            "description": "检查 PRD/（或 00_程序方案/）目录是否存在，兼容历史文档目录（01_需求与设计、02_PLC程序/PLC_ST/PRD 等）",
+            "spec": "LSP-907 §2",
+        },
+        {
+            "id": "6",
+            "category": "文档",
+            "item": "PRD 四件套",
+            "description": "检查 PRD 目录下需求分析文档_REQ.md、接口文档_INT.md、详细设计说明书_DSN.md、技术方案文档_TEC.md 四件套是否齐全",
+            "spec": "LSP-907 §2.1",
+        },
+        {
+            "id": "7",
+            "category": "文档",
+            "item": "PRD 内容质量",
+            "description": "深度校验 FB 模块 PRD 内容质量：关联源码路径有效性、文档版本与项目主版本滞后检测（≥2 个大版本 warn）",
+            "spec": "CHG-SCPT-2026-153",
+        },
+        {
+            "id": "8",
+            "category": "文档",
+            "item": "FB PRD 四件套",
+            "description": "检查每个 FB 模块的 PRD/ 子目录下接口文档_IFC-*.md、详细设计说明书_DSN-*.md、变更记录_CHG-*.md、使用说明_UM-*.md 四件套是否齐全",
+            "spec": "CHG-SCPT-2026-153",
+        },
+        {
+            "id": "9",
+            "category": "结构",
+            "item": "标准目录",
+            "description": "检查 12 个标准目录是否存在（01_启动/00_项目管理、01_需求与设计、02_PLC程序、03_HMI设计、04_现场调试、04_驱动器与设备、05_测试与验证、06_文档与交付、07_技术支持、08_备件管理、09_项目总结、10_知识库）",
+            "spec": "LSP-907 §3.1",
+        },
+        {
+            "id": "10",
+            "category": "规范",
+            "item": "Spec Snapshot",
+            "description": "检查 PM_SESSION 中的 Spec Snapshot 表格与 spec_registry.json 是否一致，检测主版本/次版本/补丁版本漂移",
+            "spec": "V2.0.3",
+        },
+    ]
 
     def __init__(self, workspace_root: str) -> None:
         self.workspace_root = os.path.abspath(workspace_root)
@@ -118,6 +196,9 @@ class PlcChecker:
 
         # 3. 检查 PRD 文档
         self._check_prd_docs(project_path, result)
+
+        # 3.5. 检查 FB 级 PRD 四件套（CHG-SCPT-2026-153）
+        self._check_fb_prd_docs(project_path, result)
 
         # 4. 检查目录结构（仅标准项目）
         if project_type == "standard":
@@ -342,7 +423,9 @@ class PlcChecker:
         project_id = self.resolve_project_id(project_path)
 
         pm_session = os.path.join(project_path, f"PM_SESSION_{project_id}.md")
+        pm_path: str | None = None
         if os.path.isfile(pm_session):
+            pm_path = pm_session
             result.add("PM_SESSION", "pass", f"PM_SESSION_{project_id}.md 存在")
         else:
             # 尝试模糊匹配
@@ -355,6 +438,7 @@ class PlcChecker:
             except OSError:
                 pass
             if found:
+                pm_path = os.path.join(project_path, found)
                 result.add(
                     "PM_SESSION",
                     "warn",
@@ -362,6 +446,44 @@ class PlcChecker:
                 )
             else:
                 result.add("PM_SESSION", "fail", f"缺少 PM_SESSION_{project_id}.md")
+                return
+
+        # PM_SESSION 行数门禁（CHG-SCPT-2026-153: P1-4）
+        # warn >150（接近双层结构阈值），fail >300（严重膨胀）
+        if pm_path:
+            line_count = self._count_file_lines(pm_path)
+            if line_count > 300:
+                result.add(
+                    "PM_SESSION 行数",
+                    "fail",
+                    f"PM_SESSION 严重膨胀: {line_count} 行（阈值: 150 行，"
+                    f"建议执行 pm-session archive 归档）",
+                )
+            elif line_count > 150:
+                result.add(
+                    "PM_SESSION 行数",
+                    "warn",
+                    f"PM_SESSION 接近阈值: {line_count} 行（阈值: 150 行，"
+                    f"建议执行 pm-session archive 归档）",
+                )
+            else:
+                result.add(
+                    "PM_SESSION 行数",
+                    "pass",
+                    f"{line_count} 行（阈值: 150 行）",
+                )
+
+    @staticmethod
+    def _count_file_lines(file_path: str) -> int:
+        """统计文件行数（高效方式，不加载全部内容到内存）"""
+        count = 0
+        try:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
+                for _ in f:
+                    count += 1
+        except OSError:
+            return 0
+        return count
 
     def _check_spec_snapshot(self, project_path: str, result: CheckResult) -> None:
         """检查 Spec Snapshot 规范漂移（V2.0.3）
@@ -555,6 +677,93 @@ class PlcChecker:
                                         )
                         except Exception:
                             pass
+
+    def _check_fb_prd_docs(self, project_path: str, result: CheckResult) -> None:
+        """检查 FB 级 PRD 四件套（L3 层，每个 FB 模块的 PRD/ 子目录下 IFC/DSN/CHG/UM）
+
+        CHG-SCPT-2026-153: 基于 DJ-2026-005 实战，plc check 原只检查 L2 级 REQ/INT/DSN/TEC，
+        不检查 FB 级 IFC/DSN/CHG/UM，导致 4/7 模块四件套不完整仍 21/21 全绿通过。
+        """
+        # 定位 PLC_ST 目录
+        plc_st_path = os.path.join(project_path, FB_PRD_SCAN_DIR)
+        if not os.path.isdir(plc_st_path):
+            # 尝试兼容旧路径（PLC_ST 直接在项目根目录下）
+            plc_st_path = os.path.join(project_path, "PLC_ST")
+            if not os.path.isdir(plc_st_path):
+                return
+
+        try:
+            fb_dirs = sorted(
+                d for d in os.listdir(plc_st_path)
+                if os.path.isdir(os.path.join(plc_st_path, d))
+                and d not in FB_PRD_SKIP_DIRS
+                and not d.startswith(".")
+                and not d.startswith("00_")  # 基础设施/文档目录，非 FB 模块
+            )
+        except OSError:
+            return
+
+        if not fb_dirs:
+            return
+
+        total_modules = 0
+        complete_modules = 0
+        for fb_dir in fb_dirs:
+            total_modules += 1
+            prd_path = os.path.join(plc_st_path, fb_dir, "PRD")
+            if not os.path.isdir(prd_path):
+                result.add(
+                    f"FB PRD [{fb_dir}]",
+                    "fail",
+                    "缺少 PRD/ 子目录（期望: IFC/DSN/CHG/UM 四件套）",
+                )
+                continue
+
+            try:
+                prd_files = set(os.listdir(prd_path))
+            except OSError:
+                result.add(
+                    f"FB PRD [{fb_dir}]",
+                    "fail",
+                    "PRD/ 目录不可读",
+                )
+                continue
+
+            module_complete = True
+            for doc_type, prefix in FB_PRDS:
+                matched = [f for f in prd_files if f.startswith(prefix) and f.endswith(".md")]
+                if matched:
+                    result.add(
+                        f"FB PRD [{fb_dir}]/{doc_type}",
+                        "pass",
+                        matched[0],
+                    )
+                else:
+                    module_complete = False
+                    result.add(
+                        f"FB PRD [{fb_dir}]/{doc_type}",
+                        "fail",
+                        f"缺少 {prefix}*.md",
+                    )
+
+            if module_complete:
+                complete_modules += 1
+
+        # 汇总统计
+        if total_modules > 0:
+            if complete_modules == total_modules:
+                result.add(
+                    "FB PRD 四件套",
+                    "pass",
+                    f"全部 {total_modules}/{total_modules} 模块 PRD 四件套完整",
+                )
+            else:
+                result.add(
+                    "FB PRD 四件套",
+                    "fail",
+                    f"{complete_modules}/{total_modules} 模块 PRD 四件套完整"
+                    f"（缺 {total_modules - complete_modules} 个）",
+                )
 
     @staticmethod
     def _get_existing_legacy_prd_dirs(project_path: str) -> list[str]:

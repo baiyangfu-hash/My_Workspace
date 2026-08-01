@@ -570,3 +570,51 @@ class TestPythonProjectNotApplicable:
         # reason 应该提到 Python 项目 + 不适用
         assert "Python" in result.not_applicable_reason
         assert "不适用" in result.not_applicable_reason
+
+
+# ── P3-9: plc check --list 检查项清单测试 ──────────────────
+
+
+class TestCheckItemsList:
+    """P3-9: plc check --list 检查项清单测试"""
+
+    def test_check_items_count(self) -> None:
+        """CHECK_ITEMS 应包含 10 项检查"""
+        assert len(PlcChecker.CHECK_ITEMS) == 10
+
+    def test_check_items_categories(self) -> None:
+        """CHECK_ITEMS 应覆盖 4 个分类（配置/文档/结构/规范）"""
+        categories = {item["category"] for item in PlcChecker.CHECK_ITEMS}
+        assert categories == {"配置", "文档", "结构", "规范"}
+
+    def test_check_items_have_spec(self) -> None:
+        """每项检查应有非空 spec 规范引用"""
+        for item in PlcChecker.CHECK_ITEMS:
+            assert item["spec"], f"检查项 {item['item']} 缺少 spec 规范引用"
+            assert isinstance(item["spec"], str)
+
+    def test_check_items_ids_unique(self) -> None:
+        """检查项 id 应唯一（1-10）"""
+        ids = [item["id"] for item in PlcChecker.CHECK_ITEMS]
+        assert len(ids) == len(set(ids)), f"检查项 id 存在重复: {ids}"
+        assert sorted(ids, key=int) == [str(i) for i in range(1, 11)]
+
+    def test_plc_check_list_cli(self, tmp_path: Path) -> None:
+        """plc check --list 应输出检查项清单表格"""
+        from click.testing import CliRunner
+
+        from auto_pm.cli.__main__ import cli
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["-w", str(tmp_path), "plc", "check", "--list"],
+            catch_exceptions=False,
+        )
+        assert result.exit_code == 0
+        assert "PLC 检查项清单" in result.output
+        # 验证 4 个分类均出现
+        for cat in ["配置", "文档", "结构", "规范"]:
+            assert cat in result.output
+        # 验证检查项数量提示
+        assert "共 10 项检查" in result.output
