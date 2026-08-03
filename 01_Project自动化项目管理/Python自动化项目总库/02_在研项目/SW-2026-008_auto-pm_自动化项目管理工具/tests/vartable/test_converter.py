@@ -9,7 +9,7 @@ from __future__ import annotations
 import csv
 import io
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import yaml
@@ -200,7 +200,7 @@ class TestVariableConverterErrorHandling:
             entries=entries,
             source_path="/tmp/communications.yml",
             source_format="communications_yml",
-            parsed_at=datetime.now(timezone.utc).isoformat(),
+            parsed_at=datetime.now(UTC).isoformat(),
             encoding="utf-8",
         )
         result = ParseResult(success=True, var_table=None, channel_table=table)

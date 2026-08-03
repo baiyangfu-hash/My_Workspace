@@ -9,9 +9,9 @@ import fnmatch
 import os
 import re
 import sys
+from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
-from typing import Generator
 
 from auto_pm.constraint.guard import FileGuard
 from auto_pm.constraint.loader import ConstraintLoader
@@ -36,7 +36,7 @@ class ConstraintChecker:
             violations.extend(self.check_constraint(cst))
 
         violations_count = len(violations)
-        passed_count = len(constraints) - len(set(v.constraint_id for v in violations))
+        passed_count = len(constraints) - len({v.constraint_id for v in violations})
 
         report = CheckReport(
             total=len(constraints),

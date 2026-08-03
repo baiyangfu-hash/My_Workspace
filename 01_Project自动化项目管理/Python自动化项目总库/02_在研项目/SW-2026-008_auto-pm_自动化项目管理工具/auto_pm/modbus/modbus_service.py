@@ -359,10 +359,10 @@ class ModbusService:
             # 编码兼容性解码
             encoding = "gbk" if sys.platform == "win32" else "utf-8"
             stdout_str = result.stdout.decode(encoding, errors="replace")
-            
+
             # 去除首尾空白
             msg = stdout_str.strip()
-            
+
             if result.returncode == 0:
                 return PingResult(success=True, message=msg, latency_ms=1.0)
             else:

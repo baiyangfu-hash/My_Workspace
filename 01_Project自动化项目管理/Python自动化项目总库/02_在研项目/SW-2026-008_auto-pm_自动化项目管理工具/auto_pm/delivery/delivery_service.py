@@ -230,7 +230,7 @@ class DeliveryService:
         file_count = 0
         try:
             with zipfile.ZipFile(str(zip_path), "w", zipfile.ZIP_DEFLATED) as zf:
-                for root, dirs, files in os.walk(str(self._delivery_dir)):
+                for root, _dirs, files in os.walk(str(self._delivery_dir)):
                     for fn in files:
                         fp = os.path.join(root, fn)
                         arcname = os.path.relpath(fp, str(self._delivery_dir))

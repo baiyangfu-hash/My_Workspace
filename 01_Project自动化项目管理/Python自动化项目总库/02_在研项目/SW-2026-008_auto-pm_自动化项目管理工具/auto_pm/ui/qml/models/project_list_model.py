@@ -85,7 +85,7 @@ class ProjectListModel(QAbstractListModel):
             value = project.get(role_name, "")
         else:
             value = getattr(project, role_name, "")
-            
+
         # 枚举类型转字符串（Stack/ProjectPhase/BusinessLine）
         if hasattr(value, "value"):
             return str(value.value)

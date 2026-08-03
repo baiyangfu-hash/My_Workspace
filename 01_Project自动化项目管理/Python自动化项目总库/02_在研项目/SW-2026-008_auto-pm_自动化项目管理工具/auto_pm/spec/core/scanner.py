@@ -101,7 +101,7 @@ class SpecScanner:
 
     def extract_version(self, file_path: Path) -> str | None:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 head = f.read(500)
         except (OSError, UnicodeDecodeError):
             return None
@@ -116,7 +116,7 @@ class SpecScanner:
 
     def extract_frontmatter(self, file_path: Path) -> dict[str, Any] | None:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except (OSError, UnicodeDecodeError):
             return None

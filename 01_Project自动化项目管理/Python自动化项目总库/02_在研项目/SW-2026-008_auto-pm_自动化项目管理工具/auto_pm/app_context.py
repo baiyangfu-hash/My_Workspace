@@ -32,7 +32,7 @@ class AppContext:
             cfg_file = get_config_file_path()
             if os.path.isfile(cfg_file):
                 try:
-                    with open(cfg_file, "r", encoding="utf-8") as f:
+                    with open(cfg_file, encoding="utf-8") as f:
                         workspace_root = f.read().strip()
                 except Exception:
                     pass

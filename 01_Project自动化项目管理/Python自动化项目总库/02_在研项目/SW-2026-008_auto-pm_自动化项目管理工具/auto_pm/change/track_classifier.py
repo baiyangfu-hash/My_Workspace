@@ -14,9 +14,9 @@
 from __future__ import annotations
 
 import fnmatch
+from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import Sequence
 
 
 class ChangeTrack(str, Enum):
@@ -41,7 +41,7 @@ class ChangeTrackClassifier:
 
     @classmethod
     def classify(
-        self,
+        cls,
         domain: str = "",
         nature: str = "",
         scope: str | Sequence[str] = "",
@@ -60,7 +60,7 @@ class ChangeTrackClassifier:
         """
         # 1. 规格性质检查: REQ (需求) 和 EMRG (紧急) 必须走 Full Track
         nature_upper = (nature or "").upper().strip()
-        if nature_upper not in self.QUICK_NATURES:
+        if nature_upper not in cls.QUICK_NATURES:
             return ChangeTrack.FULL
 
         # 2. 影响范围检查: 包含 SYSTEM/CROSS/SAFE 必须走 Full Track
@@ -71,7 +71,7 @@ class ChangeTrackClassifier:
             scopes = [str(s).strip().upper() for s in scope if str(s).strip()]
 
         for s in scopes:
-            if s not in self.QUICK_SCOPES:
+            if s not in cls.QUICK_SCOPES:
                 return ChangeTrack.FULL
 
         # 3. 敏感路径检查: 若修改了技能规则或约束引擎定义，必须走 Full Track

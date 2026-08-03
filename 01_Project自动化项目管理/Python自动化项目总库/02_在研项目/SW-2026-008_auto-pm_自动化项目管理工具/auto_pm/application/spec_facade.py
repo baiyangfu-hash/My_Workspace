@@ -84,7 +84,7 @@ class SpecFacade:
                 elif proj and proj.stack == "plc":
                     from auto_pm.plc.checker import PlcChecker
                     plc_checker = PlcChecker(self._project_service.workspace_root)
-                    check_res = plc_checker.check_project(proj.path)
+                    plc_check_res = plc_checker.check_project(proj.path)
                     results = [
                         {
                             "check_id": item.item,
@@ -93,13 +93,13 @@ class SpecFacade:
                             "details": item.message,
                             "fix_suggestion": "查看 PLC 规范要求或进行一键修复" if item.status != "pass" else "",
                         }
-                        for item in check_res.items
+                        for item in plc_check_res.items
                     ]
                     dto = SpecCheckResultDTO(
-                        error_count=check_res.fail_count,
-                        warning_count=check_res.warn_count,
-                        info_count=check_res.pass_count,
-                        exit_code=1 if check_res.fail_count > 0 else 0,
+                        error_count=plc_check_res.fail_count,
+                        warning_count=plc_check_res.warn_count,
+                        info_count=plc_check_res.pass_count,
+                        exit_code=1 if plc_check_res.fail_count > 0 else 0,
                         results=results,
                     )
                     return CommandResult(success=True, message="Success", payload=dto)
@@ -137,7 +137,7 @@ class SpecFacade:
             proj = self._project_service.get_project(project_id)
             if not proj:
                 return CommandResult(success=False, message=f"Project {project_id} not found", payload=None)
-            
+
             if proj.stack == "python":
                 from auto_pm.core.python_service import PythonProjectService
                 py_svc = PythonProjectService(self._project_service.workspace_root)

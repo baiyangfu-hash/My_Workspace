@@ -112,8 +112,7 @@ class PlcRepairer:
                 self._repair_spec_snapshot(project_path, result, dry_run)
             elif item.item == "PRD 目录":
                 self._repair_prd_dir(project_path, project_id, project_name, result, dry_run)
-            elif self._is_prd_doc_item(item.item) is not None:
-                doc_name = self._is_prd_doc_item(item.item)
+            elif (doc_name := self._is_prd_doc_item(item.item)) is not None:
                 self._repair_prd_doc(
                     project_path, project_id, project_name, doc_name, result, dry_run
                 )

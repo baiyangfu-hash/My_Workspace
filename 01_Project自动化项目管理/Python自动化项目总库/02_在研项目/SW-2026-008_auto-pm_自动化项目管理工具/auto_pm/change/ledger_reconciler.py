@@ -111,7 +111,7 @@ class LedgerReconciler:
             if not chg_files:
                 # 既没有台账，也没有变更单文件，说明未启用变更管理，是正常干净的状态
                 return ReconcileDiff()
-            
+
             # 有变更单文件但没有台账文件，说明变更已启用但台账丢失，生成“所有变更均缺失于台账”的差异
             log.warning("对账失败: 未找到台账文件 (project=%s)", project_path)
             chg_meta: dict[str, ChangeRequest] = {}

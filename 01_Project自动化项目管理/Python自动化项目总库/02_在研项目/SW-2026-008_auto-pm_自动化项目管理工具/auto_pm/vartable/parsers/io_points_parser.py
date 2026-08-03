@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import csv
 import io
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from auto_pm.vartable.models import ParseError, ParseResult, VarEntry, VarTable
@@ -160,7 +160,7 @@ class IoPointsParser:
             entries=tuple(entries),
             source_path=str(path.resolve()),
             source_format=SOURCE_FORMAT,
-            parsed_at=datetime.now(timezone.utc).isoformat(),
+            parsed_at=datetime.now(UTC).isoformat(),
             encoding=encoding,
             metadata=metadata,
         )

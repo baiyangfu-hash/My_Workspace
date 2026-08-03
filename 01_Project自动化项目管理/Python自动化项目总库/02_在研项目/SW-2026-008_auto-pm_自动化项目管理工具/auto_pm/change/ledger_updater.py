@@ -216,7 +216,7 @@ class LedgerUpdater:
         header_found = False
         inserted = False
 
-        for i, line in enumerate(lines):
+        for line in lines:
             result_lines.append(line)
 
             if "变更单索引" in line:

@@ -20,9 +20,10 @@ V2.3 Week2 T08-T11：扩展支持 BlockEntry/ChannelEntry/FormatType。
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)

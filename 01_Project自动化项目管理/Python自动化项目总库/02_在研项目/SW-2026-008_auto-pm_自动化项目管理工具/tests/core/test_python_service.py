@@ -12,7 +12,7 @@ def test_python_project_check_not_ok(tmp_path: Path) -> None:
     svc = PythonProjectService(str(tmp_path))
     proj_dir = tmp_path / "SW-2026-PYT_Python项目"
     proj_dir.mkdir()
-    
+
     result = svc.check_project_spec(str(proj_dir), "SW-2026-PYT")
     assert result["all_ok"] is False
     assert result["passed"] < result["total"]
@@ -24,7 +24,7 @@ def test_python_project_check_and_repair(tmp_path: Path) -> None:
     templates_dir = tmp_path / "templates"
     tpl_path = templates_dir / "python-tool" / "template"
     tpl_path.mkdir(parents=True)
-    
+
     # 写入一些模拟模板文件
     (tpl_path / ".pre-commit-config.yaml").write_text("pre-commit content\n", encoding="utf-8")
     (tpl_path / ".ruff.toml").write_text("ruff content\n", encoding="utf-8")

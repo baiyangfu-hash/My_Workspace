@@ -15,7 +15,14 @@ _COMPONENTS_DOC_DIR = _QML_DIR / "components" / "doc"
 @pytest.fixture
 def qml_engine(qapp: QApplication) -> QQmlEngine:
     """提供带有 Theme 引用路径的 QML 引擎"""
+    import PySide6
     engine = QQmlEngine()
+    sys_qml = Path(r"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Lib\site-packages\PySide6\qml")
+    if sys_qml.exists():
+        engine.addImportPath(str(sys_qml))
+    pyside6_qml = Path(PySide6.__file__).parent / "qml"
+    if pyside6_qml.exists():
+        engine.addImportPath(str(pyside6_qml))
     engine.addImportPath(str(_QML_DIR))
     return engine
 
@@ -27,7 +34,7 @@ def _load_qml(engine: QQmlEngine, path: Path) -> object:
         raise AssertionError(f"加载 QML 失败 {path.name}:\n{errors}")
     obj = component.create()
     assert obj is not None, f"实例化 QML 失败: {path.name}"
-    setattr(obj, "_component_ref", component)
+    obj._component_ref = component
     return obj
 
 def _to_variant(value: object) -> object:
@@ -45,7 +52,7 @@ def test_doc_browser_view_instantiation(qapp: QApplication, qml_engine: QQmlEngi
 def test_doc_browser_view_filter_logic(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """测试 DocBrowserView 的目录搜索过滤逻辑"""
     view = _load_qml(qml_engine, _VIEWS_DIR / "DocBrowserView.qml")
-    
+
     docs = [
         {"name": "01_PRD.md", "path": "/path/01_PRD.md"},
         {"name": "02_DES.md", "path": "/path/02_DES.md"},
@@ -53,11 +60,11 @@ def test_doc_browser_view_filter_logic(qapp: QApplication, qml_engine: QQmlEngin
     ]
     view.setProperty("docList", docs)  # type: ignore[attr-defined]
     qapp.processEvents()
-    
+
     # 默认不过滤
     filtered = _to_variant(view.property("filteredDocList"))  # type: ignore[attr-defined]
     assert len(filtered) == 3  # type: ignore[arg-type]
-    
+
     # 输入过滤关键字
     view.setProperty("filterText", "session")  # type: ignore[attr-defined]
     qapp.processEvents()
@@ -70,17 +77,17 @@ def test_load_doc_delegates(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """测试 Markdown 渲染委托组件集均能正常加载"""
     header = _load_qml(qml_engine, _COMPONENTS_DOC_DIR / "DocHeader.qml")
     assert header.property("textData") == ""  # type: ignore[attr-defined]
-    
+
     para = _load_qml(qml_engine, _COMPONENTS_DOC_DIR / "DocParagraph.qml")
     assert para.property("htmlData") == ""  # type: ignore[attr-defined]
-    
+
     code = _load_qml(qml_engine, _COMPONENTS_DOC_DIR / "DocCodeBlock.qml")
     assert code.property("codeData") == ""  # type: ignore[attr-defined]
     assert code.property("language") == "text"  # type: ignore[attr-defined]
-    
+
     alert = _load_qml(qml_engine, _COMPONENTS_DOC_DIR / "DocAlert.qml")
     assert alert.property("htmlData") == ""  # type: ignore[attr-defined]
     assert alert.property("alertType") == "note"  # type: ignore[attr-defined]
-    
+
     table = _load_qml(qml_engine, _COMPONENTS_DOC_DIR / "DocTable.qml")
     assert table.property("htmlData") == ""  # type: ignore[attr-defined]

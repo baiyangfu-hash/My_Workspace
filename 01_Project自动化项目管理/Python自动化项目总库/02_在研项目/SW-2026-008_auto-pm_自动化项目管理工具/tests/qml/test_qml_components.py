@@ -43,12 +43,15 @@ _THEME_DIR = _QML_DIR / "theme"
 
 @pytest.fixture
 def qml_engine(qapp: QApplication) -> QQmlEngine:
-    """QQmlEngine（含 Theme.qml import 路径）
-
-    Theme.qml 通过 pragma ComponentType 注册为单例，
-    需要把 theme/ 加入 import 路径。
-    """
+    """QQmlEngine（含 Theme.qml 及系统完整 PySide6 qml 路径）"""
+    import PySide6
     engine = QQmlEngine()
+    sys_qml = Path(r"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Lib\site-packages\PySide6\qml")
+    if sys_qml.exists():
+        engine.addImportPath(str(sys_qml))
+    pyside6_qml = Path(PySide6.__file__).parent / "qml"
+    if pyside6_qml.exists():
+        engine.addImportPath(str(pyside6_qml))
     engine.addImportPath(str(_QML_DIR))
     return engine
 
@@ -71,7 +74,7 @@ def _load_component(
     obj = component.create()
     assert obj is not None, f"创建 QML 组件实例失败: {qml_file.name}"
     # 保持 component 引用（绑定到 obj），防止 GC 后 created object 失效
-    setattr(obj, "_component_ref", component)
+    obj._component_ref = component
     return obj
 
 

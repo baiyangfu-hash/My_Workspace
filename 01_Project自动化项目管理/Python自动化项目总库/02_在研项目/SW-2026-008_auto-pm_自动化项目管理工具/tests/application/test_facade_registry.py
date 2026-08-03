@@ -11,7 +11,7 @@ def test_registry_initialization() -> None:
     """验证 FacadeRegistry 能成功装配 5 个 Facades 且无循环依赖报错"""
     # Arrange
     registry = FacadeRegistry()
-    
+
     mock_services = {
         "dashboard_service": MagicMock(),
         "project_service": MagicMock(),
@@ -27,17 +27,17 @@ def test_registry_initialization() -> None:
         "pm_session_service": MagicMock(),
         "template_service": MagicMock(),
     }
-    
+
     # Act
     registry.initialize(mock_services)  # type: ignore[arg-type]
-    
+
     # Assert
     assert registry.workbench_facade is not None
     assert registry.change_facade is not None
     assert registry.spec_facade is not None
     assert registry.delivery_facade is not None
     assert registry.system_facade is not None
-    
+
     # 验证底层服务正确注入
     assert registry.workbench_facade._dashboard_service == mock_services["dashboard_service"]
     assert registry.change_facade._change_service == mock_services["change_service"]

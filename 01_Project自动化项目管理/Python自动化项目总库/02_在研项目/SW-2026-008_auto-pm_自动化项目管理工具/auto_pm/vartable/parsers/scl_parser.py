@@ -25,7 +25,7 @@ V2.3 Week3 T12：深化为真实字段提取 + 新增 detect_format 方法。
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from auto_pm.vartable.models import ParseResult, VarEntry, VarTable
@@ -179,7 +179,7 @@ class SclParser(BaseParser):
             entries=tuple(entries),
             source_path=str(Path(file_path).resolve()),
             source_format=SOURCE_FORMAT,
-            parsed_at=datetime.now(timezone.utc).isoformat(),
+            parsed_at=datetime.now(UTC).isoformat(),
             encoding=encoding,
             metadata={
                 "total_rows_read": len(entries),

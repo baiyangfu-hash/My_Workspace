@@ -28,7 +28,7 @@ PM_SESSION_FILE = PROJECT_ROOT / "PM_SESSION_SW-2026-008.md"
 
 
 @pytest.fixture(scope="module")
-def check_result() -> "object":
+def check_result() -> object:
     """运行 PM_SESSION 健康检查"""
     if not PM_SESSION_FILE.exists():
         pytest.skip(f"PM_SESSION 文件不存在: {PM_SESSION_FILE}")

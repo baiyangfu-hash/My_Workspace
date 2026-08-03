@@ -99,7 +99,7 @@ class ProjectScanner:
             by_path.setdefault(p.path, []).append(p)
 
         path_deduped: list[ProjectInfo] = []
-        for path, group in by_path.items():
+        for _path, group in by_path.items():
             # 按来源优先级排序
             group.sort(
                 key=lambda p: self._SOURCE_PRIORITY.get(p.source, 99)

@@ -128,7 +128,7 @@ def load_config(config_path: str | Path | None = None) -> WorkspaceConfig:
     if config_path is not None:
         config_path = Path(config_path)
         if config_path.exists():
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             workspace = Path(data.get("workspace", ".")).resolve()
             spec_dirs = data.get("spec_dirs", list(DEFAULT_SPEC_DIRS))

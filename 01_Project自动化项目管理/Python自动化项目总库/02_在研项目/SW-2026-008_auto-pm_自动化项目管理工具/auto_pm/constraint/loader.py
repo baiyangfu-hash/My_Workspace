@@ -111,7 +111,7 @@ class ConstraintLoader:
             raise ConstraintLoadError(f"文件不存在: {yaml_file}")
 
         try:
-            with open(yaml_file, "r", encoding="utf-8") as f:
+            with open(yaml_file, encoding="utf-8") as f:
                 raw: dict[str, Any] = yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise ConstraintLoadError(f"YAML 解析失败 {yaml_file.name}: {e}") from e

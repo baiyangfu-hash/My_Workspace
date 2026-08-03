@@ -115,7 +115,7 @@ class TestUnlistedSpecChecker:
 class TestIndexLinkChecker:
     def test_index_with_valid_links(self, populated_workspace: Path) -> None:
         config = WorkspaceConfig(workspace=populated_workspace)
-        for output_key, output_path in config.full_output_paths.items():
+        for output_path in config.full_output_paths.values():
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text("# Index\n", encoding="utf-8")
         reg = SpecRegistry(populated_workspace)

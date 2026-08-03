@@ -27,7 +27,7 @@ AssetSummaryService._BLOCK_REQUIRED_KEYS = ("name", "type", "path", "responsibil
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -193,7 +193,7 @@ class ProgramBlocksParser:
             entries=tuple(entries),
             source_path=str(path.resolve()),
             source_format=SOURCE_FORMAT,
-            parsed_at=datetime.now(timezone.utc).isoformat(),
+            parsed_at=datetime.now(UTC).isoformat(),
             encoding=encoding,
             metadata=metadata,
         )

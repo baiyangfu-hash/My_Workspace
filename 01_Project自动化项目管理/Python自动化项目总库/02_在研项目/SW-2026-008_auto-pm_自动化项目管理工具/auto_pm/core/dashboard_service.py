@@ -61,7 +61,7 @@ class DashboardService:
         projects = self._project_service.list_projects_cached()
         changes = self._change_service.list_all_changes()
 
-        phase_counts = {key: 0 for key in self._PHASE_KEYS}
+        phase_counts = dict.fromkeys(self._PHASE_KEYS, 0)
         for project in projects:
             phase_key = project.phase or ""
             phase_counts[phase_key] = phase_counts.get(phase_key, 0) + 1

@@ -209,15 +209,9 @@ class DocRefreshService:
             "",
             "| 文件名 | 路径 | 说明 |",
             "|--------|------|------|",
-            "| **io_points.csv** | `02_PLC程序/工程资产/io_points.csv` | IO 点表，共 {0} 条 |".format(
-                io_count
-            ),
-            "| **program_blocks.yml** | `02_PLC程序/工程资产/program_blocks.yml` | 程序块清单，共 {0} 项 |".format(
-                block_count
-            ),
-            "| **communications.yml** | `02_PLC程序/工程资产/communications.yml` | 通讯对象清单，共 {0} 项 |".format(
-                comm_count
-            ),
+            f"| **io_points.csv** | `02_PLC程序/工程资产/io_points.csv` | IO 点表，共 {io_count} 条 |",
+            f"| **program_blocks.yml** | `02_PLC程序/工程资产/program_blocks.yml` | 程序块清单，共 {block_count} 项 |",
+            f"| **communications.yml** | `02_PLC程序/工程资产/communications.yml` | 通讯对象清单，共 {comm_count} 项 |",
             "| **.plc.json** | `02_PLC程序/PLC_ST/.plc.json` | PLC 项目配置与版本入口 |",
         ]
         return "\n".join(lines) + "\n"

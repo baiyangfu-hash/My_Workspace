@@ -4,11 +4,16 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/My_Workspace.iml" filepath="$PROJECT_DIR$/.idea/My_Workspace.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/auto-pm.iml" filepath="$PROJECT_DIR$/.idea/auto-pm.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/auto-pm@1.iml" filepath="$PROJECT_DIR$/.idea/auto-pm@1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/chg141_e2e_test.iml" filepath="$PROJECT_DIR$/.idea/chg141_e2e_test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/chg141_e2e_test@1.iml" filepath="$PROJECT_DIR$/.idea/chg141_e2e_test@1.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/plc-project-mgr.iml" filepath="$PROJECT_DIR$/.idea/plc-project-mgr.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/plc-var-parser.iml" filepath="$PROJECT_DIR$/.idea/plc-var-parser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/plc变量表解析工具.iml" filepath="$PROJECT_DIR$/.idea/plc变量表解析工具.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/plc项目管理工具.iml" filepath="$PROJECT_DIR$/.idea/plc项目管理工具.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/pm-mgr.iml" filepath="$PROJECT_DIR$/.idea/pm-mgr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/python项目管理工具.iml" filepath="$PROJECT_DIR$/.idea/python项目管理工具.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/specmgr.iml" filepath="$PROJECT_DIR$/.idea/specmgr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/规范管理工具.iml" filepath="$PROJECT_DIR$/.idea/规范管理工具.iml" />
     </modules>
   </component>
 </project>

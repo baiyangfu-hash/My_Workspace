@@ -328,7 +328,7 @@ class GuiTestRunner(QObject):
                 first_proj = projects[0]
                 print(f"正在选中第一个项目进行工作台冒烟测试: {first_proj.get('project_id')}")
                 workbench_bridge.selectProject(first_proj.get("project_id"), first_proj.get("name"))
-                
+
                 # 刷新事件队列使 projectSelected 信号和 UI 绑定生效
                 from PySide6.QtCore import QCoreApplication
                 QCoreApplication.processEvents()

@@ -286,17 +286,17 @@ def test_delivery_bridge_export_doc_to_pdf(qapp, tmp_path: Path) -> None:  # typ
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
 
     bridge = DeliveryBridge(facade=None)
-    
+
     # 1. 源文件不存在
     res = bridge.exportDocToPdf(str(tmp_path / "nonexistent.md"), str(tmp_path / "out.pdf"))
     assert res["success"] is False
     assert "文件不存在" in res["message"]
-    
+
     # 2. 正常导出
     md_file = tmp_path / "test.md"
     md_file.write_text("# Test Document\nThis is printed offline.", encoding="utf-8")
     pdf_file = tmp_path / "out.pdf"
-    
+
     res = bridge.exportDocToPdf(str(md_file), str(pdf_file))
     assert res["success"] is True
     assert pdf_file.exists()

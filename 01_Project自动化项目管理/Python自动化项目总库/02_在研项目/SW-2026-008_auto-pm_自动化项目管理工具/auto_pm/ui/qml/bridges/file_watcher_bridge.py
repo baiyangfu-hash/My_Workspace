@@ -62,7 +62,7 @@ class _SyncWorker(QRunnable):
     isValid=False），emit 报 "Signal source has been deleted"。
     """
 
-    def __init__(self, workspace_root: str, bridge: "FileWatcherBridge") -> None:
+    def __init__(self, workspace_root: str, bridge: FileWatcherBridge) -> None:
         super().__init__()
         self._workspace_root = workspace_root
         self._bridge = bridge  # 保留引用（轮询方案下未使用，预留扩展）

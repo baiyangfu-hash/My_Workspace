@@ -21,11 +21,41 @@ extend-exclude = [
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
 ignore = [
     "E501",  # 行长由 line-length 控制，ruff format 处理
+    "B904",  # 允许在 except 中直接 raise（无需 from None）
+    "UP042", # 兼容普通 Enum，不强制 StrEnum
+    "UP030", # 格式化允许使用显式位置占位符 {0}
+    "C408",  # 允许显式调用 dict()、tuple()、list()
 ]
 
 [lint.per-file-ignores]
-"tests/*" = [
+"tests/**/*.py" = [
     "S101",  # 测试允许 assert
+    "N802",  # 测试允许驼峰命名
+    "N815",  # 测试允许混合大小写
+    "E402",  # 测试允许延迟 import
+    "B905",  # 测试允许不指定 strict zip
+    "UP017", # 测试允许不使用 datetime.UTC
+    "F821",  # 测试允许 undefined-name
+]
+"scripts/**/*.py" = [
+    "T201",  # 脚本允许 print
+    "E402",  # 脚本允许延迟 import
+    "B007",  # 脚本允许未使用循环变量
+    "F841",  # 脚本允许未使用局部变量
+]
+"auto_pm/ui/**/*.py" = [
+    "N802",  # Qt/QML Bridge/Model 允许驼峰命名 Slot/Property
+    "N815",  # Qt/QML 允许驼峰命名成员变量
+    "N803",  # Qt/QML 允许驼峰命名参数名
+    "B008",  # Qt 模型接口（如 rowCount）允许默认参数调用 QModelIndex()
+]
+"auto_pm/modbus/**/*.py" = [
+    "N802",  # Modbus Bridge 允许与 QML 契约相同的驼峰命名 Slot
+    "N815",  # Modbus Bridge 允许驼峰信号/槽定义
+    "N803",  # Modbus Bridge 允许驼峰参数名
+]
+"auto_pm/logging/logging.py" = [
+    "N802",  # Handler.handleError 允许重写 stdlib camelCase 方法
 ]
 
 [format]

@@ -87,9 +87,9 @@ class ReportService:
         """
         projects = self._project_service.list_projects_cached()
 
-        by_stack: dict[str, int] = {k: 0 for k in self._STACK_KEYS}
-        by_phase: dict[str, int] = {k: 0 for k in self._PHASE_KEYS}
-        by_business_line: dict[str, int] = {k: 0 for k in self._BL_KEYS}
+        by_stack: dict[str, int] = dict.fromkeys(self._STACK_KEYS, 0)
+        by_phase: dict[str, int] = dict.fromkeys(self._PHASE_KEYS, 0)
+        by_business_line: dict[str, int] = dict.fromkeys(self._BL_KEYS, 0)
 
         for p in projects:
             # 技术栈（Stack Literal 仅 plc/python/unknown）

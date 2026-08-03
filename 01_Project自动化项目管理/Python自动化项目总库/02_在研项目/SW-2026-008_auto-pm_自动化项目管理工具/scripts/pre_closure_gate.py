@@ -26,7 +26,7 @@ def run_ruff(workspace: str) -> dict:
     result = subprocess.run(
         [sys.executable, "-m", "ruff", "check", ".", "--output-format=json"],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         cwd=workspace,
         shell=False,
     )
@@ -46,7 +46,7 @@ def run_mypy(workspace: str) -> dict:
     result = subprocess.run(
         [sys.executable, "-m", "mypy", "auto_pm/"],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         cwd=workspace,
         shell=False,
     )
@@ -70,7 +70,7 @@ def run_pytest(workspace: str) -> dict:
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "--no-cov", "-q", "-m", "not gui"],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         cwd=workspace,
         shell=False,
     )

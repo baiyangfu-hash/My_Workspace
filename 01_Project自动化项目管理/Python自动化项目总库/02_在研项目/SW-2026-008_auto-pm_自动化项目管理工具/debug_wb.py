@@ -1,4 +1,6 @@
-import re, ast
+import ast
+import re
+
 
 def has_future_annotations(content):
     return bool(re.search(r"from\s+__future__\s+import\s+annotations", content))

@@ -232,7 +232,7 @@ class ArchiveManager:
             return []
 
         entries = sorted(
-            [e for e in archive_dir.iterdir()],
+            archive_dir.iterdir(),
             key=lambda e: e.stat().st_mtime,
             reverse=True,
         )

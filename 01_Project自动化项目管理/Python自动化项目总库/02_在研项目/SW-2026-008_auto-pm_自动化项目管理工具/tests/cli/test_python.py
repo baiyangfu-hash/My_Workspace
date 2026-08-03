@@ -271,7 +271,7 @@ def test_python_repair_dry_run(cli_runner: CliRunner, tmp_path: Path) -> None:
 def test_python_repair_actual(cli_runner: CliRunner, tmp_path: Path) -> None:
     """repair 实际修复缺少的规范文件"""
     _make_python_project(tmp_path, "SW-2026-PYT", complete=False)
-    
+
     # 模拟 templates 目录
     project_root = Path(__file__).resolve().parent.parent.parent
     template_dir = project_root / "templates" / "python-tool"

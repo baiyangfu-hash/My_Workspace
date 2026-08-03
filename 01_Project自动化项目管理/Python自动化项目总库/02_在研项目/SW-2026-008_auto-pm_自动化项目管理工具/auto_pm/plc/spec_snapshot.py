@@ -304,10 +304,11 @@ def update_spec_snapshot(
             + r"(\s*\|)",
             re.MULTILINE,
         )
-        new_content = pattern.sub(
-            lambda m: m.group(1) + drift.registry_version + m.group(2),
-            new_content,
-        )
+        def _repl(m: re.Match[str], d: DriftItem = drift) -> str:
+            g1 = m.group(1) or ""
+            g2 = m.group(2) or ""
+            return str(g1) + str(d.registry_version) + str(g2)
+        new_content = pattern.sub(_repl, new_content)
 
     if new_content == content:
         log.debug("无内容变更（可能版本号已一致）: %s", pm_session_path)

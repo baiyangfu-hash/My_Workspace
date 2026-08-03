@@ -123,7 +123,7 @@ class SystemFacade:
             description = "暂无描述"
             if copier_yml.exists():
                 try:
-                    with open(copier_yml, "r", encoding="utf-8") as f:
+                    with open(copier_yml, encoding="utf-8") as f:
                         data = yaml.safe_load(f)
                         if data and isinstance(data, dict):
                             version = str(data.get("_commit", data.get("_min_copier_version", "unknown")))

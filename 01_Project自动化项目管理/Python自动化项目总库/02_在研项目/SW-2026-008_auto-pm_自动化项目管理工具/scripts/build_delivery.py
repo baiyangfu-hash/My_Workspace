@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 统一交付物构建脚本 (build_delivery.py)
 
@@ -110,7 +109,7 @@ def step1_build_check(args):
     ]
     info(f"命令: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=str(SRC_CODE), capture_output=True, text=True)
-    
+
     if result.returncode != 0:
         fail(f"PyInstaller 编译失败:\n{result.stderr[-800:]}")
         return False
@@ -156,7 +155,7 @@ def step2_update_delivery(args):
     # 2.2 复制发布说明文档和 README.md
     docs_dst = DELIVERY_DIR / "02_发布说明"
     docs_dst.mkdir(parents=True, exist_ok=True)
-    
+
     # 复制 CHANGELOG.md 和 README.md
     for doc in ["CHANGELOG.md", "README.md"]:
         src_f = BASE_DIR / doc
@@ -369,7 +368,7 @@ def step5_verify_zip(zip_path):
 # ============================================================
 def step6_report(results):
     header("Step 6: 构建报告")
-    
+
     all_pass = all(results.values())
     status_icon = "[APPROVED]" if all_pass else "[BLOCKED]"
     status_text = "RELEASE APPROVED" if all_pass else "RELEASE BLOCKED"

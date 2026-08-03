@@ -58,7 +58,7 @@ def test_parse_alerts() -> None:
     assert blocks[0]["type"] == "alert"
     assert blocks[0]["alert_type"] == "note"
     assert "This is a note alert." in blocks[0]["html"]
-    
+
     assert blocks[1]["type"] == "alert"
     assert blocks[1]["alert_type"] == "warning"
     assert "Warning content." in blocks[1]["html"]

@@ -1029,7 +1029,7 @@ class ProjectService:
         if not os.path.isfile(hook_path):
             return False
         try:
-            with open(hook_path, "r", encoding="utf-8") as f:
+            with open(hook_path, encoding="utf-8") as f:
                 content = f.read()
             return "auto-pm pre-commit" in content
         except Exception:
@@ -1039,7 +1039,7 @@ class ProjectService:
         """为指定项目安装离线 Git Pre-commit 提交门禁与自愈钩子"""
         if not os.path.isdir(project_path):
             return {"success": False, "message": f"项目目录不存在: {project_path}"}
-        
+
         git_dir = os.path.join(project_path, ".git")
         if not os.path.isdir(git_dir):
             return {"success": False, "message": "项目未初始化 Git 仓库，无法安装门禁"}
@@ -1103,7 +1103,7 @@ if [ -f "$RUFF_EXE" ]; then
     "$RUFF_EXE" check --fix $STAGED_FILES
     RUFF_EXIT=$?
     git add $STAGED_FILES
-    
+
     echo "⚡ [auto-pm pre-commit] 运行 ruff format..."
     "$RUFF_EXE" format $STAGED_FILES
     git add $STAGED_FILES
@@ -1145,7 +1145,7 @@ exit 0
         try:
             with open(hook_path, "w", encoding="utf-8", newline="\n") as f:
                 f.write(hook_content)
-            
+
             # 设置可执行权限
             try:
                 import stat
@@ -1164,10 +1164,10 @@ exit 0
         hook_path = os.path.join(project_path, ".git", "hooks", "pre-commit")
         if not os.path.isfile(hook_path):
             return {"success": True, "message": "钩子不存在，无需卸载"}
-        
+
         try:
             # 校验是否是 auto-pm 的钩子
-            with open(hook_path, "r", encoding="utf-8") as f:
+            with open(hook_path, encoding="utf-8") as f:
                 content = f.read()
             if "auto-pm pre-commit" in content:
                 os.remove(hook_path)

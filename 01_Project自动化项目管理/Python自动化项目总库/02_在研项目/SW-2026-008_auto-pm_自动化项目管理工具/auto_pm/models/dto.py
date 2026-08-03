@@ -148,7 +148,7 @@ class AssetSummaryViewDTO(BaseModel):
         *,
         status_badges: dict[str, tuple[str, str, str]],
         status_texts: dict[str, str],
-    ) -> "AssetSummaryViewDTO":
+    ) -> AssetSummaryViewDTO:
         """从 ProjectScanner 注入的原始 asset_summary 生成视图 DTO"""
         if not isinstance(asset_summary, dict):
             return cls(reason="暂无资产摘要")

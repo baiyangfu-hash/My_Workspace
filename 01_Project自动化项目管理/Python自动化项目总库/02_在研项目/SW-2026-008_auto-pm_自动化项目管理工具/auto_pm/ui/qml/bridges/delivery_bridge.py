@@ -178,7 +178,7 @@ class DeliveryBridge(QObject):
                     except OSError:
                         size_kb = 0.0
                         mtime = "—"
-                    
+
                     # Determine category: pm, tech, spec, log, other
                     category = "other"
                     name_lower = rel_path.lower()
@@ -213,7 +213,7 @@ class DeliveryBridge(QObject):
             return "<p style='color: red;'>文件不存在</p>"
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             # Convert markdown to html
             html = markdown.markdown(content, extensions=['extra', 'codehilite', 'toc'])
@@ -255,7 +255,7 @@ class DeliveryBridge(QObject):
             return [{"type": "paragraph", "html": "<p style='color: red;'>文件不存在</p>"}]
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             return parse_markdown_to_blocks(content)
         except Exception as e:
@@ -272,10 +272,10 @@ class DeliveryBridge(QObject):
             return {"success": False, "message": "源文档文件不存在"}
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             html = markdown.markdown(content, extensions=['extra', 'codehilite', 'toc'])
-            
+
             # 优雅的打印版 CSS 样式，适合离线 PDF 报告生成
             styled_html = f"""
             <html>
@@ -300,21 +300,21 @@ class DeliveryBridge(QObject):
             </body>
             </html>
             """
-            
+
             doc = QTextDocument()
             doc.setHtml(styled_html)
-            
+
             # 确保保存的文件夹目录存在
             dir_name = os.path.dirname(save_path)
             if dir_name and not os.path.exists(dir_name):
                 os.makedirs(dir_name, exist_ok=True)
-                
+
             from PySide6.QtPrintSupport import QPrinter
             printer = QPrinter()
             printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat)
             printer.setOutputFileName(save_path)
             doc.print_(printer)
-            
+
             return {"success": True, "message": f"成功导出 PDF 至 {save_path}"}
         except Exception as e:
             return {"success": False, "message": f"导出 PDF 失败: {str(e)}"}

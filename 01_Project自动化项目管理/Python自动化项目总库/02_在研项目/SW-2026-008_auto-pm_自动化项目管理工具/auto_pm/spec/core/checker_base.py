@@ -125,7 +125,7 @@ class DeprecatedRefChecker(BaseChecker):
         for spec_num, paths in all_specs.items():
             for path in paths:
                 try:
-                    with open(path, "r", encoding="utf-8") as f:
+                    with open(path, encoding="utf-8") as f:
                         content = f.read()
                 except (OSError, UnicodeDecodeError):
                     continue
@@ -162,11 +162,11 @@ class IndexLinkChecker(BaseChecker):
         scanner: SpecScanner,
     ) -> list[CheckResult]:
         results: list[CheckResult] = []
-        for output_key, output_path in scanner.config.full_output_paths.items():
+        for output_path in scanner.config.full_output_paths.values():
             if not output_path.exists():
                 continue
             try:
-                with open(output_path, "r", encoding="utf-8") as f:
+                with open(output_path, encoding="utf-8") as f:
                     content = f.read()
             except (OSError, UnicodeDecodeError):
                 continue
@@ -231,7 +231,7 @@ class ObsidianLinkChecker(BaseChecker):
         for spec_num, paths in all_specs.items():
             for path in paths:
                 try:
-                    with open(path, "r", encoding="utf-8") as f:
+                    with open(path, encoding="utf-8") as f:
                         lines = f.readlines()
                 except (OSError, UnicodeDecodeError):
                     continue
@@ -393,7 +393,7 @@ class RulesPathChecker(BaseChecker):
 
         for rule_file in rule_files:
             try:
-                with open(rule_file, "r", encoding="utf-8") as f:
+                with open(rule_file, encoding="utf-8") as f:
                     content = f.read()
             except (OSError, UnicodeDecodeError):
                 continue

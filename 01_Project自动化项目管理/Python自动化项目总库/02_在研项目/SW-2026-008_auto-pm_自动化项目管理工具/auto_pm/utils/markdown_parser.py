@@ -13,20 +13,20 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
 
     lines = content.splitlines()
     blocks = []
-    
+
     in_code_block = False
     code_lang = ""
     code_lines: list[str] = []
-    
+
     in_table = False
     table_lines: list[str] = []
-    
+
     in_quote = False
     quote_type = "quote"
     quote_lines: list[str] = []
-    
+
     current_paragraph: list[str] = []
-    
+
     def flush_paragraph() -> None:
         nonlocal current_paragraph
         if current_paragraph:
@@ -36,7 +36,7 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
                 html = markdown.markdown(text, extensions=['extra'])
                 blocks.append({"type": "paragraph", "html": html})
             current_paragraph = []
-            
+
     def flush_table() -> None:
         nonlocal in_table, table_lines
         if in_table and table_lines:
@@ -72,7 +72,7 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
     n = len(lines)
     while i < n:
         line = lines[i]
-        
+
         # 1. Code block handling
         if line.strip().startswith("```"):
             if in_code_block:
@@ -92,12 +92,12 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
                 code_lang = line.strip()[3:].strip()
             i += 1
             continue
-            
+
         if in_code_block:
             code_lines.append(line)
             i += 1
             continue
-            
+
         # 2. Table handling
         is_table_line = line.strip().startswith("|") or (line.strip() and "|" in line and (i+1 < n and ("---" in lines[i+1] or ":" in lines[i+1])))
         if is_table_line:
@@ -110,7 +110,7 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
             continue
         elif in_table:
             flush_table()
-            
+
         # 3. Blockquotes / Alerts
         if line.strip().startswith(">"):
             if not in_quote:
@@ -134,18 +134,18 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
             continue
         elif in_quote:
             flush_quote()
-            
+
         # 4. Headers
         if line.strip().startswith("#"):
             flush_paragraph()
             flush_table()
             flush_quote()
-            
+
             stripped = line.strip()
             level = 0
             while level < len(stripped) and stripped[level] == "#":
                 level += 1
-            
+
             title_text = stripped[level:].strip()
             if 1 <= level <= 6:
                 blocks.append({
@@ -157,7 +157,7 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
                 current_paragraph.append(line)
             i += 1
             continue
-            
+
         # 5. Empty lines
         if not line.strip():
             flush_paragraph()
@@ -165,13 +165,13 @@ def parse_markdown_to_blocks(content: str) -> list[dict[str, Any]]:
             flush_quote()
             i += 1
             continue
-            
+
         # 6. Paragraph lines
         current_paragraph.append(line)
         i += 1
-        
+
     flush_paragraph()
     flush_table()
     flush_quote()
-    
+
     return blocks

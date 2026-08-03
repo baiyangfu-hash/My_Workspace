@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable, Generator
 from pathlib import Path
-from typing import Callable, Generator
 from unittest.mock import Mock, patch
 
 import pytest

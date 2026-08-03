@@ -14,7 +14,14 @@ _VIEWS_DIR = _QML_DIR / "views"
 @pytest.fixture
 def qml_engine(qapp: QApplication) -> QQmlEngine:
     """提供带有 Theme 引用路径的 QML 引擎"""
+    import PySide6
     engine = QQmlEngine()
+    sys_qml = Path(r"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Lib\site-packages\PySide6\qml")
+    if sys_qml.exists():
+        engine.addImportPath(str(sys_qml))
+    pyside6_qml = Path(PySide6.__file__).parent / "qml"
+    if pyside6_qml.exists():
+        engine.addImportPath(str(pyside6_qml))
     engine.addImportPath(str(_QML_DIR))
     return engine
 
@@ -26,7 +33,7 @@ def _load_qml(engine: QQmlEngine, path: Path) -> object:
         raise AssertionError(f"加载 QML 失败 {path.name}:\n{errors}")
     obj = component.create()
     assert obj is not None, f"实例化 QML 失败: {path.name}"
-    setattr(obj, "_component_ref", component)
+    obj._component_ref = component
     return obj
 
 def _to_variant(value: object) -> object:
@@ -37,7 +44,7 @@ def _to_variant(value: object) -> object:
 def test_doc_browser_view_generic_categories(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """测试 DocBrowserView 的项目文档分类筛选过滤逻辑"""
     view = _load_qml(qml_engine, _VIEWS_DIR / "DocBrowserView.qml")
-    
+
     docs = [
         {"name": "00_项目管理/01_PM_Plan.md", "path": "/path/00_plan.md", "category": "pm"},
         {"name": "01_技术文档/01_Architecture.md", "path": "/path/01_arch.md", "category": "tech"},
@@ -47,20 +54,20 @@ def test_doc_browser_view_generic_categories(qapp: QApplication, qml_engine: QQm
     ]
     view.setProperty("docList", docs)  # type: ignore[attr-defined]
     qapp.processEvents()
-    
+
     # 默认全部文档
     view.setProperty("selectedCategory", "all")  # type: ignore[attr-defined]
     qapp.processEvents()
     filtered = _to_variant(view.property("filteredDocList"))  # type: ignore[attr-defined]
     assert len(filtered) == 5  # type: ignore[arg-type]
-    
+
     # 筛选项目管理文档
     view.setProperty("selectedCategory", "pm")  # type: ignore[attr-defined]
     qapp.processEvents()
     filtered = _to_variant(view.property("filteredDocList"))  # type: ignore[attr-defined]
     assert len(filtered) == 1  # type: ignore[arg-type]
     assert filtered[0]["name"] == "00_项目管理/01_PM_Plan.md"  # type: ignore[index]
-    
+
     # 筛选技术文档
     view.setProperty("selectedCategory", "tech")  # type: ignore[attr-defined]
     qapp.processEvents()
@@ -71,7 +78,7 @@ def test_doc_browser_view_generic_categories(qapp: QApplication, qml_engine: QQm
 def test_doc_browser_view_outline_extraction(qapp: QApplication, qml_engine: QQmlEngine) -> None:
     """测试 DocBrowserView 自动从 blocks 中提取 h1, h2 级别的大纲模型"""
     view = _load_qml(qml_engine, _VIEWS_DIR / "DocBrowserView.qml")
-    
+
     blocks = [
         {"type": "h1", "text": "Heading One"},
         {"type": "paragraph", "html": "<p>some text</p>"},
@@ -81,13 +88,13 @@ def test_doc_browser_view_outline_extraction(qapp: QApplication, qml_engine: QQm
     ]
     view.setProperty("docBlocks", blocks)  # type: ignore[attr-defined]
     qapp.processEvents()
-    
+
     outline = _to_variant(view.property("outlineModel"))  # type: ignore[attr-defined]
     assert len(outline) == 2  # type: ignore[arg-type]
     assert outline[0]["text"] == "Heading One"  # type: ignore[index]
     assert outline[0]["type"] == "h1"  # type: ignore[index]
     assert outline[0]["blockIndex"] == 0  # type: ignore[index]
-    
+
     assert outline[1]["text"] == "Sub Heading Two"  # type: ignore[index]
     assert outline[1]["type"] == "h2"  # type: ignore[index]
     assert outline[1]["blockIndex"] == 2  # type: ignore[index]

@@ -26,7 +26,7 @@ class TestFileGuardSnapshot:
         assert snap["file_path"] == str(test_file)
         assert len(snap["snapshot_id"]) == 12
         assert len(snap["sha256"]) == 64
-        assert snap["size"] == len("# Hello".encode("utf-8"))
+        assert snap["size"] == len(b"# Hello")
         assert snap["bom_count"] == 0
         assert "taken_at" in snap
 
@@ -127,7 +127,7 @@ class TestFileGuardBOM:
     def test_check_encoding_bom_detected(self, tmp_path: Path) -> None:
         """多 BOM 文件 check_encoding 返回 is_healthy=False"""
         test_file = tmp_path / "test.md"
-        test_file.write_bytes(BOM * 5 + "# Hello".encode("utf-8"))
+        test_file.write_bytes(BOM * 5 + b"# Hello")
 
         guard = FileGuard(tmp_path)
         result = guard.check_encoding(test_file)

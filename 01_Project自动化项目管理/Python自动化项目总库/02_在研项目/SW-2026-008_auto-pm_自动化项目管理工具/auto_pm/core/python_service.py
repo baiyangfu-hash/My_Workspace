@@ -187,7 +187,7 @@ class PythonProjectService:
             if os.path.isfile(src) and not os.path.exists(dst):
                 if not dry_run:
                     os.makedirs(os.path.dirname(dst), exist_ok=True)
-                    with open(src, "r", encoding="utf-8") as sf:
+                    with open(src, encoding="utf-8") as sf:
                         content = sf.read()
                     # 简单占位符替换以模拟 jinja 渲染
                     content = content.replace("{{ project_id }}", project_id)
