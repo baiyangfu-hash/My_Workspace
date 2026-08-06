@@ -1,0 +1,20 @@
+英语学习助手 - 测试报告
+时间: 2026-08-06T23:01:03.654432
+总计: 15 | 通过: 15 | 失败: 0
+通过率: 100.0%
+
+✅ 模块导入
+✅ 服务层架构 (services/)
+✅ 词典模块 (dictionary.py)
+✅ 数据库模块 (database.py)
+✅ FSRS 算法 (fsrs_engine.py)
+✅ 答案匹配引擎 (answer_matcher.py)
+✅ 基础对话数据 (dialogs_data.py)
+✅ 美国出差对话 (us_travel_dialogs.py)
+✅ TTS 引擎 (tts_engine.py)
+✅ ASR 引擎 (asr_engine.py)
+✅ CEFR 标注 (cefr_tagger.py)
+✅ 语法课程引擎 (grammar_engine.py)
+✅ 课程管理 (course_manager.py)
+✅ 主程序与 QML Bridge 导入
+✅ QML 界面动态切换与场景流转

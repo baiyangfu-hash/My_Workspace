@@ -87,24 +87,6 @@
   - 04_监控\01_变更管理\02_变更记录\01_版本变更台帐.md
 - delivery:
   - 06_文档与交付\验收交付清单\验收交付清单.md
-
-### 4.7 ST开发范围外 — 明确忽略清单
-> 完整清单已归档至 [06_PM_SESSION历史/2026-08-02_V9.1.0_archive.md](00_项目管理/06_PM_SESSION历史/2026-08-02_V9.1.0_archive.md)
-- 🔴 忽略: .plc-out/ .trae/ 03_HMI/ 04_现场调试/ 04_驱动器/ 06_交付/ 07_技术支持/ 08_备件/ 09_总结/ 10_知识库/ *.gx3
-- 🟡 部分: 05_测试与验证/(一致性报告) 00_项目管理/04_变更管理/(变更台帐)
-
-## 5. Logs（按事件沉淀）
-- change_log:
-  - 2026-08-02 CHG-DOCU-2026-002 PRD 四件套补齐: 创建 7 个 PRD 文档（GlobalVars DSN/UM、FB_1002 CHG/UM、FB_External CHG/UM、FB_1003 UM），全 7 模块 IFC+DSN+CHG+UM 100% 完整 | 文档补全完成，已对账
-  - 2026-08-02 CHG-DOCU-2026-001 驾驶舱闭环: 审查问题修复 — PM_SESSION 版本对齐与文档一致性整治，9 步状态流转完成 | 已闭环
-  - 2026-07-22 CHG-PLC-2026-007 FB_2001输出变量前缀修补与OB1注释清洗 | 规范修补完成,已对账
-  - (早期 change_log 已归档至 06_PM_SESSION历史/2026-08-02_V9.1.0.md)
-- refactor_log:
-  - (Log entries archived)
-- bug_log: (已归档至 06_PM_SESSION历史/2026-08-02_V9.1.0_archive.md)
-  - 2026-05-20 TC11 Z轴定位测试失效 (P0, ✅已修复 V7.1.1)
-  - 2026-05-18 OB1针脚不匹配 (P0, ✅已修复)
-- iteration_log:
   - (早期迭代日志已归档至 06_PM_SESSION历史/2026-08-02_V9.1.0.md)
 
 ## 6. Implementation Log

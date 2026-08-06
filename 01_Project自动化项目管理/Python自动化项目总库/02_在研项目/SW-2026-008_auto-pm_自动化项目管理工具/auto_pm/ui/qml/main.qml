@@ -52,6 +52,23 @@ ApplicationWindow {
     property string currentProjectPhase: "developing"
     property string currentProjectStack: "python"
 
+    function selectProjectContext(projectId, projectName) {
+        mainWindow.currentProjectId = projectId
+        mainWindow.currentProjectName = projectName
+        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+            var detail = workbenchBridge.getProjectById(projectId)
+            if (detail) {
+                mainWindow.currentProjectPhase = detail.phase || "developing"
+                mainWindow.currentProjectStack = detail.stack || "python"
+            } else {
+                mainWindow.currentProjectPhase = "developing"
+                mainWindow.currentProjectStack = "python"
+            }
+        }
+        mainWindow.currentPage = "workspace"
+        workspaceView.setProject(projectId, projectName)
+    }
+
     // ── 文件监听同步工具栏状态（CHG-SCPT-2026-141）──
     // 全局常驻工具栏：同步按钮 + 监听开关 + 状态反馈，可手动折叠/展开
     property bool watcherToolbarExpanded: true       // 工具栏展开状态（手动开关）
@@ -807,10 +824,7 @@ ApplicationWindow {
                 onRequestNewProject: newProjectWizard._isOpen = true
                 onRequestImportProject: importProjectDialog._isOpen = true
                 onProjectClicked: {
-                    mainWindow.currentProjectId = projectId
-                    mainWindow.currentProjectName = projectName
-                    mainWindow.currentPage = "workspace"
-                    workspaceView.setProject(projectId, projectName)
+                    mainWindow.selectProjectContext(projectId, projectName)
                 }
             }
 
@@ -1295,10 +1309,7 @@ ApplicationWindow {
     Connections {
         target: typeof workbenchBridge !== "undefined" && workbenchBridge !== null ? workbenchBridge : null
         function onProjectSelected(projectId, projectName) {
-            mainWindow.currentProjectId = projectId
-            mainWindow.currentProjectName = projectName
-            mainWindow.currentPage = "workspace"
-            workspaceView.setProject(projectId, projectName)
+            mainWindow.selectProjectContext(projectId, projectName)
         }
     }
 

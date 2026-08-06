@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SW-2026-009 多邻国/博树风格闯关互动原型</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0f1d;
+            --bg-surface: #151c2e;
+            --bg-card: rgba(21, 28, 46, 0.85);
+            --primary: #58cc02;
+            --primary-hover: #46b300;
+            --primary-shadow: #46a302;
+            --secondary: #1cb0f6;
+            --warning: #ffb700;
+            --danger: #ff4b4b;
+            --text-primary: #ffffff;
+            --text-secondary: #afbbd4;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg-base); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        header {
+            height: 64px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--primary); }
+        .brand-logo { font-size: 28px; }
+
+        .stats-bar { display: flex; align-items: center; gap: 24px; }
+        .stat-item { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; background: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); }
+
+        .app-container { display: flex; flex: 1; max-width: 1280px; width: 100%; margin: 0 auto; }
+
+        sidebar {
+            width: 240px;
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-btn.active { background: rgba(28, 176, 246, 0.15); color: var(--secondary); border: 2px solid var(--secondary); }
+
+        main { flex: 1; padding: 32px; display: flex; flex-direction: column; align-items: center; }
+
+        .unit-card {
+            width: 100%;
+            max-width: 600px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .unit-title { font-size: 20px; font-weight: 800; }
+        .unit-desc { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+        .unit-badge { background: var(--primary); color: #fff; font-weight: 800; padding: 6px 16px; border-radius: 12px; font-size: 14px; }
+
+        .path-container { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; max-width: 600px; }
+
+        .node-row { display: flex; justify-content: center; width: 100%; }
+        .node-row.offset-left { transform: translateX(-60px); }
+        .node-row.offset-right { transform: translateX(60px); }
+
+        .node-btn {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            box-shadow: 0 8px 0 var(--primary-shadow), 0 15px 25px rgba(88, 204, 2, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .node-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--primary-shadow); }
+        .node-btn.locked { background: #334155; box-shadow: 0 8px 0 #1e293b; opacity: 0.6; cursor: not-allowed; }
+        .node-btn.crown { background: var(--warning); box-shadow: 0 8px 0 #d97706, 0 15px 25px rgba(245, 158, 11, 0.4); }
+
+        .node-stars { position: absolute; bottom: -8px; background: rgba(15, 23, 42, 0.9); padding: 2px 8px; border-radius: 10px; font-size: 12px; border: 1px solid var(--border-color); }
+
+        .lesson-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-base);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .lesson-modal.show { display: flex; }
+
+        .lesson-header {
+            height: 64px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .progress-outer { flex: 1; height: 16px; background: #1e293b; border-radius: 10px; margin: 0 24px; overflow: hidden; }
+        .progress-inner { height: 100%; width: 50%; background: var(--primary); border-radius: 10px; transition: width 0.3s ease; }
+
+        .lesson-body { flex: 1; max-width: 720px; width: 100%; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; justify-content: center; }
+
+        .exercise-title { font-size: 24px; font-weight: 800; margin-bottom: 24px; text-align: center; }
+
+        .target-box {
+            min-height: 80px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .chips-pool { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 40px; }
+
+        .word-chip {
+            background: #1e293b;
+            border: 2px solid #334155;
+            box-shadow: 0 4px 0 #0f172a;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.1s ease;
+        }
+
+        .word-chip:hover { border-color: var(--secondary); color: var(--secondary); }
+        .word-chip:active { transform: translateY(3px); box-shadow: 0 1px 0 #0f172a; }
+        .word-chip.used { opacity: 0.2; cursor: default; }
+
+        .feedback-bar {
+            height: 120px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: var(--bg-surface);
+        }
+
+        .feedback-bar.correct { background: rgba(88, 204, 2, 0.15); border-color: var(--primary); }
+        .feedback-bar.wrong { background: rgba(255, 75, 75, 0.15); border-color: var(--danger); }
+
+        .feedback-info { display: flex; align-items: center; gap: 16px; font-size: 20px; font-weight: 800; }
+        .feedback-icon { font-size: 32px; }
+
+        .action-btn {
+            background: var(--primary);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            padding: 14px 40px;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 5px 0 var(--primary-shadow);
+            cursor: pointer;
+        }
+        .action-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--primary-shadow); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <span class="brand-logo">✈️</span>
+            <span>009 多邻国/博树版</span>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item" style="color: #ff9600;">🔥 7 天连胜</div>
+            <div class="stat-item" style="color: #1cb0f6;">💎 350 宝石</div>
+            <div class="stat-item" style="color: #ff4b4b;">❤️ 5/5 生命值</div>
+            <div class="stat-item" style="color: #58cc02;">🎯 目标: B1 商务</div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <sidebar>
+            <a class="nav-btn active">🗺️ 关卡路线 (Path)</a>
+            <a class="nav-btn">🎴 错题复习本</a>
+            <a class="nav-btn">💬 自由 AI 口语</a>
+            <a class="nav-btn">🏆 连胜排行榜</a>
+            <a class="nav-btn">🔍 ECDICT 词典</a>
+        </sidebar>
+
+        <main>
+            <div class="unit-card">
+                <div>
+                    <div class="unit-title">Unit 1: ✈️ 机场海关与行前准备</div>
+                    <div class="unit-desc">掌握出境海关问答、行李托运与航班查询高频表达</div>
+                </div>
+                <div class="unit-badge">5 / 5 关</div>
+            </div>
+
+            <div class="path-container">
+                <div class="node-row">
+                    <button class="node-btn crown" onclick="openLesson('word_bank')">
+                        👑
+                        <div class="node-stars">⭐⭐⭐</div>
+                    </button>
+                </div>
+
+                <div class="node-row offset-left">
+                    <button class="node-btn" onclick="openLesson('matching')">
+                        💬
+                        <div class="node-stars">⭐⭐</div>
+                    </button>
+                </div>
+
+                <div class="node-row offset-right">
+                    <button class="node-btn" onclick="openLesson('word_bank')">
+                        🎧
+                        <div class="node-stars">⭐</div>
+                    </button>
+                </div>
+
+                <div class="unit-card" style="margin-top: 32px;">
+                    <div>
+                        <div class="unit-title">Unit 2: 🏨 酒店入住与周边问路</div>
+                        <div class="unit-desc">掌握酒店 Check-in、退房点餐与街头寻找地铁站</div>
+                    </div>
+                    <div class="unit-badge" style="background: #334155;">0 / 6 关</div>
+                </div>
+
+                <div class="node-row">
+                    <button class="node-btn locked">
+                        🔒
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="lesson-modal" id="lessonModal">
+        <div class="lesson-header">
+            <span style="font-size: 24px; cursor: pointer;" onclick="closeLesson()">✕</span>
+            <div class="progress-outer">
+                <div class="progress-inner" id="progressBar"></div>
+            </div>
+            <div style="font-weight: 800; color: #ff4b4b;">❤️ 5</div>
+        </div>
+
+        <div class="lesson-body" id="exerciseContainer">
+            <div id="wordBankExercise">
+                <div class="exercise-title">翻译下方中文句子（点击单词块按顺序排列）：</div>
+                <div style="font-size: 20px; font-weight: 700; color: var(--secondary); text-align: center; margin-bottom: 24px;">
+                    "打扰一下，请问花生酱在哪里？"
+                </div>
+
+                <div class="target-box" id="targetBox"></div>
+
+                <div class="chips-pool" id="chipsPool">
+                    <div class="word-chip" onclick="useWord(this, 'Excuse')">Excuse</div>
+                    <div class="word-chip" onclick="useWord(this, 'me')">me</div>
+                    <div class="word-chip" onclick="useWord(this, ',')">,</div>
+                    <div class="word-chip" onclick="useWord(this, 'could')">could</div>
+                    <div class="word-chip" onclick="useWord(this, 'you')">you</div>
+                    <div class="word-chip" onclick="useWord(this, 'tell')">tell</div>
+                    <div class="word-chip" onclick="useWord(this, 'where')">where</div>
+                    <div class="word-chip" onclick="useWord(this, 'the')">the</div>
+                    <div class="word-chip" onclick="useWord(this, 'peanut')">peanut</div>
+                    <div class="word-chip" onclick="useWord(this, 'butter')">butter</div>
+                    <div class="word-chip" onclick="useWord(this, 'is?')">is?</div>
+                    <div class="word-chip" onclick="useWord(this, 'airport')">airport</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-bar" id="feedbackBar">
+            <div class="feedback-info" id="feedbackInfo">
+                <span>💡 请点击词块拼出标准句子</span>
+            </div>
+            <button class="action-btn" onclick="checkAnswer()">检查答案</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedWords = [];
+
+        function openLesson(type) {
+            document.getElementById('lessonModal').classList.add('show');
+        }
+
+        function closeLesson() {
+            document.getElementById('lessonModal').classList.remove('show');
+        }
+
+        function useWord(el, word) {
+            if (el.classList.contains('used')) return;
+            el.classList.add('used');
+            selectedWords.push({ el: el, word: word });
+
+            renderTargetBox();
+        }
+
+        function removeWord(index) {
+            let item = selectedWords[index];
+            item.el.classList.remove('used');
+            selectedWords.splice(index, 1);
+            renderTargetBox();
+        }
+
+        function renderTargetBox() {
+            let box = document.getElementById('targetBox');
+            box.innerHTML = '';
+            selectedWords.forEach((item, idx) => {
+                let chip = document.createElement('div');
+                chip.className = 'word-chip';
+                chip.style.borderColor = '#1cb0f6';
+                chip.style.color = '#1cb0f6';
+                chip.innerText = item.word;
+                chip.onclick = () => removeWord(idx);
+                box.appendChild(chip);
+            });
+        }
+
+        function checkAnswer() {
+            let bar = document.getElementById('feedbackBar');
+            let info = document.getElementById('feedbackInfo');
+
+            let userText = selectedWords.map(x => x.word).join(' ');
+            if (userText.includes('Excuse me') && userText.includes('peanut butter')) {
+                bar.className = 'feedback-bar correct';
+                info.innerHTML = '<span class="feedback-icon">✅</span><span>答对了！太棒了！</span>';
+            } else {
+                bar.className = 'feedback-bar wrong';
+                info.innerHTML = '<span class="feedback-icon">❌</span><span>正确答案: Excuse me, could you tell me where the peanut butter is?</span>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_src_path: C:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具\templates\python-tool
+author: fubai
+cli_command: english-learning-app
+description: 纯本地离线运行的 Windows 英语学习应用
+package_name: english_learning_app
+project_id: SW-2026-009
+project_name: 英语学习助手
+version: 0.1.0
+

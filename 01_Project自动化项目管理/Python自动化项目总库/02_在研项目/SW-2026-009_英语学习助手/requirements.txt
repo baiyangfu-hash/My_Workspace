@@ -1,0 +1,20 @@
+# 核心依赖（必须）
+PySide6>=6.5.0
+requests>=2.28.0
+cefrpy>=0.1.0
+
+# TTS 引擎（至少安装一个）
+# Windows 用户：无需额外安装，使用系统内置 SAPI5
+pyttsx3>=2.90          # 离线 TTS，跨平台
+gTTS>=2.3.0            # Google TTS，需要网络
+edge-tts>=6.1.0        # Edge TTS，需要网络，音质较好
+
+# 语音识别（可选）
+vosk>=0.3.45           # 离线语音识别引擎
+pyaudio>=0.2.11        # 录音依赖（Vosk 需要）
+
+# 打包工具
+pyinstaller>=6.0       # 打包为独立 exe
+
+# 开发测试
+# 无额外依赖，使用标准库 unittest
