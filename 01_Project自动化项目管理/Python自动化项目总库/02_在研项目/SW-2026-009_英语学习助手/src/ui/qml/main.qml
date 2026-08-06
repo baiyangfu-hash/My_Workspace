@@ -252,4 +252,13 @@ ApplicationWindow {
             }
         }
     }
+
+    // 剪贴板划词离线查询迷你弹窗 (右下角悬浮)
+    ClipboardFloatPopup {
+        id: clipPopup
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 24
+        z: 999
+    }
 }

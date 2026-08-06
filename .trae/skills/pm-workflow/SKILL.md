@@ -18,6 +18,26 @@ description: "统一产品/项目管理主入口。适用于需求澄清、PRD/R
 - 每个项目根目录必须有 `PM_SESSION_<项目编号>.md`
 - 项目编号优先从目录名解析（如 `SW-2026-005_xxx` → `SW-2026-005`）
 - 若不存在：使用 `auto-pm project create` 或 `auto-pm project retrofit` 创建/补全
+---
+name: pm-workflow
+description: "统一产品/项目管理主入口。适用于需求澄清、PRD/REQ/DES、线框方案、任务拆解、迭代推进、变更/缺陷/发布管理，并以 PM_SESSION_<项目编号>.md 作为单一真源。"
+---
+
+# PM Workflow
+
+统一 PM 入口：需求澄清 → PRD/REQ/DES → 方案/线框 → 任务拆解 → 迭代推进 → 变更/缺陷/发布。避免在多个 PM 子技能间切换。
+
+## 适用范围
+
+- **software** 项目：`pyproject.toml`、`src/`、`tests/`、`ui/`、`main.py`
+- **plc** 项目：`02_PLC程序/`、`03_HMI设计/`、`04_现场调试/`
+- 任务系统默认本地 Markdown，可选同步 GitHub
+
+## 单一真源
+
+- 每个项目根目录必须有 `PM_SESSION_<项目编号>.md`
+- 项目编号优先从目录名解析（如 `SW-2026-005_xxx` → `SW-2026-005`）
+- 若不存在：使用 `auto-pm project create` 或 `auto-pm project retrofit` 创建/补全
 - 跨技能公共契约的单一真源位于 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md)
 - `pm-workflow` 是 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 的唯一回写 owner
 
@@ -27,6 +47,9 @@ description: "统一产品/项目管理主入口。适用于需求澄清、PRD/R
 # auto-pm：项目初始化、补完、健康检查、类型检测
 auto-pm -w "<工作空间根>" project create|show|edit|retrofit|delete ... [--stack <plc|python>] [--id <编号>] [--name <名称>]
 auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...
+
+# 通用原型管理（pm-workflow 独占原型设计、打包与归档）
+auto-pm -w "<工作空间根>" prototype bundle|check|archive|init --pid <编号> [--version <版本>]
 
 # 规范健康检查（auto-pm spec 子命令，吸收原 specmgr 功能）
 auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] [--dry-run]
@@ -103,59 +126,6 @@ auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] 
     - 继续执行 Step 4（由 `pm-workflow` 统一回写 PM_SESSION §6-§9）
     - 由 `pm-workflow` 写入 cockpit 反馈：`.auto-pm/ai_feedback.json`
     - 输出摘要给用户
-3. **若不存在**：继续执行原有 Step 0 和 Step 1（不受影响）
-
-### Step 1：判定本轮模式（必须用 AskUserQuestion 呈现选项）
-
-| 模式 | 用途 |
-|------|------|
-| 需求 | 新需求、需求澄清、范围界定 |
-| PRD | PRD/REQ/需求规格说明书 |
-| 方案/线框 | 页面结构、交互流、状态覆盖、原型说明 |
-| 拆解 | Epic/Feature/Story/Test、里程碑、依赖 |
-| 项目推进 | 迭代规划、里程碑推进、状态同步 |
-| 变更/缺陷/发布 | 变更单、Bug、发布准备、交付清单 |
-| 规范 | 规范引用/升级/漂移检查 |
-| 项目初始化 | 空文件夹 → 完整项目骨架 |
-| 旧项目补完 | 已有项目注入连续性机制（hooks+handoffs+Spec Snapshot）|
-
-### Step 2：最小提问（每模式 2-3 个高价值问题）
-
-- **需求**：为什么现在做？解决谁的问题？成功标准？
-- **PRD**：给谁看？MVP 边界？哪些明确不做？
-- **方案**：低保真还是可点击原型？覆盖哪些页面/状态？
-- **拆解**：拆到什么级别？是否带优先级/依赖？是否同步 GitHub？
-- **变更/Bug**：触发原因？影响范围？哪些行为不能被破坏？
-- **初始化**：项目类型？编号？一句话定位？
-
-### Step 3：按模式产出
-
-| 模式 | 最少产出 |
-|------|---------|
-| 需求 | 问题定义、用户/角色、业务价值、成功指标、非目标、风险 |
-| PRD | Executive Summary、Problem/Solution、Personas、Stories、Acceptance Criteria、Non-Goals、Technical Constraints |
-| 方案/线框 | 页面清单、主流程、状态覆盖（空/错/加载/权限）、差异说明、**HTML 原型**（新增，见下方规范） |
-| 拆解 | Epic→Feature→Story→Test、优先级、依赖、DoR/DoD；结果必须写入 `01_项目文档/03_执行过程/` 并更新 PM_SESSION §4 |
-| 变更/Bug | 触发原因、影响范围、回归清单、验收清单 |
-| 初始化 | 调用 `auto-pm project create` 自动生成目录结构+文档模板+hooks+handoffs+Spec Snapshot |
-| 补完 | 调用 `auto-pm project retrofit` 注入 hooks+handoffs+Spec Snapshot（不修改现有文件） |
-
-### HTML 原型产出规范（方案/线框模式专用）
-
-当模式为"方案/线框"时，**必须**产出 HTML 原型作为交付物：
-
-- **全栈（Python/Web）项目**：输出可浏览器打开的 Web UI 原型（页面布局、组件结构、交互模拟）
-- **PLC 项目**：输出 HMI 画面原型（按钮、状态指示灯、报警列表、趋势图占位、变量绑定标注）
-- **原型文件存放**：`PRD/原型/` 目录
-- **原型作为交接物**：fullstack/plc 子技能接收原型 HTML 后进行编码实现
-- **原型产出后**：pm-workflow 根据域判断调用子技能：
-  - PLC 域 → `Skill: plc-electrical-engineer`（传递原型路径）
-  - 软件域 → `Skill: fullstack-engineer`（传递原型路径）
-
-### 文件命名规范（强制）
-
-项目文档文件名（.md/.html 等）**禁止**追加版本号后缀：
-
 - **禁止**：`GUI原型设计-V2.0.md`、`V2.0-全功能自动化测试计划.md`、`PRD_V0.5.0.md`
 - **正确**：`GUI原型设计.md`（版本通过 frontmatter 或正文标题标识）、`PRD.md`
 - 版本演进通过文档头部 frontmatter（`version: "V2.1"`）或正文标题（`# GUI 原型设计 V2.1`）标识，文件名本身保持稳定

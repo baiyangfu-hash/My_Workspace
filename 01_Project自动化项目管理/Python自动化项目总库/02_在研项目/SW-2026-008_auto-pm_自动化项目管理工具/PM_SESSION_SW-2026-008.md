@@ -13,19 +13,17 @@
 - one_liner: 面向电气自动化工程师的本地项目作业系统，用于统一管理 PLC 项目结构、工程文档、变更闭环、调试记录、质量门禁和交付证据
 - users: 自动化工程师（兼PLC+Python开发）、AI技能（pm-workflow/plc-electrical-engineer）
 - non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
+- owners: fubai
+
+## 1. Positioning（项目定位）
+
+- one_liner: 面向电气自动化工程师的本地项目作业系统，用于统一管理 PLC 项目结构、工程文档、变更闭环、调试记录、质量门禁和交付证据
+- users: 自动化工程师（兼PLC+Python开发）、AI技能（pm-workflow/plc-electrical-engineer）
+- non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
 
 ## 2. Current Focus（当前焦点）
 
 - current_focus: **2026-07-31 变更流程收口：CHG-SCPT-2026-151 / 152 已完成最终回归并 closed**。CHG-151 已验证工作空间切换真实结果回传、`AiContextBridge` 根路径同步以及 `ai_feedback.json` 缺失/损坏容错；CHG-152 已验证 `pm-workflow` 唯一回写 owner、执行技能仅返回 `handoff_result`、共享规则“单源 + 附加层”治理落地。两张单均已完成 `implementing → pending_acceptance → accepting → completed → closed` 流转，`ledger reconcile SW-2026-008` 对账无差异。**2026-07-26 Modbus V15 优化 Bug 修复仍待补 retrofit CHG**：`_doRead()` 参数不匹配问题已修复（QML 传 6 参 → Bridge 5 参 + `currentValue`/`_comboValue` 混用），门禁三轨全绿（ruff 0 + mypy 0 + pytest 36 passed）。代码基线 V1.1.0 不变。
-- previous_focus: **CHG-SCPT-2026-140 技能架构重构已闭环**（2026-07-24，第 71 次 dogfooding 闭环 closed）。pm-workflow 作为驾驶舱唯一入口和统筹者，fullstack-engineer/plc-electrical-engineer 变纯执行者；提取 11 章节通用规则到 `refs/skill_coordination.md`（两份 9554 字节一致），消除 ~43% 重复内容；保留领域特定内容 + 向后兼容降级路径。三轨门禁：mypy 0/149 文件 + pytest 1502 passed（12 failed 全部与本次无关：9 沙箱环境 + 2 PM_SESSION 行数已归档修复 + 1 约束计数断言未同步 → 已由 CHG-142 修复）/2 skipped。代码基线 V1.1.0 不变。commit 21509e4 + 6260d1e。
-- milestone: 代码基线 **V1.1.0 Modbus 联调工坊 + 缺陷修复已闭环**。四阶段 CHG 规划：CHG-1（已闭环）视觉+导航骨架 → CHG-2（已闭环）变更中心 Split/Ledger → CHG-3 工作台 KPI+状态机+时间线 → CHG-4 Loading+收尾+V1.0.0 / PRD V3.0.0-draft
-- acceptance: Week 1 工作台摘要交付完成并收口 ✅（阶段口径不再因“测试生产解耦”之类文本误报为 `production`；`DashboardService` 可聚合项目总数/阶段分布/未关闭变更/PLC 检查失败项目/最近活动/风险提示；首页挂载方式确认继续保留在项目列表页驾驶舱横幅）；Week 2 第一批元数据链路完成 ✅（`project create` 新增 4 个字段，`plc-standard-project` 模板保留到 `.copier-answers.yml` / `.plc.json`，`project show`/GUI 新建对话框/概览页可展示；焦点回归 76 passed）；Week 2 第二批单机模板 PoC 完成 ✅（`plc-standard-project` 新增 `001_单机设备项目概览_OVW.md`、`02_PLC程序/工程资产/{io_points.csv,program_blocks.yml,communications.yml}`、`PLC_ST` 路径口径统一与 `repairer` 修正；聚焦回归 41 passed，真实 `project create` + `project show` 创建验证通过）；Week 3 PLC 工程资产能力完成 ✅（新增 `AssetSummaryService`，`ProjectScanner` 自动生成 `extra.asset_summary`，`project show` 可展示工程资产摘要；聚焦回归 68 passed，真实 `project create` + `project show` 验证通过）；Week 4 文档自动区刷新与试运行收口完成 ✅（新增 `doc refresh` 命令、`DocRefreshService` 和模板自动区标记；`doc refresh --dry-run` 可预览 2 个 PLC 程序文档的自动区更新，实际刷新仅替换标记区块；聚焦回归 70 passed，真实 `project create -> doc refresh --dry-run -> doc refresh` 验证通过；`008_试运行报告_PILOT.md` 已补齐 V0.4.0 Week 2~4 准真实闭环结论）
-- plan_location: .trae/specs/v2.1-change-management-enhancement/（spec.md + tasks.md + checklist.md）+ 00_项目管理/03_执行过程/2026-07-11_M5_规范与台账管理_迭代计划.md（当前进行中）+ 00_项目管理/03_执行过程/2026-07-08_V0.9.2_治理收口迭代计划.md（最近）+ 00_项目管理/03_执行过程/2026-07-04_V0.6.0_QML重构_4周迭代计划.md（里程碑）+ 00_项目管理/03_执行过程/归档/（V0.4.x~V0.5.3 历史迭代，2026-07-12 归档）+ 09_整改项/V0.3.0-项目落地执行总计划_重规划版.md + 09_整改项/V0.4.2-glm执行输入清单.md
-- m3.5_insertion_reason: 三角色视角真实运行证据发现 6 项阻断项（GUI 测试污染生产数据 + TD-T04 复发 + spec/tasks 再次严重滞后 + CHG-SCPT-001 内容空白 + change show 信息缺失 + CLI 缺 edit 命令），直接推进 M3-3 会继续在失真基线上累积债务
-
-## 3. Status Summary（当前状态摘要）
-
-- in_progress:
   - M4 Dogfooding 持续化：每个里程碑继续创建 CHG-*.md，走 `draft → closed` 全流程并把证据回写到 PILOT/CHG/PM_SESSION
   - V1.0.0 规划：性能 FPS 实测（万行数据 FPS ≥ 30）+ 电气部门真实试用反馈 + 发布评估
   - V2.2 规范中心整合迭代（已完成 Week1-3，转入 V2.3 主线）：吸收 specmgr（规范文档健康检查/索引/Frontmatter/auto-fix），吸收方式为 GUI 全局功能页"规范中心"

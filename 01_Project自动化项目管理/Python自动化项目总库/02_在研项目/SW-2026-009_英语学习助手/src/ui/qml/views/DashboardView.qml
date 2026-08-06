@@ -88,6 +88,12 @@ ScrollView {
             }
         }
 
+        // FSRS 未来 7 天待复习负荷预测柱状图
+        FutureReviewChart {
+            id: futureChart
+            Layout.fillWidth: true
+        }
+
         // 双列布局：今日计划 + 6个月路线图
         RowLayout {
             Layout.fillWidth: true

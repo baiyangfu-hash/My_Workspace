@@ -1,4 +1,4 @@
-// DictionaryView.qml - ECDICT 动态离线词典视图
+// DictionaryView.qml - ECDICT 动态离线词典视图 (带生词本收藏与 CSV/TXT 批量导入)
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -22,6 +22,7 @@ ColumnLayout {
                 translationText.text = "[" + (res.pos || "n.") + "] " + (res.translation || "未找到相关释义");
                 cefrChip.text = "CEFR: " + (res.cefr_level || "A1");
                 definitionText.text = res.definition ? "Definition: " + res.definition : "";
+                statusLabel.text = "";
             }
         } catch (e) {
             console.log("查询失败: " + e);
@@ -31,14 +32,27 @@ ColumnLayout {
     Component.onCompleted: doSearch("apple")
 
     GlassCard {
-        Layout.preferredWidth: 600
+        Layout.preferredWidth: 620
         Layout.alignment: Qt.AlignHCenter
 
-        Text {
-            text: "🔍 ECDICT 离线词典检索"
-            color: Theme.textPrimary
-            font.pixelSize: Theme.fontSizeXl
-            font.bold: true
+        RowLayout {
+            width: parent.width
+
+            Text {
+                text: "🔍 ECDICT 77万离线词典检索"
+                color: Theme.textPrimary
+                font.pixelSize: Theme.fontSizeXl
+                font.bold: true
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Text {
+                id: statusLabel
+                text: ""
+                color: Theme.success
+                font.pixelSize: Theme.fontSizeSm
+            }
         }
 
         RowLayout {
@@ -61,6 +75,16 @@ ColumnLayout {
             Button {
                 text: "搜索 (Search)"
                 onClicked: root.doSearch(searchInput.text)
+            }
+
+            Button {
+                text: "⭐ 收藏 (FSRS)"
+                onClicked: {
+                    if (qmlBridge && wordText.text) {
+                        qmlBridge.recordReviewJson(wordText.text, "again", 1);
+                        statusLabel.text = "✅ 已加入生词本！";
+                    }
+                }
             }
         }
 
@@ -98,6 +122,49 @@ ColumnLayout {
             font.pixelSize: Theme.fontSizeSm
             wrapMode: Text.Wrap
             width: parent.width
+        }
+
+        Rectangle {
+            width: parent.width
+            height: 1
+            color: Theme.border
+        }
+
+        // 批量生词本 CSV / TXT 导入与剪贴板设置行
+        RowLayout {
+            width: parent.width
+
+            Text {
+                text: "📥 批量导入个人 CSV 词包:"
+                color: Theme.textSecondary
+                font.pixelSize: Theme.fontSizeSm
+            }
+
+            TextField {
+                id: csvInput
+                placeholderText: "输入单词列表 (如: itinerary, custom, baggage)"
+                Layout.fillWidth: true
+                color: Theme.textPrimary
+                background: Rectangle {
+                    color: Theme.backgroundTertiary
+                    border.color: Theme.border
+                    radius: Theme.radiusSm
+                }
+            }
+
+            Button {
+                text: "批量导入 (Import)"
+                onClicked: {
+                    if (qmlBridge && csvInput.text) {
+                        var resStr = qmlBridge.importCustomDeckJson(csvInput.text);
+                        try {
+                            var res = JSON.parse(resStr);
+                            statusLabel.text = "✅ 成功导入 " + (res.added_count || 0) + " 个单词！";
+                            csvInput.text = "";
+                        } catch (e) {}
+                    }
+                }
+            }
         }
     }
 }

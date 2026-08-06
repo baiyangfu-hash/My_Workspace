@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-05T22:12:08.785848+00:00",
+  "generated_at": "2026-08-06T15:39:55.842557+00:00",
   "source": "auto-pm CLI",
   "workspace_root": "C:\\Users\\fubai\\Desktop\\My_Workspace",
   "active_project": {
-    "id": "SW-2026-009",
-    "name": "英语学习助手",
-    "stack": "python",
+    "id": "DJ-2026-005",
+    "name": "DJ-2026-005",
+    "stack": "plc",
     "phase": "developing"
   },
   "active_change": null,

@@ -55,6 +55,7 @@ from auto_pm.cli.gui import gui_command  # noqa: E402
 from auto_pm.cli.ledger import ledger_group  # noqa: E402
 from auto_pm.cli.plc import plc_group  # noqa: E402
 from auto_pm.cli.project import project_group  # noqa: E402
+from auto_pm.cli.prototype import prototype_cmd  # noqa: E402
 from auto_pm.cli.python import python_group  # noqa: E402
 from auto_pm.cli.session import pm_session_group  # noqa: E402
 from auto_pm.cli.spec import spec_group  # noqa: E402
@@ -103,6 +104,7 @@ cli.add_command(pm_session_group)
 cli.add_command(ledger_group)
 cli.add_command(constraint_group)
 cli.add_command(workflow_group)
+cli.add_command(prototype_cmd)
 
 
 if __name__ == "__main__":

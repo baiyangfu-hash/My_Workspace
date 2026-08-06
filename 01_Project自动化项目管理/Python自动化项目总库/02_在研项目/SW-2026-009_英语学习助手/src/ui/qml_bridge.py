@@ -22,6 +22,7 @@ class QmlBridge(QObject):
     """QML 与 Python 业务逻辑的通信桥梁"""
 
     progressUpdated = Signal()
+    wordCopiedFromClipboard = Signal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -31,6 +32,80 @@ class QmlBridge(QObject):
         self.dict_svc = DictionaryService()
         self.grammar_svc = GrammarService()
         self.tts = TTSEngine()
+        self._clipboard_enabled = True
+        self._setup_clipboard()
+
+    def _setup_clipboard(self):
+        try:
+            from PySide6.QtGui import QGuiApplication
+            cb = QGuiApplication.clipboard()
+            if cb:
+                cb.dataChanged.connect(self._on_clipboard_changed)
+        except Exception:
+            pass
+
+    def _on_clipboard_changed(self):
+        if not self._clipboard_enabled:
+            return
+        try:
+            from PySide6.QtGui import QGuiApplication
+            cb = QGuiApplication.clipboard()
+            text = cb.text().strip()
+            if text and 1 <= len(text) <= 30 and text.isalpha():
+                detail_json = self.lookupWordJson(text)
+                self.wordCopiedFromClipboard.emit(text, detail_json)
+        except Exception:
+            pass
+
+    @Slot(bool)
+    def setClipboardEnabled(self, enabled: bool):
+        self._clipboard_enabled = enabled
+
+    @Slot(result=str)
+    def getFutureReviewStatsJson(self) -> str:
+        """获取未来 7 天每日待复习单词预测数据"""
+        try:
+            import sqlite3
+            from datetime import datetime, timedelta
+            from cefr_tagger import DB_PATH
+
+            stats = []
+            if os.path.exists(DB_PATH):
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.cursor()
+                for i in range(7):
+                    target_date = (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')
+                    day_label = "今天" if i == 0 else "明天" if i == 1 else f"{target_date[5:]}"
+                    cursor.execute('''
+                        SELECT COUNT(*) FROM user_words 
+                        WHERE date(due_date) = ?
+                    ''', (target_date,))
+                    cnt = cursor.fetchone()[0]
+                    stats.append({"day": day_label, "date": target_date, "count": cnt})
+                conn.close()
+            return json.dumps(stats, ensure_ascii=False)
+        except Exception:
+            return json.dumps([], ensure_ascii=False)
+
+    @Slot(str, result=str)
+    def importCustomDeckJson(self, csv_content: str) -> str:
+        """从 CSV/TXT 批量导入自定义生词包"""
+        try:
+            added = 0
+            lines = csv_content.splitlines()
+            for line in lines:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                parts = line.split(',', 1)
+                word = parts[0].strip().lower()
+                if word and word.isalpha():
+                    self.db_manager.add_or_update_word(word, status="new")
+                    added += 1
+            self.progressUpdated.emit()
+            return json.dumps({"status": "success", "added_count": added}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)}, ensure_ascii=False)
 
     @Slot(result=str)
     def getUserProgressJson(self) -> str:

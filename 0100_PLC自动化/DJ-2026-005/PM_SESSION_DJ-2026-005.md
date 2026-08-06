@@ -4,7 +4,7 @@
 - project_id: DJ-2026-005
 - project_name: 边框缓存机
 - project_root: c:\Users\fubai\Desktop\My_Workspace\0100_PLC自动化\DJ-2026-005
-- last_updated: 2026-08-02
+- last_updated: 2026-08-07
 - owners: fubai / PLC开发团队
 
 ## 1. Positioning（项目定位）
@@ -13,16 +13,17 @@
 - non_goals: 待补充
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 稳定维护 — P2 任务收尾完成，文档归档就绪
-- milestone: 全 7 模块 PRD 四件套 100% 完整，台账 0/0/0，PM_SESSION 双层结构归档 150 行 ✅
+- current_focus: HMI 原型设计补齐 — 补充 11 页面高保真可交互 HTML 原型（含 IO 监控页），HMI 交付物完整
+- milestone: 全 7 模块 PRD 四件套 100% 完整；HMI 设计文档 + 原型 100% 完整；台账 0/0/0 ✅
 - acceptance:
   - ✅ CHG-DOCU-2026-001 闭环 | CHG-PLC-2026-008/009 retrofit | 台帐 005/006 修复
   - ✅ CHG-DOCU-2026-002 闭环 (补齐 7 个 PRD 文档) | 台账 0/0/0 | plc check 21/21
   - ✅ Spec Snapshot 漂移已确认 | LSP-906/907 无漂移 | PM_SESSION 归档 302→150 行
+  - ✅ HMI 原型设计补齐 (11 页面高保真可交互 HTML，含新增 IO 监控页)
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 稳定维护
+  - HMI 原型交付物补齐 (11 页面 HTML 原型，含新增 IO 监控页)
 - next_up:
   - TIA Portal 编译验证 (P0)
 - open_questions:
@@ -89,7 +90,22 @@
   - 06_文档与交付\验收交付清单\验收交付清单.md
   - (早期迭代日志已归档至 06_PM_SESSION历史/2026-08-02_V9.1.0.md)
 
+### 4.7 HMI 设计层（03_HMI设计/，HMI-V1.6.0，设计文档+原型 ✅ 齐全）
+- hmi-fa:  03_HMI设计\HMI功能分析报告.md ✅ (15基本+2窗口画面, 49类报警, 3级权限)
+- hmi-dsn: 03_HMI设计\HMI详细设计说明书.md ✅ (HMI-V1.2.0→V1.3.0, 10页面清单+变量映射+宏设计)
+- hmi-pro:  03_HMI设计\HMI原型设计.html ✅ (2026-08-07 V1.6, 工艺方向纠正：①机器人→放边框→本机平台 ②本机→送边框→打胶机→送成品→组框机；两页信号收发徽章/面板名/底部时序说明全部按用户现场工艺重命名)
+- hmi-pro-v1.5: 03_HMI设计\HMI原型设计_V1.5_历史备份.html (V1.5 极简左右对照·工艺方向未纠正版备份)
+- hmi-pro-v1.4: 03_HMI设计\HMI原型设计_V1.4_历史备份.html (V1.4 工业SCADA风格备份)
+- hmi-pro-v1.3: 03_HMI设计\HMI原型设计_V1.3_历史备份.html (V1.3 组框机竖排模板备份)
+- hmi-um:   03_HMI设计\操作手册\HMI操作手册.md ✅ (操作说明)
+- hmi-src:  03_HMI设计\编译器HMI源程序\边框缓存机.prx (GP-Pro EX源文件)
+
 ## 6. Implementation Log
+- 2026-08-07 | 通用原型 CLI 指令验证: 使用全新 `auto-pm prototype check --pid DJ-2026-005` 完成 80 个 PLC 寄存器标记与 HTML 语法一致性验证；运行 `auto-pm prototype bundle --pid DJ-2026-005 --version V1.6.1` 完成单文件归档备份 `HMI原型设计_V1.6.1_历史备份.html` | 008 通用 prototype CLI [已验证(实际)]
+- 2026-08-07 | HMI原型 V1.6 工艺方向纠正: [HMI原型设计.html](03_HMI设计/HMI原型设计.html) 用户明确现场工艺：①机器人交互=机器人把边框放到本机平台上 ②打胶机交互=本机把边框送给打胶机，打胶完成后打胶机给组框机；两页交互方向徽章(发/收)、面板名、信号文字描述、标题栏pill、页脚时序说明全部重写匹配真实工艺；V1.5原版备份 [HMI原型设计_V1.5_历史备份.html](03_HMI设计/HMI原型设计_V1.5_历史备份.html) | HMI-V1.5→V1.6 [已验证(静态)]
+- 2026-08-07 | HMI原型 V1.5 极简版改版: [HMI原型设计.html](03_HMI设计/HMI原型设计.html) 用户反馈V1.4 SCADA风太复杂怪+不好理解 → 两交互页彻底简化为左右列对照(x-* 样式族)：上下两大块(打胶机=入料/出料 机器人=抓取/放盘)，每块 3列 grid：左本机4信号(发/收徽章) 右对端4信号 最右异常放行竖排大按钮；去掉8步进度条/底部两张统计卡片，时序说明压缩为底部一行文字；V1.4 备份 [HMI原型设计_V1.4_历史备份.html](03_HMI设计/HMI原型设计_V1.4_历史备份.html)。| HMI-V1.4→V1.5 保留 1280×800 大尺寸 [已验证(静态)]
+- 2026-08-07 | HMI交互画面改版: [HMI原型设计.html](03_HMI设计/HMI原型设计.html) 打胶机交互+机器人交互两页完整替换为组框机模板信号表风格（竖排主标签+4色子标签+信号行含红黄色(1)(4)(5)(7)/(2)(3)(6)(8)编号+地址tag+大圆形LED+竖排异常放行按钮+右上角✕关闭）。打胶机入料/出料双块 16信号，机器人码料/成品双块 16信号；(1)(4)(5)(7)=本机发出(2)(3)(6)(8)=对端发出 交替握手时序 | CSS新增.xface-* 完整样式族 [已验证(静态)]
+- 2026-08-06 | HMI原型补齐: 新增 [HMI原型设计.html](03_HMI设计/HMI原型设计.html) → 11页面高保真可交互原型，含新增IO监控页；覆盖登录/主画面/手动/自动/参数/状态/IO/报警/打胶机交互/机器人交互/系统设置 | 原型可直接浏览器打开，顶部Tab+画面内按钮均可跳转 [已验证(静态)]
 - 2026-08-02 | CHG-DOCU-2026-002: 补齐 7 个 PRD 文档 → 全模块 IFC+DSN+CHG+UM 100% | plc check 21/21, 台账 0/0/0 [已验证]
 - 2026-08-02 | CHG-DOCU-2026-001 闭环 + CHG-PLC-2026-008/009 retrofit: 审查修复+版本演进空白填充 | plc check 21/21, 台账 0/0/0 [已验证]
 - 2026-08-01 | CHG-DOCU-2026-001: PM_SESSION 版本对齐与文档一致性整治 | plc check 20P/1W/0F [已验证]
@@ -102,14 +118,27 @@
 - blocker: 缺少 TIA Portal 编译环境与 .scltest 测试执行环境
 
 ## 8. Handoff Notes
-- 2026-08-02 | from=pm-workflow | reason=P2 任务收尾
-  - current_state: CHG-DOCU-2026-002 已闭环，全 7 模块 PRD 四件套 100% 完整，台账 0/0/0，spec 无漂移。[已验证]
-  - next_focus: P0: TIA Portal 编译验证
-  - watchouts: 无 .scltest 运行环境 | 修改 .scl 前触发 plc-electrical-engineer | 后续变更必须走 CHG 闭环
-  - read_first: PM_SESSION §3.1 (版本演进矩阵), CHG-DOCU-2026-002.md
+- 2026-08-07 | from=pm-workflow | reason=HMI原型 V1.6 工艺方向纠正 (用户描述真实现场工艺)
+  - current_state: HMI原型 V1.6，核心纠正真实工艺方向：①机器人交互页 = 机器人 →(放边框)→ 本机上料平台；②打胶机交互页 = 本机 →(送边框)→ 打胶机(打胶)→(送成品)→ 组框机；两页面板名/方向徽章(发/收)/信号描述/标题pill/页脚时序全部重写匹配真实工艺。四版历史备份保留：V1.3组框机模板 / V1.4 SCADA复杂版 / V1.5 极简对照(方向未纠) / V1.6 极简对照(方向已纠主文件)
+  - next_focus:
+    1. [P0] TIA Portal 编译验证（现场环境）
+    2. [P1] 用户走查 V1.6：两交互页工艺方向是否符合现场、信号名/地址是否要继续调整
+  - skill_handoff: 若信号地址/握手时序确认后需同步 .prx，触发 plc-electrical-engineer 技能
+  - watchouts:
+    - 代码约束: .prx 需 GP-Pro EX；信号地址tag 需 PLC DB/接线双核对
+    - 流程约束: V1.6 信号数量(16/握手8步/收发对称 (1)(4)(5)(7)发 (2)(3)(6)(8)收)逻辑未变，仅命名+方向+文字改工艺化
+    - 环境约束: 无 TIA Portal/.scltest 编译执行环境
+  - read_first:
+    1. [HMI原型设计.html](03_HMI设计/HMI原型设计.html) (V1.6 工艺方向已纠主文件)
+    2. [HMI原型设计_V1.5_历史备份.html](03_HMI设计/HMI原型设计_V1.5_历史备份.html) (V1.5 工艺方向未纠备份)
+    3. [HMI原型设计_V1.4_历史备份.html](03_HMI设计/HMI原型设计_V1.4_历史备份.html) (V1.4 SCADA风)
+    4. [HMI原型设计_V1.3_历史备份.html](03_HMI设计/HMI原型设计_V1.3_历史备份.html) (V1.3 组框机模板)
+    5. [HMI详细设计说明书.md](03_HMI设计/HMI详细设计说明书.md) §5 变量映射表
 
 ## 9. Next Actions
 - [P0] TIA Portal 编译验证 FB_1002 V10.0.0 | done_when=无编译错误
+- [P1] 用户走查 V1.6：工艺方向(机器人放料到本机/本机送料到打胶机→组框机)是否完全符合现场真实逻辑 | done_when=用户确认工艺方向
+- [P2] 走查通过后若需同步 .prx，触发 plc-electrical-engineer 技能同步更新 HMI 源程序
 
 ## Spec Snapshot（基线，供版本漂移检测）
 | spec_id | 版本 | 记录日期 | 说明 |
