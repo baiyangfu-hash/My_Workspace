@@ -1,3 +1,9 @@
+# IDE 缓存目录
+.vs/
+.idea/
+*.suo
+*.user
+
 __pycache__/
 *.py[cod]
 *$py.class
