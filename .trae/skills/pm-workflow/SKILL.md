@@ -31,13 +31,16 @@ auto-pm -w "<工作空间根>" plc init|check|repair|standardize ...
 # 通用原型管理（pm-workflow 独占原型设计、打包与归档）
 auto-pm -w "<工作空间根>" prototype bundle|check|archive|init --pid <编号> [--version <版本>]
 
-# 规范健康检查（auto-pm spec 子命令，吸收原 specmgr 功能）
-auto-pm -w "<工作空间根>" spec check|index|frontmatter|report [--auto-fix] [--dry-run]
-```
+# 工作空间治理与纯净度卡点（008 驾驶舱治理收拢）
+auto-pm -w "<工作空间根>" clean [--cache] [--dry-run]
+auto-pm -w "<工作空间根>" doctor
 
 - `-w` 必须放在子命令之前
 - `project show` 自动通过多信号判据识别项目类型
 - `project retrofit` 仅添加 hooks/handoffs/Spec Snapshot，不修改现有文件
+- **工作空间治理硬约束**：
+  - 严禁重定向测试日志（`mypy*.txt` / `pytest*.log`）或临时脚本（`.tmp_*.py`）到根目录。所有临时文件统一指定到 `.auto-pm/logs/` 或 `.auto-pm/scratch/`。
+  - 在每个 PM 阶段收尾或交付时，必须自动触发 `auto-pm clean` 和 `auto-pm doctor`。
 
 > 注意：pm-mgr（SW-2026-007）已被 auto-pm（SW-2026-008）取代；specmgr（SW-2026-006）已被 auto-pm 吸收为 `auto-pm spec` 子命令。旧命令仍可用但不再维护，建议所有新项目使用 auto-pm。
 

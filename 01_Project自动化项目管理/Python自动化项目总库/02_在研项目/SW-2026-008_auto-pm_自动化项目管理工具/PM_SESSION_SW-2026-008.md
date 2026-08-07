@@ -1,4 +1,4 @@
-# PM_SESSION_SW-2026-008
+﻿# PM_SESSION_SW-2026-008
 
 ## 0. Meta
 
@@ -16,20 +16,18 @@
 - owners: fubai
 
 ## 2. Current Focus（当前焦点）
+- owners: fubai
+
+## 1. Positioning（项目定位）
+
+- one_liner: 面向电气自动化工程师的本地项目作业系统，用于统一管理 PLC 项目结构、工程文档、变更闭环、调试记录、质量门禁和交付证据
+- users: 自动化工程师（兼PLC+Python开发）、AI技能（pm-workflow/plc-electrical-engineer）
+- non_goals: 不做在线协作、不做PLC代码生成、不做CI/CD管理
+- owners: fubai
+
+## 2. Current Focus（当前焦点）
 
 - current_focus: **2026-08-08 V1.1.x 产品化收口继续推进**。本轮已完成 PM_SESSION 主文件瘦身（91 行）、README 模块成熟度与 Doctor 入口补充、`auto-pm doctor` CLI + 设置页入口接入、根目录碎片清理与产品化收口计划沉淀。当前使用工作空间根 `.venv` 作为受支持运行环境；轻量验证已确认 Doctor 可运行、Modbus 单测通过，剩余工作聚焦 PM 技能去重、Ruff/MyPy 小门禁修复、真实试用准备与 CHG 流程轻量化。
-  - M4 Dogfooding 持续化：每个里程碑继续创建 CHG-*.md，走 `draft → closed` 全流程并把证据回写到 PILOT/CHG/PM_SESSION
-  - V1.0.0 规划：性能 FPS 实测（万行数据 FPS ≥ 30）+ 电气部门真实试用反馈 + 发布评估
-  - V2.2 规范中心整合迭代（已完成 Week1-3，转入 V2.3 主线）：吸收 specmgr（规范文档健康检查/索引/Frontmatter/auto-fix），吸收方式为 GUI 全局功能页"规范中心"
-  - **Modbus 插件化架构 Phase 1**：提取 `_MockModbusClient` 为独立 `SimPlugin`，解决测试隔离问题（待创建 CHG 变更单）
-- completed:
-  - **CHG-SCPT-2026-151 驾驶舱稳定性收口**（2026-07-31，第 73 次 dogfooding 闭环 closed）：完成 `WorkbenchFacade.save_workspace_root()` 配置保存/运行态重载双状态语义、`qml_main_window.reload_workspace()` 中 `AiContextBridge.setWorkspaceRoot()` 同步更新，以及 `AiContextBridge.readAiFeedback()` 对 `missing/invalid/available` 三态反馈容错。聚焦门禁全绿：`constraint check` 7/7 通过 + `spec check SHC-011~014` 通过 + `ruff` scoped files 0 errors + `mypy` 7 files 0 errors + `pytest` 49 passed。台账对账无差异。代码基线 V1.1.0 不变。
-  - **CHG-SCPT-2026-152 技能交接与规则治理收口**（2026-07-31，第 74 次 dogfooding 闭环 closed）：确认 `pm-workflow` 为 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 唯一回写 owner，执行技能仅返回结构化 `handoff_result`，共享规则单一真源位于 `.trae/skills/shared/refs/skill_coordination.md`，两份原 `refs/skill_coordination.md` 保留兼容入口。聚焦验证与 CHG-151 联合收口完成，台账对账无差异。代码基线 V1.1.0 不变。
-  - **历史已完成项（CHG-001 ~ CHG-142 共 70+ 项）**：已归档至 [PM_SESSION_SW-2026-008_archive_auto_20260807.md](00_项目管理/03_执行/05_PM_SESSION归档/PM_SESSION_SW-2026-008_archive_auto_20260807.md)
-- next_up:
-  - 每个里程碑继续创建 CHG-*.md 走完整流程（M4 Dogfooding 持续化）
-  - 基于 PLC 技能 + DJ-2026-005 真实项目 + V0.4.x 综合开发经验重排 `V2.2+` backlog 优先级（specmgr/变量表/插件系统），不再设数量门槛
-  - 用户指定新需求（若有）优先走“需求澄清 → 变更单 → 最小实现 → 回归证据”闭环
 - open_questions:
   - V2.2+ backlog 重排优先级判断：specmgr / 变量表 / 插件系统哪个先吸收，依据是什么（PLC 技能视角 + DJ-2026-005 真实链路 + 综合开发经验三方加权）
   - 单条全量 `pytest --no-cov --timeout=60` 的 `-1073741510` 是否需要单独开一个可复现的环境问题工单（当前已按分批回归策略绕过）
@@ -107,3 +105,4 @@
 
 - last_review: 2026-08-07
 - result: 通过《006_产品化收口与试用计划.md》评估与实测复核，架构稳定，转入收口整改。
+

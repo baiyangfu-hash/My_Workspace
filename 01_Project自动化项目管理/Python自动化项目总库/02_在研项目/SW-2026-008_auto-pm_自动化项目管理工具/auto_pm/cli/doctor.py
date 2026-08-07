@@ -1,4 +1,4 @@
-"""Doctor 环境与依赖自检 CLI 命令 (CHG-V1.1.x)"""
+﻿"""Doctor 环境与依赖自检 CLI 命令 (CHG-SCPT-2026-155 纯净度防守升级)"""
 
 from __future__ import annotations
 
@@ -12,6 +12,8 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+
+from auto_pm.core.governance_service import GovernanceService
 
 console = Console()
 
@@ -69,7 +71,11 @@ def run_doctor_check(workspace_root: str | None = None) -> dict[str, Any]:
     git_dir = Path(root) / ".git"
     git_ok = git_dir.exists()
 
-    all_passed = py_ok and git_ok and all(dep_results.values())
+    # 5. 工作空间纯净度守卫
+    gov_service = GovernanceService(workspace_root=root)
+    sanitation_report = gov_service.inspect_sanitation()
+
+    all_passed = py_ok and git_ok and sanitation_report.is_pure and all(dep_results.values())
 
     return {
         "workspace_root": str(root),
@@ -78,6 +84,8 @@ def run_doctor_check(workspace_root: str | None = None) -> dict[str, Any]:
         "dependencies": dep_results,
         "project_version": version_str,
         "git_found": git_ok,
+        "sanitation_pure": sanitation_report.is_pure,
+        "sanitation_issues": sanitation_report.total_issues,
         "all_passed": all_passed,
     }
 
@@ -112,9 +120,14 @@ def doctor_command(workspace: str | None) -> None:
     git_status = "[green]✅ PASS[/green]" if res["git_found"] else "[yellow]⚠️ 未找到[/yellow]"
     table.add_row("Git 仓库", git_status, "已检测到 .git" if res["git_found"] else "未检测到 .git")
 
+    # 根目录纯净度守卫
+    sani_status = "[green]✅ 根目录纯净[/green]" if res["sanitation_pure"] else f"[bold yellow]⚠️ 存在 {res['sanitation_issues']} 个游离文件[/bold yellow]"
+    sani_msg = "符合根目录白名单规范" if res["sanitation_pure"] else "建议运行 'auto-pm clean' 进行自动清扫"
+    table.add_row("工作空间纯净度守卫", sani_status, sani_msg)
+
     console.print(table)
 
     if res["all_passed"]:
         console.print("\n[bold green]🎉 恭喜！当前环境一切正常，可顺畅运行与开发 auto-pm！[/bold green]\n")
     else:
-        console.print("\n[bold yellow]⚠️ 注意：部分依赖缺失，建议在终端运行 pip install -e \".[dev]\" 补全开发依赖。[/bold yellow]\n")
+        console.print("\n[bold yellow]⚠️ 注意：存在非标准或缺失依赖，请参考表项修复建议。[/bold yellow]\n")

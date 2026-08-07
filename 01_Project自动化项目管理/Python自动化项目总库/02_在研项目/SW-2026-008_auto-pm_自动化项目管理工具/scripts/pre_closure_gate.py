@@ -1,4 +1,4 @@
-"""闭环前门禁脚本 - 运行三轨检查并输出 JSON 证据
+﻿"""闭环前门禁脚本 - 运行四轨检查（含工作空间纯净度守卫）并输出 JSON 证据
 
 用途：CHG 闭环前必须运行此脚本，输出作为 PM_SESSION §3 spec_compliance 的机器证据。
      禁止在 all_green=false 时回写 "ruff 0 errors" 或 "pytest 0 failed" 到 PM_SESSION。
@@ -20,6 +20,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# 插入 auto_pm 路径以导入 GovernanceService
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from auto_pm.core.governance_service import GovernanceService
+
 
 def run_ruff(workspace: str) -> dict:
     """运行 ruff check . 并解析错误数"""
@@ -30,9 +34,6 @@ def run_ruff(workspace: str) -> dict:
         cwd=workspace,
         shell=False,
     )
-    # ruff JSON 输出是一个列表，每个元素是一个 violation
-    # 无违规时输出空列表 "[]"，退出码 0
-    # 有违规时输出非空列表，退出码 1
     try:
         violations = json.loads(result.stdout) if result.stdout.strip() else []
     except json.JSONDecodeError:
@@ -51,8 +52,6 @@ def run_mypy(workspace: str) -> dict:
         shell=False,
     )
 
-    # mypy 成功时 stdout: "Success: no issues found in N source files"
-    # mypy 失败时 stdout: "Found N errors in M files (checked X source files)"
     output = result.stdout
     success_match = re.search(r"Success: no issues found in (\d+) source files", output)
     if success_match:
@@ -75,8 +74,6 @@ def run_pytest(workspace: str) -> dict:
         shell=False,
     )
 
-    # pytest 输出末尾格式: "1260 passed, 2 skipped, 3 warnings in 46.12s"
-    # 或失败时: "3 failed, 1257 passed, 2 skipped in 46.12s"
     output = result.stdout + result.stderr
 
     passed_match = re.search(r"(\d+) passed", output)
@@ -87,6 +84,18 @@ def run_pytest(workspace: str) -> dict:
         "passed": int(passed_match.group(1)) if passed_match else 0,
         "skipped": int(skipped_match.group(1)) if skipped_match else 0,
         "failed": int(failed_match.group(1)) if failed_match else 0,
+    }
+
+
+def run_sanitation(workspace: str) -> dict:
+    """运行工作空间根目录纯净度检查"""
+    service = GovernanceService(workspace_root=workspace)
+    report = service.inspect_sanitation()
+    return {
+        "is_pure": report.is_pure,
+        "unauthorized_count": len(report.unauthorized_files),
+        "temp_files_count": len(report.temp_files),
+        "total_issues": report.total_issues,
     }
 
 
@@ -104,15 +113,15 @@ def main() -> int:
     reports_dir = Path(workspace) / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    print("[1/3] Running ruff check . ...")
+    print("[1/4] Running ruff check . ...")
     ruff_result = run_ruff(workspace)
     print(f"      ruff: {ruff_result['errors']} errors")
 
-    print("[2/3] Running mypy auto_pm/ ...")
+    print("[2/4] Running mypy auto_pm/ ...")
     mypy_result = run_mypy(workspace)
     print(f"      mypy: {mypy_result['errors']} errors in {mypy_result['files']} files")
 
-    print("[3/3] Running pytest --no-cov -q -m 'not gui' ...")
+    print("[3/4] Running pytest --no-cov -q -m 'not gui' ...")
     pytest_result = run_pytest(workspace)
     print(
         f"      pytest: {pytest_result['passed']} passed, "
@@ -120,10 +129,15 @@ def main() -> int:
         f"{pytest_result['failed']} failed"
     )
 
+    print("[4/4] Running workspace sanitation check ...")
+    sani_result = run_sanitation(workspace)
+    print(f"      sanitation: pure={sani_result['is_pure']}, issues={sani_result['total_issues']}")
+
     all_green = (
         ruff_result["errors"] == 0
         and mypy_result["errors"] == 0
         and pytest_result["failed"] == 0
+        and sani_result["is_pure"]
     )
 
     gate_result = {
@@ -131,6 +145,7 @@ def main() -> int:
         "ruff": ruff_result,
         "mypy": mypy_result,
         "pytest": pytest_result,
+        "sanitation": sani_result,
         "all_green": all_green,
     }
 
@@ -142,10 +157,10 @@ def main() -> int:
     print(f"all_green: {all_green}")
 
     if all_green:
-        print("\n[OK] 三轨门禁全绿，可以回写 PM_SESSION §3 spec_compliance")
+        print("\n[OK] 四轨门禁全绿，可以回写 PM_SESSION §3 spec_compliance")
         return 0
     else:
-        print("\n[FAIL] 三轨门禁未全绿，禁止回写 'ruff 0 errors' 或 'pytest 0 failed' 到 PM_SESSION")
+        print("\n[FAIL] 四轨门禁未全绿，禁止回写 到 PM_SESSION")
         return 1
 
 

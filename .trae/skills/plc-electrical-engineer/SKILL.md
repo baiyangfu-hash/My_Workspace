@@ -46,12 +46,14 @@ auto-pm -w "<工作空间根>" plc check <项目ID> --json        # 合规性检
 auto-pm -w "<工作空间根>" plc repair <项目ID> --rename    # 自动修复命名违规
 auto-pm -w "<工作空间根>" plc standardize <项目ID> --apply # 文档命名标准化
 
-# 3. auto-pm 变更管理与台账联动 (与 pm-workflow 联动)
-auto-pm -w "<工作空间根>" change create --retrofit --pid <项目ID> ... # 紧急修代码后的一键补单
-auto-pm -w "<工作空间根>" ledger reconcile <项目ID>                    # 台账对账检查
+# 5. auto-pm 驾驶舱空间治理与纯净度卡点
+auto-pm -w "<工作空间根>" clean [--cache] [--dry-run]
+auto-pm -w "<工作空间根>" doctor
 
-# 4. PLC 接口文档变量表解析器 (SysLib FB 专项)
-plc-var-parser "<项目根>/PRD/接口文档_INT.md"
+- **空间纯净度硬约束**：
+  - 严禁在工作区根目录丢弃散装 SCL 导出片段、`.tmp_*.py` 临时测试脚本或 `mypy*.txt` 日志。
+  - PLC 调试与静态检测日志必须定向保存至 `.auto-pm/logs/` 或 `.auto-pm/scratch/`。
+  - 交付前运行 `auto-pm clean` 和 `auto-pm doctor`。
 ```
 
 ## 本地 LSP 验证与工程分工规程

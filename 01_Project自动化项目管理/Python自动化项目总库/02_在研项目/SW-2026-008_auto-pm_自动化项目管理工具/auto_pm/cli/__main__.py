@@ -1,4 +1,4 @@
-"""PLC-HMI 概念映射：CLI 命令行入口（CLI 主入口（命令路由/参数解析））
+﻿"""PLC-HMI 概念映射：CLI 命令行入口（CLI 主入口（命令路由/参数解析））
 
 像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
 不经过 HMI 画面，直接调用 FB 或 SFB。
@@ -48,6 +48,7 @@ from rich.console import Console  # noqa: E402
 
 from auto_pm.app_context import AppContext  # noqa: E402
 from auto_pm.cli.change import change_group  # noqa: E402
+from auto_pm.cli.clean import clean_cmd  # noqa: E402
 from auto_pm.cli.constraint import constraint_group  # noqa: E402
 from auto_pm.cli.delivery import delivery_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
@@ -107,6 +108,7 @@ cli.add_command(constraint_group)
 cli.add_command(workflow_group)
 cli.add_command(prototype_cmd)
 cli.add_command(doctor_command)
+cli.add_command(clean_cmd)
 
 
 if __name__ == "__main__":
