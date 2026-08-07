@@ -2,17 +2,26 @@
 
 统一 CLI 管理 PLC/Python 多技术栈项目的脚手架工具。
 
-## 功能特性
+## 模块成熟度矩阵 (Module Maturity)
 
-- **项目 CRUD** - 新建/列表/查看/编辑/删除/补全项目元数据；自动从 PM_SESSION 推导项目阶段（developing/commissioning/production/archived）
-- **PLC 项目管理** - 初始化/规范检查(LSP-907)/自动修复/文档命名标准化/Spec Snapshot 漂移检测
-- **Python 项目管理** - 初始化（规范检查计划 V2.5 实现）
-- **变更管理** - 变更单创建/查询/状态流转/编辑（CLI+GUI）；完整 12 状态机 + 门禁校验 + §6/§8/§9/§10 章节渲染；CLI 表格 `--full` 不截断选项
-- **Modbus 联调工坊** - 全局公共 Modbus TCP 联调工具（不属于单一项目）；支持 Ping 链路测试、读取功能码（FC01-04/17/23）与写入（FC05/06/15/16）测试；集成 16位位状态 LED 解析器、波形趋势 Canvas 画布、10x10 网格区间并发扫描；支持 JSON 配置导入/导出。
-- **模板管理** - Copier 模板列表/增量更新
-- **桌面 GUI** - PySide6 QML 桌面应用（V0.9.0 起旧 QWidget 完整移除），项目中心式导航 + 项目 CRUD + 多角色适配 + 缓存同步；变更中心含分步创建对话框 + StatusMachineView 可视化状态机 + ApprovalTimeline 审批时间线 + PropagationView 传播链可视化 + 4 维度列表筛选（状态/领域/紧急程度/项目）
-- **SQLite 索引缓存** - 增量扫描（file_mtime 判据），加速查询；变更单影响分析与审批记录持久化（impact_analysis + approval_history 两张表）
-- **Dogfooding** - auto-pm 自身使用 CHG-*.md 变更单流程（已闭环 30+ 次，CHG-SCPT-2026-001/062-100）
+为清晰产品边界与功能稳定性，auto-pm 模块按以下分类收口：
+
+| 模块分类 | 包含功能 | 成熟度等级 | 说明 |
+| :--- | :--- | :---: | :--- |
+| **Core 核心** | 项目 CRUD、PLC 规范检查、变更管理状态机、QML 桌面驾驶舱、SQLite 缓存 | `[Stable 稳定]` | 核心主线，经过长周期 dogfooding 全量回归验证 |
+| **Optional 工具箱** | Modbus TCP 联调工坊、模板增量更新、变量表多格式转换 | `[Toolbox 可选]` | 通用工坊/工具箱能力，按需使用 |
+| **Experimental 实验性** | 约束工作流自愈系统 (Workflow Engine) | `[Experimental 实验]` | 自动守护与修复实验性扩展 |
+
+## 环境诊断与自检 (Doctor)
+
+在初始化或跨机器部署后，建议通过 CLI 或 GUI 进行一键环境自检：
+
+```bash
+# 运行一键环境与依赖健康诊断
+auto-pm doctor
+```
+
+GUI 驾驶舱亦可在 **系统设置 (Settings)** 页面右上角点击 **🩺 环境自检** 按钮进行图形化诊断。
 
 ## 安装
 

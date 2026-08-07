@@ -101,6 +101,21 @@ Rectangle {
                 Item { Layout.fillWidth: true }
 
                 PrimaryButton {
+                    text: "🩺 环境自检"
+                    type: "ghost"
+                    onClicked: {
+                        if (typeof systemBridge !== "undefined" && systemBridge !== null) {
+                            var docRes = systemBridge.runDoctorCheck()
+                            if (docRes && docRes.all_passed) {
+                                resultMessage = "🩺 环境自检：✅ 正常 (Python " + docRes.python_version + "，依赖就绪)"
+                            } else {
+                                resultMessage = "🩺 环境自检：⚠️ 部分检查未通过，请查看 CLI doctor 输出 (版本: " + (docRes.project_version || "1.1.0") + ")"
+                            }
+                        }
+                    }
+                }
+
+                PrimaryButton {
                     text: "关于"
                     type: "ghost"
                     onClicked: root.requestShowAbout()

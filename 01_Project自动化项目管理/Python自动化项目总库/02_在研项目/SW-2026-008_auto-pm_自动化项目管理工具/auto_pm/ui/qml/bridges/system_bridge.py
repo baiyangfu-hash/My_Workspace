@@ -95,3 +95,12 @@ class SystemBridge(QObject):
                 return asdict(res.payload)
             return {"success": res.success, "message": res.message}
         return {"success": False, "message": "未初始化"}
+
+    @Slot(result="QVariant")
+    def runDoctorCheck(self) -> dict[str, Any]:
+        """执行 GUI 一键环境健康自检"""
+        from auto_pm.cli.doctor import run_doctor_check
+        try:
+            return run_doctor_check()
+        except Exception as e:
+            return {"all_passed": False, "message": str(e)}

@@ -51,6 +51,7 @@ from auto_pm.cli.change import change_group  # noqa: E402
 from auto_pm.cli.constraint import constraint_group  # noqa: E402
 from auto_pm.cli.delivery import delivery_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
+from auto_pm.cli.doctor import doctor_command  # noqa: E402
 from auto_pm.cli.gui import gui_command  # noqa: E402
 from auto_pm.cli.ledger import ledger_group  # noqa: E402
 from auto_pm.cli.plc import plc_group  # noqa: E402
@@ -68,7 +69,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 console = Console()
 
 
-@click.version_option(version="1.0.0", package_name="auto_pm", message="auto-pm, version %(version)s")
+@click.version_option(version="1.1.0", package_name="auto_pm", message="auto-pm, version %(version)s")
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "--workspace",
@@ -105,6 +106,7 @@ cli.add_command(ledger_group)
 cli.add_command(constraint_group)
 cli.add_command(workflow_group)
 cli.add_command(prototype_cmd)
+cli.add_command(doctor_command)
 
 
 if __name__ == "__main__":
