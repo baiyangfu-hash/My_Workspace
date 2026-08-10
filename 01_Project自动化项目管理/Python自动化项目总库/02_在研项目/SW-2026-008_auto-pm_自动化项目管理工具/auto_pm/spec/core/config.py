@@ -14,6 +14,9 @@ import yaml
 
 DEFAULT_SPEC_DIRS = [
     "00_Obsidian_Base全局规范文件仓库/01_项目管理域",
+    "00_Obsidian_Base全局规范文件仓库/02_Python开发域",
+    "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域",
+    "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域",
     "0100_PLC自动化/00_通用规范",
     "01_Project自动化项目管理/00_通用规范",
 ]
@@ -25,7 +28,7 @@ DEFAULT_REGISTRY_PATH = "00_Obsidian_Base全局规范文件仓库/spec_registry.
 CHECK_SCOPES = ("workspace", "project")
 
 DEFAULT_OUTPUT_PATHS = {
-    "pm_index": "01_Project自动化项目管理/00_通用规范/README.md",
+    "pm_index": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
     "plc_readme": "0100_PLC自动化/00_通用规范/README.md",
     "python_readme": "01_Project自动化项目管理/00_通用规范/README.md",
     "report": "00_Obsidian_Base全局规范文件仓库/health_report.md",
@@ -48,6 +51,7 @@ DOMAIN_CONFIG: dict[str, dict[str, Any]] = {
         "title": "PLC自动化项目通用规范库",
         "output_path": "0100_PLC自动化/00_通用规范/README.md",
         "sub_domains": {
+            "03_PLC自动化域": "PLC自动化规范",
             "PLC编程": "PLC编程规范",
             "项目管理": "项目管理规范",
         },
@@ -56,7 +60,15 @@ DOMAIN_CONFIG: dict[str, dict[str, Any]] = {
         "title": "Python自动化项目通用规范库",
         "output_path": "01_Project自动化项目管理/00_通用规范/README.md",
         "sub_domains": {
+            "02_Python开发域": "Python开发规范",
             "Python开发": "Python开发规范",
+        },
+    },
+    "cockpit": {
+        "title": "驾驶舱与全栈开发规范库",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/README.md",
+        "sub_domains": {
+            "04_驾驶舱与全栈域": "驾驶舱与全栈规范",
         },
     },
 }

@@ -25,13 +25,13 @@ Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-
 
 ## 本地规范索引（必须遵循，输出前应读取确认版本）
 
-- `0100_PLC自动化\.trae\rules\plc-rules.md`
-- `0100_PLC自动化/00_通用规范/PLC编程/903_定时器使用规范_LSP.md`
-- `0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP.md`
-- `0100_PLC自动化/00_通用规范/PLC编程/905_SCL编程规范_LSP.md`
-- `0100_PLC自动化/00_通用规范/PLC编程/906_错误预防规则_LSP.md`
-- `0100_PLC自动化/00_通用规范/PLC编程/907_项目配置规范_LSP.md`
-- `0100_PLC自动化/00_通用规范/PLC编程/908_Siemens_Language_Support_使用指南_TOOL.md`
+- `00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md`
+- `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/903_定时器使用规范_LSP.md`
+- `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/904_SCL注释规范_LSP.md`
+- `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/905_SCL编程规范_LSP.md`
+- `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/906_错误预防规则_LSP.md`
+- `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/907_项目配置规范_LSP.md`
+- `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/908_Siemens_Language_Support_使用指南_TOOL.md`
 - `refs/siemens-lsp-and-testing.md` (本地 LSP 验证规程与 .scltest 手册)
 - `refs/interlock-and-handoff-guide.md` (联锁矩阵、4标段测试生成、驾驶舱与pm-workflow联动、Checklist、CLI+GUI测试)
 

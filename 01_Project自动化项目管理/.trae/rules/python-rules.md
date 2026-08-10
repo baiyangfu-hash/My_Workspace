@@ -6,7 +6,7 @@ alwaysApply: true
 
 ## 规范权威位置
 
-所有Python技术栈规范的权威目录: `01_Project自动化项目管理/00_通用规范/Python开发/`
+所有Python技术栈规范的权威目录: `00_Obsidian_Base全局规范文件仓库/02_Python开发域/`
 
 规范注册表: `00_Obsidian_Base全局规范文件仓库/spec_registry.json`
 

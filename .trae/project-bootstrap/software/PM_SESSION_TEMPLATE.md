@@ -1,5 +1,7 @@
 # PM_SESSION___PROJECT_ID__
 
+> ⚠️ **治理规约 (基于008实践)**：本文件为项目活跃状态的**快照型主文件**（行数上限硬卡点 **≤ 150 行**）。历史迭代日志在版本升级时自动归档至 `00_项目管理/06_PM_SESSION历史/`。
+
 ## 0. Meta
 - project_id: __PROJECT_ID__
 - project_name: __PROJECT_NAME__

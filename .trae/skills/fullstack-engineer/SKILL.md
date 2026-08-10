@@ -37,6 +37,15 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 - 从零创建新网站/Web App → `web-dev`
 - venv 激活 / cockpit 上下文桥接 / PM_SESSION 读取与回写入口 → `pm-workflow`（本技能仅接收上下文并返回交接结果）
 
+## 本地规范索引（必须遵循，输出前应读取确认版本）
+
+- `00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md`
+- `00_Obsidian_Base全局规范文件仓库/02_Python开发域/210_Python编程规范_DEV.md`
+- `00_Obsidian_Base全局规范文件仓库/02_Python开发域/211_Python代码审查规范_DEV.md`
+- `00_Obsidian_Base全局规范文件仓库/02_Python开发域/216_PySide6_GUI开发规范_DEV.md`
+- `00_Obsidian_Base全局规范文件仓库/02_Python开发域/220_Python项目打包规范_DEV.md`
+- `00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/301_驾驶舱UI与交互规范_DEV.md`
+
 ## 项目连续性规则
 
 ### 开始前

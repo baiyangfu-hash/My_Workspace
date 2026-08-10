@@ -21,9 +21,10 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
 
 项目规范权威目录：
 
-- 全局PM规范: `00_Obsidian_Base全局规范文件仓库/`
-- PLC技术栈规范: `0100_PLC自动化/00_通用规范/PLC编程/`
-- Python技术栈规范: `01_Project自动化项目管理/00_通用规范/Python开发/`
+- 全局PM规范: `00_Obsidian_Base全局规范文件仓库/01_项目管理域/`
+- Python技术栈规范: `00_Obsidian_Base全局规范文件仓库/02_Python开发域/`
+- PLC技术栈规范: `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/`
+- 驾驶舱与全栈规范: `00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/`
 - 规范注册表: `00_Obsidian_Base全局规范文件仓库/spec_registry.json`
 
 ### 规范管理工具

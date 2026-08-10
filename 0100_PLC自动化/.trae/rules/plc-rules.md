@@ -6,7 +6,7 @@ alwaysApply: true
 
 ## 规范权威位置
 
-所有PLC技术栈规范的权威目录: `0100_PLC自动化/00_通用规范/PLC编程/`
+所有PLC技术栈规范的权威目录: `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/`
 
 规范注册表: `00_Obsidian_Base全局规范文件仓库/spec_registry.json`
 
