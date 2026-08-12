@@ -38,22 +38,22 @@ Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-
 ## 工具依赖与 CLI 指南
 
 ```powershell
-# 1. 激活虚拟环境 (必须在工具调用前最先执行)
-& "<工作空间根>\.venv\Scripts\Activate.ps1"
+# 1. 准备 Python 运行环境 (必须在工具调用前最先执行，优先唤起路径安全之 python -m 范式)
+python -m auto_pm doctor
 
 # 2. auto-pm PLC 子命令 (项目初始化/合规性检查/自动修复/标准化)
-auto-pm -w "<工作空间根>" plc check <项目ID> --json        # 合规性检查，--json 输出便于解析
-auto-pm -w "<工作空间根>" plc repair <项目ID> --rename    # 自动修复命名违规
-auto-pm -w "<工作空间根>" plc standardize <项目ID> --apply # 文档命名标准化
+python -m auto_pm -w "<工作空间根>" plc check <项目ID> --json        # 合规性检查，--json 输出便于解析
+python -m auto_pm -w "<工作空间根>" plc repair <项目ID> --rename    # 自动修复命名违规
+python -m auto_pm -w "<工作空间根>" plc standardize <项目ID> --apply # 文档命名标准化
 
 # 5. auto-pm 驾驶舱空间治理与纯净度卡点
-auto-pm -w "<工作空间根>" clean [--cache] [--dry-run]
-auto-pm -w "<工作空间根>" doctor
+python -m auto_pm -w "<工作空间根>" clean [--cache] [--dry-run]
+python -m auto_pm doctor
 
 - **空间纯净度硬约束**：
   - 严禁在工作区根目录丢弃散装 SCL 导出片段、`.tmp_*.py` 临时测试脚本或 `mypy*.txt` 日志。
   - PLC 调试与静态检测日志必须定向保存至 `.auto-pm/logs/` 或 `.auto-pm/scratch/`。
-  - 交付前运行 `auto-pm clean` 和 `auto-pm doctor`。
+  - 交付前运行 `python -m auto_pm clean` 和 `python -m auto_pm doctor`。
 ```
 
 ## 本地 LSP 验证与工程分工规程
@@ -69,12 +69,12 @@ auto-pm -w "<工作空间根>" doctor
 
 ### Step 0：前置校验与硬约束加载
 
-1. **激活虚拟环境**（必须最先执行）：
+1. **准备 Python 运行环境**（必须最先执行，唤起路径免疫之 `python -m` 指令）：
    ```powershell
-   & "<工作空间根>\.venv\Scripts\Activate.ps1"
+   python -m auto_pm doctor
    python --version
    ```
-   若激活失败，**立即报告用户**（说明 venv 缺失及影响，`auto-pm` / `plc-var-parser` 不可用），不得隐瞒继续。
+   若 Python 解释器或环境失效，**立即报告用户**（说明 venv 缺失及影响，`auto-pm` / `plc-var-parser` 不可用），不得隐瞒继续。
 
 2. **加载项目硬约束**：检测项目 `project_memory.md` 是否存在，若存在则读取 Hard Constraints，并在输出中提示已加载的硬约束规则。
 

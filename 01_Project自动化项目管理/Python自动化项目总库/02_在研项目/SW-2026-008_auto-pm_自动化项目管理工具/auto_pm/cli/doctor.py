@@ -1,4 +1,4 @@
-﻿"""Doctor 环境与依赖自检 CLI 命令 (CHG-SCPT-2026-155 纯净度防守升级)"""
+"""Doctor 环境与依赖自检 CLI 命令 (CHG-SCPT-2026-155 纯净度防守升级)"""
 
 from __future__ import annotations
 
@@ -21,16 +21,8 @@ console = Console()
 def resolve_workspace(workspace_root: str | None = None) -> str:
     if workspace_root:
         return os.path.abspath(workspace_root)
-    # Check .auto-pm-workspace config file
-    config_file = Path(".auto-pm-workspace")
-    if config_file.exists():
-        try:
-            val = config_file.read_text(encoding="utf-8").strip()
-            if val and os.path.isdir(val):
-                return val
-        except Exception:
-            pass
-    return os.getcwd()
+    from auto_pm.app_context import AppContext
+    return AppContext().workspace_root
 
 
 def run_doctor_check(workspace_root: str | None = None) -> dict[str, Any]:

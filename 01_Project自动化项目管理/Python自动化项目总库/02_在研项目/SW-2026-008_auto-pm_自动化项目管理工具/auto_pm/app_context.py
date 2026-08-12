@@ -33,9 +33,30 @@ class AppContext:
             if os.path.isfile(cfg_file):
                 try:
                     with open(cfg_file, encoding="utf-8") as f:
-                        workspace_root = f.read().strip()
+                        val = f.read().strip()
+                        if val:
+                            if os.path.isabs(val):
+                                workspace_root = val
+                            else:
+                                # 相对路径转换为相对于配置文件所在目录的绝对路径
+                                workspace_root = os.path.abspath(
+                                    os.path.join(os.path.dirname(cfg_file), val)
+                                )
                 except Exception:
                     pass
+        if not workspace_root:
+            # 向上攀爬搜寻包含 .auto-pm 目录或 Workspace_Handoff_Document.md 文件的目录
+            curr = os.path.abspath(os.getcwd())
+            while True:
+                if os.path.isdir(os.path.join(curr, ".auto-pm")) or os.path.isfile(
+                    os.path.join(curr, "Workspace_Handoff_Document.md")
+                ):
+                    workspace_root = curr
+                    break
+                parent = os.path.dirname(curr)
+                if parent == curr:
+                    break
+                curr = parent
         self.workspace_root: str = workspace_root or os.getcwd()
 
     @property

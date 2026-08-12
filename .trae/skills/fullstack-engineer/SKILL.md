@@ -50,12 +50,13 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 ### 开始前
 
-1. **激活虚拟环境**（若独立触发，pm-workflow 未激活则自行激活）：
+1. **准备 Python 运行环境**（优先使用绝对/相对定位之 python，唤起 `python -m` 指令）：
    ```powershell
-   & "<工作空间根>\.venv\Scripts\Activate.ps1"
+   # 推荐使用路径安全的 python 机制（即使移动 venv 也支持直接运行）
+   python -m auto_pm doctor
    python --version; pip --version
    ```
-   若激活失败，**立即报告用户**，说明 venv 缺失及影响（Python 工具/依赖不可用），不要跳过继续。
+   若 Python 解释器或环境失效，**立即报告用户**，说明 venv 缺失及影响（Python 工具/依赖不可用），不要跳过继续。
 
 2. **接收上下文**：
    - 若从 pm-workflow 调用，从 prompt 中提取 skill_context（项目 ID、变更单、模式、pm_summary）
@@ -92,8 +93,8 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 **auto-pm 用法**：
 ```powershell
-auto-pm -w "<工作空间根>" project list|create|show|edit|retrofit|delete ...
-auto-pm -w "<工作空间根>" change create|list|show|transition ...
+python -m auto_pm -w "<工作空间根>" project list|create|show|edit|retrofit|delete ...
+python -m auto_pm -w "<工作空间根>" change create|list|show|transition ...
 ```
 
 ## 与平台技能的边界
@@ -125,8 +126,8 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 从 `skill_context` / PM_SESSION 恢复：当前阶段、最近执行结果、当前阻塞、最高优先级动作。
 
 **可用 auto-pm 命令**：
-- 了解工作空间项目列表：`auto-pm -w "<工作空间根>" project list`
-- 获取项目元数据（JSON）：`auto-pm -w "<工作空间根>" project show <项目ID> --json`
+- 了解工作空间项目列表：`python -m auto_pm -w "<工作空间根>" project list`
+- 获取项目元数据（JSON）：`python -m auto_pm -w "<工作空间根>" project show <项目ID> --json`
 
 ### Step 1：确定模式
 
@@ -137,8 +138,8 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 最少明确：改什么、为什么改、改动文件、潜在风险、如何验证。
 
 **可用 auto-pm 命令**：
-- 创建 Python 项目：`auto-pm -w "<工作空间根>" project create --stack python --id <ID> --name <NAME>`
-- 创建变更请求：`auto-pm -w "<工作空间根>" change create --pid <ID> --domain <D> --nature <N> --scope <S> --applicant <A> --background <B> --necessity <N>`
+- 创建 Python 项目：`python -m auto_pm -w "<工作空间根>" project create --stack python --id <ID> --name <NAME>`
+- 创建变更请求：`python -m auto_pm -w "<工作空间根>" change create --pid <ID> --domain <D> --nature <N> --scope <S> --applicant <A> --background <B> --necessity <N>`
 
 ### Step 3：实施
 
@@ -146,7 +147,7 @@ auto-pm -w "<工作空间根>" change create|list|show|transition ...
 
 ### Step 4：输出 `handoff_result`（含门禁实测前置检查）
 
-对外声明门禁状态前（若本轮有代码改动），必须实际运行 ruff/mypy/pytest 并记录真实输出，禁止基于推断声明门禁状态。详见 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md) §4 门禁实测强制检查。
+对外声明门禁状态前（若本轮有代码改动），必须实际运行 `python -m ruff` / `python -m mypy` / `python -m pytest` 并记录真实输出，禁止基于推断声明门禁状态。详见 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md) §4 门禁实测强制检查。
 
 将本轮实施摘要、改动文件、验证结果、风险、下一步整理为 `handoff_result` 返回给 `pm-workflow`，由 `pm-workflow` 统一回写 PM_SESSION 与 cockpit 反馈。
 
