@@ -12,7 +12,7 @@ Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-
 - 读写/评审西门子 `.scl`、`.db`（FB/FC/DB/UDT/实例 DB）源程序
 - 设备控制、工站安全联锁矩阵提炼、超时、状态机、接口设计与结构体建模
 - **AI 本地 LSP 验证**：Siemens LSP 语法检查、`.plc.json` 作用域配置校验、`auto-pm plc check` 静态合规检查与 `.scltest` 4 标段智能测试生成
-- **008 驾驶舱与 PM 技能联动**：工站联锁矩阵自动回写 `PM_SESSION` 驾驶舱架构视图，自动计算 CHG 变更传播链，测试指标同步上报驾驶舱 Quality Gauge
+- **008 驾驶舱与 PM 技能联动**：生成临时 handoff 交接包，供 `pm-workflow` 统一回写 `PM_SESSION`、驾驶舱反馈与待收口队列；自动计算 CHG 变更传播链并同步测试指标摘要
 - **双重测试验证**：CLI 命令行测试（008 工具+台账对账）与 GUI 真实启动测试（可视化窗口渲染）
 - 与本地规范一致的设计/审查结论、现场 Checklist 交付件与实施日志
 
@@ -91,7 +91,7 @@ python -m auto_pm doctor
 当任务为 Bug 修复、超时、报错诊断时，**必须**遵循实证纪律，禁止单凭 SCL 代码阅读直接下结论：
 1. **获取完整证据**：读取完整的 PLC 报警日志、扫描周期异常或测试输出。
 2. **逻辑/校验脚本先行**：推测的根因**必须**用 `auto-pm plc check` 或逻辑仿真/断言脚本验证后再给出修复方案。
-3. **未验证隔离**：未经本地 LSP/工具校验的推测结论，**禁止**作为已确切结论写入 `PM_SESSION`，必须标注 `[待验证]`。
+3. **未验证隔离**：未经本地 LSP/工具校验的推测结论，**禁止**作为已确切结论写入 `handoff_result` 或由 PM 消费的结论，必须标注 `[待验证]`。
 
 ### Step 3：任务路由与代码审查
 
@@ -110,7 +110,7 @@ python -m auto_pm doctor
 
 refs 路径见 `refs/INDEX.md`。
 
-### Step 4：门禁与双重测试实测强制检查（回写前必做）
+### Step 4：门禁与双重测试实测强制检查（交接前必做）
 
 在修改 SCL 或回写 PM_SESSION 前后，**必须**实际运行双重测试检查：
 1. **CLI 测试**：运行 `auto-pm -w "<工作空间根>" plc check <项目ID> --json`
@@ -121,20 +121,18 @@ refs 路径见 `refs/INDEX.md`。
 若收到外部 AI 产出的 PLC 审查报告：
 1. **禁止直接采信**其对 SCL 语法、变量命名或极性逻辑的批评。
 2. 必须运行 `auto-pm plc check` 或 `view_file` 读取源码逐条实测核验。
-3. 在 PM_SESSION 中记录实测核验结果。
+3. 在 `handoff_result` / CHG 实施记录中记录实测核验结果，由 `pm-workflow` 决定是否同步进 PM_SESSION。
 
 ### Step 6：技能退出与 PM 联动闭环（Step 7）
 
 按顺序完成以下退出步序，不可跳过：
 1. **文档与 Checklist 生成**：提炼生成 `06_文档与交付/上机复核/PLC_Handoff_Checklist_<PID>.md` 交付件。
 2. **变更单 (CHG) 回写**：回写 CHG §9 实施记录与 §10 验证结论。
-3. **PM_SESSION 驾驶舱回写**：
-   - §3 系统架构：更新工站安全联锁交握矩阵与安全区视图。
-   - §5 change_log & §6 Implementation Log。
-   - §7 Verification Log & §8 Handoff Notes（回写现场物理复核重点）。
-4. **台账对账校验**：运行 `auto-pm ledger reconcile <项目ID>` 确保台账一致。
-5. **双重测试验证**：确保 CLI 终端测试报告与 GUI 真实启动测试通过。
-6. **输出摘要**：向用户输出本轮 PLC 变更与驾驶舱联动摘要。
+3. **结构化交接包输出**：生成 `handoff_result` / `.auto-pm/handoffs/<request_id>.json`，至少包含 `request_id`、`executor_skill`、`summary`、`changed_files`、`verification`、`risks`、`next_actions`、`watchouts`、`read_first`、`artifacts`、`chg_updates`、`product_impact`、`pm_closure`。
+4. **PM 收口边界**：`pm-workflow` 是 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 的唯一写入者；本技能**不得**直接回写 PM_SESSION。
+5. **台账对账校验**：运行 `auto-pm ledger reconcile <项目ID>` 确保台账一致。
+6. **双重测试验证**：确保 CLI 终端测试报告与 GUI 真实启动测试通过。
+7. **输出摘要**：向用户输出本轮 PLC 变更与待 PM 收口摘要。
 
 ## 编码与文件编辑强制规则（常驻）
 

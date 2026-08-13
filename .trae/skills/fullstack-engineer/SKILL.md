@@ -7,7 +7,7 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 
 统一入口：前端 / 后端 / 全栈联调 / 代码评审 / 调试 / 小程序。避免在多个开发技能间切换。
 
-> **架构定位**（CHG-SCPT-2026-140 / CHG-SCPT-2026-152）：本技能为**纯执行者**。pm-workflow 是驾驶舱唯一入口和统筹者，负责 venv 激活、cockpit 上下文桥接、PM_SESSION 读取与回写、HTML 原型产出。本技能接收 pm-workflow 的 `skill_context` 后执行领域工作，结束时只返回结构化 `handoff_result`。
+> **架构定位**（CHG-SCPT-2026-140 / CHG-SCPT-2026-152 / CHG-SCPT-2026-156）：本技能为**纯执行者**。pm-workflow 是驾驶舱唯一入口和统筹者，负责 venv 激活、cockpit 上下文桥接、PM_SESSION 读取与回写、HTML 原型产出。本技能接收 pm-workflow 的 `skill_context` 后执行领域工作；若被用户独立触发，则只写临时交接包 `.auto-pm/handoffs/<request_id>.json` 或返回同结构 `handoff_result`，由 pm-workflow 统一收口。
 >
 > **通用规则单一真源**：以下规则统一在 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md) 中定义，本技能不重复维护：
 > - Bug 诊断前置纪律（§1）
@@ -73,6 +73,8 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 ### 结束后
 
 必须输出结构化 `handoff_result` 给 `pm-workflow`，至少包含：
+- `request_id`
+- `executor_skill`
 - `summary`
 - `changed_files`
 - `verification`（含 `lint_result` / `test_result` / `other_checks` / `not_run`）
@@ -82,8 +84,10 @@ description: "统一全栈工程入口。适用于现有项目的前端、后端
 - `read_first`
 - `artifacts`
 - `chg_updates`
+- `product_impact`
+- `pm_closure`
 
-即使没改代码，也要返回分析了什么、结论、下次从哪里继续。**不得**直接回写 PM_SESSION；**不得**直接写 `.auto-pm/ai_feedback.json`。
+即使没改代码，也要返回分析了什么、结论、下次从哪里继续。**不得**直接回写 PM_SESSION；**不得**直接写 `.auto-pm/ai_feedback.json`；独立触发时也只能产出临时 handoff，不得把 handoff 视为第二套项目账本。
 
 ## 工具参考
 

@@ -127,3 +127,51 @@ class SpecBridge(QObject):
                 return asdict(res.payload)
             return {"success": res.success, "message": res.message}
         return {"success": False, "message": "未初始化"}
+
+    @Slot(str, str, result="QVariant")
+    def generateSclFromMatrix(self, md_text: str, output_path: str) -> dict[str, Any]:
+        """根据 Markdown 工艺矩阵离线生成 Siemens SCL 状态机源码"""
+        try:
+            from auto_pm.plc.generator import ProcessMatrixParser, SclGenerator
+
+            matrix = ProcessMatrixParser.parse_markdown(md_text)
+            gen = SclGenerator()
+            out_file = gen.generate_to_file(matrix, output_path)
+            return {
+                "success": True,
+                "output_path": str(out_file),
+                "steps_count": len(matrix.steps),
+                "message": f"离线生成合规 SCL 成功: {out_file.name}",
+            }
+        except Exception as exc:
+            return {"success": False, "message": f"生成 SCL 失败: {exc}"}
+
+    @Slot(str, result="QVariant")
+    def checkSclCodeCompliance(self, file_path: str) -> dict[str, Any]:
+        """对单个 .scl 文件按 LSP-905 运行代码规范排查"""
+        try:
+            from auto_pm.plc.scl_linter import SclLinter
+
+            report = SclLinter.lint_file(file_path)
+            violations_data = [
+                {
+                    "line": v.line_number,
+                    "rule": v.rule_id,
+                    "severity": v.severity,
+                    "message": v.message,
+                    "snippet": v.code_snippet,
+                }
+                for v in report.violations
+            ]
+            return {
+                "success": True,
+                "is_clean": report.is_clean,
+                "file_path": report.file_path,
+                "total_violations": report.total_violations,
+                "errors_count": report.errors_count,
+                "warnings_count": report.warnings_count,
+                "violations": violations_data,
+            }
+        except Exception as exc:
+            return {"success": False, "message": f"SCL 规范排查失败: {exc}"}
+

@@ -20,21 +20,57 @@
 
 3. **独立触发降级路径**：
    - 若执行技能被用户独立触发，可读取 PM_SESSION 恢复上下文
-   - 结束时仍输出同一份 `handoff_result`
-   - 需要落账时，转由 `pm-workflow` 统一回写；不得新建平行状态文件替代 PM_SESSION
+   - 结束时写入同一份临时交接包 `.auto-pm/handoffs/<request_id>.json`
+   - 需要落账时，转由 `pm-workflow` 统一消费并回写；不得新建平行状态文件替代 PM_SESSION
 
-### 0.2 共享规则承载方式
+### 0.2 三类数据边界
+
+| 数据 | 路径 | 写入者 | 用途 |
+|------|------|--------|------|
+| 项目事实源 | `PM_SESSION_<项目编号>.md` | `pm-workflow` | 项目状态、决策、执行与验证记录 |
+| 当前操作上下文 | `.auto-pm/ai_context.json` | cockpit / `pm-workflow` | 传递 request_id、入口模式、页面、意图与建议技能 |
+| 临时交接包 | `.auto-pm/handoffs/<request_id>.json` | `fullstack-engineer` / `plc-electrical-engineer` | 提交给 PM 收口的一次性执行结果 |
+
+交接包是一次性消息，不是第二套项目账本。`pm-workflow` 成功处理后，再把结果写回 `PM_SESSION` 与 `.auto-pm/ai_feedback.json`。
+### 0.3 共享规则承载方式
 
 1. 本文件承载**跨技能公共规则**，是唯一真源。
 2. `fullstack-engineer` 与 `plc-electrical-engineer` 的 `SKILL.md` 只保留**领域附加层**。
 3. 原各技能目录下的 `refs/skill_coordination.md` 仅保留为兼容入口，不再重复维护规则正文。
 
-### 0.3 结构化交接结果
+### 0.4 AI 上下文 V2
+
+`ai_context.json` 统一采用 V2 结构：
+
+```json
+{
+  "request_id": "AI-20260813-001",
+  "entry_mode": "cockpit",
+  "intent": "implement_change",
+  "target_skill": "fullstack-engineer",
+  "active_project": {},
+  "active_change": {},
+  "active_page": "changeCenter",
+  "product_context": {
+    "goal_ref": "PM_SESSION_SW-2026-008.md#product-goal",
+    "hypothesis_ref": "",
+    "success_metric_ref": ""
+  }
+}
+```
+
+- `entry_mode` 仅允许：`cockpit` / `pm` / `direct`
+- `target_skill` 只是建议路由，最终仍由 `pm-workflow` 校验
+- `product_context` 当前以引用为主，不在执行技能侧扩展成第二真源
+
+### 0.5 结构化交接结果（handoff_result V2）
 
 执行技能返回给 `pm-workflow` 的 `handoff_result` 至少包含以下字段：
 
 ```json
 {
+  "request_id": "AI-20260813-001",
+  "executor_skill": "fullstack-engineer",
   "summary": "1-2 句实施摘要",
   "changed_files": ["path/to/file_a", "path/to/file_b"],
   "verification": {
@@ -54,7 +90,17 @@
   "watchouts": ["约束或注意事项"],
   "read_first": ["建议下一位先读的文件"],
   "artifacts": ["相关文档或报告路径"],
-  "chg_updates": ["本轮已同步的 CHG / 文档记录"]
+  "chg_updates": ["本轮已同步的 CHG / 文档记录"],
+  "product_impact": {
+    "assumption_affected": "",
+    "observable_signal": "",
+    "needs_user_validation": false
+  },
+  "pm_closure": {
+    "required": true,
+    "suggested_event": "iteration",
+    "suggested_status": "pending_review"
+  }
 }
 ```
 

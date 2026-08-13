@@ -27,6 +27,7 @@ Rectangle {
     property string domainFilter: "all"
     property string searchText: ""
     property string viewMode: "split"  // "split" | "ledger"
+    property var pendingHandoffs: []
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
@@ -48,6 +49,35 @@ Rectangle {
         var changes = changeBridge.listAllChanges()
         console.log("[QML] ChangeCenterView: 收到 " + changes.length + " 条变更")
         applyFilters(changes)
+    }
+
+    function refreshPendingHandoffs() {
+        if (typeof aiContextBridge === "undefined" || aiContextBridge === null) {
+            pendingHandoffs = []
+            return
+        }
+        pendingHandoffs = aiContextBridge.listPendingHandoffs(root.selectedProjectId) || []
+    }
+
+    function preparePmClosure() {
+        if (pendingHandoffs.length === 0 || typeof aiContextBridge === "undefined") return
+        var handoff = pendingHandoffs[0]
+        var detail = root.selectedChangeDetail || {}
+        var result = aiContextBridge.writePmClosureContext(
+            handoff.request_id,
+            root.selectedProjectId || handoff.project_id,
+            mainWindow.currentProjectName,
+            mainWindow.currentProjectStack,
+            mainWindow.currentProjectPhase,
+            root.selectedChangeNumber,
+            detail.title || "",
+            mainWindow.currentPage
+        )
+        if (result && result.success) {
+            console.log("[QML] PM 收口上下文已写入: " + result.file)
+        } else {
+            console.warn("[QML] PM 收口上下文写入失败: " + (result ? result.message : "未知错误"))
+        }
     }
 
     function applyFilters(changes) {
@@ -92,6 +122,7 @@ Rectangle {
         root.selectedChangeNumber = changeNumber
         root.selectedProjectId = projectId || ""
         root.selectedChangeDetail = changeBridge.getChangeRequest(changeNumber, root.selectedProjectId)
+        root.refreshPendingHandoffs()
         console.log("[QML] ChangeCenterView: 加载变更详情 " + changeNumber + " (项目: " + root.selectedProjectId + ") →" + (Object.keys(root.selectedChangeDetail).length) + " 字段")
     }
 
@@ -176,7 +207,16 @@ Rectangle {
                             changeBridge.refreshChanges()
                         }
                         root.loadChanges()
+                        root.refreshPendingHandoffs()
                     }
+                }
+
+                PrimaryButton {
+                    text: "待 PM 收口 (" + root.pendingHandoffs.length + ")"
+                    type: root.pendingHandoffs.length > 0 ? "primary" : "ghost"
+                    Layout.preferredWidth: 120
+                    enabled: root.pendingHandoffs.length > 0
+                    onClicked: root.preparePmClosure()
                 }
 
                 PrimaryButton {
@@ -420,5 +460,6 @@ Rectangle {
     // ── 初始加载 ────────────────────────────────────────
     Component.onCompleted: {
         loadChanges()
+        refreshPendingHandoffs()
     }
 }

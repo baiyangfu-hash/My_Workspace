@@ -19,6 +19,8 @@ from typing import Any
 
 from PySide6.QtCore import QObject, Slot
 
+from auto_pm.core.ai_handoff_service import AiHandoffService
+
 
 class AiContextBridge(QObject):
     """驾驶舱 → AI 技能上下文桥接器
@@ -30,6 +32,40 @@ class AiContextBridge(QObject):
     def __init__(self, workspace_root: str, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._workspace_root = Path(workspace_root)
+
+    def _handoff_service(self) -> AiHandoffService:
+        return AiHandoffService(self._workspace_root)
+
+    def _build_request_id(self) -> str:
+        return "AI-" + datetime.now(UTC).strftime("%Y%m%d-%H%M%S%f")
+
+    def _suggest_target_skill(self, stack: str, change_domain: str) -> str:
+        domain = change_domain.upper()
+        stack_lower = stack.lower()
+        if domain == "PLC" or stack_lower == "plc":
+            return "plc-electrical-engineer"
+        if domain in {"SCPT", "PYTHON"} or stack_lower == "python":
+            return "fullstack-engineer"
+        return "pm-workflow"
+
+    def _infer_intent(self, current_page: str, stack: str, change_number: str) -> str:
+        if current_page == "specCenter":
+            return "spec_check"
+        if change_number:
+            return "implement_change"
+        if stack.lower() == "plc":
+            return "plc_review"
+        return "project_followup"
+
+    def _build_product_context(self, project_id: str) -> dict[str, str]:
+        if project_id:
+            session_ref = f"PM_SESSION_{project_id}.md"
+            return {
+                "goal_ref": f"{session_ref}#product-goal",
+                "hypothesis_ref": "",
+                "success_metric_ref": "",
+            }
+        return {"goal_ref": "", "hypothesis_ref": "", "success_metric_ref": ""}
 
     def _fallback_feedback(self, status: str, summary: str) -> dict[str, Any]:
         return {
@@ -90,10 +126,15 @@ class AiContextBridge(QObject):
         Returns:
             {"success": True/False, "file": str, "message": str}
         """
+        request_id = self._build_request_id()
         context = {
             "generated_at": datetime.now(UTC).isoformat(),
             "source": "auto-pm cockpit",
             "workspace_root": str(self._workspace_root),
+            "request_id": request_id,
+            "entry_mode": "cockpit",
+            "intent": self._infer_intent(current_page, stack, change_number),
+            "target_skill": self._suggest_target_skill(stack, change_domain),
             "active_project": {
                 "id": project_id,
                 "name": project_name,
@@ -108,6 +149,7 @@ class AiContextBridge(QObject):
                 "status": change_status,
             },
             "active_page": current_page,
+            "product_context": self._build_product_context(project_id),
         }
 
         try:
@@ -121,7 +163,8 @@ class AiContextBridge(QObject):
             return {
                 "success": True,
                 "file": str(ctx_file),
-                "message": f"上下文已写入 ({len(json.dumps(context))} bytes)",
+                "request_id": request_id,
+                "message": f"上下文已写入 ({len(json.dumps(context, ensure_ascii=False))} bytes)",
             }
         except Exception as e:
             return {"success": False, "message": str(e)}
@@ -141,6 +184,69 @@ class AiContextBridge(QObject):
             return {"success": True, "message": "上下文文件不存在，无需清除"}
         except Exception as e:
             return {"success": False, "message": str(e)}
+
+    @Slot(str, result="QVariant")
+    def listPendingHandoffs(self, project_id: str = "") -> list[dict[str, Any]]:
+        """Expose pending executor handoffs for the cockpit work queue."""
+        return self._handoff_service().list_pending(project_id)
+
+    @Slot(str, str, str, str, str, str, str, str, result="QVariant")
+    def writePmClosureContext(
+        self,
+        request_id: str,
+        project_id: str,
+        project_name: str,
+        stack: str,
+        phase: str,
+        change_number: str,
+        change_title: str,
+        current_page: str,
+    ) -> dict[str, Any]:
+        """Write a PM-only closure context for one pending handoff.
+
+        The method deliberately leaves the handoff unchanged.  It is consumed by
+        pm-workflow, the sole writer of PM_SESSION and ai_feedback.json.
+        """
+        handoff = self._handoff_service().get_pending(request_id)
+        if handoff is None:
+            return {"success": False, "message": "未找到待收口交接包"}
+
+        change_number_value = change_number or str(handoff.get("change_number", ""))
+        change_title_value = change_title or str(handoff.get("change_title", ""))
+        context = {
+            "generated_at": datetime.now(UTC).isoformat(),
+            "source": "auto-pm cockpit",
+            "workspace_root": str(self._workspace_root),
+            "request_id": request_id,
+            "entry_mode": "cockpit",
+            "intent": "close_handoff",
+            "target_skill": "pm-workflow",
+            "handoff_request_id": request_id,
+            "active_project": {
+                "id": project_id or handoff["project_id"],
+                "name": project_name,
+                "stack": stack,
+                "phase": phase,
+            },
+            "active_change": {
+                "number": change_number_value,
+                "title": change_title_value,
+                "domain": str(handoff.get("change_domain", "")),
+                "nature": str(handoff.get("change_nature", "")),
+                "status": str(handoff.get("change_status", "")),
+            },
+            "active_page": current_page,
+            "product_context": handoff.get("product_context")
+            or self._build_product_context(project_id or str(handoff.get("project_id", ""))),
+        }
+        try:
+            ai_dir = self._workspace_root / ".auto-pm"
+            ai_dir.mkdir(parents=True, exist_ok=True)
+            ctx_file = ai_dir / "ai_context.json"
+            ctx_file.write_text(json.dumps(context, ensure_ascii=False, indent=2), encoding="utf-8")
+            return {"success": True, "file": str(ctx_file), "message": "已准备 PM 收口上下文"}
+        except OSError as exc:
+            return {"success": False, "message": str(exc)}
 
     @Slot(result="QVariant")
     def readAiFeedback(self) -> dict[str, Any]:

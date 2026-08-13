@@ -72,27 +72,32 @@ python -m auto_pm doctor
    - 对技能文件（`.trae/skills/*/SKILL.md`）和 PM_SESSION 文件尤其重要
    - 修改完成后，运行 `auto-pm -w "<工作空间根>" constraint check --file <文件路径>` 确认编码健康
 
-### Step 0.5：检查 cockpit AI 上下文（若存在则跳过 Step 0-1，直接分发到子技能）
+### Step 0.5：检查 cockpit AI 上下文（V2，若存在则优先恢复请求并决定是否分发）
 
 1. 检查 `<工作空间根>/.auto-pm/ai_context.json` 是否存在
 2. **若存在**：
-   - 读取 JSON，提取 `active_project`、`active_change`、`active_page`
+   - 读取 JSON，提取 `request_id`、`entry_mode`、`intent`、`target_skill`、`active_project`、`active_change`、`active_page`、`product_context`
    - 从 `active_project` 获取：项目 ID、名称、技术栈、阶段
    - 从 `active_change` 获取：变更单号、标题、领域、性质、状态
+   - `entry_mode` 仅允许：`cockpit` / `pm` / `direct`
+   - `target_skill` 仅作为建议路由，最终仍由 `pm-workflow` 校验
    - **跳过 Step 0**（venv 激活、`project show`、PM_SESSION 读取、健康检查）
    - **跳过 Step 1**（模式选择），模式由 `active_page` 推断：
      - `changeCenter` → 变更/缺陷/发布模式
      - `workspace` → 项目推进模式
      - `specCenter` → 规范模式
    - **跳过 Step 2**（最小提问），上下文已包含变更单详情
-   - 在状态摘要中标注"上下文来源: cockpit AI 辅助"
-   - **域判断 + 技能分发**：
-     - `domain == "PLC"` → 构建 skill_context，调用 `Skill: plc-electrical-engineer`
-     - `domain == "SCPT"` / `"PYTHON"` → 构建 skill_context，调用 `Skill: fullstack-engineer`
+   - 在状态摘要中标注"上下文来源: cockpit AI 辅助"并显示 `request_id`
+   - **待收口优先**：若存在 `handoff_request_id` 或 `intent == "close_handoff"`，先读取 `.auto-pm/handoffs/<request_id>.json`，由 `pm-workflow` 统一消费并落账，**不要**再把该请求分发给执行技能
+   - **域判断 + 技能分发**（仅当不是待收口请求时）：
+     - `target_skill == "plc-electrical-engineer"` 或 `domain == "PLC"` → 构建 skill_context，调用 `Skill: plc-electrical-engineer`
+     - `target_skill == "fullstack-engineer"` 或 `domain == "SCPT"` / `"PYTHON"` → 构建 skill_context，调用 `Skill: fullstack-engineer`
+     - 其他需求/优先级/变更/发布类问题 → 由 `pm-workflow` 自己处理
    - **skill_context 结构**（传递给子技能的 prompt 摘要）：
      ```json
      {
        "source": "pm-workflow",
+        "request_id": "AI-20260813-001",
        "project_id": "DJ-2026-005",
        "project_name": "周单机模板",
        "stack": "plc",
@@ -102,11 +107,16 @@ python -m auto_pm doctor
        "change_nature": "DEF",
        "change_status": "draft",
        "mode": "变更/缺陷/发布",
+        "product_context": {
+          "goal_ref": "PM_SESSION_DJ-2026-005.md#product-goal",
+          "hypothesis_ref": "",
+          "success_metric_ref": ""
+        },
        "pm_summary": "上下文已通过 cockpit AI 辅助恢复，跳过项目识别、PM_SESSION 读取、模式选择。"
      }
      ```
   - **子技能返回后**：
-    - 解析子技能返回的结构化 `handoff_result`（至少包含 `summary`、`changed_files`、`verification`、`risks`、`next_actions`、`watchouts`、`read_first`、`artifacts`、`chg_updates`）
+    - 解析子技能返回的结构化 `handoff_result`（至少包含 `request_id`、`executor_skill`、`summary`、`changed_files`、`verification`、`risks`、`next_actions`、`watchouts`、`read_first`、`artifacts`、`chg_updates`、`product_impact`、`pm_closure`）
     - 继续执行 Step 4（由 `pm-workflow` 统一回写 PM_SESSION §6-§9）
     - 由 `pm-workflow` 写入 cockpit 反馈：`.auto-pm/ai_feedback.json`
     - 输出摘要给用户

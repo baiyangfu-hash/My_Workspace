@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-12T00:48:18.345029+00:00",
+  "generated_at": "2026-08-12T21:06:02.385209+00:00",
   "source": "auto-pm CLI",
   "workspace_root": "C:\\Users\\fubai\\Documents\\My_Workspace",
   "active_project": {
-    "id": "DJ-2026-005",
-    "name": "DJ-2026-005",
-    "stack": "plc",
+    "id": "SW-2026-008",
+    "name": "auto-pm",
+    "stack": "python",
     "phase": "developing"
   },
   "active_change": null,

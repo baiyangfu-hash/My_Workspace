@@ -34,6 +34,7 @@ from auto_pm.plc.models import (
     STD_PRDS,
     CheckResult,
 )
+from auto_pm.plc.scl_linter import SclLinter
 from auto_pm.plc.spec_snapshot import (
     compare_versions,
     load_spec_registry,
@@ -207,6 +208,9 @@ class PlcChecker:
         # 5. 检查 Spec Snapshot 规范漂移
         self._check_spec_snapshot(project_path, result)
 
+        # 6. 检查 SCL 代码语法与命名规范 (LSP-905)
+        self._check_scl_code_compliance(project_path, result)
+
         log.info(
             "项目检查完成: %s - pass=%d warn=%d fail=%d",
             os.path.basename(project_path),
@@ -215,6 +219,41 @@ class PlcChecker:
             result.fail_count,
         )
         return result
+
+    def _check_scl_code_compliance(self, project_path: str, result: CheckResult) -> None:
+        """检查 SCL 文件的命名与语法合规性 (Siemens LSP-905)"""
+        scl_files: list[str] = []
+        for root, _, files in os.walk(project_path):
+            for file in files:
+                if file.lower().endswith(".scl"):
+                    scl_files.append(os.path.join(root, file))
+
+        if not scl_files:
+            result.add("SCL 代码规范", "pass", "未包含 .scl 代码文件，无需排查")
+            return
+
+        total_errors = 0
+        total_warnings = 0
+        error_messages: list[str] = []
+
+        for scl_file in scl_files:
+            report = SclLinter.lint_file(scl_file)
+            total_errors += report.errors_count
+            total_warnings += report.warnings_count
+            rel_name = os.path.relpath(scl_file, project_path)
+            for v in report.violations:
+                if v.severity == "ERROR" and len(error_messages) < 3:
+                    error_messages.append(f"{rel_name}:{v.line_number} {v.message}")
+
+        if total_errors > 0:
+            msg = f"发现 {total_errors} 个规范错误"
+            if error_messages:
+                msg += f"（如: {'; '.join(error_messages)}）"
+            result.add("SCL 代码规范", "fail", msg)
+        elif total_warnings > 0:
+            result.add("SCL 代码规范", "warn", f"全量 SCL 结构合规，包含 {total_warnings} 个规范建议")
+        else:
+            result.add("SCL 代码规范", "pass", f"全量 {len(scl_files)} 个 .scl 文件 100% 遵从 LSP-905 命名与安全闭环规范")
 
     # ── 工作空间批量检查 ──────────────────────────────────
 
