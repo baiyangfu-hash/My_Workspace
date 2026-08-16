@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import os
+from pathlib import Path
 import shutil
 from typing import Any
 
@@ -45,8 +46,15 @@ class PythonProjectService:
         if templates_dir:
             self.templates_dir = os.path.abspath(templates_dir)
         else:
-            package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            self.templates_dir = os.path.join(package_dir, "templates")
+            # 动态向上查找包含 templates 目录的根路径
+            curr = Path(__file__).resolve()
+            found_tpl = ""
+            for parent in curr.parents:
+                tpl_candidate = parent / "templates"
+                if tpl_candidate.is_dir() and (tpl_candidate / "python-tool").is_dir():
+                    found_tpl = str(tpl_candidate)
+                    break
+            self.templates_dir = found_tpl or os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "templates")
 
     def check_project_spec(self, project_path: str, project_id: str) -> dict[str, Any]:
         """检查单个 Python 项目规范 (CODE-210/211/220)"""
@@ -168,8 +176,17 @@ class PythonProjectService:
                 pass
 
         if not os.path.exists(tpl_path):
+            # 向上回溯查找工程根目录下的 templates/python-tool/template
+            for parent in Path(__file__).resolve().parents:
+                candidate = parent / "templates" / "python-tool" / "template"
+                if candidate.is_dir():
+                    tpl_path = str(candidate)
+                    break
+
+        if not os.path.exists(tpl_path):
             log.warning("Python 模板不存在，跳过物理修复: %s", tpl_path)
             return repaired_items
+
 
         # 修复逻辑
         def copy_static_file(src_name: str, dst_name: str) -> None:

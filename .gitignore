@@ -64,6 +64,13 @@ gittoken.txt
 .trae/paddlex_*
 .trae/paddleocr_mcp_*
 
+# Cursor：忽略本地状态/缓存，保留团队共享规则（与 .trae/skills 同级纳入版本库）
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+!.cursor/commands/
+!.cursor/commands/**
+
 # 大文件：交付物打包和构建产物（超过 GitHub 100MB 限制）
 06_交付物/
 06_交付物打包/

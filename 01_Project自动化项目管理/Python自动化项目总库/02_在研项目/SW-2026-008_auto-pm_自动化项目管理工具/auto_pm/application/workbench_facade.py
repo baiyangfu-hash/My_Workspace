@@ -798,3 +798,32 @@ class WorkbenchFacade:
             return CommandResult(success=res["success"], message=res["message"], payload=res)
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload={"success": False, "message": str(e)})
+
+    def evaluate_stage_gate(
+        self,
+        project_id: str,
+        current_stage: str = "initiating",
+        target_stage: str = "planning",
+    ) -> CommandResult[dict[str, Any] | None]:
+        """5 大过程组 Stage-Gate 门禁评估接口 (CHG-SCPT-2026-158)"""
+        try:
+            from auto_pm.core.gates import StageGateEngine
+            proj = self._project_service.get_project(project_id)
+            if not proj:
+                return CommandResult(success=False, message=f"项目不存在: {project_id}", payload=None)
+
+            engine = StageGateEngine(workspace_root=self.workspace_root)
+            gate_res = engine.evaluate_stage_transition(
+                project_path=proj.path,
+                current_stage=current_stage,  # type: ignore
+                target_stage=target_stage,  # type: ignore
+            )
+            return CommandResult(
+                success=True,
+                message="门禁评估完成" if gate_res.can_proceed else "存在阻断项，无法流转",
+                payload=gate_res.to_dict(),
+            )
+        except Exception as e:
+            log.error("门禁评估失败: %s", e, exc_info=True)
+            return CommandResult(success=False, message=str(e), payload=None)
+

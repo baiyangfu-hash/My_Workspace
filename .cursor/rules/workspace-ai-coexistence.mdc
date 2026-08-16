@@ -1,0 +1,44 @@
+---
+description: 多 AI 共存与工作空间技能真源（Cursor / Trae / Codex / Antigravity）
+alwaysApply: true
+---
+
+# 工作空间 AI 协作规则
+
+本工作空间由多个 AI 共用。Cursor 遵循与 Trae 相同的工作流真源，但不覆盖 Trae 的基础设施。
+
+## 真源引用（只引用，不重复维护）
+
+| 用途 | 路径 |
+|------|------|
+| 全局规则 | `.trae/rules/project-rule.md` |
+| 跨技能契约 | `.trae/skills/shared/refs/skill_coordination.md` |
+| PM 主入口 | `.trae/skills/pm-workflow/SKILL.md` |
+| 全栈执行 | `.trae/skills/fullstack-engineer/SKILL.md` |
+| PLC 执行 | `.trae/skills/plc-electrical-engineer/SKILL.md` |
+| 规范索引 | `00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md` |
+
+冲突时：项目级 > 技术栈规则 > 全局规则 > Cursor 默认行为。
+
+## Cursor 默认角色：执行者
+
+- **可以**：读 PM_SESSION、跑 `auto-pm`、写代码/文档/测试、产出 `handoff_result`
+- **默认不做**：直接回写 `PM_SESSION` §6–§9、写 `.auto-pm/ai_feedback.json`（除非用户明确要求 Cursor 承担 pm-workflow 落账）
+- **独立执行结束时**：写入 `.auto-pm/handoffs/<request_id>.json` 或返回同结构 `handoff_result`，不新建平行账本
+
+## 多 AI 隔离红线
+
+- 不修改 `.trae/`（skills、rules、hooks）除非用户明确要求
+- 不主动 `git commit` / `git push` / 升级 `pyproject.toml` 版本号
+- CHG 变更单 applicant 填 `Cursor`；闭环后执行 `ledger reconcile`
+- 改动范围最小化，匹配现有代码风格与命名规范
+
+## 任务路由
+
+| 用户意图 | 先读 |
+|----------|------|
+| 需求/迭代/变更/发布/PM_SESSION | `pm-workflow/SKILL.md` |
+| Python/Web/QML/全栈 | `fullstack-engineer/SKILL.md` |
+| PLC/SCL/电气 | `plc-electrical-engineer/SKILL.md` |
+
+Python 命令前优先 `python -m auto_pm doctor`；失败则报告用户，不跳过。

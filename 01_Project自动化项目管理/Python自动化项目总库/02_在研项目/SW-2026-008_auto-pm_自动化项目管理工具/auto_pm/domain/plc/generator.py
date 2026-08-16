@@ -14,7 +14,19 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
-TEMPLATE_DIR = Path(__file__).parent.parent / "templates" / "plc"
+def _get_plc_template_dir() -> Path:
+    curr = Path(__file__).resolve()
+    for parent in curr.parents:
+        tpl = parent / "templates" / "plc"
+        if tpl.is_dir():
+            return tpl
+        tpl2 = parent / "auto_pm" / "templates" / "plc"
+        if tpl2.is_dir():
+            return tpl2
+    return Path(__file__).resolve().parents[3] / "auto_pm" / "templates" / "plc"
+
+TEMPLATE_DIR = _get_plc_template_dir()
+
 
 
 @dataclass
