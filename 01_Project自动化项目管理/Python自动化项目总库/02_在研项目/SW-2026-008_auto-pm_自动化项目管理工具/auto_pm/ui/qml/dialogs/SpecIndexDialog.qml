@@ -261,10 +261,13 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
-                    text: "📝 生成索引"
+                PrimaryButton {
+                    text: "生成索引"
+                    icon: "📝"
+                    type: "primary"
+                    Layout.preferredWidth: 110
+                    loading: root.isExecuting
                     enabled: !root.isExecuting
-                    highlighted: true
                     onClicked: {
                         root.isExecuting = true
                         var res = specBridge.generateSpecIndex(root.domain)
@@ -276,8 +279,11 @@ Item {
                     }
                 }
 
-                Button {
+                PrimaryButton {
                     text: "关闭"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
+                    enabled: !root.isExecuting
                     onClicked: root.close()
                 }
             }

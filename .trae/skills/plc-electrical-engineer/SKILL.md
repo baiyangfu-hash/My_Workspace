@@ -32,6 +32,7 @@ Siemens TIA Portal PLC / 电气工程主入口。主适配对象：西门子 S7-
 - `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/906_错误预防规则_LSP.md`
 - `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/907_项目配置规范_LSP.md`
 - `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/908_Siemens_Language_Support_使用指南_TOOL.md`
+- `00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/910_HMI_HTML原型脚手架与点表规范_STD.md`
 - `refs/siemens-lsp-and-testing.md` (本地 LSP 验证规程与 .scltest 手册)
 - `refs/interlock-and-handoff-guide.md` (联锁矩阵、4标段测试生成、驾驶舱与pm-workflow联动、Checklist、CLI+GUI测试)
 
@@ -46,15 +47,15 @@ python -m auto_pm -w "<工作空间根>" plc check <项目ID> --json        # �
 python -m auto_pm -w "<工作空间根>" plc repair <项目ID> --rename    # 自动修复命名违规
 python -m auto_pm -w "<工作空间根>" plc standardize <项目ID> --apply # 文档命名标准化
 
-# 5. auto-pm 驾驶舱空间治理与纯净度卡点
+# 3. auto-pm 驾驶舱空间治理与纯净度卡点
 python -m auto_pm -w "<工作空间根>" clean [--cache] [--dry-run]
 python -m auto_pm doctor
+```
 
 - **空间纯净度硬约束**：
   - 严禁在工作区根目录丢弃散装 SCL 导出片段、`.tmp_*.py` 临时测试脚本或 `mypy*.txt` 日志。
   - PLC 调试与静态检测日志必须定向保存至 `.auto-pm/logs/` 或 `.auto-pm/scratch/`。
   - 交付前运行 `python -m auto_pm clean` 和 `python -m auto_pm doctor`。
-```
 
 ## 本地 LSP 验证与工程分工规程
 
@@ -126,7 +127,7 @@ refs 路径见 `refs/INDEX.md`。
 ### Step 6：技能退出与 PM 联动闭环（Step 7）
 
 按顺序完成以下退出步序，不可跳过：
-1. **文档与 Checklist 生成**：提炼生成 `06_文档与交付/上机复核/PLC_Handoff_Checklist_<PID>.md` 交付件。
+1. **文档与 Checklist 生成**：提炼生成 `06_文档与交付/上机复核/PLC_Handoff_Checklist_<PID>.md` 交付件，并附带结构化技术事实清单（IO/通信映射、工步联锁判据、报警触发列表），供 PM 组装 FAT/SAT 验收规程与操作手册。
 2. **变更单 (CHG) 回写**：回写 CHG §9 实施记录与 §10 验证结论。
 3. **结构化交接包输出**：生成 `handoff_result` / `.auto-pm/handoffs/<request_id>.json`，至少包含 `request_id`、`executor_skill`、`summary`、`changed_files`、`verification`、`risks`、`next_actions`、`watchouts`、`read_first`、`artifacts`、`chg_updates`、`product_impact`、`pm_closure`。
 4. **PM 收口边界**：`pm-workflow` 是 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 的唯一写入者；本技能**不得**直接回写 PM_SESSION。
@@ -140,3 +141,4 @@ refs 路径见 `refs/INDEX.md`。
 2. **LSP 语法禁用**：严禁使用 `METHOD` 语法；定时器 `PT`/`ET` 参数类型必须声明为 `DINT`（毫秒）。
 3. **极性与所有权**：必须 `IF/ELSE` 显式形式，禁止 `NOT` 简写；每个关键输出保持单一 Owner。
 4. **文件编辑工具纪律**：修改 SCL/DB/PRD/scltest 时必须使用 Edit/Write 工具。
+5. **HMI 点位对齐契约**：编写 SCL `DB_HMI` 或通信结构体时，变量命名与数据类型必须与 `03_HMI设计/` 下的 HTML 原型及 `hmi_tag_mapping.json` 严格对齐（对齐 STD-910 规范）。

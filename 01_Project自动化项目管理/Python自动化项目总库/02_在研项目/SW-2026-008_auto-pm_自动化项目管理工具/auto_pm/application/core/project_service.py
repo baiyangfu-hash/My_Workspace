@@ -270,6 +270,9 @@ class ProjectService:
         Returns:
             ProjectInfo 或 None（未找到）
         """
+        if not project_id or not str(project_id).strip():
+            return None
+
         if self._repo is not None:
             try:
                 cached = self.get_project_cached(project_id)
@@ -280,7 +283,7 @@ class ProjectService:
         for proj in self.list_projects():
             if proj.project_id == project_id:
                 return proj
-        log.warning("项目未找到: %s", project_id)
+        log.debug("项目未找到: %s", project_id)
         return None
 
     def find_project_path(self, project_id: str) -> str | None:
@@ -292,6 +295,8 @@ class ProjectService:
         Returns:
             项目绝对路径或 None
         """
+        if not project_id or not str(project_id).strip():
+            return None
         proj = self.get_project(project_id)
         return proj.path if proj else None
 

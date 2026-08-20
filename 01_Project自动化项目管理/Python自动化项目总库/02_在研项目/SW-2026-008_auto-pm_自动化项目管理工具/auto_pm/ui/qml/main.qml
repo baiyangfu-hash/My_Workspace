@@ -69,6 +69,22 @@ ApplicationWindow {
         workspaceView.setProject(projectId, projectName)
     }
 
+    function switchToProjectTab(projectId, projectName, tabIndex) {
+        selectProjectContext(projectId, projectName)
+        mainWindow.currentPage = "workspace"
+        workspaceView.switchTab(tabIndex)
+    }
+
+    function navigateToPage(pageKey) {
+        mainWindow.currentPage = pageKey
+        if (pageKey === "platformDashboard") platformDashboardView.loadData()
+        else if (pageKey === "changeCenter") changeCenterView.loadChanges()
+        else if (pageKey === "specCenter") { specCenterView.loadOverview(); specCenterView.loadEntries(); }
+        else if (pageKey === "reportCenter") reportView.loadData()
+        else if (pageKey === "templateManage") templateView.loadData()
+        else if (pageKey === "settings") settingsView.loadData()
+    }
+
     // ── 文件监听同步工具栏状态（CHG-SCPT-2026-141）──
     // 全局常驻工具栏：同步按钮 + 监听开关 + 状态反馈，可手动折叠/展开
     property bool watcherToolbarExpanded: true       // 工具栏展开状态（手动开关）
@@ -805,6 +821,7 @@ ApplicationWindow {
         StackLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.bottomMargin: 48  // 预留底部浮动工具栏安全间距，防止遮挡页面内容
             currentIndex: {
                 if (mainWindow.currentPage === "projectList") return 0
                 if (mainWindow.currentPage === "workspace") return 1
@@ -943,6 +960,7 @@ ApplicationWindow {
 
     ImportProjectDialog {
         id: importProjectDialog
+        objectName: "importProjectDialog"
         anchors.fill: parent
         z: 999
         onImported: {
@@ -957,6 +975,7 @@ ApplicationWindow {
 
     NewChangeDialog {
         id: newChangeDialog
+        objectName: "newChangeDialog"
         anchors.fill: parent
         z: 999
         onChangeCreated: {
@@ -973,6 +992,7 @@ ApplicationWindow {
 
     EditChangeDialog {
         id: editChangeDialog
+        objectName: "editChangeDialog"
         anchors.fill: parent
         z: 999
         onChangeSaved: {
@@ -991,6 +1011,7 @@ ApplicationWindow {
     // M4 CHG-115: 项目管理新对话框
     ProjectEditDialog {
         id: projectEditDialog
+        objectName: "projectEditDialog"
         anchors.fill: parent
         z: 999
         onProjectSaved: {
@@ -1008,6 +1029,7 @@ ApplicationWindow {
 
     DeleteConfirmDialog {
         id: deleteConfirmDialog
+        objectName: "deleteConfirmDialog"
         anchors.fill: parent
         z: 999
         onConfirmed: {
@@ -1029,6 +1051,7 @@ ApplicationWindow {
 
     TemplateApplyDialog {
         id: templateApplyDialog
+        objectName: "templateApplyDialog"
         anchors.fill: parent
         z: 999
         onTemplateApplied: {
@@ -1039,6 +1062,7 @@ ApplicationWindow {
 
     PmInitializeConfirmDialog {
         id: pmInitializeConfirmDialog
+        objectName: "pmInitializeConfirmDialog"
         anchors.fill: parent
         z: 999
         onConfirmed: function(projectId) {
@@ -1061,6 +1085,7 @@ ApplicationWindow {
 
     PmSessionArchiveDialog {
         id: pmSessionArchiveDialog
+        objectName: "pmSessionArchiveDialog"
         anchors.fill: parent
         z: 999
         onArchived: {
@@ -1071,6 +1096,7 @@ ApplicationWindow {
 
     LedgerReconcileDialog {
         id: ledgerReconcileDialog
+        objectName: "ledgerReconcileDialog"
         anchors.fill: parent
         z: 999
         onReconciled: {
@@ -1082,6 +1108,7 @@ ApplicationWindow {
 
     SpecIndexDialog {
         id: specIndexDialog
+        objectName: "specIndexDialog"
         anchors.fill: parent
         z: 999
         onGenerated: {
@@ -1093,6 +1120,7 @@ ApplicationWindow {
 
     SpecReportDialog {
         id: specReportDialog
+        objectName: "specReportDialog"
         anchors.fill: parent
         z: 999
         onGenerated: {
@@ -1103,6 +1131,7 @@ ApplicationWindow {
 
     SpecFrontmatterDialog {
         id: specFrontmatterDialog
+        objectName: "specFrontmatterDialog"
         anchors.fill: parent
         z: 999
         onChecked: {
@@ -1113,6 +1142,7 @@ ApplicationWindow {
 
     AboutDialog {
         id: aboutDialog
+        objectName: "aboutDialog"
         anchors.fill: parent
         z: 999
         onClosed: _isOpen = false
@@ -1120,6 +1150,7 @@ ApplicationWindow {
 
     GlobalSettingsDialog {
         id: globalSettingsDialog
+        objectName: "globalSettingsDialog"
         anchors.fill: parent
         z: 999
         onSaved: {

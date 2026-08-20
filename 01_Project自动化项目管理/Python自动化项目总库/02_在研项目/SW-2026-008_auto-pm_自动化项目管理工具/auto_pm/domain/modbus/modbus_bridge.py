@@ -148,8 +148,17 @@ class ModbusBridge(QObject):
                 for addr in addrs:
                     if addr.family == socket.AF_INET:
                         interfaces.append({"name": f"{name} ({addr.address})", "ip": addr.address})
+        except ImportError:
+            # 正常无 psutil 时直接使用标准库 socket，无需警告
+            try:
+                hostname = socket.gethostname()
+                _, _, ip_list = socket.gethostbyname_ex(hostname)
+                for ip in ip_list:
+                    interfaces.append({"name": f"LAN ({ip})", "ip": ip})
+            except Exception:
+                pass
         except Exception as e:
-            log.warning(f"获取网卡列表异常，回退到 socket 模式: {e}")
+            log.debug(f"获取网卡列表异常: {e}")
             try:
                 hostname = socket.gethostname()
                 _, _, ip_list = socket.gethostbyname_ex(hostname)

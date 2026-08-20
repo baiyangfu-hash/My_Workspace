@@ -85,11 +85,20 @@ gittoken.txt
 **/dist/
 *.exe
 
-# 忽略本地运行时产生的数据库和测试日志
+# 忽略本地运行时产生的数据库、日志和覆盖率产物
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+.auto-pm/*.db
+.auto-pm/*.db-journal
 .auto-pm/index.db
-.auto-pm/index.db-journal
+.auto-pm/data.db
+.auto-pm/logs/
+.auto-pm/scratch/
 coverage/
 .coverage
+htmlcov/
 
 # 忽略根目录临时测试脚本
 /tmp_*.py

@@ -151,6 +151,19 @@ Rectangle {
                 }
 
                 PrimaryButton {
+                    text: "🔄 同步 Obsidian"
+                    type: "primary"
+                    enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+                    onClicked: {
+                        if (typeof specBridge !== "undefined" && specBridge !== null) {
+                            var res = specBridge.syncObsidian()
+                            loadOverview()
+                            loadEntries()
+                        }
+                    }
+                }
+
+                PrimaryButton {
                     text: "📝 生成索引"
                     type: "ghost"
                     enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
@@ -218,26 +231,26 @@ Rectangle {
                 delegate: Rectangle {
                     Layout.preferredHeight: 32
                     Layout.preferredWidth: tabText.implicitWidth + 24
-                    color: root.currentTab === model.index ? Theme.primary : "transparent"
+                    color: root.currentTab === modelData.index ? Theme.primary : "transparent"
                     radius: Theme.radiusSm
 
                     Text {
                         id: tabText
                         anchors.centerIn: parent
-                        text: model.label ?? ""
-                        color: root.currentTab === model.index ? "white" : Theme.textSecondary
+                        text: modelData.label || ""
+                        color: root.currentTab === modelData.index ? "white" : Theme.textSecondary
                         font.pixelSize: Theme.fontSizeSm
-                        font.bold: root.currentTab === model.index
+                        font.bold: root.currentTab === modelData.index
                     }
 
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            root.currentTab = model.index
-                            if (model.index === 1 && entriesModel.count === 0) {
+                            root.currentTab = modelData.index
+                            if (modelData.index === 1 && entriesModel.count === 0) {
                                 loadEntries()
-                            } else if (model.index === 2 && checkResultsModel.count === 0) {
+                            } else if (modelData.index === 2 && checkResultsModel.count === 0) {
                                 // 不自动运行检查，等用户点击"运行检查"按钮
                             }
                         }

@@ -124,12 +124,12 @@ class TestNoHardcodedPaths:
 
     def test_file_locator_uses_constants(self) -> None:
         """ChangeFileLocator 使用 paths 常量而非硬编码"""
-        from auto_pm.change.file_locator import ChangeFileLocator
+        from auto_pm.domain.change.file_locator import ChangeFileLocator
 
-        # CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径
+        # CHG-SCPT-2026-146: 5大过程组统一主路径与历史兼容路径
         # 注：file_locator 用 CHANGE_REQUESTS_PATH（含 01_变更单）直接定位文件，
         #     path_resolver 用 CHANGE_SCAN_PATH（不含 01_变更单）做递归扫描
-        assert len(ChangeFileLocator.CHANGE_FILE_SEARCH_PATHS) == 1
-        # 验证路径内容正确
+        assert len(ChangeFileLocator.CHANGE_FILE_SEARCH_PATHS) == 3
+        # 验证主路径内容正确
         expected_path = os.path.join(*CHANGE_REQUESTS_PATH)
         assert expected_path in ChangeFileLocator.CHANGE_FILE_SEARCH_PATHS

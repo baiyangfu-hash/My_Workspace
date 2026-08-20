@@ -26,7 +26,7 @@ Item {
     anchors.fill: parent
     z: 998
 
-    function open() {
+    function open(pid) {
         root._isOpen = true
         root.archiveResult = null
         root.isExecuting = false
@@ -254,10 +254,11 @@ Item {
                 Layout.fillWidth: true
                 spacing: 12
 
-                Item { Layout.fillWidth: true }
-
-                Button {
+                PrimaryButton {
                     text: "预览"
+                    type: "secondary"
+                    Layout.preferredWidth: 80
+                    loading: root.isExecuting
                     enabled: !root.isExecuting
                     onClicked: {
                         root.isExecuting = true
@@ -267,10 +268,12 @@ Item {
                     }
                 }
 
-                Button {
+                PrimaryButton {
                     text: "执行归档"
+                    type: "primary"
+                    Layout.preferredWidth: 100
+                    loading: root.isExecuting
                     enabled: !root.isExecuting && root.archiveResult !== null && root.archiveResult.is_dry_run
-                    highlighted: true
                     onClicked: {
                         root.isExecuting = true
                         var res = systemBridge.archivePmSession(root.section, root.keepRecent, false)
@@ -282,8 +285,11 @@ Item {
                     }
                 }
 
-                Button {
+                PrimaryButton {
                     text: "关闭"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
+                    enabled: !root.isExecuting
                     onClicked: root.close()
                 }
             }

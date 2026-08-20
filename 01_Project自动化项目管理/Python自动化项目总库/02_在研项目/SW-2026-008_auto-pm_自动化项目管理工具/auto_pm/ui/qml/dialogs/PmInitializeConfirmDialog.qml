@@ -23,7 +23,9 @@ Item {
     anchors.fill: parent
     z: 999
 
-    function open() {
+    function open(pid, pname) {
+        if (pid) root.projectId = pid
+        if (pname) root.projectName = pname
         root._isOpen = true
     }
 
@@ -92,13 +94,17 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
+                PrimaryButton {
                     text: "取消"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
                     onClicked: root.cancelled()
                 }
 
-                Button {
+                PrimaryButton {
                     text: "确认初始化"
+                    type: "primary"
+                    Layout.preferredWidth: 110
                     onClicked: {
                         root.confirmed(root.projectId)
                         root.close()

@@ -288,7 +288,11 @@ Rectangle {
 
                     // 版本号
                     Text {
-                        text: model.version ? "v" + model.version : "v-"
+                        text: {
+                            var v = model.version || ""
+                            if (!v || v === "-") return "-"
+                            return (v.startsWith("v") || v.startsWith("V")) ? v : ("v" + v)
+                        }
                         font.pixelSize: Theme.fontSizeSm
                         color: Theme.textSecondary
                     }

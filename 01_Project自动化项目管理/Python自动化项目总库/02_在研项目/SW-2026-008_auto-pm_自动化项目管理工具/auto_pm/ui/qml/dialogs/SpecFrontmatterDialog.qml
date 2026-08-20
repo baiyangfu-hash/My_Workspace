@@ -138,8 +138,10 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
+                PrimaryButton {
                     text: "关闭"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
                     onClicked: root.close()
                 }
             }

@@ -62,7 +62,7 @@ description: 全局开发规则，适用于工作空间内所有项目的通用�
    - 当前使用的是全局 Python（路径）
    - 可能导致工具（auto-pm、specmgr 等）不可用
    - 建议用户创建虚拟环境或在已有 venv 中安装依赖
-5. **当前工作空间 venv 路径**：`c:\Users\fubai\Desktop\My_Workspace\.venv\`
+5. **当前工作空间 venv 路径**：`c:\Users\fubai\Documents\My_Workspace\.venv\`
 
 **禁止**在未激活虚拟环境的情况下运行 `auto-pm`、`specmgr`、`pip install`、`python` 等命令。
 

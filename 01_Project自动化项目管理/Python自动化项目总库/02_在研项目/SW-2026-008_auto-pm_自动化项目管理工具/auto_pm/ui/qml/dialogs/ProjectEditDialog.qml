@@ -31,13 +31,21 @@ Item {
     z: 998
 
     function open(pid, pname, detail) {
-        root.projectId = pid
-        root.projectName = pname
+        root.projectId = pid || ""
+        root.projectName = pname || pid || ""
         if (detail) {
             root.phase = detail.phase || ""
             root.description = detail.description || ""
             root.version = detail.version || ""
             root.businessLine = detail.business_line || ""
+        } else if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null && pid) {
+            var d = workbenchBridge.getProjectById(pid)
+            if (d) {
+                root.phase = d.phase || ""
+                root.description = d.description || ""
+                root.version = d.version || ""
+                root.businessLine = d.business_line || ""
+            }
         }
         root._isOpen = true
     }
@@ -158,13 +166,17 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
+                PrimaryButton {
                     text: "取消"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
                     onClicked: root.cancelled()
                 }
 
-                Button {
+                PrimaryButton {
                     text: "保存"
+                    type: "primary"
+                    Layout.preferredWidth: 90
                     onClicked: {
                         if (typeof workbenchBridge === "undefined" || workbenchBridge === null) return
                         var fields = {}

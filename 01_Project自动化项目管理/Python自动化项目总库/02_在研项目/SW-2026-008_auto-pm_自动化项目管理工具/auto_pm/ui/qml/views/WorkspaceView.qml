@@ -27,7 +27,10 @@ Rectangle {
     property var selectedChangeDetail: ({})   // 选中的变更详情（CHG-123：驾驶舱模式）
     property var specCheckResult: ({})        // 规范检查结果
     property var assetSummary: ({})           // 资产汇总（仅 PLC 项目）
-    property alias currentTabIndex: tabBar.currentTabIndex
+    // ── 加载状态 ────────────────────────────────────────
+    property bool checkingSpec: false
+    property bool repairingSpec: false
+    property bool refreshingAssets: false
 
     // ── 变更Tab辅助属性（CHG-123：驾驶舱模式）─────────────────
     property var _changeSummary: ({})         // 变更聚合摘要（后端预计算）
@@ -245,16 +248,64 @@ Rectangle {
         }
     }
 
-    function loadCheckTab() {
-        if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
-            console.log("[QML] WorkspaceView: 运行规范检查...")
-            root.specCheckResult = specBridge.runSpecCheck(root.currentProjectId)
-            console.log("[QML] WorkspaceView: 规范检查完成: " +
-                "error=" + (root.specCheckResult.error_count || 0) +
-                " warn=" + (root.specCheckResult.warning_count || 0))
-        } else {
-            root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服务"}
+    Timer {
+        id: checkTimer
+        interval: 30
+        repeat: false
+        onTriggered: {
+            try {
+                if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
+                    console.log("[QML] WorkspaceView: 运行规范检查...")
+                    root.specCheckResult = specBridge.runSpecCheck(root.currentProjectId)
+                    console.log("[QML] WorkspaceView: 规范检查完成: " +
+                        "error=" + (root.specCheckResult.error_count || 0) +
+                        " warn=" + (root.specCheckResult.warning_count || 0))
+                } else {
+                    root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服务"}
+                }
+            } finally {
+                root.checkingSpec = false
+            }
         }
+    }
+
+    Timer {
+        id: repairTimer
+        interval: 30
+        repeat: false
+        onTriggered: {
+            try {
+                if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
+                    specBridge.repairSpec(root.currentProjectId)
+                    root.specCheckResult = specBridge.runSpecCheck(root.currentProjectId)
+                }
+            } finally {
+                root.repairingSpec = false
+            }
+        }
+    }
+
+    Timer {
+        id: assetRefreshTimer
+        interval: 30
+        repeat: false
+        onTriggered: {
+            try {
+                if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService) {
+                    var res = deliveryBridge.refreshAssetSummary(root.currentProjectId)
+                    if (res && res.result) {
+                        root.assetSummary = res.result
+                    }
+                }
+            } finally {
+                root.refreshingAssets = false
+            }
+        }
+    }
+
+    function loadCheckTab() {
+        root.checkingSpec = true
+        checkTimer.restart()
     }
 
     function loadDocTab() {
@@ -336,7 +387,11 @@ Rectangle {
             }
 
             Text {
-                text: root.currentProjectDetail.version ? "v" + root.currentProjectDetail.version : "v-"
+                text: {
+                    var v = root.currentProjectDetail.version || ""
+                    if (!v || v === "-") return "-"
+                    return (v.startsWith("v") || v.startsWith("V")) ? v : ("v" + v)
+                }
                 font.pixelSize: Theme.fontSizeSm
                 color: Theme.textSecondary
             }
@@ -362,6 +417,18 @@ Rectangle {
                 type: "ghost"
                 Layout.preferredWidth: 60
                 onClicked: root.requestApplyTemplate()
+            }
+
+            PrimaryButton {
+                text: "🌐 预览 HMI 原型"
+                type: "secondary"
+                Layout.preferredWidth: 120
+                visible: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.hasHmiPrototype(root.currentProjectId) : false
+                onClicked: {
+                    if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                        workbenchBridge.openHmiPrototype(root.currentProjectId)
+                    }
+                }
             }
 
             PrimaryButton {
@@ -523,16 +590,12 @@ Rectangle {
                             PrimaryButton {
                                 text: "刷新资产数据"
                                 type: "primary"
+                                loading: root.refreshingAssets
                                 Layout.preferredWidth: 120
                                 enabled: typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService
                                 onClicked: {
-                                    var res = deliveryBridge.refreshAssetSummary(root.currentProjectId)
-                                    if (res && res.result) {
-                                        root.assetSummary = res.result
-                                        console.log("[QML] 资产汇总刷新完成")
-                                    } else if (res && res.message) {
-                                        console.warn("[QML] 资产汇总刷新失败: " + res.message)
-                                    }
+                                    root.refreshingAssets = true
+                                    assetRefreshTimer.restart()
                                 }
                             }
 
@@ -586,6 +649,78 @@ Rectangle {
                                 font.pixelSize: Theme.fontSizeXs
                                 color: Theme.error
                                 wrapMode: Text.WordWrap
+                            }
+                        }
+                    }
+
+                    // 工程交付物与 HMI 看板 (STD-910 落地)
+                    Card {
+                        Layout.columnSpan: 3
+                        Layout.fillWidth: true
+                        title: "工程交付物与 HMI 原型看板"
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: Theme.spacingMd
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: Theme.spacingLg
+
+                                // HMI 原型状态
+                                RowLayout {
+                                    spacing: Theme.spacingXs
+                                    Text { text: "HMI 交互原型:"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
+                                    Badge {
+                                        text: ((typeof workbenchBridge !== "undefined" && workbenchBridge !== null) && workbenchBridge.hasHmiPrototype(root.currentProjectId)) ? "已就绪" : "未生成"
+                                        type: ((typeof workbenchBridge !== "undefined" && workbenchBridge !== null) && workbenchBridge.hasHmiPrototype(root.currentProjectId)) ? "approved" : "default"
+                                    }
+                                }
+
+                                // 点表映射状态
+                                RowLayout {
+                                    spacing: Theme.spacingXs
+                                    Text { text: "点表映射(STD-910):"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
+                                    Badge {
+                                        property var d: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.getDeliverySummary(root.currentProjectId) : ({})
+                                        text: (d && d.tag_table) ? "已对齐" : "未定义"
+                                        type: (d && d.tag_table) ? "approved" : "urgent"
+                                    }
+                                }
+
+                                // FAT/SAT 状态
+                                RowLayout {
+                                    spacing: Theme.spacingXs
+                                    Text { text: "FAT/SAT 规程:"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
+                                    Badge {
+                                        property var d: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.getDeliverySummary(root.currentProjectId) : ({})
+                                        text: (d && d.fat_sat) ? "已归档" : "待生成"
+                                        type: (d && d.fat_sat) ? "approved" : "default"
+                                    }
+                                }
+
+                                // 维保手册
+                                RowLayout {
+                                    spacing: Theme.spacingXs
+                                    Text { text: "操作维保手册:"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
+                                    Badge {
+                                        property var d: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.getDeliverySummary(root.currentProjectId) : ({})
+                                        text: (d && d.manual) ? "已就绪" : "待生成"
+                                        type: (d && d.manual) ? "approved" : "default"
+                                    }
+                                }
+                            }
+
+                            PrimaryButton {
+                                text: "🌐 在浏览器中打开并走查 HMI 原型"
+                                type: "secondary"
+                                Layout.preferredWidth: 240
+                                visible: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.hasHmiPrototype(root.currentProjectId) : false
+                                onClicked: {
+                                    if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                                        workbenchBridge.openHmiPrototype(root.currentProjectId)
+                                    }
+                                }
                             }
                         }
                     }
@@ -846,6 +981,7 @@ Rectangle {
                     PrimaryButton {
                         text: "重新运行检查"
                         type: "primary"
+                        loading: root.checkingSpec
                         Layout.preferredWidth: 120
                         enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
                         onClicked: loadCheckTab()
@@ -854,12 +990,13 @@ Rectangle {
                     PrimaryButton {
                         text: "一键修复"
                         type: "accent"
+                        loading: root.repairingSpec
                         Layout.preferredWidth: 120
                         visible: root.currentProjectDetail.stack === "plc"
                         enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
                         onClicked: {
-                            specBridge.repairSpec(root.currentProjectId)
-                            loadCheckTab()
+                            root.repairingSpec = true
+                            repairTimer.restart()
                         }
                     }
                 }
@@ -874,7 +1011,8 @@ Rectangle {
 
                     delegate: Rectangle {
                         width: parent ? parent.width : 0
-                        height: 56
+                        implicitHeight: detailText.visible ? 54 : 36
+                        height: implicitHeight
                         color: Theme.surface
                         radius: Theme.radiusSm
                         border.color: Theme.border
@@ -887,6 +1025,7 @@ Rectangle {
 
                             RowLayout {
                                 spacing: Theme.spacingSm
+                                Layout.fillWidth: true
 
                                 Badge {
                                     text: modelData.severity || ""
@@ -902,7 +1041,17 @@ Rectangle {
                                 }
 
                                 Text {
-                                    text: modelData.message || ""
+                                    text: {
+                                        var cid = (modelData.check_id || "").trim()
+                                        var msg = (modelData.message || "").trim()
+                                        if (cid && msg.startsWith(cid)) {
+                                            msg = msg.substring(cid.length).trim()
+                                            if (msg.startsWith(":") || msg.startsWith("-") || msg.startsWith("：")) {
+                                                msg = msg.substring(1).trim()
+                                            }
+                                        }
+                                        return msg
+                                    }
                                     font.pixelSize: Theme.fontSizeSm
                                     color: Theme.textPrimary
                                     elide: Text.ElideRight
@@ -911,11 +1060,17 @@ Rectangle {
                             }
 
                             Text {
-                                text: modelData.details || ""
+                                id: detailText
+                                text: {
+                                    var det = (modelData.details || "").trim()
+                                    var msg = (modelData.message || "").trim()
+                                    if (det === "" || det === msg || msg.indexOf(det) !== -1) return ""
+                                    return det
+                                }
                                 font.pixelSize: Theme.fontSizeXs
                                 color: Theme.textMuted
                                 elide: Text.ElideRight
-                                visible: (modelData.details || "") !== ""
+                                visible: text !== ""
                                 Layout.fillWidth: true
                             }
                         }

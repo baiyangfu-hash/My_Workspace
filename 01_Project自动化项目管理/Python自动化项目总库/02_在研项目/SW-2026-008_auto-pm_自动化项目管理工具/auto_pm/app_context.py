@@ -45,12 +45,19 @@ class AppContext:
                 except Exception:
                     pass
         if not workspace_root:
-            # 向上攀爬搜寻包含 .auto-pm 目录或 Workspace_Handoff_Document.md 文件的目录
+            # 向上攀爬搜寻包含关键特征标识的顶级工作空间根目录
             curr = os.path.abspath(os.getcwd())
             while True:
-                if os.path.isdir(os.path.join(curr, ".auto-pm")) or os.path.isfile(
-                    os.path.join(curr, "Workspace_Handoff_Document.md")
-                ):
+                anchors = [
+                    ".auto-pm",
+                    ".git",
+                    "00_Obsidian_Base全局规范文件仓库",
+                    "0100_PLC自动化",
+                    "01_Project自动化项目管理",
+                    "Workspace_Handoff_Document.md",
+                    "AGENTS.md",
+                ]
+                if any(os.path.exists(os.path.join(curr, a)) for a in anchors):
                     workspace_root = curr
                     break
                 parent = os.path.dirname(curr)

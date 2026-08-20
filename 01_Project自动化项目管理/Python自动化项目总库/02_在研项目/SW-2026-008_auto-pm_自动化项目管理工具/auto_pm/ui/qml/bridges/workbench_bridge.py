@@ -273,3 +273,72 @@ class WorkbenchBridge(QObject):
                 return res.payload
             return {"success": False, "message": res.message}
         return {"success": False, "message": "未初始化或功能未启用"}
+
+    @Slot(str, result=bool)
+    def hasHmiPrototype(self, project_id: str) -> bool:
+        """检查项目是否存在 03_HMI设计/原型/files/HMI原型设计.html 或单文件原型"""
+        import os
+        if self._facade and hasattr(self._facade, "get_project_workspace"):
+            res = self._facade.get_project_workspace(project_id)
+            if res.success and res.payload:
+                proj_dir = res.payload.summary.get("path", "")
+                if proj_dir and os.path.exists(proj_dir):
+                    hmi_file = os.path.join(proj_dir, "03_HMI设计", "原型", "files", "HMI原型设计.html")
+                    hmi_alt = os.path.join(proj_dir, "03_HMI设计", "HMI原型设计.html")
+                    return os.path.exists(hmi_file) or os.path.exists(hmi_alt)
+        return False
+
+    @Slot(str, result=bool)
+    def openHmiPrototype(self, project_id: str) -> bool:
+        """在系统默认浏览器中打开项目的 HMI 交互原型"""
+        import os
+        import webbrowser
+        if self._facade and hasattr(self._facade, "get_project_workspace"):
+            res = self._facade.get_project_workspace(project_id)
+            if res.success and res.payload:
+                proj_dir = res.payload.summary.get("path", "")
+                if proj_dir and os.path.exists(proj_dir):
+                    hmi_file = os.path.join(proj_dir, "03_HMI设计", "原型", "files", "HMI原型设计.html")
+                    if not os.path.exists(hmi_file):
+                        hmi_file = os.path.join(proj_dir, "03_HMI设计", "HMI原型设计.html")
+                    if os.path.exists(hmi_file):
+                        webbrowser.open(f"file:///{os.path.abspath(hmi_file)}")
+                        return True
+        return False
+
+    @Slot(str, result="QVariant")
+    def getDeliverySummary(self, project_id: str) -> dict[str, Any]:
+        """获取项目核心工程交付物状态（方案书/FAT规程/点表/操作手册）"""
+        import os
+        delivery_status = {
+            "proposal": False,
+            "fat_sat": False,
+            "tag_table": False,
+            "manual": False,
+            "hmi_prototype": False,
+        }
+        if self._facade and hasattr(self._facade, "get_project_workspace"):
+            res = self._facade.get_project_workspace(project_id)
+            if res.success and res.payload:
+                proj_dir = res.payload.summary.get("path", "")
+                if proj_dir and os.path.exists(proj_dir):
+                    # Check HMI prototype
+                    hmi_file = os.path.join(proj_dir, "03_HMI设计", "原型", "files", "HMI原型设计.html")
+                    delivery_status["hmi_prototype"] = os.path.exists(hmi_file) or os.path.exists(os.path.join(proj_dir, "03_HMI设计", "HMI原型设计.html"))
+
+                    # Check docs in 06_文档与交付 or 03_HMI设计
+                    tag_map = os.path.join(proj_dir, "03_HMI设计", "hmi_tag_mapping.json")
+                    delivery_status["tag_table"] = os.path.exists(tag_map)
+
+                    doc_dir = os.path.join(proj_dir, "06_文档与交付")
+                    if os.path.exists(doc_dir):
+                        for root, _, files in os.walk(doc_dir):
+                            for f in files:
+                                f_lower = f.lower()
+                                if "fat" in f_lower or "sat" in f_lower or "验收" in f_lower:
+                                    delivery_status["fat_sat"] = True
+                                if "方案" in f_lower or "技术协议" in f_lower or "dsn" in f_lower:
+                                    delivery_status["proposal"] = True
+                                if "手册" in f_lower or "sop" in f_lower or "操作" in f_lower:
+                                    delivery_status["manual"] = True
+        return delivery_status

@@ -58,16 +58,12 @@ Rectangle {
         return "—"
     }
 
-    function _techDebtSubtitle(): string {
-        var remaining = _snapshot.tech_debt_count || 0
-        var total = _snapshot.tech_debt_total || 0
-        if (remaining === 0 && total > 0) {
-            return "✓ 已偿还全部 " + total + " 项"
-        }
-        if (total > 0) {
-            return "历史累计 " + total + " 项，剩余 " + remaining + " 项"
-        }
-        return "暂无技术债记录"
+    function _projectsSubtitle(): string {
+        var phases = _snapshot.phase_counts || {}
+        var dev = phases.developing || 0
+        var comm = phases.commissioning || 0
+        var prod = phases.production || 0
+        return "在研 " + dev + " · 调试 " + comm + " · 生产 " + prod
     }
 
     function _testSubtitle(): string {
@@ -154,24 +150,23 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 120
 
-            // 卡片 1：当前开发阶段
+            // 卡片 1：纳管项目总数
+            KpiCard {
+                title: "纳管项目总数"
+                value: String(root._snapshot.total_projects || 0)
+                valueSuffix: "个"
+                subtitle: root._projectsSubtitle()
+                iconText: "📦"
+                iconColor: Theme.primary
+            }
+
+            // 卡片 2：当前开发阶段
             KpiCard {
                 title: "当前开发阶段"
                 value: root._phaseLabel()
                 subtitle: "平台工具自身迭代"
                 iconText: "🏁"
-                iconColor: Theme.primary
-            }
-
-            // 卡片 2：遗留技术债
-            KpiCard {
-                title: "遗留技术债"
-                value: String(root._snapshot.tech_debt_count || 0)
-                valueSuffix: "项"
-                subtitle: root._techDebtSubtitle()
-                iconText: "⚠"
-                iconColor: root._snapshot.tech_debt_count > 0 ? Theme.warning : Theme.success
-                valueColor: root._snapshot.tech_debt_count > 0 ? Theme.warning : Theme.success
+                iconColor: Theme.phaseDeveloping
             }
 
             // 卡片 3：自动化测试通过率

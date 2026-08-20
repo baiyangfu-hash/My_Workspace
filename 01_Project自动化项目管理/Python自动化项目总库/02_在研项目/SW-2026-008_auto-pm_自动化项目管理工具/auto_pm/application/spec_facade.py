@@ -299,3 +299,51 @@ class SpecFacade:
             return CommandResult(success=True, message="Success", payload=dto)
         except Exception as e:
             return CommandResult(success=False, message=str(e), payload=None)
+
+    def sync_obsidian_repository(self, workspace_root: str = "") -> CommandResult[dict[str, Any] | None]:
+        """一键全量同步与重构 Obsidian 全局规范仓库 (DEV-030 V2.2.0)
+
+        原子操作流水线：
+        1. 重新生成 00_INDEX_全局规范索引.md 及各业务线通用规范 README
+        2. 执行规范健康门禁自检
+        3. 汇总输出结构化同步报告
+        """
+        try:
+            generated_files: list[str] = []
+            errors: list[str] = []
+
+            # 1. 重构索引
+            if self._index_service:
+                idx_res = self._index_service.run(domains=None)
+                generated_files = [str(f) for f in idx_res.generated_files]
+                errors.extend(list(idx_res.errors))
+
+            # 2. 健康检查
+            check_summary = {"error_count": 0, "warning_count": 0, "pass_count": 0}
+            if self._spec_check_service:
+                chk_res = self._spec_check_service.run()
+                check_summary = {
+                    "error_count": chk_res.error_count,
+                    "warning_count": chk_res.warning_count,
+                    "info_count": chk_res.info_count,
+                    "exit_code": chk_res.exit_code,
+                }
+
+            # 3. 统计概览
+            spec_count = 0
+            if self._spec_center_service:
+                overview = self._spec_center_service.get_overview()
+                spec_count = overview.spec_count
+
+            payload = {
+                "generated_files": generated_files,
+                "errors": errors,
+                "check_summary": check_summary,
+                "spec_count": spec_count,
+            }
+            success = len(errors) == 0 and check_summary.get("error_count", 0) == 0
+            msg = f"Obsidian 规范仓库同步成功（已生成 {len(generated_files)} 个索引，共 {spec_count} 项规范）" if success else "同步完成但存在警告或错误"
+            return CommandResult(success=success, message=msg, payload=payload)
+        except Exception as e:
+            return CommandResult(success=False, message=f"Obsidian 同步失败: {e}", payload=None)
+

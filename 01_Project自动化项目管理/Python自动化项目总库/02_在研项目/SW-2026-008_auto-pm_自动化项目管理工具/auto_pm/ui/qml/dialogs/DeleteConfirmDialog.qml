@@ -24,7 +24,9 @@ Item {
     anchors.fill: parent
     z: 999
 
-    function open() {
+    function open(pid, pname) {
+        if (pid) root.projectId = pid
+        if (pname) root.projectName = pname
         root.confirmText = ""
         root._isOpen = true
     }
@@ -36,7 +38,7 @@ Item {
     // 遮罩层
     Rectangle {
         anchors.fill: parent
-        color: "#80000000"
+        color: "#b3000000"
         MouseArea {
             anchors.fill: parent
             onClicked: root.cancelled()
@@ -102,13 +104,17 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
+                PrimaryButton {
                     text: "取消"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
                     onClicked: root.cancelled()
                 }
 
-                Button {
+                PrimaryButton {
                     text: "确认删除"
+                    type: "danger"
+                    Layout.preferredWidth: 100
                     enabled: root.confirmText === root.projectName
                     onClicked: {
                         root.confirmed(root.projectId)

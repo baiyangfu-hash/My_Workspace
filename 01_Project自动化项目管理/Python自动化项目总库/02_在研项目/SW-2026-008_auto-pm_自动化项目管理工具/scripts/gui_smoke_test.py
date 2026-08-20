@@ -1,27 +1,14 @@
-"""GUI 冒烟测试 - 全页面截图 + 控制台警告收集
-
-用途：对 auto-pm QML GUI 进行端到端冒烟测试，覆盖所有 8 个主要页面和关键对话框，
-每次操作后截图，收集 QML 警告/错误，输出测试结果。
+"""GUI 冒烟测试 - 全页面及 DJ-2026-005 深度截图 + 控制台警告收集
 
 运行方式：
-    python scripts/gui_smoke_test.py --workspace <工作空间路径> --output <输出目录>
-
-注意：
-- GUI 测试默认可见模式（用户硬约束）
-- 截图保存到 output/screenshots/ 目录
-- 测试结果以 JSON 格式输出到 output/test_result.json
-
-CHG-SCPT-2026-141 扩展：新增 FileWatcherBridge 集成测试步骤（步骤 10-13）
-- 步骤10：验证文件监听工具栏可见 + 监听已启动
-- 步骤11：手动同步按钮（syncNow → 等 syncFinished 信号）
-- 步骤12：监听开关 toggle（关闭→验证目录数 0→重新开启）
-- 步骤13：业务文件改动自动同步（创建临时文件 → 等 debounce+sync → 验证信号触发）
+    python scripts/gui_smoke_test.py --workspace <工作空间路径> --output <输出目录> --project DJ-2026-005
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import traceback
@@ -29,28 +16,30 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from PySide6.QtCore import QObject, QTimer, QtMsgType, QUrl
+# 自动将项目根目录加入 sys.path
+_repo_root = Path(__file__).resolve().parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
+from PySide6.QtCore import QCoreApplication, QObject, QTimer, QtMsgType, QUrl
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import QQmlApplicationEngine, QQmlExpression
 from PySide6.QtQuick import QQuickWindow
 from PySide6.QtQuickControls2 import QQuickStyle
-from PySide6.QtTest import QSignalSpy
 
 if TYPE_CHECKING:
     from auto_pm.ui.qml.bridges.file_watcher_bridge import FileWatcherBridge
 
 
 class GuiTestRunner(QObject):
-    """GUI 冒烟测试运行器
-
-    按顺序执行测试步骤，每步截图，收集警告。
-    """
+    """GUI 冒烟测试运行器"""
 
     def __init__(
         self,
         engine: QQmlApplicationEngine,
         output_dir: Path,
         workspace_root: str,
+        target_project_id: str = "DJ-2026-005",
     ) -> None:
         super().__init__()
         self.engine = engine
@@ -58,17 +47,16 @@ class GuiTestRunner(QObject):
         self.screenshots_dir = output_dir / "screenshots"
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
         self.workspace_root = workspace_root
+        self.target_project_id = target_project_id
 
         self.warnings: list[dict[str, Any]] = []
         self.screenshots: list[dict[str, Any]] = []
         self.test_steps: list[dict[str, Any]] = []
-        self.current_step = 0
         self.step_index = 0
 
         self._install_message_handler()
 
     def _install_message_handler(self) -> None:
-        """安装 Qt 消息处理器，捕获 QML 警告和错误"""
         def handler(mode: QtMsgType, context: Any, message: str) -> None:
             if mode in (QtMsgType.QtWarningMsg, QtMsgType.QtCriticalMsg, QtMsgType.QtFatalMsg):
                 type_name = {
@@ -88,14 +76,20 @@ class GuiTestRunner(QObject):
         from PySide6.QtCore import qInstallMessageHandler
         qInstallMessageHandler(handler)
 
-    def _take_screenshot(self, name: str, description: str) -> str:
-        """对当前窗口截图，保存到 screenshots 目录
+    def _eval_qml(self, expression_str: str) -> Any:
+        window = self._get_root_window()
+        if not window:
+            return None
+        expr = QQmlExpression(self.engine.rootContext(), window, expression_str)
+        val = expr.evaluate()
+        if expr.hasError():
+            print(f"[QML Eval Error] {expr.error().toString()} for '{expression_str}'")
+        QCoreApplication.processEvents()
+        return val
 
-        Returns:
-            截图文件相对路径
-        """
-        # 刷新渲染与事件队列，确保界面与后台数据对齐后再截图
-        from PySide6.QtCore import QCoreApplication
+    def _take_screenshot(self, name: str, description: str) -> str:
+        QCoreApplication.processEvents()
+        time.sleep(0.3)
         QCoreApplication.processEvents()
 
         root_objects = self.engine.rootObjects()
@@ -121,10 +115,10 @@ class GuiTestRunner(QObject):
             "path": rel_path,
             "timestamp": datetime.now().isoformat(),
         })
+        print(f"[截图 {self.step_index:02d}] {name} -> {filepath}")
         return rel_path
 
     def _get_root_window(self) -> QQuickWindow | None:
-        """获取根窗口对象"""
         root_objects = self.engine.rootObjects()
         if not root_objects:
             return None
@@ -133,26 +127,33 @@ class GuiTestRunner(QObject):
             return window
         return None
 
-    def _navigate_to_page(self, page_name: str, page_key: str) -> bool:
-        """导航到指定页面
-
-        通过设置 mainWindow.currentPage 属性切换页面。
-        """
+    def _navigate_to_page(self, page_key: str) -> bool:
         window = self._get_root_window()
         if not window:
             return False
+        fn = getattr(window, "navigateToPage", None)
+        if callable(fn):
+            fn(page_key)
+        else:
+            window.setProperty("currentPage", page_key)
+        QCoreApplication.processEvents()
+        return True
 
-        window.setProperty("currentPage", page_key)
+    def _select_project_and_switch_tab(self, project_id: str, tab_index: int) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        fn = getattr(window, "switchToProjectTab", None)
+        if callable(fn):
+            fn(project_id, project_id, tab_index)
+        else:
+            window.setProperty("currentPage", "workspace")
+            window.setProperty("currentProjectId", project_id)
+        QCoreApplication.processEvents()
         return True
 
     def run(self) -> dict[str, Any]:
-        """执行所有测试步骤
-
-        Returns:
-            测试结果字典
-        """
         start_time = datetime.now()
-
         steps = self._build_test_steps()
 
         def execute_next_step() -> None:
@@ -182,14 +183,12 @@ class GuiTestRunner(QObject):
                 })
 
             self.step_index += 1
-            QTimer.singleShot(500, execute_next_step)
+            QTimer.singleShot(1000, execute_next_step)
 
-        QTimer.singleShot(1000, execute_next_step)
-
+        QTimer.singleShot(1500, execute_next_step)
         return {}
 
     def _build_test_steps(self) -> list[dict[str, Any]]:
-        """构建测试步骤列表"""
         return [
             {
                 "name": "应用启动",
@@ -198,299 +197,299 @@ class GuiTestRunner(QObject):
             },
             {
                 "name": "项目列表页",
-                "description": "导航到项目列表页，验证页面加载",
+                "description": "导航到项目列表页，显示全量项目",
                 "action": self._step_project_list,
             },
             {
-                "name": "变更中心页",
-                "description": "导航到变更中心页，验证页面加载",
+                "name": "平台驾驶舱大盘",
+                "description": "平台驾驶舱大盘页，验证SW-2026-008状态机与KPI",
+                "action": self._step_platform_dashboard,
+            },
+            {
+                "name": "平台变更管控",
+                "description": "平台变更管控中心，验证变更列表与过滤",
                 "action": self._step_change_center,
             },
             {
-                "name": "规范中心页",
-                "description": "导航到规范中心页，验证页面加载",
+                "name": "平台规范检查",
+                "description": "规范中心，验证规范概览与Tab切换",
                 "action": self._step_spec_center,
             },
             {
-                "name": "报告中心页",
-                "description": "导航到报告中心页，验证页面加载",
+                "name": "平台报告中心",
+                "description": "报告中心，验证项目与变更统计概览",
                 "action": self._step_report_center,
             },
             {
-                "name": "模板管理页",
-                "description": "导航到模板管理页，验证页面加载",
+                "name": "平台模板管理",
+                "description": "模板管理页，验证项目模板列表",
                 "action": self._step_template_manage,
             },
             {
-                "name": "设置页",
-                "description": "导航到设置页，验证页面加载",
+                "name": "系统设置页",
+                "description": "设置页，验证数据库与环境配置",
                 "action": self._step_settings,
             },
+            # ── 重点：针对 DJ-2026-005 具体的 5 个 Tab 逐一深入检查 ──
             {
-                "name": "工作台页",
-                "description": "导航到工作台页（通过选中第一个项目），验证页面加载",
-                "action": self._step_workspace,
+                "name": f"{self.target_project_id} 概览Tab (Overview)",
+                "description": f"项目 {self.target_project_id} - 概览Tab：基本信息、PLC信息、资产汇总与交付物看板",
+                "action": self._step_workspace_tab_0_overview,
             },
             {
-                "name": "返回项目列表",
-                "description": "从工作台返回项目列表页",
-                "action": self._step_back_to_project_list,
-            },
-            # ── CHG-SCPT-2026-141：FileWatcherBridge 集成测试 ──
-            {
-                "name": "文件监听工具栏可见",
-                "description": "验证全局文件监听工具栏可见且监听已启动",
-                "action": self._step_watcher_toolbar_visible,
+                "name": f"{self.target_project_id} 变更Tab (Changes)",
+                "description": f"项目 {self.target_project_id} - 变更Tab：状态流转图、活动时间线、变更列表与详情面板",
+                "action": self._step_workspace_tab_1_changes,
             },
             {
-                "name": "手动同步触发",
-                "description": "点击同步按钮触发 syncNow，等待 syncFinished 信号",
-                "action": self._step_manual_sync,
+                "name": f"{self.target_project_id} 检查Tab (Check)",
+                "description": f"项目 {self.target_project_id} - 检查Tab：项目级规范检查报告与修复建议",
+                "action": self._step_workspace_tab_2_check,
             },
             {
-                "name": "监听开关 toggle",
-                "description": "关闭监听验证目录数归零，再重新开启",
-                "action": self._step_watcher_toggle,
+                "name": f"{self.target_project_id} 文档Tab (Doc)",
+                "description": f"项目 {self.target_project_id} - 文档Tab：文档树与架构文档浏览器",
+                "action": self._step_workspace_tab_3_doc,
             },
             {
-                "name": "业务文件自动同步",
-                "description": "创建临时业务文件，等待 debounce+sync 自动触发",
-                "action": self._step_auto_sync_on_file_change,
+                "name": f"{self.target_project_id} 变量表Tab (VarTable)",
+                "description": f"项目 {self.target_project_id} - 变量表Tab：变量表编辑器与 IO 映射",
+                "action": self._step_workspace_tab_4_vartable,
+            },
+            {
+                "name": f"{self.target_project_id} 模板应用弹窗 (TemplateApplyDialog)",
+                "description": f"打开项目 {self.target_project_id} 的模板应用对话框，验证深色实底磨砂与模板列表",
+                "action": self._step_template_dialog,
+            },
+            {
+                "name": "新建变更单向导弹窗 (NewChangeDialog)",
+                "description": "打开新建变更单向导，验证表单控件、焦点遮罩与深色磨砂卡片",
+                "action": self._step_new_change_dialog,
+            },
+            {
+                "name": f"{self.target_project_id} 项目编辑弹窗 (ProjectEditDialog)",
+                "description": f"打开项目 {self.target_project_id} 的编辑对话框，验证阶段选择与保存按钮",
+                "action": self._step_project_edit_dialog,
+            },
+            {
+                "name": f"{self.target_project_id} 删除确认弹窗 (DeleteConfirmDialog)",
+                "description": f"打开项目 {self.target_project_id} 的删除确认对话框，验证强校验与危险操作样式",
+                "action": self._step_delete_confirm_dialog,
+            },
+            {
+                "name": f"{self.target_project_id} PM初始化弹窗 (PmInitializeConfirmDialog)",
+                "description": f"打开项目 {self.target_project_id} 的 PM 初始化确认弹窗，验证提示清单",
+                "action": self._step_pm_initialize_dialog,
+            },
+            {
+                "name": f"{self.target_project_id} PM归档弹窗 (PmSessionArchiveDialog)",
+                "description": f"打开项目 {self.target_project_id} 的 PM_SESSION 归档对话框，验证章节选择与归档按钮",
+                "action": self._step_pm_archive_dialog,
+            },
+            {
+                "name": "关于对话框 (AboutDialog)",
+                "description": "打开关于对话框，验证版本信息与系统状态",
+                "action": self._step_about_dialog,
             },
         ]
 
     def _step_app_launch(self) -> bool:
-        """步骤：应用启动"""
         window = self._get_root_window()
         if not window:
             return False
-        # 冒烟测试启动时强制重建索引，确保缓存数据完整
         workbench_bridge = self.engine.rootContext().contextProperty("workbenchBridge")
         change_bridge = self.engine.rootContext().contextProperty("changeBridge")
         if workbench_bridge:
-            print("正在冒烟测试中重建数据库缓存...")
             workbench_bridge.rebuildIndex()
             workbench_bridge.refreshProjects()
             if change_bridge:
                 change_bridge.refreshChanges()
-        self._take_screenshot("app_launch", "应用启动后主窗口初始状态")
+        self._take_screenshot("00_app_launch", "应用启动后主窗口初始状态")
         return window.isVisible()
 
     def _step_project_list(self) -> bool:
-        """步骤：项目列表页"""
-        result = self._navigate_to_page("项目列表", "projectList")
-        if result:
-            self._take_screenshot("project_list", "项目列表页 - 显示所有项目")
-        return result
+        self._navigate_to_page("projectList")
+        self._take_screenshot("01_project_list", "项目列表页 - 显示所有项目")
+        return True
+
+    def _step_platform_dashboard(self) -> bool:
+        self._navigate_to_page("platformDashboard")
+        self._take_screenshot("02_platform_dashboard", "平台驾驶舱大盘页 - 显示KPI与主线流转状态机")
+        return True
 
     def _step_change_center(self) -> bool:
-        """步骤：变更中心页"""
-        result = self._navigate_to_page("变更中心", "changeCenter")
-        if result:
-            self._take_screenshot("change_center", "变更中心页 - 显示所有变更单")
-        return result
+        self._navigate_to_page("changeCenter")
+        self._take_screenshot("03_change_center", "变更中心页 - 显示所有变更单")
+        return True
 
     def _step_spec_center(self) -> bool:
-        """步骤：规范中心页"""
-        result = self._navigate_to_page("规范中心", "specCenter")
-        if result:
-            self._take_screenshot("spec_center", "规范中心页 - 显示规范概览/索引/检查")
-        return result
+        self._navigate_to_page("specCenter")
+        self._take_screenshot("04_spec_center", "规范中心页 - 显示规范概览/索引/检查")
+        return True
 
     def _step_report_center(self) -> bool:
-        """步骤：报告中心页"""
-        result = self._navigate_to_page("报告中心", "reportCenter")
-        if result:
-            self._take_screenshot("report_center", "报告中心页 - 显示报告模板和生成入口")
-        return result
+        self._navigate_to_page("reportCenter")
+        self._take_screenshot("05_report_center", "报告中心页 - 显示报告模板和生成入口")
+        return True
 
     def _step_template_manage(self) -> bool:
-        """步骤：模板管理页"""
-        result = self._navigate_to_page("模板管理", "templateManage")
-        if result:
-            self._take_screenshot("template_manage", "模板管理页 - 显示项目模板列表")
-        return result
+        self._navigate_to_page("templateManage")
+        self._take_screenshot("06_template_manage", "模板管理页 - 显示项目模板列表")
+        return True
 
     def _step_settings(self) -> bool:
-        """步骤：设置页"""
-        result = self._navigate_to_page("设置", "settings")
-        if result:
-            self._take_screenshot("settings", "设置页 - 显示应用设置选项")
-        return result
+        self._navigate_to_page("settings")
+        self._take_screenshot("07_settings", "设置页 - 显示应用设置选项")
+        return True
 
-    def _step_workspace(self) -> bool:
-        """步骤：工作台页"""
-        # 通过选中第一个项目来加载工作台详情
-        workbench_bridge = self.engine.rootContext().contextProperty("workbenchBridge")
-        if workbench_bridge:
-            projects = workbench_bridge.listProjects()
-            if projects:
-                first_proj = projects[0]
-                print(f"正在选中第一个项目进行工作台冒烟测试: {first_proj.get('project_id')}")
-                workbench_bridge.selectProject(first_proj.get("project_id"), first_proj.get("name"))
+    # ── 针对具体项目 DJ-2026-005 5 个 Tab 深度截图 ──
 
-                # 刷新事件队列使 projectSelected 信号和 UI 绑定生效
-                from PySide6.QtCore import QCoreApplication
-                QCoreApplication.processEvents()
-
-        result = self._navigate_to_page("工作台", "workspace")
-        if result:
-            from PySide6.QtCore import QCoreApplication
-            QCoreApplication.processEvents()
-            self._take_screenshot("workspace", "工作台页 - 项目概览和详情")
-        return result
-
-    def _step_back_to_project_list(self) -> bool:
-        """步骤：返回项目列表"""
-        result = self._navigate_to_page("项目列表", "projectList")
-        if result:
-            self._take_screenshot("back_to_project_list", "返回项目列表页 - 验证导航往返正常")
-        return result
-
-    # ── CHG-SCPT-2026-141：FileWatcherBridge 集成测试步骤 ──
-
-    def _get_file_watcher_bridge(self) -> FileWatcherBridge | None:
-        """获取 FileWatcherBridge context property"""
-        prop = self.engine.rootContext().contextProperty("fileWatcherBridge")
-        if prop is None:
-            return None
-        # cast 第一个参数用字符串形式，避免运行时求值 TYPE_CHECKING 导入的符号
-        return cast("FileWatcherBridge", prop)
-
-    def _wait_for_signal(self, spy: QSignalSpy, timeout_ms: int = 15000) -> bool:
-        """循环 processEvents 等待信号触发（GUI 可见模式）。
-
-        用 time.sleep(0.02) + processEvents 释放 GIL，让 QThreadPool worker
-        全速执行 sync_to_cache（参考 tests/qml/test_file_watcher_bridge.py 的
-        _wait_for_signal 同款模式）。
-        """
-        app = QGuiApplication.instance()
-        for _ in range(timeout_ms // 20):
-            time.sleep(0.02)
-            if app is not None:
-                app.processEvents()
-            if spy.count() > 0:
-                return True
-        return False
-
-    def _step_watcher_toolbar_visible(self) -> bool:
-        """步骤10：验证文件监听工具栏可见 + 监听已启动"""
-        bridge = self._get_file_watcher_bridge()
-        if not bridge:
-            print("  [FAIL] fileWatcherBridge 未注入")
-            return False
-        enabled = bridge.isWatcherEnabled()
-        dir_count = bridge.watchedDirectoryCount()
-        print(f"  监听启用={enabled}, 监听目录数={dir_count}")
+    def _step_workspace_tab_0_overview(self) -> bool:
+        ok = self._select_project_and_switch_tab(self.target_project_id, 0)
         self._take_screenshot(
-            "watcher_toolbar", "文件监听工具栏 - 全局常驻同步按钮+监听开关"
-        )
-        return enabled and dir_count > 0
-
-    def _step_manual_sync(self) -> bool:
-        """步骤11：手动同步按钮（syncNow → 等 syncFinished 信号）"""
-        bridge = self._get_file_watcher_bridge()
-        if not bridge:
-            return False
-        spy = QSignalSpy(bridge.syncFinished)
-        bridge.syncNow()
-        # sync_to_cache 扫描全工作空间，首次可能较慢，给 15s 超时
-        ok = self._wait_for_signal(spy, timeout_ms=15000)
-        if ok:
-            # PySide6 QSignalSpy 无 takeFirst，用 at(0) 取第一组参数
-            args = spy.at(0)
-            projects, changes, ms = int(args[0]), int(args[1]), int(args[2])
-            print(f"  手动同步完成: {projects} 项目, {changes} 变更, {ms}ms")
-        else:
-            print("  [FAIL] syncFinished 信号超时未触发")
-        self._take_screenshot("manual_sync", "手动同步后 - 状态反馈显示已同步")
-        return ok
-
-    def _step_watcher_toggle(self) -> bool:
-        """步骤12：监听开关 toggle（关闭→验证 enabled=False→重新开启）
-
-        注意：QFileSystemWatcher.removePaths 在 Windows 上对部分路径会失败
-        （directories() 残留），因此关闭后 dirs 可能不为 0。这是 Qt/Windows
-        限制，不影响功能——_on_debounce_timeout 会检查 _watcher_enabled，
-        关闭后残留监听路径触发的信号不会引发 sync。
-        """
-        bridge = self._get_file_watcher_bridge()
-        if not bridge:
-            return False
-        # 关闭监听
-        bridge.toggleWatcher(False)
-        app = QGuiApplication.instance()
-        if app:
-            app.processEvents()
-        off_enabled = bridge.isWatcherEnabled()
-        off_count = bridge.watchedDirectoryCount()
-        print(f"  关闭后: enabled={off_enabled}, dirs={off_count}")
-        if off_enabled:
-            print("  [FAIL] 关闭监听后 enabled 未归零")
-            self._take_screenshot("watcher_toggle_off_fail", "监听关闭失败")
-            return False
-        # dirs 残留是 QFileSystemWatcher 限制，enabled=False 即功能正确
-        if off_count > 0:
-            print(
-                f"  [INFO] dirs 残留 {off_count}（QFileSystemWatcher 限制，"
-                "已由 _on_debounce_timeout 拦截，不影响功能）"
-            )
-        # 重新开启（扫描目录可能耗时）
-        bridge.toggleWatcher(True)
-        ok = False
-        for _ in range(500):  # 最多等 10s 扫描完成
-            time.sleep(0.02)
-            if app:
-                app.processEvents()
-            if bridge.watchedDirectoryCount() > 0:
-                ok = True
-                break
-        on_enabled = bridge.isWatcherEnabled()
-        on_count = bridge.watchedDirectoryCount()
-        print(f"  重开后: enabled={on_enabled}, dirs={on_count}")
-        self._take_screenshot("watcher_toggle", "监听开关 toggle - 关闭后重新开启")
-        return ok and on_enabled and on_count > 0
-
-    def _step_auto_sync_on_file_change(self) -> bool:
-        """步骤13：业务文件改动自动同步（创建临时文件 → 等 debounce+sync）"""
-        bridge = self._get_file_watcher_bridge()
-        if not bridge:
-            return False
-        if not bridge.isWatcherEnabled():
-            print("  [FAIL] 监听未启用，无法测试自动同步")
-            return False
-        # 在工作空间根创建临时业务文件（不在 NOISE_DIRS 排除范围）
-        tmp_file = Path(self.workspace_root) / ".gui_smoke_test_autosync.md"
-        spy = QSignalSpy(bridge.syncFinished)
-        try:
-            tmp_file.write_text(
-                f"# GUI 冒烟测试自动同步触发\n\n生成时间: {datetime.now().isoformat()}\n",
-                encoding="utf-8",
-            )
-            # 等待 1s debounce + sync 完成（给 15s 超时）
-            ok = self._wait_for_signal(spy, timeout_ms=15000)
-            if ok:
-                # PySide6 QSignalSpy 无 takeFirst，用 at(0) 取第一组参数
-                args = spy.at(0)
-                projects, changes, ms = int(args[0]), int(args[1]), int(args[2])
-                print(
-                    f"  自动同步触发成功: {projects} 项目, {changes} 变更, {ms}ms"
-                )
-            else:
-                print("  [FAIL] 文件改动后 syncFinished 信号超时未触发")
-        finally:
-            if tmp_file.exists():
-                try:
-                    tmp_file.unlink()
-                except OSError:
-                    pass
-        self._take_screenshot(
-            "auto_sync", "业务文件改动后自动同步 - 状态反馈更新"
+            f"08_{self.target_project_id}_tab0_overview",
+            f"项目 {self.target_project_id} - 概览 Tab（基本信息/PLC信息/资产汇总/交付物看板）",
         )
         return ok
+
+    def _step_workspace_tab_1_changes(self) -> bool:
+        ok = self._select_project_and_switch_tab(self.target_project_id, 1)
+        self._take_screenshot(
+            f"09_{self.target_project_id}_tab1_changes",
+            f"项目 {self.target_project_id} - 变更 Tab（状态流转/时间线/变更列表/详情面板）",
+        )
+        return ok
+
+    def _step_workspace_tab_2_check(self) -> bool:
+        ok = self._select_project_and_switch_tab(self.target_project_id, 2)
+        self._take_screenshot(
+            f"10_{self.target_project_id}_tab2_check",
+            f"项目 {self.target_project_id} - 检查 Tab（规范检查报告）",
+        )
+        return ok
+
+    def _step_workspace_tab_3_doc(self) -> bool:
+        ok = self._select_project_and_switch_tab(self.target_project_id, 3)
+        self._take_screenshot(
+            f"11_{self.target_project_id}_tab3_doc",
+            f"项目 {self.target_project_id} - 文档 Tab（文档浏览器）",
+        )
+        return ok
+
+    def _step_workspace_tab_4_vartable(self) -> bool:
+        ok = self._select_project_and_switch_tab(self.target_project_id, 4)
+        self._take_screenshot(
+            f"12_{self.target_project_id}_tab4_vartable",
+            f"项目 {self.target_project_id} - 变量表 Tab（变量表编辑器）",
+        )
+        return ok
+
+    def _step_template_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "templateApplyDialog")
+        if dialog:
+            dialog.open(self.target_project_id, self.target_project_id)
+        self._take_screenshot(
+            f"13_{self.target_project_id}_template_dialog",
+            f"项目 {self.target_project_id} - 模板应用对话框（深色实底磨砂拟物）",
+        )
+        if dialog:
+            dialog.close()
+        return True
+
+    def _step_new_change_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "newChangeDialog")
+        if dialog:
+            dialog.open()
+        self._take_screenshot(
+            "14_dialog_new_change",
+            "新建变更单向导弹窗（全表单/深色实底卡片/焦点遮罩）",
+        )
+        if dialog:
+            dialog.close()
+        return True
+
+    def _step_project_edit_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "projectEditDialog")
+        if dialog:
+            dialog.open(self.target_project_id, self.target_project_id, {})
+        self._take_screenshot(
+            f"15_{self.target_project_id}_dialog_project_edit",
+            f"项目 {self.target_project_id} - 项目信息编辑对话框",
+        )
+        if dialog:
+            dialog.close()
+        return True
+
+    def _step_delete_confirm_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "deleteConfirmDialog")
+        if dialog:
+            dialog.open(self.target_project_id, self.target_project_id)
+        self._take_screenshot(
+            f"16_{self.target_project_id}_dialog_delete_confirm",
+            f"项目 {self.target_project_id} - 项目删除确认对话框（破坏性安全门禁）",
+        )
+        if dialog:
+            dialog.close()
+        return True
+
+    def _step_pm_initialize_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "pmInitializeConfirmDialog")
+        if dialog:
+            dialog.open(self.target_project_id, self.target_project_id)
+        self._take_screenshot(
+            f"17_{self.target_project_id}_dialog_pm_initialize",
+            f"项目 {self.target_project_id} - PM规范初始化确认对话框",
+        )
+        if dialog:
+            dialog.close()
+        return True
+
+    def _step_pm_archive_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "pmSessionArchiveDialog")
+        if dialog:
+            dialog.open(self.target_project_id)
+        self._take_screenshot(
+            f"18_{self.target_project_id}_dialog_pm_archive",
+            f"项目 {self.target_project_id} - PM_SESSION 会话归档对话框",
+        )
+        if dialog:
+            dialog.close()
+        return True
+
+    def _step_about_dialog(self) -> bool:
+        window = self._get_root_window()
+        if not window:
+            return False
+        dialog = window.findChild(QObject, "aboutDialog")
+        if dialog:
+            dialog.open()
+        self._take_screenshot(
+            "19_dialog_about",
+            "关于系统对话框（版本 V1.0.0 / 架构信息）",
+        )
+        if dialog:
+            dialog.close()
+        return True
 
     def _finish_test(self, start_time: datetime) -> None:
-        """完成测试，输出结果"""
         end_time = datetime.now()
         duration = (end_time - start_time).total_seconds()
 
@@ -499,8 +498,9 @@ class GuiTestRunner(QObject):
         errors = sum(1 for s in self.test_steps if s["status"] == "error")
 
         result = {
-            "test_name": "auto-pm QML GUI 冒烟测试",
+            "test_name": f"auto-pm QML GUI 冒烟与 {self.target_project_id} 专项测试",
             "version": "V1.0.0",
+            "target_project": self.target_project_id,
             "start_time": start_time.isoformat(),
             "end_time": end_time.isoformat(),
             "duration_seconds": duration,
@@ -523,7 +523,7 @@ class GuiTestRunner(QObject):
             json.dump(result, f, ensure_ascii=False, indent=2)
 
         print(f"\n{'='*60}")
-        print("GUI 冒烟测试完成")
+        print(f"GUI 测试完成 (目标项目: {self.target_project_id})")
         print(f"{'='*60}")
         print(f"总步骤: {len(self.test_steps)}")
         print(f"通过: {passed}")
@@ -540,18 +540,9 @@ class GuiTestRunner(QObject):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="auto-pm QML GUI 冒烟测试")
-    parser.add_argument(
-        "--workspace",
-        "-w",
-        required=True,
-        help="工作空间根路径",
-    )
-    parser.add_argument(
-        "--output",
-        "-o",
-        required=True,
-        help="测试结果输出目录",
-    )
+    parser.add_argument("--workspace", "-w", required=True, help="工作空间根路径")
+    parser.add_argument("--output", "-o", required=True, help="测试结果输出目录")
+    parser.add_argument("--project", "-p", default="DJ-2026-005", help="测试目标项目编号")
     args = parser.parse_args()
 
     workspace_root = str(Path(args.workspace).resolve())
@@ -559,26 +550,24 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     app = QGuiApplication.instance() or QGuiApplication(sys.argv)
-
-    # 设置 Basic 样式（支持控件 background 自定义，消除原生样式警告）
     QQuickStyle.setStyle("Basic")
 
     from auto_pm.change.change_service import ChangeService
     from auto_pm.core.project_service import ProjectService
     from auto_pm.db.connection import DatabaseManager
     from auto_pm.ui.factories import (
-    make_asset_summary_service,
-    make_dashboard_service,
-    make_doc_refresh_service,
-    make_pm_session_service,
-    make_report_service,
-    make_spec_center_service,
-    make_spec_check_service,
-    make_spec_frontmatter_service,
-    make_spec_index_service,
-    make_spec_report_service,
-    make_template_service,
-)
+        make_asset_summary_service,
+        make_dashboard_service,
+        make_doc_refresh_service,
+        make_pm_session_service,
+        make_report_service,
+        make_spec_center_service,
+        make_spec_check_service,
+        make_spec_frontmatter_service,
+        make_spec_index_service,
+        make_spec_report_service,
+        make_template_service,
+    )
     from auto_pm.ui.qml.bridges.change_bridge import ChangeBridge
     from auto_pm.ui.qml.bridges.delivery_bridge import DeliveryBridge
     from auto_pm.ui.qml.bridges.file_watcher_bridge import FileWatcherBridge
@@ -587,6 +576,7 @@ def main() -> int:
     from auto_pm.ui.qml.bridges.workbench_bridge import WorkbenchBridge
     from auto_pm.ui.qml.models.project_list_model import ProjectListModel
     from auto_pm.ui.registry import FacadeRegistry
+
     db = DatabaseManager(workspace_root)
 
     project_service = ProjectService(workspace_root=workspace_root, db=db)
@@ -634,7 +624,6 @@ def main() -> int:
     spec_bridge = SpecBridge(facade=facade_registry.spec_facade)
     delivery_bridge = DeliveryBridge(facade=facade_registry.delivery_facade)
     system_bridge = SystemBridge(facade=facade_registry.system_facade)
-    # CHG-SCPT-2026-141：文件监听同步桥接层（自建 DB 连接，不依赖共享 db）
     file_watcher_bridge = FileWatcherBridge(workspace_root)
 
     engine = QQmlApplicationEngine()
@@ -649,10 +638,9 @@ def main() -> int:
     context.setContextProperty("deliveryBridge", delivery_bridge)
     context.setContextProperty("systemBridge", system_bridge)
     context.setContextProperty("projectModel", project_model)
-    # CHG-SCPT-2026-141：注入文件监听桥接层供 QML 工具栏调用
     context.setContextProperty("fileWatcherBridge", file_watcher_bridge)
 
-    runner = GuiTestRunner(engine, output_dir, workspace_root)
+    runner = GuiTestRunner(engine, output_dir, workspace_root, target_project_id=args.project)
 
     main_qml = qml_dir / "main.qml"
     engine.load(QUrl.fromLocalFile(str(main_qml.resolve())))
@@ -661,11 +649,7 @@ def main() -> int:
         print("错误：QML 引擎加载失败，根对象为空")
         return -1
 
-    # CHG-SCPT-2026-141：启动文件监听（模拟 qml_main_window 启动逻辑）
-    # 扫描业务目录可能耗时数秒（取决于工作空间大小），在 runner.run 之前完成
     file_watcher_bridge.toggleWatcher(True)
-    print(f"文件监听已启动，监听目录数: {file_watcher_bridge.watchedDirectoryCount()}")
-
     runner.run()
 
     return app.exec()

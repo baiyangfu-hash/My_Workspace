@@ -80,11 +80,10 @@ Item {
     visible: _isOpen
     anchors.fill: parent
 
-    // 半透明遮罩
+    // 半透明焦点遮罩
     Rectangle {
         anchors.fill: parent
-        color: "#000000"
-        opacity: 0.4
+        color: "#b3000000"
         visible: root._isOpen
         MouseArea { anchors.fill: parent; onClicked: {} }
     }

@@ -54,6 +54,8 @@ class ChangeFileLocator:
     #     此处需要含 01_变更单 的完整路径以直接定位文件
     CHANGE_FILE_SEARCH_PATHS = [
         os.path.join(*CHANGE_REQUESTS_PATH),
+        os.path.join("11_监控", "01_变更管理", "01_变更单"),
+        os.path.join("00_项目管理", "01_变更管理", "01_变更单"),
     ]
 
     def __init__(self, workspace_root: str, parser: ChgParser) -> None:

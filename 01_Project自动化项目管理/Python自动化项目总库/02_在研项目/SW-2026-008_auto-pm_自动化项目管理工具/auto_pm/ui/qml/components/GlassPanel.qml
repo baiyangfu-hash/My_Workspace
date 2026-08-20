@@ -13,22 +13,22 @@ import "../theme"
 Rectangle {
     id: root
 
-    // 玻璃拟物基底（半透明 + 边框 + 圆角）
-    color: Theme.glassBg
+    // 玻璃拟物基底（深色实底 + 边框 + 圆角，确保浮动对话框具备完好的遮蔽力与对比度）
+    color: "#0f172a"
     border.color: Theme.glassBorder
     border.width: 1
     radius: Theme.radiusLg
 
-    // 顶部高光渐变（模拟玻璃质感，限顶部 50% 区域不干扰下半内容）
+    // 顶部高光渐变（模拟微弱玻璃光泽）
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        height: parent.height * 0.5
+        height: Math.min(40, parent.height * 0.3)
         radius: parent.radius
         clip: true
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.rgba(1, 1, 1, 0.04) }
+            GradientStop { position: 0.0; color: Qt.rgba(1, 1, 1, 0.05) }
             GradientStop { position: 1.0; color: "transparent" }
         }
     }

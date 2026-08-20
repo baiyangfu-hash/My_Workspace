@@ -116,9 +116,12 @@ def make_template_service(workspace_root: str) -> Any | None:
         TemplateService 实例或 None（无 templates/ 目录时）
     """
     try:
-        from auto_pm.core.template_service import TemplateService
+        from auto_pm.application.core.template_service import TemplateService
 
-        templates_dir = Path(__file__).parent.parent / "templates"
+        root_templates = Path(__file__).parent.parent.parent / "templates"
+        pkg_templates = Path(__file__).parent.parent / "templates"
+        templates_dir = root_templates if root_templates.is_dir() else pkg_templates
+
         if not templates_dir.is_dir():
             return None
         return TemplateService(templates_dir=str(templates_dir))

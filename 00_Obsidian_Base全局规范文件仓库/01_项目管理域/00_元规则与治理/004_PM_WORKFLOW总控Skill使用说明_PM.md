@@ -1,7 +1,7 @@
 ---
 spec_id: PM-004
 title: PM_WORKFLOW总控Skill使用说明
-version: V1.2.0
+version: V1.3.0
 domain: pm
 lifecycle: stable
 type: PM_WORKFLOW
@@ -14,6 +14,7 @@ canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_
 ## 1. 目标
 - 把“需求澄清 → PRD/REQ/DES → 任务拆解 → 变更/迭代/缺陷/交付”固化为可重复流程
 - 通过项目根目录的会话文件作为单一真源，保证跨会话连续：`PM_SESSION_<项目编号>.md`
+- **作为 Obsidian 全局规范仓库（`00_Obsidian_Base/`）的唯一维护 owner**：凡规范新建、修改或删除，自动完成注册表更新与全局索引同步
 - 以本地文档为任务系统主载体，必要时可再同步到 GitHub
 
 ## 2. 核心约定
@@ -25,6 +26,13 @@ canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_
 ### 2.2 单一真源（Single Source of Truth）
 - 任何需求/范围/里程碑/风险/未决问题的“当前结论”必须回写到 PM_SESSION
 - PRD/REQ/DES/CHG/TEST/交付等产物路径必须登记在 PM_SESSION 的 `Artifacts Index`
+
+### 2.3 Obsidian 全局规范自动同步硬规则
+- `pm-workflow` 独占全局规范的生命周期管理（新建、修订、作废、归档、删除）；
+- 任何规范变更发生后，PM 技能必须自动执行：
+  1. 更新 `00_Obsidian_Base全局规范文件仓库/spec_registry.json`；
+  2. 运行 `auto-pm spec index` 自动重新生成 `00_INDEX_全局规范索引.md` 与通用规范 README；
+  3. 运行 `auto-pm spec check` 确保全局 0 孤立规范、0 索引断链。
 
 ## 3. 总控Skill 做什么
 ### 3.1 初始化（已有项目/新项目通用）

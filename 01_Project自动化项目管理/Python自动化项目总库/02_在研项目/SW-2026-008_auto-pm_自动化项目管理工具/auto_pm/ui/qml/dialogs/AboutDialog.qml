@@ -24,6 +24,15 @@ Item {
     // ── 信号 ────────────────────────────────────────────
     signal closed()
 
+    function open() {
+        root._isOpen = true
+    }
+
+    function close() {
+        root._isOpen = false
+        root.closed()
+    }
+
     visible: _isOpen
     anchors.fill: parent
 

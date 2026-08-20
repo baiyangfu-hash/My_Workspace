@@ -175,3 +175,12 @@ class SpecBridge(QObject):
         except Exception as exc:
             return {"success": False, "message": f"SCL 规范排查失败: {exc}"}
 
+    @Slot(result="QVariant")
+    def syncObsidian(self) -> dict[str, Any]:
+        """一键全量同步与重构 Obsidian 全局规范仓库 (DEV-030 V2.2.0)"""
+        if self._facade:
+            res = self._facade.sync_obsidian_repository()
+            return {"success": res.success, "message": res.message, "payload": res.payload}
+        return {"success": False, "message": "SpecFacade 未初始化"}
+
+

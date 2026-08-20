@@ -141,6 +141,9 @@ _PROJ_FILE_PATTERNS = [
 # CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径（递归扫描 04_监控/01_变更管理/）
 _CHANGE_SEARCH_PATHS = [
     os.path.join(*CHANGE_SCAN_PATH),
+    os.path.join("11_监控", "01_变更管理"),
+    os.path.join("00_项目管理", "01_变更管理"),
+    os.path.join("11_监控"),
 ]
 
 
@@ -168,12 +171,20 @@ def scan_change_files(project_path: str) -> list[str]:
     CHG-SCPT-2026-146: 5大过程组统一路径，递归扫描 04_监控/01_变更管理/ 下的 CHG-*.md
     """
     results: list[str] = []
+    seen: set[str] = set()
     for rel_path in _CHANGE_SEARCH_PATHS:
         base_dir = os.path.join(project_path, rel_path)
         if not os.path.isdir(base_dir):
             continue
         _scan_change_dir(base_dir, results)
-    return results
+    # 去重并保持顺序
+    deduped: list[str] = []
+    for p in results:
+        norm = os.path.normpath(p)
+        if norm not in seen:
+            seen.add(norm)
+            deduped.append(p)
+    return deduped
 
 
 def _scan_change_dir(base_dir: str, results: list[str], depth: int = 0, max_depth: int = 3) -> None:

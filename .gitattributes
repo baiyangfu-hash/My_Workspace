@@ -1,1 +1,39 @@
-*.sh text eol=lf
+# ==============================================================================
+# Auto-PM Workspace - Git 统一换行符与文件属性配置
+# 解决 Windows、Linux、macOS 与各 AI 工具（Trae/Cursor/Antigravity）协同下的换行符冲突
+# ==============================================================================
+
+# 1. 默认所有文本文件：自动识别，统一以 LF 存储
+* text=auto eol=lf
+
+# 2. 源代码与文档：强制以 LF 存储
+*.py text eol=lf
+*.qml text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.scl text eol=lf
+*.awl text eol=lf
+*.txt text eol=lf
+
+# 3. Windows 专用脚本：强制保持 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 4. 二进制文件：禁止换行符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.zip binary
+*.tar.gz binary
+*.exe binary
+*.dll binary
+*.pyd binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary

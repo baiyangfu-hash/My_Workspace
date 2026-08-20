@@ -183,42 +183,95 @@ class PrototypeService:
         """
         return self.bundle(project_path=project_path, version=version)
 
-    def init(self, project_path: str, template: str = "hmi") -> PrototypeBundleResult:
+    def init(self, project_path: str, template: str = "industrial-hmi") -> PrototypeBundleResult:
         """
         Scaffolds a new prototype template in the target project.
+        Supports 'industrial-hmi' (STD-910) and 'python-cockpit' (STD-911).
         """
+        import shutil
         abs_proj = os.path.abspath(project_path)
-        hmi_dir = os.path.join(abs_proj, "03_HMI设计", "原型", "files")
-        os.makedirs(hmi_dir, exist_ok=True)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
 
-        target_html = os.path.join(hmi_dir, "HMI原型设计.html")
-        target_css = os.path.join(hmi_dir, "styles.css")
-        target_js = os.path.join(hmi_dir, "script.js")
+        bundled_files = []
+        is_python_tpl = template.lower() in ("python-cockpit", "python", "desktop", "cockpit", "web")
 
-        if os.path.exists(target_html):
-            return PrototypeBundleResult(
-                success=False,
-                output_path=target_html,
-                message="原型文件已存在，取消初始化以防覆盖",
-            )
+        if is_python_tpl:
+            target_dir = os.path.join(abs_proj, "02_规划", "Html原型预览")
+            os.makedirs(target_dir, exist_ok=True)
+            target_html = os.path.join(target_dir, "index.html")
+            target_css = os.path.join(target_dir, "styles.css")
+            target_js = os.path.join(target_dir, "script.js")
+            target_mapping = os.path.join(target_dir, "app_bridge_mapping.json")
 
-        # Scaffolding HTML
-        html_code = """<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMI 原型设计</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="hmi-container">
-        <h1>HMI 控制系统原型</h1>
-        <div id="status-box">系统就绪</div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>"""
+            if os.path.exists(target_html):
+                return PrototypeBundleResult(
+                    success=False,
+                    output_path=target_html,
+                    message="Python 驾驶舱原型文件已存在，取消初始化以防覆盖",
+                )
+
+            tpl_dir = os.path.join(current_dir, "..", "..", "templates", "python_cockpit")
+            if os.path.exists(tpl_dir):
+                for f_name, t_path in [
+                    ("index.html", target_html),
+                    ("styles.css", target_css),
+                    ("script.js", target_js),
+                    ("app_bridge_mapping.json", target_mapping),
+                ]:
+                    src = os.path.join(tpl_dir, f_name)
+                    if os.path.exists(src):
+                        shutil.copy2(src, t_path)
+                        bundled_files.append(t_path)
+
+                return PrototypeBundleResult(
+                    success=True,
+                    output_path=target_html,
+                    message=f"Python Cockpit (STD-911) template successfully initialized at {target_dir}",
+                    bundled_files=bundled_files,
+                )
+        else:
+            # Default: industrial-hmi (STD-910)
+            hmi_dir = os.path.join(abs_proj, "03_HMI设计", "原型", "files")
+            os.makedirs(hmi_dir, exist_ok=True)
+
+            target_html = os.path.join(hmi_dir, "HMI原型设计.html")
+            target_css = os.path.join(hmi_dir, "styles.css")
+            target_js = os.path.join(hmi_dir, "script.js")
+            target_mapping = os.path.join(abs_proj, "03_HMI设计", "hmi_tag_mapping.json")
+
+            if os.path.exists(target_html):
+                return PrototypeBundleResult(
+                    success=False,
+                    output_path=target_html,
+                    message="原型文件已存在，取消初始化以防覆盖",
+                )
+
+            tpl_dir = os.path.join(current_dir, "..", "..", "templates", "industrial_hmi")
+            if os.path.exists(tpl_dir):
+                src_html = os.path.join(tpl_dir, "HMI原型设计.html")
+                src_css = os.path.join(tpl_dir, "styles.css")
+                src_js = os.path.join(tpl_dir, "script.js")
+                src_map = os.path.join(tpl_dir, "hmi_tag_mapping.json")
+
+                if os.path.exists(src_html):
+                    shutil.copy2(src_html, target_html)
+                    bundled_files.append(target_html)
+                if os.path.exists(src_css):
+                    shutil.copy2(src_css, target_css)
+                    bundled_files.append(target_css)
+                if os.path.exists(src_js):
+                    shutil.copy2(src_js, target_js)
+                    bundled_files.append(target_js)
+                if os.path.exists(src_map) and not os.path.exists(target_mapping):
+                    shutil.copy2(src_map, target_mapping)
+                    bundled_files.append(target_mapping)
+
+                return PrototypeBundleResult(
+                    success=True,
+                    output_path=target_html,
+                    message=f"Industrial HMI 1280x800 template successfully initialized at {hmi_dir}",
+                    bundled_files=bundled_files,
+                )
 
         css_code = """body {
     background-color: #0f172a;

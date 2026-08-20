@@ -10,6 +10,7 @@
    - 唯一负责读取并回写 `PM_SESSION_<项目编号>.md`
    - 唯一负责写入 cockpit 反馈文件 `.auto-pm/ai_feedback.json`
    - 唯一负责把执行结果整理进 PM_SESSION §6-§9 / §8 skill_handoff / §9 next actions
+   - **唯一负责维护 Obsidian 全局规范仓库（`00_Obsidian_Base全局规范文件仓库/`）**：凡增删改规范文件，必须同步更新 `spec_registry.json`，并自动触发运行 `auto-pm spec index`（自动重新生成 `00_INDEX_全局规范索引.md`）与 `auto-pm spec check`，确保全局索引即时联动。
 
 2. **`fullstack-engineer` / `plc-electrical-engineer` 是纯执行者**：
    - 接收 `pm-workflow` 下发的 `skill_context`
@@ -220,11 +221,11 @@ auto-pm -w "<工作空间根>" change create --retrofit --pid <项目ID> --domai
 
 项目文档文件名（.md/.html 等）**禁止**追加版本号后缀：
 
-- **禁止**：`GUI原型设计-V2.0.md`、`V2.0-全功能自动化测试计划.md`、`PRD_V0.5.0.md`
-- **正确**：`GUI原型设计.md`（版本通过 frontmatter 或正文标题标识）、`PRD.md`
-- 版本演进通过文档头部 frontmatter（`version: "V2.1"`）或正文标题（`# GUI 原型设计 V2.1`）标识
+- **禁止**：`GUI原型设计-V2.0.md`、`V2.0-全功能自动化测试计划.md`、`001_用户操作指南_V1.1.0_USER_GUIDE.md`
+- **正确**：`001_用户操作指南与排障手册_USER_GUIDE.md`（版本通过 frontmatter 或正文标题标识）、`003_测试策略与验收规程_TEST_PLAN.md`
+- 版本演进通过文档头部 frontmatter（`version: "V1.1.0"`）或正文标题标识。
 
-**例外**：`00_项目管理/03_执行过程/` 下的历史执行过程文件可保留日期前缀（如 `2026-06-29_V0.4.2-未来6周滚动计划.md`）；`09_整改项/archive/` 下的归档文件保留原名。
+**例外**：仅对外部交付的**压缩包分发文件（.zip）**强制携带版本号与日期（如 `{项目名}_V{版本}_Release_{日期}.zip`）。
 
 ## 9. 文件写入策略（VS Code buffer staleness）
 
@@ -234,14 +235,22 @@ auto-pm -w "<工作空间根>" change create --retrofit --pid <项目ID> --domai
 
 ## 10. PM_SESSION 双层结构归档规则
 
-PM_SESSION 主文件保持 ≤150 行，超过即触发归档到历史目录 `00_项目管理/06_PM_SESSION历史/YYYY-MM-DD_Vx.x.x.md`。
+PM_SESSION 主文件保持 ≤150 行，超过即触发归档到历史目录 `05_收尾/02_PM_SESSION归档/YYYY-MM-DD_Vx.x.x.md`。
 
 **归档触发机制（自动化，不走 CHG 闭环）**：
 - **版本发布时归档**：每次版本号升级（pyproject.toml 版本号变化），将本轮迭代的 §5/§6/§8 完整记录归档
 - **主文件超 150 行时归档**：将早期 §3 completed/§5/§6/§8 条目归档到历史目录，主文件只保留快照
 - **不创建 CHG**：归档是基础设施维护操作，不是功能变更，**不需要**走 dogfooding 闭环
 
-## 11. 引用规则
+## 11. 对外分发与打包双轨交付机制 (DEV-030 V2.1.0)
+
+1. **对内开发与本地 AI 协作**：
+   - 保持所有文档为固定标准名称（`USER_GUIDE.md`, `TEST_PLAN.md`, `DSN.md`），日常迭代仅更新内容与 Frontmatter 版本号。
+2. **对外版本发布（Release）与换电脑交接**：
+   - 由 `pm-workflow` 触发构建带版本号的免安装压缩包 `{项目名}_V{版本}_Release_{日期}.zip` 保存于 `06_交付物/`；
+   - 压缩包内必须包含免安装独立程序（`{项目名}.exe` 绿色包）及《用户操作指南与排障手册_USER_GUIDE.md》，确保外部电脑无 Python 环境也可解压即用。
+
+## 12. 引用规则
 
 本文件为通用规则单一真源。各技能通过相对路径引用本文件，避免重复维护。
 

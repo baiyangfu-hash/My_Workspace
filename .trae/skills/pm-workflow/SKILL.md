@@ -19,19 +19,20 @@ description: "统一产品/项目管理主入口。适用于需求澄清、PRD/R
 - 项目编号优先从目录名解析（如 `SW-2026-005_xxx` → `SW-2026-005`）
 - 若不存在：使用 `auto-pm project create` 或 `auto-pm project retrofit` 创建/补全
 - 跨技能公共契约的单一真源位于 [../shared/refs/skill_coordination.md](../shared/refs/skill_coordination.md)
-- `pm-workflow` 是 `PM_SESSION` 与 `.auto-pm/ai_feedback.json` 的唯一回写 owner
+- `pm-workflow` 是 `PM_SESSION`、`.auto-pm/ai_feedback.json` 以及 **Obsidian 全局规范仓库（`00_Obsidian_Base全局规范文件仓库/`）的唯一回写与作业 owner**
+- **Obsidian 规范变更自动同步硬规则**：凡新建、修改或删除规范文件，`pm-workflow` 必须同步更新 `spec_registry.json`，并自动触发运行 `python -m auto_pm -w "<工作空间根>" spec index`（自动更新 `00_INDEX_全局规范索引.md`）和 `spec check`，确保全局索引即时联动，严禁产生游离孤立规范。
 
 ## 工具依赖
 
 ```powershell
-# auto-pm：项目初始化、补完、健康检查、类型检测
-python -m auto_pm -w "<工作空间根>" project create|show|edit|retrofit|delete ... [--stack <plc|python>] [--id <编号>] [--name <名称>]
+# auto-pm：项目管理、PLC检查、规范治理
+python -m auto_pm -w "<工作空间根>" project create|show|edit|retrofit|delete ...
 python -m auto_pm -w "<工作空间根>" plc init|check|repair|standardize ...
 
-# 通用原型管理（pm-workflow 独占原型设计、打包与归档）
-python -m auto_pm -w "<工作空间根>" prototype bundle|check|archive|init --pid <编号> [--version <版本>]
+# 通用原型与工业 HMI 管理（pm-workflow 独占原型设计、脚手架与归档）
+python -m auto_pm -w "<工作空间根>" prototype bundle|check|archive|init --pid <编号> [--template industrial-hmi] [--version <版本>]
 
-# 工作空间治理与纯净度卡点（008 驾驶舱治理收拢）
+# 工作空间治理与纯净度自检
 python -m auto_pm -w "<工作空间根>" clean [--cache] [--dry-run]
 python -m auto_pm doctor
 ```
@@ -39,9 +40,10 @@ python -m auto_pm doctor
 - `-w` 必须放在子命令之前
 - `project show` 自动通过多信号判据识别项目类型
 - `project retrofit` 仅添加 hooks/handoffs/Spec Snapshot，不修改现有文件
-- **工作空间治理硬约束**：
+- **工作空间治理与交付硬约束**：
   - 严禁重定向测试日志（`mypy*.txt` / `pytest*.log`）或临时脚本（`.tmp_*.py`）到根目录。所有临时文件统一指定到 `.auto-pm/logs/` 或 `.auto-pm/scratch/`。
   - 在每个 PM 阶段收尾或交付时，必须自动触发 `python -m auto_pm clean` 和 `python -m auto_pm doctor`。
+  - **交付与分发双轨制 (DEV-030 V2.1.0)**：对内文档（`USER_GUIDE.md`, `TEST_PLAN.md`, `DSN.md`）保持固定标准名，严禁加版本号后缀；对外发布时由 PM 构建带版本号与日期的免安装独立压缩包（如 `{项目名}_V{版本}_Release_{日期}.zip`，内含 exe 与说明书）。
 
 > 注意：pm-mgr（SW-2026-007）已被 auto-pm（SW-2026-008）取代；specmgr（SW-2026-006）已被 auto-pm 吸收为 `auto-pm spec` 子命令。旧命令仍可用但不再维护，建议所有新项目使用 auto-pm。
 
@@ -97,7 +99,7 @@ python -m auto_pm doctor
      ```json
      {
        "source": "pm-workflow",
-        "request_id": "AI-20260813-001",
+       "request_id": "AI-20260813-001",
        "project_id": "DJ-2026-005",
        "project_name": "周单机模板",
        "stack": "plc",
@@ -107,28 +109,42 @@ python -m auto_pm doctor
        "change_nature": "DEF",
        "change_status": "draft",
        "mode": "变更/缺陷/发布",
-        "product_context": {
-          "goal_ref": "PM_SESSION_DJ-2026-005.md#product-goal",
-          "hypothesis_ref": "",
-          "success_metric_ref": ""
-        },
+       "product_context": {
+         "goal_ref": "PM_SESSION_DJ-2026-005.md#product-goal",
+         "hypothesis_ref": "",
+         "success_metric_ref": ""
+       },
        "pm_summary": "上下文已通过 cockpit AI 辅助恢复，跳过项目识别、PM_SESSION 读取、模式选择。"
      }
      ```
   - **子技能返回后**：
     - 解析子技能返回的结构化 `handoff_result`（至少包含 `request_id`、`executor_skill`、`summary`、`changed_files`、`verification`、`risks`、`next_actions`、`watchouts`、`read_first`、`artifacts`、`chg_updates`、`product_impact`、`pm_closure`）
+    - 结合技术底稿组装《FAT/SAT 验收规程》《系统点表》《操作维保手册》归档至 `06_文档与交付/`
     - 继续执行 Step 4（由 `pm-workflow` 统一回写 PM_SESSION §6-§9）
     - 由 `pm-workflow` 写入 cockpit 反馈：`.auto-pm/ai_feedback.json`
     - 输出摘要给用户
-- **禁止**：`GUI原型设计-V2.0.md`、`V2.0-全功能自动化测试计划.md`、`PRD_V0.5.0.md`
-- **正确**：`GUI原型设计.md`（版本通过 frontmatter 或正文标题标识）、`PRD.md`
-- 版本演进通过文档头部 frontmatter（`version: "V2.1"`）或正文标题（`# GUI 原型设计 V2.1`）标识，文件名本身保持稳定
 
-**例外**：
-- `00_项目管理/03_执行过程/` 下的历史执行过程文件可保留日期前缀（如 `2026-06-29_V0.4.2-未来6周滚动计划.md`），因其本身就是按日期归档的历史快照
-- `09_整改项/archive/` 下的归档文件保留原名
+### Step 1.5：HMI HTML 原型走查与点表对齐（涉及画面/单机项目必做）
 
-**理由**：版本号后缀导致 PM_SESSION/索引文件中的引用频繁失效（每次升级都要删除旧后缀文件）。
+1. **原型检查与一键脚手架**：
+   - 检查 `03_HMI设计/原型/files/HMI原型设计.html` 是否存在；
+   - 若不存在：调用 `python -m auto_pm -w "<工作空间根>" prototype init --pid <项目ID> --template industrial-hmi` 释放标准 1280x800 原型脚手架（对齐 STD-910 规范）。
+2. **浏览器走查工步与画面流转**：
+   - 在进入 PLC 编码前，在浏览器中走查 11 画面流转、工步时序（如 `S23`）与报警代码；
+   - 维护 `03_HMI设计/hmi_tag_mapping.json`，与 PLC 工程师对齐变量名后再切换至编码技能。
+
+### Step 1.6：Obsidian 全局规范知识库自动同步（规范变更/发布时必做）
+
+1. **确定性工作下沉（禁止手动拼接索引）**：
+   - 凡新建、修订、作废或删除规范文件（位于 `00_Obsidian_Base/`），`pm-workflow` 编写完 Markdown 正文后，**严禁手动拼接全局索引文件**；
+   - 必须统一调用底层自动化命令完成流水线闭环：
+     ```powershell
+     python -m auto_pm -w "<工作空间根>" spec sync
+     ```
+   - 该命令将自动：
+     ① 重新生成 `00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md`；
+     ② 重新生成各业务线通用规范 `README.md`；
+     ③ 自动执行全量健康自检，确保 0 孤立文件、0 断链。
 
 ### Step 3.5：Bug 诊断强制流程（变更/缺陷模式专用，禁止跳过）
 

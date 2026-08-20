@@ -238,10 +238,13 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
-                    text: "📊 生成报告"
+                PrimaryButton {
+                    text: "生成报告"
+                    icon: "📊"
+                    type: "primary"
+                    Layout.preferredWidth: 110
+                    loading: root.isExecuting
                     enabled: !root.isExecuting
-                    highlighted: true
                     onClicked: {
                         root.isExecuting = true
                         var res = specBridge.generateSpecReport(root.fmt)
@@ -253,8 +256,11 @@ Item {
                     }
                 }
 
-                Button {
+                PrimaryButton {
                     text: "关闭"
+                    type: "ghost"
+                    Layout.preferredWidth: 80
+                    enabled: !root.isExecuting
                     onClicked: root.close()
                 }
             }
