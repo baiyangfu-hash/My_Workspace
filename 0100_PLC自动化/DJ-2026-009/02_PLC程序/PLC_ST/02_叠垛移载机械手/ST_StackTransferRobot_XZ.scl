@@ -1,11 +1,18 @@
 TYPE ST_StackTransferRobot_XZ :
 STRUCT
-    bEnable     : BOOL;     (* 使能 *)
-    bAutoMode   : BOOL;     (* 自动 *)
-    bRunning    : BOOL;     (* 运行中 *)
-    bDone       : BOOL;     (* 完成 *)
-    bError      : BOOL;     (* 故障 *)
-    iStep       : INT;      (* 当前步序 *)
-    wErrorCode  : WORD;     (* 错误字 *)
+    bEnable         : BOOL;     (* 功能块使能 *)
+    bAutoMode       : BOOL;     (* 自动模式 *)
+    bRunning        : BOOL;     (* 运行中 *)
+    bDone           : BOOL;     (* 移载循环完成 *)
+    bError          : BOOL;     (* 故障状态 *)
+    rTargetPosX     : REAL;     (* X 轴目标坐标 (mm) *)
+    rTargetPosZ     : REAL;     (* Z 轴目标坐标 (mm) *)
+    rActualPosX     : REAL;     (* X 轴当前实时坐标 (mm) *)
+    rActualPosZ     : REAL;     (* Z 轴当前实时坐标 (mm) *)
+    bVacuumGripOn   : BOOL;     (* 真空吸附/夹爪闭合 *)
+    bHoldingProduct : BOOL;     (* 夹爪抓取在位信号 *)
+    iCurrentLayer   : INT;      (* 当前正在堆叠层数 *)
+    iStep           : INT;      (* 当前步序 *)
+    wErrorCode      : WORD;     (* 故障代码 *)
 END_STRUCT
 END_TYPE

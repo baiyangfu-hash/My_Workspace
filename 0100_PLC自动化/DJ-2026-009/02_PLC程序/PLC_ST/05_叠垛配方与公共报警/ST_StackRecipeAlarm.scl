@@ -1,11 +1,19 @@
 TYPE ST_StackRecipeAlarm :
 STRUCT
-    bEnable     : BOOL;     (* 使能 *)
-    bAutoMode   : BOOL;     (* 自动 *)
-    bRunning    : BOOL;     (* 运行中 *)
-    bDone       : BOOL;     (* 完成 *)
-    bError      : BOOL;     (* 故障 *)
-    iStep       : INT;      (* 当前步序 *)
-    wErrorCode  : WORD;     (* 错误字 *)
+    bEnable         : BOOL;     (* 使能 *)
+    bAutoMode       : BOOL;     (* 自动 *)
+    bRunning        : BOOL;     (* 运行中 *)
+    bDone           : BOOL;     (* 配方加载就绪 *)
+    bError          : BOOL;     (* 故障 *)
+    rFrameWidth     : REAL;     (* R1500: 边框截面宽度 (mm) *)
+    rLayerHeight    : REAL;     (* R1502: 边框层高 (mm) *)
+    iTotalPieces    : INT;      (* R1508: 整托总根数 *)
+    iPiecesPerLayer : INT;      (* R1522: 单层摆放对数 *)
+    iStrappingLayer1: INT;      (* R1540: 塑钢带打捆层数1 *)
+    iStrappingLayer2: INT;      (* R1542: 塑钢带打捆层数2 *)
+    bStrappingReq   : BOOL;     (* 提示打捆暂停请求 *)
+    iActiveAlarmCnt : INT;      (* 当前活跃报警数量 *)
+    iStep           : INT;      (* 当前步序 *)
+    wErrorCode      : WORD;     (* 故障代码 *)
 END_STRUCT
 END_TYPE

@@ -1,0 +1,8 @@
+{
+  "name": "DJ-2026-009",
+  "description": "长边框堆垛机 PLC 控制系统",
+  "version": "V1.0.0",
+  "libraries": [
+    "../01_SharedLibraries/SysLib"
+  ]
+}

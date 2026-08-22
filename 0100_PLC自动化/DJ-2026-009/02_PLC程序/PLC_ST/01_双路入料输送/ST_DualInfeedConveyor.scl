@@ -1,11 +1,14 @@
 TYPE ST_DualInfeedConveyor :
 STRUCT
-    bEnable     : BOOL;     (* 使能 *)
-    bAutoMode   : BOOL;     (* 自动 *)
-    bRunning    : BOOL;     (* 运行中 *)
-    bDone       : BOOL;     (* 完成 *)
-    bError      : BOOL;     (* 故障 *)
-    iStep       : INT;      (* 当前步序 *)
-    wErrorCode  : WORD;     (* 错误字 *)
+    bEnable         : BOOL;     (* 功能块使能 *)
+    bAutoMode       : BOOL;     (* 自动模式 *)
+    bRunning        : BOOL;     (* 运行中 *)
+    bDone           : BOOL;     (* 单次进料完成 *)
+    bError          : BOOL;     (* 故障状态 *)
+    iInfeedCount1   : INT;      (* 1# 输送皮带进料计数 *)
+    iInfeedCount2   : INT;      (* 2# 输送皮带进料计数 *)
+    bInfeedReady    : BOOL;     (* 取料位准备就绪 *)
+    iStep           : INT;      (* 当前状态机步序 *)
+    wErrorCode      : WORD;     (* 故障诊断代码 *)
 END_STRUCT
 END_TYPE

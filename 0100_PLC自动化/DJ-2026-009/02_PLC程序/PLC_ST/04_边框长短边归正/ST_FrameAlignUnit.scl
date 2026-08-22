@@ -1,11 +1,13 @@
 TYPE ST_FrameAlignUnit :
 STRUCT
-    bEnable     : BOOL;     (* 使能 *)
-    bAutoMode   : BOOL;     (* 自动 *)
-    bRunning    : BOOL;     (* 运行中 *)
-    bDone       : BOOL;     (* 完成 *)
-    bError      : BOOL;     (* 故障 *)
-    iStep       : INT;      (* 当前步序 *)
-    wErrorCode  : WORD;     (* 错误字 *)
+    bEnable         : BOOL;     (* 功能块使能 *)
+    bAutoMode       : BOOL;     (* 自动模式 *)
+    bRunning        : BOOL;     (* 运行中 *)
+    bDone           : BOOL;     (* 纠偏归正完成 *)
+    bError          : BOOL;     (* 故障状态 *)
+    bShortSidePush  : BOOL;     (* 短边推齐气缸伸出 *)
+    bLongSidePush   : BOOL;     (* 长边推齐气缸伸出 *)
+    iStep           : INT;      (* 当前步序 *)
+    wErrorCode      : WORD;     (* 故障代码 *)
 END_STRUCT
 END_TYPE

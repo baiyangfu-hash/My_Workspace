@@ -1,0 +1,33 @@
+// ============================================================================
+// interlock_test.scltest - 长边框堆垛机 防碰撞与安全联锁集成测试 (V1.0.0)
+// ============================================================================
+// 功能说明：
+//   测试叠垛移载机械手、隔纸架切刀、长短边纠偏与急停回路之间的跨工站安全互锁。
+// ============================================================================
+
+TEST_CASE "TC_Interlock_PaperCutter_StackRobot"
+    // 测试目标：隔纸切刀动作伸出未回位时，移载机械手 Z 轴禁止下行
+    SET GlobalVars.stGlobal.bPowerOn := TRUE;
+    SET GlobalVars.stGlobal.bEmergencyStop := TRUE;
+    SET GlobalVars.stPaperHolder.bCutterAction := TRUE; // 切刀正在动作
+    WAIT_CYCLES 2;
+    ASSERT GlobalVars.stStackTransfer.bVacuumGripOn = FALSE; // 禁止下压抓取
+END_TEST_CASE
+
+TEST_CASE "TC_Interlock_AlignCylinder_StackRobot"
+    // 测试目标：长短边推齐气缸伸出时，机械手禁止在码垛区放料
+    SET GlobalVars.stGlobal.bPowerOn := TRUE;
+    SET GlobalVars.stGlobal.bEmergencyStop := TRUE;
+    SET GlobalVars.stFrameAlign.bLongSidePush := TRUE; // 长边气缸伸出
+    WAIT_CYCLES 2;
+    ASSERT GlobalVars.stStackTransfer.bDone = FALSE;
+END_TEST_CASE
+
+TEST_CASE "TC_Interlock_PaperExhausted_Alarm"
+    // 测试目标：隔纸料仓缺料时触发预警，并阻止自动拉纸循环
+    SET GlobalVars.stGlobal.bPowerOn := TRUE;
+    SET GlobalVars.stGlobal.bEmergencyStop := TRUE;
+    SET GlobalVars.stPaperHolder.bPaperExhausted := TRUE; // 缺纸信号
+    WAIT_CYCLES 3;
+    ASSERT GlobalVars.fbPaperHolder.q_bError = TRUE; // 触发缺纸故障
+END_TEST_CASE

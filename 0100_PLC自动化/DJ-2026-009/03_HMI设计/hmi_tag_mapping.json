@@ -1,34 +1,66 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "template_version": "1.0.0",
-  "project_id": "{{ project_id }}",
-  "project_name": "{{ project_name }}",
+  "project_id": "DJ-2026-009",
+  "project_name": "长边框堆垛机",
   "resolution": "1280x800",
-  "target_hmi": "ProFace GP4501 / Siemens Comfort / Weintek",
+  "target_hmi": "汇川 H5U 触摸屏 / InoTouchPad",
   "tags": [
     {
-      "element_id": "val-actual-pos-x1",
+      "element_id": "posAxisX",
       "page_id": "main",
-      "scl_db_var": "DB_HMI.ActualPos_X1",
+      "scl_db_var": "io_stXAxis.stActual.rActPos",
       "data_type": "Real",
-      "address": "%MD100",
-      "description": "X1轴实际坐标(mm)"
+      "address": "D1000",
+      "description": "移载X轴实际坐标(mm)"
     },
     {
-      "element_id": "led-station-ready",
+      "element_id": "posAxisZ",
       "page_id": "main",
-      "scl_db_var": "DB_HMI.StationReady",
-      "data_type": "Bool",
-      "address": "%M10.0",
-      "description": "工站就绪信号"
+      "scl_db_var": "io_stZAxis.stActual.rActPos",
+      "data_type": "Real",
+      "address": "D1100",
+      "description": "移载Z轴实际坐标(mm)"
     },
     {
-      "element_id": "btn-station-start",
-      "page_id": "auto",
-      "scl_db_var": "DB_HMI.Btn_AutoStart",
+      "element_id": "ledSysRunning",
+      "page_id": "main",
+      "scl_db_var": "GlobalVars.bRunning",
       "data_type": "Bool",
-      "address": "%M10.1",
-      "description": "自动启动按钮"
+      "address": "M10.0",
+      "description": "系统运行指示灯"
+    },
+    {
+      "element_id": "ledAutoMode",
+      "page_id": "main",
+      "scl_db_var": "GlobalVars.bAutoMode",
+      "data_type": "Bool",
+      "address": "M10.1",
+      "description": "自动模式状态灯"
+    },
+    {
+      "element_id": "kpiTotal",
+      "page_id": "main",
+      "scl_db_var": "io_stRecipe.iTotalStackedFrames",
+      "data_type": "DInt",
+      "address": "D1508",
+      "description": "托盘总边框数"
+    },
+    {
+      "element_id": "io-X0_0",
+      "page_id": "io",
+      "scl_db_var": "GlobalVars.bEStop",
+      "data_type": "Bool",
+      "address": "X0.0",
+      "description": "主急停按钮输入"
+    },
+    {
+      "element_id": "io-Y0_2",
+      "page_id": "comm",
+      "scl_db_var": "io_stExternal.stUpstream.bMachine_AllowInfeed",
+      "data_type": "Bool",
+      "address": "Y0.2",
+      "description": "允许上游1#送料"
     }
   ]
 }

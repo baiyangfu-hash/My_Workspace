@@ -1,11 +1,14 @@
 TYPE ST_PaperHolder_Z :
 STRUCT
-    bEnable     : BOOL;     (* 使能 *)
-    bAutoMode   : BOOL;     (* 自动 *)
-    bRunning    : BOOL;     (* 运行中 *)
-    bDone       : BOOL;     (* 完成 *)
-    bError      : BOOL;     (* 故障 *)
-    iStep       : INT;      (* 当前步序 *)
-    wErrorCode  : WORD;     (* 错误字 *)
+    bEnable         : BOOL;     (* 功能块使能 *)
+    bAutoMode       : BOOL;     (* 自动模式 *)
+    bRunning        : BOOL;     (* 运行中 *)
+    bDone           : BOOL;     (* 铺纸动作完成 *)
+    bError          : BOOL;     (* 故障状态 *)
+    rActualPosZ     : REAL;     (* 隔纸架 Z 轴当前坐标 (mm) *)
+    bCutterAction   : BOOL;     (* 切刀气缸动作输出 *)
+    bPaperExhausted : BOOL;     (* 隔纸料仓缺料预警 *)
+    iStep           : INT;      (* 当前状态机步序 *)
+    wErrorCode      : WORD;     (* 故障代码 *)
 END_STRUCT
 END_TYPE
