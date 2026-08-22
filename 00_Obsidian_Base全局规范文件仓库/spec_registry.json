@@ -425,7 +425,7 @@
       "title": "通用项目交付规范",
       "number": "030",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/03_执行管控/030_通用项目交付规范_DEV.md",
-      "version": "V2.2.0",
+      "version": "V2.3.0",
       "type_prefix": "DEV",
       "domain": "pm",
       "lifecycle": "stable",
@@ -924,19 +924,21 @@
       "replaced_by": []
     },
     "DEV-216": {
-      "title": "PySide6 GUI 开发规范",
+      "title": "PySide6 + QML 工业上位机架构规范",
       "number": "216",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/02_Python开发域/216_PySide6_GUI开发规范_DEV.md",
-      "version": "V1.1.0",
+      "version": "V2.0.0",
       "type_prefix": "DEV",
       "domain": "python",
       "lifecycle": "active",
       "sub_domain": "Python开发",
       "tags": [
         "PySide6",
-        "GUI",
-        "Qt",
-        "开发规范"
+        "QML",
+        "上位机",
+        "CleanArchitecture",
+        "Bridge",
+        "DTO"
       ],
       "replaces": [],
       "replaced_by": []
@@ -954,6 +956,26 @@
         "Click",
         "CLI",
         "开发规范"
+      ],
+      "replaces": [],
+      "replaced_by": []
+    },
+    "DEV-218": {
+      "title": "工业通信与实时数据流规范",
+      "number": "218",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/02_Python开发域/218_工业通信与实时数据流规范_DEV.md",
+      "version": "V1.0.0",
+      "type_prefix": "DEV",
+      "domain": "python",
+      "lifecycle": "active",
+      "sub_domain": "Python开发",
+      "tags": [
+        "工业通信",
+        "Modbus",
+        "S7",
+        "双缓冲",
+        "实时数据流",
+        "断线重连"
       ],
       "replaces": [],
       "replaced_by": []
@@ -1130,7 +1152,14 @@
       "domain": "plc",
       "lifecycle": "stable",
       "sub_domain": "上位机与HMI",
-      "tags": ["HMI", "上位机", "选型", "通信分工", "触摸屏", "PC上位机"],
+      "tags": [
+        "HMI",
+        "上位机",
+        "选型",
+        "通信分工",
+        "触摸屏",
+        "PC上位机"
+      ],
       "replaces": [],
       "replaced_by": []
     },
@@ -1143,7 +1172,13 @@
       "domain": "cockpit",
       "lifecycle": "stable",
       "sub_domain": "工业HMI原型",
-      "tags": ["HMI", "HTML原型", "点表映射", "工业组态", "DJ-2026-005"],
+      "tags": [
+        "HMI",
+        "HTML原型",
+        "点表映射",
+        "工业组态",
+        "DJ-2026-005"
+      ],
       "replaces": [],
       "replaced_by": []
     },
@@ -1156,7 +1191,14 @@
       "domain": "cockpit",
       "lifecycle": "stable",
       "sub_domain": "Python驾驶舱原型",
-      "tags": ["Python", "驾驶舱", "Glassmorphism", "Bridge", "PySide6", "SW-2026-008"],
+      "tags": [
+        "Python",
+        "驾驶舱",
+        "Glassmorphism",
+        "Bridge",
+        "PySide6",
+        "SW-2026-008"
+      ],
       "replaces": [],
       "replaced_by": []
     },
@@ -1169,9 +1211,35 @@
       "domain": "cockpit",
       "lifecycle": "stable",
       "sub_domain": "驾驶舱UI",
-      "tags": ["驾驶舱", "UI/UX", "SCADA", "HMI", "DJ-2026-005实践"],
+      "tags": [
+        "驾驶舱",
+        "UI/UX",
+        "SCADA",
+        "HMI",
+        "DJ-2026-005实践"
+      ],
       "replaces": [],
       "replaced_by": []
+    },
+    "STD-820": {
+      "title": "设备间信号交握与外部对接规范",
+      "number": "820",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/820_设备间信号交握与外部对接规范_STD.md",
+      "version": "V1.0.0",
+      "type_prefix": "STD",
+      "domain": "plc",
+      "lifecycle": "stable",
+      "sub_domain": "03_PLC自动化域",
+      "tags": [
+        "交握规范",
+        "外部对接",
+        "PLC",
+        "M2M",
+        "标准"
+      ],
+      "replaces": [],
+      "replaced_by": [],
+      "aliases": []
     }
   },
   "project_copies": []

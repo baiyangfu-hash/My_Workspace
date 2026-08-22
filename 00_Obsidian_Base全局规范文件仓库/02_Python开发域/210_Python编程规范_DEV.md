@@ -402,72 +402,40 @@ from mypackage import module
 
 
 
-## 12. 工具和框架
+## 12. 工具和框架 (现代基线)
 
+- **Linter & Formatter**：统一使用 **`Ruff`** 代替过时的 flake8/black/autopep8/isort，实现毫秒级代码风格检查与自动修复。
+- **静态类型系统**：全面启用 **`Mypy`** 进行严格类型检查，关键公共接口与数据模型使用 `Pydantic V2` 或 `@dataclass(frozen=True)`。
+- **单元测试**：使用 `pytest` 框架，结合 `pytest-qt` 进行 GUI 与 Bridge 回归测试。
 
-
-- 使用lint工具（如flake8、pylint）检查代码风格
-
-- 使用格式化工具（如black、autopep8）统一代码格式
-
-- 使用类型提示提高代码的可读性和可维护性
-
-
-
-## 14. Service层架构模式 (DEV-V1.1.0 新增)
-
-
+## 14. Service层架构模式 (Clean Architecture 领域服务)
 
 ### 14.1 设计原则
+基于 Clean Architecture 5 层整洁架构的最佳实践：
 
-基于SW-2026-004项目的service层设计实践:
+| 原则 | 描述 | 说明与示例 |
+|-----|------|------------|
+| **单一职责** | 每个 Service 只负责一个垂直业务领域 | `ProjectService` 负责项目生命周期，`ChangeService` 负责变更闭环 |
+| **依赖注入** | Service 通过构造函数接收外部依赖（路径、仓储） | `PlcChecker(workspace_root=...)`，避免硬编码与隐式全局变量 |
+| **纯同步领域层** | 业务 Service 保持纯同步逻辑，易于单测与复用 | 耗时/异步操作由外层（Bridge/Worker）的 `QThreadPool` 调度 |
+| **无状态/防抖** | 核心服务保持无状态或通过明确的上下文传递 | 避免跨请求脏状态累积 |
 
-
-
-| 原则 | 描述 | SW-2026-004示例 |
-
-|-----|------|------------------|
-
-| 单一职责 | 每个Service只负责一个业务领域 | template_service只管模板操作 |
-
-| 依赖注入 | Service通过构造函数接收依赖 | spec_service接收config对象 |
-
-| 异步优先 | 耗时操作使用async/await | 所有文件IO操作异步化 |
-
-
-
-### 14.2 标准Service结构模板
-
-
+### 14.2 标准 Service 结构模板
 
 ```python
-
 class XxxService:
+    """[Service 业务领域职责描述]"""
 
-    """[Service描述]"""
+    def __init__(self, workspace_root: str, repository: Repository | None = None) -> None:
+        self.workspace_root = workspace_root
+        self._repo = repository
 
-
-
-    def __init__(self, config: dict, logger: Logger):
-
-        self._config = config
-
-        self._logger = logger
-
-
-
-    async def execute(self, request: Request) -> Response:
-
-        """核心业务方法"""
-
-        # 1. 参数校验
-
-        # 2. 业务逻辑
-
-        # 3. 结果封装
-
-        pass
-
+    def execute_action(self, request: ActionRequestDTO) -> ActionResponseDTO:
+        """核心业务逻辑（纯同步、确定性、高可测）"""
+        # 1. 业务参数与前置校验
+        # 2. 领域规则执行与计算
+        # 3. 结果封装为不可变 DTO 返回
+        return ActionResponseDTO(success=True, message="操作成功")
 ```
 
 

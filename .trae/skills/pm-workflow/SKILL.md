@@ -40,10 +40,21 @@ python -m auto_pm -w "<ws>" change create|show|transition|verify
 python -m auto_pm -w "<ws>" ledger reconcile <项目ID>
 # PM_SESSION 归档
 python -m auto_pm -w "<ws>" pm-session archive <项目ID> --version <版本>
-# 规范联动
+# 规范治理（真源登记、全库索引编译、一致性校验）
+python -m auto_pm -w "<ws>" spec index
 python -m auto_pm -w "<ws>" spec sync
-# 真源一致性检查
-python -m auto_pm -w "<ws>" spec check --check-id SHC-011,SHC-012,SHC-013,SHC-014
+python -m auto_pm -w "<ws>" spec check
+# Doc-as-Code（文档自省与代码同步对账）
+python -m auto_pm -w "<ws>" doc sync
+python -m auto_pm -w "<ws>" doc check
+
+## 规范治理工作流 (Spec Governance)
+
+当用户提出全局规范新增、修改、废弃或删除诉求时：
+1. **需求澄清与影响评估**：确定规范编号（如 STD-820）、归属领域与依赖范围；
+2. **规范撰写与真源登记**：在 `00_Obsidian_Base全局规范文件仓库/` 对应域创建/修改 Markdown，并登记至 `spec_registry.json`；
+3. **强制索引刷新**：必须执行 `python -m auto_pm -w "<ws>" spec index` 重新编译生成 `00_INDEX` 与各域 `README.md`；
+4. **一致性检查与呈报**：执行 `spec check` 确保无破损引用，将变更摘要呈报用户确认落账。
 ```
 
 ## 技术栈路由（收到请求后立即执行）
