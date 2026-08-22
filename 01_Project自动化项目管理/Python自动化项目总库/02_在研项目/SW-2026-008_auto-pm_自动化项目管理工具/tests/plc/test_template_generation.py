@@ -63,11 +63,11 @@ class TestTemplateGeneration:
     def test_plc_standard_project_template_structure(
         self, template_service: TemplateService
     ) -> None:
-        """plc-standard-project 模板结构正确（C-1 修复：无根级 .plc.json）"""
+        """plc-standard-project 模板结构正确（含根级 .plc.json 与 02_PLC程序 资产）"""
         path = template_service.get_template_path("plc-standard-project")
         assert os.path.isfile(os.path.join(path, "copier.yml"))
-        # 验证无根级 .plc.json.jinja（C-1 修复）
-        assert not os.path.isfile(os.path.join(path, "template", ".plc.json.jinja"))
+        # 验证根级 .plc.json.jinja
+        assert os.path.isfile(os.path.join(path, "template", ".plc.json.jinja"))
         # 验证 .plc.json.jinja 在 02_PLC程序/PLC_ST/ 下
         plc_json_jinja = os.path.join(
             path, "template", "02_PLC程序", "PLC_ST", ".plc.json.jinja"
@@ -95,13 +95,13 @@ class TestTemplateGeneration:
     def test_plc_standard_project_includes_week2_assets_and_overview(
         self, template_service: TemplateService
     ) -> None:
-        """plc-standard-project 模板包含 Week 2 单机概览和工程资产样例"""
+        """plc-standard-project 模板包含工程资产样例与立项表"""
         path = template_service.get_template_path("plc-standard-project")
         template_dir = os.path.join(path, "template")
 
         assert os.path.isfile(
             os.path.join(
-                template_dir, "01_需求与设计", "001_单机设备项目概览_OVW.md.jinja"
+                template_dir, "01_启动", "003_{{ project_id }}_项目立项表_PROJ.md.jinja"
             )
         )
         for asset_name in (

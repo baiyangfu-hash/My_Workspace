@@ -97,3 +97,54 @@ def test_scl_linter_detects_missing_case_else() -> None:
     report = SclLinter.lint_text(no_else_scl, file_path="no_else.scl")
     assert not report.is_clean
     assert any(v.rule_id == "LSP-905-CASE-NO-ELSE" for v in report.violations)
+
+
+def test_scl_linter_detects_time_literal() -> None:
+    time_lit_scl = """
+    FUNCTION_BLOCK FB_1001_TimeLit
+    VAR
+        fb_tAction : FB_TON;
+        s_bDone : BOOL;
+        s_diElapsed : DINT;
+    END_VAR
+    BEGIN
+        fb_tAction(IN := TRUE, PT := T#500ms, Q => s_bDone, ET => s_diElapsed);
+    END_FUNCTION_BLOCK
+    """
+    report = SclLinter.lint_text(time_lit_scl, file_path="time_lit.scl")
+    assert not report.is_clean
+    assert any(v.rule_id == "LSP-906-TIMER-TIME-LITERAL" for v in report.violations)
+
+
+def test_scl_linter_detects_chinese_punctuation() -> None:
+    chinese_punct_scl = """
+    FUNCTION_BLOCK FB_1001_ChinesePunct
+    VAR_INPUT
+        i_bStart : BOOL； // 中文分号
+    END_VAR
+    BEGIN
+        IF i_bStart THEN
+            i_bStart := FALSE;
+        END_IF;
+    END_FUNCTION_BLOCK
+    """
+    report = SclLinter.lint_text(chinese_punct_scl, file_path="chinese_punct.scl")
+    assert not report.is_clean
+    assert any(v.rule_id == "LSP-905-CHINESE-PUNCTUATION" for v in report.violations)
+
+
+def test_scl_linter_detects_missing_timer_q() -> None:
+    missing_q_scl = """
+    FUNCTION_BLOCK FB_1001_MissingQ
+    VAR
+        fb_tAction : FB_TON;
+        s_diElapsed : DINT;
+    END_VAR
+    BEGIN
+        fb_tAction(IN := TRUE, PT := 500, Q => , ET => s_diElapsed);
+    END_FUNCTION_BLOCK
+    """
+    report = SclLinter.lint_text(missing_q_scl, file_path="missing_q.scl")
+    assert not report.is_clean
+    assert any(v.rule_id == "LSP-906-TIMER-MISSING-Q" for v in report.violations)
+

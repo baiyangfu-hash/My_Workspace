@@ -44,10 +44,10 @@ class PlcIngestService:
     def __init__(self, workspace_root: str = "") -> None:
         self.workspace_root = workspace_root or os.getcwd()
 
-    def ingest_autoshop_project(
+    def ingest_to_staging(
         self, source_dir: str, target_project_path: str, project_id: str, project_name: str
     ) -> IngestionResult:
-        """从汇川 AutoShop 源工程执行全量逆向摄取与标准化资产生成"""
+        """阶段 1：将异构源工程安全提取到 .ingest_staging 暂存区，不污染正式工程"""
         src_path = Path(source_dir).resolve()
         target_path = Path(target_project_path).resolve()
 
@@ -56,7 +56,6 @@ class PlcIngestService:
         if not target_path.exists():
             raise FileNotFoundError(f"目标项目目录不存在: {target_path}")
 
-        # 1. 搜寻 AutoShop 变量表 CSV 文件
         csv_files = list(src_path.rglob("*.csv"))
         result = IngestionResult(
             source_path=str(src_path),
@@ -75,39 +74,134 @@ class PlcIngestService:
         result.total_servos = sum(1 for v in all_variables if v.domain_category == "Servo")
         result.total_ios = sum(1 for v in all_variables if v.domain_category == "IO")
 
-        # 2. 生成工程资产: io_points.csv
-        io_csv_path = target_path / "02_PLC程序" / "工程资产" / "io_points.csv"
-        self._generate_io_csv(all_variables, io_csv_path)
+        # 1. 写入 .ingest_staging/raw/
+        staging_dir = target_path / ".ingest_staging"
+        raw_dir = staging_dir / "raw"
+        draft_dir = staging_dir / "draft"
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        draft_dir.mkdir(parents=True, exist_ok=True)
+
+        raw_json_path = raw_dir / "raw_variables.json"
+        raw_data = [
+            {
+                "source_table": v.source_table,
+                "name": v.name,
+                "type": v.var_type,
+                "address": v.address,
+                "comment": v.comment,
+                "category": v.domain_category,
+            }
+            for v in all_variables
+        ]
+        with open(raw_json_path, "w", encoding="utf-8") as f:
+            json.dump(raw_data, f, ensure_ascii=False, indent=2)
+        result.generated_files.append(str(raw_json_path))
+
+        # 2. 生成待审点表草案 .ingest_staging/draft/io_points.draft.csv
+        draft_csv_path = draft_dir / "io_points.draft.csv"
+        self._generate_io_csv(all_variables, draft_csv_path)
+        result.generated_files.append(str(draft_csv_path))
+
+        # 3. 生成清洗报告 .ingest_staging/staging_report.md
+        report_path = staging_dir / "staging_report.md"
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(f"# 逆向摄取暂存报告 - {project_id} {project_name}\n\n")
+            f.write(f"- **摄取源**: `{src_path}`\n")
+            f.write(f"- **总变量数**: {result.total_variables} 个\n")
+            f.write(f"- **报警点位**: {result.total_alarms} 个\n")
+            f.write(f"- **伺服轴控**: {result.total_servos} 个\n")
+            f.write(f"- **硬件 IO**: {result.total_ios} 个\n")
+            f.write(f"- **源表数量**: {len(result.extracted_tables)} 个\n\n")
+            f.write("## 下一步提示\n\n")
+            f.write("1. 在驾驶舱【逆向资产走查】页面或查看 `.ingest_staging/draft/io_points.draft.csv` 复核点位；\n")
+            f.write(f"2. 确认无误后执行 `auto-pm plc promote {project_id}` 将点表投影到生产目录。\n")
+        result.generated_files.append(str(report_path))
+
+        return result
+
+    def promote_staging(
+        self, target_project_path: str, project_id: str, project_name: str
+    ) -> IngestionResult:
+        """阶段 4：将 .ingest_staging 中审核通过的草案正式投影到生产工程资产与文档"""
+        target_path = Path(target_project_path).resolve()
+        staging_dir = target_path / ".ingest_staging"
+        draft_csv = staging_dir / "draft" / "io_points.draft.csv"
+        raw_json = staging_dir / "raw" / "raw_variables.json"
+
+        if not staging_dir.exists() or (not draft_csv.exists() and not raw_json.exists()):
+            raise FileNotFoundError(f"未检测到暂存数据，请先执行 auto-pm plc ingest --src <源> --pid {project_id}")
+
+        all_variables: list[VariableItem] = []
+        if raw_json.exists():
+            with open(raw_json, encoding="utf-8") as f:
+                raw_data = json.load(f)
+                for item in raw_data:
+                    all_variables.append(
+                        VariableItem(
+                            source_table=item.get("source_table", ""),
+                            name=item.get("name", ""),
+                            var_type=item.get("type", "BOOL"),
+                            address=item.get("address", ""),
+                            comment=item.get("comment", ""),
+                            domain_category=item.get("category", "General"),
+                        )
+                    )
+
+        result = IngestionResult(
+            source_path=str(staging_dir),
+            target_project_path=str(target_path),
+            total_variables=len(all_variables),
+            total_alarms=sum(1 for v in all_variables if v.domain_category == "Alarm"),
+            total_servos=sum(1 for v in all_variables if v.domain_category == "Servo"),
+            total_ios=sum(1 for v in all_variables if v.domain_category == "IO"),
+        )
+
+        # 1. 投影正式工程资产: io_points.csv
+        assets_dir = target_path / "02_PLC程序" / "工程资产"
+        assets_dir.mkdir(parents=True, exist_ok=True)
+        io_csv_path = assets_dir / "io_points.csv"
+        if draft_csv.exists():
+            import shutil
+            shutil.copy2(draft_csv, io_csv_path)
+        else:
+            self._generate_io_csv(all_variables, io_csv_path)
         result.generated_files.append(str(io_csv_path))
 
-        # 3. 生成工程资产: communications.yml
-        comm_yml_path = target_path / "02_PLC程序" / "工程资产" / "communications.yml"
+        # 2. 投影正式工程资产: communications.yml
+        comm_yml_path = assets_dir / "communications.yml"
         self._generate_comm_yml(project_id, comm_yml_path)
         result.generated_files.append(str(comm_yml_path))
 
-        # 4. 生成程序文档: PLC变量定义文档_VAR.md (完整数据字典)
+        # 3. 自动派生标准文档: {project_id}_PLC变量定义文档_VAR.md
         doc_dir = target_path / "02_PLC程序" / "程序文档"
         doc_dir.mkdir(parents=True, exist_ok=True)
-        var_doc_path = doc_dir / f"PLC变量定义文档_VAR-{project_id}-V1.0.0.md"
+        var_doc_path = doc_dir / f"{project_id}_PLC变量定义文档_VAR.md"
         self._generate_var_doc(project_id, project_name, all_variables, var_doc_path)
         result.generated_files.append(str(var_doc_path))
 
-        # 5. 生成程序文档: 015_IO分配表_IO.md
+        # 4. 自动派生标准文档: 015_{project_id}_IO分配表_IO.md
         io_doc_path = doc_dir / f"015_{project_id}_IO分配表_IO.md"
         self._generate_io_doc(project_id, project_name, all_variables, io_doc_path)
         result.generated_files.append(str(io_doc_path))
 
-        # 6. 生成程序文档: 016_PLC程序设计总文档_PLC.md
+        # 5. 自动派生标准文档: 016_{project_id}_PLC程序设计总文档_PLC.md
         plc_doc_path = doc_dir / f"016_{project_id}_PLC程序设计总文档_PLC.md"
         self._generate_plc_doc(project_id, project_name, result, plc_doc_path)
         result.generated_files.append(str(plc_doc_path))
 
-        # 7. 生成程序文档: 018_自动工艺流程图_FLOW.md
+        # 6. 自动派生标准文档: 018_{project_id}_自动工艺流程图_FLOW.md
         flow_doc_path = doc_dir / f"018_{project_id}_自动工艺流程图_FLOW.md"
         self._generate_flow_doc(project_id, project_name, flow_doc_path)
         result.generated_files.append(str(flow_doc_path))
 
         return result
+
+    def ingest_autoshop_project(
+        self, source_dir: str, target_project_path: str, project_id: str, project_name: str
+    ) -> IngestionResult:
+        """全量逆向摄取：先入暂存再自动投影（兼容直接调用）"""
+        self.ingest_to_staging(source_dir, target_project_path, project_id, project_name)
+        return self.promote_staging(target_project_path, project_id, project_name)
 
     def _parse_single_csv(self, csv_file: Path) -> list[VariableItem]:
         """安全读取并解析单张 AutoShop CSV 变量表"""

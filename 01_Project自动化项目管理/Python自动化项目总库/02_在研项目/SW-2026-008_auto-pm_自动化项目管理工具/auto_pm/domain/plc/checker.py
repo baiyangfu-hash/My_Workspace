@@ -204,6 +204,11 @@ class PlcChecker:
         # 4. 检查目录结构（仅标准项目）
         if project_type == "standard":
             self._check_directory_structure(project_path, result)
+            self._check_change_management_and_governance(project_path, result)
+            self._check_lifecycle_delivery_templates(project_path, result)
+
+        # 4.5. 检查目录唯一性与影子冗余冲突（DEV-001/DEV-003/LSP-907）
+        self._check_naming_and_shadow_duplicates(project_path, result)
 
         # 5. 检查 Spec Snapshot 规范漂移
         self._check_spec_snapshot(project_path, result)
@@ -866,6 +871,148 @@ class PlcChecker:
                 result.add(f"目录 {actual}", "pass", "存在（5大过程组兼容）")
             else:
                 result.add(f"目录 {d}", "fail", f"缺少目录 {d}（LSP-907 §3.1）")
+
+    def _check_naming_and_shadow_duplicates(self, project_path: str, result: CheckResult) -> None:
+        """检查目录前缀冲突、影子冗余文件与版本后缀违规（DEV-001/DEV-003/LSP-907）"""
+        # 1. 检查根目录序号前缀冲突 (例如不能同时存在 04_现场调试 与 04_驱动器与设备)
+        prefix_map: dict[str, list[str]] = {}
+        try:
+            for entry in os.listdir(project_path):
+                if os.path.isdir(os.path.join(project_path, entry)) and not entry.startswith("."):
+                    m = re.match(r"^(\d{2})_", entry)
+                    if m:
+                        pfx = m.group(1)
+                        prefix_map.setdefault(pfx, []).append(entry)
+        except OSError:
+            pass
+
+        duplicate_prefixes = {p: dirs for p, dirs in prefix_map.items() if len(dirs) > 1}
+        if duplicate_prefixes:
+            conflict_descs = [f"序号 {p}: {', '.join(dirs)}" for p, dirs in duplicate_prefixes.items()]
+            result.add(
+                "目录唯一性与冲突排查",
+                "fail",
+                f"检测到同级目录前缀序号冲突: {'; '.join(conflict_descs)}",
+            )
+        else:
+            result.add("目录唯一性与冲突排查", "pass", "同级阶段目录序号唯一，无冲突")
+
+        # 2. 检查 02_PLC程序/程序文档 下的影子镜像与版本号违规
+        doc_dir = os.path.join(project_path, "02_PLC程序", "程序文档")
+        if os.path.isdir(doc_dir):
+            try:
+                files = [f for f in os.listdir(doc_dir) if f.endswith(".md")]
+                # 检查带版本号文件名 (如 -V1.0.0.md, _V1.0.md)
+                versioned_files = [f for f in files if re.search(r"[-_]V\d+(\.\d+)*\.md$", f, re.IGNORECASE)]
+                if versioned_files:
+                    result.add(
+                        "文档命名版本号约束 (DEV-001)",
+                        "fail",
+                        f"基准文档严禁携带版本号后缀: {', '.join(versioned_files)}",
+                    )
+                else:
+                    result.add("文档命名版本号约束 (DEV-001)", "pass", "基准文档文件名均未包含版本号后缀")
+
+                # 检查同类文档镜像重复 (例如 015_... 与 015_PID_... 同时存在)
+                prefixes: dict[str, list[str]] = {}
+                for f in files:
+                    m = re.match(r"^(\d{3})_", f)
+                    if m:
+                        prefixes.setdefault(m.group(1), []).append(f)
+                    elif "VAR" in f.upper():
+                        prefixes.setdefault("VAR", []).append(f)
+
+                conflicts = [f"{k}: {', '.join(v)}" for k, v in prefixes.items() if len(v) > 1]
+                if conflicts:
+                    result.add(
+                        "程序文档镜像排他检查",
+                        "fail",
+                        f"检测到同类文档重复/镜像冲突: {'; '.join(conflicts)}",
+                    )
+                else:
+                    result.add("程序文档镜像排他检查", "pass", "程序文档无冗余镜像冲突")
+            except OSError:
+                pass
+
+    def _check_change_management_and_governance(self, project_path: str, result: CheckResult) -> None:
+        """检查变更管理体系与版本变更台帐 (PM-042 / PM-043 / PROJ-016)"""
+        # 1. 检查变更管理根目录 (支持 04_监控/01_变更管理 或 11_监控/01_变更管理)
+        chg_candidates = [
+            os.path.join(project_path, "04_监控", "01_变更管理"),
+            os.path.join(project_path, "11_监控", "01_变更管理"),
+            os.path.join(project_path, "00_项目管理", "04_变更管理"),
+            os.path.join(project_path, "04_监控"),
+            os.path.join(project_path, "11_监控"),
+        ]
+        # 优先选择包含 01_变更单 或 02_变更记录 的目录
+        active_chg_dir = None
+        for d in chg_candidates:
+            if os.path.isdir(d):
+                if os.path.isdir(os.path.join(d, "01_变更单")) or os.path.isdir(os.path.join(d, "02_变更记录")):
+                    active_chg_dir = d
+                    break
+        if not active_chg_dir:
+            active_chg_dir = next((d for d in chg_candidates if os.path.isdir(d)), None)
+
+        if active_chg_dir:
+            rel_path = os.path.relpath(active_chg_dir, project_path)
+            result.add("变更管理目录", "pass", f"存在: {rel_path}")
+
+            # 检查 01_变更单 子目录
+            chg_tickets_dir = os.path.join(active_chg_dir, "01_变更单")
+            if os.path.isdir(chg_tickets_dir):
+                result.add("变更单管理体系", "pass", "01_变更单 目录就绪")
+            else:
+                result.add("变更单管理体系", "fail", f"缺少 {rel_path}/01_变更单/ 目录")
+
+            # 检查版本变更台帐
+            ledger_candidates = [
+                os.path.join(active_chg_dir, "02_变更记录", "01_版本变更台帐.md"),
+                os.path.join(active_chg_dir, "02_变更记录", "版本变更台帐.md"),
+                os.path.join(active_chg_dir, "02_变更记录"),
+            ]
+            has_ledger = False
+            rec_dir = os.path.join(active_chg_dir, "02_变更记录")
+            if os.path.isdir(rec_dir):
+                for f in os.listdir(rec_dir):
+                    if "变更台帐" in f or "变更台账" in f or "台帐" in f:
+                        has_ledger = True
+                        break
+
+            if has_ledger:
+                result.add("版本变更台帐", "pass", "02_变更记录/版本变更台帐 存在")
+            else:
+                result.add("版本变更台帐", "fail", f"缺少 {rel_path}/02_变更记录/01_版本变更台帐.md")
+        else:
+            result.add(
+                "变更管理目录",
+                "fail",
+                "缺少变更管理目录 (04_监控/01_变更管理/ 或 11_监控/01_变更管理/，PM-043)",
+            )
+
+    def _check_lifecycle_delivery_templates(self, project_path: str, result: CheckResult) -> None:
+        """检查现场调试、文档与交付等关键生命周期文档实质化 (拒绝纯 .gitkeep 空壳)"""
+        # 1. 检查 04_现场调试
+        debug_dir = os.path.join(project_path, "04_现场调试")
+        if os.path.isdir(debug_dir):
+            files = [f for f in os.listdir(debug_dir) if f.endswith(".md")]
+            if files:
+                result.add("现场调试方案与跟踪", "pass", f"存在 {len(files)} 份调试文档")
+            else:
+                result.add("现场调试方案与跟踪", "fail", "04_现场调试 仅为空目录，缺少调试计划/问题跟踪模板")
+
+        # 2. 检查 06_文档与交付
+        deliv_dir = os.path.join(project_path, "06_文档与交付")
+        if os.path.isdir(deliv_dir):
+            has_md = False
+            for r, _, fs in os.walk(deliv_dir):
+                if any(f.endswith(".md") for f in fs):
+                    has_md = True
+                    break
+            if has_md:
+                result.add("交付与维护手册", "pass", "交付与维护手册模板就绪")
+            else:
+                result.add("交付与维护手册", "fail", "06_文档与交付 缺少维护手册/验收交付清单等模板")
 
     def _scan_and_check(
         self, path: str, results: list[CheckResult], depth: int, max_depth: int

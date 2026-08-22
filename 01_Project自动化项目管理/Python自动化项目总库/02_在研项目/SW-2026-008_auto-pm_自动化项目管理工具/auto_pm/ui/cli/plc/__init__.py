@@ -206,18 +206,17 @@ def cmd_repair(
 @plc_group.command(name="ingest")
 @click.option("--src", "source_dir", required=True, help="PLC 源工程根目录绝对/相对路径")
 @click.option("--pid", "project_id", required=True, help="目标 PLC 项目编号 (如 DJ-2026-009)")
+@click.option("--stage-only", is_flag=True, help="仅提取至 .ingest_staging 暂存区，不污染正式工程")
 @click.pass_context
-def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str) -> None:
+def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str, stage_only: bool) -> None:
     """工业源工程全量逆向摄取与资产灌入 (AutoShop / TIA Portal)"""
     app_ctx: AppContext = ctx.obj
     ws = app_ctx.workspace_root
 
-    # 定位目标工程路径
     plc_svc = PlcService(workspace_root=ws)
     try:
         target_path = plc_svc.resolve_project_path(project_id)
     except Exception:
-        # 如果未找到，尝试默认路径
         target_path = os.path.join(ws, "0100_PLC自动化", project_id)
 
     from auto_pm.application.plc.ingest_service import PlcIngestService
@@ -225,24 +224,70 @@ def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str) -> None:
     console.print(f"[bold cyan]正在启动 PLC 逆向摄取流水线 (ETL)...[/bold cyan]")
     console.print(f"  • 源工程: {source_dir}")
     console.print(f"  • 目标工程: {target_path}")
+    console.print(f"  • 模式: {'[yellow]暂存隔离提取 (--stage-only)[/yellow]' if stage_only else '[green]全量提取并投影[/green]'}")
 
     ingest_svc = PlcIngestService(workspace_root=ws)
     try:
-        res = ingest_svc.ingest_autoshop_project(
-            source_dir=source_dir,
-            target_project_path=target_path,
-            project_id=project_id,
-            project_name="长边框堆垛机",
-        )
-        console.print(f"\n[bold green]✓ 逆向摄取与标准化资产生成成功！[/bold green]")
-        console.print(f"  • 提取变量总数: [bold yellow]{res.total_variables}[/bold yellow] 个")
-        console.print(f"  • 报警矩阵点位: [bold red]{res.total_alarms}[/bold red] 个")
-        console.print(f"  • 伺服轴控点位: [bold cyan]{res.total_servos}[/bold cyan] 个")
-        console.print(f"  • 硬件 IO 点位: [bold magenta]{res.total_ios}[/bold magenta] 个")
-        console.print(f"  • 累计生成黄金工程文档与资产: {len(res.generated_files)} 份")
+        if stage_only:
+            res = ingest_svc.ingest_to_staging(
+                source_dir=source_dir,
+                target_project_path=target_path,
+                project_id=project_id,
+                project_name="工业设备",
+            )
+            console.print(f"\n[bold green]✓ 逆向数据已安全提取至 .ingest_staging/ 暂存区！[/bold green]")
+            console.print(f"  • 提取变量总数: [bold yellow]{res.total_variables}[/bold yellow] 个")
+            console.print(f"  • 报警矩阵点位: [bold red]{res.total_alarms}[/bold red] 个")
+            console.print(f"  • 伺服轴控点位: [bold cyan]{res.total_servos}[/bold cyan] 个")
+            console.print(f"  • 硬件 IO 点位: [bold magenta]{res.total_ios}[/bold magenta] 个")
+            console.print(f"  • 暂存报告: {target_path}/.ingest_staging/staging_report.md")
+            console.print(f"[dim]提示: 请在驾驶舱审核点表后，执行 auto-pm plc promote {project_id} 投影到正式工程[/dim]")
+        else:
+            res = ingest_svc.ingest_autoshop_project(
+                source_dir=source_dir,
+                target_project_path=target_path,
+                project_id=project_id,
+                project_name="工业设备",
+            )
+            console.print(f"\n[bold green]✓ 逆向摄取与标准化资产生成成功！[/bold green]")
+            console.print(f"  • 提取变量总数: [bold yellow]{res.total_variables}[/bold yellow] 个")
+            console.print(f"  • 累计生成黄金工程文档与资产: {len(res.generated_files)} 份")
     except Exception as e:
         console.print(f"[bold red]✗ 逆向摄取失败: {e}[/bold red]")
         raise click.Abort()
+
+
+@plc_group.command(name="promote")
+@click.argument("project_id")
+@click.pass_context
+def cmd_promote(ctx: click.Context, project_id: str) -> None:
+    """将 .ingest_staging 暂存区中审核通过的草案正式投影到工程资产与文档"""
+    app_ctx: AppContext = ctx.obj
+    ws = app_ctx.workspace_root
+
+    plc_svc = PlcService(workspace_root=ws)
+    try:
+        target_path = plc_svc.resolve_project_path(project_id)
+    except Exception:
+        target_path = os.path.join(ws, "0100_PLC自动化", project_id)
+
+    from auto_pm.application.plc.ingest_service import PlcIngestService
+
+    ingest_svc = PlcIngestService(workspace_root=ws)
+    try:
+        res = ingest_svc.promote_staging(
+            target_project_path=target_path,
+            project_id=project_id,
+            project_name="工业设备",
+        )
+        console.print(f"\n[bold green]✓ 暂存资产成功正式投影至工程！[/bold green]")
+        console.print(f"  • 变量总数: {res.total_variables} 个")
+        console.print(f"  • 正式点表: 02_PLC程序/工程资产/io_points.csv")
+        console.print(f"  • 自动派生文档: 015_IO分配表_IO.md, PLC变量定义文档_VAR.md")
+    except Exception as e:
+        console.print(f"[bold red]✗ 资产投影失败: {e}[/bold red]")
+        raise click.Abort()
+
 
 
 @plc_group.command(name="standardize")

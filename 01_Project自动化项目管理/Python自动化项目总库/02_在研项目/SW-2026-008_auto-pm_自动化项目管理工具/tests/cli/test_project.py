@@ -264,7 +264,7 @@ def test_project_create_single_machine_generates_week2_template_assets(
 
     assert result.exit_code == 0
     project_dir = dest_dir / "DJ-2026-022_周单机模板"
-    assert (project_dir / "01_需求与设计" / "001_单机设备项目概览_OVW.md").exists()
+    assert (project_dir / "01_启动" / "003_DJ-2026-022_项目立项表_PROJ.md").exists()
     assert (project_dir / "02_PLC程序" / "工程资产" / "io_points.csv").exists()
     assert (project_dir / "02_PLC程序" / "工程资产" / "program_blocks.yml").exists()
     assert (project_dir / "02_PLC程序" / "工程资产" / "communications.yml").exists()

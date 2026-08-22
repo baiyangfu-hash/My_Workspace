@@ -174,6 +174,35 @@ class PrototypeService:
         if "</html>" not in content.lower():
             errors.append("HTML 缺失闭合的 </html> 标签")
 
+        # --------------------------------------------------------------
+        # 1. 导航死链静态检查 (Broken Link Detection)
+        # --------------------------------------------------------------
+        page_targets = set(re.findall(r"goPage\(\s*['\"]([a-zA-Z0-9_-]+)['\"]\s*\)", content))
+        existing_pages = set(re.findall(r'id=["\']page-([a-zA-Z0-9_-]+)["\']', content))
+
+        for target in page_targets:
+            if target not in existing_pages:
+                errors.append(f"检测到导航死链: goPage('{target}') 对应的页面容器 'page-{target}' 不存在")
+
+        # --------------------------------------------------------------
+        # 2. 内联 JS 函数完整性检查
+        # --------------------------------------------------------------
+        if js_path and os.path.exists(js_path):
+            with open(js_path, encoding="utf-8") as f:
+                js_content = f.read()
+            defined_funcs = set(re.findall(r"function\s+([a-zA-Z0-9_$]+)\s*\(", js_content))
+            # 也支持 const func = () => / let func = function
+            defined_funcs.update(re.findall(r"(?:const|let|var)\s+([a-zA-Z0-9_$]+)\s*=\s*(?:function|\()", js_content))
+            defined_funcs.add("goPage")  # built-in standard
+
+            # 提取 HTML 中的 onclick 函数调用
+            called_funcs = set(re.findall(r'onclick=["\']\s*([a-zA-Z0-9_$]+)\s*\(', content))
+            builtin_funcs = {"alert", "confirm", "prompt", "console", "window", "document"}
+
+            for func in called_funcs:
+                if func not in defined_funcs and func not in builtin_funcs:
+                    errors.append(f"检测到未定义函数调用: onclick 调用的 '{func}' 未在 script.js 中声明")
+
         passed = len(errors) == 0
         return CheckResult(passed=passed, errors=errors, warnings=warnings, info=info)
 

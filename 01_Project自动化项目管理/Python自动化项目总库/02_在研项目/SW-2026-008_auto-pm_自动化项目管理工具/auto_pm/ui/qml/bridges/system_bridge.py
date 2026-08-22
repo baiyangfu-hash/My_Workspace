@@ -104,3 +104,34 @@ class SystemBridge(QObject):
             return run_doctor_check()
         except Exception as e:
             return {"all_passed": False, "message": str(e)}
+
+    @Slot(result="QVariant")
+    def syncDocs(self) -> dict[str, Any]:
+        """执行 Doc-as-Code 文档自省自动同步"""
+        try:
+            import os
+            from auto_pm.domain.doc.services import DocSyncService
+            ws = Path(os.getcwd())
+            svc = DocSyncService(ws)
+            logs = svc.sync_all()
+            return {"success": True, "logs": logs, "message": f"成功同步 {len(logs)} 个文档锚点"}
+        except Exception as e:
+            return {"success": False, "logs": [], "message": str(e)}
+
+    @Slot(result="QVariant")
+    def checkDocs(self) -> dict[str, Any]:
+        """执行 Doc-as-Code 文档一致性门禁检查"""
+        try:
+            import os
+            from auto_pm.domain.doc.services import DocCheckService
+            ws = Path(os.getcwd())
+            svc = DocCheckService(ws)
+            results = svc.check_all()
+            all_passed = all(r.passed for r in results)
+            return {
+                "success": all_passed,
+                "items": [{"check_id": r.check_id, "name": r.name, "passed": r.passed, "message": r.message} for r in results],
+                "message": "所有文档门禁通过" if all_passed else "存在文档未同步滞后项"
+            }
+        except Exception as e:
+            return {"success": False, "items": [], "message": str(e)}

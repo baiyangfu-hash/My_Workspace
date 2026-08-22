@@ -41,10 +41,13 @@ class SclLintReport:
 class SclLinter:
     """SCL 静态规范检查器引擎"""
 
-    # 语法黑名单正则（LSP-905 严禁使用）
+    # 语法黑名单与工控错误预防正则（LSP-905 / LSP-906）
     GOTO_PATTERN = re.compile(r"\bGOTO\b", re.IGNORECASE)
     REPEAT_PATTERN = re.compile(r"\bREPEAT\b", re.IGNORECASE)
     POINTER_PATTERN = re.compile(r"\^|\bADR\b|\bREF_TO\b", re.IGNORECASE)
+    TIME_LITERAL_PATTERN = re.compile(r"\b[Tt]#[0-9a-zA-Z_]+")
+    CHINESE_PUNCT_PATTERN = re.compile(r"[，；：\uFF08\uFF09\u3001]")
+    TIMER_MISSING_Q_PATTERN = re.compile(r"\bQ\s*=>\s*[,)]")
 
     # 声明块识别正则
     BLOCK_VAR_INPUT = re.compile(r"^\s*VAR_INPUT\b", re.IGNORECASE)
@@ -67,18 +70,48 @@ class SclLinter:
         in_case_block = False
         case_has_else = False
         case_start_line = 0
+        in_multiline_comment = False
 
         for line_idx, line in enumerate(lines, start=1):
             stripped = line.strip()
 
-            # 跳过纯注释行
-            if stripped.startswith("//") or stripped.startswith("(*"):
+            # 处理跨行注释 (* ... *)
+            if in_multiline_comment:
+                if "*)" in stripped:
+                    in_multiline_comment = False
+                    # 截取 *) 之后的代码部分
+                    line = stripped.split("*)", 1)[1]
+                    stripped = line.strip()
+                else:
+                    continue
+
+            # 跳过单行 // 注释
+            if stripped.startswith("//"):
+                continue
+
+            # 处理本行开始的 (*
+            if "(*" in line:
+                if "*)" not in line:
+                    in_multiline_comment = True
+                    line = line.split("(*", 1)[0]
+                    stripped = line.strip()
+                else:
+                    # 单行内的 (* ... *) 用正则替换掉
+                    line = re.sub(r"\(\*.*?\*\)", "", line)
+                    stripped = line.strip()
+
+            if not stripped:
+                continue
+
+            # 分离代码部分与行尾 // 注释
+            code_part = line.split("//")[0].strip()
+            if not code_part:
                 continue
 
             # ------------------------------------------------------------------
-            # 1. 语法白名单校验 (LSP-905 §4 严禁使用)
+            # 1. 语法白名单与错误预防校验 (LSP-905 §4 / LSP-906)
             # ------------------------------------------------------------------
-            if cls.GOTO_PATTERN.search(line):
+            if cls.GOTO_PATTERN.search(code_part):
                 report.violations.append(
                     SclViolation(
                         line_number=line_idx,
@@ -89,7 +122,7 @@ class SclLinter:
                     )
                 )
 
-            if cls.REPEAT_PATTERN.search(line):
+            if cls.REPEAT_PATTERN.search(code_part):
                 report.violations.append(
                     SclViolation(
                         line_number=line_idx,
@@ -100,13 +133,46 @@ class SclLinter:
                     )
                 )
 
-            if cls.POINTER_PATTERN.search(line):
+            if cls.POINTER_PATTERN.search(code_part):
                 report.violations.append(
                     SclViolation(
                         line_number=line_idx,
                         rule_id="LSP-905-SYNTAX-POINTER",
                         severity="ERROR",
                         message="禁止使用指针运算 (指针/^/ADR)，请改用 UDT 或结构体",
+                        code_snippet=stripped,
+                    )
+                )
+
+            if cls.TIME_LITERAL_PATTERN.search(code_part):
+                report.violations.append(
+                    SclViolation(
+                        line_number=line_idx,
+                        rule_id="LSP-906-TIMER-TIME-LITERAL",
+                        severity="ERROR",
+                        message="禁止在 SCL 中使用 TIME 类型字面量（如 T#500ms），PT/ET 必须使用 DINT 毫秒整数（LSP-906 §1.1）",
+                        code_snippet=stripped,
+                    )
+                )
+
+            if cls.CHINESE_PUNCT_PATTERN.search(code_part):
+                report.violations.append(
+                    SclViolation(
+                        line_number=line_idx,
+                        rule_id="LSP-905-CHINESE-PUNCTUATION",
+                        severity="ERROR",
+                        message="SCL 代码中包含中文全角标点符号（，/；/：/（）），请替换为英文半角标点",
+                        code_snippet=stripped,
+                    )
+                )
+
+            if cls.TIMER_MISSING_Q_PATTERN.search(code_part):
+                report.violations.append(
+                    SclViolation(
+                        line_number=line_idx,
+                        rule_id="LSP-906-TIMER-MISSING-Q",
+                        severity="ERROR",
+                        message="定时器调用缺少 Q 参数接收变量（禁止空参数 Q => ,）",
                         code_snippet=stripped,
                     )
                 )

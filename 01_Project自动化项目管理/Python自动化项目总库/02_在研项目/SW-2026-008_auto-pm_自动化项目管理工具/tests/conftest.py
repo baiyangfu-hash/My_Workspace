@@ -72,11 +72,23 @@ def tmp_workspace(tmp_path: Path) -> Path:
     )
     # LSP-907 标准目录结构（12 个）
     for d in [
-        "00_项目管理", "01_需求与设计", "02_PLC程序", "03_HMI设计",
-        "04_现场调试", "04_驱动器与设备", "05_测试与验证", "06_文档与交付",
+        "01_启动", "02_PLC程序", "03_HMI设计",
+        "04_现场调试", "05_测试与验证", "06_文档与交付",
         "07_技术支持", "08_备件管理", "09_项目总结", "10_知识库",
+        "11_监控", "12_驱动器与设备",
     ]:
         (project_dir / d).mkdir()
+
+    # 变更管理体系
+    chg_dir = project_dir / "11_监控" / "01_变更管理"
+    (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
+    (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
+    (chg_dir / "02_变更记录" / "01_版本变更台帐.md").write_text("# 版本变更台帐\n", encoding="utf-8")
+
+    # 交付文档实质化
+    (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 现场调试计划\n", encoding="utf-8")
+    (project_dir / "06_文档与交付" / "验收交付清单.md").write_text("# 验收交付清单\n", encoding="utf-8")
+
     # PM_SESSION
     (project_dir / "PM_SESSION_DJ-2026-TEST.md").write_text(
         "# PM_SESSION\n", encoding="utf-8"

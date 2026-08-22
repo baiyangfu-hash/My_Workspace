@@ -1,143 +1,153 @@
-"""PLC-HMI 概念映射：CLI 命令行入口（文档命令组（文档刷新/注入））
-
-像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
-不经过 HMI 画面，直接调用 FB 或 SFB。
-
---- 原始注释 ---
-
-文档相关 CLI 命令"""
-
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
 
 import click
 from rich.console import Console
 from rich.markup import escape
+from rich.panel import Panel
+from rich.table import Table
 
 from auto_pm.app_context import AppContext
 from auto_pm.core.doc_inject_service import DocInjectService
 from auto_pm.core.doc_refresh_service import DocRefreshService
 from auto_pm.core.project_service import ProjectService
+from auto_pm.domain.doc.services import DocCheckService, DocSyncService
 
 console = Console()
 
 
-@click.group(name="doc")
-@click.pass_context
-def doc_group(ctx: click.Context) -> None:
-    """项目文档相关命令"""
+@click.group("doc")
+def doc_group() -> None:
+    """Doc-as-Code 文档自省、一致性门禁与自动区维护工具"""
 
 
-@doc_group.command(name="refresh")
-@click.argument("project_id")
-@click.option("--dry-run", is_flag=True, help="仅预览将更新的自动区，不实际写入文档")
-@click.option("--json", "output_json", is_flag=True, help="以 JSON 格式输出刷新结果")
+@doc_group.command("sync")
 @click.pass_context
-def cmd_refresh(
-    ctx: click.Context,
-    project_id: str,
-    dry_run: bool,
-    output_json: bool,
-) -> None:
-    """刷新 PLC 文档中的自动区"""
+def doc_sync_cmd(ctx: click.Context) -> None:
+    """自动自省提取代码元数据并无损注入 Markdown 活文档"""
     app_ctx: AppContext = ctx.obj
-    svc = ProjectService(app_ctx.workspace_root)
-    proj = svc.get_project(project_id)
-    if proj is None:
-        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
-        ctx.exit(1)
+    workspace_root = Path(app_ctx.workspace_root or os.getcwd())
 
-    if proj.stack != "plc":
-        console.print(
-            f"[yellow]项目 {project_id} 不是 PLC 项目（stack={proj.stack}），"
-            f"doc refresh 仅支持 PLC 项目[/yellow]"
-        )
-        return
+    service = DocSyncService(workspace_root=workspace_root)
+    logs = service.sync_all()
 
-    refresh_service = DocRefreshService(app_ctx.workspace_root)
-    result = refresh_service.refresh_project_documents(proj, dry_run=dry_run)
+    console.print(Panel("[bold green]✨ Doc-as-Code 自动同步完成！[/bold green]", title="Doc Sync 结果"))
+    table = Table(title="注入记录", show_header=True, header_style="bold cyan")
+    table.add_column("状态", style="green")
+    table.add_column("详细信息")
 
-    if output_json:
+    for log in logs:
+        table.add_row("✅ 注入", log)
+    console.print(table)
+
+
+@doc_group.command("check")
+@click.pass_context
+def doc_check_cmd(ctx: click.Context) -> None:
+    """静态审计文档与代码的一致性及版本锁"""
+    app_ctx: AppContext = ctx.obj
+    workspace_root = Path(app_ctx.workspace_root or os.getcwd())
+
+    service = DocCheckService(workspace_root=workspace_root)
+    results = service.check_all()
+
+    all_passed = True
+    table = Table(title="文档门禁检查报告", show_header=True, header_style="bold cyan")
+    table.add_column("门禁编号", style="bold")
+    table.add_column("检查项")
+    table.add_column("状态")
+    table.add_column("说明")
+
+    for r in results:
+        status_str = "[bold green]PASS[/bold green]" if r.passed else "[bold red]FAIL[/bold red]"
+        table.add_row(r.check_id, r.name, status_str, r.message)
+        if not r.passed:
+            all_passed = False
+
+    console.print(table)
+    if all_passed:
+        console.print(Panel("[bold green]🎉 所有文档一致性门禁检查 100% 通过！[/bold green]", title="Doc Check 结果"))
+    else:
+        console.print(Panel("[bold red]❌ 存在未同步的文档滞后项，请先执行 auto-pm doc sync 修复！[/bold red]", title="Doc Check 结果"))
+        raise click.exceptions.Exit(1)
+
+
+@doc_group.command("inject")
+@click.argument("project_id")
+@click.option("--dry-run", is_flag=True, default=False, help="仅预览注入效果，不修改文件")
+@click.option("--json", "json_output", is_flag=True, default=False, help="以 JSON 格式输出结果")
+@click.pass_context
+def doc_inject_cmd(ctx: click.Context, project_id: str, dry_run: bool, json_output: bool) -> None:
+    """为历史 PLC 项目文档注入 AUTO_PM 自动区标记"""
+    app_ctx: AppContext = ctx.obj
+    workspace_root = Path(app_ctx.workspace_root or os.getcwd())
+
+    project_service = ProjectService(workspace_root=str(workspace_root))
+    project = project_service.get_project(project_id)
+    if not project:
+        console.print(f"[bold red]错误：[/bold red]未找到项目 '{project_id}'（项目不存在）")
+        raise click.exceptions.Exit(1)
+
+    service = DocInjectService(workspace_root=str(workspace_root))
+    result = service.inject_markers(project, dry_run=dry_run)
+
+    if json_output:
         click.echo(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
         return
 
-    if result.issues:
-        for issue in result.issues:
-            # 使用 escape + style= 避免 rich markup 吞噬 issue 文本中的 [block_key]
-            # 详见 V0.4.2 Week3 第二样本复核回归测试 TestDocIssueBracketPreservation
-            console.print(escape(issue), style="yellow")
+    prefix = "[DRY-RUN] " if dry_run else ""
+    console.print(f"[bold green]{prefix}文档自动区标记注入完成！[/bold green]")
+    console.print(f"共处理 {len(result.injected_files)} 个文档：")
 
-    if not result.refreshed_files:
-        console.print("[yellow]没有可刷新的文档自动区[/yellow]")
-        return
+    for doc in result.injected_files:
+        console.print(f"  • [bold]{Path(doc.file_path).name}[/bold]:")
+        for key in doc.injected_keys:
+            console.print(f"    - [green]注入标记:[/green] {escape(key)}")
+        for key in doc.skipped_keys:
+            console.print(f"    - [yellow]已存在跳过:[/yellow] {escape(key)}")
+        for key in doc.missing_anchors:
+            console.print(f"    - [red]锚点缺失:[/red] [{key}] (未注入)")
 
-    mode_text = "[DRY-RUN] " if dry_run else ""
-    console.print(
-        f"[green]{mode_text}文档自动区处理完成: {len(result.refreshed_files)} 个文档[/green]"
-    )
-    for item in result.refreshed_files:
-        action = "将刷新" if dry_run else "已刷新"
-        status = "有变更" if item.changed else "无变更"
-        console.print(f"  {action}: {item.file_path} ({status})")
-        for block_key in item.block_keys:
-            console.print(f"    - 自动区: {block_key}")
+    for issue in result.issues:
+        console.print(f"  [yellow]⚠️ 提示:[/yellow] {escape(issue)}")
 
 
-@doc_group.command(name="inject")
+@doc_group.command("refresh")
 @click.argument("project_id")
-@click.option("--dry-run", is_flag=True, help="仅预览将注入的自动区标记，不实际写入文档")
-@click.option("--json", "output_json", is_flag=True, help="以 JSON 格式输出注入结果")
+@click.option("--dry-run", is_flag=True, default=False, help="仅预览刷新效果，不修改文件")
+@click.option("--json", "json_output", is_flag=True, default=False, help="以 JSON 格式输出结果")
 @click.pass_context
-def cmd_inject(
-    ctx: click.Context,
-    project_id: str,
-    dry_run: bool,
-    output_json: bool,
-) -> None:
-    """为历史 PLC 文档注入 AUTO_PM 自动区标记（retrofit）"""
+def doc_refresh_cmd(ctx: click.Context, project_id: str, dry_run: bool, json_output: bool) -> None:
+    """根据工程资产刷新 PLC 文档中的自动区内容"""
     app_ctx: AppContext = ctx.obj
-    svc = ProjectService(app_ctx.workspace_root)
-    proj = svc.get_project(project_id)
-    if proj is None:
-        console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
-        ctx.exit(1)
+    workspace_root = Path(app_ctx.workspace_root or os.getcwd())
 
-    if proj.stack != "plc":
-        console.print(
-            f"[yellow]项目 {project_id} 不是 PLC 项目（stack={proj.stack}），"
-            f"doc inject 仅支持 PLC 项目[/yellow]"
-        )
-        return
+    project_service = ProjectService(workspace_root=str(workspace_root))
+    project = project_service.get_project(project_id)
+    if not project:
+        console.print(f"[bold red]错误：[/bold red]未找到项目 '{project_id}'（项目不存在）")
+        raise click.exceptions.Exit(1)
 
-    inject_service = DocInjectService(app_ctx.workspace_root)
-    result = inject_service.inject_markers(proj, dry_run=dry_run)
+    service = DocRefreshService(workspace_root=str(workspace_root))
+    result = service.refresh_project_documents(project, dry_run=dry_run)
 
-    if output_json:
+    if json_output:
         click.echo(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
         return
 
-    if result.issues:
-        for issue in result.issues:
-            # 使用 escape + style= 避免 rich markup 吞噬 issue 文本中的 [block_key]
-            # 详见 V0.4.2 Week3 第二样本复核回归测试 TestDocIssueBracketPreservation
-            console.print(escape(issue), style="yellow")
+    prefix = "[DRY-RUN] " if dry_run else ""
+    console.print(f"[bold green]{prefix}文档自动区处理完成！[/bold green]")
+    console.print(f"共刷新 {len(result.refreshed_files)} 个文档：")
 
-    if not result.injected_files:
-        console.print("[yellow]没有可注入标记的 PLC 文档[/yellow]")
-        return
+    for doc in result.refreshed_files:
+        status_text = "[green]已更新[/green]" if doc.changed else "[dim]无变更[/dim]"
+        console.print(f"  • [bold]{Path(doc.file_path).name}[/bold] ({status_text}):")
+        for key in doc.block_keys:
+            console.print(f"    - [cyan]区块:[/cyan] {escape(key)}")
 
-    mode_text = "[DRY-RUN] " if dry_run else ""
-    console.print(
-        f"[green]{mode_text}文档自动区标记注入完成: {len(result.injected_files)} 个文档[/green]"
-    )
-    for item in result.injected_files:
-        action = "将注入" if dry_run else "已注入"
-        status = "有变更" if item.changed else "无变更"
-        console.print(f"  {action}: {item.file_path} ({status})")
-        for block_key in item.injected_keys:
-            console.print(f"    - 新增标记: {block_key}")
-        for block_key in item.skipped_keys:
-            console.print(f"    - 已存在跳过: {block_key}")
-        for block_key in item.missing_anchors:
-            console.print(f"    - [red]锚点缺失: {block_key}[/red]")
+    for issue in result.issues:
+        console.print(f"  [yellow]⚠️ 提示:[/yellow] {escape(issue)}")
+

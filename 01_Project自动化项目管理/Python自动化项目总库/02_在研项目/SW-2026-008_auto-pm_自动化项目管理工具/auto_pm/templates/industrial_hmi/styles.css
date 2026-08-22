@@ -889,3 +889,49 @@ body {
   font-size: 14px; color: var(--text-muted);
 }
 .xfoot .warn { color: #ff6b6b; font-weight: 700; }
+
+
+/* ============ CP-301 11页标准组件增强样式 ============ */
+.toolbar-left { display: flex; align-items: center; gap: 12px; }
+.logo-badge { background: #64ffda; color: #0a192f; font-weight: bold; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+.toolbar-right { display: flex; align-items: center; gap: 16px; }
+.user-badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 12px; color: #64ffda; }
+
+.sfc-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 16px; }
+.sfc-node { padding: 10px 14px; background: #16213e; border: 1px solid #233554; border-radius: 6px; color: #8892b0; font-size: 13px; font-weight: bold; }
+.sfc-node.active { background: #0f3460; border-color: #64ffda; color: #64ffda; box-shadow: 0 0 12px rgba(100,255,218,0.4); }
+.sfc-arrow { color: #546e7a; font-size: 16px; }
+
+.btn-group-row { display: flex; gap: 12px; margin-top: 16px; }
+.action-btn { padding: 10px 20px; border-radius: 6px; border: 1px solid #233554; background: #1a2a4a; color: #fff; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+.action-btn:hover { background: #1a4a8a; }
+.action-btn.primary { background: #00bcd4; color: #0a192f; border: none; }
+.action-btn.primary:hover { background: #64ffda; }
+.action-btn.danger { background: #c62828; color: #fff; border: none; }
+.action-btn.danger:hover { background: #ff1744; }
+
+.manual-grid, .axis-debug-grid, .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.manual-card, .axis-debug-card, .settings-card { background: #112240; border: 1px solid #233554; border-radius: 8px; padding: 16px; }
+.manual-card h4, .axis-debug-card h4, .settings-card h4 { color: #64ffda; margin-bottom: 12px; font-size: 15px; border-bottom: 1px solid #233554; padding-bottom: 6px; }
+.ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #ccd6f6; font-size: 13px; }
+.ctrl-btn { padding: 6px 12px; background: #1a2a4a; border: 1px solid #233554; color: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; }
+
+.pos-display { font-size: 28px; font-weight: bold; color: #64ffda; font-family: monospace; text-align: center; margin: 16px 0; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; border: 1px solid #233554; }
+.jog-btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.jog-btn { flex: 1; padding: 10px; background: #0f3460; border: 1px solid #233554; color: #fff; font-weight: bold; border-radius: 6px; cursor: pointer; }
+.jog-btn:hover { background: #1a4a8a; }
+.step-select { text-align: center; font-size: 11px; color: #8892b0; }
+
+.io-section { margin-bottom: 20px; }
+.io-section h3 { color: #64ffda; font-size: 14px; margin-bottom: 8px; }
+.io-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+.io-cell { background: #16213e; border: 1px solid #233554; border-radius: 4px; padding: 8px; text-align: center; font-size: 11px; color: #8892b0; cursor: pointer; transition: all 0.2s; }
+.io-cell span { display: block; font-weight: bold; font-family: monospace; margin-bottom: 4px; color: #ccd6f6; }
+.io-cell.active { background: #00c853; color: #0a192f; border-color: #69f0ae; box-shadow: 0 0 8px rgba(0,230,118,0.5); }
+.io-cell.active span { color: #0a192f; }
+
+.trend-canvas-placeholder { height: 320px; display: flex; align-items: flex-end; gap: 32px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #233554; }
+.trend-bar { flex: 1; background: linear-gradient(180deg, #64ffda 0%, #0f3460 100%); border-radius: 6px 6px 0 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
+.trend-bar span { font-size: 12px; font-weight: bold; color: #0a192f; background: #64ffda; padding: 2px 6px; border-radius: 4px; }
+.setting-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #ccd6f6; }
+.setting-row b { color: #64ffda; }
