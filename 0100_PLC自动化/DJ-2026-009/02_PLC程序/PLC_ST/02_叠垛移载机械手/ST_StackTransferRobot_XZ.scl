@@ -1,0 +1,11 @@
+TYPE ST_StackTransferRobot_XZ :
+STRUCT
+    bEnable     : BOOL;     (* 使能 *)
+    bAutoMode   : BOOL;     (* 自动 *)
+    bRunning    : BOOL;     (* 运行中 *)
+    bDone       : BOOL;     (* 完成 *)
+    bError      : BOOL;     (* 故障 *)
+    iStep       : INT;      (* 当前步序 *)
+    wErrorCode  : WORD;     (* 错误字 *)
+END_STRUCT
+END_TYPE

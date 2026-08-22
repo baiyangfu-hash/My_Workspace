@@ -57,15 +57,57 @@ class AiContextBridge(QObject):
             return "plc_review"
         return "project_followup"
 
-    def _build_product_context(self, project_id: str) -> dict[str, str]:
+    def _extract_active_hypothesis(self, project_id: str, change_number: str = "") -> dict[str, str]:
+        hyp_id = ""
+        statement = ""
+        expected_signal = ""
+        success_metric = ""
+
+        session_file = self._workspace_root / f"PM_SESSION_{project_id}.md"
+        if not session_file.exists():
+            for p in self._workspace_root.glob(f"**/PM_SESSION_{project_id}.md"):
+                session_file = p
+                break
+
+        if session_file.exists():
+            try:
+                text = session_file.read_text(encoding="utf-8")
+                for line in text.splitlines():
+                    if "|" in line and "HYP-" in line:
+                        parts = [p.strip() for p in line.split("|") if p.strip()]
+                        if parts and "HYP-" in parts[0]:
+                            hyp_id = parts[0]
+                            if len(parts) > 1:
+                                statement = parts[1]
+                            if len(parts) > 3:
+                                expected_signal = parts[3]
+                            break
+            except Exception:
+                pass
+
+        if not hyp_id and project_id:
+            hyp_id = f"HYP-{project_id}-001"
+            statement = f"验证 {project_id} 核心工艺与控制安全逻辑"
+            expected_signal = "门禁全绿且硬件现场无死锁异常"
+
+        return {
+            "id": hyp_id,
+            "statement": statement,
+            "expected_signal": expected_signal,
+            "success_metric": success_metric,
+        }
+
+    def _build_product_context(self, project_id: str, change_number: str = "") -> dict[str, Any]:
         if project_id:
             session_ref = f"PM_SESSION_{project_id}.md"
+            active_hyp = self._extract_active_hypothesis(project_id, change_number)
             return {
                 "goal_ref": f"{session_ref}#product-goal",
-                "hypothesis_ref": "",
-                "success_metric_ref": "",
+                "hypothesis_ref": f"{session_ref}#hypothesis-ledger" if active_hyp.get("id") else "",
+                "success_metric_ref": active_hyp.get("success_metric", ""),
+                "active_hypothesis": active_hyp,
             }
-        return {"goal_ref": "", "hypothesis_ref": "", "success_metric_ref": ""}
+        return {"goal_ref": "", "hypothesis_ref": "", "success_metric_ref": "", "active_hypothesis": {}}
 
     def _fallback_feedback(self, status: str, summary: str) -> dict[str, Any]:
         return {
@@ -149,7 +191,7 @@ class AiContextBridge(QObject):
                 "status": change_status,
             },
             "active_page": current_page,
-            "product_context": self._build_product_context(project_id),
+            "product_context": self._build_product_context(project_id, change_number),
         }
 
         try:
@@ -237,7 +279,7 @@ class AiContextBridge(QObject):
             },
             "active_page": current_page,
             "product_context": handoff.get("product_context")
-            or self._build_product_context(project_id or str(handoff.get("project_id", ""))),
+            or self._build_product_context(project_id or str(handoff.get("project_id", "")), change_number_value),
         }
         try:
             ai_dir = self._workspace_root / ".auto-pm"

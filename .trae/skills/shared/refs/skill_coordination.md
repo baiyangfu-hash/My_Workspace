@@ -93,9 +93,12 @@
   "artifacts": ["相关文档或报告路径"],
   "chg_updates": ["本轮已同步的 CHG / 文档记录"],
   "product_impact": {
-    "assumption_affected": "",
-    "observable_signal": "",
-    "needs_user_validation": false
+    "hypothesis_id": "HYP-001",
+    "impact_type": "safety_and_yield",
+    "engineering_signal": "在 FB_1002 中增加了安全区极性校验，防止伺服在气缸未退回时提前使能",
+    "verification_mode": "physical_hardware",
+    "validation_stage": "现场上电打样时观测",
+    "needs_user_validation": true
   },
   "pm_closure": {
     "required": true,

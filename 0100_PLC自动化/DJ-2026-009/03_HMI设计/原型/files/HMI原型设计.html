@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DJ-2026-009 长边框自动码垛机 HMI原型</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-scale-outer">
+<div class="app-scale-inner" id="appScaleInner">
+
+<div class="toolbar">
+  <h1>DJ-2026-009 长边框自动码垛机 · HMI 工业触摸屏原型 (STD-910)</h1>
+  <div class="meta">汇川 H5U · 1280×800 · 只与上游输送机交互 · 叠垛移载/隔纸/塑钢带</div>
+</div>
+
+<div class="nav-tabs" id="navTabs"></div>
+
+<div class="hmi-frame">
+
+  <!-- 01 登录画面 -->
+  <div class="page active" id="page-login">
+    <div class="login-bg">
+      <div class="login-box">
+        <div class="login-logo">
+          <div class="logo-icon">DJ</div>
+          <h2>长边框自动码垛机控制系统</h2>
+          <p>Long Frame Automatic Stacker Crane System</p>
+        </div>
+        <div class="login-field">
+          <label>用户账号</label>
+          <input type="text" value="operator" placeholder="请输入账号">
+        </div>
+        <div class="login-field">
+          <label>登录密码</label>
+          <input type="password" value="••••••" placeholder="请输入密码">
+        </div>
+        <button class="login-btn" onclick="goPage('main')">登 录</button>
+        <div class="login-hint">操作员: operator/1234 &nbsp;|&nbsp; 管理员: admin/123456</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 主画面 -->
+  <div class="page" id="page-main">
+    <div class="page-header">
+      <div class="page-title">▣ 主画面 · 堆垛机全景监控</div>
+      <div class="page-status">
+        <div class="status-item"><span class="led green"></span>系统运行</div>
+        <div class="status-item"><span class="led yellow"></span>自动模式</div>
+        <div class="status-item" id="clockMain">2026-08-21 08:30:00</div>
+      </div>
+    </div>
+    <div class="page-body">
+      <div class="sidebar">
+        <button class="side-btn" onclick="goPage('manual')">手动控制</button>
+        <button class="side-btn" onclick="goPage('auto')">自动运行</button>
+        <button class="side-btn" onclick="goPage('recipe')">配方参数</button>
+        <button class="side-btn" onclick="goPage('infeed')">上游输送交互</button>
+        <button class="side-btn danger" onclick="triggerAlarm()">模拟报警</button>
+      </div>
+      <div class="main-content">
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="label">当前码垛层数</div><div class="val" id="kpiLayer">8 / 24 层</div></div>
+          <div class="kpi-card"><div class="label">层已码垛对数</div><div class="val">6 / 12 对</div></div>
+          <div class="kpi-card"><div class="label">托盘总边框数</div><div class="val">192 根</div></div>
+          <div class="kpi-card"><div class="label">移载机械手状态</div><div class="val highlight">放料定位中</div></div>
+        </div>
+        <div class="panel-box">
+          <div class="panel-title">叠垛移载伺服实时坐标 (EtherCAT)</div>
+          <div class="axis-grid">
+            <div class="axis-cell"><span class="axis-name">移载 X 轴 (水平)</span><span class="axis-val">1250.5 mm</span><span class="axis-tag">放料点 (R1004)</span></div>
+            <div class="axis-cell"><span class="axis-name">移载 Z 轴 (垂直)</span><span class="axis-val">420.0 mm</span><span class="axis-tag">放料减速 (R1104)</span></div>
+            <div class="axis-cell"><span class="axis-name">隔纸架 Z 轴</span><span class="axis-val">180.0 mm</span><span class="axis-tag">过道安全点 (R1204)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 上游输送机交互画面 (唯一外部交互) -->
+  <div class="page" id="page-infeed">
+    <div class="page-header">
+      <div class="page-title">⇄ 上游输送机 ↔ 码垛机 信号交互 (唯一外部接口)</div>
+      <div class="page-status"><span class="led green"></span>输送联动正常</div>
+    </div>
+    <div class="page-body">
+      <div class="panel-box full-w">
+        <div class="panel-title">双路入料输送握手与进料控制</div>
+        <div class="handshake-grid">
+          <div class="hs-col">
+            <h3>▲ 码垛机 (本机) ──► 上游输送机</h3>
+            <div class="signal-row"><span class="sig-tag">Y0.0</span><span class="sig-name">允许上游 1# 皮带送料</span><span class="led green"></span></div>
+            <div class="signal-row"><span class="sig-tag">Y0.1</span><span class="sig-name">允许上游 2# 皮带送料</span><span class="led green"></span></div>
+            <div class="signal-row"><span class="sig-tag">Y0.2</span><span class="sig-name">码垛机就绪 (无故障/非满垛)</span><span class="led green"></span></div>
+            <div class="signal-row"><span class="sig-tag">Y0.3</span><span class="sig-name">满垛暂停入料请求</span><span class="led gray"></span></div>
+          </div>
+          <div class="hs-col">
+            <h3>▼ 上游输送机 ──► 码垛机 (本机)</h3>
+            <div class="signal-row"><span class="sig-tag">X0.2</span><span class="sig-name">上游 1# 边框来料到达</span><span class="led green"></span></div>
+            <div class="signal-row"><span class="sig-tag">X0.3</span><span class="sig-name">上游 2# 边框来料到达</span><span class="led green"></span></div>
+            <div class="signal-row"><span class="sig-tag">X0.4</span><span class="sig-name">上游输送机运行中</span><span class="led green"></span></div>
+            <div class="signal-row"><span class="sig-tag">X0.5</span><span class="sig-name">上游急停连锁信号</span><span class="led green"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 配方参数画面 -->
+  <div class="page" id="page-recipe">
+    <div class="page-header">
+      <div class="page-title">⚙ 叠垛工艺与配方参数设定</div>
+      <div class="page-status"><span class="led green"></span>配方锁定</div>
+    </div>
+    <div class="page-body">
+      <div class="recipe-grid">
+        <div class="recipe-card">
+          <h4>边框外形与层叠参数</h4>
+          <div class="param-row"><label>边框宽度 (R1500)</label><input type="text" value="35.0 mm"></div>
+          <div class="param-row"><label>边框层高 (R1502)</label><input type="text" value="28.5 mm"></div>
+          <div class="param-row"><label>槽壁厚度 (R1504)</label><input type="text" value="1.3 mm"></div>
+          <div class="param-row"><label>整托根数 (R1508)</label><input type="text" value="576 根"></div>
+        </div>
+        <div class="recipe-card">
+          <h4>对数与隔纸补偿</h4>
+          <div class="param-row"><label>单套抓取对数 (R1520)</label><input type="text" value="2 对"></div>
+          <div class="param-row"><label>整层摆放对数 (R1522)</label><input type="text" value="12 对"></div>
+          <div class="param-row"><label>隔纸厚度补偿 (R1506)</label><input type="text" value="0.8 mm"></div>
+          <div class="param-row"><label>拉纸裁切补偿 (R1530)</label><input type="text" value="15.0 mm"></div>
+        </div>
+        <div class="recipe-card">
+          <h4>塑钢带预埋层设定</h4>
+          <div class="param-row"><label>放塑钢带层数 1 (R1540)</label><input type="text" value="6 层"></div>
+          <div class="param-row"><label>放塑钢带层数 2 (R1542)</label><input type="text" value="12 层"></div>
+          <div class="param-row"><label>放塑钢带层数 3 (R1544)</label><input type="text" value="18 层"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 报警管理画面 -->
+  <div class="page" id="page-alarm">
+    <div class="page-header">
+      <div class="page-title">⚠ 803 点位报警管理与诊断矩阵</div>
+      <div class="page-status"><span class="led green"></span>无活动报警</div>
+    </div>
+    <div class="page-body">
+      <table class="alarm-table">
+        <thead><tr><th>报警编号</th><th>发生时间</th><th>机构域</th><th>报警描述</th><th>等级</th></tr></thead>
+        <tbody>
+          <tr><td>E-1001</td><td>2026-08-21 08:15:22</td><td>叠垛移载机械手</td><td>移载 X 轴正向软限位超出 (R1004)</td><td>警告</td></tr>
+          <tr><td>E-2004</td><td>2026-08-21 08:10:05</td><td>隔纸放料架</td><td>隔纸料仓缺料预警 (光电 X0.4)</td><td>提示</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

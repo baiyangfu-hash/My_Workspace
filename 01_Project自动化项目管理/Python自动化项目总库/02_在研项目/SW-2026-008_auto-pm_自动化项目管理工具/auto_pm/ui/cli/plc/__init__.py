@@ -203,6 +203,48 @@ def cmd_repair(
     _print_repair_result(result)
 
 
+@plc_group.command(name="ingest")
+@click.option("--src", "source_dir", required=True, help="PLC 源工程根目录绝对/相对路径")
+@click.option("--pid", "project_id", required=True, help="目标 PLC 项目编号 (如 DJ-2026-009)")
+@click.pass_context
+def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str) -> None:
+    """工业源工程全量逆向摄取与资产灌入 (AutoShop / TIA Portal)"""
+    app_ctx: AppContext = ctx.obj
+    ws = app_ctx.workspace_root
+
+    # 定位目标工程路径
+    plc_svc = PlcService(workspace_root=ws)
+    try:
+        target_path = plc_svc.resolve_project_path(project_id)
+    except Exception:
+        # 如果未找到，尝试默认路径
+        target_path = os.path.join(ws, "0100_PLC自动化", project_id)
+
+    from auto_pm.application.plc.ingest_service import PlcIngestService
+
+    console.print(f"[bold cyan]正在启动 PLC 逆向摄取流水线 (ETL)...[/bold cyan]")
+    console.print(f"  • 源工程: {source_dir}")
+    console.print(f"  • 目标工程: {target_path}")
+
+    ingest_svc = PlcIngestService(workspace_root=ws)
+    try:
+        res = ingest_svc.ingest_autoshop_project(
+            source_dir=source_dir,
+            target_project_path=target_path,
+            project_id=project_id,
+            project_name="长边框堆垛机",
+        )
+        console.print(f"\n[bold green]✓ 逆向摄取与标准化资产生成成功！[/bold green]")
+        console.print(f"  • 提取变量总数: [bold yellow]{res.total_variables}[/bold yellow] 个")
+        console.print(f"  • 报警矩阵点位: [bold red]{res.total_alarms}[/bold red] 个")
+        console.print(f"  • 伺服轴控点位: [bold cyan]{res.total_servos}[/bold cyan] 个")
+        console.print(f"  • 硬件 IO 点位: [bold magenta]{res.total_ios}[/bold magenta] 个")
+        console.print(f"  • 累计生成黄金工程文档与资产: {len(res.generated_files)} 份")
+    except Exception as e:
+        console.print(f"[bold red]✗ 逆向摄取失败: {e}[/bold red]")
+        raise click.Abort()
+
+
 @plc_group.command(name="standardize")
 @click.argument("project_id")
 @click.option("--apply", is_flag=True, help="执行重命名（默认仅预览）")

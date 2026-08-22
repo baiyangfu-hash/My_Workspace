@@ -22,9 +22,14 @@ class AiHandoffService:
         "not_run": [],
     }
     DEFAULT_PRODUCT_IMPACT = {
+        "hypothesis_id": "",
+        "impact_type": "general",
+        "engineering_signal": "",
+        "verification_mode": "code_static",
+        "validation_stage": "",
+        "needs_user_validation": False,
         "assumption_affected": "",
         "observable_signal": "",
-        "needs_user_validation": False,
     }
     DEFAULT_PM_CLOSURE = {
         "required": True,
@@ -84,9 +89,39 @@ class AiHandoffService:
         normalized["artifacts"] = self._normalize_list(payload.get("artifacts"))
         normalized["chg_updates"] = self._normalize_list(payload.get("chg_updates"))
         normalized["verification"] = self._normalize_mapping(payload.get("verification"), self.DEFAULT_VERIFICATION)
-        normalized["product_impact"] = self._normalize_mapping(payload.get("product_impact"), self.DEFAULT_PRODUCT_IMPACT)
+        
+        pi = self._normalize_mapping(payload.get("product_impact"), self.DEFAULT_PRODUCT_IMPACT)
+        # Bidirectional sync for backward compatibility
+        if not pi["hypothesis_id"] and pi.get("assumption_affected"):
+            pi["hypothesis_id"] = str(pi["assumption_affected"])
+        if not pi.get("assumption_affected") and pi["hypothesis_id"]:
+            pi["assumption_affected"] = pi["hypothesis_id"]
+        if not pi["engineering_signal"] and pi.get("observable_signal"):
+            pi["engineering_signal"] = str(pi["observable_signal"])
+        if not pi.get("observable_signal") and pi["engineering_signal"]:
+            pi["observable_signal"] = pi["engineering_signal"]
+            
+        normalized["product_impact"] = pi
         normalized["pm_closure"] = self._normalize_mapping(payload.get("pm_closure"), self.DEFAULT_PM_CLOSURE)
         return normalized
+
+    def validate_product_impact(self, product_impact: dict[str, Any]) -> dict[str, Any]:
+        """Validate product_impact against anti-emptiness and anti-platitude rules."""
+        hypothesis_id = str(product_impact.get("hypothesis_id", "")).strip()
+        signal = str(product_impact.get("engineering_signal", "")).strip()
+        
+        warnings: list[str] = []
+        if not hypothesis_id:
+            warnings.append("缺少 hypothesis_id（未关联产品假设）")
+        if not signal:
+            warnings.append("缺少 engineering_signal（未描述具体工程/物理可观测信号）")
+        elif len(signal) < 8 and any(kw in signal for kw in ("优化", "完成", "修改", "修复", "改进")):
+            warnings.append("engineering_signal 过于泛化（缺乏具体物理量/交互量）")
+
+        return {
+            "valid": len(warnings) == 0,
+            "warnings": warnings,
+        }
 
     def _normalize_list(self, value: Any) -> list[Any]:
         if isinstance(value, list):

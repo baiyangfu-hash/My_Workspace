@@ -40,6 +40,15 @@ description: 规范 PLC 工程中下位机触摸屏 HMI 与 PC 端上位机/中�
 - 上位机 Python 业务服务（如 `ModbusService`、`PlcChecker`）通过 Bridge 槽函数提供通信接口；
 - 原型采用流式弹性全屏布局，归档于 `02_规划/Html原型预览/`。
 
+### 3.3 外部设备握手通用拓扑契约 (Upstream / Downstream)
+- **拓扑语义标准**：通用流水线单机设备统一抽象为 **`上游设备交互 (Upstream Handshake)`** 与 **`下游设备交互 (Downstream Handshake)`**；
+- **标准 4 步握手时序**：`请求 (Req)` $\rightarrow$ `允许 (Allow)` $\rightarrow$ `执行中 (Busy)` $\rightarrow$ `完成应答 (DoneAck)`；
+- **自适应规则**：
+  - 首端单机（如上料机）：仅配置下游主工艺交互；
+  - 中间单机（如缓存机）：配置上游来料与下游送出双通道；
+  - 末端单机（如码垛机）：仅配置上游进料交互，下游标记为人工/叉车接驳，严禁捏造下游假设备。
+
+
 ---
 
 ## 4. 脚手架快速释放指引

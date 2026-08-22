@@ -92,18 +92,25 @@ def archive_cmd(ctx: click.Context, pid: str, version: str) -> None:
 
 @prototype_cmd.command(name="init", help="初始化全新的原型脚手架骨架")
 @click.option("--pid", "-p", required=True, help="项目 ID")
-@click.option("--template", "-t", default="hmi", help="模板类型 (hmi / web)")
+@click.option("--template", "-t", default="hmi", help="模板类型 (hmi / industrial-hmi / web)")
+@click.option(
+    "--topology",
+    type=click.Choice(["both", "infeed", "outfeed"]),
+    default="both",
+    help="流水线拓扑: both(上游+下游双向), infeed(仅上游进料/末端码垛), outfeed(仅下游出料/首端上料)",
+)
 @click.pass_context
-def init_cmd(ctx: click.Context, pid: str, template: str) -> None:
+def init_cmd(ctx: click.Context, pid: str, template: str, topology: str) -> None:
     workspace_root = os.getcwd()
     if ctx.obj and hasattr(ctx.obj, "workspace_root"):
         workspace_root = ctx.obj.workspace_root
 
     proj_dir = _resolve_project_dir(workspace_root, pid)
     service = PrototypeService(workspace_root)
-    res = service.init(proj_dir, template=template)
+    res = service.init(proj_dir, template=template, topology=topology)
 
     if res.success:
         console.print(f"[green]✓ 原型脚手架初始化成功: {res.output_path}[/green]")
     else:
         console.print(f"[red]✗ 初始化失败: {res.message}[/red]")
+

@@ -5,15 +5,15 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [1.2.0] - 2026-08-21
 
-### Added - CHG-SCPT-2026-141 消除 CLI 与 GUI 缓存鸿沟的文件监听同步桥接层
+### Added - CHG-SCPT-2026-161 驾驶舱工业逆向摄取 (PlcIngest) 与 HMI 拓扑自适应标准 (STD-909) 落地
 
-- **FileWatcherBridge 桥接层新建**：新增 `auto_pm/ui/qml/bridges/file_watcher_bridge.py`，QFileSystemWatcher 监听业务文件变化（排除 NOISE_DIRS），1s 去抖后 QRunnable 后台子线程 sync_to_cache（SyncWorker 自建 DB 连接规避 SQLite 线程亲和性），QTimer 50ms 轮询回传结果规避 PySide6 6.11 QRunnable 子线程信号析构问题。
-- **QmlMainWindow 集成**：注入 fileWatcherBridge context property；reload_workspace 回调 prepareForReload/rebuild 处理工作空间切换；启动时 toggleWatcher(True) 自动监听。
-- **QML 全局常驻工具栏**：main.qml 新增全局常驻工具栏（同步按钮+监听开关+状态反馈+手动折叠/展开），每页可点击，Connections 绑定 syncStarted/syncFinished/syncError/watcherToggled 信号驱动项目/变更视图缓存自动刷新。
-- **关闭态拦截修复**：_on_debounce_timeout 新增 _watcher_enabled 检查，QFileSystemWatcher.removePaths 在 Windows 上对部分路径失败致 directories() 残留，残留路径触发 fileChanged 后不再引发 sync。
-- **集成测试扩展**：scripts/gui_smoke_test.py 扩展 4 步（工具栏可见/手动同步/toggle/自动同步），可见模式实测 13/13 通过；tests/qml/test_file_watcher_bridge.py 14 用例全通过。
+- **PLC 逆向摄取服务正式化 (PlcIngestService)**：新增 `auto_pm/application/plc/ingest_service.py`，提供 Python 毫秒级 ETL 逆向流水线，支持批量抽取 3,000+ 变量并自动生成 `io_points.csv`、`communications.yml`、`VAR.md`、`015_IO.md`、`016_PLC.md`、`018_FLOW.md` 等 6 份黄金资产。
+- **PLC CLI 命令挂载**：`auto_pm/ui/cli/plc/` 增加 `plc ingest --src <源路径> --pid <ID>` 顶级命令。
+- **HMI 原型拓扑自适应 (STD-909 §3.3)**：`PrototypeService.init` 与 CLI 增加 `--topology [infeed|outfeed|both]` 选项，自动根据设备产线位置裁剪 HTML 与 JS 导航。
+- **模板底盘彻底去污**：清除 `templates/plc-standard-project` 与 `templates/industrial_hmi` 中的所有写死业务，重塑为纯净可插拔通用底座。
+- **双技能协同契约标准化**：重构 `pm-workflow` 与 `plc-electrical-engineer`，建立明确的 Handoff 交接卡点。
 
 ## [1.1.0] - 2026-07-19
 

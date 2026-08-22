@@ -183,14 +183,21 @@ class PrototypeService:
         """
         return self.bundle(project_path=project_path, version=version)
 
-    def init(self, project_path: str, template: str = "industrial-hmi") -> PrototypeBundleResult:
+    def init(
+        self,
+        project_path: str,
+        template: str = "industrial-hmi",
+        topology: str = "both",
+    ) -> PrototypeBundleResult:
         """
         Scaffolds a new prototype template in the target project.
         Supports 'industrial-hmi' (STD-910) and 'python-cockpit' (STD-911).
+        topology: 'both' (上游+下游), 'infeed' (仅上游/末端码垛), 'outfeed' (仅下游/首端上料)
         """
         import shutil
         abs_proj = os.path.abspath(project_path)
         current_dir = os.path.dirname(os.path.abspath(__file__))
+
 
         bundled_files = []
         is_python_tpl = template.lower() in ("python-cockpit", "python", "desktop", "cockpit", "web")
@@ -254,14 +261,42 @@ class PrototypeService:
                 src_map = os.path.join(tpl_dir, "hmi_tag_mapping.json")
 
                 if os.path.exists(src_html):
-                    shutil.copy2(src_html, target_html)
+                    # 根据拓扑自适应渲染
+                    html_content = open(src_html, encoding="utf-8").read()
+                    if topology == "infeed":
+                        # 末端设备：移除下游交互页面
+                        html_content = re.sub(
+                            r'<!-- 10 下游设备交互.*?</div>\s*</div>\s*</div>',
+                            '',
+                            html_content,
+                            flags=re.DOTALL,
+                        )
+                    elif topology == "outfeed":
+                        # 首端设备：移除上游交互页面
+                        html_content = re.sub(
+                            r'<!-- 09 上游设备交互.*?</div>\s*</div>\s*</div>',
+                            '',
+                            html_content,
+                            flags=re.DOTALL,
+                        )
+                    with open(target_html, "w", encoding="utf-8") as f:
+                        f.write(html_content)
                     bundled_files.append(target_html)
+
                 if os.path.exists(src_css):
                     shutil.copy2(src_css, target_css)
                     bundled_files.append(target_css)
+
                 if os.path.exists(src_js):
-                    shutil.copy2(src_js, target_js)
+                    js_content = open(src_js, encoding="utf-8").read()
+                    if topology == "infeed":
+                        js_content = js_content.replace("{ id: 'downstream', name: '04 下游交互' },\n", "")
+                    elif topology == "outfeed":
+                        js_content = js_content.replace("{ id: 'upstream',   name: '03 上游交互' },\n", "")
+                    with open(target_js, "w", encoding="utf-8") as f:
+                        f.write(js_content)
                     bundled_files.append(target_js)
+
                 if os.path.exists(src_map) and not os.path.exists(target_mapping):
                     shutil.copy2(src_map, target_mapping)
                     bundled_files.append(target_mapping)
@@ -269,7 +304,7 @@ class PrototypeService:
                 return PrototypeBundleResult(
                     success=True,
                     output_path=target_html,
-                    message=f"Industrial HMI 1280x800 template successfully initialized at {hmi_dir}",
+                    message=f"Industrial HMI 1280x800 template (topology={topology}) successfully initialized at {hmi_dir}",
                     bundled_files=bundled_files,
                 )
 

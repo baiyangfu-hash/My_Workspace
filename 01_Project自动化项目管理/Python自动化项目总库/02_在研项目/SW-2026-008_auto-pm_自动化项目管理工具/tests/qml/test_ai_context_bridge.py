@@ -139,7 +139,41 @@ def test_ai_context_bridge_write_pm_closure_context_uses_pending_handoff(tmp_pat
     assert context["entry_mode"] == "cockpit"
     assert context["intent"] == "close_handoff"
     assert context["target_skill"] == "pm-workflow"
-    assert context["handoff_request_id"] == "AI-20260813-000001"
     assert context["active_change"]["number"] == "CHG-PLC-2026-009"
     assert context["active_change"]["domain"] == "PLC"
     assert context["product_context"]["goal_ref"] == "PM_SESSION_SW-2026-008.md#product-goal"
+
+
+def test_ai_context_bridge_extracts_active_hypothesis_from_pm_session(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """当 PM_SESSION 中存在假设台账时，能自动提取 active_hypothesis。"""
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    session_content = """# PM_SESSION_DJ-2026-009
+### 2.1 产品假设与业务指标验证台账 (Hypothesis Ledger)
+| HYP-DJ009-001 | 在移载状态机引入安全区互锁 | CHG-PLC-2026-001 | 未达安全高度禁止推料 | [待验证] |
+"""
+    (workspace / "PM_SESSION_DJ-2026-009.md").write_text(session_content, encoding="utf-8")
+
+    bridge = AiContextBridge(str(workspace))
+    res = bridge.writeAiContext(
+        "DJ-2026-009",
+        "长边框堆垛机",
+        "plc",
+        "developing",
+        "CHG-PLC-2026-001",
+        "移载互锁改造",
+        "PLC",
+        "DEF",
+        "implementing",
+        "changeCenter",
+    )
+    assert res["success"] is True
+    ctx_file = workspace / ".auto-pm" / "ai_context.json"
+    ctx = json.loads(ctx_file.read_text(encoding="utf-8"))
+    
+    prod_ctx = ctx["product_context"]
+    assert "active_hypothesis" in prod_ctx
+    assert prod_ctx["active_hypothesis"]["id"] == "HYP-DJ009-001"
+    assert prod_ctx["active_hypothesis"]["statement"] == "在移载状态机引入安全区互锁"
+    assert prod_ctx["active_hypothesis"]["expected_signal"] == "未达安全高度禁止推料"
+

@@ -1,0 +1,27 @@
+# DJ-2026-009 工业通讯总线拓扑
+ethercat:
+  master: Inovance H5U
+  cycle_time_us: 1000
+  slaves:
+    - name: SV1_X_Axis
+      type: Inovance IS620N / SV660N
+      node_id: 1
+      comment: 龙门水平 X 轴伺服
+    - name: SV2_Y_Axis
+      type: Inovance IS620N / SV660N
+      node_id: 2
+      comment: 龙门前后 Y 轴伺服
+    - name: SV3_Z_Axis
+      type: Inovance IS620N / SV660N
+      node_id: 3
+      comment: 龙门升降 Z 轴伺服
+    - name: GL20_RemoteIO
+      type: Inovance GL20 Coupler
+      node_id: 4
+      comment: 气动阀岛与传感器 IO 耦合器
+
+ethernet_ip:
+  ip_address: "192.168.1.88"
+  subnet_mask: "255.255.255.0"
+  gateway: "192.168.1.1"
+  target_host: "192.168.1.200 (上位 SCADA/MES)"
