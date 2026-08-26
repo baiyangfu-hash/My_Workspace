@@ -3,7 +3,7 @@
 ## 必须进入 `SYS-2026-001` 的事项
 
 - 新增、删除或重命名工作空间顶层目录
-- 调整 `c:\Users\fubai\Desktop\My_Workspace\.trae\project-bootstrap\` 模板
+- 调整 `c:\Users\fubai\Documents\My_Workspace\.trae\project-bootstrap\` 模板
 - 修改跨多个项目生效的规则文件
 - 为整个工作空间新增长期治理计划
 - 清理根级长期文档、通用脚本或全局入口文件
