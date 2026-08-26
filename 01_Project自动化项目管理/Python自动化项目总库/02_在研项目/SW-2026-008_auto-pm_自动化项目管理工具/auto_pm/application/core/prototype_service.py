@@ -203,6 +203,27 @@ class PrototypeService:
                 if func not in defined_funcs and func not in builtin_funcs:
                     errors.append(f"检测到未定义函数调用: onclick 调用的 '{func}' 未在 script.js 中声明")
 
+        # --------------------------------------------------------------
+        # 3. 点表映射字典校验 (hmi_tag_mapping.json)
+        # --------------------------------------------------------------
+        hmi_mapping_path = os.path.join(abs_proj, "03_HMI设计", "hmi_tag_mapping.json")
+        if not os.path.exists(hmi_mapping_path):
+            hmi_mapping_path = os.path.join(abs_proj, "hmi_tag_mapping.json")
+
+        if os.path.exists(hmi_mapping_path):
+            try:
+                import json
+                with open(hmi_mapping_path, encoding="utf-8") as mf:
+                    mapping_json = json.load(mf)
+                mapped_tags = mapping_json.get("mappings", {})
+                info.append(f"检测到点表映射字典: {len(mapped_tags)} 个寄存器映射")
+                # 检查 HTML 寄存器在映射字典中的覆盖情况
+                unmapped_regs = [r for r in registers if r not in mapped_tags]
+                if unmapped_regs:
+                    warnings.append(f"发现 {len(unmapped_regs)} 个原型寄存器未在 hmi_tag_mapping.json 中定义: {', '.join(sorted(unmapped_regs)[:5])}...")
+            except Exception as e:
+                errors.append(f"hmi_tag_mapping.json 解析失败: {e}")
+
         passed = len(errors) == 0
         return CheckResult(passed=passed, errors=errors, warnings=warnings, info=info)
 
@@ -336,6 +357,23 @@ class PrototypeService:
                     message=f"Industrial HMI 1280x800 template (topology={topology}) successfully initialized at {hmi_dir}",
                     bundled_files=bundled_files,
                 )
+
+        html_code = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业 HMI 原型</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="hmi-container">
+        <h2>工业 HMI 原型（默认模板）</h2>
+        <p>HMI 原型已初始化成功。</p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>"""
 
         css_code = """body {
     background-color: #0f172a;

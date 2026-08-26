@@ -375,6 +375,47 @@ def _setup_snapshot_workspace(
     return tmp_path
 
 
+def _setup_retrofit_workspace(tmp_path: Path, pm_session_content: str) -> Path:
+    """创建缺少 .copier-answers.yml 且 PM_SESSION 无 Spec Snapshot 的 PLC 项目"""
+    project_dir = tmp_path / "DJ-2026-TEST_补齐项目"
+    project_dir.mkdir()
+    (project_dir / ".plc.json").write_text(
+        json.dumps(
+            {
+                "name": "DJ-2026-TEST",
+                "version": "V1.0.0",
+                "description": "补齐项目",
+                "type": "standard",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (project_dir / "PM_SESSION_DJ-2026-TEST.md").write_text(pm_session_content, encoding="utf-8")
+
+    registry_dir = tmp_path / "00_Obsidian_Base全局规范文件仓库"
+    registry_dir.mkdir(parents=True, exist_ok=True)
+    (registry_dir / "spec_registry.json").write_text(
+        json.dumps(
+            {
+                "version": "1.0.0",
+                "specs": {
+                    "PM-042": {"version": "V2.4.0"},
+                    "DEV-001": {"version": "V1.1.0"},
+                    "PROJ-016": {"version": "V1.0.0"},
+                    "LSP-905": {"version": "V1.2.0"},
+                    "LSP-906": {"version": "V2.1.0"},
+                    "LSP-907": {"version": "V1.3.0"},
+                    "TOOL-908": {"version": "V1.0.0"},
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
 class TestProjectSnapshot:
     """project snapshot 命令测试"""
 
@@ -504,6 +545,29 @@ class TestProjectSnapshot:
         data = json.loads(result.output)
         assert data["drifts"] == []
         assert data["updated"] is False
+
+
+class TestProjectRetrofit:
+    """project retrofit 命令测试"""
+
+    def test_retrofit_populates_copier_answers_and_spec_snapshot(
+        self, cli_runner: CliRunner, tmp_path: Path
+    ) -> None:
+        workspace = _setup_retrofit_workspace(tmp_path, _PM_SESSION_NO_TABLE.replace("SW-2026-TEST", "DJ-2026-TEST"))
+
+        result = cli_runner.invoke(
+            cli,
+            ["-w", str(workspace), "project", "retrofit", "DJ-2026-TEST"],
+            catch_exceptions=False,
+        )
+
+        assert result.exit_code == 0
+        project_dir = tmp_path / "DJ-2026-TEST_补齐项目"
+        assert (project_dir / ".copier-answers.yml").exists()
+        pm_session = (project_dir / "PM_SESSION_DJ-2026-TEST.md").read_text(encoding="utf-8")
+        assert "## Spec Snapshot" in pm_session
+        assert "| LSP-905 | V1.2.0 |" in pm_session
+        assert "| LSP-907 | V1.3.0 |" in pm_session
 
 
 def _setup_doc_refresh_workspace(tmp_path: Path) -> Path:

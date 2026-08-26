@@ -16,6 +16,7 @@
 ## 2. Current Focus（当前焦点）
 - current_focus: P2 节奏固化已完成 — 4项执行事项全部完成，周期动作机制已建立
 - milestone: P2 节奏固化 ✅ 完成
+- 代码基线 V1.0.0
 - acceptance: 原子性提交+规范归属调整+准入验证+pm-mgr评估
 
 ## 3. Status Summary（当前状态摘要）
@@ -39,8 +40,10 @@
   - 00_项目基础信息/01_项目章程_PM.md
 - req:
   - 01_项目文档/01_需求分析_REQ.md
-- des:
+- dsn:
   - 01_项目文档/02_工作区治理方案_DES.md
+- int: (待创建)
+- tec: (待创建)
 - roadmap:
   - 01_项目文档/03_分阶段整改路线图_PM.md
 - risk:
@@ -128,6 +131,7 @@
   - read_first:
     - PM_SESSION_SYS-2026-001.md
     - 01_项目文档/03_分阶段整改路线图_PM.md
+- 代码基线 V1.0.0
 
 ## 9. Next Actions
 - [P0] ✅ 完成历史长期计划映射 | done_when=4份长期计划已登记到路线图+风险台账

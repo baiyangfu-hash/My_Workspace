@@ -9,12 +9,15 @@ Spec Bridge (QML)
 
 M4 第 1 批重构：3 个 Slot 改用 dataclasses.asdict() 转换 DTO 为 dict 给 QML。
 """
+import logging
 from dataclasses import asdict
 from typing import Any
 
 from PySide6.QtCore import Property, QObject, Signal, Slot
 
 from auto_pm.application.spec_facade import SpecFacade
+
+logger = logging.getLogger(__name__)
 
 
 class SpecBridge(QObject):
@@ -144,6 +147,7 @@ class SpecBridge(QObject):
                 "message": f"离线生成合规 SCL 成功: {out_file.name}",
             }
         except Exception as exc:
+            logger.warning("generateSclFromMatrix failed: %s", exc, exc_info=True)
             return {"success": False, "message": f"生成 SCL 失败: {exc}"}
 
     @Slot(str, result="QVariant")
@@ -173,6 +177,7 @@ class SpecBridge(QObject):
                 "violations": violations_data,
             }
         except Exception as exc:
+            logger.warning("checkSclCodeCompliance failed: %s", exc, exc_info=True)
             return {"success": False, "message": f"SCL 规范排查失败: {exc}"}
 
     @Slot(result="QVariant")

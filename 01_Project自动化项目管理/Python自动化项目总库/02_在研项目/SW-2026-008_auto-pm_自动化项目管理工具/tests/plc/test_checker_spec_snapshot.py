@@ -227,3 +227,47 @@ class TestSpecSnapshotCheck:
         item = _get_spec_snapshot_item(result)
         assert item.status == "warn"
         assert "spec_registry.json" in item.message
+
+    def test_compatible_stage_dirs_do_not_fail_duplicate_check(self, tmp_path: Path) -> None:
+        """01_启动 + 01_需求与设计 兼容共存时不应触发 fail"""
+        project_id = "DJ-2026-006"
+        project_dir = _create_project(
+            tmp_path,
+            project_id,
+            _PM_SESSION_TEMPLATE.format(
+                project_id=project_id,
+                v905="V1.0.2",
+                v906="V1.0.0",
+                v907="V1.0.0",
+            ),
+        )
+        for subdir in [
+            "01_启动",
+            "01_需求与设计",
+            "02_PLC程序",
+            "03_HMI设计",
+            "04_现场调试",
+            "05_测试与验证",
+            "06_文档与交付",
+            "07_技术支持",
+            "08_备件管理",
+            "09_项目总结",
+            "10_知识库",
+        ]:
+            (project_dir / subdir).mkdir(exist_ok=True)
+
+        _write_registry(
+            tmp_path,
+            {
+                "LSP-905": {"version": "V1.0.2", "title": "SCL编程规范"},
+                "LSP-906": {"version": "V1.0.0", "title": "PLC编程错误预防规则"},
+                "LSP-907": {"version": "V1.0.0", "title": "PLC项目配置规范"},
+            },
+        )
+
+        checker = PlcChecker(str(tmp_path))
+        result = checker.check_project(str(project_dir))
+
+        duplicate_items = [i for i in result.items if i.item == "目录唯一性与冲突排查"]
+        assert duplicate_items
+        assert duplicate_items[0].status == "pass"

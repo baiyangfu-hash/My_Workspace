@@ -221,7 +221,7 @@ def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str, stage_only:
 
     from auto_pm.application.plc.ingest_service import PlcIngestService
 
-    console.print(f"[bold cyan]正在启动 PLC 逆向摄取流水线 (ETL)...[/bold cyan]")
+    console.print("[bold cyan]正在启动 PLC 逆向摄取流水线 (ETL)...[/bold cyan]")
     console.print(f"  • 源工程: {source_dir}")
     console.print(f"  • 目标工程: {target_path}")
     console.print(f"  • 模式: {'[yellow]暂存隔离提取 (--stage-only)[/yellow]' if stage_only else '[green]全量提取并投影[/green]'}")
@@ -235,7 +235,7 @@ def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str, stage_only:
                 project_id=project_id,
                 project_name="工业设备",
             )
-            console.print(f"\n[bold green]✓ 逆向数据已安全提取至 .ingest_staging/ 暂存区！[/bold green]")
+            console.print("\n[bold green]✓ 逆向数据已安全提取至 .ingest_staging/ 暂存区！[/bold green]")
             console.print(f"  • 提取变量总数: [bold yellow]{res.total_variables}[/bold yellow] 个")
             console.print(f"  • 报警矩阵点位: [bold red]{res.total_alarms}[/bold red] 个")
             console.print(f"  • 伺服轴控点位: [bold cyan]{res.total_servos}[/bold cyan] 个")
@@ -249,7 +249,7 @@ def cmd_ingest(ctx: click.Context, source_dir: str, project_id: str, stage_only:
                 project_id=project_id,
                 project_name="工业设备",
             )
-            console.print(f"\n[bold green]✓ 逆向摄取与标准化资产生成成功！[/bold green]")
+            console.print("\n[bold green]✓ 逆向摄取与标准化资产生成成功！[/bold green]")
             console.print(f"  • 提取变量总数: [bold yellow]{res.total_variables}[/bold yellow] 个")
             console.print(f"  • 累计生成黄金工程文档与资产: {len(res.generated_files)} 份")
     except Exception as e:
@@ -280,10 +280,10 @@ def cmd_promote(ctx: click.Context, project_id: str) -> None:
             project_id=project_id,
             project_name="工业设备",
         )
-        console.print(f"\n[bold green]✓ 暂存资产成功正式投影至工程！[/bold green]")
+        console.print("\n[bold green]✓ 暂存资产成功正式投影至工程！[/bold green]")
         console.print(f"  • 变量总数: {res.total_variables} 个")
-        console.print(f"  • 正式点表: 02_PLC程序/工程资产/io_points.csv")
-        console.print(f"  • 自动派生文档: 015_IO分配表_IO.md, PLC变量定义文档_VAR.md")
+        console.print("  • 正式点表: 02_PLC程序/工程资产/io_points.csv")
+        console.print("  • 自动派生文档: 015_IO分配表_IO.md, PLC变量定义文档_VAR.md")
     except Exception as e:
         console.print(f"[bold red]✗ 资产投影失败: {e}[/bold red]")
         raise click.Abort()

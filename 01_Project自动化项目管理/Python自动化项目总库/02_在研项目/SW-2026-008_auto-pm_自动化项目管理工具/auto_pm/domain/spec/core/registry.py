@@ -57,6 +57,8 @@ class SpecRegistry:
             self._specs = {}
             specs_data = data.get("specs", {})
             for spec_id, info in specs_data.items():
+                if not isinstance(info, dict):
+                    continue
                 clean = dict(info)
                 for key in ("drift_warning", "classification_issue", "project_local_copy", "project", "note"):
                     clean.pop(key, None)

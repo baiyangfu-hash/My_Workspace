@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from . import db
-from . import logging
-from . import utils
+from . import db, logging, utils
 
 __all__ = [
     "db",

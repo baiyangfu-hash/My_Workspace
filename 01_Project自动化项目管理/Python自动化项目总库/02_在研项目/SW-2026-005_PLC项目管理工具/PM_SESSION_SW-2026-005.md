@@ -17,6 +17,7 @@
 - current_focus: V9标准化管理实现完成 — STD-1/2/3全链路通过,合规率25%→100%,待F3打包+GUI桌面验证
 - milestone: Phase STD — 标准化管理（V9.0.0）
 - acceptance: 全量扫描8项目 + 全量修复合规率100% + E2E静态结构165/166 + 单元测试148 passed
+- 代码基线 V9.0.0
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
@@ -63,6 +64,9 @@
 - archived:
   - 01_项目文档/02_规划过程/_archive/ (ARCH-V8.0.0, REQ-ALIGN-V9.0.0, PRD-V6.1.0等)
   - 01_项目文档/03_执行过程/_archive/ (DIAG-V9.0.0, RELEASE_NOTES等)
+- int: 01_项目文档/02_规划过程/009_接口定义文档_API.md
+- dsn: 01_项目文档/02_规划过程/008_技术设计文档_DES.md
+- tec: (待创建)
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -380,6 +384,7 @@
   - next_focus: 修复路径遍历漏洞，准备V1.0.0发布
   - watchouts: GUI冒烟测试需桌面环境; 路径遍历漏洞(#2)需优先修复
   - read_first: PM_SESSION_SW-2026-005.md
+- 代码基线 V9.0.0
 
 ## 9. Next Actions
 - [P0] 用户桌面环境验证GUI正常显示项目卡片 | precondition=Windows桌面+WebView2 Runtime | done_when=Dashboard总览页正常显示项目卡片(PLC和Python项目均可发现)

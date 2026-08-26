@@ -99,9 +99,12 @@ class PlcRepairer:
         project_id = self._checker.resolve_project_id(project_path)
         project_name = os.path.basename(project_path)
 
-        # 2. 遍历检查项，对 FAIL 项执行修复
+        # 2. 遍历检查项，对 FAIL 项执行修复；Spec Snapshot 的 WARN 也允许自动补齐
         for item in result.before_check.items:
-            if item.status != "fail":
+            should_repair = item.status == "fail" or (
+                item.item == "Spec Snapshot" and item.status == "warn"
+            )
+            if not should_repair:
                 continue
 
             if item.item == ".plc.json":
@@ -116,6 +119,10 @@ class PlcRepairer:
                 self._repair_prd_doc(
                     project_path, project_id, project_name, doc_name, result, dry_run
                 )
+            elif item.item.startswith("FB PRD "):
+                self._repair_fb_prd_doc(project_path, project_id, project_name, item, result, dry_run)
+            elif item.item == "HMI 交互原型" or "hmi_tag_mapping.json" in item.message:
+                self._repair_hmi_mapping(project_path, project_id, project_name, result, dry_run)
             elif item.item.startswith("目录 "):
                 dir_name = item.item.split(" ", 1)[1]
                 self._repair_std_dir(project_path, dir_name, result, dry_run)
@@ -442,6 +449,7 @@ class PlcRepairer:
         """
         from auto_pm.plc.spec_snapshot import (
             compare_versions,
+            ensure_spec_snapshot_section,
             load_spec_registry,
             parse_spec_snapshot,
             update_spec_snapshot,
@@ -463,21 +471,49 @@ class PlcRepairer:
             return
 
         # 2. 解析 Spec Snapshot 并加载注册表
-        snapshot = parse_spec_snapshot(pm_session_path)
         registry = load_spec_registry(self.workspace_root)
+        snapshot = parse_spec_snapshot(pm_session_path)
 
-        # 3. 边界情况：snapshot 为空或 registry 为 None，无法修复
-        if not snapshot or registry is None:
+        # 3. 边界情况：registry 缺失时无法修复
+        if registry is None:
             result.add(
                 item="Spec Snapshot",
                 action="修复 Spec Snapshot 版本漂移",
                 destructive=False,
                 status="skipped",
-                detail="Spec Snapshot 为空或注册表不可用，无法修复",
+                detail="spec_registry.json 不可用，无法修复",
             )
             return
 
-        # 4. 对比版本，获取漂移项
+        # 4. Spec Snapshot 缺失时，补齐基线章节而不是直接跳过
+        if not snapshot:
+            spec_ids = self._select_spec_snapshot_baseline(registry)
+            detail = f"将补齐 Spec Snapshot 区块，写入 {len(spec_ids)} 条规范基线"
+            if dry_run:
+                result.add(
+                    item="Spec Snapshot",
+                    action="[DRY-RUN] 补齐 Spec Snapshot 区块",
+                    destructive=False,
+                    status="skipped",
+                    detail=detail,
+                )
+                return
+
+            success = ensure_spec_snapshot_section(
+                pm_session_path,
+                registry,
+                spec_ids=spec_ids,
+            )
+            result.add(
+                item="Spec Snapshot",
+                action="补齐 Spec Snapshot 区块",
+                destructive=False,
+                status="fixed" if success else "failed",
+                detail=detail if success else "写入 Spec Snapshot 区块失败",
+            )
+            return
+
+        # 5. 对比版本，获取漂移项
         drifts = compare_versions(snapshot, registry)
 
         if not drifts:
@@ -490,11 +526,11 @@ class PlcRepairer:
             )
             return
 
-        # 5. 构造漂移描述
+        # 6. 构造漂移描述
         drift_descs = [f"{d.spec_id} {d.snapshot_version}→{d.registry_version}" for d in drifts]
         drift_summary = ", ".join(drift_descs)
 
-        # 6. 执行修复或预览
+        # 7. 执行修复或预览
         if dry_run:
             result.add(
                 item="Spec Snapshot",
@@ -505,7 +541,7 @@ class PlcRepairer:
             )
             return
 
-        # 7. 调用公共函数更新 PM_SESSION（V0.3.2 提取为 spec_snapshot.update_spec_snapshot）
+        # 8. 调用公共函数更新 PM_SESSION（V0.3.2 提取为 spec_snapshot.update_spec_snapshot）
         success = update_spec_snapshot(pm_session_path, drifts)
         if success:
             result.add(
@@ -523,6 +559,22 @@ class PlcRepairer:
                 status="failed",
                 detail=f"写入 PM_SESSION 失败或无内容变更: {drift_summary}",
             )
+
+    @staticmethod
+    def _select_spec_snapshot_baseline(registry: dict[str, str]) -> list[str]:
+        preferred_ids = [
+            "PM-042",
+            "DEV-001",
+            "PROJ-016",
+            "LSP-905",
+            "LSP-906",
+            "LSP-907",
+            "TOOL-908",
+            "STD-850",
+            "STD-901",
+        ]
+        selected = [spec_id for spec_id in preferred_ids if spec_id in registry]
+        return selected or sorted(registry)
 
     def _repair_prd_dir(
         self,
@@ -588,6 +640,98 @@ class PlcRepairer:
             destructive=False,
             status="fixed",
             detail=f"已创建目录 {dir_name}",
+        )
+
+    def _repair_fb_prd_doc(
+        self,
+        project_path: str,
+        project_id: str,
+        project_name: str,
+        item: CheckItem,
+        result: RepairResult,
+        dry_run: bool,
+    ) -> None:
+        """修复 FB 模块 PRD 四件套"""
+        m = re.search(r"FB PRD \[([^\]]+)\](?:/(\w+))?", item.item)
+        if not m:
+            return
+        fb_dir_name = m.group(1)
+        doc_type = m.group(2)
+
+        plc_st_path = os.path.join(project_path, "02_PLC程序", "PLC_ST")
+        if not os.path.isdir(plc_st_path):
+            plc_st_path = os.path.join(project_path, "PLC_ST")
+
+        module_dir = os.path.join(plc_st_path, fb_dir_name)
+        prd_dir = os.path.join(module_dir, "PRD")
+
+        if not dry_run:
+            os.makedirs(prd_dir, exist_ok=True)
+
+        fb_identifier = fb_dir_name.split("_", 1)[-1] if "_" in fb_dir_name else fb_dir_name
+
+        type_to_filename = {
+            "IFC": f"接口文档_IFC-{fb_identifier}.md",
+            "DSN": f"详细设计说明书_DSN-{fb_identifier}.md",
+            "CHG": f"变更记录_CHG-{fb_identifier}.md",
+            "UM": f"使用说明_UM-{fb_identifier}.md",
+        }
+
+        types_to_create = [doc_type] if doc_type in type_to_filename else list(type_to_filename.keys())
+
+        for dt in types_to_create:
+            fn = type_to_filename[dt]
+            target_path = os.path.join(prd_dir, fn)
+            if not os.path.exists(target_path):
+                content = f"# {dt} - {fb_identifier}\n\n> 项目编号: {project_id}\n> 模块: {fb_dir_name}\n\n## 1. 概述\n待补充\n"
+                if not dry_run:
+                    from auto_pm.utils.file_utils import write_file
+                    write_file(target_path, content)
+                result.add(
+                    item=f"FB PRD [{fb_dir_name}]/{dt}",
+                    action=f"创建 {fn}",
+                    destructive=False,
+                    status="fixed",
+                    detail=f"已创建最小 {dt} 骨架",
+                )
+
+    def _repair_hmi_mapping(
+        self,
+        project_path: str,
+        project_id: str,
+        project_name: str,
+        result: RepairResult,
+        dry_run: bool,
+    ) -> None:
+        """修复 HMI 点表映射文件 (hmi_tag_mapping.json)"""
+        hmi_dir = os.path.join(project_path, "03_HMI设计")
+        target_path = os.path.join(hmi_dir, "hmi_tag_mapping.json")
+
+        if os.path.exists(target_path):
+            return
+
+        if not dry_run:
+            os.makedirs(hmi_dir, exist_ok=True)
+            mapping_data = {
+                "project_id": project_id,
+                "project_name": project_name,
+                "version": "V1.0.0",
+                "mappings": {
+                    "D100": {"name": "GlobalStatusWord", "type": "WORD", "block": "GlobalVars.stGlobal.iStep", "description": "全局状态字"},
+                    "D110": {"name": "ActiveAlarmCode", "type": "DINT", "block": "GlobalVars.stGlobal.iAlarmCode", "description": "当前首出报警代码"},
+                    "M100": {"name": "AutoRunStart", "type": "BOOL", "block": "GlobalVars.stGlobal.bAutoRunning", "description": "自动运行启动"},
+                    "M102": {"name": "SystemReset", "type": "BOOL", "block": "GlobalVars.stGlobal.bReset", "description": "系统故障复位"},
+                },
+            }
+            from auto_pm.utils.file_utils import write_file
+            write_file(target_path, json.dumps(mapping_data, indent=2, ensure_ascii=False) + "\n")
+
+        result.add(
+            item="HMI 交互原型",
+            action="创建 hmi_tag_mapping.json",
+            destructive=False,
+            status="fixed",
+            detail="已补齐 hmi_tag_mapping.json 点表字典骨架",
         )
 
     def _repair_rename(

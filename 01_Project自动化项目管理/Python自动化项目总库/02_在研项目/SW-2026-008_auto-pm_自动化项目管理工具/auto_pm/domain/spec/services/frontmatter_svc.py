@@ -48,15 +48,20 @@ class FrontmatterService:
 
     def preview(self, spec_id: str | None = None) -> list[FrontmatterItem]:
         raw_specs = self.registry.raw.get("specs", {})
-        if not raw_specs:
+        if not isinstance(raw_specs, dict) or not raw_specs:
             return []
 
         if spec_id:
-            if spec_id not in raw_specs:
+            spec = raw_specs.get(spec_id)
+            if not isinstance(spec, dict):
                 return []
-            specs_to_process = {spec_id: raw_specs[spec_id]}
+            specs_to_process = {spec_id: spec}
         else:
-            specs_to_process = raw_specs
+            specs_to_process = {
+                sid: spec
+                for sid, spec in raw_specs.items()
+                if isinstance(sid, str) and isinstance(spec, dict)
+            }
 
         items: list[FrontmatterItem] = []
 

@@ -14,8 +14,10 @@
 - non_goals: 不包含非本项目相关的功能
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 项目初始化
+- current_focus: 项目初始化（V0.5.2 冒烟测试用）
 - milestone: V1.0.0
+- version: V1.0.0
+- 代码基线 V1.0.0
 - acceptance: 项目骨架搭建完成
 
 ## 3. Status Summary（当前状态摘要）
@@ -25,15 +27,13 @@
 - completed: []
 - blocked: []
 
-## 4. File Index（文件索引）
-- 00_项目管理/: 项目管理文档
-- 01_需求与设计/: 需求与设计文档与单机设备方案概览
-- 02_PLC程序/PLC_ST/: PLC 程序源码
-- 02_PLC程序/工程资产/: IO 点表、程序块、通讯等结构化资产
-- 02_PLC程序/程序文档/: 程序设计文档
-- 03_HMI设计/: HMI 设计
-- 04_现场调试/: 调试文档
-- 05_测试与验证/: 测试文档
-- 06_文档与交付/: 交付文档
-- PRD/: 项目需求文档
-- .plc.json: 项目配置（位于 02_PLC程序/PLC_ST/）
+## 4. Artifacts Index（文档索引）
+- req: PRD/需求分析文档_REQ.md
+- int: PRD/接口文档_INT.md
+- dsn: PRD/详细设计说明书_DSN.md
+- tec: PRD/技术方案文档_TEC.md
+
+## 8. Handoff Notes
+- 2026-08-26 | from=pm-workflow | note=冒烟测试样例项目，骨架已初始化
+- 代码基线 V1.0.0
+

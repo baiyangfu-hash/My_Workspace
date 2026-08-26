@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "last_updated": "2026-08-17",
+  "last_updated": "2026-08-26",
   "workspace_root": "c:\\Users\\fubai\\Documents\\My_Workspace",
   "domains": {
     "pm": "项目管理域 - 与技术栈无关的通用PM流程规范",
@@ -11,6 +11,7 @@
   },
   "lifecycle_states": {
     "stable": "已审核通过，至少1个项目验证，当前有效",
+    "active": "正在执行与持续演进中的有效规范，允许迭代更新",
     "draft": "草稿，尚未审核或验证",
     "deprecated": "已被新规范替代，保留作参考",
     "archived": "已归档，不再维护"
@@ -20,7 +21,7 @@
       "title": "通用项目名称命名规范",
       "number": "001",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/001_通用项目名称命名规范_DEV.md",
-      "version": "V1.0.2",
+      "version": "V1.1.0",
       "type_prefix": "DEV",
       "domain": "pm",
       "lifecycle": "stable",
@@ -79,7 +80,7 @@
       "title": "PM_WORKFLOW总控Skill使用说明",
       "number": "004",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_元规则与治理/004_PM_WORKFLOW总控Skill使用说明_PM.md",
-      "version": "V1.3.0",
+      "version": "V1.4.0",
       "type_prefix": "PM",
       "domain": "pm",
       "lifecycle": "stable",
@@ -164,7 +165,7 @@
       "title": "通用项目管理规范",
       "number": "010",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/02_规划阶段/010_通用项目管理规范_PM.md",
-      "version": "V1.0.2",
+      "version": "V1.1.0",
       "type_prefix": "PM",
       "domain": "pm",
       "lifecycle": "stable",
@@ -423,7 +424,7 @@
     },
     "DEV-030": {
       "title": "通用项目交付规范",
-      "number": "030",
+      "number": "030-DEV",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/03_执行管控/030_通用项目交付规范_DEV.md",
       "version": "V2.3.0",
       "type_prefix": "DEV",
@@ -441,7 +442,7 @@
       "title": "通用测试规范",
       "number": "031",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/03_执行管控/031_通用测试规范_DEV.md",
-      "version": "V1.0.0",
+      "version": "V1.1.0",
       "type_prefix": "DEV",
       "domain": "pm",
       "lifecycle": "stable",
@@ -471,7 +472,7 @@
     },
     "DEV-004": {
       "title": "通用项目文档版本管理与变更核心规范",
-      "number": "004",
+      "number": "004-DEV",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/04_变更管理/004_通用项目文档版本管理与变更核心规范_DEV.md",
       "version": "V1.1.1",
       "type_prefix": "DEV",
@@ -523,7 +524,7 @@
       "title": "通用变更管理流程规范",
       "number": "042",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/04_变更管理/042_通用变更管理流程规范_PM.md",
-      "version": "V2.3.0",
+      "version": "V2.4.0",
       "type_prefix": "PM",
       "domain": "pm",
       "lifecycle": "stable",
@@ -670,7 +671,7 @@
       "title": "SCL编程规范",
       "number": "905",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/905_SCL编程规范_LSP.md",
-      "version": "V1.0.3",
+      "version": "V1.2.1",
       "type_prefix": "LSP",
       "domain": "plc",
       "lifecycle": "stable",
@@ -729,7 +730,7 @@
       "title": "PLC编程错误预防规则",
       "number": "906",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/906_错误预防规则_LSP.md",
-      "version": "V2.0.0",
+      "version": "V2.1.0",
       "type_prefix": "LSP",
       "domain": "plc",
       "lifecycle": "stable",
@@ -746,7 +747,7 @@
       "title": "PLC项目配置规范",
       "number": "907",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/907_项目配置规范_LSP.md",
-      "version": "V1.2.1",
+      "version": "V1.3.0",
       "type_prefix": "LSP",
       "domain": "plc",
       "lifecycle": "stable",
@@ -830,7 +831,7 @@
     },
     "TOOL-906": {
       "title": "Mermaid图表工作流规范",
-      "number": "906",
+      "number": "9060",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/05_跨域工具规范/906_Mermaid图表工作流规范_TOOL.md",
       "version": "V2.0.0",
       "type_prefix": "TOOL",
@@ -851,7 +852,7 @@
     },
     "OPS-905": {
       "title": "PaddleOCR MCP Server本机离线配置指南",
-      "number": "905",
+      "number": "9050",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/05_跨域工具规范/905_PaddleOCR_MCP_Server_本机离线配置指南_OPS.md",
       "version": "V1.0.0",
       "type_prefix": "OPS",
@@ -1017,8 +1018,7 @@
       "replaces": [],
       "replaced_by": [
         "LSP-905"
-      ],
-      "drift_warning": "项目级副本DJ-2026-005/01_需求与设计/10_编程及变量规范/801_...版本已演化至V1.0.7，frontmatter版本需同步更新"
+      ]
     },
     "DEV-802": {
       "title": "PLC工作流命名规范",
@@ -1060,7 +1060,7 @@
     },
     "LSP-903-OLD": {
       "title": "Siemens-LSP Go-Gen 插件定时器使用规范(旧版)",
-      "number": "903",
+      "number": "903-OLD",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/_archive/history/903_Siemens-LSP_Go-Gen_定时器使用规范_DEV.md",
       "version": "V1.0.0",
       "type_prefix": "DEV",
@@ -1077,72 +1077,7 @@
         "LSP-903"
       ]
     },
-    "SW-2026-006": {
-      "title": "规范管理工具 (SpecMgr)",
-      "number": "006",
-      "canonical_path": "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/01_需求与设计/01-产品需求文档_PRD.md",
-      "version": "V0.2.0",
-      "type_prefix": "SW",
-      "domain": "cross-domain",
-      "lifecycle": "stable",
-      "sub_domain": "工具",
-      "tags": [
-        "规范管理",
-        "CLI",
-        "GUI",
-        "工具",
-        "跨域"
-      ],
-      "replaces": [],
-      "replaced_by": []
-    },
-    "SW-2026-007": {
-      "title": "pm工作流工具链 (pm-mgr)",
-      "number": "007",
-      "canonical_path": "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-007_pm工作流工具链/README.md",
-      "version": "V0.1.0",
-      "type_prefix": "SW",
-      "domain": "cross-domain",
-      "lifecycle": "deprecated",
-      "sub_domain": "工具",
-      "tags": [
-        "pm-workflow",
-        "CLI",
-        "工具链",
-        "项目初始化",
-        "健康检查"
-      ],
-      "replaces": [],
-      "replaced_by": [
-        "SW-2026-008"
-      ]
-    },
-    "SW-2026-008": {
-      "title": "auto-pm 自动化项目管理工具",
-      "number": "008",
-      "canonical_path": "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/001_产品需求文档_PRD.md",
-      "version": "V1.1.0",
-      "type_prefix": "SW",
-      "domain": "python",
-      "lifecycle": "active",
-      "sub_domain": "工具",
-      "tags": [
-        "auto-pm",
-        "CLI",
-        "GUI",
-        "PySide6",
-        "项目管理",
-        "跨域"
-      ],
-      "replaces": [
-        "SW-2026-007"
-      ],
-      "replaced_by": [],
-      "aliases": [
-        "auto-pm"
-      ],
-      "description": "统一 CLI + GUI 工作台，全量吸收 5 个源工具"
-    },
+    "_governance_note": "spec_registry 只收录工程规范（Laws）。软件工具产品（SW-2026-xxx）已迁移至各自 PM_SESSION 文档，不在此注册。此注释为边界护栏，防止未来再次混入产品条目。",
     "STD-909": {
       "title": "PLC上位机与人机交互规范",
       "number": "909",
@@ -1164,10 +1099,10 @@
       "replaced_by": []
     },
     "STD-910": {
-      "title": "HMI HTML原型脚手架与点表规范",
+      "title": "HMI HTML 原型脚手架与标准部件库规范",
       "number": "910",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/910_HMI_HTML原型脚手架与点表规范_STD.md",
-      "version": "V1.0.0",
+      "version": "V2.0.0",
       "type_prefix": "STD",
       "domain": "cockpit",
       "lifecycle": "stable",
@@ -1175,6 +1110,8 @@
       "tags": [
         "HMI",
         "HTML原型",
+        "WebComponents",
+        "标准部件库",
         "点表映射",
         "工业组态",
         "DJ-2026-005"
@@ -1202,12 +1139,12 @@
       "replaces": [],
       "replaced_by": []
     },
-    "CP-301": {
+    "DEV-301": {
       "title": "驾驶舱UI与交互规范",
       "number": "301",
       "canonical_path": "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/301_驾驶舱UI与交互规范_DEV.md",
       "version": "V1.1.0",
-      "type_prefix": "CP",
+      "type_prefix": "DEV",
       "domain": "cockpit",
       "lifecycle": "stable",
       "sub_domain": "驾驶舱UI",
@@ -1219,7 +1156,10 @@
         "DJ-2026-005实践"
       ],
       "replaces": [],
-      "replaced_by": []
+      "replaced_by": [],
+      "aliases": [
+        "CP-301"
+      ]
     },
     "STD-820": {
       "title": "设备间信号交握与外部对接规范",
@@ -1236,6 +1176,120 @@
         "PLC",
         "M2M",
         "标准"
+      ],
+      "replaces": [],
+      "replaced_by": [],
+      "aliases": []
+    },
+    "DEV-300": {
+      "title": "高级语言与工业上位机系统 Google SRE 工程可靠性规范",
+      "number": "300",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/300_高级语言与工业上位机系统_Google_SRE工程可靠性规范_DEV.md",
+      "version": "V1.0.0",
+      "type_prefix": "DEV",
+      "domain": "cross-domain",
+      "lifecycle": "stable",
+      "sub_domain": "驾驶舱与全栈工程",
+      "tags": [
+        "SRE",
+        "Google_SRE",
+        "可靠性",
+        "驾驶舱",
+        "工业上位机",
+        "Python",
+        "C#",
+        "C++",
+        "TypeScript",
+        "质量门禁"
+      ],
+      "replaces": [],
+      "replaced_by": [],
+      "aliases": []
+    },
+    "STD-830": {
+      "title": "工位运行模式与 OMAC 状态机控制规范",
+      "number": "830",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/830_工位运行模式与OMAC状态机控制规范_STD.md",
+      "version": "V1.0.0",
+      "type_prefix": "STD",
+      "domain": "plc",
+      "lifecycle": "stable",
+      "sub_domain": "03_PLC自动化域",
+      "tags": [
+        "OMAC",
+        "状态机",
+        "SICAR",
+        "工位模式",
+        "汽车级",
+        "DJ-2026-008实战"
+      ],
+      "replaces": [],
+      "replaced_by": [],
+      "aliases": []
+    },
+    "STD-840": {
+      "title": "工业标准设备功能块封装与接口规范",
+      "number": "840",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/840_工业标准设备功能块封装与接口规范_STD.md",
+      "version": "V2.0.0",
+      "type_prefix": "STD",
+      "domain": "plc",
+      "lifecycle": "stable",
+      "sub_domain": "03_PLC自动化域",
+      "tags": [
+        "Typical_FB",
+        "标准块",
+        "设备对象化",
+        "伺服抽象",
+        "气缸",
+        "SICAR",
+        "汽车级",
+        "DJ-2026-005实战",
+        "DJ-2026-008实战"
+      ],
+      "replaces": [],
+      "replaced_by": [],
+      "aliases": []
+    },
+    "STD-850": {
+      "title": "步进链时序控制与防卡死设计规范",
+      "number": "850",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/850_步进链时序控制与防卡死设计规范_STD.md",
+      "version": "V1.0.0",
+      "type_prefix": "STD",
+      "domain": "plc",
+      "lifecycle": "stable",
+      "sub_domain": "03_PLC自动化域",
+      "tags": [
+        "Schrittkette",
+        "步进链",
+        "时序控制",
+        "看门狗",
+        "SICAR",
+        "汽车级",
+        "DJ-2026-008实战"
+      ],
+      "replaces": [],
+      "replaced_by": [],
+      "aliases": []
+    },
+    "STD-860": {
+      "title": "汽车级首出报警与缺失条件自诊断规范",
+      "number": "860",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/860_汽车级首出报警与缺失条件自诊断规范_STD.md",
+      "version": "V1.0.0",
+      "type_prefix": "STD",
+      "domain": "plc",
+      "lifecycle": "stable",
+      "sub_domain": "03_PLC自动化域",
+      "tags": [
+        "FirstUp",
+        "首出报警",
+        "自诊断",
+        "ProDiag",
+        "SICAR",
+        "汽车级",
+        "DJ-2026-008实战"
       ],
       "replaces": [],
       "replaced_by": [],

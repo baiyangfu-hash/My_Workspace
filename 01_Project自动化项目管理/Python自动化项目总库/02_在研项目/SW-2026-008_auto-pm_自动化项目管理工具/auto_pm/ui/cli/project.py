@@ -239,7 +239,8 @@ def cmd_list(
     help="PLC 品牌（如 Siemens/Mitsubishi）",
 )
 @click.option("--plc-model", default=None, help="PLC 型号（如 S7-1200）")
-@click.option("--dest-dir", "dest_dir", default=None, help="项目存放目录（默认: auto-pm工具目录下0100_项目/）")
+@click.option("--dest-dir", "dest_dir", default=None, help="项目存放目录（默认: 动态解析到工作区分类目录）")
+@click.option("--base-project", "base_project", default=None, help="溯源父项目（例如用于改造类项目时传入原项目编号）")
 @click.option("--dry-run", is_flag=True, help="仅预览，不实际创建")
 @click.pass_context
 def cmd_create(
@@ -257,6 +258,7 @@ def cmd_create(
     plc_vendor: str | None,
     plc_model: str | None,
     dest_dir: str | None,
+    base_project: str | None,
     dry_run: bool,
 ) -> None:
     """创建新项目（调用 Copier 模板生成骨架）"""
@@ -306,13 +308,14 @@ def cmd_create(
     # 根据技术栈选择模板（M3-Iter7: 统一从 core.constants 读取；H-2: 支持 mode 参数）
     template_name = get_template_name(stack, mode if stack == "plc" else "")
 
-    # V1.0.1: 默认项目存放目录改为 auto-pm 工具目录下的 0100_项目/
-    # 用户可通过 --dest-dir 指定其他目录
+    # 默认项目存放目录：优先使用工作区下的分类目录，废除写死在 auto-pm 源码包的逻辑
     if dest_dir:
         dest_root = os.path.abspath(dest_dir)
     else:
-        from auto_pm.core.paths import get_default_projects_dir
-        dest_root = get_default_projects_dir()
+        if stack == "plc":
+            dest_root = os.path.join(app_ctx.workspace_root, "0100_PLC自动化")
+        else:
+            dest_root = os.path.join(app_ctx.workspace_root, "0100_项目")
 
     # 目标路径
     project_dir = f"{project_id}_{project_name}"
@@ -366,7 +369,10 @@ def cmd_create(
         "stack": stack,
         "mode": mode if stack == "plc" else "",
         "business_line": business_line,
+        "phase": "initiating",
     }
+    if base_project:
+        data["base_project"] = base_project
     if library_name:
         data["library_name"] = library_name
     for key, value in (

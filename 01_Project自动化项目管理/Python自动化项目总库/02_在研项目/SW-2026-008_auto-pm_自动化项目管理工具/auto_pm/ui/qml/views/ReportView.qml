@@ -79,8 +79,10 @@ Rectangle {
             if (byPhase[k2] > phaseMax) phaseMax = byPhase[k2]
         }
         phaseModel.clear()
-        var phaseOrder = ["developing", "commissioning", "production", "archived"]
+        var phaseOrder = ["initiating", "planning", "developing", "commissioning", "production", "archived"]
         var phaseLabels = {
+            "initiating": "启动",
+            "planning": "规划",
             "developing": "开发中",
             "commissioning": "调试",
             "production": "生产",

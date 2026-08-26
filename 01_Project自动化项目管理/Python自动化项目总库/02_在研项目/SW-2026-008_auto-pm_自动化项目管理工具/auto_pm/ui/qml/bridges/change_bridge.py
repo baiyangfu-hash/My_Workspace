@@ -7,6 +7,7 @@
 --- 原始注释 ---
 Change Bridge (QML)"""
 import dataclasses
+import logging
 from typing import Any
 
 from PySide6.QtCore import Property, QObject, Signal, Slot
@@ -16,6 +17,8 @@ from auto_pm.ui.contracts.commands.change_commands import (
     CreateChangeCommand,
     TransitionChangeCommand,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ChangeBridge(QObject):
@@ -119,6 +122,7 @@ class ChangeBridge(QObject):
                     return dataclasses.asdict(res.payload)
                 return {"success": False, "message": res.message}
             except Exception as e:
+                logger.warning("createChange failed: %s", e, exc_info=True)
                 return {"success": False, "message": str(e)}
         return {"success": False, "message": "未初始化"}
 
@@ -157,6 +161,7 @@ class ChangeBridge(QObject):
                     return dataclasses.asdict(res.payload)
                 return {"success": False, "message": res.message}
             except Exception as e:
+                logger.warning("transitionChange failed: %s", e, exc_info=True)
                 return {"success": False, "message": str(e)}
         return {"success": False, "message": "未初始化"}
 
@@ -211,6 +216,7 @@ class ChangeBridge(QObject):
                     return dataclasses.asdict(res.payload)
                 return {"success": False, "message": res.message}
             except Exception as e:
+                logger.warning("updateChange failed: %s", e, exc_info=True)
                 return {"success": False, "message": str(e)}
         return {"success": False, "message": "未初始化"}
 

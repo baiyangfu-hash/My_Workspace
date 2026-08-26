@@ -10,12 +10,15 @@ Delivery Bridge (QML)
 M4 第 2 批重构：5 个 Slot 改用 dataclasses.asdict() 转换 DTO 为 dict 给 QML。
 M5 CHG-116：refreshAssetSummary / getAssetSummary Slot 已接入 WorkspaceView.qml 资产汇总 Card。
 """
+import logging
 from dataclasses import asdict
 from typing import Any
 
 from PySide6.QtCore import Property, QObject, Slot
 
 from auto_pm.application.delivery_facade import DeliveryFacade
+
+logger = logging.getLogger(__name__)
 
 
 class DeliveryBridge(QObject):
@@ -243,6 +246,7 @@ class DeliveryBridge(QObject):
             """
             return styled_html
         except Exception as e:
+            logger.warning("parseMarkdown failed: %s", e, exc_info=True)
             return f"<p style='color: red;'>解析 Markdown 失败: {str(e)}</p>"
 
     @Slot(str, result="QVariantList")
@@ -259,6 +263,7 @@ class DeliveryBridge(QObject):
                 content = f.read()
             return parse_markdown_to_blocks(content)
         except Exception as e:
+            logger.warning("parseMarkdownToBlocks failed: %s", e, exc_info=True)
             return [{"type": "paragraph", "html": f"<p style='color: red;'>解析 Markdown 失败: {str(e)}</p>"}]
 
     @Slot(str, str, result="QVariantMap")
@@ -269,34 +274,47 @@ class DeliveryBridge(QObject):
         from PySide6.QtGui import QTextDocument
 
         if not os.path.isfile(file_path):
-            return {"success": False, "message": "源文档文件不存在"}
+            return {"success": False, "message": "源 Markdown 文件不存在"}
 
         try:
             with open(file_path, encoding="utf-8") as f:
-                content = f.read()
-            html = markdown.markdown(content, extensions=['extra', 'codehilite', 'toc'])
+                md_content = f.read()
 
-            # 优雅的打印版 CSS 样式，适合离线 PDF 报告生成
+            html_body = markdown.markdown(
+                md_content,
+                extensions=["extra", "tables", "fenced_code", "toc", "nl2br"],
+            )
+
+            # A4 基础排版与打印优化样式
             styled_html = f"""
+            <!DOCTYPE html>
             <html>
             <head>
+            <meta charset="utf-8">
             <style>
-                body {{ font-family: sans-serif; color: #1e293b; line-height: 1.6; font-size: 12px; }}
-                h1 {{ color: #0f172a; font-size: 18px; border-bottom: 2px solid #6366f1; padding-bottom: 6px; margin-top: 24px; }}
-                h2 {{ color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 18px; }}
-                h3 {{ color: #0f172a; font-size: 13px; margin-top: 12px; }}
-                code {{ background-color: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-family: monospace; color: #ef4444; }}
-                pre {{ background-color: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }}
-                pre code {{ background-color: transparent; padding: 0; color: #0f172a; }}
-                a {{ color: #2563eb; text-decoration: none; }}
-                table {{ border-collapse: collapse; width: 100%; margin-bottom: 16px; margin-top: 10px; }}
-                th, td {{ border: 1px solid #e2e8f0; padding: 6px 10px; text-align: left; }}
-                th {{ background-color: #f1f5f9; color: #0f172a; font-weight: bold; }}
-                blockquote {{ border-left: 4px solid #6366f1; padding-left: 12px; color: #64748b; margin-left: 0; }}
+                @page {{
+                    size: A4;
+                    margin: 20mm;
+                }}
+                body {{
+                    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+                    color: #1a1a1a;
+                    line-height: 1.6;
+                    font-size: 11pt;
+                }}
+                h1 {{ font-size: 18pt; color: #0f172a; border-bottom: 2px solid #00E5FF; padding-bottom: 6px; margin-top: 20px; }}
+                h2 {{ font-size: 14pt; color: #1e293b; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-top: 16px; }}
+                h3 {{ font-size: 12pt; color: #334155; margin-top: 12px; }}
+                table {{ border-collapse: collapse; width: 100%; margin: 12px 0; }}
+                th, td {{ border: 1px solid #cbd5e1; padding: 6px 10px; text-align: left; }}
+                th {{ background-color: #f1f5f9; font-weight: bold; }}
+                pre, code {{ font-family: 'Consolas', monospace; background-color: #f8fafc; font-size: 9.5pt; }}
+                pre {{ padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; }}
+                blockquote {{ border-left: 4px solid #00E5FF; padding-left: 10px; margin-left: 0; color: #64748b; }}
             </style>
             </head>
             <body>
-            {html}
+            {html_body}
             </body>
             </html>
             """
@@ -317,6 +335,5 @@ class DeliveryBridge(QObject):
 
             return {"success": True, "message": f"成功导出 PDF 至 {save_path}"}
         except Exception as e:
+            logger.warning("exportDocToPdf failed: %s", e, exc_info=True)
             return {"success": False, "message": f"导出 PDF 失败: {str(e)}"}
-
-

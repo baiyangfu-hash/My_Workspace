@@ -42,6 +42,17 @@ _ASCII_SEVERITY_ICONS = {
 }
 
 
+def _iter_registry_specs(registry: dict[str, object]) -> list[tuple[str, dict[str, object]]]:
+    specs = registry.get("specs", {})
+    if not isinstance(specs, dict):
+        return []
+    return [
+        (spec_id, spec)
+        for spec_id, spec in specs.items()
+        if isinstance(spec_id, str) and isinstance(spec, dict)
+    ]
+
+
 def _supports_unicode_output() -> bool:
     encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
     try:
@@ -49,6 +60,28 @@ def _supports_unicode_output() -> bool:
     except (LookupError, UnicodeEncodeError):
         return False
     return True
+
+
+def _is_non_spec_artifact(md_file: Path) -> bool:
+    normalized_parts = {part.replace("\\", "/") for part in md_file.parts}
+    return bool(
+        {
+            "04_变更管理",
+            "01_变更单",
+            "02_变更记录",
+        }
+        & normalized_parts
+    )
+
+
+def _should_skip_schema_mismatch(spec: dict[str, object]) -> bool:
+    lifecycle = str(spec.get("lifecycle", "")).lower()
+    canonical_path = str(spec.get("canonical_path", "")).replace("\\", "/")
+    return lifecycle in {"deprecated", "archived", "history"} or "/_archive/" in f"/{canonical_path}"
+
+
+def _is_allowed_duplicate_dir(prefix: str, dirs: list[str]) -> bool:
+    return prefix == "01" and set(dirs).issubset({"01_启动", "01_需求与设计"})
 
 
 def _resolve_workspace(workspace: str | None, ctx: click.Context | None = None) -> Path:
@@ -529,7 +562,7 @@ def cmd_lint(
             issues.append({
                 "rule": "LINT-001/stale_root",
                 "severity": "ERROR",
-                "message": f"workspace_root 路径过期",
+                "message": "workspace_root 路径过期",
                 "detail": f"registry 中: {stored_root!r} | 实际应为: {ws}",
                 "suggestion": f'将 spec_registry.json 中 workspace_root 改为 "{ws}"',
             })
@@ -544,7 +577,7 @@ def cmd_lint(
             ws / "00_Obsidian_Base全局规范文件仓库" / "05_跨域工具规范",
         ]
         registered_paths: set[Path] = set()
-        for spec_id, spec in registry.get("specs", {}).items():
+        for _spec_id, spec in _iter_registry_specs(registry):
             cp = spec.get("canonical_path", "")
             if cp:
                 registered_paths.add((ws / cp).resolve())
@@ -555,19 +588,21 @@ def cmd_lint(
             for md_file in spec_dir.rglob("*.md"):
                 if md_file.name.startswith("00_INDEX"):
                     continue
+                if _is_non_spec_artifact(md_file):
+                    continue
                 resolved = md_file.resolve()
                 if resolved not in registered_paths:
                     issues.append({
                         "rule": "LINT-002/orphan_file",
                         "severity": "WARNING",
-                        "message": f"孤立规范文件（未在 registry 注册）",
+                        "message": "孤立规范文件（未在 registry 注册）",
                         "detail": str(md_file.relative_to(ws)),
                         "suggestion": "在 spec_registry.json 中添加对应注册条目，或移入 _archive/",
                     })
 
     # ── LINT-003: path_drift ──────────────────────────────────────────────
     if run_all or "path_drift" in rule:
-        for spec_id, spec in registry.get("specs", {}).items():
+        for spec_id, spec in _iter_registry_specs(registry):
             cp = spec.get("canonical_path", "")
             if not cp:
                 continue
@@ -589,9 +624,11 @@ def cmd_lint(
         # 同时接受新旧字段名
         field_aliases = {"spec_id": {"spec_id", "id"}, "title": {"title", "name"}, "lifecycle": {"lifecycle", "status"}}
 
-        for spec_id, spec in registry.get("specs", {}).items():
+        for spec_id, spec in _iter_registry_specs(registry):
             cp = spec.get("canonical_path", "")
             if not cp:
+                continue
+            if _should_skip_schema_mismatch(spec):
                 continue
             full_path = (ws / cp).resolve()
             if not full_path.exists():
@@ -626,7 +663,6 @@ def cmd_lint(
     if run_all or "duplicate_dir" in rule:
         project_roots = [
             ws / "0100_PLC自动化",
-            ws / "01_Project自动化项目管理" / "Python自动化项目总库" / "02_在研项目",
         ]
         import re as _re
 
@@ -645,13 +681,13 @@ def cmd_lint(
                         prefix = m.group(1)
                         prefix_counter.setdefault(prefix, []).append(sub.name)
                 for prefix, dirs in prefix_counter.items():
-                    if len(dirs) > 1:
+                    if len(dirs) > 1 and not _is_allowed_duplicate_dir(prefix, dirs):
                         issues.append({
                             "rule": "LINT-005/duplicate_dir",
                             "severity": "WARNING",
                             "message": f"[{project_dir.name}] 目录编号 {prefix}_ 重复",
                             "detail": "重复目录: " + ", ".join(dirs),
-                            "suggestion": f"参照 PROJ-016 规范，将重复目录重命名为唯一编号",
+                            "suggestion": "参照 PROJ-016 规范，将重复目录重命名为唯一编号",
                         })
 
     # ── 输出 ──────────────────────────────────────────────────────────────
@@ -702,7 +738,7 @@ def sync(ctx: click.Context, workspace: str | None, config_path: str | None) -> 
     2. 执行全局规范健康检查 (SHC-001~014)
     """
     ws = _resolve_workspace(workspace, ctx)
-    ws_config = _load_ws_config(config_path, ws)
+    ws_config = _load_ws_config(Path(config_path) if config_path else None, ws)
     unicode_output = _supports_unicode_output()
 
     console.print("[bold cyan]==================================================[/bold cyan]")

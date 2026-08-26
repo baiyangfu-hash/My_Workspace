@@ -1719,7 +1719,7 @@
                 { id: "CHG-PLC-045", title: "S7-1500 报警块接口扩容", author: "john", status: "Review", tag: "warning", date: "2026-06-25", desc: "增加 32 个报警字支持，优化 HMI 联动性能。" }
             ],
             specs: [
-                { rule: "LSP-SCL-001", desc: "FB 功能块内部变量必须使用前缀 'stat_'", loc: "MotorControl_FB.scl : L24", status: "error" },
+                { rule: "LSP-SCL-001", desc: "FB 功能块内部静态变量必须使用前缀 's_'", loc: "MotorControl_FB.scl : L24", status: "error" },
                 { rule: "LSP-DB-015", desc: "全局 DB 取消勾选 Optimized Block Access", loc: "HMI_Data.db", status: "error" },
                 { rule: "LSP-DOC-003", desc: "PM_SESSION 必须包含 [技术债] 章节", loc: "PM_SESSION.md", status: "pass" },
                 { rule: "LSP-QML-012", desc: "QML 中禁止无兜底的 undefined 属性绑定", loc: "VarTableEditor.qml : L259", status: "pass" }

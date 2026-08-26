@@ -1,0 +1,251 @@
+(* ================================================================= *)
+(*  功能块名称:FB_2001_CommonAlarm_AllStation                        *)
+(*  功能描述:公共报警管理功能块 - 汇总所有工站报警信息                *)
+(*  版本号:V3.0.0 (结构体整块传递架构)                               *)
+(* ================================================================= *)
+FUNCTION_BLOCK FB_2001_CommonAlarm_AllStation
+
+VAR_IN_OUT
+    io_stGlobal                : ST_CommonAlarm; // 公共报警工站全量数据结构体
+END_VAR
+
+VAR
+    // 局部解包/封包变量 (白盒兼容内部逻辑)
+    s_iConveyorAlarmIn         : INT;
+    s_iPickPlaceAlarmIn        : INT;
+    s_iFeederAlarmIn           : INT;
+    s_bResetCmd                : BOOL;
+
+    s_wGlobalAlarmWord         : WORD;
+    s_iCurrentAlarmCode        : INT;
+    s_bAnyAlarmActive          : BOOL;
+    s_iMesAlarmCount           : INT;
+    s_arrMesAlarmQueue         : ARRAY[0..9] OF INT;
+    s_bNewAlarmFlag            : BOOL;
+    s_arrStationAlarmStatus    : ARRAY[1..3] OF INT;
+    s_bConveyorAlarmActiveOut  : BOOL;
+    s_bPickPlaceAlarmActiveOut : BOOL;
+    s_bFeederAlarmActiveOut    : BOOL;
+
+    s_iPrevConveyorAlarm       : INT;
+    s_iPrevPickPlaceAlarm      : INT;
+    s_iPrevFeederAlarm         : INT;
+    s_wPrevGlobalAlarmWord     : WORD;
+    s_bConveyorAlarmActive     : BOOL;
+    s_bPickPlaceAlarmActive    : BOOL;
+    s_bFeederAlarmActive       : BOOL;
+    s_iMinAlarmCode            : INT;
+    s_iQueueTailIndex          : INT;
+    s_bAlarmExistsInQueue      : BOOL;
+    s_iQueueScanIndex          : INT;
+    s_iAlarmCount              : INT;
+    s_bNewAlarmDetected        : BOOL;
+    s_bQueueFull               : BOOL;
+END_VAR
+
+VAR CONSTANT
+    QUEUE_SIZE     : INT := 10;     // 报警队列大小
+    QUEUE_MASK     : INT := 9;      // 队列索引掩码 (用于循环队列)
+    ALM_NONE       : INT := 0;      // 无报警值
+    ALM_WORD_ZERO  : WORD := 0;     // 报警字零值
+END_VAR
+
+(* ==================== 结构体解包 (输入映射) ==================== *)
+s_iConveyorAlarmIn             := io_stGlobal.i_iConveyorAlarm;
+s_iPickPlaceAlarmIn            := io_stGlobal.i_iPickPlaceAlarm;
+s_iFeederAlarmIn               := io_stGlobal.i_iFeederAlarm;
+s_bResetCmd                    := io_stGlobal.i_bReset;
+
+(* -------------------------------------------------------------------------- *)
+(* 1. 保存当前输入状态用于下一周期比较                                          *)
+(* -------------------------------------------------------------------------- *)
+s_iPrevConveyorAlarm := s_iConveyorAlarmIn;
+s_iPrevPickPlaceAlarm := s_iPickPlaceAlarmIn;
+s_iPrevFeederAlarm := s_iFeederAlarmIn;
+
+(* -------------------------------------------------------------------------- *)
+(* 2. 复位处理                                                                *)
+(* -------------------------------------------------------------------------- *)
+IF s_bResetCmd THEN
+    s_wGlobalAlarmWord := ALM_WORD_ZERO;
+    s_iCurrentAlarmCode := ALM_NONE;
+    s_bAnyAlarmActive := FALSE;
+    s_bNewAlarmFlag := FALSE;
+    s_iMesAlarmCount := ALM_NONE;
+    s_iAlarmCount := ALM_NONE;
+    FOR s_iQueueScanIndex := 0 TO QUEUE_MASK DO
+        s_arrMesAlarmQueue[s_iQueueScanIndex] := ALM_NONE;
+    END_FOR;
+    s_iQueueTailIndex := 0;
+    s_bNewAlarmDetected := FALSE;
+    s_iMinAlarmCode := ALM_NONE;
+    s_wPrevGlobalAlarmWord := ALM_WORD_ZERO;
+    s_bQueueFull := FALSE;
+    RETURN;
+END_IF;
+
+(* -------------------------------------------------------------------------- *)
+(* 3. 各工站报警激活状态检测                                                    *)
+(* -------------------------------------------------------------------------- *)
+s_bConveyorAlarmActive := (s_iConveyorAlarmIn <> ALM_NONE);
+s_bPickPlaceAlarmActive := (s_iPickPlaceAlarmIn <> ALM_NONE);
+s_bFeederAlarmActive := (s_iFeederAlarmIn <> ALM_NONE);
+
+(* -------------------------------------------------------------------------- *)
+(* 4. 全局报警字生成                                                          *)
+(*    将各工站报警码按位或组合成全局报警字                                      *)
+(* -------------------------------------------------------------------------- *)
+s_wGlobalAlarmWord := ALM_WORD_ZERO;
+
+IF s_bConveyorAlarmActive THEN
+    s_wGlobalAlarmWord := s_wGlobalAlarmWord OR INT_TO_WORD(s_iConveyorAlarmIn);
+END_IF;
+
+IF s_bPickPlaceAlarmActive THEN
+    s_wGlobalAlarmWord := s_wGlobalAlarmWord OR INT_TO_WORD(s_iPickPlaceAlarmIn);
+END_IF;
+
+IF s_bFeederAlarmActive THEN
+    s_wGlobalAlarmWord := s_wGlobalAlarmWord OR INT_TO_WORD(s_iFeederAlarmIn);
+END_IF;
+
+(* -------------------------------------------------------------------------- *)
+(* 5. 最高优先级报警码选择                                                      *)
+(*    选择最小报警码作为当前最高优先级报警(报警码越小优先级越高)                *)
+(* -------------------------------------------------------------------------- *)
+s_iMinAlarmCode := ALM_NONE;
+
+IF s_bConveyorAlarmActive THEN
+    IF s_iMinAlarmCode = ALM_NONE THEN
+        s_iMinAlarmCode := s_iConveyorAlarmIn;
+    ELSIF s_iConveyorAlarmIn < s_iMinAlarmCode THEN
+        s_iMinAlarmCode := s_iConveyorAlarmIn;
+    END_IF;
+END_IF;
+
+IF s_bPickPlaceAlarmActive THEN
+    IF s_iMinAlarmCode = ALM_NONE THEN
+        s_iMinAlarmCode := s_iPickPlaceAlarmIn;
+    ELSIF s_iPickPlaceAlarmIn < s_iMinAlarmCode THEN
+        s_iMinAlarmCode := s_iPickPlaceAlarmIn;
+    END_IF;
+END_IF;
+
+IF s_bFeederAlarmActive THEN
+    IF s_iMinAlarmCode = ALM_NONE THEN
+        s_iMinAlarmCode := s_iFeederAlarmIn;
+    ELSIF s_iFeederAlarmIn < s_iMinAlarmCode THEN
+        s_iMinAlarmCode := s_iFeederAlarmIn;
+    END_IF;
+END_IF;
+
+(* -------------------------------------------------------------------------- *)
+(* 6. 输出状态赋值                                                            *)
+(* -------------------------------------------------------------------------- *)
+s_iCurrentAlarmCode := s_iMinAlarmCode;
+s_bAnyAlarmActive := s_bConveyorAlarmActive OR s_bPickPlaceAlarmActive OR s_bFeederAlarmActive;
+
+s_arrStationAlarmStatus[1] := s_iConveyorAlarmIn;
+s_arrStationAlarmStatus[2] := s_iPickPlaceAlarmIn;
+s_arrStationAlarmStatus[3] := s_iFeederAlarmIn;
+
+s_bConveyorAlarmActiveOut := s_bConveyorAlarmActive;
+s_bPickPlaceAlarmActiveOut := s_bPickPlaceAlarmActive;
+s_bFeederAlarmActiveOut := s_bFeederAlarmActive;
+
+(* -------------------------------------------------------------------------- *)
+(* 7. 新报警检测(上升沿检测)                                                  *)
+(*    只检测报警从无到有的变化,避免报警解除时误触发                            *)
+(* -------------------------------------------------------------------------- *)
+s_bNewAlarmDetected := FALSE;
+
+IF (s_iConveyorAlarmIn <> ALM_NONE AND s_iPrevConveyorAlarm = ALM_NONE) THEN
+    s_bNewAlarmDetected := TRUE;
+END_IF;
+IF (s_iPickPlaceAlarmIn <> ALM_NONE AND s_iPrevPickPlaceAlarm = ALM_NONE) THEN
+    s_bNewAlarmDetected := TRUE;
+END_IF;
+IF (s_iFeederAlarmIn <> ALM_NONE AND s_iPrevFeederAlarm = ALM_NONE) THEN
+    s_bNewAlarmDetected := TRUE;
+END_IF;
+
+s_bNewAlarmFlag := s_bNewAlarmDetected AND s_bAnyAlarmActive;
+
+(* -------------------------------------------------------------------------- *)
+(* 8. MES报警队列管理                                                          *)
+(*    维护最近10条报警记录,支持去重存储,队列满时自动覆盖最旧记录              *)
+(* -------------------------------------------------------------------------- *)
+(* 8.1 报警计数: 仅在新报警(上升沿)时递增, 避免每周期重复计数 *)
+	IF s_bNewAlarmDetected THEN
+	    s_iAlarmCount := s_iAlarmCount + 1;
+            s_iMesAlarmCount := s_iAlarmCount;
+	END_IF;
+
+	(* 8.2 报警队列管理: 报警激活时维护 *)
+        IF s_bAnyAlarmActive THEN
+	    s_bAlarmExistsInQueue := FALSE;
+    
+    (* 检查报警码是否已存在于队列中(去重) *)
+    FOR s_iQueueScanIndex := 0 TO QUEUE_MASK DO
+        IF s_arrMesAlarmQueue[s_iQueueScanIndex] = s_iCurrentAlarmCode THEN
+            s_bAlarmExistsInQueue := TRUE;
+            EXIT;
+        END_IF;
+    END_FOR;
+    
+    (* 如果报警码不存在于队列中,则加入队列 *)
+    IF NOT s_bAlarmExistsInQueue THEN
+        s_arrMesAlarmQueue[s_iQueueTailIndex] := s_iCurrentAlarmCode;
+        s_iQueueTailIndex := s_iQueueTailIndex + 1;
+        
+        (* 循环队列处理 *)
+        IF s_iQueueTailIndex > QUEUE_MASK THEN
+            s_iQueueTailIndex := 0;
+            s_bQueueFull := TRUE;
+        ELSE
+            s_bQueueFull := FALSE;
+        END_IF;
+    END_IF;
+END_IF;
+	    s_bAlarmExistsInQueue := FALSE;
+    
+    (* 检查报警码是否已存在于队列中(去重) *)
+    FOR s_iQueueScanIndex := 0 TO QUEUE_MASK DO
+        IF s_arrMesAlarmQueue[s_iQueueScanIndex] = s_iCurrentAlarmCode THEN
+            s_bAlarmExistsInQueue := TRUE;
+            EXIT;
+        END_IF;
+    END_FOR;
+    
+    (* 如果报警码不存在于队列中,则加入队列 *)
+    IF NOT s_bAlarmExistsInQueue THEN
+        s_arrMesAlarmQueue[s_iQueueTailIndex] := s_iCurrentAlarmCode;
+        s_iQueueTailIndex := s_iQueueTailIndex + 1;
+        
+        (* 循环队列处理 *)
+        IF s_iQueueTailIndex > QUEUE_MASK THEN
+            s_iQueueTailIndex := 0;
+            s_bQueueFull := TRUE;
+        ELSE
+            s_bQueueFull := FALSE;
+        END_IF;
+    END_IF;
+
+
+(* -------------------------------------------------------------------------- *)
+(* 9. 保存当前状态用于下一周期比较                                              *)
+(*    注意:必须在功能块末尾保存,确保读取的是当前周期计算后的有效值            *)
+(* -------------------------------------------------------------------------- *)
+s_wPrevGlobalAlarmWord := s_wGlobalAlarmWord;
+
+(* ==================== 结构体封包 (输出映射) ==================== *)
+io_stGlobal.o_wGlobalAlarmWord       := s_wGlobalAlarmWord;
+io_stGlobal.o_iCurrentAlarmCode      := s_iCurrentAlarmCode;
+io_stGlobal.o_bAnyAlarmActive        := s_bAnyAlarmActive;
+io_stGlobal.o_iMESAlarmCount         := s_iMesAlarmCount;
+io_stGlobal.o_bNewAlarmFlag          := s_bNewAlarmFlag;
+io_stGlobal.o_bConveyorAlarmActive   := s_bConveyorAlarmActiveOut;
+io_stGlobal.o_bPickPlaceAlarmActive  := s_bPickPlaceAlarmActiveOut;
+io_stGlobal.o_bFeederAlarmActive     := s_bFeederAlarmActiveOut;
+
+END_FUNCTION_BLOCK

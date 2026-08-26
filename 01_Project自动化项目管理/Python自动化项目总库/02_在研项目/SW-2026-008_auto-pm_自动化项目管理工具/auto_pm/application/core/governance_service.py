@@ -1,4 +1,4 @@
-﻿"""工作空间治理服务：提供根目录纯净度校验与游离日志/临时文件自动清扫 (CHG-SCPT-2026-155)"""
+"""工作空间治理服务：提供根目录纯净度校验与游离日志/临时文件自动清扫 (CHG-SCPT-2026-155)"""
 
 from __future__ import annotations
 
@@ -12,22 +12,28 @@ ROOT_WHITELIST: set[str] = {
     "01_project自动化项目管理",
     "0100_plc自动化",
     "sys-2026-001_workspacegovernance",
-    "plc源程序样例",
+    "docs",
     ".git",
     ".gitignore",
     ".gitattributes",
     ".dockerignore",
+    ".github",
+    ".devcontainer",
+    ".cursor",
+    ".agents",
+    ".idea",
     ".venv",
     ".trae",
     ".auto-pm",
     ".vs",
     ".vscode",
-    "coverage",
-    ".coverage",
+    "agents.md",
     "readme.md",
-    "readme_docker.md",
-    "readme_docker_trae.md",
-    "workspace_handoff_document.md",
+    "license",
+    "main.py",
+    "requirements.txt",
+    "setup_env.bat",
+    "双击启动驾驶舱.bat",
 }
 
 

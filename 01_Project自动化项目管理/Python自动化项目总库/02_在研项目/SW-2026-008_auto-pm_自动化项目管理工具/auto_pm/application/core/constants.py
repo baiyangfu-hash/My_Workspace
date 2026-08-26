@@ -148,6 +148,8 @@ STACK_CODES: Final[list[str]] = [opt[0] for opt in STACK_OPTIONS]
 
 #: 项目阶段选项列表：(value, label) 格式
 PHASE_OPTIONS: Final[list[tuple[str, str]]] = [
+    ("initiating", "启动中"),
+    ("planning", "规划中"),
     ("developing", "开发中"),
     ("commissioning", "调试中"),
     ("production", "已投产"),

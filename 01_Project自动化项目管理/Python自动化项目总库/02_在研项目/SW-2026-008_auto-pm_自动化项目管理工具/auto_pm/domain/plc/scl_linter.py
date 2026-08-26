@@ -1,8 +1,9 @@
 """SCL 代码规范静态检查器 (Siemens LSP-905 规范)
 
 扫描 PLC 源码中的 .scl 文件，依据 Obsidian 《905_SCL编程规范_LSP.md》
-秒级检查变量作用域前缀 (i_/o_/io_/s_)、语法白名单 (严禁 GOTO/REPEAT/指针)
-以及状态机安全防护闭环 (CASE 缺失 ELSE 防卡死分支)。
+秒级检查变量作用域前缀 (i_/o_/io_/s_)、ARRAY 类型标识 (arr)、
+语法白名单 (严禁 GOTO/REPEAT/指针) 以及状态机安全防护闭环
+(CASE 缺失 ELSE 防卡死分支)。
 """
 
 from __future__ import annotations
@@ -53,12 +54,22 @@ class SclLinter:
     BLOCK_VAR_INPUT = re.compile(r"^\s*VAR_INPUT\b", re.IGNORECASE)
     BLOCK_VAR_OUTPUT = re.compile(r"^\s*VAR_OUTPUT\b", re.IGNORECASE)
     BLOCK_VAR_IN_OUT = re.compile(r"^\s*VAR_IN_OUT\b", re.IGNORECASE)
+    BLOCK_VAR_CONSTANT = re.compile(r"^\s*VAR\s+CONSTANT\b", re.IGNORECASE)
     BLOCK_VAR_STATIC = re.compile(r"^\s*VAR\b", re.IGNORECASE)
     BLOCK_VAR_TEMP = re.compile(r"^\s*VAR_TEMP\b", re.IGNORECASE)
     BLOCK_END_VAR = re.compile(r"^\s*END_VAR\b", re.IGNORECASE)
 
     # 变量提取正则 (例: i_bStart : BOOL;)
     VAR_DECLARATION_PATTERN = re.compile(r"^\s*([a-zA-Z0-9_]+)\s*:\s*([a-zA-Z0-9_]+)")
+
+    ARRAY_PREFIX_MAP = {
+        "VAR_INPUT": ("i_arr", "I_arr"),
+        "VAR_OUTPUT": ("o_arr", "O_arr", "q_arr", "Q_arr"),
+        "VAR_IN_OUT": ("io_arr", "IO_arr", "iq_arr", "IQ_arr"),
+        "VAR": ("s_arr", "S_arr"),
+        "VAR_TEMP": ("t_arr", "T_arr", "temp_arr", "TEMP_arr"),
+        "VAR_CONSTANT": ("CONST_arr",),
+    }
 
     @classmethod
     def lint_text(cls, text: str, file_path: str = "") -> SclLintReport:
@@ -192,6 +203,9 @@ class SclLinter:
             elif cls.BLOCK_VAR_TEMP.match(stripped):
                 current_block = "VAR_TEMP"
                 continue
+            elif cls.BLOCK_VAR_CONSTANT.match(stripped):
+                current_block = "VAR_CONSTANT"
+                continue
             elif cls.BLOCK_VAR_STATIC.match(stripped):
                 current_block = "VAR"
                 continue
@@ -203,6 +217,7 @@ class SclLinter:
                 var_match = cls.VAR_DECLARATION_PATTERN.match(line)
                 if var_match:
                     var_name = var_match.group(1)
+                    var_type = var_match.group(2).upper()
 
                     if current_block == "VAR_INPUT" and not (var_name.startswith("i_") or var_name.startswith("I_")):
                         report.violations.append(
@@ -249,13 +264,48 @@ class SclLinter:
                         or var_name.startswith("S_")
                         or var_name.startswith("fb_")
                         or var_name.startswith("FB_")
+                        or var_name.startswith("st_")
+                        or var_name.startswith("ST_")
+                        or var_name.startswith("ast_")
+                        or var_name.startswith("AST_")
                     ):
                         report.violations.append(
                             SclViolation(
                                 line_number=line_idx,
                                 rule_id="LSP-905-VAR-STATIC-PREFIX",
                                 severity="WARNING",
-                                message=f"静态变量 '{var_name}' 建议补齐 's_' (变量) 或 'fb_' (实例) 前缀",
+                                message=f"静态变量 '{var_name}' 建议补齐 's_' (变量)、'st_' (结构体) 或 'fb_' (实例) 前缀",
+                                code_snippet=stripped,
+                            )
+                        )
+                    elif current_block == "VAR_TEMP" and not (
+                        var_name.startswith("t_")
+                        or var_name.startswith("T_")
+                        or var_name.startswith("temp_")
+                        or var_name.startswith("TEMP_")
+                    ):
+                        report.violations.append(
+                            SclViolation(
+                                line_number=line_idx,
+                                rule_id="LSP-905-VAR-TEMP-PREFIX",
+                                severity="WARNING",
+                                message=f"临时变量 '{var_name}' 建议补齐 't_' 前缀（如 t_bAutoEnable）",
+                                code_snippet=stripped,
+                            )
+                        )
+
+                    if var_type == "ARRAY" and not cls._has_array_type_prefix(current_block, var_name):
+                        expected_prefixes = cls.ARRAY_PREFIX_MAP.get(current_block, ("arr",))
+                        expected_text = " / ".join(expected_prefixes)
+                        report.violations.append(
+                            SclViolation(
+                                line_number=line_idx,
+                                rule_id="LSP-905-VAR-ARRAY-TYPE-PREFIX",
+                                severity="WARNING",
+                                message=(
+                                    f"数组变量 '{var_name}' 建议使用 '{expected_text}' 类型标识"
+                                    "（如 s_arrMesAlarmQueue）"
+                                ),
                                 code_snippet=stripped,
                             )
                         )
@@ -290,6 +340,13 @@ class SclLinter:
         report.warnings_count = sum(1 for v in report.violations if v.severity == "WARNING")
 
         return report
+
+    @classmethod
+    def _has_array_type_prefix(cls, current_block: str, var_name: str) -> bool:
+        expected_prefixes = cls.ARRAY_PREFIX_MAP.get(current_block)
+        if not expected_prefixes:
+            return True
+        return any(var_name.startswith(prefix) for prefix in expected_prefixes)
 
     @classmethod
     def lint_file(cls, file_path: Path | str) -> SclLintReport:

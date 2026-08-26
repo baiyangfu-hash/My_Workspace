@@ -134,9 +134,9 @@ docs(905规范): 更新SCL编程规范的METHOD章节说明
 ```
 
 ```
-chore(spec_registry): 注册SW-2026-006到跨域规范
+chore(spec_registry): 注册DEV-301别名兼容映射
 ```
 
 ```
-docs(project-rule): 新增SpecMgr CLI使用说明和安全红线规则
+docs(project-rule): 新增auto-pm工具说明和安全红线规则
 ```

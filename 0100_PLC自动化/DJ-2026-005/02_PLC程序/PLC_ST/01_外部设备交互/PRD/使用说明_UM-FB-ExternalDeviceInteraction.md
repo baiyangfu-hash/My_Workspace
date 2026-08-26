@@ -1,4 +1,4 @@
-# 使用说明 FB_ExternalDeviceInteraction
+# 使用说明 FB_3001_ExternalInteraction（DJ005实现名：FB_ExternalDeviceInteraction）
 
 ## 1. 功能
 

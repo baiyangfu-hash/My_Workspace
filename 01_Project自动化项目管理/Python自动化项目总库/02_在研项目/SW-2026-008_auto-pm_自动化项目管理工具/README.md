@@ -118,14 +118,15 @@ auto-pm plc standardize DJ-2026-010 --apply
 
 ### python - Python 项目管理
 
-> **注意**: `python init`/`python check` 当前为占位实现，计划 V2.5 版本交付（见 PRD 路线图）。
-
 ```bash
-# 创建 Python 项目骨架（V2.5 实现）
+# 创建 Python 项目骨架
 auto-pm python init SW-2026-009 --name 数据分析工具
 
-# 检查 Python 项目规范（V2.5 实现）
+# 检查 Python 项目规范
 auto-pm python check SW-2026-009
+
+# 修复 Python 项目常见结构与元数据问题
+auto-pm python repair SW-2026-009
 ```
 
 ### change - 变更管理
@@ -235,49 +236,41 @@ uv run pre-commit run --all-files
 
 ```
 auto-pm/
-├── auto_pm/                        # 主包
+├── auto_pm/                        # 主包（五层整洁架构）
 │   ├── application/                # 应用层 Facade（5 个用例编排入口）
 │   │   ├── workbench_facade.py     # 驾驶舱 + 项目列表 + 项目工作台
 │   │   ├── change_facade.py        # 变更创建/流转/列表/详情
 │   │   ├── spec_facade.py          # 规范中心概览/检查
 │   │   ├── delivery_facade.py      # 文档刷新/报告/资产摘要
 │   │   └── system_facade.py        # PM_SESSION/模板/缓存管理
-│   ├── cli/                        # Click CLI 入口
-│   │   ├── __main__.py             # auto-pm 主入口
-│   │   ├── project.py              # project 子命令组（CRUD + import）
-│   │   ├── change.py               # change 子命令组（变更管理）
-│   │   ├── gui.py                  # gui 命令（QML GUI 启动）
-│   │   ├── plc/                    # PLC 技术栈插件
-│   │   └── python/                 # Python 技术栈插件
-│   ├── core/                       # 核心领域服务层
-│   │   ├── project_service.py      # 项目 CRUD 服务 + 文件系统扫描
-│   │   ├── dashboard_service.py    # 驾驶舱聚合服务
-│   │   ├── protocols.py            # Service Protocol 接口定义
-│   │   ├── paths.py                # 统一路径约定常量
-│   │   └── constants.py            # 业务线/技术栈/阶段常量
-│   ├── change/                     # 变更管理包（parser/generator/service 等 9 模块）
-│   ├── models/                     # Pydantic v2 模型层（project/change/plc/dto/enums）
-│   ├── db/                         # SQLite 索引缓存层（WAL 模式，5 张表）
-│   ├── ui/                         # PySide6 QML GUI 层
-│   │   ├── contracts/              # DTO/Command/Event 接口契约
-│   │   ├── qml/                    # QML 视图/组件/对话框/主题/模型/桥接
-│   │   ├── global_pages/           # 全局页面适配器
-│   │   ├── models/                 # Qt 模型适配器
-│   │   └── registry.py             # Facade 装配器
-│   ├── spec/                       # 规范管理（core + services）
-│   ├── plc/                        # PLC 检查/修复/标准化
-│   ├── vartable/                   # 变量表解析
-│   ├── config/                     # 配置（pydantic-settings）
-│   ├── logging/                    # 日志 + 审计
-│   └── utils/                      # 工具函数
+│   ├── contracts/                  # DTO/Command/Event 接口契约
+│   ├── domain/                     # 核心领域能力（plc/spec/change/vartable/...）
+│   ├── infrastructure/             # DB/日志/配置/文档注入等基础设施
+│   └── ui/                         # CLI + QML + Bridge 表现层
+│       ├── cli/                    # Click CLI 入口
+│       │   ├── __main__.py         # auto-pm 主入口
+│       │   ├── project.py          # project 子命令组（CRUD + import）
+│       │   ├── change.py           # change 子命令组（变更管理）
+│       │   ├── gui.py              # gui 命令（QML GUI 启动）
+│       │   ├── plc/                # PLC 技术栈插件
+│       │   └── python/             # Python 技术栈插件
+│       ├── qml/                    # QML 视图/组件/对话框/主题/模型/桥接
+│       ├── global_pages/           # 全局页面适配器
+│       ├── models/                 # Qt 模型适配器
+│       └── registry.py             # Facade 装配器
 ├── templates/                      # Copier 模板仓库
 │   ├── plc-standard-project/       # PLC 标准项目模板
 │   ├── plc-shared-library/         # PLC 共享函数库模板
 │   ├── plc-test-suite/             # PLC 测试套件模板
 │   └── python-tool/                # Python 工具项目模板
 ├── tests/                          # 测试（117 文件，含 application/change/core/db/plc/spec/qml 等）
-├── 00_项目基础信息/                 # 项目治理文档（技术债/发布门禁/试运行）
-├── 02_设计/                        # 设计真源（PRD/INT/DSN/TEC/里程碑/原型）
+├── 0100_项目/                      # 历史治理资产与专题资料
+├── 01_启动/                        # 章程/立项/发布门禁
+├── 02_规划/                        # PRD/INT/DSN/TEC/里程碑/原型
+├── 03_执行/                        # 执行阶段资产
+├── 04_监控/                        # 变更管理/过程监控
+├── 05_收尾/                        # 测试策略/归档
+├── 06_交付物/                      # 用户文档与交付资料
 └── pyproject.toml                  # hatchling 构建配置
 ```
 
@@ -297,25 +290,26 @@ auto-pm/
 
 ## 文档导航
 
-### 设计文档（`02_设计/`，V3.0 设计真源）
+### 规划文档（`02_规划/`，当前设计真源）
 
 | 文档 | 路径 | 说明 |
 |------|------|------|
-| PRD 产品需求文档 | `02_设计/001_产品需求文档_PRD.md` | 产品需求定义（V3.0.0-draft） |
-| INT 接口文档 | `02_设计/002_接口文档_INT.md` | DTO/Command/Event 接口契约 |
-| DSN 详细设计说明书 | `02_设计/003_详细设计说明书_DSN.md` | 五层架构详细设计 |
-| TEC 技术方案文档 | `02_设计/004_技术方案文档_TEC.md` | 技术选型与方案（接口优先策略） |
-| 里程碑与实施计划 | `02_设计/005_里程碑与实施计划.md` | 30 周滚动计划（M0-M9） |
-| UI 架构原型 | `02_设计/Html原型预览/archive/012_UI架构原型_V7.html` | HTML 交互原型（方案讨论用） |
-| UI 原型说明 | `02_设计/007_UI架构原型说明.md` | 原型配套说明 |
+| PRD 产品需求文档 | `02_规划/001_产品需求文档_PRD.md` | 产品需求定义 |
+| INT 接口文档 | `02_规划/002_接口文档_INT.md` | DTO/Command/Event 接口契约 |
+| DSN 详细设计说明书 | `02_规划/003_详细设计说明书_DSN.md` | 五层架构详细设计 |
+| TEC 技术方案文档 | `02_规划/004_技术方案文档_TEC.md` | 技术选型与方案（接口优先策略） |
+| 里程碑与实施计划 | `02_规划/005_里程碑与实施计划.md` | 30 周滚动计划（M0-M9） |
+| UI 架构原型 | `02_规划/Html原型预览/` | HTML 交互原型目录 |
+| UI 原型说明 | `02_规划/007_UI架构原型说明.md` | 原型配套说明 |
 
-### 项目治理文档（`00_项目基础信息/`）
+### 启动与治理文档
 
 | 文档 | 路径 | 说明 |
 |------|------|------|
-| 技术债评估报告 | `00_项目基础信息/006_技术债评估报告.md` | 技术债跟踪（34 项全部偿还） |
-| 发布门禁规范 | `00_项目基础信息/007_发布门禁规范_REL.md` | 发布前质量门禁定义 |
-| 试运行报告 | `00_项目基础信息/008_试运行报告_PILOT.md` | 【已归档 V0.7.0】Dogfooding 试运行历史证据 |
+| 项目立项章程 | `01_启动/001_项目立项章程_CHARTER.md` | 项目启动与目标边界 |
+| 立项表 | `01_启动/01_立项表_PROJ.md` | 立项登记与基础信息 |
+| 发布门禁规范 | `01_启动/007_发布门禁规范_REL.md` | 发布前质量门禁定义 |
+| 测试策略与验收规程 | `05_收尾/003_测试策略与验收规程_TEST_PLAN.md` | 收尾阶段测试与验收基线 |
 
 ### 项目管理文档
 
@@ -330,14 +324,13 @@ auto-pm/
 
 | 文档 | 废弃原因 | 替代文档 |
 |------|----------|----------|
-| `00_项目基础信息/001~005` | V2.1 设计文档，已迁移至 `02_设计/` | `02_设计/001~007` |
-| `00_项目基础信息/005_变更记录_CHG.md` | 【已归档 V0.7.0】影子台账，新真源为 CHANGELOG.md + auto-pm change list | CHANGELOG.md |
-| `00_项目基础信息/008_试运行报告_PILOT.md` | 【已归档 V0.7.0】试运行报告，新真源为 CHG-*.md §9/§10 | CHG-*.md |
+| `00_项目基础信息/*` | 旧 V2.x 路径整体退役，已拆分到 5 大过程组目录 | `01_启动/`、`02_规划/`、`05_收尾/` |
+| `02_设计/*` | 旧设计目录名已收口为 `02_规划/` | `02_规划/001~008` |
 | `09_整改项/archive/` 下全部文档 | V2.0 整改/迭代报告 | `PM_SESSION_SW-2026-008.md` |
 
 ## Dogfooding 证据
 
-auto-pm 自身使用 CHG-*.md 变更单流程管理迭代（M4 Dogfooding 持续化）。已闭环 30+ 次（CHG-SCPT-2026-001/062-100，详见 `00_项目管理/04_变更管理/01_变更单/CHG-SCPT/` 目录）。
+auto-pm 自身使用 CHG-*.md 变更单流程管理迭代（M4 Dogfooding 持续化）。已闭环 30+ 次（CHG-SCPT-2026-001/062-100，详见 `04_监控/01_变更管理/01_变更单/CHG-SCPT/` 目录）。
 
 代表性闭环：
 
@@ -358,7 +351,7 @@ auto-pm 自身使用 CHG-*.md 变更单流程管理迭代（M4 Dogfooding 持续
 |------|------|----------------|
 | pm-mgr | SW-2026-007 | **已取代** - auto-pm 完全替代 pm-mgr |
 | plc-check | — | **已取代** - auto-pm plc check/repair/standardize 替代 |
-| specmgr | SW-2026-006 | **独立** - 规范管理工具，与 auto-pm 互补；V2.2 规范中心整合后吸收 |
+| specmgr | SW-2026-006 | **已吸收** - 规范管理能力已并入 `auto-pm spec` 子命令 |
 | plc-var-parser | SW-2026-001 | **独立** - 变量表解析工具；V2.3 变量表整合后吸收 |
 
 ## 版本管理

@@ -45,6 +45,11 @@ class TestWriteAiContext:
         assert "generated_at" in content
         assert content["source"] == "auto-pm CLI"
         assert "workspace_root" in content
+        assert content["entry_mode"] == "direct"
+        assert content["intent"] == "plc_review"
+        assert content["target_skill"] == "plc-electrical-engineer"
+        assert isinstance(content["request_id"], str)
+        assert content["request_id"].startswith("CLI-")
         assert content["active_project"] == {
             "id": "DJ-2026-005",
             "name": "输送线",
@@ -53,6 +58,9 @@ class TestWriteAiContext:
         }
         assert content["active_change"] is None
         assert content["active_page"] == "workspace"
+        assert content["product_context"]["goal_ref"] == "PM_SESSION_DJ-2026-005.md#product-goal"
+        assert content["product_context"]["hypothesis_ref"] == "PM_SESSION_DJ-2026-005.md#hypothesis-ledger"
+        assert content["product_context"]["active_hypothesis"] == {}
 
     def test_write_ai_context_silent_degradation(self, tmp_path: Path) -> None:
         """写入失败时应返回 False，不抛异常（静默降级）"""
@@ -100,6 +108,7 @@ class TestCliAutoGenerateAiContext:
         content = json.loads(ctx_file.read_text(encoding="utf-8"))
         assert content["active_project"]["id"] == "DJ-2026-TEST"
         assert content["source"] == "auto-pm CLI"
+        assert content["target_skill"] == "plc-electrical-engineer"
 
     def test_plc_check_python_project_no_ai_context(
         self, cli_runner: CliRunner, python_project_factory: Callable[..., Path]

@@ -13,6 +13,7 @@
 """
 
 import json
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,8 @@ from typing import Any
 from PySide6.QtCore import QObject, Slot
 
 from auto_pm.core.ai_handoff_service import AiHandoffService
+
+logger = logging.getLogger(__name__)
 
 
 class AiContextBridge(QObject):
@@ -48,7 +51,11 @@ class AiContextBridge(QObject):
             return "fullstack-engineer"
         return "pm-workflow"
 
-    def _infer_intent(self, current_page: str, stack: str, change_number: str) -> str:
+    def _infer_intent(self, current_page: str, stack: str, change_number: str, phase: str = "") -> str:
+        if phase == "initiating":
+            return "initiate_project"
+        if phase == "planning":
+            return "plan_documents"
         if current_page == "specCenter":
             return "spec_check"
         if change_number:
@@ -175,7 +182,7 @@ class AiContextBridge(QObject):
             "workspace_root": str(self._workspace_root),
             "request_id": request_id,
             "entry_mode": "cockpit",
-            "intent": self._infer_intent(current_page, stack, change_number),
+            "intent": self._infer_intent(current_page, stack, change_number, phase),
             "target_skill": self._suggest_target_skill(stack, change_domain),
             "active_project": {
                 "id": project_id,
@@ -209,6 +216,7 @@ class AiContextBridge(QObject):
                 "message": f"上下文已写入 ({len(json.dumps(context, ensure_ascii=False))} bytes)",
             }
         except Exception as e:
+            logger.warning("saveAiContext failed: %s", e, exc_info=True)
             return {"success": False, "message": str(e)}
 
     @Slot(result="QVariant")
@@ -225,6 +233,7 @@ class AiContextBridge(QObject):
                 return {"success": True, "message": "上下文已清除"}
             return {"success": True, "message": "上下文文件不存在，无需清除"}
         except Exception as e:
+            logger.warning("clearAiContext failed: %s", e, exc_info=True)
             return {"success": False, "message": str(e)}
 
     @Slot(str, result="QVariant")
@@ -338,6 +347,7 @@ class AiContextBridge(QObject):
                 "feedback_state": "invalid",
             }
         except Exception as e:
+            logger.warning("readAiFeedback failed: %s", e, exc_info=True)
             return {
                 "success": False,
                 "message": f"读取 AI 反馈失败，将按异常反馈状态渲染: {e}",

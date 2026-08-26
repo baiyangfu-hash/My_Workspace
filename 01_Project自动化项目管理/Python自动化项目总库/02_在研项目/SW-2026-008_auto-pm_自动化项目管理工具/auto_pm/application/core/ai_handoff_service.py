@@ -89,7 +89,7 @@ class AiHandoffService:
         normalized["artifacts"] = self._normalize_list(payload.get("artifacts"))
         normalized["chg_updates"] = self._normalize_list(payload.get("chg_updates"))
         normalized["verification"] = self._normalize_mapping(payload.get("verification"), self.DEFAULT_VERIFICATION)
-        
+
         pi = self._normalize_mapping(payload.get("product_impact"), self.DEFAULT_PRODUCT_IMPACT)
         # Bidirectional sync for backward compatibility
         if not pi["hypothesis_id"] and pi.get("assumption_affected"):
@@ -100,7 +100,7 @@ class AiHandoffService:
             pi["engineering_signal"] = str(pi["observable_signal"])
         if not pi.get("observable_signal") and pi["engineering_signal"]:
             pi["observable_signal"] = pi["engineering_signal"]
-            
+
         normalized["product_impact"] = pi
         normalized["pm_closure"] = self._normalize_mapping(payload.get("pm_closure"), self.DEFAULT_PM_CLOSURE)
         return normalized
@@ -109,7 +109,7 @@ class AiHandoffService:
         """Validate product_impact against anti-emptiness and anti-platitude rules."""
         hypothesis_id = str(product_impact.get("hypothesis_id", "")).strip()
         signal = str(product_impact.get("engineering_signal", "")).strip()
-        
+
         warnings: list[str] = []
         if not hypothesis_id:
             warnings.append("缺少 hypothesis_id（未关联产品假设）")

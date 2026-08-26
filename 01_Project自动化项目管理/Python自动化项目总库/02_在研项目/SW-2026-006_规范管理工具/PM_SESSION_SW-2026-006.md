@@ -16,6 +16,7 @@
 - current_focus: V0.2.0已验证可用，CLI在真实workspace上4个命令全部正常运行，已注册到全局规范仓库
 - milestone: V0.2.0 完成 ✅（真实workspace验证通过）
 - acceptance: CLI 4命令(check/index/frontmatter/report)在真实workspace上运行正常，SW-2026-006已注册到spec_registry.json
+- 代码基线 V0.2.0
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
@@ -55,6 +56,8 @@
   - (无)
 - delivery:
   - (无)
+- int: (待创建)
+- tec: (待创建)
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -129,6 +132,7 @@
   - next_focus: V0.3.0 GUI MVP（PySide6基本框架+仪表盘+检查页）
   - watchouts: PySide6打包后体积可能超过100MB; HealthChecker性能瓶颈待优化
   - read_first: PM_SESSION_SW-2026-006.md, 01_需求与设计/04-使用手册_UG.md
+- 代码基线 V0.2.0
 
 ## 9. Next Actions
 - [P1] V0.3.0 GUI MVP | precondition=PySide6环境就绪 | done_when=基本框架+仪表盘+检查页可用

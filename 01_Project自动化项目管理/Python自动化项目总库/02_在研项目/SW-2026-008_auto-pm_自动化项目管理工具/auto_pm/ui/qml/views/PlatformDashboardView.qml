@@ -52,6 +52,8 @@ Rectangle {
     // ── 辅助函数 ────────────────────────────────────────
     function _phaseLabel(): string {
         var phases = _snapshot.phase_counts || {}
+        if (phases.initiating > 0) return "Initiating"
+        if (phases.planning > 0) return "Planning"
         if (phases.developing > 0) return "Developing"
         if (phases.commissioning > 0) return "Commissioning"
         if (phases.production > 0) return "Production"

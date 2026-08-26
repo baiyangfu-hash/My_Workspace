@@ -1,32 +1,22 @@
-// main.qml - V1.0.0 三轨道导航 + 深色玻璃拟物（CHG-SCPT-2026-102 T5 + CHG-107 T3 收尾）
+﻿// main.qml - V1.1.0 — 重构为纯路由壳 (CHG-REFACTOR-2026-001)
 //
-// V0.6.0 W2 → V0.8.0 单轨道扁平 7 入口 → V0.9.3 三轨道分组导航 → V1.0.0 收尾落地
+// V1.1.0 重构内容:
+// - Header 抽取为 AppHeader 组件 (components/AppHeader.qml)
+// - 侧边栏抽取为 AppSidebar 组件 (layout/AppSidebar.qml，数据驱动，预留扩展空间)
+// - 对话框层抽取为 DialogLayer 组件 (layout/DialogLayer.qml)
+// - main.qml 只保留: 全局状态 + StackLayout 路由 + 信号连接
 //
-// V1.0.0 升级内容（CHG-107）：
-// - 新增 LoadingOverlay 组件（异步操作加载指示，对齐 V7 .loading-overlay）
-// - 新增 FutureCapability 组件（未实现功能灰化占位，对齐 V7 .future-capability）
-// - WorkspaceView 文档/变量表 Tab 占位升级为 FutureCapability
-// - PlatformDashboardView 集成 LoadingOverlay
-// - 版本号 V0.9.3 → V1.0.0
-//
-// V0.9.3 升级内容（CHG-SCPT-2026-102）：
-// - Header 48px → 72px + 搜索栏 + 操作按钮（对齐原型 V7 .header）
-// - 侧边栏单轨道 7 入口 → 三轨道分组（Platform Cockpit / Active Project / Settings）
-// - 集成 ContextCard（当前项目上下文卡片，Active Project 头部）
-// - 集成 SidebarBadge（变更中心/规范中心待办数徽标）
-// - 集成 BackendStatus（侧边栏底部 DB 连接状态指示灯）
-// - 背景层新增 AmbientOrb 光晕装饰
-// - 版本号 V0.8.0 → V0.9.3
-//
-// 保留约束（不破坏 138 个 qml 测试）：
-// - currentPage 状态值：projectList/workspace/changeCenter/specCenter/reportCenter/templateManage/settings/modbusDebugger
-// - StackLayout 7 个分支（0-6）和 currentIndex 映射逻辑不变
-// - 7 个 view 的 id 不变：projectListView/workspaceView/changeCenterView/specCenterView/reportView/templateView/settingsView
+// V1.0.0 约束（保留不变，对应 138 个 QML 测试）:
+// - currentPage 值: projectList/workspace/changeCenter/specCenter/reportCenter/templateManage/settings/platformDashboard/modbusDebugger
+// - StackLayout 9 个分支 (0-8) 和 currentIndex 映射逻辑不变
+// - view id 不变: projectListView/workspaceView/changeCenterView/specCenterView/reportView/templateView/settingsView
+// - modbusDebuggerView / platformDashboardView id 不变
 // - onProjectClicked/onBackToProjectList 信号处理不变
 // - Connections { workbenchBridge.onProjectSelected } 不变
 // - Component.onCompleted 启动逻辑不变
 //
-// 通过 context property 访问：workbenchBridge/changeBridge/specBridge/deliveryBridge/systemBridge（5 个域 Bridge）/ projectModel（ProjectListModel）/ changeModel（ChangeListModel）
+// context property: workbenchBridge/changeBridge/specBridge/deliveryBridge/systemBridge/fileWatcherBridge
+//                   projectModel/changeModel
 
 import QtQuick
 import QtQuick.Controls
@@ -35,23 +25,30 @@ import "theme"
 import "views"
 import "components"
 import "dialogs"
+import "layout"
 
 ApplicationWindow {
     id: mainWindow
     visible: true
     width: 1280
     height: 800
-    title: "auto-pm V1.0.0 (QML)"
+    title: "auto-pm V1.1.0 (QML)"
     color: Theme.background
 
-    // ── 当前页面状态（CHG-106 新增 platformDashboard 分支）────
-    // "projectList" / "workspace" / "changeCenter" / "specCenter" / "reportCenter" / "templateManage" / "settings" / "platformDashboard"
+    // ── 全局页面状态
     property string currentPage: "projectList"
     property string currentProjectId: ""
     property string currentProjectName: ""
     property string currentProjectPhase: "developing"
     property string currentProjectStack: "python"
 
+    // ── 文件监听工具栏状态
+    property bool watcherToolbarExpanded: true
+    property bool watcherEnabled: false
+    property bool syncInProgress: false
+    property string watcherStatusText: "就绪"
+
+    // ── 全局导航函数（保留 V1.0.0 接口）
     function selectProjectContext(projectId, projectName) {
         mainWindow.currentProjectId = projectId
         mainWindow.currentProjectName = projectName
@@ -85,743 +82,81 @@ ApplicationWindow {
         else if (pageKey === "settings") settingsView.loadData()
     }
 
-    // ── 文件监听同步工具栏状态（CHG-SCPT-2026-141）──
-    // 全局常驻工具栏：同步按钮 + 监听开关 + 状态反馈，可手动折叠/展开
-    property bool watcherToolbarExpanded: true       // 工具栏展开状态（手动开关）
-    property bool watcherEnabled: false              // 监听开关状态（watcherToggled 信号同步）
-    property bool syncInProgress: false              // 同步进行中（syncStarted/syncFinished 信号同步）
-    property string watcherStatusText: "就绪"         // 状态反馈文本
-
-    // ── 背景层：AmbientOrb 光晕装饰（对齐原型 V7 .ambient-orb）──
+    // ── 背景光晕
     Item {
         id: ambientLayer
         anchors.fill: parent
         z: -1
-
-        // 左上角靛蓝光晕球（部分溢出视口）
         AmbientOrb {
-            width: 480
-            height: 480
-            glowColor: Theme.primary
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.margins: -180
+            width: 480; height: 480; glowColor: Theme.primary
+            anchors.top: parent.top; anchors.left: parent.left; anchors.margins: -180
         }
-
-        // 右下角天蓝光晕球
         AmbientOrb {
-            width: 520
-            height: 520
-            glowColor: Theme.secondary
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            anchors.margins: -200
+            width: 520; height: 520; glowColor: Theme.secondary
+            anchors.bottom: parent.bottom; anchors.right: parent.right; anchors.margins: -200
         }
     }
 
-    // ── 顶部标题栏（72px + 搜索栏 + 操作按钮）──────────────
-    Rectangle {
-        id: header
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        height: 72
-        color: Qt.rgba(0.02, 0.02, 0.09, 0.85)  // 深色半透明（玻璃拟物基底）
-
-        // 底部玻璃边框分隔线
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            height: 1
-            color: Theme.glassBorder
-        }
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: Theme.spacingLg
-            anchors.rightMargin: Theme.spacingLg
-            spacing: Theme.spacingMd
-
-            // 应用标识（圆形 logo + 标题 + 版本）
-            Rectangle {
-                Layout.preferredWidth: 40
-                Layout.preferredHeight: 40
-                radius: width / 2
-                color: Theme.primary
-                opacity: 0.9
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "A"
-                    color: "white"
-                    font.pixelSize: Theme.fontSizeXl
-                    font.bold: true
-                }
+    // ── 顶部 Header（组件化）
+    AppHeader {
+        id: appHeader
+        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+        appVersion: "V1.1.0"
+        workspaceRoot: typeof workspace_root !== "undefined" ? workspace_root : ""
+        onRefreshRequested: {
+            if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
+                workbenchBridge.refreshProjects()
+                projectModel.setProjects(workbenchBridge.listProjects())
             }
-
-            ColumnLayout {
-                spacing: 0
-
-                Text {
-                    text: "auto-pm"
-                    color: Theme.textPrimary
-                    font.pixelSize: Theme.fontSizeLg
-                    font.bold: true
-                }
-
-                Text {
-                    text: "V1.0.0"
-                    color: Theme.textMuted
-                    font.pixelSize: Theme.fontSizeXs
-                }
-            }
-
-            // 全局搜索栏（对齐原型 V7 .search-bar）
-            TextField {
-                id: globalSearch
-                Layout.fillWidth: true
-                Layout.maximumWidth: 480
-                Layout.preferredHeight: 36
-                placeholderText: "搜索项目 / 变更 / 规范..."
-                color: Theme.textPrimary
-                font.pixelSize: Theme.fontSizeSm
-                background: Rectangle {
-                    color: Theme.glassBg
-                    radius: Theme.radiusMd
-                    border.color: Theme.glassBorder
-                    border.width: 1
-                }
-            }
-
-            // 操作按钮组
-            PrimaryButton {
-                text: "🔄 刷新"
-                type: "ghost"
-                Layout.preferredHeight: 36
-                onClicked: {
-                    if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
-                        workbenchBridge.refreshProjects()
-                        var projects = workbenchBridge.listProjects()
-                        projectModel.setProjects(projects)
-                    }
-                    if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
-                        changeBridge.refreshChanges()
-                    }
-                }
-            }
-
-            // 工作空间路径指示
-            Text {
-                text: {
-                    if (typeof workspace_root !== "undefined") {
-                        return "📁 " + workspace_root
-                    }
-                    return ""
-                }
-                color: Theme.textMuted
-                font.pixelSize: Theme.fontSizeXs
-                elide: Text.ElideRight
-                Layout.maximumWidth: 240
-            }
+            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService)
+                changeBridge.refreshChanges()
         }
     }
 
-    // ── 主内容区：侧边栏 + 页面 StackView ──────────────────
+    // ── 主内容区
     RowLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: header.bottom
-        anchors.bottom: statusbar.top
+        anchors.left: parent.left; anchors.right: parent.right
+        anchors.top: appHeader.bottom; anchors.bottom: statusbar.top
         spacing: 0
 
-        // ── 侧边栏（三轨道分组导航，280px）──────────────────
-        Rectangle {
+        // ── 侧边栏（组件化，数据驱动）
+        AppSidebar {
+            id: appSidebar
             Layout.preferredWidth: Theme.sidebarWidth
             Layout.fillHeight: true
-            color: Theme.sidebarBg
+            currentPage: mainWindow.currentPage
+            currentProjectId: mainWindow.currentProjectId
+            currentProjectName: mainWindow.currentProjectName
+            currentProjectPhase: mainWindow.currentProjectPhase
+            currentProjectStack: mainWindow.currentProjectStack
+            changeBadgeCount: changeBridge ? changeBridge.changeCount : 0
+            projectCount: projectModel ? projectModel.count : 0
+            workspaceCurrentTabIndex: workspaceView.currentTabIndex
 
-            // 右侧玻璃边框分隔线
-            Rectangle {
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                width: 1
-                color: Theme.glassBorder
+            onNavigateTo: (pageKey) => navigateToPage(pageKey)
+            onNavigateToTab: (pageKey, tabIndex) => {
+                mainWindow.currentPage = "workspace"
+                workspaceView.switchTab(tabIndex)
             }
-
-            ScrollView {
-                anchors.fill: parent
-                clip: true
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-
-                ColumnLayout {
-                    width: parent.width - 24
-                    x: 12
-                    y: 12
-                    spacing: Theme.spacingSm
-
-                // ═══ 轨道 1：Platform Cockpit ════════════════════
-                Text {
-                    text: "PLATFORM COCKPIT 🚀"
-                    color: Theme.textMuted
-                    font.pixelSize: Theme.fontSizeXs
-                    font.bold: true
-                    font.letterSpacing: 1.5
-                    Layout.topMargin: Theme.spacingSm
-                }
-
-                // 平台卡片 (ContextCard, 绑定自身 SW-2026-008)
-                ContextCard {
-                    Layout.fillWidth: true
-                    projectId: "SW-2026-008"
-                    projectName: "auto-pm 研发管理平台"
-                    phase: "developing"
-                    stack: "python"
-                    hasProject: true
-                    onClicked: {
-                        mainWindow.currentPage = "platformDashboard"
-                        platformDashboardView.loadData()
-                    }
-                }
-
-                // 平台驾驶舱大盘入口
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "platformDashboard" ? Theme.primary : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "📊"
-                            color: mainWindow.currentPage === "platformDashboard" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "平台驾驶舱大盘"
-                            color: mainWindow.currentPage === "platformDashboard" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            mainWindow.currentPage = "platformDashboard"
-                            platformDashboardView.loadData()
-                        }
-                    }
-                }
-
-                // 平台变更管控入口 + Badge
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "changeCenter" ? Theme.primary : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "🔄"
-                            color: mainWindow.currentPage === "changeCenter" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "平台变更管控"
-                            color: mainWindow.currentPage === "changeCenter" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-
-                        SidebarBadge {
-                            count: changeBridge ? changeBridge.changeCount : 0
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            mainWindow.currentPage = "changeCenter"
-                            changeCenterView.loadChanges()
-                        }
-                    }
-                }
-
-                // 平台架构规范检查入口
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "specCenter" ? Theme.primary : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "📐"
-                            color: mainWindow.currentPage === "specCenter" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "平台架构规范检查"
-                            color: mainWindow.currentPage === "specCenter" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            mainWindow.currentPage = "specCenter"
-                            specCenterView.loadOverview()
-                            specCenterView.loadEntries()
-                        }
-                    }
-                }
-
-                // 平台迭代与发布入口
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "reportCenter" ? Theme.primary : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "📄"
-                            color: mainWindow.currentPage === "reportCenter" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "平台迭代与发布"
-                            color: mainWindow.currentPage === "reportCenter" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            mainWindow.currentPage = "reportCenter"
-                            reportView.loadData()
-                        }
-                    }
-                }
-
-                // ═══ 分隔线 ════════════════════════════════════
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Theme.glassBorder
-                    Layout.topMargin: Theme.spacingSm
-                    Layout.bottomMargin: Theme.spacingSm
-                }
-
-                // ═══ 轨道 2：Workspace ══════════════════════════
-                Text {
-                    text: "WORKSPACE 🌐"
-                    color: Theme.textMuted
-                    font.pixelSize: Theme.fontSizeXs
-                    font.bold: true
-                    font.letterSpacing: 1.5
-                }
-
-                // 业务项目大厅入口
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "projectList" ? Theme.primary : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "🏠"
-                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "业务项目大厅"
-                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-
-                        Text {
-                            text: (projectModel ? projectModel.count : 0).toString()
-                            color: mainWindow.currentPage === "projectList" ? "white" : Theme.textMuted
-                            font.pixelSize: Theme.fontSizeXs
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: mainWindow.currentPage = "projectList"
-                    }
-                }
-
-                // ═══ 分隔线 ════════════════════════════════════
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Theme.glassBorder
-                    Layout.topMargin: Theme.spacingSm
-                    Layout.bottomMargin: Theme.spacingSm
-                }
-
-                // ═══ 轨道 3：Active Project ══════════════════════
-                Text {
-                    text: "ACTIVE BUSINESS PROJECT 💻"
-                    color: Theme.textMuted
-                    font.pixelSize: Theme.fontSizeXs
-                    font.bold: true
-                    font.letterSpacing: 1.5
-                }
-
-                // ContextCard：当前项目上下文卡片（Active Project 头部）
-                ContextCard {
-                    Layout.fillWidth: true
-                    projectId: mainWindow.currentProjectId
-                    projectName: mainWindow.currentProjectName
-                    phase: mainWindow.currentProjectPhase
-                    stack: mainWindow.currentProjectStack
-                    hasProject: mainWindow.currentProjectId !== ""
-                    onClicked: {
-                        if (mainWindow.currentProjectId !== "") {
-                            mainWindow.currentPage = "workspace"
-                            workspaceView.switchTab(0)
-                        } else {
-                            mainWindow.currentPage = "projectList"
-                        }
-                    }
-                }
-
-                // 工程健康度概览
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 0) ? Theme.primary : "transparent"
-                    opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "📊"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 0) ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "工程健康度概览"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 0) ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        enabled: mainWindow.currentProjectId !== ""
-                        onClicked: {
-                            mainWindow.currentPage = "workspace"
-                            workspaceView.switchTab(0)
-                        }
-                    }
-                }
-
-                // 变量表与 IO 资产
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 4) ? Theme.primary : "transparent"
-                    opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "📋"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 4) ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "变量表与 IO 资产"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 4) ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        enabled: mainWindow.currentProjectId !== ""
-                        onClicked: {
-                            mainWindow.currentPage = "workspace"
-                            workspaceView.switchTab(4)
-                        }
-                    }
-                }
-
-                // 工程变更控制矩阵
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 1) ? Theme.primary : "transparent"
-                    opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "🔀"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 1) ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "工程变更控制矩阵"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 1) ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        enabled: mainWindow.currentProjectId !== ""
-                        onClicked: {
-                            mainWindow.currentPage = "workspace"
-                            workspaceView.switchTab(1)
-                        }
-                    }
-                }
-
-                // 工程规范与死区检查
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 2) ? Theme.primary : "transparent"
-                    opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "🛡️"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 2) ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "工程规范与死区检查"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 2) ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        enabled: mainWindow.currentProjectId !== ""
-                        onClicked: {
-                            mainWindow.currentPage = "workspace"
-                            workspaceView.switchTab(2)
-                        }
-                    }
-                }
-
-                // 工程交付与试运行报告
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 3) ? Theme.primary : "transparent"
-                    opacity: mainWindow.currentProjectId !== "" ? 1.0 : 0.4
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "🚀"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 3) ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "工程交付与试运行报告"
-                            color: (mainWindow.currentPage === "workspace" && workspaceView.currentTabIndex === 3) ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: mainWindow.currentProjectId !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        enabled: mainWindow.currentProjectId !== ""
-                        onClicked: {
-                            mainWindow.currentPage = "workspace"
-                            workspaceView.switchTab(3)
-                        }
-                    }
-                }
-
-                // 弹性填充
-                Item { Layout.fillHeight: true }
-
-                // ═══ 分隔线 ════════════════════════════════════
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Theme.glassBorder
-                    Layout.bottomMargin: Theme.spacingSm
-                }
-
-                // ═══ 轨道 4：Settings ═══════════════════════════
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "settings" ? Theme.primary : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "⚙️"
-                            color: mainWindow.currentPage === "settings" ? "white" : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "设置"
-                            color: mainWindow.currentPage === "settings" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: mainWindow.currentPage = "settings"
-                    }
-                }
-
-                // ═══ 轨道 5：Modbus 联调工坊（公共工具）══════════════
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: mainWindow.currentPage === "modbusDebugger" ? Qt.rgba(0.38, 0.71, 0.51, 0.25) : "transparent"
-                    radius: Theme.radiusSm
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.spacingSm
-                        anchors.rightMargin: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Text {
-                            text: "⚡"
-                            color: mainWindow.currentPage === "modbusDebugger" ? Theme.success : Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSm
-                        }
-
-                        Text {
-                            text: "Modbus 联调工坊"
-                            color: mainWindow.currentPage === "modbusDebugger" ? "white" : Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeSm
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: mainWindow.currentPage = "modbusDebugger"
-                    }
-                }
-
-                // BackendStatus：DB 连接状态指示灯
-                BackendStatus {
-                    Layout.fillWidth: true
-                    Layout.topMargin: Theme.spacingSm
-                    connected: typeof systemBridge !== "undefined" && systemBridge !== null && systemBridge.hasService
+            onPlatformCardClicked: {
+                mainWindow.currentPage = "platformDashboard"
+                platformDashboardView.loadData()
+            }
+            onActiveProjectCardClicked: {
+                if (mainWindow.currentProjectId !== "") {
+                    mainWindow.currentPage = "workspace"
+                    workspaceView.switchTab(0)
+                } else {
+                    mainWindow.currentPage = "projectList"
                 }
             }
         }
-    }
 
-        // ── 页面内容区（StackLayout，保留 7 个分支不变）──────
+        // ── 页面内容区（StackLayout，保留 9 个分支不变）
         StackLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.bottomMargin: 48  // 预留底部浮动工具栏安全间距，防止遮挡页面内容
+            Layout.bottomMargin: 48
             currentIndex: {
                 if (mainWindow.currentPage === "projectList") return 0
                 if (mainWindow.currentPage === "workspace") return 1
@@ -838,71 +173,36 @@ ApplicationWindow {
             // 0. 项目列表页
             ProjectListView {
                 id: projectListView
-                onRequestNewProject: newProjectWizard._isOpen = true
-                onRequestImportProject: importProjectDialog._isOpen = true
-                onProjectClicked: {
-                    mainWindow.selectProjectContext(projectId, projectName)
-                }
+                onRequestNewProject: dialogLayer.openNewProject()
+                onRequestImportProject: dialogLayer.openImportProject()
+                onProjectClicked: (projectId, projectName) => mainWindow.selectProjectContext(projectId, projectName)
             }
 
             // 1. 项目工作区页
             WorkspaceView {
                 id: workspaceView
-                onBackToProjectList: {
-                    mainWindow.currentPage = "projectList"
-                }
-                onRequestEditProject: {
-                    projectEditDialog.open(
-                        workspaceView.currentProjectId,
-                        workspaceView.currentProjectName,
-                        workspaceView.currentProjectDetail
-                    )
-                }
-                onRequestDeleteProject: {
-                    deleteConfirmDialog.projectId = workspaceView.currentProjectId
-                    deleteConfirmDialog.projectName = workspaceView.currentProjectName
-                    deleteConfirmDialog.open()
-                }
-                onRequestApplyTemplate: {
-                    templateApplyDialog.open(
-                        workspaceView.currentProjectId,
-                        workspaceView.currentProjectName
-                    )
-                }
+                onBackToProjectList: mainWindow.currentPage = "projectList"
+                onRequestEditProject: dialogLayer.openEditProject(workspaceView.currentProjectId, workspaceView.currentProjectName, workspaceView.currentProjectDetail)
+                onRequestDeleteProject: dialogLayer.openDeleteProject(workspaceView.currentProjectId, workspaceView.currentProjectName)
+                onRequestApplyTemplate: dialogLayer.openApplyTemplate(workspaceView.currentProjectId, workspaceView.currentProjectName)
             }
 
             // 2. 变更中心页
             ChangeCenterView {
                 id: changeCenterView
-                onRequestNewChange: {
-                    newChangeDialog.projectId = mainWindow.currentProjectId
-                    newChangeDialog.open()
-                }
-                onRequestEditChange: {
-                    editChangeDialog.prefill(changeCenterView.selectedChangeDetail)
-                    editChangeDialog._isOpen = true
-                }
-                onRequestReconcileLedger: {
-                    ledgerReconcileDialog.open(changeCenterView.selectedProjectId)
-                }
-                onBackToProjectList: {
-                    mainWindow.currentPage = "projectList"
-                }
+                onRequestNewChange: dialogLayer.openNewChange(mainWindow.currentProjectId)
+                onRequestEditChange: dialogLayer.openEditChange(changeCenterView.selectedChangeDetail)
+                onRequestReconcileLedger: dialogLayer.openReconcileLedger(changeCenterView.selectedProjectId)
+                onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
             // 3. 规范中心页
             SpecCenterView {
                 id: specCenterView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
-                onRequestGenerateSpecIndex: {
-                    specIndexDialog.open()
-                }
-                onRequestGenerateSpecReport: {
-                    specReportDialog.open()
-                }
-                onRequestCheckSpecFrontmatter: {
-                    specFrontmatterDialog.open()
-                }
+                onRequestGenerateSpecIndex: dialogLayer.openSpecIndex()
+                onRequestGenerateSpecReport: dialogLayer.openSpecReport()
+                onRequestCheckSpecFrontmatter: dialogLayer.openSpecFrontmatter()
             }
 
             // 4. 报告中心页
@@ -914,7 +214,7 @@ ApplicationWindow {
             // 5. 模板管理页
             TemplateView {
                 id: templateView
-                currentProjectId: mainWindow.currentProjectId  // 绑定当前选中项目
+                currentProjectId: mainWindow.currentProjectId
                 onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
@@ -922,429 +222,197 @@ ApplicationWindow {
             SettingsView {
                 id: settingsView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
-                onRequestArchivePmSession: pmSessionArchiveDialog.open()
-                onRequestShowAbout: aboutDialog._isOpen = true
-                onRequestShowGlobalSettings: {
-                    globalSettingsDialog.workspaceRoot = settingsView.settingsData.workspace_root || ""
-                    globalSettingsDialog._isOpen = true
-                }
+                onRequestArchivePmSession: dialogLayer.openPmSessionArchive()
+                onRequestShowAbout: dialogLayer.openAbout()
+                onRequestShowGlobalSettings: dialogLayer.openGlobalSettings(settingsView.settingsData.workspace_root || "")
             }
 
-            // 7. 平台驾驶舱大盘页（CHG-106 新增）
+            // 7. 平台驾驶舱大盘页
             PlatformDashboardView {
                 id: platformDashboardView
                 onBackToProjectList: mainWindow.currentPage = "projectList"
             }
 
-            // 8. Modbus 联调测试工坊（公共工具，不属于项目）
+            // 8. Modbus 联调工坊
             ModbusDebuggerView {
                 id: modbusDebuggerView
             }
         }
     }
 
-    // ── 对话框覆盖层 ────────────────────────────────────
-    NewProjectWizard {
-        id: newProjectWizard
-        anchors.fill: parent
-        z: 999
-        onProjectCreated: {
+    // ── 对话框层（组件化）
+    DialogLayer {
+        id: dialogLayer
+
+        onProjectCreated: (projectId) => {
             console.log("[QML main] 项目创建成功: " + projectId)
             if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                 workbenchBridge.refreshProjects()
-                var projects = workbenchBridge.listProjects()
-                projectModel.setProjects(projects)
+                projectModel.setProjects(workbenchBridge.listProjects())
             }
         }
-    }
-
-    ImportProjectDialog {
-        id: importProjectDialog
-        objectName: "importProjectDialog"
-        anchors.fill: parent
-        z: 999
-        onImported: {
+        onProjectImported: (projectId) => {
             console.log("[QML main] 项目导入成功: " + projectId)
             if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                 workbenchBridge.refreshProjects()
-                var projects = workbenchBridge.listProjects()
-                projectModel.setProjects(projects)
+                projectModel.setProjects(workbenchBridge.listProjects())
             }
         }
-    }
-
-    NewChangeDialog {
-        id: newChangeDialog
-        objectName: "newChangeDialog"
-        anchors.fill: parent
-        z: 999
-        onChangeCreated: {
+        onChangeCreated: (changeNumber) => {
             console.log("[QML main] 变更单创建成功: " + changeNumber)
             if (typeof changeBridge !== "undefined" && changeBridge !== null) {
-                changeBridge.refreshChanges()
-                changeBridge.listAllChanges()
+                changeBridge.refreshChanges(); changeBridge.listAllChanges()
             }
-            if (mainWindow.currentPage === "changeCenter") {
-                changeCenterView.loadChanges()
-            }
+            if (mainWindow.currentPage === "changeCenter") changeCenterView.loadChanges()
         }
-    }
-
-    EditChangeDialog {
-        id: editChangeDialog
-        objectName: "editChangeDialog"
-        anchors.fill: parent
-        z: 999
-        onChangeSaved: {
+        onChangeSaved: (changeNumber) => {
             console.log("[QML main] 变更单更新成功: " + changeNumber)
             if (typeof changeBridge !== "undefined" && changeBridge !== null) {
-                changeBridge.refreshChanges()
-                changeBridge.listAllChanges()
+                changeBridge.refreshChanges(); changeBridge.listAllChanges()
             }
             if (mainWindow.currentPage === "changeCenter") {
                 changeCenterView.loadChanges()
                 changeCenterView.loadChangeDetail(changeNumber)
             }
         }
-    }
-
-    // M4 CHG-115: 项目管理新对话框
-    ProjectEditDialog {
-        id: projectEditDialog
-        objectName: "projectEditDialog"
-        anchors.fill: parent
-        z: 999
-        onProjectSaved: {
+        onProjectSaved: (projectId) => {
             console.log("[QML main] 项目编辑成功: " + projectId)
             if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                 workbenchBridge.refreshProjects()
-                var projects = workbenchBridge.listProjects()
-                projectModel.setProjects(projects)
-                // 刷新当前项目详情
+                projectModel.setProjects(workbenchBridge.listProjects())
                 workspaceView.currentProjectDetail = workbenchBridge.getProjectById(projectId)
             }
         }
-        onCancelled: close()
-    }
-
-    DeleteConfirmDialog {
-        id: deleteConfirmDialog
-        objectName: "deleteConfirmDialog"
-        anchors.fill: parent
-        z: 999
-        onConfirmed: {
+        onProjectDeleted: (projectId) => {
             console.log("[QML main] 删除项目: " + projectId)
             if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                 var result = workbenchBridge.deleteProject(projectId)
                 if (result && result.success) {
                     workbenchBridge.refreshProjects()
-                    var projects = workbenchBridge.listProjects()
-                    projectModel.setProjects(projects)
+                    projectModel.setProjects(workbenchBridge.listProjects())
                     mainWindow.currentPage = "projectList"
                 } else {
                     console.warn("[QML main] 删除失败: " + (result ? result.message : ""))
                 }
             }
         }
-        onCancelled: close()
-    }
-
-    TemplateApplyDialog {
-        id: templateApplyDialog
-        objectName: "templateApplyDialog"
-        anchors.fill: parent
-        z: 999
-        onTemplateApplied: {
-            console.log("[QML main] 模板应用成功: " + projectId + " <- " + templateName)
+        onLedgerReconciled: {
+            console.log("[QML main] 台账对账自动修复完成")
+            changeCenterView.loadChanges()
         }
-        onCancelled: close()
-    }
-
-    PmInitializeConfirmDialog {
-        id: pmInitializeConfirmDialog
-        objectName: "pmInitializeConfirmDialog"
-        anchors.fill: parent
-        z: 999
-        onConfirmed: function(projectId) {
+        onPmInitialized: (projectId) => {
             console.log("[QML main] 确认初始化 PM: " + projectId)
             if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                 var result = workbenchBridge.initializeProjectPm(projectId)
                 if (result && result.success) {
                     workbenchBridge.refreshProjects()
-                    var projects = workbenchBridge.listProjects()
-                    projectModel.setProjects(projects)
-                    // 重新加载工作区页面数据以显示新初始化的 PM_SESSION 和变更
+                    projectModel.setProjects(workbenchBridge.listProjects())
                     workspaceView.setProject(workspaceView.currentProjectId, workspaceView.currentProjectName)
                 } else {
                     console.warn("[QML main] 初始化项目 PM 失败: " + (result ? result.message : ""))
                 }
             }
         }
-        onCancelled: close()
-    }
-
-    PmSessionArchiveDialog {
-        id: pmSessionArchiveDialog
-        objectName: "pmSessionArchiveDialog"
-        anchors.fill: parent
-        z: 999
-        onArchived: {
-            console.log("[QML main] PM_SESSION 归档完成")
-        }
-        onCancelled: close()
-    }
-
-    LedgerReconcileDialog {
-        id: ledgerReconcileDialog
-        objectName: "ledgerReconcileDialog"
-        anchors.fill: parent
-        z: 999
-        onReconciled: {
-            console.log("[QML main] 台账对账自动修复完成")
-            changeCenterView.loadChanges()
-        }
-        onCancelled: close()
-    }
-
-    SpecIndexDialog {
-        id: specIndexDialog
-        objectName: "specIndexDialog"
-        anchors.fill: parent
-        z: 999
-        onGenerated: {
-            console.log("[QML main] 规范索引生成完成")
-            specCenterView.loadEntries()
-        }
-        onCancelled: close()
-    }
-
-    SpecReportDialog {
-        id: specReportDialog
-        objectName: "specReportDialog"
-        anchors.fill: parent
-        z: 999
-        onGenerated: {
-            console.log("[QML main] 规范报告生成完成")
-        }
-        onCancelled: close()
-    }
-
-    SpecFrontmatterDialog {
-        id: specFrontmatterDialog
-        objectName: "specFrontmatterDialog"
-        anchors.fill: parent
-        z: 999
-        onChecked: {
-            console.log("[QML main] 规范 Frontmatter 检查完成")
-        }
-        onCancelled: close()
-    }
-
-    AboutDialog {
-        id: aboutDialog
-        objectName: "aboutDialog"
-        anchors.fill: parent
-        z: 999
-        onClosed: _isOpen = false
-    }
-
-    GlobalSettingsDialog {
-        id: globalSettingsDialog
-        objectName: "globalSettingsDialog"
-        anchors.fill: parent
-        z: 999
-        onSaved: {
-            console.log("[QML main] 全局配置保存成功, workspaceRoot: " + workspaceRoot)
-            var res = workbenchBridge.saveWorkspaceRoot(workspaceRoot)
+        onPmSessionArchived:      console.log("[QML main] PM_SESSION 归档完成")
+        onSpecIndexGenerated:     { console.log("[QML main] 规范索引生成完成"); specCenterView.loadEntries() }
+        onSpecReportGenerated:    console.log("[QML main] 规范报告生成完成")
+        onSpecFrontmatterChecked: console.log("[QML main] 规范 Frontmatter 检查完成")
+        onGlobalSettingsSaved: (wsRoot) => {
+            console.log("[QML main] 全局配置保存成功, workspaceRoot: " + wsRoot)
+            var res = workbenchBridge.saveWorkspaceRoot(wsRoot)
             if (res && res.config_saved) {
                 settingsView.resultMessage = res.message || "配置已保存"
                 settingsView.loadData()
                 if (res.runtime_reloaded) {
                     workbenchBridge.refreshProjects()
-                    var projects = workbenchBridge.listProjects()
-                    projectModel.setProjects(projects)
+                    projectModel.setProjects(workbenchBridge.listProjects())
                 }
             } else {
                 settingsView.resultMessage = "保存失败: " + (res ? res.message : "未知错误")
             }
-            _isOpen = false
         }
-        onCancelled: _isOpen = false
     }
 
-    // ── 状态栏（24px，版本号 V1.0.0）─────────────────────
+    // ── 状态栏
     Rectangle {
         id: statusbar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: 24
-        color: Theme.surface
-
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            height: 1
-            color: Theme.glassBorder
-        }
-
+        anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+        height: 24; color: Theme.surface
+        Rectangle { anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; height: 1; color: Theme.glassBorder }
         RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: Theme.spacingMd
-            anchors.rightMargin: Theme.spacingMd
+            anchors.fill: parent; anchors.leftMargin: Theme.spacingMd; anchors.rightMargin: Theme.spacingMd
             spacing: Theme.spacingMd
-
-            Text {
-                text: "● 就绪"
-                color: Theme.success
-                font.pixelSize: Theme.fontSizeXs
-            }
-
-            Text {
-                text: "项目: " + (projectModel ? projectModel.count : 0)
-                color: Theme.textSecondary
-                font.pixelSize: Theme.fontSizeXs
-            }
-
-            Text {
-                text: "变更: " + (changeBridge ? changeBridge.changeCount : 0)
-                color: Theme.textSecondary
-                font.pixelSize: Theme.fontSizeXs
-            }
-
+            Text { text: "● 就绪"; color: Theme.success; font.pixelSize: Theme.fontSizeXs }
+            Text { text: "项目: " + (projectModel ? projectModel.count : 0); color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs }
+            Text { text: "变更: " + (changeBridge ? changeBridge.changeCount : 0); color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs }
             Item { Layout.fillWidth: true }
-
-            Text {
-                text: "QML V1.0.0"
-                color: Theme.textMuted
-                font.pixelSize: Theme.fontSizeXs
-            }
+            Text { text: "QML V1.1.0"; color: Theme.textMuted; font.pixelSize: Theme.fontSizeXs }
         }
     }
 
-    // ── 文件监听同步工具栏（全局常驻，可折叠）── CHG-SCPT-2026-141 ──
-    // 用户要求：每页可点击 + 常驻显示 + 手动关闭/打开
+    // ── 文件监听同步工具栏（全局常驻浮动）
     Rectangle {
         id: fileWatcherToolbar
-        anchors.right: parent.right
-        anchors.bottom: statusbar.top
-        anchors.rightMargin: Theme.spacingMd
-        anchors.bottomMargin: Theme.spacingSm
-        width: watcherToolbarExpanded ? 460 : 52
-        height: 40
-        radius: Theme.radiusMd
-        color: Qt.rgba(0.02, 0.02, 0.09, 0.92)
-        border.color: Theme.glassBorder
-        border.width: 1
-        z: 100  // 浮于内容之上，确保每页可点击
-
+        anchors.right: parent.right; anchors.bottom: statusbar.top
+        anchors.rightMargin: Theme.spacingMd; anchors.bottomMargin: Theme.spacingSm
+        width: watcherToolbarExpanded ? 460 : 52; height: 40
+        radius: Theme.radiusMd; color: Qt.rgba(0.02, 0.02, 0.09, 0.92)
+        border.color: Theme.glassBorder; border.width: 1; z: 100
         Behavior on width { NumberAnimation { duration: 150 } }
-
         RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: Theme.spacingSm
-            anchors.rightMargin: Theme.spacingSm
+            anchors.fill: parent; anchors.leftMargin: Theme.spacingSm; anchors.rightMargin: Theme.spacingSm
             spacing: Theme.spacingSm
-
-            // 同步按钮（手动触发 sync_to_cache，展开时显示）
             PrimaryButton {
-                text: syncInProgress ? "⏳ 同步中" : "🔄 同步"
-                type: "ghost"
-                Layout.preferredHeight: 32
-                enabled: !syncInProgress
-                visible: watcherToolbarExpanded
-                onClicked: {
-                    if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) {
-                        fileWatcherBridge.syncNow()
-                    }
-                }
+                text: syncInProgress ? "⏳ 同步中" : "🔄 同步"; type: "ghost"
+                Layout.preferredHeight: 32; enabled: !syncInProgress; visible: watcherToolbarExpanded
+                onClicked: { if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) fileWatcherBridge.syncNow() }
             }
-
-            // 监听开关（onToggled 仅响应用户点击，避免信号回环）
             Switch {
-                checked: mainWindow.watcherEnabled
-                Layout.preferredHeight: 32
-                visible: watcherToolbarExpanded
-                onToggled: {
-                    if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) {
-                        fileWatcherBridge.toggleWatcher(checked)
-                    }
-                }
+                checked: mainWindow.watcherEnabled; Layout.preferredHeight: 32; visible: watcherToolbarExpanded
+                onToggled: { if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) fileWatcherBridge.toggleWatcher(checked) }
             }
-
+            Text { text: "监听"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeXs; visible: watcherToolbarExpanded }
             Text {
-                text: "监听"
-                color: Theme.textSecondary
-                font.pixelSize: Theme.fontSizeXs
-                visible: watcherToolbarExpanded
+                text: watcherStatusText; color: syncInProgress ? Theme.primary : Theme.textSecondary
+                font.pixelSize: Theme.fontSizeXs; Layout.fillWidth: true; elide: Text.ElideRight; visible: watcherToolbarExpanded
             }
-
-            // 状态反馈文本（上次同步时间/同步中/错误）
-            Text {
-                text: watcherStatusText
-                color: syncInProgress ? Theme.primary : Theme.textSecondary
-                font.pixelSize: Theme.fontSizeXs
-                Layout.fillWidth: true
-                elide: Text.ElideRight
-                visible: watcherToolbarExpanded
-            }
-
-            // 折叠/展开按钮（始终显示，手动开关工具栏）
             PrimaryButton {
-                text: watcherToolbarExpanded ? "›" : "‹"
-                type: "ghost"
-                Layout.preferredWidth: 32
-                Layout.preferredHeight: 32
+                text: watcherToolbarExpanded ? "›" : "‹"; type: "ghost"
+                Layout.preferredWidth: 32; Layout.preferredHeight: 32
                 onClicked: mainWindow.watcherToolbarExpanded = !mainWindow.watcherToolbarExpanded
             }
         }
     }
 
-    // ── FileWatcherBridge 信号绑定（状态反馈 + 缓存刷新）── CHG-SCPT-2026-141 ──
+    // ── FileWatcherBridge 信号连接（不变）
     Connections {
         target: typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null ? fileWatcherBridge : null
-        function onWatcherToggled(enabled) {
-            mainWindow.watcherEnabled = enabled
-        }
-        function onSyncStarted() {
-            mainWindow.syncInProgress = true
-            mainWindow.watcherStatusText = "同步中..."
-        }
+        function onWatcherToggled(enabled) { mainWindow.watcherEnabled = enabled }
+        function onSyncStarted() { mainWindow.syncInProgress = true; mainWindow.watcherStatusText = "同步中..." }
         function onSyncFinished(projects, changes, ms) {
             mainWindow.syncInProgress = false
-            var t = ""
-            if (typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null) {
-                t = fileWatcherBridge.lastSyncTime()
-            }
+            var t = typeof fileWatcherBridge !== "undefined" && fileWatcherBridge !== null ? fileWatcherBridge.lastSyncTime() : ""
             mainWindow.watcherStatusText = "已同步 " + projects + " 项 · " + t
-            // CLI 改文件后 DB 缓存已由 worker 更新，重新加载项目/变更视图
             if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
                 workbenchBridge.refreshProjects()
-                var ps = workbenchBridge.listProjects()
-                projectModel.setProjects(ps)
+                projectModel.setProjects(workbenchBridge.listProjects())
             }
-            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
-                changeBridge.refreshChanges()
-            }
+            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) changeBridge.refreshChanges()
             console.log("[FileWatcher] 同步完成: " + projects + " 项目, " + changes + " 变更, " + ms + "ms")
         }
         function onSyncError(msg) {
-            mainWindow.syncInProgress = false
-            mainWindow.watcherStatusText = "同步失败: " + msg
+            mainWindow.syncInProgress = false; mainWindow.watcherStatusText = "同步失败: " + msg
             console.warn("[FileWatcher] 同步失败: " + msg)
         }
     }
 
-    // ── 监听 workbenchBridge.projectSelected 信号 ────────
+    // ── workbenchBridge 信号连接（不变）
     Connections {
         target: typeof workbenchBridge !== "undefined" && workbenchBridge !== null ? workbenchBridge : null
-        function onProjectSelected(projectId, projectName) {
-            mainWindow.selectProjectContext(projectId, projectName)
-        }
+        function onProjectSelected(projectId, projectName) { mainWindow.selectProjectContext(projectId, projectName) }
     }
 
-    // ── 启动时加载项目数据 ───────────────────────────────
+    // ── 启动初始化（不变）
     Component.onCompleted: {
         if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
             console.log("[QML main] workbenchBridge 可用，初始化数据...")
@@ -1354,9 +422,6 @@ ApplicationWindow {
         } else {
             console.warn("[QML main] workbenchBridge 未注入")
         }
-        // 触发变更列表加载（changeCount 属性会自动更新状态栏）
-        if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
-            changeBridge.listAllChanges()
-        }
+        if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) changeBridge.listAllChanges()
     }
 }

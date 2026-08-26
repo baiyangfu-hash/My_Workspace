@@ -19,7 +19,8 @@ from typing import Any
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Signal, Slot
 
-from auto_pm.modbus.modbus_service import ModbusService
+from auto_pm.domain.modbus.modbus_service import ModbusService
+from auto_pm.infrastructure.error_handling.error_mapper import IndustrialErrorMapper
 
 log = logging.getLogger(__name__)
 
@@ -181,10 +182,17 @@ class ModbusBridge(QObject):
             sim_mode: 是否启用仿真模式
             source_ip: 本地绑定网卡 IP
         """
-        self._log("SYS", f"发起 TCP Socket 握手 → {ip}:{port} Unit={slave_id} sim={sim_mode} bind={source_ip if source_ip else 'Auto'}")
-        ok, msg = self._service.connect(ip, port, slave_id, sim_mode, source_ip)
-        self._log("SYS", msg)
-        self.connectionStateChanged.emit(ok)
+        try:
+            self._log("SYS", f"发起 TCP Socket 握手 → {ip}:{port} Unit={slave_id} sim={sim_mode} bind={source_ip if source_ip else 'Auto'}")
+            ok, msg = self._service.connect(ip, port, slave_id, sim_mode, source_ip)
+            if not ok:
+                msg = IndustrialErrorMapper.format_exception(msg)
+            self._log("SYS" if ok else "ERR", msg)
+            self.connectionStateChanged.emit(ok)
+        except Exception as e:
+            log.warning("connectDevice error: %s", e, exc_info=True)
+            self._log("ERR", IndustrialErrorMapper.format_exception(e))
+            self.connectionStateChanged.emit(False)
 
     @Slot()
     def disconnectDevice(self) -> None:
@@ -214,17 +222,21 @@ class ModbusBridge(QObject):
             endian: 字节序
             preset: 预设名称
         """
-        result = self._service.read_registers(fc, start, count, endian, preset)
-        if result.tx_hex:
-            self._log("TX", result.tx_hex)
-        if result.rx_hex:
-            self._log("RX", result.rx_hex)
-        if result.success:
-            # 转为 list[dict] 推送给 QML
-            data = [asdict(r) for r in result.registers]
-            self.registerDataReceived.emit(data)
-        else:
-            self._log("ERR", result.message)
+        try:
+            result = self._service.read_registers(fc, start, count, endian, preset)
+            if result.tx_hex:
+                self._log("TX", result.tx_hex)
+            if result.rx_hex:
+                self._log("RX", result.rx_hex)
+            if result.success:
+                # 转为 list[dict] 推送给 QML
+                data = [asdict(r) for r in result.registers]
+                self.registerDataReceived.emit(data)
+            else:
+                self._log("ERR", IndustrialErrorMapper.format_exception(result.message))
+        except Exception as e:
+            log.warning("readRegisters error: %s", e, exc_info=True)
+            self._log("ERR", IndustrialErrorMapper.format_exception(e))
 
     # ── 写入操作 ─────────────────────────────────────────
 
@@ -240,15 +252,22 @@ class ModbusBridge(QObject):
         try:
             value = int(float(value_str))
         except ValueError:
-            self._log("ERR", f"写入数值格式错误: '{value_str}'")
+            self._log("ERR", IndustrialErrorMapper.format_exception(f"写入数值格式错误: '{value_str}'"))
             return
 
-        result = self._service.write_register(write_fc, addr, value)
-        if result.tx_hex:
-            self._log("TX", result.tx_hex)
-        if result.rx_hex:
-            self._log("RX", result.rx_hex)
-        self._log("SYS", result.message)
+        try:
+            result = self._service.write_register(write_fc, addr, value)
+            if result.tx_hex:
+                self._log("TX", result.tx_hex)
+            if result.rx_hex:
+                self._log("RX", result.rx_hex)
+            if result.success:
+                self._log("SYS", result.message)
+            else:
+                self._log("ERR", IndustrialErrorMapper.format_exception(result.message))
+        except Exception as e:
+            log.warning("writeRegister error: %s", e, exc_info=True)
+            self._log("ERR", IndustrialErrorMapper.format_exception(e))
 
     # ── 轮询控制 ─────────────────────────────────────────
 
@@ -318,16 +337,30 @@ class ModbusBridge(QObject):
     @Slot(str, result=bool)
     def exportConfig(self, path: str) -> bool:
         """导出配置到 JSON 文件。"""
-        ok, msg = self._service.export_config(path)
-        self._log("SYS", msg)
-        return ok
+        try:
+            ok, msg = self._service.export_config(path)
+            if not ok:
+                msg = IndustrialErrorMapper.format_exception(msg)
+            self._log("SYS" if ok else "ERR", msg)
+            return ok
+        except Exception as e:
+            log.warning("exportConfig error: %s", e, exc_info=True)
+            self._log("ERR", IndustrialErrorMapper.format_exception(e))
+            return False
 
     @Slot(str, result="QVariant")
     def importConfig(self, path: str) -> dict[str, Any]:
         """从 JSON 文件导入配置。返回配置字典供 QML 填充表单。"""
-        ok, msg, config = self._service.import_config(path)
-        self._log("SYS", msg)
-        return config if ok else {}
+        try:
+            ok, msg, config = self._service.import_config(path)
+            if not ok:
+                msg = IndustrialErrorMapper.format_exception(msg)
+            self._log("SYS" if ok else "ERR", msg)
+            return config if ok else {}
+        except Exception as e:
+            log.warning("importConfig error: %s", e, exc_info=True)
+            self._log("ERR", IndustrialErrorMapper.format_exception(e))
+            return {}
 
     # ── 连接状态查询 ─────────────────────────────────────
 

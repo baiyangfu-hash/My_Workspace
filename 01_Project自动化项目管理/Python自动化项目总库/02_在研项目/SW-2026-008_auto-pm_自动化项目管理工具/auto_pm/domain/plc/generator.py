@@ -10,9 +10,9 @@ import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
+
 
 def _get_plc_template_dir() -> Path:
     curr = Path(__file__).resolve()
@@ -151,7 +151,7 @@ class ProcessMatrixParser:
 
 
 class SclGenerator:
-    """Siemens SCL 离线渲染生成器"""
+    """Siemens SCL 离线渲染生成器 (支持结构体整块传递与 UDT 同步生成)"""
 
     def __init__(self, template_dir: Path | str | None = None) -> None:
         self.template_dir = Path(template_dir) if template_dir else TEMPLATE_DIR
@@ -176,6 +176,16 @@ class SclGenerator:
             generated_at=datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
         )
 
+    def render_udt(self, matrix: ProcessMatrix) -> str:
+        """根据工艺矩阵数据渲染生成 ST_<Station> UDT 结构体定义"""
+        template = self.env.get_template("scl_udt.scl.j2")
+        return template.render(
+            fb_number=matrix.fb_number,
+            fb_name=matrix.fb_name,
+            station_name=matrix.station_name,
+            generated_at=datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
+        )
+
     def generate_to_file(self, matrix: ProcessMatrix, output_path: Path | str) -> Path:
         """渲染 SCL 并直接保存到本地文件"""
         content = self.render_scl(matrix)
@@ -183,3 +193,19 @@ class SclGenerator:
         out_file.parent.mkdir(parents=True, exist_ok=True)
         out_file.write_text(content, encoding="utf-8")
         return out_file
+
+    def generate_module(
+        self, matrix: ProcessMatrix, output_dir: Path | str
+    ) -> tuple[Path, Path]:
+        """一键同时生成 FB 代码文件与 ST UDT 结构体文件"""
+        target_dir = Path(output_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        fb_file = target_dir / f"{matrix.fb_number}_{matrix.fb_name}_{matrix.station_name}.scl"
+        udt_file = target_dir / f"ST_{matrix.station_name}.scl"
+
+        fb_file.write_text(self.render_scl(matrix), encoding="utf-8")
+        udt_file.write_text(self.render_udt(matrix), encoding="utf-8")
+
+        return fb_file, udt_file
+

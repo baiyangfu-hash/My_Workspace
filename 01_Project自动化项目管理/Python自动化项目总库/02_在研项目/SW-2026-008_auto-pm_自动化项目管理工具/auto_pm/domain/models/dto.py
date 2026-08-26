@@ -151,7 +151,17 @@ class AssetSummaryViewDTO(BaseModel):
     ) -> AssetSummaryViewDTO:
         """从 ProjectScanner 注入的原始 asset_summary 生成视图 DTO"""
         if not isinstance(asset_summary, dict):
-            return cls(reason="暂无资产摘要")
+            return cls(
+                status="unknown",
+                badge_label="未知",
+                badge_bg="#95a5a6",
+                badge_fg="#ffffff",
+                status_text="未知",
+                reason="暂无资产摘要",
+                io_count=0,
+                program_block_count=0,
+                communication_count=0,
+            )
 
         status = str(asset_summary.get("status", "unknown"))
         badge_label, badge_bg, badge_fg = status_badges.get(

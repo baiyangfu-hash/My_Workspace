@@ -289,8 +289,8 @@
 
 ## 8. Handoff Notes
 - 2026-06-17 | from=plc-electrical-engineer
-  - current_state: FB_1011_CylinderControl功能块分析完成，包含工艺视角、TIA实现、规范符合性和风险验证全面评估
-  - next_focus: PLC编译验证V10.0.0，或处理P1首次上电状态修复
+  - current_state: FB_1011_CylinderControl功能块分析完成，包含工艺视角、TIA实现、规范符合性和风险验证全面评估 [已验证]
+  - next_focus: PLC编译验证V10.0.0，或处理P1首次上电状态修复 [待验证]
   - watchouts:
     - ⚠️ Breaking Change: 调用方需从q_bSolenoid改为q_aSolenoid[0]
     - ⚠️ 双线圈极性语义需现场确认
@@ -302,8 +302,8 @@
     - 验证需求清单（§4风险与验证部分）
 
 - 2026-06-17 | from=plc-electrical-engineer
-  - current_state: V10.0.0 规范检查完成(注释/极性/文档引用修复), 源码与DSN/文档完全对齐
-  - next_focus: PLC技能自检与改进; 或PLC编译验证V10.0.0
+  - current_state: V10.0.0 规范检查完成(注释/极性/文档引用修复), 源码与DSN/文档完全对齐 [已验证]
+  - next_focus: PLC技能自检与改进; 或PLC编译验证V10.0.0 [待验证]
   - watchouts:
     - ⚠️ 技能存在执行缺陷: 多次未回写PM_SESSION, 未自动触发Step 6文档同步
     - ⚠️ 技能上下文过长导致跨轮丢失, 需考虑分层加载
@@ -315,8 +315,8 @@
     - PLC技能SKILL.md (待自检)
 
 - 2026-06-17 | from=plc-electrical-engineer
-  - current_state: V10.0.0双线圈功能+文档同步完成, 4份文档与源码对齐
-  - next_focus: PLC编译验证, 或P1首次上电状态处理
+  - current_state: V10.0.0双线圈功能+文档同步完成, 4份文档与源码对齐 [已验证]
+  - next_focus: PLC编译验证, 或P1首次上电状态处理 [待验证]
   - watchouts:
     - ⚠️ Breaking Change: 调用方需从q_bSolenoid改为q_aSolenoid[0]
     - ⚠️ 需实际PLC编译验证ARRAY输出兼容性
@@ -328,8 +328,8 @@
     - PRD/接口文档_INT.md (V10.0.0, 兼容性迁移指南)
 
 - 2026-06-17 | from=plc-electrical-engineer
-  - current_state: V9.2.0 P0定时器修复完成, 定时器调用对齐LSP-903 V2.1.0, 消抖/超时逻辑修复
-  - next_focus: P1首次上电状态处理, 或实际PLC编译验证
+  - current_state: V9.2.0 P0定时器修复完成, 定时器调用对齐LSP-903 V2.1.0, 消抖/超时逻辑修复 [已验证]
+  - next_focus: P1首次上电状态处理, 或实际PLC编译验证 [待验证]
   - watchouts:
     - ⚠️ 代码变更需实际PLC编译验证后才能上机
     - PRD/IFC/TECH文档仍为V9.0.0, 需同步更新到V9.2.0
@@ -342,8 +342,8 @@
     - LSP-903 V2.1.0 §3.4 (定时器批量调用模式)
 
 - 2026-06-16 | from=plc-electrical-engineer
-  - current_state: 完成实际 PLC 使用问题检查，发现多个严重问题，不能直接上机使用
-  - next_focus: 修复发现的问题后再进行实际项目集成
+  - current_state: 完成实际 PLC 使用问题检查，发现多个严重问题，不能直接上机使用 [已验证]
+  - next_focus: 修复发现的问题后再进行实际项目集成 [待验证]
   - watchouts:
     - ⚠️ 目前代码不能直接上机使用，必须先修复发现的问题！
     - 通用化场景需现场验证
@@ -355,8 +355,8 @@
     - FB_1011_CylinderControl.scl (问题位置已标注)
 
 - 2026-06-16 | from=pm-workflow/plc-electrical-engineer
-  - current_state: FB_1011 已具备 PM_SESSION 能力，ST_Cylinder 已通用化，SCL 注释已更新
-  - next_focus: FB_1014 同步更新 ST_Cylinder 引用路径，验证通用化场景
+  - current_state: FB_1011 已具备 PM_SESSION 能力，ST_Cylinder 已通用化，SCL 注释已更新 [已验证]
+  - next_focus: FB_1014 同步更新 ST_Cylinder 引用路径，验证通用化场景 [待验证]
   - watchouts:
     - 通用化场景需现场验证
     - 多电磁阀类型预留（双线圈/3位阀）

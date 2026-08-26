@@ -63,8 +63,8 @@ _LEGACY_PRD_DIRS = [
 ]
 
 
-class PlcChecker:
-    """PLC 项目结构检查器（LSP-907）"""
+class _LegacyPlcCheckerCore:
+    """PLC 项目结构检查器遗留核心实现。"""
 
     # ── 检查项清单（静态定义，供 --list 使用） ──────────────
 
@@ -204,6 +204,8 @@ class PlcChecker:
         # 4. 检查目录结构（仅标准项目）
         if project_type == "standard":
             self._check_directory_structure(project_path, result)
+            self._check_hmi_prototype(project_path, result)
+            self._check_software_scheme(project_path, result)
             self._check_change_management_and_governance(project_path, result)
             self._check_lifecycle_delivery_templates(project_path, result)
 
@@ -886,7 +888,11 @@ class PlcChecker:
         except OSError:
             pass
 
-        duplicate_prefixes = {p: dirs for p, dirs in prefix_map.items() if len(dirs) > 1}
+        duplicate_prefixes = {
+            p: dirs
+            for p, dirs in prefix_map.items()
+            if len(dirs) > 1 and not self._is_allowed_stage_prefix_overlap(p, dirs)
+        }
         if duplicate_prefixes:
             conflict_descs = [f"序号 {p}: {', '.join(dirs)}" for p, dirs in duplicate_prefixes.items()]
             result.add(
@@ -895,7 +901,19 @@ class PlcChecker:
                 f"检测到同级目录前缀序号冲突: {'; '.join(conflict_descs)}",
             )
         else:
-            result.add("目录唯一性与冲突排查", "pass", "同级阶段目录序号唯一，无冲突")
+            compat_descs = [
+                f"序号 {p}: {', '.join(dirs)}"
+                for p, dirs in prefix_map.items()
+                if len(dirs) > 1 and self._is_allowed_stage_prefix_overlap(p, dirs)
+            ]
+            if compat_descs:
+                result.add(
+                    "目录唯一性与冲突排查",
+                    "pass",
+                    "兼容双目录结构: " + "; ".join(compat_descs),
+                )
+            else:
+                result.add("目录唯一性与冲突排查", "pass", "同级阶段目录序号唯一，无冲突")
 
         # 2. 检查 02_PLC程序/程序文档 下的影子镜像与版本号违规
         doc_dir = os.path.join(project_path, "02_PLC程序", "程序文档")
@@ -934,6 +952,16 @@ class PlcChecker:
             except OSError:
                 pass
 
+    @staticmethod
+    def _is_allowed_stage_prefix_overlap(prefix: str, dirs: list[str]) -> bool:
+        allowed_overlap = {
+            "01": {"01_启动", "01_需求与设计"},
+        }
+        allowed_dirs = allowed_overlap.get(prefix)
+        if not allowed_dirs:
+            return False
+        return set(dirs).issubset(allowed_dirs)
+
     def _check_change_management_and_governance(self, project_path: str, result: CheckResult) -> None:
         """检查变更管理体系与版本变更台帐 (PM-042 / PM-043 / PROJ-016)"""
         # 1. 检查变更管理根目录 (支持 04_监控/01_变更管理 或 11_监控/01_变更管理)
@@ -966,11 +994,6 @@ class PlcChecker:
                 result.add("变更单管理体系", "fail", f"缺少 {rel_path}/01_变更单/ 目录")
 
             # 检查版本变更台帐
-            ledger_candidates = [
-                os.path.join(active_chg_dir, "02_变更记录", "01_版本变更台帐.md"),
-                os.path.join(active_chg_dir, "02_变更记录", "版本变更台帐.md"),
-                os.path.join(active_chg_dir, "02_变更记录"),
-            ]
             has_ledger = False
             rec_dir = os.path.join(active_chg_dir, "02_变更记录")
             if os.path.isdir(rec_dir):
@@ -1005,7 +1028,7 @@ class PlcChecker:
         deliv_dir = os.path.join(project_path, "06_文档与交付")
         if os.path.isdir(deliv_dir):
             has_md = False
-            for r, _, fs in os.walk(deliv_dir):
+            for _r, _, fs in os.walk(deliv_dir):
                 if any(f.endswith(".md") for f in fs):
                     has_md = True
                     break
@@ -1091,6 +1114,63 @@ class PlcChecker:
 
         return False
 
+    def _check_hmi_prototype(self, project_path: str, result: CheckResult) -> None:
+        """检查 HMI 交互原型与点表映射文件 (STD-910)"""
+        hmi_dir = os.path.join(project_path, "03_HMI设计")
+        if not os.path.isdir(hmi_dir):
+            result.add("HMI 交互原型", "fail", "缺少 03_HMI设计 目录")
+            return
+
+        html_paths = [
+            os.path.join(hmi_dir, "原型", "files", "HMI原型设计.html"),
+            os.path.join(hmi_dir, "HMI原型设计.html"),
+        ]
+        has_html = any(os.path.isfile(p) for p in html_paths)
+        mapping_path = os.path.join(hmi_dir, "hmi_tag_mapping.json")
+        has_mapping = os.path.isfile(mapping_path)
+
+        if not has_html:
+            result.add("HMI 交互原型", "warn", "未检测到 HMI 原型 HTML 文件 (建议添加 03_HMI设计/原型/files/HMI原型设计.html)")
+        elif not has_mapping:
+            result.add("HMI 交互原型", "warn", "缺少 hmi_tag_mapping.json 点表映射文件")
+        else:
+            result.add("HMI 交互原型", "pass", "11页高保真 HMI 原型与点表映射完备")
+
+    def _check_software_scheme(self, project_path: str, result: CheckResult) -> None:
+        """检查 01_需求与设计/13_软件方案 或 PRD 下的需求规格说明书与工艺流程图"""
+        scheme_dirs = [
+            os.path.join(project_path, "02_PLC程序", "PLC_ST", "00_程序方案"),
+            os.path.join(project_path, "02_PLC程序", "PLC_ST", "PRD"),
+            os.path.join(project_path, "02_PLC程序", "程序文档"),
+            os.path.join(project_path, "01_需求与设计", "13_软件方案"),
+            os.path.join(project_path, "01_需求与设计"),
+            os.path.join(project_path, "00_项目管理", "01_启动"),
+            os.path.join(project_path, "01_启动", "13_软件方案"),
+            os.path.join(project_path, "01_启动"),
+            os.path.join(project_path, "PRD"),
+        ]
+        has_req_spec = False
+        has_flow_chart = False
+
+        for s_dir in scheme_dirs:
+            if not os.path.isdir(s_dir):
+                continue
+            for f in os.listdir(s_dir):
+                if ("需求规格说明书" in f or "需求分析文档" in f) and f.endswith(".md"):
+                    has_req_spec = True
+                if f.endswith(".mmd") or "流程图" in f:
+                    has_flow_chart = True
+
+        if not has_req_spec:
+            result.add("需求规格说明书", "fail", "缺少需求规格说明书 (01_需求与设计/13_软件方案/ 或 PRD/)")
+        else:
+            result.add("需求规格说明书", "pass", "需求规格说明书就绪")
+
+        if not has_flow_chart:
+            result.add("工艺流程图", "warn", "缺少 Mermaid 工艺流程图 (*.mmd)")
+        else:
+            result.add("工艺流程图", "pass", "Mermaid 工艺流程图就绪")
+
     @staticmethod
     def _is_in_python_area(project_path: str) -> bool:
         """判断项目路径是否位于 Python 项目管理区域
@@ -1111,3 +1191,39 @@ class PlcChecker:
         norm_path = project_path.replace("/", os.sep)
         plc_marker = os.sep + "0100_PLC自动化" + os.sep
         return plc_marker in norm_path
+
+
+class _CheckGroupBase:
+    """PLC 检查分组基类，仅承载共享上下文。"""
+
+    def __init__(self, workspace_root: str) -> None:
+        self.workspace_root = os.path.abspath(workspace_root)
+
+
+# ── 分组 A：配置 / 文档检查 ──────────────────────────────
+class _PlcConfigChecks(_CheckGroupBase):
+    _check_plc_json = _LegacyPlcCheckerCore._check_plc_json
+    _check_pm_session = _LegacyPlcCheckerCore._check_pm_session
+    _check_spec_snapshot = _LegacyPlcCheckerCore._check_spec_snapshot
+    _check_prd_docs = _LegacyPlcCheckerCore._check_prd_docs
+    _check_sub_prd_substance = _LegacyPlcCheckerCore._check_sub_prd_substance
+    _check_fb_prd_docs = _LegacyPlcCheckerCore._check_fb_prd_docs
+
+
+# ── 分组 B：结构 / 命名检查 ──────────────────────────────
+class _PlcStructChecks(_CheckGroupBase):
+    _check_directory_structure = _LegacyPlcCheckerCore._check_directory_structure
+    _check_naming_and_shadow_duplicates = _LegacyPlcCheckerCore._check_naming_and_shadow_duplicates
+    _check_change_management_and_governance = _LegacyPlcCheckerCore._check_change_management_and_governance
+    _check_lifecycle_delivery_templates = _LegacyPlcCheckerCore._check_lifecycle_delivery_templates
+    _check_hmi_prototype = _LegacyPlcCheckerCore._check_hmi_prototype
+    _check_software_scheme = _LegacyPlcCheckerCore._check_software_scheme
+
+
+# ── 分组 C：代码质量检查 ────────────────────────────────
+class _SclCodeChecks(_CheckGroupBase):
+    _check_scl_code_compliance = _LegacyPlcCheckerCore._check_scl_code_compliance
+
+
+class PlcChecker(_PlcConfigChecks, _PlcStructChecks, _SclCodeChecks, _LegacyPlcCheckerCore):
+    """PLC 项目结构检查器（LSP-907）。"""

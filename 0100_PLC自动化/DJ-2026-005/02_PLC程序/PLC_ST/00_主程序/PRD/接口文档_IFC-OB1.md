@@ -32,7 +32,7 @@ OB1是边框缓存机的**主程序组织块**，负责：
 ┌─────────────────────────────────────────────────────────────┐
 │                      OB1 主程序组织块 (V7.1.1)                │
 ├─────────────────────────────────────────────────────────────┤
-│  Step 1: fbExternalDevice (FB_ExternalDeviceInteraction)    │
+│  Step 1: fbExternalDevice (FB_3001_ExternalInteraction；DJ005实现名: FB_ExternalDeviceInteraction) │
 │          ← stExternal.i_* (27输入) → stExternal.o_* (20输出) │
 │                                                                 │
 │  Step 2: fbConveyor_L1~L4 (4×FB_1002 展开)                   │
@@ -62,7 +62,7 @@ OB1是边框缓存机的**主程序组织块**，负责：
 
 | 调用顺序 | FB名称 | 版本 | 功能描述 | 输入来源 | 输出去向 |
 |:-------:|--------|:----:|----------|----------|----------|
-| 1 | FB_ExternalDeviceInteraction | V4.1.0 | 外部设备交互(组框机/打胶机/机器人/安全) | GlobalVars.stExternal (27in) | GlobalVars.stExternal (20out) |
+| 1 | FB_3001_ExternalInteraction（DJ005实现名：FB_ExternalDeviceInteraction） | V4.1.0 | 外部设备交互(组框机/打胶机/机器人/安全) | GlobalVars.stExternal (27in) | GlobalVars.stExternal (20out) |
 | 2 | FB_1002 ×4 (L1~L4展开) | V7.0.0 | 四层输送机控制(每层独立Step_S状态机) | GlobalVars.stConveyor (逐层ARRAY索引, 22in/11out per layer) | GlobalVars.stConveyor (逐层ARRAY + 3个汇总标量) |
 | 3 | FB_1003_PickPlace | V7.0.0 | 取放料机构(6步S20~S25状态机+PLCopen MC) | GlobalVars.stPickPlace (38in) + VAR_IN_OUT轴引用(2) | GlobalVars.stPickPlace (16out) |
 | 4 | FB_1004_GlueMachineFeeder | V6.0.0 | 打胶机送料(4步D760状态机) | GlobalVars.stFeeder (14in含工站间信号) | GlobalVars.stFeeder (14out) |

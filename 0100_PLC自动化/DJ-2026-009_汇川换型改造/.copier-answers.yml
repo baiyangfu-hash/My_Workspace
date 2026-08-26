@@ -1,0 +1,12 @@
+# Copier answers - 请勿手动修改
+project_id: DJ-2026-009
+project_name: 汇川换型改造
+description: 汇川换型改造
+version: V1.0.0
+stack: plc
+mode: standard-project
+business_line: DJ
+project_type: single_machine
+equipment_type: 
+plc_vendor: 
+plc_model: 

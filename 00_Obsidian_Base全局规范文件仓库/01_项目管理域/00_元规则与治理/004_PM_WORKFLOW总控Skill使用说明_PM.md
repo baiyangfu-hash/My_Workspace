@@ -1,7 +1,7 @@
 ---
 spec_id: PM-004
 title: PM_WORKFLOW总控Skill使用说明
-version: V1.3.0
+version: V1.4.0
 domain: pm
 lifecycle: stable
 type: PM_WORKFLOW
@@ -43,7 +43,7 @@ canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_
 
 ### 3.2 例行更新（每次活动结束必须做）
 把所有项目活动统一为 8 类事件（每次只处理一种）：
-- Event A：需求新增/需求变更（Scope Change）
+- Event A：需求新增/需求变更（Scope Change）— 必须前置执行《输入齐套性审查》，核查 CAD/轴系/动作时序 3 要素；输入不齐时强制发起提问清单，禁止擅自脑补
 - Event B：迭代推进（Iteration）
 - Event C：重构/技术债（Refactor）
 - Event D：缺陷审查/修复（Bug）
@@ -108,156 +108,100 @@ canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_
 - [ ] PM_SESSION 已登记 PRD/REQ/DES/变更/测试/交付的路径
 - [ ] 任一需求变更/bug/重构/迭代/交付后，PM_SESSION 的 Logs 有新增一条记录
 
-## 8. SpecMgr CLI — 规范健康检查与自动修复
+## 8. auto-pm spec — 规范治理与自动修复
 
-SpecMgr（SW-2026-006）提供规范体系的自动化检查与修复能力，工具路径：`01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-006_规范管理工具/02_源代码/`
+`auto-pm`（SW-2026-008）已吸收原 `specmgr` 能力；PM 角色统一通过 `python -m auto_pm` 执行规范治理。
 
 ### 8.0 使用边界
 
-- 日常 PM 会话：默认只做项目级最小检查，重点验证当前项目 `PM_SESSION` 和直接文档引用
+- 日常 PM 会话：默认只做项目级最小检查，重点验证当前项目 `PM_SESSION` 与直接文档引用
 - 规范治理任务：当用户明确要求全仓巡检，或本轮属于规范变更/版本升级时，再执行全工作空间检查
-- PLC 注释规范扫描：仅在用户明确要求代码规范巡检时执行，不作为 PM 默认动作
+- 规范真源修订后：必须执行 `spec index` 或 `spec sync`，禁止手工拼接 `00_INDEX_全局规范索引.md`
 
 ### 8.1 基本用法
 
 ```bash
-# 运行规范健康检查（检测版本漂移、命名不合规、链接失效等8类问题）
-specmgr -w <工作空间根目录> check
+# 运行规范健康检查
+python -m auto_pm -w <工作空间根目录> spec check
 
 # 仅检查特定检查项
-specmgr -w <工作空间根目录> check -c SHC-002 -c SHC-007
+python -m auto_pm -w <工作空间根目录> spec check -c SHC-002 -c SHC-007
 
 # 仅检查当前项目 PM_SESSION 及其直接引用
-specmgr -w <工作空间根目录> check --scope project --project-root <项目根目录>
+python -m auto_pm -w <工作空间根目录> spec check --scope project --project-root <项目根目录>
 
-# JSON格式输出（适合脚本解析）
-specmgr -w <工作空间根目录> check --format json
+# JSON 格式输出
+python -m auto_pm -w <工作空间根目录> spec check --format json
 
-# 只显示错误级别
-specmgr -w <工作空间根目录> check --severity error
+# 只看 warning 及以上
+python -m auto_pm -w <工作空间根目录> spec check --severity warning
 ```
 
 ### 8.2 自动修复
 
 ```bash
 # 预览可自动修复的问题（不实际修改文件）
-specmgr -w <工作空间根目录> check --auto-fix --dry-run
+python -m auto_pm -w <工作空间根目录> spec check --fix --dry-run
 
-# 执行自动修复
-specmgr -w <工作空间根目录> check --auto-fix
+# 执行自动修复（当前支持 SHC-002 / SHC-007）
+python -m auto_pm -w <工作空间根目录> spec check --fix
+
+# frontmatter 同步：默认预览，带 --fix 才写入
+python -m auto_pm -w <工作空间根目录> spec frontmatter
+python -m auto_pm -w <工作空间根目录> spec frontmatter --fix
 ```
 
-### 8.3 可自动修复的问题类型
-
-| 检查ID | 问题类型 | 自动修复行为 |
-|--------|---------|-------------|
-| SHC-002 | 版本漂移（frontmatter版本 ≠ 注册表版本） | 更新frontmatter版本字段使其与注册表版本一致，同步更新canonical_path |
-| SHC-007 | frontmatter缺失或不完整 | 从注册表数据自动补全spec_id/title/version/lifecycle/canonical_path |
-
-### 8.4 仅检测不可自动修复的问题类型
-
-| 检查ID | 问题类型 | 原因 |
-|--------|---------|------|
-| SHC-001 | 规范文件重复 | 需人工判断保留哪个 |
-| SHC-003 | 引用了已废弃规范 | 需人工确认替代规范 |
-| SHC-004 | 索引链接失效 | 需运行 `specmgr index` 重新生成 |
-| SHC-005 | 规范未在注册表登记 | 需人工填写完整元数据 |
-| SHC-006 | Obsidian/Markdown链接失效 | 需人工确认链接目标 |
-| SHC-008 | 规则文件引用路径无效 | 需人工确认正确路径 |
-
-### 8.5 典型使用场景
-
-**场景1：规范迭代后验证一致性**
-```bash
-# 修改规范文件后，检查是否有版本漂移或命名不合规
-specmgr -w <workspace> check
-# 发现问题后预览修复
-specmgr -w <workspace> check --auto-fix --dry-run
-# 确认后执行修复
-specmgr -w <workspace> check --auto-fix
-```
-
-**场景2：新增规范文件后补全元数据**
-```bash
-# 新建规范文件后，检查frontmatter是否完整
-specmgr -w <workspace> check -c SHC-007
-# 自动补全缺失的frontmatter字段
-specmgr -w <workspace> check --auto-fix -c SHC-007
-```
-
-**场景3：定期规范体系巡检**
-```bash
-# 每周运行一次全量检查，只看错误和警告
-specmgr -w <workspace> check --severity warning
-# 发现问题后针对性修复
-specmgr -w <workspace> check --auto-fix -c SHC-002
-```
-
-### 8.6 其他SpecMgr命令
+### 8.3 索引与报告
 
 ```bash
-# 自动生成规范索引文件（按域生成README）
-specmgr -w <工作空间根目录> index
-specmgr -w <工作空间根目录> index --domain plc
+# 重新编译全局索引
+python -m auto_pm -w <工作空间根目录> spec index
+python -m auto_pm -w <工作空间根目录> spec index --domain plc
 
-# 批量添加/更新规范frontmatter
-specmgr -w <工作空间根目录> frontmatter --dry-run
-specmgr -w <工作空间根目录> frontmatter
+# 一键执行 frontmatter + index + check 收口
+python -m auto_pm -w <工作空间根目录> spec sync
 
 # 生成规范元数据汇总报告
-specmgr -w <工作空间根目录> report
-specmgr -w <工作空间根目录> report --format json
+python -m auto_pm -w <工作空间根目录> spec report
+python -m auto_pm -w <工作空间根目录> spec report --format json
+
+# 结构巡检（重复编号、孤立规范、schema 漂移等）
+python -m auto_pm -w <工作空间根目录> spec lint --format json
 ```
 
-## 9. pm-mgr CLI — 项目工作流工具链
+### 8.4 常见检查项说明
 
-pm-mgr（SW-2026-007）提供项目初始化、旧项目补完、健康检查、类型检测和 Spec Snapshot 管理能力。
+| 检查ID | 问题类型 | 处理方式 |
+|--------|---------|---------|
+| SHC-002 | 版本漂移（frontmatter版本 ≠ 注册表版本） | 优先统一注册表与 frontmatter，再执行 `spec check --fix` |
+| SHC-007 | frontmatter 缺失或不完整 | 用 `spec frontmatter --fix` 从注册表回填 |
+| SHC-004 | 索引链接失效 | 运行 `spec index` 或 `spec sync` 重新生成 |
+| SHC-005 | 规范未在注册表登记 | 补登记 `spec_registry.json` 后再运行 `spec check` |
+| SHC-008 | 规则文件引用未注册规范 | 更新规则文件引用或补齐规范登记 |
 
-安装：`pip install -e .`（项目路径：`01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-007_pm工作流工具链/`）
+## 9. auto-pm project / pm-session — 项目连续性工具链
 
-### 9.1 全局选项
+`auto-pm` 同时吸收了原 `pm-mgr` 的项目骨架、补完、快照与 PM_SESSION 工具链；不再维护独立 `pm-mgr` 命令。
 
-所有命令共享 `-w / --workspace <工作空间根目录>`，也可通过环境变量 `PM_MGR_WORKSPACE` 设置。若均未指定，自动向上查找包含 `.trae/` 的目录。
+### 9.1 项目级命令
 
-### 9.2 命令接口
+| 命令 | 用途 | 说明 |
+|------|------|------|
+| `python -m auto_pm -w <ws> project create <项目ID>` | 初始化新项目骨架 | 按技术栈生成目录、README 与元数据 |
+| `python -m auto_pm -w <ws> project retrofit <项目ID>` | 旧项目补完连续性机制 | 补 `.copier-answers.yml`、PLC 标志文件等 |
+| `python -m auto_pm -w <ws> project show <项目ID>` | 查看项目元数据 | 用于驾驶舱 / CLI 上下文恢复 |
+| `python -m auto_pm -w <ws> project snapshot <项目ID>` | 刷新 PM_SESSION Spec Snapshot | 使版本基线对齐 `spec_registry.json` |
 
-| 命令 | 用途 | 必填参数 |
-|------|------|---------|
-| `pm-mgr init <项目目录>` | 初始化新项目骨架 | `-t software/plc` `-i 项目编号` `-n 项目名称` |
-| `pm-mgr retrofit <项目目录>` | 旧项目注入连续性机制 | 项目目录（必须存在） |
-| `pm-mgr detect <项目目录>` | 检测项目类型 | 项目目录 |
-| `pm-mgr check <项目目录>` | 健康检查 | 项目目录 |
-| `pm-mgr snapshot <项目目录>` | 刷新 Spec Snapshot | 项目目录 |
+### 9.2 PM_SESSION 命令
 
-### 9.3 init 创建的产物
+| 命令 | 用途 | 说明 |
+|------|------|------|
+| `python -m auto_pm -w <ws> pm-session check --project-root <项目根目录>` | 检查单项目 PM_SESSION 健康度 | 校验章节完整性、体积与行数阈值 |
+| `python -m auto_pm -w <ws> pm-session check` | 巡检全工作空间 PM_SESSION | 递归扫描 `PM_SESSION_*.md` |
+| `python -m auto_pm -w <ws> pm-session archive --project-root <项目根目录> --section 6` | 归档指定章节 | 控制 PM_SESSION 主文件长度 |
+| `python -m auto_pm -w <ws> pm-session archive --auto` | 自动批量归档超限 PM_SESSION | 收口历史日志和 handoff 条目 |
 
-| 项目类型 | 目录 | 文档模板 | 骨架文件 | 其他 |
-|---------|------|---------|---------|------|
-| software | 11 个目录（含PM流程5阶段） | 立项表、PRD、REQ、DES、测试计划 | README、pyproject.toml | hooks + handoffs |
-| plc | 24 个目录 | 立项表、需求分析、IO分配表等6个 | README、.plc.json、版本变更台帐 | hooks + handoffs |
-
-### 9.4 check 检查项
-
-| 检查项 | 判定标准 |
-|--------|---------|
-| PM_SESSION | `PM_SESSION*.md` 文件存在 |
-| hooks | `.github/hooks/hooks.json` + 4 个脚本全部存在 |
-| handoffs | `.trae/handoffs/` 目录存在 |
-| Spec Snapshot | PM_SESSION 中含 `## Spec Snapshot` 区块 |
-| PM_SESSION章节完整性 | §0 Meta ~ §9 Next Actions 共10个章节齐全 |
-| .gitignore | 项目根目录存在 .gitignore 文件 |
-
-### 9.5 detect 检测优先级
-
-| 优先级 | 信号 | 结果 |
-|--------|------|------|
-| 1 | `.plc.json` 存在（深度≤3） | `plc` |
-| 2 | `pyproject.toml` 存在（深度≤3） | `software` |
-| 3 | `*.scl` / `*.db` 文件存在（深度≤3） | `plc` |
-| 4 | `main.py` / `package.json` 存在 | `software` |
-| 5 | PM_SESSION 上下文推断 | 按内容判定 |
-
-### 9.6 snapshot 规范列表
+### 9.3 Snapshot 规范列表
 
 | 项目类型 | 包含的规范 |
 |---------|-----------|
@@ -281,7 +225,7 @@ PM_SESSION 文件包含以下10个章节，所有章节均为必填：
 | §8 | Handoff Notes | current_state, next_focus, watchouts, read_first | 交接摘要 |
 | §9 | Next Actions | ≥3条，带 precondition + done_when | 下一步行动 |
 
-此外，PM_SESSION 应包含 **Spec Snapshot** 区块（位于 §0 之后或文件末尾），记录项目初始化时锁定的规范版本基线，供后续 `specmgr check` 检测版本漂移。
+此外，PM_SESSION 应包含 **Spec Snapshot** 区块（位于 §0 之后或文件末尾），记录项目初始化时锁定的规范版本基线，供后续 `auto-pm spec check` / `project snapshot` 检测并收敛版本漂移。
 
 ### 10.1 日志回写规则
 

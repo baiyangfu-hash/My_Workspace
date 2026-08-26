@@ -5,10 +5,7 @@
 
 from __future__ import annotations
 
-import os
-import re
 from pathlib import Path
-from typing import Any
 
 from auto_pm.contracts.gate_dtos import (
     GateCheckItemDTO,

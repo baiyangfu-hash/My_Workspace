@@ -47,8 +47,6 @@
   - result: 待首次检查
 
 ## 4. Artifacts Index（文档索引）
-- prd:
-  - (待补充)
 - req:
   - (待补充)
 - des:

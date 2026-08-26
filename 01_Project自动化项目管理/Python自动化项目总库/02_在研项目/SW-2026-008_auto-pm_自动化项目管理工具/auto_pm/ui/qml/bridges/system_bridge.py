@@ -12,12 +12,17 @@ listTemplates 返回 list[str]、getTemplatePath 返回 str，保持基础类型
 新增 1 个 Slot：applyTemplate（QML 端尚未接入，TODO M5）。
 M5 CHG-117 新增 1 个 Slot：archivePmSession（PM_SESSION 归档对话框接入）。
 """
+import logging
+import os
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import Property, QObject, Slot
 
 from auto_pm.application.system_facade import SystemFacade
+
+logger = logging.getLogger(__name__)
 
 
 class SystemBridge(QObject):
@@ -103,26 +108,26 @@ class SystemBridge(QObject):
         try:
             return run_doctor_check()
         except Exception as e:
+            logger.warning("runDoctorCheck failed: %s", e, exc_info=True)
             return {"all_passed": False, "message": str(e)}
 
     @Slot(result="QVariant")
     def syncDocs(self) -> dict[str, Any]:
         """执行 Doc-as-Code 文档自省自动同步"""
         try:
-            import os
             from auto_pm.domain.doc.services import DocSyncService
             ws = Path(os.getcwd())
             svc = DocSyncService(ws)
             logs = svc.sync_all()
             return {"success": True, "logs": logs, "message": f"成功同步 {len(logs)} 个文档锚点"}
         except Exception as e:
+            logger.warning("syncDocs failed: %s", e, exc_info=True)
             return {"success": False, "logs": [], "message": str(e)}
 
     @Slot(result="QVariant")
     def checkDocs(self) -> dict[str, Any]:
         """执行 Doc-as-Code 文档一致性门禁检查"""
         try:
-            import os
             from auto_pm.domain.doc.services import DocCheckService
             ws = Path(os.getcwd())
             svc = DocCheckService(ws)
@@ -134,4 +139,5 @@ class SystemBridge(QObject):
                 "message": "所有文档门禁通过" if all_passed else "存在文档未同步滞后项"
             }
         except Exception as e:
+            logger.warning("checkDocs failed: %s", e, exc_info=True)
             return {"success": False, "items": [], "message": str(e)}

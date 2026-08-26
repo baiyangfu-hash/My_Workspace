@@ -4,7 +4,7 @@
 - 自动修复（版本号更新）
 - dry-run 预览（不修改文件）
 - 无漂移时跳过修复
-- Spec Snapshot 缺失时跳过修复
+- Spec Snapshot 缺失时补齐基线章节
 """
 
 from __future__ import annotations
@@ -218,7 +218,7 @@ class TestRepairSpecSnapshot:
         assert "| LSP-907 | V1.2.1 |" in content
 
     def test_repair_spec_snapshot_missing_table(self, tmp_path: Path) -> None:
-        """Spec Snapshot 缺失时跳过修复"""
+        """Spec Snapshot 缺失时补齐基线章节"""
         project_dir = _setup_workspace(tmp_path, _PM_SESSION_NO_TABLE)
         project_path = str(project_dir)
 
@@ -232,13 +232,16 @@ class TestRepairSpecSnapshot:
         ):
             result = repairer.repair_project(project_path, dry_run=False)
 
-        # 断言修复结果（Spec Snapshot 缺失应跳过）
+        # 断言修复结果（Spec Snapshot 缺失应补齐）
         spec_actions = [a for a in result.actions if a.item == "Spec Snapshot"]
         assert len(spec_actions) == 1
-        assert spec_actions[0].status == "skipped"
-        assert "为空" in spec_actions[0].detail or "不可用" in spec_actions[0].detail
+        assert spec_actions[0].status == "fixed"
+        assert "补齐 Spec Snapshot 区块" in spec_actions[0].action
+        assert "写入" in spec_actions[0].detail
 
-        # 读取 PM_SESSION，确认内容未变
+        # 读取 PM_SESSION，确认基线章节已生成
         pm_session_path = project_dir / "PM_SESSION_SW-2026-TEST.md"
         content = pm_session_path.read_text(encoding="utf-8")
-        assert "无 Spec Snapshot 表格" in content
+        assert "## Spec Snapshot" in content
+        assert "| LSP-906 | V2.0.0 |" in content
+        assert "| LSP-907 | V1.2.1 |" in content

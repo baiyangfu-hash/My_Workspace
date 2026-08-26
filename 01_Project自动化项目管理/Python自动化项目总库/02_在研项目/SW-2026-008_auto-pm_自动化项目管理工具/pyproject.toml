@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "auto-pm"
-version = "1.2.0"
+version = "1.2.3"
 description = "自动化项目管理工具 - 统一CLI管理PLC/Python多技术栈项目"
 authors = [
     { name = "fubai", email = "gotofritz@users.noreply.github.com" }
@@ -98,6 +98,11 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [tool.ruff.lint.per-file-ignores]
 "scripts/*.py" = ["T201"]
 "tests/**/*.py" = ["T201"]
+"**/auto_pm/__init__.py" = ["E402"]
+"**/bridges/*.py" = ["N802", "N815", "T201"]
+"**/modbus/modbus_bridge.py" = ["N802", "N815", "T201"]
+"**/modbus/modbus_service.py" = ["N802"]
+"**/infrastructure/logging/logging.py" = ["N802"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -143,7 +148,7 @@ markers = [
     "slow: 慢速测试（运行时间 > 5s）",
 ]
 addopts = [
-    "--cov=auto_pm/",
+    "--cov=auto_pm",
     "--cov-report=term",
     "--cov-report=html:coverage/html",
     "--cov-report=xml:coverage/coverage.xml",
@@ -155,6 +160,7 @@ addopts = [
 ENVIRONMENT = "test"
 
 [tool.coverage.run]
+source = ["auto_pm"]
 omit = [
     "tests/*",
     "*/tests/*",

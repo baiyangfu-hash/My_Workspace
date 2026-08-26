@@ -1,15 +1,16 @@
 """Static AST extractor for CLI command modules."""
 import ast
 from pathlib import Path
-from typing import List
+
 from auto_pm.domain.doc.models import CliCommandDTO
+
 
 class CliAstExtractor:
     """Extracts CLI commands statically via Python AST without importing modules."""
 
     @staticmethod
-    def extract_from_directory(cli_dir: Path) -> List[CliCommandDTO]:
-        commands: List[CliCommandDTO] = []
+    def extract_from_directory(cli_dir: Path) -> list[CliCommandDTO]:
+        commands: list[CliCommandDTO] = []
         if not cli_dir.exists():
             return commands
 

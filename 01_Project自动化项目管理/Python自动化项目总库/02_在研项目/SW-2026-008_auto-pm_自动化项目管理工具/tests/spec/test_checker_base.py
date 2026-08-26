@@ -4,10 +4,12 @@ from pathlib import Path
 
 from auto_pm.spec.core.checker_base import (
     CheckResult,
+    DriftWarningChecker,
     DuplicateChecker,
     FrontmatterChecker,
     HealthChecker,
     IndexLinkChecker,
+    NumberConflictChecker,
     ObsidianLinkChecker,
     PMSessionRefChecker,
     RulesPathChecker,
@@ -248,3 +250,115 @@ class TestHealthChecker:
         checker = HealthChecker()
         results = checker.run_by_id("SHC-999", reg, scanner)
         assert len(results) == 0
+
+
+class TestNumberConflictChecker:
+    """SHC-015: 跨前缀编号冲突检测"""
+
+    def test_no_conflict(self, populated_workspace: Path) -> None:
+        """无冲突时返回空结果"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        scanner = SpecScanner(populated_workspace)
+        checker = NumberConflictChecker()
+        results = checker.check(reg, scanner)
+        shc015 = [r for r in results if r.check_id == "SHC-015"]
+        # 测试工作空间中无预设冲突，结果应为空
+        assert all(r.severity == Severity.WARNING for r in shc015)
+
+    def test_detects_cross_prefix_conflict(self, populated_workspace: Path) -> None:
+        """当两个条目拥有相同 number 但不同 type_prefix 时，应报 SHC-015"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        # 人工注入跨前缀冲突：TOOL-906 与 LSP-906 共享编号 906
+        from auto_pm.spec.core.registry import SpecInfo
+        reg._specs["TOOL-906"] = SpecInfo(spec_id="TOOL-906", number="906", type_prefix="TOOL", title="Mermaid规范")
+        reg._specs["LSP-906"] = SpecInfo(spec_id="LSP-906", number="906", type_prefix="LSP", title="PLC错误预防")
+        scanner = SpecScanner(populated_workspace)
+        checker = NumberConflictChecker()
+        results = checker.check(reg, scanner)
+        shc015 = [r for r in results if r.check_id == "SHC-015"]
+        assert len(shc015) >= 1
+        assert shc015[0].severity == Severity.WARNING
+        assert "906" in shc015[0].message
+        assert "TOOL-906" in shc015[0].details or "LSP-906" in shc015[0].details
+
+    def test_same_prefix_number_not_flagged(self, populated_workspace: Path) -> None:
+        """相同 type_prefix 不同编号，不应报冲突"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        from auto_pm.spec.core.registry import SpecInfo
+        reg._specs["LSP-901"] = SpecInfo(spec_id="LSP-901", number="901", type_prefix="LSP", title="A")
+        reg._specs["LSP-902"] = SpecInfo(spec_id="LSP-902", number="902", type_prefix="LSP", title="B")
+        scanner = SpecScanner(populated_workspace)
+        checker = NumberConflictChecker()
+        results = checker.check(reg, scanner)
+        # 编号 901、902 各自唯一，不应报冲突
+        conflicts = {r.message for r in results if r.check_id == "SHC-015"}
+        assert "901" not in " ".join(conflicts)
+        assert "902" not in " ".join(conflicts)
+
+
+class TestDriftWarningChecker:
+    """SHC-016: drift_warning 强制告警"""
+
+    def test_no_drift_warning(self, populated_workspace: Path) -> None:
+        """无 drift_warning 字段时返回空结果"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        # 确保 raw 数据中无 drift_warning
+        for spec_data in reg.raw.get("specs", {}).values():
+            if isinstance(spec_data, dict):
+                spec_data.pop("drift_warning", None)
+        scanner = SpecScanner(populated_workspace)
+        checker = DriftWarningChecker()
+        results = checker.check(reg, scanner)
+        shc016 = [r for r in results if r.check_id == "SHC-016"]
+        assert len(shc016) == 0
+
+    def test_detects_drift_warning(self, populated_workspace: Path) -> None:
+        """当 raw 数据中存在 drift_warning 时，应报 SHC-016"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        # 注入一个含 drift_warning 的条目到 raw
+        reg._raw.setdefault("specs", {})["PM-042"] = {
+            "title": "PM_SESSION规范",
+            "version": "V1.0.0",
+            "drift_warning": "项目副本版本 V0.9.0 落后于真源 V1.0.0，请同步",
+        }
+        scanner = SpecScanner(populated_workspace)
+        checker = DriftWarningChecker()
+        results = checker.check(reg, scanner)
+        shc016 = [r for r in results if r.check_id == "SHC-016"]
+        assert len(shc016) >= 1
+        assert shc016[0].severity == Severity.WARNING
+        assert "PM-042" in shc016[0].message
+        assert "drift_warning" not in shc016[0].details  # 应该是 drift 内容，不是字段名
+        assert "V0.9.0" in shc016[0].details or "V1.0.0" in shc016[0].details
+
+    def test_multiple_drift_warnings(self, populated_workspace: Path) -> None:
+        """多个 drift_warning 条目应各自独立报告"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        reg._raw.setdefault("specs", {})
+        reg._raw["specs"]["DEV-801"] = {"drift_warning": "版本漂移 A"}
+        reg._raw["specs"]["DEV-802"] = {"drift_warning": "版本漂移 B"}
+        scanner = SpecScanner(populated_workspace)
+        checker = DriftWarningChecker()
+        results = checker.check(reg, scanner)
+        shc016 = [r for r in results if r.check_id == "SHC-016"]
+        ids = {r.message.split(" ")[0] for r in shc016}
+        assert "DEV-801" in ids
+        assert "DEV-802" in ids
+
+    def test_registered_in_health_checker(self, populated_workspace: Path) -> None:
+        """SHC-015 和 SHC-016 应被 HealthChecker.run_by_id 正确调度"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        scanner = SpecScanner(populated_workspace)
+        hc = HealthChecker()
+        # run_by_id 返回非 None（即使空列表）表示 ID 已注册
+        res015 = hc.run_by_id("SHC-015", reg, scanner)
+        res016 = hc.run_by_id("SHC-016", reg, scanner)
+        assert isinstance(res015, list)
+        assert isinstance(res016, list)

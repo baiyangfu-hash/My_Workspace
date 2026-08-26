@@ -430,3 +430,113 @@ class TestDocIndexValidityChecker:
         shc014 = [r for r in results if r.check_id == "SHC-014"]
         # req 是 http 路径不检查，其他三个路径有效，应无报错
         assert len(shc014) == 0
+
+    def test_legacy_file_index_can_discover_root_prd_docs(
+        self, tmp_path: Path, project_dir: Path
+    ) -> None:
+        """正向：旧版 File Index + 根目录 PRD 四件套也应被兼容"""
+        prd_dir = project_dir / "PRD"
+        prd_dir.mkdir()
+        (prd_dir / "需求分析文档_REQ.md").write_text("# REQ", encoding="utf-8")
+        (prd_dir / "接口文档_INT.md").write_text("# INT", encoding="utf-8")
+        (prd_dir / "详细设计说明书_DSN.md").write_text("# DSN", encoding="utf-8")
+        (prd_dir / "技术方案文档_TEC.md").write_text("# TEC", encoding="utf-8")
+        _write_pm_session(project_dir, {
+            "4": (
+                "- 02_PLC程序/PLC_ST/: PLC 程序源码\n"
+                "- PRD/: 项目需求文档\n"
+            ),
+        })
+        scanner = _make_scanner(tmp_path, project_dir)
+        reg = _make_registry(tmp_path)
+        results = DocIndexValidityChecker().check(reg, scanner)
+        shc014 = [r for r in results if r.check_id == "SHC-014"]
+        assert len(shc014) == 0
+
+    def test_placeholder_doc_paths_are_skipped_without_invalid_path_errors(
+        self, tmp_path: Path, project_dir: Path
+    ) -> None:
+        """负向：占位路径应跳过路径校验，但仍报告缺失的文档类型"""
+        design_dir = project_dir / "02_设计"
+        design_dir.mkdir()
+        (design_dir / "001_产品需求文档_PRD.md").write_text("# PRD", encoding="utf-8")
+        _write_pm_session(project_dir, {
+            "4": (
+                "- req: 02_设计/001_产品需求文档_PRD.md\n"
+                "- int: (待创建)\n"
+                "- dsn: 待补充\n"
+                "- tec: {PRD_DIR}/004_技术方案文档_TEC.md\n"
+            ),
+        })
+        scanner = _make_scanner(tmp_path, project_dir)
+        reg = _make_registry(tmp_path)
+        results = DocIndexValidityChecker().check(reg, scanner)
+        shc014 = [r for r in results if r.check_id == "SHC-014"]
+        assert len(shc014) == 1
+        assert "缺少必需文档索引" in shc014[0].message
+        assert "int" in shc014[0].message
+        assert "dsn" in shc014[0].message
+        assert "tec" in shc014[0].message
+        assert all("路径无效" not in r.message for r in shc014)
+
+    def test_template_pm_session_is_skipped(
+        self, tmp_path: Path, project_dir: Path
+    ) -> None:
+        """正向：模板 PM_SESSION 文件应跳过 SHC-014 检查"""
+        _write_pm_session(
+            project_dir,
+            {
+                "4": (
+                    "- req: 待补充\n"
+                    "- int: 待补充\n"
+                    "- dsn: 待补充\n"
+                    "- tec: 待补充\n"
+                ),
+            },
+            filename="PM_SESSION_TEMPLATE.md",
+        )
+        scanner = _make_scanner(tmp_path, project_dir)
+        reg = _make_registry(tmp_path)
+        results = DocIndexValidityChecker().check(reg, scanner)
+        shc014 = [r for r in results if r.check_id == "SHC-014"]
+        assert len(shc014) == 0
+
+    def test_prd_alias_is_accepted_as_req(
+        self, tmp_path: Path, project_dir: Path
+    ) -> None:
+        """正向：prd 条目应作为 req 的兼容别名处理"""
+        design_dir = project_dir / "02_设计"
+        design_dir.mkdir()
+        (design_dir / "001_产品需求文档_PRD.md").write_text("# PRD", encoding="utf-8")
+        (design_dir / "002_接口文档_INT.md").write_text("# INT", encoding="utf-8")
+        (design_dir / "003_详细设计说明书_DSN.md").write_text("# DSN", encoding="utf-8")
+        (design_dir / "004_技术方案文档_TEC.md").write_text("# TEC", encoding="utf-8")
+        _write_pm_session(project_dir, {
+            "4": (
+                "- prd: 02_设计/001_产品需求文档_PRD.md\n"
+                "- int: 02_设计/002_接口文档_INT.md\n"
+                "- dsn: 02_设计/003_详细设计说明书_DSN.md\n"
+                "- tec: 02_设计/004_技术方案文档_TEC.md\n"
+            ),
+        })
+        scanner = _make_scanner(tmp_path, project_dir)
+        reg = _make_registry(tmp_path)
+        results = DocIndexValidityChecker().check(reg, scanner)
+        shc014 = [r for r in results if r.check_id == "SHC-014"]
+        assert len(shc014) == 0
+
+    def test_component_pm_session_is_skipped(
+        self, tmp_path: Path, project_dir: Path
+    ) -> None:
+        """正向：FB 组件级 PM_SESSION 不应按项目四件套校验"""
+        _write_pm_session(project_dir, {
+            "4": (
+                "- req: PRD/需求分析文档_REQ.md\n"
+                "- tec: PRD/技术方案文档_TEC.md\n"
+            ),
+        }, filename="PM_SESSION_FB1012.md")
+        scanner = _make_scanner(tmp_path, project_dir)
+        reg = _make_registry(tmp_path)
+        results = DocIndexValidityChecker().check(reg, scanner)
+        shc014 = [r for r in results if r.check_id == "SHC-014"]
+        assert len(shc014) == 0

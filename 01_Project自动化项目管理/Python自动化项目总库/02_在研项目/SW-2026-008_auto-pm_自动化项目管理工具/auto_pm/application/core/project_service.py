@@ -26,7 +26,6 @@ from datetime import datetime
 from typing import Any, cast
 
 import yaml
-
 from auto_pm.core.constants import get_template_name
 from auto_pm.core.paths import PROJECT_INIT_PATH, WORKSPACE_PROJECTS_SUBDIR
 from auto_pm.core.project_scanner import ProjectScanner

@@ -1,13 +1,21 @@
 ---
 spec_id: LSP-905
 title: "SCL编程规范"
-version: "V1.1.0"
+version: "V1.2.1"
 domain: plc
 lifecycle: stable
 canonical_path: "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/905_SCL编程规范_LSP.md"
 replaces: [DEV-801, DEV-810]
 tags: ["SCL", "编程", "核心规范", "LSP", "DJ-2026-005实践"]
 changelog:
+  - version: V1.2.0
+    date: 2026-08-25
+    author: Codex
+    changes: 删除 METHOD 教程并改为禁用规则；统一与 plc-electrical-engineer / LSP-906 的白名单口径
+  - version: V1.2.1
+    date: 2026-08-26
+    author: Codex
+    changes: 补充 ARRAY 命名示例，明确数组变量统一使用 arr 类型标识
   - version: V1.1.0
     date: 2026-08-09
     author: Antigravity AI
@@ -16,9 +24,9 @@ changelog:
 
 # SCL 编程规范 (Siemens LSP 兼容版)
 
-> 版本：V1.1.0
+> 版本：V1.2.1
 > 状态：已验证
-> 更新日期：2026-08-09
+> 更新日期：2026-08-26
 > 适用环境：Siemens LSP (VS Code)、TIA Portal、CODESYS、GX Works
 
 ---
@@ -28,7 +36,7 @@ changelog:
 | 规则类别 | 核心要求 | 状态 |
 |----------|----------|------|
 | **语法白名单** | **除本规范明确列出的语法外，禁止使用任何其他SCL/IEC语法特性**（含GOTO、标签、REPEAT、指针等未列出项） | ❌ 禁止 |
-| METHOD支持 | **Siemens LSP插件不支持METHOD语法**，需改用普通代码块 | ⚠️ 限制 |
+| METHOD语法 | **Siemens LSP 与本工作空间白名单均禁用 `METHOD/METHODS/END_METHOD`**，需改用 FB 主体、FC 或独立 FB | ❌ 禁止 |
 | 变量命名 | 小驼峰命名，英文为主 | ✅ 强制 |
 | 注释格式 | 使用 `//` 或单层 `(* *)` | ✅ 强制 |
 | 标点符号 | 必须使用英文半角标点 | ✅ 强制 |
@@ -38,55 +46,44 @@ changelog:
 
 ---
 
-## 2. METHOD 定义与调用规范
+## 2. METHOD 禁用与替代模式
 
-### 2.1 METHOD 定义规则
+### 2.1 禁用规则
 
-**✅ 正确格式**
+- 禁止在项目代码中声明 `METHOD`、`METHODS`、`END_METHODS`、`END_METHOD`
+- 禁止保留旧模板中的 `CALL_XXX` 风格子程序残留
+- 需要拆分逻辑时，按以下优先级选择替代方式：
+  1. 仍属于单个 FB 的扫描逻辑：保留在 FB 主体内，用 `CASE/IF` + 区域注释分段
+  2. 可复用的纯计算逻辑：提取为 `FC_xxxx_*`
+  3. 带状态保持的独立子设备：提取为独立 `FB_xxxx_*`
+
+### 2.2 替代示例
+
+**❌ 禁止写法**
 ```scl
 METHOD AutoModeStateMachine : VOID
     // 方法实现...
 END_METHOD
-
-METHOD ManualModeControl : VOID
-    // 方法实现...
-END_METHOD
 ```
 
-**❌ 错误格式**
+**✅ 推荐写法 1：在 FB 主体内按区域分段**
 ```scl
-// 错误：METHOD名称不应使用 CALL_ 前缀
-METHOD CALL_AutoModeStateMachine : VOID
-    // 方法实现...
-END_METHOD
+CASE s_iStep OF
+    0:
+        // 初始化
+    10:
+        // 自动模式步序
+ELSE
+    s_iStep := 0;
+END_CASE;
 ```
 
-### 2.2 METHOD 调用规则
-
-**✅ 正确格式**
+**✅ 推荐写法 2：提取为独立 FC**
 ```scl
-// 直接调用方法，无需 CALL 关键字
-AutoModeStateMachine();
-ManualModeControl();
-```
-
-**❌ 错误格式**
-```scl
-// 错误：不需要 CALL_ 前缀
-CALL_AutoModeStateMachine();
-```
-
-### 2.3 METHOD 返回值处理
-
-```scl
-// 带返回值的方法定义
-METHOD CalculateSpeed : REAL
-    // 计算逻辑...
-    CalculateSpeed := 100.0;
-END_METHOD
-
-// 调用并接收返回值
-rCurrentSpeed := CalculateSpeed();
+s_rCurrentSpeed := FC_1001_CalculateSpeed(
+    i_rTargetSpeed := i_rTargetSpeed,
+    i_rActualSpeed := i_rActualSpeed
+);
 ```
 
 ---
@@ -122,7 +119,9 @@ rCurrentSpeed := CalculateSpeed();
 | `dw` | `DWORD` / `LWORD` | `s_dwStateMask` |
 | `st` | `ST_` UDT 结构体实例 | `io_stLayer`, `s_stAxisStatus` |
 | `e` | `ENUM` 枚举类型 | `s_eState`, `i_eMode` |
-| `arr` | `ARRAY` 数组类型 | `s_arrSensors`, `temp_arrData` |
+| `arr` | `ARRAY` 数组类型 | `s_arrSensors`, `temp_arrData`, `s_arrMesAlarmQueue` |
+
+> **数组命名补充说明**：即使数组元素类型为 `INT` / `BOOL` / `WORD`，变量名仍统一使用 `arr` 作为二级类型标识，再在语义名中体现元素含义；例如 `s_arrMesAlarmQueue : ARRAY[0..9] OF INT;`、`s_arrStationAlarmStatus : ARRAY[1..3] OF INT;`。禁止写成 `s_ai...`、`s_ab...` 之类未在本规范登记的组合缩写。
 
 ---
 
@@ -169,6 +168,7 @@ END_VAR
 VAR
     s_bInitialized : BOOL;          // 内部静态初始化标志
     s_iCurrentStep : INT;           // 状态机当前步序
+    s_arrMesAlarmQueue : ARRAY[0..9] OF INT; // 数组统一使用 arr 类型标识
     fb_tActionTimer : FB_TON;       // TON 定时器实例
 END_VAR
 
@@ -208,19 +208,26 @@ END_VAR
 VAR_TEMP
     // 临时变量声明（每次扫描复位）
 END_VAR
-METHODS
-    // 方法声明
-    METHOD MethodName : VOID;
-END_METHODS
 BEGIN
     // 主程序逻辑
-    MethodName();
+    CASE s_iStep OF
+        0:
+            // 初始化
+        10:
+            // 运行逻辑
+    ELSE
+        s_iStep := 0;
+    END_CASE;
 END_FUNCTION_BLOCK
 
-// METHOD 实现（在 FUNCTION_BLOCK 外部或内部）
-METHOD FB_Example.MethodName : VOID
-    // 方法逻辑
-END_METHOD
+// FUNCTION 结构
+FUNCTION FC_1001_CalculateValue : REAL
+VAR_INPUT
+    i_rInput : REAL;
+END_VAR
+BEGIN
+    FC_1001_CalculateValue := i_rInput * 1.5;
+END_FUNCTION
 ```
 
 ### 4.2 控制结构
@@ -337,7 +344,7 @@ fb_tActionTimer(IN := FALSE, PT := 500, Q => , ET => q_eElapsed);
 
 | 错误代码 | 错误信息 | 原因 | 解决方法 |
 |----------|----------|------|----------|
-| PS001 | `unexpected token "CALL_XXX" in Statement` | METHOD定义使用了CALL_前缀 | 移除CALL_前缀 |
+| PS001 | `unexpected token "METHOD"` | 使用了 LSP 不支持的 METHOD 语法 | 删除 METHOD，改为 FB 主体逻辑或独立 FC/FB |
 | PS002 | `missing Q parameter in TON call` | 定时器调用缺少Q参数 | 添加Q参数变量 |
 | LX003 | `unexpected token ，` | 使用了中文标点 | 替换为英文标点 |
 | TC100 | `cannot assign INT to TIME` | INT直接赋值给TIME | 使用DINT存储毫秒值 |
@@ -386,7 +393,7 @@ plccheck --verbose .
 |----------|----------|
 | 文件头部 | 必须有功能描述和版本信息 |
 | 变量声明 | 每个I/O变量必须有注释 |
-| 函数/METHOD | 必须有功能说明 |
+| FC/FB | 必须有功能说明 |
 | 关键逻辑 | IF/CASE分支必须有注释 |
 | 复杂计算 | 计算前后必须有注释 |
 
@@ -396,8 +403,7 @@ plccheck --verbose .
 
 | 检查项 | 说明 |
 |--------|------|
-| [ ] METHOD定义无CALL_前缀 | `METHOD Name : VOID` ✅ |
-| [ ] METHOD调用无CALL_前缀 | `Name()` ✅ |
+| [ ] 未使用 METHOD 语法 | 无 `METHOD/METHODS/END_METHODS/END_METHOD` |
 | [ ] 变量名符合命名规范 | 前缀正确，小驼峰 |
 | [ ] 无中文变量名 | 全部使用英文 |
 | [ ] 定时器调用完整 | IN、PT、Q、ET参数齐全 |
@@ -413,6 +419,8 @@ plccheck --verbose .
 
 | 版本 | 日期 | 作者 | 变更内容 |
 |------|------|------|----------|
+| V1.2.1 | 2026-08-26 | Codex | 补充 ARRAY 命名示例，明确数组变量统一使用 arr 类型标识 |
+| V1.2.0 | 2026-08-25 | Codex | 删除 METHOD 教程并改为禁用规则；统一与 plc-electrical-engineer / LSP-906 的白名单口径 |
 | V1.0.3 | 2026-06-21 | AI Assistant | 修正§4.3定时器示例: PT参数从TIME字面量(T#500ms)改为DINT类型(500), 与903/906对齐(C-01) |
 | V1.0.0 | 2026-05-04 | AI Assistant | 初始版本，基于DJ-2026-005项目验证 |
 | V1.0.2 | 2026-05-29 | AI Assistant | 新增§4.3跳转语句规范(禁止GOTO+标签)；新增§4语法白名单原则(除列出项外一律禁止)；修复FB_1020中GOTO重构为IF-ELSE |
@@ -425,4 +433,5 @@ plccheck --verbose .
 - [[904_SCL注释规范_LSP]]
 - [[906_错误预防规则_LSP]]
 - [[907_项目配置规范_LSP]]
+- [[908_Siemens_Language_Support_使用指南_TOOL]]
 - IEC 61131-3 编程规范

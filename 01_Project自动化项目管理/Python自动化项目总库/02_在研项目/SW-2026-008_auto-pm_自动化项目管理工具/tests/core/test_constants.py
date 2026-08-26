@@ -111,8 +111,10 @@ class TestPhaseOptions:
 
     def test_phase_options(self) -> None:
         """项目阶段选项列表"""
-        assert len(PHASE_OPTIONS) == 4
+        assert len(PHASE_OPTIONS) == 6
         codes = [opt[0] for opt in PHASE_OPTIONS]
+        assert "initiating" in codes
+        assert "planning" in codes
         assert "developing" in codes
         assert "commissioning" in codes
         assert "production" in codes
@@ -120,7 +122,7 @@ class TestPhaseOptions:
 
     def test_phase_codes(self) -> None:
         """项目阶段编码列表"""
-        assert PHASE_CODES == ["developing", "commissioning", "production", "archived"]
+        assert PHASE_CODES == ["initiating", "planning", "developing", "commissioning", "production", "archived"]
 
     def test_phase_labels(self) -> None:
         """项目阶段编码到标签的映射"""

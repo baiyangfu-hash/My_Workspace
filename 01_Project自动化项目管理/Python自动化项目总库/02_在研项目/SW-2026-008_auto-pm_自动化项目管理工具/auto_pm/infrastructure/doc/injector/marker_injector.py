@@ -1,13 +1,13 @@
 """Non-destructive marker-based Markdown injector."""
 import re
 from pathlib import Path
-from typing import Tuple
+
 
 class MarkdownMarkerInjector:
     """Injects dynamic content between <!-- AUTO_DOC_START: <TAG> --> and <!-- AUTO_DOC_END: <TAG> -->."""
 
     @staticmethod
-    def inject(file_path: Path, tag: str, new_content: str) -> Tuple[bool, str]:
+    def inject(file_path: Path, tag: str, new_content: str) -> tuple[bool, str]:
         if not file_path.exists():
             return False, f"Target file not found: {file_path}"
 

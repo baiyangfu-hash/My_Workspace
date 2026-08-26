@@ -53,7 +53,7 @@ tags: ["技术方案", "PLC程序"]
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  OB1 主程序组织块 (调度中心, 不含业务逻辑)                     │
-│  ├── Step 1: FB_ExternalDeviceInteraction (安全/外设)        │
+│  ├── Step 1: FB_3001_ExternalInteraction (DJ005实现名: FB_ExternalDeviceInteraction) │
 │  ├── Step 2: FB_1002 ×4 (输送机 L1~L4, FOR循环)             │
 │  │   └── 汇总: q_bRunning(OR) / q_bFault(OR) / q_iAlarm(MIN)│
 │  ├── Step 3: FB_1003 (取放料, VAR_IN_OUT直连伺服轴)          │

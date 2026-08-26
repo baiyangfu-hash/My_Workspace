@@ -11,7 +11,6 @@ import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 
 @dataclass
@@ -260,11 +259,11 @@ class PlcIngestService:
         """生成标准 io_points.csv"""
         out_path.parent.mkdir(parents=True, exist_ok=True)
         io_vars = [v for v in variables if v.domain_category == "IO" or v.address.startswith("X") or v.address.startswith("Y")]
-        
+
         with open(out_path, "w", encoding="utf-8", newline="") as fp:
             writer = csv.writer(fp)
             writer.writerow(["station", "signal_type", "address", "tag", "signal_name", "device", "comment"])
-            
+
             for v in io_vars:
                 sig_type = "DI" if v.address.startswith("X") else ("DO" if v.address.startswith("Y") else "INTERNAL")
                 writer.writerow([

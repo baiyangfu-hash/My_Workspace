@@ -1,13 +1,23 @@
 {
-  "generated_at": "2026-08-22T00:37:16.355896+00:00",
+  "generated_at": "2026-08-25T23:34:27.586581+00:00",
   "source": "auto-pm CLI",
   "workspace_root": "C:\\Users\\fubai\\Documents\\My_Workspace",
+  "request_id": "CLI-53CDA30F13CD",
+  "entry_mode": "direct",
+  "intent": "plc_review",
+  "target_skill": "plc-electrical-engineer",
   "active_project": {
     "id": "DJ-2026-009",
-    "name": "长边框堆垛机",
+    "name": "汇川换型改造",
     "stack": "plc",
-    "phase": ""
+    "phase": "developing"
   },
   "active_change": null,
-  "active_page": "workspace"
+  "active_page": "workspace",
+  "product_context": {
+    "goal_ref": "PM_SESSION_DJ-2026-009.md#product-goal",
+    "hypothesis_ref": "PM_SESSION_DJ-2026-009.md#hypothesis-ledger",
+    "success_metric_ref": "",
+    "active_hypothesis": {}
+  }
 }

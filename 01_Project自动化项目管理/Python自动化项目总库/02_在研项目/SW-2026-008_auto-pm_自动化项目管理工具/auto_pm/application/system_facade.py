@@ -18,7 +18,6 @@ import logging
 from pathlib import Path
 
 import yaml
-
 from auto_pm.core.protocols import (
     PmSessionServiceProtocol,
     ProjectServiceProtocol,

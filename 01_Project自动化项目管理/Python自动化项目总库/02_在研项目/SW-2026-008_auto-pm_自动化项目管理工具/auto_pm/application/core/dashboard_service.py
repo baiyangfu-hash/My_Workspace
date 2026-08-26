@@ -26,7 +26,6 @@ import os
 from datetime import datetime
 from typing import Any
 
-from auto_pm.core.paths import PG_INITIATING_DIR
 from auto_pm.models import DashboardSummaryDTO
 
 log = logging.getLogger(__name__)

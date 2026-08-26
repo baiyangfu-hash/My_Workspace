@@ -1,4 +1,4 @@
-﻿# 接口文档 - GlobalVars.db (全局变量数据块 V7.1.0)
+# 接口文档 - GlobalVars.db (全局变量数据块 V7.1.0)
 
 ## 文档信息
 | 项目 | 内容 |
@@ -25,7 +25,7 @@
 
 ```
 DATA_BLOCK GlobalVars
-├── stExternal  : STRUCT (22变量)    ← FB_ExternalDeviceInteraction V6.0.0
+├── stExternal  : STRUCT (22变量)    ← FB_3001_ExternalInteraction（DJ005实现名：FB_ExternalDeviceInteraction）V6.0.0
 │   ├── 安全信号输入(4): EStop/SafetyDoor[8]/HmiStop/BusHealthy
 │   ├── 组框机(4输入): AutoRunning/AllowFeed/Fault/EStop
 │   ├── 打胶机(3输入): AutoRunning/Fault/EStop
@@ -84,7 +84,7 @@ DATA_BLOCK GlobalVars
 │   └── 输出(10): CurrentAlarmCode/GlobalAlarmWord/AlarmCount/MesQueue[10]/NewAlarmPulse/Lights/Buzzer
 │
 └── FB实例(7)
-    ├── fbExternalDevice  : FB_ExternalDeviceInteraction
+    ├── fbExternalDevice  : FB_3001_ExternalInteraction（DJ005实现类型名：FB_ExternalDeviceInteraction）
     ├── fbConveyor_L1     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
     ├── fbConveyor_L2     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
     ├── fbConveyor_L3     : FB_1002_SingleLayerConveyor_BufferFraming  🆕 V7.0.0
@@ -99,7 +99,7 @@ END_DATA_BLOCK
 
 ## 详细接口定义
 
-### 第一部分: stExternal结构 (22变量) - FB_ExternalDeviceInteraction V6.0.0
+### 第一部分: stExternal结构 (22变量) - FB_3001_ExternalInteraction V6.0.0（DJ005实现名：FB_ExternalDeviceInteraction）
 
 #### 安全信号输入 (4个)
 | 变量名 | 类型 | 初始值 | 说明 | 物理地址 |

@@ -204,10 +204,13 @@ def _scan_change_dir(base_dir: str, results: list[str], depth: int = 0, max_dept
 
 
 # 台帐搜索路径（按优先级排列）
-# CHG-SCPT-2026-146: 5大过程组统一路径，破坏性切换后单路径
+# CHG-SCPT-2026-146: 5大过程组统一路径，并兼容 11_监控 及历史目录
 _LEDGER_SEARCH_PATHS = [
     # 5大过程组统一路径：04_监控/01_变更管理/02_变更记录/
     os.path.join(*CHANGE_RECORDS_PATH),
+    os.path.join("11_监控", "01_变更管理", "02_变更记录"),
+    os.path.join("00_项目管理", "01_变更管理", "02_变更记录"),
+    os.path.join("11_监控", "02_变更记录"),
 ]
 
 # 台帐文件名匹配模式

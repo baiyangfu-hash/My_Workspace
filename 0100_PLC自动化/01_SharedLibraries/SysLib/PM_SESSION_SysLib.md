@@ -53,20 +53,20 @@
 - prd:
   - communication/PRD/接口文档_IFC-FB1020-EquipmentHandshake-V2.0.0.md
   - actuator/FB_1013_NinetyDegreeTransfer/PRD/接口文档_IFC-FB1013-NinetyDegreeTransfer-V9.0.0.md
-  - actuator/FB_1011_CylinderControl/PRD/接口文档_IFC-FB1011-CylinderControl-V9.0.0.md
-  - actuator/FB_1011_CylinderControl/PRD/需求分析文档_REQ-FB1011-CylinderControl-V9.0.0.md
-  - actuator/FB_1011_CylinderControl/PRD/技术方案文档_TECH-FB1011-CylinderControl-V9.0.0.md
+  - actuator/FB_1011_CylinderControl/PRD/接口文档_INT.md
+  - actuator/FB_1011_CylinderControl/PRD/需求分析文档_REQ.md
+  - actuator/FB_1011_CylinderControl/PRD/技术方案文档_TEC.md
   - actuator/FB_1012_ConveyorMotor/PRD/接口文档_IFC-FB1012-ConveyorMotor-V9.0.0.md
-  - actuator/FB_1014_StationConveyor/PRD/接口文档_IFC-FB1014-StationConveyor-V4.3.0.md
-  - actuator/FB_1014_StationConveyor/PRD/需求文档_PRD-FB1014-StationConveyor-V4.2.0.md (旧版)
-  - actuator/FB_1014_StationConveyor/PRD/需求文档_PRD-FB1014-StationConveyor-V4.3.0.md
-  - actuator/FB_1014_StationConveyor/PRD/工艺流程_PFL-FB1014-StationConveyor-V4.3.0.md
+  - actuator/FB_1014_StationConveyor/PRD/接口文档_IFC-FB1014-StationConveyor-V6.0.0.md
+  - actuator/FB_1014_StationConveyor/PRD/需求文档_PRD-FB1014-StationConveyor-V6.0.0.md
+  - actuator/FB_1014_StationConveyor/PRD/需求分析文档_REQ.md
+  - actuator/FB_1014_StationConveyor/PRD/工艺流程_PFL-FB1014-StationConveyor-V6.0.0.md
 - des:
   - communication/PRD/详细设计说明书_DSN-FB1020-EquipmentHandshake-V2.0.0.md
   - actuator/FB_1013_NinetyDegreeTransfer/PRD/详细设计说明书_DSN-FB1013-NinetyDegreeTransfer-V9.0.0.md
-  - actuator/FB_1011_CylinderControl/PRD/详细设计说明书_DSN-FB1011-CylinderControl-V9.0.0.md
+  - actuator/FB_1011_CylinderControl/PRD/详细设计说明书_DSN.md
   - actuator/FB_1012_ConveyorMotor/PRD/详细设计说明书_DSN-FB1012-ConveyorMotor-V9.0.0.md
-  - actuator/FB_1014_StationConveyor/PRD/详细设计说明书_DSN-FB1014-StationConveyor-V4.3.0.md
+  - actuator/FB_1014_StationConveyor/PRD/详细设计说明书_DSN-FB1014-StationConveyor-V6.0.0.md
 - src:
   - communication/FB_1020_EquipmentHandshake.scl (V2.0.0)
   - actuator/FB_1013_NinetyDegreeTransfer/FB_1013_NinetyDegreeTransfer.scl (V9.0.0)
@@ -77,8 +77,8 @@
   - types/ST_HandshakeBits.scl (V1.1.0)
   - types/ST_HandshakeCh.scl (V2.0.0)
   - types/ST_ProductData.scl (V2.0.0)
-  - types/ST_Cylinder.scl (V1.2.0)
-  - types/ST_ConveyorMotor.scl (V1.1.0)
+  - actuator/FB_1011_CylinderControl/ST_Cylinder.scl (V1.2.0)
+  - actuator/FB_1012_ConveyorMotor/ST_ConveyorMotor.scl (V1.1.0)
   - types/ST_ExternalDevice.scl (V1.0.0)
   - types/ST_StationSafety.scl (V1.0.0)
   - types/ST_InfeedSensors.scl (V1.0.0)
@@ -149,14 +149,14 @@
 
 ## 8. Handoff Notes
 - 2026-06-16 | from=pm-workflow/plc-electrical-engineer
-  - current_state: FB_1011已具备PM_SESSION能力，ST_Cylinder已通用化并移至FB目录，SysLib PM_SESSION已同步更新
-  - next_focus: FB_1014同步更新ST_Cylinder引用路径，验证通用化场景
-  - watchouts: 通用化场景需现场验证，多电磁阀类型预留
+  - current_state: FB_1011已具备PM_SESSION能力，ST_Cylinder已通用化并移至FB目录，SysLib PM_SESSION已同步更新 [已验证]
+  - next_focus: FB_1014同步更新ST_Cylinder引用路径，验证通用化场景 [待验证]
+  - watchouts: 通用化场景需现场验证，多电磁阀类型预留 [待验证]
   - read_first: PM_SESSION_FB1011.md, PM_SESSION_SysLib.md, ST_Cylinder.scl, FB_1011_CylinderControl.scl
 - 2026-05-15 | from=plc-electrical-engineer
-  - current_state: SysLib基础FB集合完成，含timer/edge/counter/pulse/convert/log/types/actuator
-  - next_focus: FB_1014_StationConveyor完善，communication模块扩展
-  - watchouts: FB_1014仍在开发; types/目录需与905规范对齐
+  - current_state: SysLib基础FB集合完成，含timer/edge/counter/pulse/convert/log/types/actuator [已验证]
+  - next_focus: FB_1014_StationConveyor完善，communication模块扩展 [待验证]
+  - watchouts: FB_1014仍在开发; types/目录需与905规范对齐 [待验证]
   - read_first: PM_SESSION_SysLib.md, README.md
 
 ## 9. Next Actions

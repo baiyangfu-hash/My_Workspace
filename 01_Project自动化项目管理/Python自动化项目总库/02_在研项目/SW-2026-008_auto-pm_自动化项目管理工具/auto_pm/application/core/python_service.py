@@ -14,12 +14,11 @@ from __future__ import annotations
 
 import logging
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import Any
 
 import yaml
-
 from auto_pm.core.paths import PG_INITIATING_DIR, PYTHON_REQUIRED_DIRS
 
 log = logging.getLogger(__name__)

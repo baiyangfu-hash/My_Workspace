@@ -1,3 +1,14 @@
+(* ================================================================= *)
+(*  类型名称：ST_PickPlace                                            *)
+(*  功能描述：取放料搬运机构交互数据结构体                             *)
+(*  创建日期：2026-07-26                                              *)
+(*  版本号：V14.0.0 (支持小车4槽位光电/接料安全位互锁/10组配方)       *)
+(*                                                                     *)
+(*  遵循规范：                                                         *)
+(*    - LSP-905 SCL编程规范                                           *)
+(*    - STD-840 设备对象化与接口规范                                  *)
+(* ================================================================= *)
+
 TYPE ST_PickPlace :
 STRUCT
     // === 系统控制输入 ===
@@ -22,9 +33,9 @@ STRUCT
     i_bLx_Lift_Up               : BOOL := FALSE;   // 手动: 升降上升 (别名)
     i_bLx_Lift_Down             : BOOL := FALSE;   // 手动: 升降下降 (别名)
 
-    // === 工艺参数 ===
-    i_iPickLayer                : INT := 0;        // 取料层号(1~4)
-    i_iPickLayer_Input          : INT := 0;        // 外部指定的当前取料层号(1~4)
+    // === 工艺参数与配方接口 ===
+    i_iPickLayer                : INT := 0;        // 强制指定的取料层号 (0=自动根据小车槽位调度)
+    i_iPickLayer_Input          : INT := 0;        // 取料层号别名
     i_rZSpeed                   : REAL := 100.0;   // Z轴速度(mm/s)
     i_rX1Speed                  : REAL := 150.0;   // X1轴速度(mm/s)
     i_rZAxisSpeed               : REAL := 100.0;   // Z轴速度别名
@@ -32,30 +43,40 @@ STRUCT
     i_iClampConfirmTime         : INT := 500;      // 夹紧确认时间(ms)
     i_iLiftActionTime           : INT := 3000;     // 升降动作超时(ms)
 
-    // === 上游放料完成信号 ===
-    i_bLayerFeedDone            : ARRAY[1..4] OF BOOL; // L1~L4各层放料完成
+    // === 四层输送机交互信号 ===
+    i_bLayerRequestPickup       : ARRAY[1..4] OF BOOL; // 1~4层请求取料 (来自 FB_1002)
+    i_bLayerFeedDone            : ARRAY[1..4] OF BOOL; // 兼容旧别名
+    o_bLayerPickupDone          : ARRAY[1..4] OF BOOL; // 发送给 1~4 层的取料完成信号
 
-    // === 传感器输入 ===
-    i_bLongEdge1Detect          : BOOL := FALSE;   // 长边1光电
-    i_bLongEdge2Detect          : BOOL := FALSE;   // 长边2光电
-    i_bShortEdge1Detect         : BOOL := FALSE;   // 短边1光电
-    i_bShortEdge2Detect         : BOOL := FALSE;   // 短边2光电
-    i_bFrontClamp_Closed        : BOOL := FALSE;   // 前夹爪夹紧位
-    i_bFrontClamp_Opened        : BOOL := FALSE;   // 前夹爪松开位
-    i_bRearClamp_Closed         : BOOL := FALSE;   // 后夹爪夹紧位
-    i_bRearClamp_Opened         : BOOL := FALSE;   // 后夹爪松开位
-    i_bFrontClamp2_Closed       : BOOL := FALSE;   // 前夹爪2夹紧位
-    i_bFrontClamp2_Opened       : BOOL := FALSE;   // 前夹爪2松开位
-    i_bRearClamp2_Closed        : BOOL := FALSE;   // 后夹爪2夹紧位
-    i_bRearClamp2_Opened        : BOOL := FALSE;   // 后夹爪2松开位
-    i_bLift_HomePos             : BOOL := FALSE;   // 升降气缸上升位
-    i_bLift_WorkPoint           : BOOL := FALSE;   // 升降气缸下降位
-    i_bFrameDetect1             : BOOL := FALSE;   // 边框检测1
-    i_bFrameDetect2             : BOOL := FALSE;   // 边框检测2
+    // === 打胶送料小车 (X2台车) 状态与 4 槽位光电输入 ===
+    i_bCartAtPickPos            : BOOL := FALSE;   // 小车在接料位 (X2轴到位 D512)
+    i_bCartPermitPlace          : BOOL := FALSE;   // 小车允许放料 (处于接料安全状态)
+    i_bCartSlotLong1_HasMat     : BOOL := FALSE;   // 小车槽位1(长边1) 有料光电检测
+    i_bCartSlotLong2_HasMat     : BOOL := FALSE;   // 小车槽位2(长边2) 有料光电检测
+    i_bCartSlotShort1_HasMat    : BOOL := FALSE;   // 小车槽位3(短边1) 有料光电检测
+    i_bCartSlotShort2_HasMat    : BOOL := FALSE;   // 小车槽位4(短边2) 有料光电检测
+
+    // === 机械手物理传感器输入 ===
+    i_bLongEdge1Detect          : BOOL := FALSE;   // 长边1工件检测光电
+    i_bLongEdge2Detect          : BOOL := FALSE;   // 长边2工件检测光电
+    i_bShortEdge1Detect         : BOOL := FALSE;   // 短边1工件检测光电
+    i_bShortEdge2Detect         : BOOL := FALSE;   // 短边2工件检测光电
+    i_bFrontClamp_Closed        : BOOL := FALSE;   // 前夹爪1夹紧到位
+    i_bFrontClamp_Opened        : BOOL := FALSE;   // 前夹爪1松开到位
+    i_bRearClamp_Closed         : BOOL := FALSE;   // 后夹爪1夹紧到位
+    i_bRearClamp_Opened         : BOOL := FALSE;   // 后夹爪1松开到位
+    i_bFrontClamp2_Closed       : BOOL := FALSE;   // 前夹爪2夹紧到位
+    i_bFrontClamp2_Opened       : BOOL := FALSE;   // 前夹爪2松开到位
+    i_bRearClamp2_Closed        : BOOL := FALSE;   // 后夹爪2夹紧到位
+    i_bRearClamp2_Opened        : BOOL := FALSE;   // 后夹爪2松开到位
+    i_bLift_HomePos             : BOOL := FALSE;   // 升降气缸原位
+    i_bLift_WorkPoint           : BOOL := FALSE;   // 升降气缸动位
+    i_bFrameDetect1             : BOOL := FALSE;   // 边框到位检测1
+    i_bFrameDetect2             : BOOL := FALSE;   // 边框到位检测2
     i_bFullMaterialDetect1      : BOOL := FALSE;   // 满料检测1
     i_bFullMaterialDetect2      : BOOL := FALSE;   // 满料检测2
 
-    // === 执行器与信号输出 ===
+    // === 执行器与状态输出 ===
     o_bFrontClamp_Action        : BOOL := FALSE;   // 前夹爪夹紧动作
     o_bFrontClamp_Release       : BOOL := FALSE;   // 前夹爪松开动作
     o_bRearClamp_Action         : BOOL := FALSE;   // 后夹爪夹紧动作
@@ -66,15 +87,19 @@ STRUCT
     o_bRearClamp2_Release       : BOOL := FALSE;   // 后夹爪2松开动作
     o_bLift_Up                  : BOOL := FALSE;   // 升降上升
     o_bLift_Down                : BOOL := FALSE;   // 升降下降
-    o_bLiftUp                   : BOOL := FALSE;   // 升降上升 (别名)
-    o_bLiftDown                 : BOOL := FALSE;   // 升降下降 (别名)
-    o_bPlaceComplete_ToFeeder   : BOOL := FALSE;   // 放料完成通知下游
-    o_bRunning                  : BOOL := FALSE;   // 运行中
-    o_bFault                    : BOOL := FALSE;   // 本站故障
+    o_bLiftUp                   : BOOL := FALSE;   // 别名
+    o_bLiftDown                 : BOOL := FALSE;   // 别名
+    
+    // === 对外联锁与通知输出 ===
+    o_bPickPlaceInSafetyZone    : BOOL := FALSE;   // 取放料机构在安全区 (互锁给输送机/打胶小车)
+    o_bPlaceComplete_ToFeeder   : BOOL := FALSE;   // 单次放料完成脉冲
+    o_bAllSlotsFull_ToCart      : BOOL := FALSE;   // 小车 4 根边框全部集齐 (M30, 允许发车)
+    o_bRunning                  : BOOL := FALSE;   // 自动运行中
+    o_bFault                    : BOOL := FALSE;   // 机构故障
     o_bX1Fault                  : BOOL := FALSE;   // X1轴故障
     o_bZFault                   : BOOL := FALSE;   // Z轴故障
-    o_iCurrentState             : INT := 0;        // 当前状态机步骤
-    o_iCurrentPickLayer         : INT := 0;        // 当前取料层号
-    o_iStationAlarmCode         : INT := 0;        // 本站报警代码
-END_STRUCT;
+    o_iCurrentState             : INT := 0;        // 当前状态机步序
+    o_iCurrentPickLayer         : INT := 0;        // 当前正在处理的层号 (1..4)
+    o_iStationAlarmCode         : INT := 0;        // 报警码
+END_STRUCT
 END_TYPE

@@ -1,4 +1,4 @@
-"""工艺矩阵离线 SCL 生成器单元测试 (LSP-905 规范)"""
+"""工艺矩阵离线 SCL 生成器单元测试 (LSP-905 规范 / 结构体整块传递)"""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ def test_scl_generator_renders_valid_code(tmp_path: Path) -> None:
                 step_id=10,
                 name="StartTransport",
                 trigger="i_bStart",
-                actions=["o_bRunning := TRUE"],
+                actions=["io_stStation.stActuators.bMotorFwd := TRUE"],
                 interlock="i_bSafetyOk",
                 next_step=20,
             ),
@@ -52,7 +52,7 @@ def test_scl_generator_renders_valid_code(tmp_path: Path) -> None:
                 step_id=20,
                 name="StopTransport",
                 trigger="i_bSensorPos",
-                actions=["o_bRunning := FALSE", "o_bDone := TRUE"],
+                actions=["io_stStation.stActuators.bMotorFwd := FALSE", "s_bDone := TRUE"],
                 next_step=0,
             ),
         ],
@@ -65,9 +65,36 @@ def test_scl_generator_renders_valid_code(tmp_path: Path) -> None:
     assert out_file.exists()
     content = out_file.read_text(encoding="utf-8")
 
-    # 验证规范特征
+    # 验证结构体整块传递与规范特征
     assert 'FUNCTION_BLOCK "FB_1002_SingleLayerConveyor_DJ2026_005"' in content
-    assert "i_bEnable : BOOL;" in content
-    assert "o_bRunning := TRUE;" in content
-    assert "CASE s_iCurrentStep OF" in content
-    assert "ELSE // 安全自愈拦截" in content
+    assert "io_stStation : ST_DJ2026_005;" in content
+    assert "io_stStation.stActuators.bMotorFwd := TRUE;" in content
+    assert "CASE s_iStep OF" in content
+    assert "ELSE // 安全防死锁分支" in content
+    assert "io_stStation.stStatus.iStep       := s_iStep;" in content
+
+
+def test_scl_generator_generates_module_with_udt(tmp_path: Path) -> None:
+    matrix = ProcessMatrix(
+        fb_number="FB_1001",
+        fb_name="Station1",
+        station_name="Station1",
+        steps=[
+            ProcessMatrixStep(
+                step_id=10,
+                name="FeedIn",
+                trigger="t_bInPos",
+                actions=["io_stStation.stActuators.bMotorFwd := TRUE"],
+                interlock="",
+                next_step=20,
+            ),
+        ],
+    )
+
+    gen = SclGenerator()
+    fb_file, udt_file = gen.generate_module(matrix, tmp_path / "02_工位1")
+
+    assert fb_file.exists()
+    assert udt_file.exists()
+    assert "TYPE ST_Station1 :" in udt_file.read_text(encoding="utf-8")
+    assert "ST_Station1_Control" in udt_file.read_text(encoding="utf-8")

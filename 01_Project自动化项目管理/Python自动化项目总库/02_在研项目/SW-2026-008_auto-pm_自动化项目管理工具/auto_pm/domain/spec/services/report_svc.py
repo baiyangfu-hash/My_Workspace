@@ -66,7 +66,15 @@ class ReportService:
 
     def _generate_markdown_report(self, raw: dict[str, Any]) -> str:
         now = datetime.now().strftime("%Y-%m-%d")
-        specs = raw.get("specs", {})
+        raw_specs = raw.get("specs", {})
+        if isinstance(raw_specs, dict):
+            specs = {
+                sid: sinfo
+                for sid, sinfo in raw_specs.items()
+                if isinstance(sid, str) and isinstance(sinfo, dict)
+            }
+        else:
+            specs = {}
         domains = raw.get("domains", {})
         lines: list[str] = []
 

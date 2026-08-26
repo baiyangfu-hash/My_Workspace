@@ -1,77 +1,77 @@
-// WorkspaceView.qml - V0.6.0 W2-S2 项目工作区（5 Tab）
+// WorkspaceView.qml — V1.0.0 项目工作区协调壳
 //
-// 项目工作区主页面，使用 TabBar 组件实现 5 个 Tab
-// - 概览 Tab：项目元信息卡片网格
-// - 变更 Tab：项目变更单 ListView + 状态徽章
-// - 检查 Tab：specmgr 报告渲染
-// - 文档 Tab：文档树 + Markdown 渲染（占位）
-// - 变量表 Tab：变量表编辑器（占位，W3 实现）
+// 职责：状态持有 + Tab 路由 + Bridge 调用编排
+// 不含任何 Tab 内容渲染，全部委托给 workspace/ 子组件：
+//   workspace/WsOverviewTab.qml  — 概览
+//   workspace/WsChangeTab.qml   — 变更驾驶舱
+//   workspace/WsCheckTab.qml    — 规范检查
+//   workspace/WsDocTab.qml      — 文档浏览
+//   workspace/WsVarTableTab.qml — 变量表
 //
-// 数据流：workbenchBridge.projectSelected 信号 → setProject(projectId, projectName) → 加载各 Tab 数据
+// 对外接口（main.qml 依赖，不可变）：
+//   id: workspaceView
+//   function setProject(projectId, projectName)
+//   function switchTab(index)
+//   property int currentTabIndex (只读)
 
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../theme"
 import "../components"
+import "workspace"
 
 Rectangle {
     id: root
     color: Theme.background
 
-    // ── 公开属性 ────────────────────────────────────────
+    // ── 对外接口属性 ─────────────────────────────────────
+    readonly property int currentTabIndex: tabBar.currentTabIndex
+
+    // ── 内部状态属性 ─────────────────────────────────────
     property string currentProjectId: ""
     property string currentProjectName: ""
-    property var currentProjectDetail: ({})  // workbenchBridge.getProjectById 返回的 dict
-    property var changesList: []              // 当前项目的变更列表
-    property var selectedChangeDetail: ({})   // 选中的变更详情（CHG-123：驾驶舱模式）
-    property var specCheckResult: ({})        // 规范检查结果
-    property var assetSummary: ({})           // 资产汇总（仅 PLC 项目）
-    // ── 加载状态 ────────────────────────────────────────
+    property var currentProjectDetail: ({})
+    property var changesList: []
+    property var selectedChangeDetail: ({})
+    property var specCheckResult: ({})
+    property var assetSummary: ({})
+
     property bool checkingSpec: false
     property bool repairingSpec: false
     property bool refreshingAssets: false
 
-    // ── 变更Tab辅助属性（CHG-123：驾驶舱模式）─────────────────
-    property var _changeSummary: ({})         // 变更聚合摘要（后端预计算）
-    property string searchKeyword: ""         // 搜索关键字
-    property string selectedStatusFilter: "ALL" // 状态过滤
-    property string selectedDomainFilter: "ALL" // 领域过滤
+    // 变更 Tab 辅助属性
+    property var    _changeSummary: ({})
+    property string searchKeyword: ""
+    property string selectedStatusFilter: "ALL"
+    property string selectedDomainFilter: "ALL"
 
-    // 过滤后的变更单列表模型
+    // 过滤后的变更列表（computed）
     readonly property var filteredChangesList: {
         var list = root.changesList || []
         return list.filter(function(item) {
-            // 1. 过滤搜索关键字
             var kw = root.searchKeyword.trim().toLowerCase()
             if (kw !== "") {
-                var chgNum = (item.change_number || "").toLowerCase()
-                var title = (item.title || "").toLowerCase()
-                if (chgNum.indexOf(kw) === -1 && title.indexOf(kw) === -1) {
-                    return false
-                }
+                var n = (item.change_number || "").toLowerCase()
+                var t = (item.title || "").toLowerCase()
+                if (n.indexOf(kw) === -1 && t.indexOf(kw) === -1) return false
             }
-            // 2. 过滤技术领域
             if (root.selectedDomainFilter !== "ALL") {
-                if ((item.domain || "").toUpperCase() !== root.selectedDomainFilter) {
-                    return false
-                }
+                if ((item.domain || "").toUpperCase() !== root.selectedDomainFilter) return false
             }
-            // 3. 过滤状态
             if (root.selectedStatusFilter !== "ALL") {
-                if ((item.status || "").toLowerCase() !== root.selectedStatusFilter.toLowerCase()) {
-                    return false
-                }
+                if ((item.status || "").toLowerCase() !== root.selectedStatusFilter.toLowerCase()) return false
             }
             return true
         })
     }
 
-    onSearchKeywordChanged: autoSelectFirstChange()
-    onSelectedStatusFilterChanged: autoSelectFirstChange()
-    onSelectedDomainFilterChanged: autoSelectFirstChange()
+    onSearchKeywordChanged: _autoSelectFirstChange()
+    onSelectedStatusFilterChanged: _autoSelectFirstChange()
+    onSelectedDomainFilterChanged: _autoSelectFirstChange()
 
-    function autoSelectFirstChange() {
+    function _autoSelectFirstChange() {
         if (root.filteredChangesList && root.filteredChangesList.length > 0) {
             if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
                 root.selectedChangeDetail = changeBridge.getChangeRequest(root.filteredChangesList[0].change_number, root.currentProjectId) || {}
@@ -81,7 +81,7 @@ Rectangle {
         }
     }
 
-    // 基于选中的变更单动态计算状态机，确保流转状态和当前选中变更单绝对一致
+    // 变更状态机（computed from selectedChangeDetail）
     readonly property var _currentChangeStateMachine: {
         var status = "draft"
         if (root.selectedChangeDetail && root.selectedChangeDetail.status) {
@@ -93,152 +93,49 @@ Rectangle {
     }
 
     readonly property string _currentChangeNumber: {
-        if (root.selectedChangeDetail && root.selectedChangeDetail.change_number) {
+        if (root.selectedChangeDetail && root.selectedChangeDetail.change_number)
             return root.selectedChangeDetail.change_number
-        } else if (root.filteredChangesList && root.filteredChangesList.length > 0) {
+        if (root.filteredChangesList && root.filteredChangesList.length > 0)
             return root.filteredChangesList[0].change_number
-        }
         return ""
     }
 
     function _computeStateMachineForStatus(status) {
-        var statusOrder = [
-            "draft", "submitted", "under_review", "approved", "implementing",
-            "pending_acceptance", "accepting", "completed", "closed"
-        ]
-        var statusNames = {
-            "draft": "草稿",
-            "submitted": "已提交",
-            "under_review": "审核中",
-            "approved": "已批准",
-            "implementing": "实施中",
-            "pending_acceptance": "待验收",
-            "accepting": "验收中",
-            "completed": "已完成",
-            "closed": "已关闭"
-        }
+        var statusOrder = ["draft","submitted","under_review","approved","implementing","pending_acceptance","accepting","completed","closed"]
+        var statusNames = { "draft":"草稿","submitted":"已提交","under_review":"审核中","approved":"已批准","implementing":"实施中","pending_acceptance":"待验收","accepting":"验收中","completed":"已完成","closed":"已关闭" }
         var latestStatus = status || "draft"
         var latestIdx = statusOrder.indexOf(latestStatus)
         if (latestIdx === -1) latestIdx = 0
-
         var nodes = []
         for (var i = 0; i < statusOrder.length; i++) {
-            var nodeStatus = statusOrder[i]
-            var nodeState = "pending"
-            if (i < latestIdx) {
-                nodeState = "done"
-            } else if (i === latestIdx) {
-                nodeState = "active"
-            }
-            nodes.push({
-                "name": statusNames[nodeStatus],
-                "status": nodeState,
-                "active": nodeStatus === latestStatus,
-                "completed": i <= latestIdx
-            })
+            var ns = statusOrder[i]
+            nodes.push({ "name": statusNames[ns], "status": i < latestIdx ? "done" : (i === latestIdx ? "active" : "pending"), "active": ns === latestStatus, "completed": i <= latestIdx })
         }
-
-        var progress = 0
-        if (statusOrder.length > 1) {
-            progress = (latestIdx / (statusOrder.length - 1)) * 100
-        }
-
-        return {
-            "current_node": latestIdx + 1,
-            "current_node_name": statusNames[latestStatus] || latestStatus,
-            "progress": progress,
-            "nodes": nodes
-        }
+        var progress = statusOrder.length > 1 ? (latestIdx / (statusOrder.length - 1)) * 100 : 0
+        return { "current_node": latestIdx + 1, "current_node_name": statusNames[latestStatus] || latestStatus, "progress": progress, "nodes": nodes }
     }
 
-    // ── 信号 ────────────────────────────────────────────
+    // ── 信号 ─────────────────────────────────────────────
     signal backToProjectList()
     signal requestEditProject()
     signal requestDeleteProject()
     signal requestApplyTemplate()
     signal requestInitializePm()
 
-    // ── 加载项目数据 ────────────────────────────────────
+    // ── 公开方法 ─────────────────────────────────────────
     function setProject(projectId, projectName) {
         root.currentProjectId = projectId
         root.currentProjectName = projectName
         console.log("[QML] WorkspaceView: 加载项目 " + projectId + " - " + projectName)
-
-        // 加载项目详情
         if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
             root.currentProjectDetail = workbenchBridge.getProjectById(projectId)
-            console.log("[QML] WorkspaceView: 项目详情 " + (Object.keys(root.currentProjectDetail).length) + " 字段")
-
-            // 加载项目变更列表
             if (changeBridge.hasService) {
                 root.changesList = changeBridge.listChanges(projectId)
-                console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " 条")
             } else {
                 root.changesList = []
             }
         }
-
-        // 重置 Tab 到概览
-        tabBar.currentTabIndex = 0
-        loadCurrentTab()
-
-        // 加载资产汇总（仅 PLC 项目）
-        loadAssetSummary()
-    }
-
-    function loadAssetSummary() {
-        // M5: 资产汇总卡片接入 deliveryBridge.getAssetSummary
-        if (typeof deliveryBridge === "undefined" || deliveryBridge === null || !deliveryBridge.hasService) {
-            root.assetSummary = {}
-            return
-        }
-        if (root.currentProjectDetail.stack !== "plc") {
-            root.assetSummary = {}  // 仅 PLC 项目支持资产汇总
-            return
-        }
-        var res = deliveryBridge.getAssetSummary(root.currentProjectId)
-        if (res && res.data) {
-            root.assetSummary = res.data
-            console.log("[QML] WorkspaceView: 资产汇总加载 status=" + (res.data.status || "unknown"))
-        } else {
-            root.assetSummary = {}
-        }
-    }
-
-    function switchTab(index) {
-        tabBar.currentTabIndex = index
-        loadCurrentTab()
-    }
-
-    function loadCurrentTab() {
-        switch (tabBar.currentTabIndex) {
-            case 0: loadOverviewTab(); break
-            case 1: loadChangeTab(); break
-            case 2: loadCheckTab(); break
-            case 3: loadDocTab(); break
-            case 4: loadVarTableTab(); break
-        }
-    }
-
-    function loadOverviewTab() {
-        // 已通过 currentProjectDetail 加载
-    }
-
-    function loadChangeTab() {
-        if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
-            root.changesList = changeBridge.listChanges(root.currentProjectId)
-            console.log("[QML] WorkspaceView: 项目变更 " + root.changesList.length + " 条")
-        }
-
-        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null && workbenchBridge.hasService) {
-            root._changeSummary = workbenchBridge.getProjectChangeSummary(root.currentProjectId) || {}
-            console.log("[QML] WorkspaceView: 变更聚合摘要加载完成, kpi.total=" +
-                (root._changeSummary.kpi ? root._changeSummary.kpi.total : 0))
-        } else {
-            root._changeSummary = {}
-        }
-
-        // 默认加载变更列表第一项的详情，以便右侧详情和状态流转能同步正确显示
+        // 默认加载第一条变更详情
         if (root.changesList.length > 0) {
             if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
                 root.selectedChangeDetail = changeBridge.getChangeRequest(root.changesList[0].change_number, root.currentProjectId) || {}
@@ -246,22 +143,71 @@ Rectangle {
         } else {
             root.selectedChangeDetail = {}
         }
+        tabBar.currentTabIndex = 0
+        _loadCurrentTab()
+        _loadAssetSummary()
     }
 
+    function switchTab(index) {
+        tabBar.currentTabIndex = index
+        _loadCurrentTab()
+    }
+
+    function _loadAssetSummary() {
+        if (typeof deliveryBridge === "undefined" || deliveryBridge === null || !deliveryBridge.hasService) { root.assetSummary = {}; return }
+        if (root.currentProjectDetail.stack !== "plc") { root.assetSummary = {}; return }
+        var res = deliveryBridge.getAssetSummary(root.currentProjectId)
+        root.assetSummary = (res && res.data) ? res.data : {}
+    }
+
+    function _loadCurrentTab() {
+        switch (tabBar.currentTabIndex) {
+            case 1: _loadChangeTab(); break
+            case 2: _loadCheckTab(); break
+            case 3: _loadDocTab(); break
+            case 4: _loadVarTableTab(); break
+            default: break
+        }
+    }
+
+    function _loadChangeTab() {
+        if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+            root.changesList = changeBridge.listChanges(root.currentProjectId)
+        }
+        if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null && workbenchBridge.hasService) {
+            root._changeSummary = workbenchBridge.getProjectChangeSummary(root.currentProjectId) || {}
+        } else {
+            root._changeSummary = {}
+        }
+    }
+
+    function _loadCheckTab() {
+        root.checkingSpec = true
+        checkTimer.restart()
+    }
+
+    function _loadDocTab() {
+        if (docTabItem && docTabItem.projectId !== undefined) {
+            // DocBrowserView 监听 projectId 变化自动刷新
+        }
+    }
+
+    function _loadVarTableTab() {
+        if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService) {
+            // VarTableEditorView 监听 projectId 变化自动刷新
+        }
+    }
+
+    // ── 定时器 ────────────────────────────────────────────
     Timer {
         id: checkTimer
-        interval: 30
-        repeat: false
+        interval: 30; repeat: false
         onTriggered: {
             try {
                 if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
-                    console.log("[QML] WorkspaceView: 运行规范检查...")
                     root.specCheckResult = specBridge.runSpecCheck(root.currentProjectId)
-                    console.log("[QML] WorkspaceView: 规范检查完成: " +
-                        "error=" + (root.specCheckResult.error_count || 0) +
-                        " warn=" + (root.specCheckResult.warning_count || 0))
                 } else {
-                    root.specCheckResult = {"error_count": -1, "message": "未启用规范检查服务"}
+                    root.specCheckResult = { "error_count": -1, "message": "未启用规范检查服务" }
                 }
             } finally {
                 root.checkingSpec = false
@@ -271,8 +217,7 @@ Rectangle {
 
     Timer {
         id: repairTimer
-        interval: 30
-        repeat: false
+        interval: 30; repeat: false
         onTriggered: {
             try {
                 if (typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService) {
@@ -287,15 +232,12 @@ Rectangle {
 
     Timer {
         id: assetRefreshTimer
-        interval: 30
-        repeat: false
+        interval: 30; repeat: false
         onTriggered: {
             try {
                 if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService) {
                     var res = deliveryBridge.refreshAssetSummary(root.currentProjectId)
-                    if (res && res.result) {
-                        root.assetSummary = res.result
-                    }
+                    if (res && res.result) root.assetSummary = res.result
                 }
             } finally {
                 root.refreshingAssets = false
@@ -303,41 +245,13 @@ Rectangle {
         }
     }
 
-    function loadCheckTab() {
-        root.checkingSpec = true
-        checkTimer.restart()
-    }
-
-    function loadDocTab() {
-        console.log("[QML] WorkspaceView: 加载文档目录, projectId=" + root.currentProjectId)
-        if (docBrowser) {
-            docBrowser.loadDocs()
-        }
-    }
-
-    function loadVarTableTab() {
-        console.log("[QML] WorkspaceView: 加载变量表, projectId=" + root.currentProjectId)
-        if (typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService && typeof varTableModel !== "undefined" && varTableModel) {
-            deliveryBridge.loadVarTable(root.currentProjectId, varTableModel)
-        }
-    }
-
-    // ── 顶部导航栏 ──────────────────────────────────────
+    // ── 顶部导航栏 ────────────────────────────────────────
     Rectangle {
         id: navBar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
+        anchors { left: parent.left; right: parent.right; top: parent.top }
         height: 56
         color: Theme.surface
-
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            height: 1
-            color: Theme.border
-        }
+        Rectangle { anchors { left: parent.left; right: parent.right; bottom: parent.bottom } height: 1; color: Theme.border }
 
         RowLayout {
             anchors.fill: parent
@@ -345,767 +259,114 @@ Rectangle {
             anchors.rightMargin: Theme.spacingLg
             spacing: Theme.spacingSm
 
-            PrimaryButton {
-                text: "‹返回"
-                type: "ghost"
-                Layout.preferredWidth: 80
-                onClicked: root.backToProjectList()
-            }
-
-            Text {
-                text: root.currentProjectName || "(未选择项目)"
-                font.pixelSize: Theme.fontSizeXl
-                font.bold: true
-                color: Theme.textPrimary
-            }
-
-            Text {
-                text: root.currentProjectId
-                font.pixelSize: Theme.fontSizeSm
-                color: Theme.textSecondary
-                Layout.leftMargin: Theme.spacingSm
-            }
-
+            PrimaryButton { text: "‹返回"; type: "ghost"; Layout.preferredWidth: 80; onClicked: root.backToProjectList() }
+            Text { text: root.currentProjectName || "(未选择项目)"; font.pixelSize: Theme.fontSizeXl; font.bold: true; color: Theme.textPrimary }
+            Text { text: root.currentProjectId; font.pixelSize: Theme.fontSizeSm; color: Theme.textSecondary; Layout.leftMargin: Theme.spacingSm }
             Item { Layout.fillWidth: true }
-
+            Badge { text: root.currentProjectDetail.stack || ""; type: root.currentProjectDetail.stack || "unknown" }
             Badge {
-                text: root.currentProjectDetail.stack || ""
-                type: root.currentProjectDetail.stack || "unknown"
-            }
-
-            Badge {
-                text: {
-                    var phaseMap = {
-                        "developing": "在研",
-                        "commissioning": "调试",
-                        "production": "生产",
-                        "archived": "归档"
-                    }
-                    return phaseMap[root.currentProjectDetail.phase] || "未分类"
-                }
+                text: { var m = {"initiating":"启动","planning":"规划","developing":"在研","commissioning":"调试","production":"生产","archived":"归档"}; return m[root.currentProjectDetail.phase] || "未分类" }
                 type: root.currentProjectDetail.phase || "default"
             }
-
             Text {
-                text: {
-                    var v = root.currentProjectDetail.version || ""
-                    if (!v || v === "-") return "-"
-                    return (v.startsWith("v") || v.startsWith("V")) ? v : ("v" + v)
-                }
-                font.pixelSize: Theme.fontSizeSm
-                color: Theme.textSecondary
+                text: { var v = root.currentProjectDetail.version || ""; if (!v || v === "-") return "-"; return (v.startsWith("v") || v.startsWith("V")) ? v : ("v" + v) }
+                font.pixelSize: Theme.fontSizeSm; color: Theme.textSecondary
             }
-
-            // M4 CHG-115: 项目管理操作按钮
+            PrimaryButton { text: "编辑"; type: "ghost"; Layout.preferredWidth: 60; onClicked: root.requestEditProject() }
             PrimaryButton {
-                text: "编辑"
-                type: "ghost"
-                Layout.preferredWidth: 60
-                onClicked: root.requestEditProject()
-            }
-
-            PrimaryButton {
-                text: "初始化 PM"
-                type: "accent"
-                Layout.preferredWidth: 90
+                text: "初始化 PM"; type: "accent"; Layout.preferredWidth: 90
                 visible: root.changesList.length === 0
                 onClicked: root.requestInitializePm()
             }
-
+            PrimaryButton { text: "模板"; type: "ghost"; Layout.preferredWidth: 60; onClicked: root.requestApplyTemplate() }
             PrimaryButton {
-                text: "模板"
-                type: "ghost"
-                Layout.preferredWidth: 60
-                onClicked: root.requestApplyTemplate()
-            }
-
-            PrimaryButton {
-                text: "🌐 预览 HMI 原型"
-                type: "secondary"
-                Layout.preferredWidth: 120
+                text: "🌐 预览 HMI 原型"; type: "secondary"; Layout.preferredWidth: 120
                 visible: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.hasHmiPrototype(root.currentProjectId) : false
-                onClicked: {
-                    if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
-                        workbenchBridge.openHmiPrototype(root.currentProjectId)
-                    }
-                }
+                onClicked: { if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) workbenchBridge.openHmiPrototype(root.currentProjectId) }
             }
-
-            PrimaryButton {
-                text: "删除"
-                type: "danger"
-                Layout.preferredWidth: 60
-                onClicked: root.requestDeleteProject()
-            }
+            PrimaryButton { text: "删除"; type: "danger"; Layout.preferredWidth: 60; onClicked: root.requestDeleteProject() }
         }
     }
 
-    // ── Tab 栏 ──────────────────────────────────────────
+    // ── Tab 栏 ────────────────────────────────────────────
     TabBar {
         id: tabBar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: navBar.bottom
+        anchors { left: parent.left; right: parent.right; top: navBar.bottom }
         tabs: ["概览", "变更", "检查", "文档", "变量表"]
-        onCurrentTabChanged: loadCurrentTab()
+        onCurrentTabChanged: root._loadCurrentTab()
     }
 
-    // ── Tab 内容区（StackLayout 切换）─────────────────
-    Rectangle {
+    // ── Tab 内容区（统一父容器，修复原结构 bug）─────────────
+    Item {
         id: tabContent
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: tabBar.bottom
-        anchors.bottom: parent.bottom
-        color: "transparent"
+        anchors { left: parent.left; right: parent.right; top: tabBar.bottom; bottom: parent.bottom }
 
-        // ─── 概览 Tab ────────────────────────────────────
-        Rectangle {
-            id: overviewTab
+        // Tab 0 — 概览
+        WsOverviewTab {
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 0
-            color: "transparent"
-
-            ScrollView {
-                anchors.fill: parent
-                anchors.margins: Theme.spacingLg
-                clip: true
-
-                GridLayout {
-                    width: parent.width
-                    columns: 3
-                    rowSpacing: Theme.spacingMd
-                    columnSpacing: Theme.spacingMd
-
-                    // 基本信息
-                    Card {
-                        Layout.columnSpan: 3
-                        Layout.fillWidth: true
-                        title: "基本信息"
-                        bodyText: "项目编号: " + (root.currentProjectDetail.project_id || "") + "\n" +
-                                  "项目名称: " + (root.currentProjectDetail.name || "") + "\n" +
-                                  "技术栈: " + (root.currentProjectDetail.stack || "") + "\n" +
-                                  "阶段: " + (root.currentProjectDetail.phase || "") + "\n" +
-                                  "版本: " + (root.currentProjectDetail.version || "") + "\n" +
-                                  "业务线: " + (root.currentProjectDetail.business_line || "")
-                    }
-
-                    // PLC 信息
-                    Card {
-                        Layout.fillWidth: true
-                        title: "PLC 信息"
-                        bodyText: "PLC 品牌: " + (root.currentProjectDetail.plc_vendor || "未配置") + "\n" +
-                                  "PLC 型号: " + (root.currentProjectDetail.plc_model || "未配置") + "\n" +
-                                  "设备类型: " + (root.currentProjectDetail.equipment_type || "未配置")
-                    }
-
-                    // 项目类型
-                    Card {
-                        Layout.fillWidth: true
-                        title: "项目分类"
-                        bodyText: "项目类型: " + (root.currentProjectDetail.project_type || "未配置") + "\n" +
-                                  "业务线: " + (root.currentProjectDetail.business_line || "")
-                    }
-
-                    // 描述
-                    Card {
-                        Layout.fillWidth: true
-                        title: "项目描述"
-                        bodyText: root.currentProjectDetail.description || "暂无描述"
-                    }
-
-                    // 路径（CHG-111：自定义内容区，支持换行+选择+复制）
-                    Card {
-                        Layout.columnSpan: 3
-                        Layout.fillWidth: true
-                        title: "项目路径"
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            height: implicitHeight
-                            spacing: Theme.spacingSm
-
-                            TextEdit {
-                                Layout.fillWidth: true
-                                text: root.currentProjectDetail.path || ""
-                                color: Theme.textPrimary
-                                font.pixelSize: Theme.fontSizeSm
-                                wrapMode: TextEdit.WrapAnywhere
-                                readOnly: true
-                                selectByMouse: true
-                                activeFocusOnPress: true
-                                persistentSelection: true
-                            }
-                        }
-                    }
-
-                    // 资产汇总（仅 PLC 项目显示，CHG-111 布局重构 + M5 CHG-116 验证已接入）
-                    Card {
-                        Layout.columnSpan: 3
-                        Layout.fillWidth: true
-                        visible: root.currentProjectDetail.stack === "plc"
-                        title: "资产汇总"
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            height: implicitHeight
-                            spacing: Theme.spacingMd
-
-                            // 第一行：状态标签 + 问题数 Badge
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Theme.spacingSm
-
-                                Text {
-                                    text: {
-                                        var s = root.assetSummary.status || "未加载"
-                                        var labelMap = {
-                                            "healthy": "健康",
-                                            "warning": "告警",
-                                            "missing": "缺失",
-                                            "not_applicable": "不适用"
-                                        }
-                                        return "状态: " + (labelMap[s] || s)
-                                    }
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textPrimary
-                                    Layout.fillWidth: true
-                                }
-
-                                Badge {
-                                    text: {
-                                        return root.assetSummary.total_issues || 0
-                                    }
-                                    type: {
-                                        var s = root.assetSummary.status || ""
-                                        if (s === "healthy") return "approved"
-                                        if (s === "warning") return "urgent"
-                                        if (s === "missing") return "critical"
-                                        return "default"
-                                    }
-                                }
-                            }
-
-                            // 第二行：刷新按钮
-                            PrimaryButton {
-                                text: "刷新资产数据"
-                                type: "primary"
-                                loading: root.refreshingAssets
-                                Layout.preferredWidth: 120
-                                enabled: typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService
-                                onClicked: {
-                                    root.refreshingAssets = true
-                                    assetRefreshTimer.restart()
-                                }
-                            }
-
-                            // 分隔线
-                            Rectangle {
-                                Layout.fillWidth: true
-                                height: 1
-                                color: Theme.glassBorder
-                                visible: root.assetSummary && Object.keys(root.assetSummary).length > 0
-                            }
-
-                            // 资产详情
-                            Text {
-                                Layout.fillWidth: true
-                                visible: root.assetSummary && Object.keys(root.assetSummary).length > 0
-                                text: {
-                                    var a = root.assetSummary
-                                    if (!a || Object.keys(a).length === 0) {
-                                        return "点击刷新加载资产数据"
-                                    }
-                                    var io = a.io_points || {}
-                                    var blk = a.program_blocks || {}
-                                    var comm = a.communications || {}
-                                    return "IO 点数: " + (io.count || 0) + "（" + (io.exists ? "已配置" : "缺失") + "）\n" +
-                                           "程序块: " + (blk.count || 0) + "（" + (blk.exists ? "已配置" : "缺失") + "）\n" +
-                                           "通讯通道: " + (comm.count || 0) + "（" + (comm.exists ? "已配置" : "缺失") + "）\n" +
-                                           "问题总数: " + (a.total_issues || 0)
-                                }
-                                font.pixelSize: Theme.fontSizeSm
-                                color: Theme.textPrimary
-                                wrapMode: Text.WordWrap
-                            }
-
-                            // 空状态提示
-                            Text {
-                                Layout.fillWidth: true
-                                visible: !root.assetSummary || Object.keys(root.assetSummary).length === 0
-                                text: "点击刷新加载资产数据"
-                                font.pixelSize: Theme.fontSizeSm
-                                color: Theme.textMuted
-                            }
-
-                            // 问题列表（若有）
-                            Text {
-                                Layout.fillWidth: true
-                                visible: (root.assetSummary.issue_messages || []).length > 0
-                                text: {
-                                    var msgs = root.assetSummary.issue_messages || []
-                                    return "问题明细:\n" + msgs.join("\n")
-                                }
-                                font.pixelSize: Theme.fontSizeXs
-                                color: Theme.error
-                                wrapMode: Text.WordWrap
-                            }
-                        }
-                    }
-
-                    // 工程交付物与 HMI 看板 (STD-910 落地)
-                    Card {
-                        Layout.columnSpan: 3
-                        Layout.fillWidth: true
-                        title: "工程交付物与 HMI 原型看板"
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: Theme.spacingMd
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Theme.spacingLg
-
-                                // HMI 原型状态
-                                RowLayout {
-                                    spacing: Theme.spacingXs
-                                    Text { text: "HMI 交互原型:"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
-                                    Badge {
-                                        text: ((typeof workbenchBridge !== "undefined" && workbenchBridge !== null) && workbenchBridge.hasHmiPrototype(root.currentProjectId)) ? "已就绪" : "未生成"
-                                        type: ((typeof workbenchBridge !== "undefined" && workbenchBridge !== null) && workbenchBridge.hasHmiPrototype(root.currentProjectId)) ? "approved" : "default"
-                                    }
-                                }
-
-                                // 点表映射状态
-                                RowLayout {
-                                    spacing: Theme.spacingXs
-                                    Text { text: "点表映射(STD-910):"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
-                                    Badge {
-                                        property var d: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.getDeliverySummary(root.currentProjectId) : ({})
-                                        text: (d && d.tag_table) ? "已对齐" : "未定义"
-                                        type: (d && d.tag_table) ? "approved" : "urgent"
-                                    }
-                                }
-
-                                // FAT/SAT 状态
-                                RowLayout {
-                                    spacing: Theme.spacingXs
-                                    Text { text: "FAT/SAT 规程:"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
-                                    Badge {
-                                        property var d: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.getDeliverySummary(root.currentProjectId) : ({})
-                                        text: (d && d.fat_sat) ? "已归档" : "待生成"
-                                        type: (d && d.fat_sat) ? "approved" : "default"
-                                    }
-                                }
-
-                                // 维保手册
-                                RowLayout {
-                                    spacing: Theme.spacingXs
-                                    Text { text: "操作维保手册:"; color: Theme.textSecondary; font.pixelSize: Theme.fontSizeSm }
-                                    Badge {
-                                        property var d: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.getDeliverySummary(root.currentProjectId) : ({})
-                                        text: (d && d.manual) ? "已就绪" : "待生成"
-                                        type: (d && d.manual) ? "approved" : "default"
-                                    }
-                                }
-                            }
-
-                            PrimaryButton {
-                                text: "🌐 在浏览器中打开并走查 HMI 原型"
-                                type: "secondary"
-                                Layout.preferredWidth: 240
-                                visible: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.hasHmiPrototype(root.currentProjectId) : false
-                                onClicked: {
-                                    if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) {
-                                        workbenchBridge.openHmiPrototype(root.currentProjectId)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            projectDetail: root.currentProjectDetail
+            assetSummary: root.assetSummary
+            refreshingAssets: root.refreshingAssets
+            currentProjectId: root.currentProjectId
+            assetServiceAvailable: typeof deliveryBridge !== "undefined" && deliveryBridge !== null && deliveryBridge.hasService
+            hmiPrototypeExists: (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) ? workbenchBridge.hasHmiPrototype(root.currentProjectId) : false
+            onRefreshAssetsRequested: { root.refreshingAssets = true; assetRefreshTimer.restart() }
+            onOpenHmiPrototypeRequested: { if (typeof workbenchBridge !== "undefined" && workbenchBridge !== null) workbenchBridge.openHmiPrototype(root.currentProjectId) }
         }
 
-        // ─── 变更 Tab（CHG-123：驾驶舱模式）───────────────
-        Rectangle {
-            id: changeTab
+        // Tab 1 — 变更
+        WsChangeTab {
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 1
-            color: "transparent"
-
-            ScrollView {
-                anchors.fill: parent
-                anchors.margins: Theme.spacingLg
-                clip: true
-
-                ColumnLayout {
-                    width: parent.width - 16
-                    spacing: Theme.spacingLg
-                    // CHG-123: 主体：状态流转与近期活动垂直平铺铺满宽度 (对齐 V10 原型设计)
-                    DashboardStateMachine {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 180
-                        title: root.changesList.length > 0 ? "变更状态流转" : "暂无变更"
-                        tagText: root._currentChangeNumber
-                        stateMachine: root._currentChangeStateMachine
-                    }
-
-                    ActivityTimeline {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 220
-                        activities: root._changeSummary.activities || []
-                    }
-
-                    // CHG-123: 变更列表 + 详情面板（Split View）
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 520
-                        spacing: Theme.spacingLg
-
-                    // 左侧：变更列表
-                    Rectangle {
-                        Layout.preferredWidth: root.width * 0.5 - Theme.spacingLg
-                        Layout.fillHeight: true
-                        color: Theme.surface
-                        radius: Theme.radiusMd
-                        border.color: Theme.border
-                        border.width: 1
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            spacing: Theme.spacingSm
-
-                            // 列表标题
-                            RowLayout {
-                                Layout.fillWidth: true
-                                anchors.leftMargin: Theme.spacingMd
-                                anchors.rightMargin: Theme.spacingMd
-                                anchors.topMargin: Theme.spacingMd
-
-                                Text {
-                                    text: "变更列表"
-                                    font.pixelSize: Theme.fontSizeMd
-                                    font.bold: true
-                                    color: Theme.textPrimary
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                Text {
-                                    text: "共 " + root.filteredChangesList.length + " 条"
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textMuted
-                                }
-                            }
-                            // V11: 过滤搜索工具栏 (Search textfield + dropdown ComboBoxes)
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Layout.leftMargin: Theme.spacingMd
-                                Layout.rightMargin: Theme.spacingMd
-                                spacing: Theme.spacingSm
-
-                                TextField {
-                                    id: searchInput
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 28
-                                    placeholderText: "搜索变更单号/标题..."
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textPrimary
-                                    background: Rectangle {
-                                        color: Theme.glassBg
-                                        radius: Theme.radiusSm
-                                        border.color: Theme.glassBorder
-                                        border.width: 1
-                                    }
-                                    onTextChanged: root.searchKeyword = text
-                                }
-
-                                ComboBox {
-                                    id: statusCombo
-                                    Layout.preferredWidth: 100
-                                    Layout.preferredHeight: 28
-                                    model: ["全部状态", "草稿", "已提交", "审核中", "已批准", "实施中", "已完成", "已关闭"]
-                                    property var keys: ["ALL", "draft", "submitted", "under_review", "approved", "implementing", "completed", "closed"]
-                                    onCurrentIndexChanged: {
-                                        root.selectedStatusFilter = keys[currentIndex]
-                                    }
-                                }
-
-                                ComboBox {
-                                    id: domainCombo
-                                    Layout.preferredWidth: 100
-                                    Layout.preferredHeight: 28
-                                    model: ["全部领域", "PLC", "HMI", "ELEC", "DOCU"]
-                                    property var keys: ["ALL", "PLC", "HMI", "ELEC", "DOCU"]
-                                    onCurrentIndexChanged: {
-                                        root.selectedDomainFilter = keys[currentIndex]
-                                    }
-                                }
-                            }
-
-                            // 列表内容
-                            ListView {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                clip: true
-                                spacing: Theme.spacingSm
-                                model: root.filteredChangesList
-
-                                ColumnLayout {
-                                    anchors.centerIn: parent
-                                    visible: root.filteredChangesList.length === 0
-                                    spacing: Theme.spacingMd
-
-                                    Text {
-                                        Layout.alignment: Qt.AlignHCenter
-                                        text: (root.selectedDomainFilter === "ALL" && root.selectedStatusFilter === "ALL" && root.searchKeyword.trim() === "") ? "该项目暂无变更单" : "该筛选条件下暂无变更单"
-                                        color: Theme.textMuted
-                                        font.pixelSize: Theme.fontSizeMd
-                                    }
-
-                                    PrimaryButton {
-                                        Layout.alignment: Qt.AlignHCenter
-                                        text: "🔧 初始化项目 PM 与变更管理"
-                                        type: "primary"
-                                        Layout.preferredWidth: 200
-                                        visible: (root.selectedDomainFilter === "ALL" && root.selectedStatusFilter === "ALL" && root.searchKeyword.trim() === "")
-                                        onClicked: root.requestInitializePm()
-                                    }
-                                }
-
-                                delegate: Rectangle {
-                                    width: parent.width
-                                    height: 60
-                                    color: Theme.background
-                                    radius: Theme.radiusSm
-                                    border.color: Theme.border
-                                    border.width: 1
-
-                                    RowLayout {
-                                        anchors.fill: parent
-                                        anchors.margins: Theme.spacingSm
-                                        spacing: Theme.spacingSm
-
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 2
-
-                                            Text {
-                                                text: modelData.change_number || ""
-                                                font.pixelSize: Theme.fontSizeMd
-                                                font.bold: true
-                                                color: Theme.textPrimary
-                                            }
-
-                                            Text {
-                                                text: modelData.title || "(无标题)"
-                                                font.pixelSize: Theme.fontSizeSm
-                                                color: Theme.textSecondary
-                                                elide: Text.ElideRight
-                                                Layout.fillWidth: true
-                                            }
-                                        }
-
-                                        Badge {
-                                            text: modelData.domain || ""
-                                            type: "default"
-                                        }
-
-                                        Badge {
-                                            text: modelData.status || ""
-                                            type: modelData.status || "default"
-                                        }
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            console.log("[QML] WorkspaceView: 点击变更 " + modelData.change_number)
-                                            if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
-                                                root.selectedChangeDetail = changeBridge.getChangeRequest(modelData.change_number, root.currentProjectId) || {}
-                                                console.log("[QML] WorkspaceView: 变更详情字段数 " + Object.keys(root.selectedChangeDetail).length)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 右侧：详情面板
-                    ChangeDetailPanel {
-                        Layout.preferredWidth: root.width * 0.5 - Theme.spacingLg
-                        Layout.fillHeight: true
-                        changeDetail: root.selectedChangeDetail
-                        changeNumber: root.selectedChangeDetail.change_number || ""
-                        projectId: root.currentProjectId
-                    }
+            changesList: root.changesList
+            filteredChangesList: root.filteredChangesList
+            selectedChangeDetail: root.selectedChangeDetail
+            changeSummary: root._changeSummary
+            currentChangeStateMachine: root._currentChangeStateMachine
+            currentChangeNumber: root._currentChangeNumber
+            currentProjectId: root.currentProjectId
+            searchKeyword: root.searchKeyword
+            selectedStatusFilter: root.selectedStatusFilter
+            selectedDomainFilter: root.selectedDomainFilter
+            viewWidth: root.width
+            onChangeSelected: function(changeNumber) {
+                if (typeof changeBridge !== "undefined" && changeBridge !== null && changeBridge.hasService) {
+                    root.selectedChangeDetail = changeBridge.getChangeRequest(changeNumber, root.currentProjectId) || {}
                 }
             }
+            onSearchFilterChanged: function(kw) { root.searchKeyword = kw }
+            onStatusFilterChanged: function(f) { root.selectedStatusFilter = f }
+            onDomainFilterChanged: function(f) { root.selectedDomainFilter = f }
+            onInitializePmRequested: root.requestInitializePm()
         }
-    }
 
-        // ─── 检查 Tab ────────────────────────────────────
-        Rectangle {
-            id: checkTab
+        // Tab 2 — 检查
+        WsCheckTab {
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 2
-            color: "transparent"
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: Theme.spacingLg
-                spacing: Theme.spacingMd
-
-                // 检查摘要
-                Card {
-                    Layout.fillWidth: true
-                    title: "规范检查报告"
-                    bodyText: {
-                        var r = root.specCheckResult
-                        if (r.error_count === -1) {
-                            return "未启用规范检查服务或检查失败"
-                        }
-                        return "错误: " + (r.error_count || 0) + "\n" +
-                               "警告: " + (r.warning_count || 0) + "\n" +
-                               "信息: " + (r.info_count || 0) + "\n" +
-                               "退出码: " + (r.exit_code || 0)
-                    }
-                }
-
-                RowLayout {
-                    spacing: Theme.spacingMd
-                    PrimaryButton {
-                        text: "重新运行检查"
-                        type: "primary"
-                        loading: root.checkingSpec
-                        Layout.preferredWidth: 120
-                        enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
-                        onClicked: loadCheckTab()
-                    }
-
-                    PrimaryButton {
-                        text: "一键修复"
-                        type: "accent"
-                        loading: root.repairingSpec
-                        Layout.preferredWidth: 120
-                        visible: root.currentProjectDetail.stack === "plc"
-                        enabled: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
-                        onClicked: {
-                            root.repairingSpec = true
-                            repairTimer.restart()
-                        }
-                    }
-                }
-
-                // 检查结果列表
-                ListView {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    clip: true
-                    spacing: Theme.spacingXs
-                    model: root.specCheckResult.results || []
-
-                    delegate: Rectangle {
-                        width: parent ? parent.width : 0
-                        implicitHeight: detailText.visible ? 54 : 36
-                        height: implicitHeight
-                        color: Theme.surface
-                        radius: Theme.radiusSm
-                        border.color: Theme.border
-                        border.width: 1
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: Theme.spacingSm
-                            spacing: 2
-
-                            RowLayout {
-                                spacing: Theme.spacingSm
-                                Layout.fillWidth: true
-
-                                Badge {
-                                    text: modelData.severity || ""
-                                    type: modelData.severity === "ERROR" ? "critical" :
-                                          (modelData.severity === "WARNING" ? "urgent" : "default")
-                                }
-
-                                Text {
-                                    text: modelData.check_id || ""
-                                    font.pixelSize: Theme.fontSizeXs
-                                    font.bold: true
-                                    color: Theme.textSecondary
-                                }
-
-                                Text {
-                                    text: {
-                                        var cid = (modelData.check_id || "").trim()
-                                        var msg = (modelData.message || "").trim()
-                                        if (cid && msg.startsWith(cid)) {
-                                            msg = msg.substring(cid.length).trim()
-                                            if (msg.startsWith(":") || msg.startsWith("-") || msg.startsWith("：")) {
-                                                msg = msg.substring(1).trim()
-                                            }
-                                        }
-                                        return msg
-                                    }
-                                    font.pixelSize: Theme.fontSizeSm
-                                    color: Theme.textPrimary
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-                            }
-
-                            Text {
-                                id: detailText
-                                text: {
-                                    var det = (modelData.details || "").trim()
-                                    var msg = (modelData.message || "").trim()
-                                    if (det === "" || det === msg || msg.indexOf(det) !== -1) return ""
-                                    return det
-                                }
-                                font.pixelSize: Theme.fontSizeXs
-                                color: Theme.textMuted
-                                elide: Text.ElideRight
-                                visible: text !== ""
-                                Layout.fillWidth: true
-                            }
-                        }
-                    }
-                }
-            }
+            specCheckResult: root.specCheckResult
+            checkingSpec: root.checkingSpec
+            repairingSpec: root.repairingSpec
+            isPlcProject: root.currentProjectDetail.stack === "plc"
+            specServiceAvailable: typeof specBridge !== "undefined" && specBridge !== null && specBridge.hasService
+            onRunCheckRequested: root._loadCheckTab()
+            onRepairRequested: { root.repairingSpec = true; repairTimer.restart() }
         }
 
-        // ─── 文档 Tab ──
-        Rectangle {
-            id: docTab
+        // Tab 3 — 文档
+        WsDocTab {
+            id: docTabItem
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 3
-            color: "transparent"
-
-            DocBrowserView {
-                id: docBrowser
-                anchors.fill: parent
-                projectId: root.currentProjectId
-            }
+            projectId: root.currentProjectId
         }
 
-        // ─── 变量表 Tab ──
-        Rectangle {
-            id: varTableTab
+        // Tab 4 — 变量表
+        WsVarTableTab {
             anchors.fill: parent
             visible: tabBar.currentTabIndex === 4
-            color: "transparent"
-
-            VarTableEditorView {
-                id: varTableEditor
-                anchors.fill: parent
-                projectId: root.currentProjectId
-            }
+            projectId: root.currentProjectId
         }
     }
 }
-

@@ -3,1035 +3,846 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DJ-2026-005 边框缓存机 HMI原型 V1.4</title>
+<title>DJ-2026-005 边框缓存机 HMI 高保真交互原型 V2.0.0</title>
+<link rel="stylesheet" href="hmi-tokens.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- app-scale-outer/app-scale-inner：整套 1280 宽的原型按屏幕大小自动缩放显示，
-     不会再出现"界面比屏幕大，看不全"的问题。缩放逻辑见 script.js 的 fitToScreen()。 -->
 <div class="app-scale-outer">
 <div class="app-scale-inner" id="appScaleInner">
 
-<div class="toolbar">
-  <h1>DJ-2026-005 边框缓存机 · HMI 原型设计 V1.6（工艺方向纠正）</h1>
-  <div class="meta">ProFace GP4501ww · 1280×800 · 机器人放料到本机 · 本机送料到打胶机</div>
-</div>
+  <!-- 1. 顶部状态栏 -->
+  <header class="header-bar">
+    <div class="header-title-group">
+      <div class="brand-badge">DJ005</div>
+      <div>
+        <div class="header-title">边框缓存机控制系统 · GP4501ww</div>
+        <div class="header-subtitle">PLC: Siemens S7-1500 / AM500 · V7.1.1 基线</div>
+      </div>
+    </div>
+    <div class="header-status-group">
+      <div class="status-badge"><span class="led green" id="topLedRunning"></span><span id="topStatusText">自动运行</span></div>
+      <div class="status-badge"><span class="led green" id="topLedSafety"></span>安全互锁OK</div>
+      <div class="status-badge"><span class="led cyan" id="topLedComm"></span>MC通信正常</div>
+      <div class="status-badge" style="cursor:pointer;" onclick="goPage('login')">👤 <span id="topCurrentUser">操作员 (Level 1)</span></div>
+      <div class="system-clock" id="systemClock">2026-08-24 22:20:00</div>
+    </div>
+  </header>
 
-<div class="nav-tabs" id="navTabs"></div>
+  <!-- 2. 11个页面导航 Tab 栏 -->
+  <nav class="nav-tab-bar" id="navTabBar"></nav>
 
-<div class="hmi-frame">
+  <!-- 3. 页面主容器 -->
+  <main class="page-container">
 
-  <!-- 01 登录画面 -->
-  <div class="page active" id="page-login">
-    <div class="login-bg">
-      <div class="login-box">
-        <div class="login-logo">
-          <div class="logo-icon">DJ</div>
-          <h2>边框缓存机控制系统</h2>
-          <p>Frame Buffer Machine Control System</p>
+    <!-- ==========================================
+         Page 01: 登录画面 (page-login)
+         ========================================== -->
+    <section class="page active" id="page-login">
+      <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+        <div class="panel" style="width:480px; padding:24px;">
+          <div style="text-align:center; margin-bottom:20px;">
+            <div class="brand-badge" style="display:inline-block; font-size:18px; padding:6px 14px; margin-bottom:8px;">DJ-2026-005</div>
+            <h2 style="font-size:18px; color:#fff;">系统权限身份验证</h2>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">ProFace GP4501ww 触摸操作终端</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div>
+              <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">操作员账号 / 权限级别</label>
+              <select id="loginUserSelect" style="width:100%; height:36px; background:var(--bg-input); border:1px solid var(--border-color); color:#fff; padding:0 10px; border-radius:4px;">
+                <option value="operator">操作员 (Operator) · Level 1 (仅启停与基础监视)</option>
+                <option value="engineer">调试工程师 (Engineer) · Level 2 (手动调试/点位教导)</option>
+                <option value="admin">系统管理员 (Admin) · Level 3 (全权限/参数/配方管理)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">安全密码 (PIN)</label>
+              <input type="password" id="loginPinInput" value="1234" readonly style="width:100%; height:36px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--cyan); font-family:var(--font-mono); font-size:18px; text-align:center; letter-spacing:4px; border-radius:4px;">
+            </div>
+            <!-- 触控数字键盘 -->
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:8px;">
+              <button class="btn" onclick="appendPin('1')">1</button>
+              <button class="btn" onclick="appendPin('2')">2</button>
+              <button class="btn" onclick="appendPin('3')">3</button>
+              <button class="btn" onclick="appendPin('4')">4</button>
+              <button class="btn" onclick="appendPin('5')">5</button>
+              <button class="btn" onclick="appendPin('6')">6</button>
+              <button class="btn" onclick="appendPin('7')">7</button>
+              <button class="btn" onclick="appendPin('8')">8</button>
+              <button class="btn" onclick="appendPin('9')">9</button>
+              <button class="btn warning" onclick="clearPin()">清除</button>
+              <button class="btn" onclick="appendPin('0')">0</button>
+              <button class="btn danger" onclick="backspacePin()">⌫</button>
+            </div>
+            <button class="btn primary lg" style="margin-top:10px;" onclick="doLogin()">立即登录进入系统</button>
+          </div>
         </div>
-        <div class="login-field">
-          <label>用户账号</label>
-          <input type="text" value="operator" placeholder="请输入账号">
-        </div>
-        <div class="login-field">
-          <label>登录密码</label>
-          <input type="password" value="••••••" placeholder="请输入密码">
-        </div>
-        <button class="login-btn" onclick="goPage('main')">登 录</button>
-        <div class="login-hint">操作员: operator/1234 &nbsp;|&nbsp; 管理员: admin/123456</div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 02 主画面 -->
-  <div class="page" id="page-main">
-    <div class="page-header">
-      <div class="page-title">▣ 主画面 · 系统概览</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>系统运行</div>
-        <div class="status-item"><span class="led yellow"></span>自动模式</div>
-        <div class="status-item" id="clockMain">2026-08-06 14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('manual')">手动控制</button>
-        <button class="side-btn" onclick="goPage('auto')">自动运行</button>
-        <button class="side-btn" onclick="goPage('status')">状态监控</button>
-        <button class="side-btn" onclick="goPage('io')">IO监控</button>
-        <button class="side-btn" onclick="goPage('alarm')">报警管理</button>
-        <button class="side-btn" onclick="goPage('param')">参数设置</button>
-        <button class="side-btn" onclick="goPage('glue')">打胶机交互</button>
-        <button class="side-btn" onclick="goPage('robot')">机器人交互</button>
-        <button class="side-btn" onclick="goPage('system')">系统设置</button>
-        <button class="side-btn" style="margin-top:auto; background:#3e1e1e; color:#ff8a80; border-color:#5d2a2a;" onclick="goPage('login')">退出登录</button>
-      </div>
-      <div class="main-area">
-        <div class="overview-grid">
-          <div>
-            <div class="card">
-              <div class="card-title">◉ 设备总状态</div>
-              <div class="indicator-group" style="margin-bottom:14px;">
-                <div class="indicator"><span class="led green"></span><div class="ind-label">系统就绪</div></div>
-                <div class="indicator"><span class="led green"></span><div class="ind-label">自动运行</div></div>
-                <div class="indicator"><span class="led gray"></span><div class="ind-label">暂停中</div></div>
-                <div class="indicator"><span class="led green"></span><div class="ind-label">输送机</div></div>
-                <div class="indicator"><span class="led yellow"></span><div class="ind-label">取放料</div></div>
-                <div class="indicator"><span class="led green"></span><div class="ind-label">打胶送料</div></div>
-              </div>
-              <div class="section-title">当前工步</div>
-              <div class="row">
-                <div class="label">工艺步骤</div>
-                <div class="value-box ok" style="flex:1;">S23 · 取放料 Z轴下降夹取</div>
-                <div class="label">节拍</div>
-                <div class="value-box">12.5 s</div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">◈ 运行统计</div>
-              <div class="row">
-                <div class="label">运行计数</div>
-                <div class="value-box">1,286</div>
-                <div class="label">良品数</div>
-                <div class="value-box ok">1,274</div>
-                <div class="label">不良数</div>
-                <div class="value-box warn">12</div>
-              </div>
-              <div class="row">
-                <div class="label">运行时长</div>
-                <div class="value-box">06h 42m</div>
-                <div class="label">稼动率</div>
-                <div class="value-box ok">87.3 %</div>
-                <div class="label">良率</div>
-                <div class="value-box ok">99.07 %</div>
-              </div>
-            </div>
+    <!-- ==========================================
+         Page 02: 主画面 / 系统概览 (page-main)
+         ========================================== -->
+    <section class="page" id="page-main">
+      <div style="display:flex; gap:12px; height:100%;">
+        <!-- 左侧 2.5D SVG 动态机械流程总图 -->
+        <div class="panel" style="flex:1.8; display:flex; flex-direction:column;">
+          <div class="panel-header">
+            <span class="panel-title">工艺流程总览 · 2.5D 数字孪生监视图</span>
+            <span style="font-size:12px; color:var(--text-muted);">上游机器人放料 ➔ 四层缓存分料 ➔ 取放料搬运 ➔ 打胶机送料</span>
           </div>
-          <div>
-            <div class="card">
-              <div class="card-title">◎ 轴位置 & 速度</div>
-              <div class="row">
-                <div class="label">X1 轴位置</div>
-                <div class="value-box">125.340 mm</div>
-              </div>
-              <div class="row">
-                <div class="label">X2 轴位置</div>
-                <div class="value-box">380.125 mm</div>
-              </div>
-              <div class="row">
-                <div class="label">Z 轴位置</div>
-                <div class="value-box">-15.600 mm</div>
-              </div>
-              <div style="display:flex; gap:12px; justify-content:space-around; margin-top:14px;">
-                <div class="gauge"><div class="gauge-bar" style="height:55%;"></div><div class="gauge-label">X1 55%</div></div>
-                <div class="gauge"><div class="gauge-bar" style="height:72%;"></div><div class="gauge-label">X2 72%</div></div>
-                <div class="gauge"><div class="gauge-bar" style="height:38%;"></div><div class="gauge-label">Z 38%</div></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">◐ 节拍趋势</div>
-              <div class="trend-chart">
-                <div class="trend-grid"></div>
-                <div class="trend-line"></div>
-              </div>
-              <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:10px; color:#546e7a;">
-                <span>-60s</span><span>-40s</span><span>-20s</span><span>现在</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>项目: DJ-2026-005 | 版本: V9.1.0 | 用户: operator (操作员)</div>
-      <div class="footer-alarm">⚠ 当前报警: 0</div>
-    </div>
-  </div>
+          <div style="flex:1; background:#10151f; border-radius:4px; position:relative; overflow:hidden; border:1px solid #232d3f; display:flex; align-items:center; justify-content:center;">
+            <!-- SVG 机械总图 -->
+            <svg width="100%" height="100%" viewBox="0 0 720 420">
+              <!-- 输送机 4 层结构 -->
+              <rect x="40" y="40" width="180" height="45" rx="4" fill="#1b2332" stroke="#2d3a52" stroke-width="2"/>
+              <text x="50" y="68" fill="#8a99b5" font-size="12" font-weight="bold">L4 顶层输送带</text>
+              <circle cx="190" cy="62" r="6" id="svg_l4_sensor" fill="#3e4a5d" stroke="#5c6880"/>
+              
+              <rect x="40" y="95" width="180" height="45" rx="4" fill="#1b2332" stroke="#2d3a52" stroke-width="2"/>
+              <text x="50" y="123" fill="#8a99b5" font-size="12" font-weight="bold">L3 三层输送带</text>
+              <circle cx="190" cy="117" r="6" id="svg_l3_sensor" fill="#3e4a5d" stroke="#5c6880"/>
 
-  <!-- 03 手动控制 -->
-  <div class="page" id="page-manual">
-    <div class="page-header">
-      <div class="page-title">✋ 手动控制画面</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led yellow"></span>手动模式</div>
-        <div class="status-item"><span class="led green"></span>伺服使能</div>
-        <div class="status-item" id="clockManual">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">X1 长边轴</button>
-        <button class="side-btn">X2 短边轴</button>
-        <button class="side-btn">Z 升降轴</button>
-        <button class="side-btn" style="margin-top:10px;">气缸控制</button>
-      </div>
-      <div class="main-area" style="display:flex; gap:12px;">
-        <div style="flex:1;">
-          <div class="card">
-            <div class="card-title">▤ X1 长边轴 · JOG 控制</div>
-            <div class="row">
-              <div class="jog-panel">
-                <div></div>
-                <button class="jog-btn">▲ +X</button>
-                <div></div>
-                <button class="jog-btn">◀ -X</button>
-                <div class="jog-btn center">JOG</div>
-                <button class="jog-btn">X+ ▶</button>
-                <div></div>
-                <button class="jog-btn">▼ -X</button>
-                <div></div>
-              </div>
-              <div style="flex:1;">
-                <div class="row">
-                  <div class="label">当前位置</div>
-                  <div class="value-box ok">125.340 mm</div>
-                </div>
-                <div class="row">
-                  <div class="label">目标位置</div>
-                  <input class="input-field" value="200.000">
-                  <button class="btn btn-primary">定位</button>
-                </div>
-                <div class="row">
-                  <div class="label">手动速度</div>
-                  <input class="input-field" value="50">
-                  <span style="color:#8892b0; font-size:12px;">%</span>
-                </div>
-                <div class="row" style="margin-top:10px;">
-                  <button class="btn btn-success">◉ 回原点</button>
-                  <button class="btn btn-warn">伺服 OFF</button>
-                  <button class="btn btn-ghost">清除错误</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">▥ 气缸控制</div>
-            <div class="indicator-group">
-              <div class="indicator">
-                <button class="btn btn-success" style="padding:6px 12px; font-size:11px;">夹紧</button>
-                <div class="ind-label" style="margin-top:6px;">夹爪夹紧</div>
-                <div class="ind-val"><span class="led green"></span></div>
-              </div>
-              <div class="indicator">
-                <button class="btn btn-ghost" style="padding:6px 12px; font-size:11px;">松开</button>
-                <div class="ind-label" style="margin-top:6px;">夹爪松开</div>
-                <div class="ind-val"><span class="led gray"></span></div>
-              </div>
-              <div class="indicator">
-                <button class="btn btn-success" style="padding:6px 12px; font-size:11px;">伸出</button>
-                <div class="ind-label" style="margin-top:6px;">顶料气缸</div>
-                <div class="ind-val"><span class="led green"></span></div>
-              </div>
-              <div class="indicator">
-                <button class="btn btn-ghost" style="padding:6px 12px; font-size:11px;">缩回</button>
-                <div class="ind-label" style="margin-top:6px;">定位气缸</div>
-                <div class="ind-val"><span class="led gray"></span></div>
-              </div>
-              <div class="indicator">
-                <button class="btn btn-success" style="padding:6px 12px; font-size:11px;">吸 ON</button>
-                <div class="ind-label" style="margin-top:6px;">真空吸盘</div>
-                <div class="ind-val"><span class="led green"></span></div>
-              </div>
-              <div class="indicator">
-                <button class="btn btn-ghost" style="padding:6px 12px; font-size:11px;">吸 OFF</button>
-                <div class="ind-label" style="margin-top:6px;">吹起阀</div>
-                <div class="ind-val"><span class="led gray"></span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="width:220px;">
-          <div class="card">
-            <div class="card-title">◉ 传感器状态</div>
-            <div class="indicator-group" style="flex-direction:column; gap:8px;">
-              <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led green"></span>X1 原点</div>
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led gray"></span>X1 正限</div>
-              </div>
-              <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led green"></span>X2 原点</div>
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led gray"></span>X2 正限</div>
-              </div>
-              <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led green"></span>Z 原点</div>
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led gray"></span>Z 负限</div>
-              </div>
-              <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led green"></span>来料检测</div>
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led yellow"></span>夹紧到位</div>
-              </div>
-              <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led green"></span>有料检测</div>
-                <div class="status-item" style="font-size:11px; color:#8892b0;"><span class="led gray"></span>真空检测</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>⚠ 手动模式下请确认机构周围无人</div>
-      <div><span class="led red" style="width:8px;height:8px;"></span> 急停: 释放 · <span class="led green" style="width:8px;height:8px;"></span> 安全门: 关闭</div>
-    </div>
-  </div>
+              <rect x="40" y="150" width="180" height="45" rx="4" fill="#1b2332" stroke="#2d3a52" stroke-width="2"/>
+              <text x="50" y="178" fill="#8a99b5" font-size="12" font-weight="bold">L2 二层输送带</text>
+              <circle cx="190" cy="172" r="6" id="svg_l2_sensor" fill="#3e4a5d" stroke="#5c6880"/>
 
-  <!-- 04 自动运行 -->
-  <div class="page" id="page-auto">
-    <div class="page-header">
-      <div class="page-title">▶ 自动运行画面</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>自动中</div>
-        <div class="status-item"><span class="led green"></span>循环: 连续</div>
-        <div class="status-item" id="clockAuto">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">自动控制</button>
-        <button class="side-btn">单步运行</button>
-        <button class="side-btn">单循环</button>
-        <div style="margin-top:10px; padding:8px; background:#0a192f; border-radius:3px;">
-          <div style="font-size:11px; color:#8892b0; margin-bottom:4px;">启动条件</div>
-          <div style="font-size:10px; color:#69f0ae;">✓ 无报警</div>
-          <div style="font-size:10px; color:#69f0ae;">✓ 安全门关</div>
-          <div style="font-size:10px; color:#69f0ae;">✓ 原点回归完</div>
-          <div style="font-size:10px; color:#69f0ae;">✓ 急停释放</div>
-        </div>
-      </div>
-      <div class="main-area">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div>
-            <div class="card" style="text-align:center; padding:20px;">
-              <div class="card-title">⏯ 运行控制</div>
-              <div style="display:flex; gap:16px; justify-content:center; margin:18px 0;">
-                <button class="btn btn-success btn-large" style="width:140px;">▶ 启动</button>
-                <button class="btn btn-warn btn-large" style="width:140px;">⏸ 暂停</button>
-                <button class="btn btn-danger btn-large" style="width:140px;">⏹ 停止</button>
-              </div>
-              <div class="row" style="justify-content:center;">
-                <div class="indicator"><span class="led green"></span><div class="ind-label">运行中</div></div>
-                <div class="indicator"><span class="led gray"></span><div class="ind-label">已暂停</div></div>
-                <div class="indicator"><span class="led gray"></span><div class="ind-label">已停止</div></div>
-                <div class="indicator"><span class="led yellow"></span><div class="ind-label">复位请求</div></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">◈ 产量统计</div>
-              <div class="row">
-                <div class="label">今日目标</div>
-                <div class="value-box">2,000 pcs</div>
-                <div class="label">已完成</div>
-                <div class="value-box ok">1,286 pcs</div>
-              </div>
-              <div class="row">
-                <div class="label">完成率</div>
-                <div style="flex:1; height:18px; background:#0a192f; border-radius:9px; overflow:hidden;">
-                  <div style="width:64%; height:100%; background:linear-gradient(90deg,#64ffda,#00bcd4); border-radius:9px;"></div>
-                </div>
-                <div class="value-box ok">64.3 %</div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="card">
-              <div class="card-title">◉ 自动工艺步骤</div>
-              <div style="padding:4px;">
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#1b5e20; color:#fff; font-size:12px; margin-bottom:4px;">
-                  <span style="margin-right:8px; font-weight:700;">S20</span> 输送机进料到位
-                  <span style="margin-left:auto; font-size:10px; opacity:0.8;">✓ 完成</span>
-                </div>
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#1b5e20; color:#fff; font-size:12px; margin-bottom:4px;">
-                  <span style="margin-right:8px; font-weight:700;">S21</span> 定位气缸伸出夹紧
-                  <span style="margin-left:auto; font-size:10px; opacity:0.8;">✓ 完成</span>
-                </div>
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#1b5e20; color:#fff; font-size:12px; margin-bottom:4px;">
-                  <span style="margin-right:8px; font-weight:700;">S22</span> 取放料 X/Y 移动到取料位
-                  <span style="margin-left:auto; font-size:10px; opacity:0.8;">✓ 完成</span>
-                </div>
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#0f3460; border:1px solid #64ffda; color:#e6f1ff; font-size:12px; margin-bottom:4px;">
-                  <span style="margin-right:8px; font-weight:700;">S23</span> Z 轴下降夹取工件
-                  <span style="margin-left:auto; font-size:10px; color:#64ffda;">● 执行中 (2.1s)</span>
-                </div>
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#1a2a4a; color:#546e7a; font-size:12px; margin-bottom:4px;">
-                  <span style="margin-right:8px; font-weight:700;">S24</span> Z 轴上升到等待位
-                  <span style="margin-left:auto; font-size:10px;">⋯ 待执行</span>
-                </div>
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#1a2a4a; color:#546e7a; font-size:12px; margin-bottom:4px;">
-                  <span style="margin-right:8px; font-weight:700;">S25</span> X/Y 移动到放料位放料
-                  <span style="margin-left:auto; font-size:10px;">⋯ 待执行</span>
-                </div>
-                <div style="display:flex; align-items:center; padding:6px 8px; border-radius:3px; background:#1a2a4a; color:#546e7a; font-size:12px;">
-                  <span style="margin-right:8px; font-weight:700;">D760</span> 打胶送料交互流程
-                  <span style="margin-left:auto; font-size:10px;">⋯ 待执行</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>当前循环: 第 1287 次 | 模式: 连续循环 | 节拍: 12.5s</div>
-      <div><span class="led green" style="width:8px;height:8px;"></span> 与打胶机通信正常 · <span class="led green" style="width:8px;height:8px;"></span> 与机器人通信正常</div>
-    </div>
-  </div>
+              <rect x="40" y="205" width="180" height="45" rx="4" fill="#1b2332" stroke="#2d3a52" stroke-width="2"/>
+              <text x="50" y="233" fill="#8a99b5" font-size="12" font-weight="bold">L1 底层输送带</text>
+              <circle cx="190" cy="227" r="6" id="svg_l1_sensor" fill="#00e676" stroke="#00e676" class="svg-active-glow"/>
 
-  <!-- 05 参数设置 -->
-  <div class="page" id="page-param">
-    <div class="page-header">
-      <div class="page-title">⚙ 参数设置画面</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led yellow"></span>管理员模式</div>
-        <div class="status-item"><span class="led green"></span>参数已加载</div>
-        <div class="status-item" id="clockParam">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">轴参数</button>
-        <button class="side-btn">工艺参数</button>
-        <button class="side-btn">时间参数</button>
-        <button class="side-btn">报警阈值</button>
-        <button class="side-btn">通信参数</button>
-      </div>
-      <div class="main-area">
-        <div class="card">
-          <div class="tabs-inline">
-            <button class="tab-inline active">伺服轴参数</button>
-            <button class="tab-inline">工艺参数</button>
-            <button class="tab-inline">时间参数</button>
-            <button class="tab-inline">报警阈值</button>
-          </div>
-          <div class="param-grid">
-            <div class="param-item"><span class="label">X1轴定位速度</span><input class="input-field" value="8000"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">X1轴手动速度</span><input class="input-field" value="2000"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">X1轴加减速</span><input class="input-field" value="0.5"><span style="font-size:11px;color:#8892b0;">s</span></div>
-            <div class="param-item"><span class="label">X1轴原点复归速</span><input class="input-field" value="500"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">X2轴定位速度</span><input class="input-field" value="6000"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">X2轴手动速度</span><input class="input-field" value="1500"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">X2轴加减速</span><input class="input-field" value="0.4"><span style="font-size:11px;color:#8892b0;">s</span></div>
-            <div class="param-item"><span class="label">X2轴原点复归速</span><input class="input-field" value="400"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">Z轴定位速度</span><input class="input-field" value="3000"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">Z轴手动速度</span><input class="input-field" value="800"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">Z轴加减速</span><input class="input-field" value="0.3"><span style="font-size:11px;color:#8892b0;">s</span></div>
-            <div class="param-item"><span class="label">Z轴原点复归速</span><input class="input-field" value="300"><span style="font-size:11px;color:#8892b0;">mm/s</span></div>
-            <div class="param-item"><span class="label">X1取料位坐标</span><input class="input-field" value="125.000"><span style="font-size:11px;color:#8892b0;">mm</span></div>
-            <div class="param-item"><span class="label">X1放料位坐标</span><input class="input-field" value="380.000"><span style="font-size:11px;color:#8892b0;">mm</span></div>
-            <div class="param-item"><span class="label">Z夹取位坐标</span><input class="input-field" value="-15.500"><span style="font-size:11px;color:#8892b0;">mm</span></div>
-            <div class="param-item"><span class="label">Z等待位坐标</span><input class="input-field" value="50.000"><span style="font-size:11px;color:#8892b0;">mm</span></div>
-          </div>
-          <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
-            <button class="btn btn-ghost">从 PLC 读取</button>
-            <button class="btn btn-warn">恢复默认</button>
-            <button class="btn btn-success">💾 保存并写入 PLC</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">◉ 传感器消抖参数 (V9.1.0 新增)</div>
-          <div class="param-grid">
-            <div class="param-item"><span class="label">输送机来料消抖</span><input class="input-field" value="50"><span style="font-size:11px;color:#8892b0;">ms</span></div>
-            <div class="param-item"><span class="label">夹紧到位消抖</span><input class="input-field" value="80"><span style="font-size:11px;color:#8892b0;">ms</span></div>
-            <div class="param-item"><span class="label">原点信号消抖</span><input class="input-field" value="30"><span style="font-size:11px;color:#8892b0;">ms</span></div>
-            <div class="param-item"><span class="label">真空检测消抖</span><input class="input-field" value="100"><span style="font-size:11px;color:#8892b0;">ms</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>权限: 管理员 | 参数区: D300~D399 (伺服) · D600~D699 (工艺) · D700~D799 (时间)</div>
-      <div class="footer-alarm">⚠ 修改参数后需点击「保存并写入PLC」方可生效</div>
-    </div>
-  </div>
+              <!-- 取放料伺服机构 (Z轴+X1轴+夹爪) -->
+              <g id="svg_pickplace_group" transform="translate(260, 40)">
+                <!-- X1 轴导轨 -->
+                <rect x="0" y="10" width="220" height="12" fill="#2d3748" rx="2"/>
+                <line x1="0" y1="16" x2="220" y2="16" stroke="#0088ff" stroke-width="2" stroke-dasharray="4"/>
+                <!-- 移载小车与 Z 轴升降立柱 -->
+                <g id="svg_carriage" transform="translate(40, 0)">
+                  <rect x="0" y="0" width="36" height="24" fill="#0077cc" rx="3"/>
+                  <rect x="14" y="24" width="8" height="190" fill="#4a5568"/>
+                  <!-- 夹爪末端机构 -->
+                  <g id="svg_gripper" transform="translate(0, 160)">
+                    <rect x="-15" y="0" width="38" height="16" fill="#ffb300" rx="2"/>
+                    <rect x="-10" y="16" width="6" height="14" fill="#ff3d00"/>
+                    <rect x="12" y="16" width="6" height="14" fill="#ff3d00"/>
+                    <circle cx="4" cy="8" r="4" fill="#00e676"/>
+                  </g>
+                </g>
+              </g>
 
-  <!-- 06 状态监控 -->
-  <div class="page" id="page-status">
-    <div class="page-header">
-      <div class="page-title">📊 状态监控画面</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>扫描正常</div>
-        <div class="status-item"><span class="led green"></span>数据更新: 100ms</div>
-        <div class="status-item" id="clockStatus">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">综合状态</button>
-        <button class="side-btn" onclick="goPage('io')">IO 监控</button>
-        <button class="side-btn">寄存器监控</button>
-        <button class="side-btn">通信诊断</button>
-      </div>
-      <div class="main-area">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div>
-            <div class="card">
-              <div class="card-title">◎ 三轴实时位置 & 速度</div>
-              <div class="row">
-                <div class="label" style="min-width:100px;">X1 长边轴</div>
-                <div class="value-box" style="width:130px;">125.340 mm</div>
-                <div class="value-box ok" style="width:80px;">85%</div>
-                <div style="flex:1; height:16px; background:#0a192f; border-radius:8px; overflow:hidden;">
-                  <div style="width:55%; height:100%; background:linear-gradient(90deg,#64ffda,#00bcd4);"></div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="label" style="min-width:100px;">X2 短边轴</div>
-                <div class="value-box" style="width:130px;">380.125 mm</div>
-                <div class="value-box ok" style="width:80px;">62%</div>
-                <div style="flex:1; height:16px; background:#0a192f; border-radius:8px; overflow:hidden;">
-                  <div style="width:72%; height:100%; background:linear-gradient(90deg,#64ffda,#00bcd4);"></div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="label" style="min-width:100px;">Z 升降轴</div>
-                <div class="value-box" style="width:130px;">-15.600 mm</div>
-                <div class="value-box ok" style="width:80px;">40%</div>
-                <div style="flex:1; height:16px; background:#0a192f; border-radius:8px; overflow:hidden;">
-                  <div style="width:38%; height:100%; background:linear-gradient(90deg,#64ffda,#00bcd4);"></div>
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">◈ 模块状态</div>
-              <div class="indicator-group">
-                <div class="indicator"><span class="led green"></span><div class="ind-label">FB_1002<br>输送机</div><div class="ind-val">V11.0.0</div></div>
-                <div class="indicator"><span class="led yellow"></span><div class="ind-label">FB_1003<br>取放料</div><div class="ind-val">V8.0.0</div></div>
-                <div class="indicator"><span class="led green"></span><div class="ind-label">FB_1004<br>打胶送料</div><div class="ind-val">V7.0.0</div></div>
-                <div class="indicator"><span class="led green"></span><div class="ind-label">FB_2001<br>报警管理</div><div class="ind-val">V3.0.0</div></div>
-                <div class="indicator"><span class="led green"></span><div class="ind-label">FB_External<br>外部交互</div><div class="ind-val">V4.1.0</div></div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="card">
-              <div class="card-title">◐ 轴位置趋势</div>
-              <div class="trend-chart">
-                <div class="trend-grid"></div>
-                <div class="trend-line"></div>
-              </div>
-              <div style="display:flex; gap:14px; margin-top:10px; font-size:11px;">
-                <div style="display:flex; align-items:center; gap:4px; color:#64ffda;"><span style="width:16px; height:3px; background:#64ffda;"></span>X1轴</div>
-                <div style="display:flex; align-items:center; gap:4px; color:#ffc107;"><span style="width:16px; height:3px; background:#ffc107;"></span>X2轴</div>
-                <div style="display:flex; align-items:center; gap:4px; color:#f48fb1;"><span style="width:16px; height:3px; background:#f48fb1;"></span>Z轴</div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">◎ 关键传感器状态</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                <div class="comm-status"><span class="led green"></span>X1 原点开关</div>
-                <div class="comm-status"><span class="led gray"></span>X1 正限位</div>
-                <div class="comm-status"><span class="led green"></span>X2 原点开关</div>
-                <div class="comm-status"><span class="led gray"></span>X2 正限位</div>
-                <div class="comm-status"><span class="led green"></span>Z 原点开关</div>
-                <div class="comm-status"><span class="led gray"></span>Z 负限位</div>
-                <div class="comm-status"><span class="led green"></span>来料检测</div>
-                <div class="comm-status"><span class="led yellow"></span>有料检测</div>
-                <div class="comm-status"><span class="led green"></span>夹紧到位</div>
-                <div class="comm-status"><span class="led green"></span>松开到位</div>
-                <div class="comm-status"><span class="led green"></span>真空压力</div>
-                <div class="comm-status"><span class="led green"></span>气压正常</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>扫描周期: 100ms | 显示刷新: 100ms | 通信负载: 18%</div>
-      <div>PLC 扫描时间: 3.2ms (最小 2.1ms / 最大 5.8ms)</div>
-    </div>
-  </div>
+              <!-- 打胶机送料机构 (X2轴) -->
+              <g transform="translate(510, 240)">
+                <rect x="0" y="0" width="180" height="50" fill="#1a202c" stroke="#4a5568" rx="4"/>
+                <text x="10" y="24" fill="#e2e8f0" font-size="12" font-weight="bold">打胶机送料 X2 轴</text>
+                <!-- 承接台车 -->
+                <rect x="20" y="28" width="50" height="16" fill="#9f7aea" rx="2" id="svg_feeder_cart"/>
+                <rect x="80" y="6" width="90" height="38" fill="rgba(255, 61, 0, 0.15)" stroke="#ff3d00" stroke-dasharray="2" rx="2"/>
+                <text x="95" y="28" fill="#ff8a80" font-size="10">打胶机安全区 Y47</text>
+              </g>
 
-  <!-- 07 IO 监控画面 (新增) -->
-  <div class="page" id="page-io">
-    <div class="page-header">
-      <div class="page-title">🔌 IO 监控画面 (新增)</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>X输入: 42/80 激活</div>
-        <div class="status-item"><span class="led green"></span>Y输出: 18/64 激活</div>
-        <div class="status-item" id="clockIo">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">X 输入监控</button>
-        <button class="side-btn">Y 输出监控</button>
-        <button class="side-btn">M 中间继电器</button>
-        <button class="side-btn">D 寄存器监控</button>
-        <div style="margin-top:10px;">
-          <button class="btn btn-ghost" style="width:100%; padding:6px; font-size:11px;">🔄 强制刷新</button>
-          <button class="btn btn-warn" style="width:100%; padding:6px; font-size:11px; margin-top:6px;">强制输出 ON/OFF</button>
-        </div>
-      </div>
-      <div class="main-area" style="display:flex; flex-direction:column;">
-        <div class="card" style="flex:1; overflow:auto;">
-          <div class="tabs-inline">
-            <button class="tab-inline active">▣ X 输入信号 (X00~X79)</button>
-            <button class="tab-inline">▣ Y 输出信号 (Y00~Y79)</button>
-          </div>
-          <div class="section-title">安全与急停区 (X00~X17)</div>
-          <div class="io-grid" style="margin-bottom:12px;">
-            <div class="io-point on"><div class="addr">X00</div><div class="name">急停1 NC</div></div>
-            <div class="io-point on"><div class="addr">X01</div><div class="name">急停2 NC</div></div>
-            <div class="io-point on"><div class="addr">X02</div><div class="name">安全门1</div></div>
-            <div class="io-point on"><div class="addr">X03</div><div class="name">安全门2</div></div>
-            <div class="io-point on"><div class="addr">X04</div><div class="name">安全门3</div></div>
-            <div class="io-point on"><div class="addr">X05</div><div class="name">安全门4</div></div>
-            <div class="io-point on"><div class="addr">X06</div><div class="name">安全光幕</div></div>
-            <div class="io-point on"><div class="addr">X07</div><div class="name">气压正常</div></div>
-            <div class="io-point"><div class="addr">X10</div><div class="name">备用</div></div>
-            <div class="io-point"><div class="addr">X11</div><div class="name">备用</div></div>
-            <div class="io-point on"><div class="addr">X14</div><div class="name">前门开关</div></div>
-            <div class="io-point on"><div class="addr">X15</div><div class="name">后门开关</div></div>
-            <div class="io-point on"><div class="addr">X16</div><div class="name">急停回路</div></div>
-            <div class="io-point"><div class="addr">X17</div><div class="name">备用</div></div>
-          </div>
-          <div class="section-title">传感器区 (X20~X47)</div>
-          <div class="io-grid" style="margin-bottom:12px;">
-            <div class="io-point on"><div class="addr">X20</div><div class="name">X1原点</div></div>
-            <div class="io-point"><div class="addr">X21</div><div class="name">X1正限</div></div>
-            <div class="io-point"><div class="addr">X22</div><div class="name">X1负限</div></div>
-            <div class="io-point on"><div class="addr">X23</div><div class="name">X2原点</div></div>
-            <div class="io-point"><div class="addr">X24</div><div class="name">X2正限</div></div>
-            <div class="io-point"><div class="addr">X25</div><div class="name">X2负限</div></div>
-            <div class="io-point on"><div class="addr">X26</div><div class="name">Z原点</div></div>
-            <div class="io-point"><div class="addr">X27</div><div class="name">Z正限</div></div>
-            <div class="io-point"><div class="addr">X30</div><div class="name">Z负限</div></div>
-            <div class="io-point on"><div class="addr">X31</div><div class="name">来料检测</div></div>
-            <div class="io-point on"><div class="addr">X32</div><div class="name">有料检测</div></div>
-            <div class="io-point on"><div class="addr">X33</div><div class="name">夹紧到位</div></div>
-            <div class="io-point"><div class="addr">X34</div><div class="name">松开到位</div></div>
-            <div class="io-point on"><div class="addr">X35</div><div class="name">定位伸出</div></div>
-            <div class="io-point"><div class="addr">X36</div><div class="name">定位缩回</div></div>
-            <div class="io-point on"><div class="addr">X37</div><div class="name">顶料伸出</div></div>
-            <div class="io-point on"><div class="addr">X40</div><div class="name">真空检测</div></div>
-            <div class="io-point on"><div class="addr">X41</div><div class="name">正压检测</div></div>
-            <div class="io-point on"><div class="addr">X42</div><div class="name">输送机入料</div></div>
-            <div class="io-point"><div class="addr">X43</div><div class="name">输送机出料</div></div>
-          </div>
-          <div class="section-title">设备交互区 (X70~X107)</div>
-          <div class="io-grid">
-            <div class="io-point on"><div class="addr">X76</div><div class="name">打胶机允许送料</div></div>
-            <div class="io-point"><div class="addr">X77</div><div class="name">打胶机安全区</div></div>
-            <div class="io-point on"><div class="addr">X102</div><div class="name">打胶机取料完成</div></div>
-            <div class="io-point on"><div class="addr">S924</div><div class="name">抓料检测1</div></div>
-            <div class="io-point on"><div class="addr">S925</div><div class="name">抓料检测2</div></div>
-            <div class="io-point"><div class="addr">S926</div><div class="name">抓料检测3</div></div>
-            <div class="io-point"><div class="addr">S927</div><div class="name">抓料检测4</div></div>
-            <div class="io-point on"><div class="addr">S932</div><div class="name">允许送料</div></div>
+              <!-- 状态标牌 -->
+              <g transform="translate(40, 310)">
+                <rect x="0" y="0" width="640" height="85" fill="#161c27" rx="6" stroke="#2b3648"/>
+                <text x="20" y="25" fill="#8a99b5" font-size="12">工站 1: 四层分料输送机</text>
+                <text x="20" y="48" fill="#00e676" font-size="14" font-weight="bold" id="mainStation1Status">L1 正在分料 (Step 30: 分料推出)</text>
+                <text x="240" y="25" fill="#8a99b5" font-size="12">工站 2: 取放料机构 (Z/X1)</text>
+                <text x="240" y="48" fill="#00e5ff" font-size="14" font-weight="bold" id="mainStation2Status">S23: X1 移动至前放料点</text>
+                <text x="460" y="25" fill="#8a99b5" font-size="12">工站 3: 打胶送料机构 (X2)</text>
+                <text x="460" y="48" fill="#ffb300" font-size="14" font-weight="bold" id="mainStation3Status">D760=2: 申请打胶机抓料</text>
+              </g>
+            </svg>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>X输入总数: 80点 | 激活: 42 | Y输出总数: 64点 | 激活: 18</div>
-      <div class="footer-alarm">⚠ 强制输出功能仅限管理员在停机状态使用</div>
-    </div>
-  </div>
 
-  <!-- 08 报警管理 -->
-  <div class="page" id="page-alarm">
-    <div class="page-header">
-      <div class="page-title">🚨 报警管理画面</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>系统正常</div>
-        <div class="status-item"><span class="led green"></span>当前报警: 0</div>
-        <div class="status-item" id="clockAlarm">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">当前报警</button>
-        <button class="side-btn">历史报警</button>
-        <button class="side-btn">报警码定义</button>
-        <button class="side-btn">报警屏蔽设置</button>
-        <div style="margin-top:10px;">
-          <div class="indicator-group" style="flex-direction:column; gap:6px;">
-            <div class="comm-status"><span class="led red"></span>安全报警 (9类)</div>
-            <div class="comm-status"><span class="led red"></span>设备报警 (24类)</div>
-            <div class="comm-status"><span class="led yellow"></span>传感器报警 (42类)</div>
-            <div class="comm-status"><span class="led yellow"></span>系统报警 (5类)</div>
+        <!-- 右侧生产统计与状态看板 -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
+          <!-- 核心指标 KPI -->
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">生产节拍与产量看板</span></div>
+            <div class="grid-2" style="margin-bottom:8px;">
+              <div class="dro-box"><span class="dro-label">总产出</span><span class="dro-value" id="kpiTotal">1,420</span></div>
+              <div class="dro-box"><span class="dro-label">良品数</span><span class="dro-value" style="color:var(--success);" id="kpiGood">1,412</span></div>
+            </div>
+            <div class="grid-2">
+              <div class="dro-box"><span class="dro-label">不良数</span><span class="dro-value" style="color:var(--danger);" id="kpiNg">8</span></div>
+              <div class="dro-box"><span class="dro-label">当前节拍</span><span class="dro-value" id="kpiCycle">11.8 s</span></div>
+            </div>
+          </div>
+
+          <!-- 3轴伺服实时坐标 DRO -->
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">伺服轴实际位置 (DRO)</span></div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div class="dro-box">
+                <span class="dro-label">Z轴 升降坐标 (D101)</span>
+                <span class="dro-value" id="droMainZ">125.40 mm</span>
+              </div>
+              <div class="dro-box">
+                <span class="dro-label">X1轴 平移坐标 (D102)</span>
+                <span class="dro-value" id="droMainX1">480.00 mm</span>
+              </div>
+              <div class="dro-box">
+                <span class="dro-label">X2轴 送料坐标 (D103)</span>
+                <span class="dro-value" id="droMainX2">10.00 mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 快速控制面板 -->
+          <div class="panel" style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+            <div class="panel-header"><span class="panel-title">主控操作指令</span></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <button class="btn success lg" onclick="triggerAutoStart()">▶ 自动启动</button>
+              <button class="btn warning lg" onclick="triggerAutoPause()">⏸ 循环暂停</button>
+              <button class="btn primary" onclick="triggerReset()">🔄 故障复位</button>
+              <button class="btn danger" onclick="triggerEStop()">🛑 软件急停</button>
+            </div>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn sm" style="flex:1;" onclick="goPage('manual')">切换手动模式</button>
+              <button class="btn sm" style="flex:1;" onclick="goPage('alarm')">查看报警记录</button>
+            </div>
           </div>
         </div>
       </div>
-      <div class="main-area" style="display:flex; flex-direction:column;">
-        <div class="row" style="margin-bottom:8px;">
-          <button class="btn btn-danger">🔊 蜂鸣器停止</button>
-          <button class="btn btn-warn">📋 报警复位</button>
-          <button class="btn btn-success">✓ 全部确认</button>
-          <div style="margin-left:auto;">
-            <input class="input-field" placeholder="搜索报警码/内容" style="width:180px;">
+    </section>
+
+    <!-- ==========================================
+         Page 03: 手动控制画面 (page-manual)
+         ========================================== -->
+    <section class="page" id="page-manual">
+      <div class="grid-2" style="flex:1;">
+        <!-- 左上: 4层输送机手动控制台 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">1. 四层分料输送机 (L1~L4 独立点动)</span>
+            <span style="font-size:12px; color:var(--text-muted);">VF1~VF4 变频控制</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <!-- L4 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:6px 10px; border-radius:4px;">
+              <span style="font-size:12px; font-weight:bold;">L4 层 (顶层)</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn sm" onmousedown="jogConveyor(4, 'fwd')" onmouseup="stopConveyor(4)">正转</button>
+                <button class="btn sm" onmousedown="jogConveyor(4, 'rev')" onmouseup="stopConveyor(4)">反转</button>
+                <button class="btn sm" onclick="toggleStopper(4)">阻挡气缸</button>
+                <button class="btn sm" onclick="toggleSeparator(4)">分料气缸</button>
+              </div>
+            </div>
+            <!-- L3 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:6px 10px; border-radius:4px;">
+              <span style="font-size:12px; font-weight:bold;">L3 层 (三层)</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn sm" onmousedown="jogConveyor(3, 'fwd')" onmouseup="stopConveyor(3)">正转</button>
+                <button class="btn sm" onmousedown="jogConveyor(3, 'rev')" onmouseup="stopConveyor(3)">反转</button>
+                <button class="btn sm" onclick="toggleStopper(3)">阻挡气缸</button>
+                <button class="btn sm" onclick="toggleSeparator(3)">分料气缸</button>
+              </div>
+            </div>
+            <!-- L2 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:6px 10px; border-radius:4px;">
+              <span style="font-size:12px; font-weight:bold;">L2 层 (二层)</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn sm" onmousedown="jogConveyor(2, 'fwd')" onmouseup="stopConveyor(2)">正转</button>
+                <button class="btn sm" onmousedown="jogConveyor(2, 'rev')" onmouseup="stopConveyor(2)">反转</button>
+                <button class="btn sm" onclick="toggleStopper(2)">阻挡气缸</button>
+                <button class="btn sm" onclick="toggleSeparator(2)">分料气缸</button>
+              </div>
+            </div>
+            <!-- L1 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:6px 10px; border-radius:4px;">
+              <span style="font-size:12px; font-weight:bold;">L1 层 (底层)</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn sm" onmousedown="jogConveyor(1, 'fwd')" onmouseup="stopConveyor(1)">正转</button>
+                <button class="btn sm" onmousedown="jogConveyor(1, 'rev')" onmouseup="stopConveyor(1)">反转</button>
+                <button class="btn sm" onclick="toggleStopper(1)">阻挡气缸</button>
+                <button class="btn sm" onclick="toggleSeparator(1)">分料气缸</button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="card" style="flex:1; padding:0; overflow:hidden;">
-          <table class="alarm-list">
+
+        <!-- 右上: 取放料机构 Z/X1 轴控制与 4 组夹爪 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">2. 取放料搬运机构 (Z/X1 轴与 4 夹爪)</span>
+            <button class="btn sm primary" onclick="homeAxis('all')">3轴顺序回原点</button>
+          </div>
+          <!-- Z 轴控制 -->
+          <div style="background:var(--bg-input); padding:8px; border-radius:4px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:12px; font-weight:bold;">Z 轴升降 (SV0) · 当前坐标: <span id="manZPos" style="color:var(--cyan);">125.4 mm</span></span>
+              <div style="display:flex; gap:4px;">
+                <button class="btn sm" onmousedown="jogServo('z', 'up')" onmouseup="stopServo('z')">JOG 上升</button>
+                <button class="btn sm" onmousedown="jogServo('z', 'dn')" onmouseup="stopServo('z')">JOG 下降</button>
+                <button class="btn sm" onclick="gotoPos('z', 'standby')">待机位</button>
+                <button class="btn sm" onclick="gotoPos('z', 'pick')">取料高度</button>
+              </div>
+            </div>
+          </div>
+          <!-- X1 轴控制 -->
+          <div style="background:var(--bg-input); padding:8px; border-radius:4px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:bold;">X1 轴平移 (SV1) · 当前坐标: <span id="manX1Pos" style="color:var(--cyan);">480.0 mm</span></span>
+              <div style="display:flex; gap:4px;">
+                <button class="btn sm" onmousedown="jogServo('x1', 'fwd')" onmouseup="stopServo('x1')">JOG 前进</button>
+                <button class="btn sm" onmousedown="jogServo('x1', 'rev')" onmouseup="stopServo('x1')">JOG 后退</button>
+                <button class="btn sm" onclick="gotoPos('x1', 'pick')">取料点</button>
+                <button class="btn sm" onclick="gotoPos('x1', 'front')">前放料</button>
+                <button class="btn sm" onclick="gotoPos('x1', 'rear')">后放料</button>
+              </div>
+            </div>
+          </div>
+          <!-- 4 组夹爪与辅助升降气缸 -->
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; color:var(--text-muted);">辅助升降气缸(高度补偿) & 4组夹爪:</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn sm" onclick="toggleLiftCylinder()">辅助气缸上升/下降(Y42/Y43)</button>
+                <button class="btn sm success" onclick="clampAll(true)">全部夹紧</button>
+                <button class="btn sm warning" onclick="clampAll(false)">全部松开</button>
+              </div>
+            </div>
+            <div style="background:var(--bg-input); padding:6px 10px; border-radius:4px; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:12px;">辅助升降状态: <span id="manLiftStatus" style="color:var(--cyan);">下位到位 (X71)</span></span>
+              <span class="led green" id="manLiftLed"></span>
+            </div>
+            <div class="grid-4">
+              <div class="dro-box" style="flex-direction:column; gap:4px; align-items:center;">
+                <span class="dro-label">1# 前夹爪</span>
+                <span class="led green" id="manClamp1Led"></span>
+                <button class="btn sm" style="width:100%;" onclick="toggleClamp(1)">切换</button>
+              </div>
+              <div class="dro-box" style="flex-direction:column; gap:4px; align-items:center;">
+                <span class="dro-label">2# 后夹爪</span>
+                <span class="led green" id="manClamp2Led"></span>
+                <button class="btn sm" style="width:100%;" onclick="toggleClamp(2)">切换</button>
+              </div>
+              <div class="dro-box" style="flex-direction:column; gap:4px; align-items:center;">
+                <span class="dro-label">3# 前夹爪</span>
+                <span class="led green" id="manClamp3Led"></span>
+                <button class="btn sm" style="width:100%;" onclick="toggleClamp(3)">切换</button>
+              </div>
+              <div class="dro-box" style="flex-direction:column; gap:4px; align-items:center;">
+                <span class="dro-label">4# 后夹爪</span>
+                <span class="led green" id="manClamp4Led"></span>
+                <button class="btn sm" style="width:100%;" onclick="toggleClamp(4)">切换</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 左下: 打胶机送料机构 X2 轴控制 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">3. 打胶机送料小车 (X2 台车 · 纯4卡槽)</span>
+            <span class="status-badge"><span class="led green" id="manGlueSafetyLed"></span>安全区开放</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div class="dro-box">
+              <span class="dro-label">X2 轴送料坐标 (D103)</span>
+              <span class="dro-value" id="manX2Pos">512.00 mm (接料位)</span>
+            </div>
+            <!-- 小车 4 卡槽实时光电阵列 -->
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; background:var(--bg-input); padding:6px; border-radius:4px;">
+              <div style="text-align:center;"><span style="font-size:11px; color:var(--text-muted); display:block;">槽1:长边1 (X72)</span><span class="led off" id="cartSlot1Led"></span></div>
+              <div style="text-align:center;"><span style="font-size:11px; color:var(--text-muted); display:block;">槽2:长边2 (X73)</span><span class="led off" id="cartSlot2Led"></span></div>
+              <div style="text-align:center;"><span style="font-size:11px; color:var(--text-muted); display:block;">槽3:短边1 (X74)</span><span class="led off" id="cartSlot3Led"></span></div>
+              <div style="text-align:center;"><span style="font-size:11px; color:var(--text-muted); display:block;">槽4:短边2 (X75)</span><span class="led off" id="cartSlot4Led"></span></div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn" style="flex:1;" onmousedown="jogServo('x2', 'fwd')" onmouseup="stopServo('x2')">JOG 前进</button>
+              <button class="btn" style="flex:1;" onmousedown="jogServo('x2', 'rev')" onmouseup="stopServo('x2')">JOG 后退</button>
+              <button class="btn" style="flex:1;" onclick="gotoPos('x2', 'pick')">至接料位 (D512)</button>
+              <button class="btn" style="flex:1;" onclick="gotoPos('x2', 'glue')">至打胶位 (D522)</button>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn warning" style="flex:1;" onclick="toggleGlueZone()">强制安全区信号 (Y47)</button>
+              <button class="btn primary" style="flex:1;" onclick="simulateGlueFeed()">模拟送料握手</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右下: 安全回路与手动辅助 -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">4. 安全互锁与辅助诊断</span></div>
+          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; font-size:12px;">
+            <div class="dro-box"><span class="dro-label">安全门 1 (前门)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">安全门 2 (后门)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">急停继电器 (SR0)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">气源压力 (0.6MPa)</span><span class="led green"></span></div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <button class="btn sm" style="flex:1;" onclick="releaseBrake()">Z轴抱闸强制释放</button>
+            <button class="btn sm" style="flex:1;" onclick="resetVfdAll()">复位全线变频器</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         Page 04: 自动运行画面 (page-auto)
+         ========================================== -->
+    <section class="page" id="page-auto">
+      <div style="display:flex; gap:12px; height:100%;">
+        <div class="panel" style="flex:1.2; display:flex; flex-direction:column;">
+          <div class="panel-header">
+            <span class="panel-title">全自动产线编排与工步监控</span>
+            <span class="status-badge"><span class="led green"></span>全线就绪</span>
+          </div>
+          <div style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+            <div class="step-card active">
+              <span class="step-num">Step 1</span>
+              <div class="step-body">
+                <div class="step-title">四层贮存输送机就绪与分料供料</div>
+                <div class="step-desc">4层独立分料气缸定位，满料防侧翻自动慢速控制，发出取料请求</div>
+              </div>
+              <span class="badge success">运行中</span>
+            </div>
+            <div class="step-card">
+              <span class="step-num">Step 2</span>
+              <div class="step-body">
+                <div class="step-title">取放料搬运机构 4 卡槽智能供需调度</div>
+                <div class="step-desc">Z轴+辅助升降气缸取料，X1平移对准小车空槽放料，10组配方点位示教</div>
+              </div>
+              <span class="badge primary">待命</span>
+            </div>
+            <div class="step-card">
+              <span class="step-num">Step 3</span>
+              <div class="step-body">
+                <div class="step-title">打胶机送料小车出料与 STD-820 动态交握</div>
+                <div class="step-desc">4根边框集齐(M30)，打胶机安全状态核验，X2出料，打胶机取料脱离闭环</div>
+              </div>
+              <span class="badge muted">等待集齐</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="flex:1; display:flex; flex-direction:column;">
+          <div class="panel-header"><span class="panel-title">主控制台与全线统调</span></div>
+          <div style="display:flex; flex-direction:column; gap:12px; flex:1; justify-content:center;">
+            <button class="btn success lg" style="height:60px; font-size:18px;" onclick="startAuto()">▶ 启动自动循环 (START)</button>
+            <button class="btn warning lg" style="height:50px;" onclick="pauseAuto()">⏸ 暂停生产 (PAUSE)</button>
+            <button class="btn danger lg" style="height:50px;" onclick="stopAuto()">⏹ 停机复位 (STOP)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         Page 05: 10组配方管理与示教参数 (page-param)
+         ========================================== -->
+    <section class="page" id="page-param">
+      <div style="display:flex; gap:12px; height:100%;">
+        <!-- 左侧: 10组配方管理与示教点位 -->
+        <div class="panel" style="flex:1.2; display:flex; flex-direction:column;">
+          <div class="panel-header">
+            <span class="panel-title">10 组产品配方示教池 (ST_RecipeManager)</span>
+            <div style="display:flex; gap:6px;">
+              <select id="recipeSelect" style="height:30px; background:var(--bg-input); border:1px solid var(--border-color); color:#fff; padding:0 8px; border-radius:4px;" onchange="loadSelectedRecipe(this.value)">
+                <option value="1">配方 1: 标准 550W 边框 (长2278/短1134)</option>
+                <option value="2">配方 2: 标准 600W 边框 (长2384/短1134)</option>
+                <option value="3">配方 3: 定制 700W 边框 (长2465/短1134)</option>
+                <option value="4">配方 4: 备用规格 04</option>
+                <option value="5">配方 5: 备用规格 05</option>
+                <option value="6">配方 6: 备用规格 06</option>
+                <option value="7">配方 7: 备用规格 07</option>
+                <option value="8">配方 8: 备用规格 08</option>
+                <option value="9">配方 9: 备用规格 09</option>
+                <option value="10">配方 10: 备用规格 10</option>
+              </select>
+              <button class="btn sm success" onclick="saveActiveRecipe()">💾 保存并下载当前配方</button>
+            </div>
+          </div>
+          <div style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+            <div class="dro-box">
+              <span class="dro-label">Z 轴取料高度 L1 (D511)</span>
+              <input type="number" class="param-input" id="p_D511" value="125.4" onfocus="openNumpad('D511', 'Z轴取料L1', this.value)">
+              <button class="btn sm" onclick="teachPos('D511', 'z')">教导当前</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">Z 轴取料高度 L2 (D512)</span>
+              <input type="number" class="param-input" id="p_D512" value="185.0" onfocus="openNumpad('D512', 'Z轴取料L2', this.value)">
+              <button class="btn sm" onclick="teachPos('D512', 'z')">教导当前</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">Z 轴取料高度 L3 (D513)</span>
+              <input type="number" class="param-input" id="p_D513" value="245.0" onfocus="openNumpad('D513', 'Z轴取料L3', this.value)">
+              <button class="btn sm" onclick="teachPos('D513', 'z')">教导当前</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">Z 轴取料高度 L4 (D514)</span>
+              <input type="number" class="param-input" id="p_D514" value="305.0" onfocus="openNumpad('D514', 'Z轴取料L4', this.value)">
+              <button class="btn sm" onclick="teachPos('D514', 'z')">教导当前</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">X1 轴放料点 槽1:长边1 (D520)</span>
+              <input type="number" class="param-input" id="p_D520" value="480.0" onfocus="openNumpad('D520', 'X1放料槽1', this.value)">
+              <button class="btn sm" onclick="teachPos('D520', 'x1')">教导当前</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">X1 轴放料点 槽2:长边2 (D530)</span>
+              <input type="number" class="param-input" id="p_D530" value="560.0" onfocus="openNumpad('D530', 'X1放料槽2', this.value)">
+              <button class="btn sm" onclick="teachPos('D530', 'x1')">教导当前</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">X1 轴放料点 槽3:短边1 (D540)</span>
+              <input type="number" class="param-input" id="p_D540" value="640.0" onfocus="openNumpad('D540', 'X1放料槽3', this.value)">
+              <button class="btn sm" onclick="teachPos('D540', 'x1')">教导当前</button>
+            </div>
+            <div class="dro-box">
+            <div class="dro-box">
+              <span class="dro-label">输送机入位慢速 (D310, m/min)</span>
+              <input type="number" class="param-input" id="p_D310" value="3.5" onfocus="openNumpad('D310', '输送机慢速', this.value)">
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">Z 轴运行速度 (D320, mm/s)</span>
+              <input type="number" class="param-input" id="p_D320" value="120.0" onfocus="openNumpad('D320', 'Z轴速度', this.value)">
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">X1 轴运行速度 (D330, mm/s)</span>
+              <input type="number" class="param-input" id="p_D330" value="250.0" onfocus="openNumpad('D330', 'X1轴速度', this.value)">
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">X2 轴送料速度 (D340, mm/s)</span>
+              <input type="number" class="param-input" id="p_D340" value="200.0" onfocus="openNumpad('D340', 'X2轴速度', this.value)">
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">气缸动作超时 (D690, ms)</span>
+              <input type="number" class="param-input" id="p_D690" value="3000" onfocus="openNumpad('D690', '气缸超时', this.value)">
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">夹紧保压延时 (D692, ms)</span>
+              <input type="number" class="param-input" id="p_D692" value="300" onfocus="openNumpad('D692', '夹紧保压', this.value)">
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">光电动态消抖时间 (D699, ms)</span>
+              <input type="number" class="param-input" id="p_D699" value="150" onfocus="openNumpad('D699', '消抖时间', this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         Page 06: 状态监控画面 (page-status)
+         ========================================== -->
+    <section class="page" id="page-status">
+      <div class="grid-3" style="flex:1;">
+        <!-- Z 轴伺服状态 -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Z 轴伺服驱动器状态 (SV0)</span><span class="led green"></span></div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+            <div class="dro-box"><span class="dro-label">驱动使能 (SON)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">定位完成 (In-Pos)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">正限位 / 负限位</span><span>X3 <span class="led"></span> | X4 <span class="led"></span></span></div>
+            <div class="dro-box"><span class="dro-label">原点传感器 (X0)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">当前电流 / 负载率</span><span>1.4A / 32%</span></div>
+            <div class="dro-box"><span class="dro-label">位置滞后误差</span><span>0.012 mm</span></div>
+          </div>
+        </div>
+
+        <!-- X1 轴伺服状态 -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">X1 轴伺服驱动器状态 (SV1)</span><span class="led green"></span></div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+            <div class="dro-box"><span class="dro-label">驱动使能 (SON)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">定位完成 (In-Pos)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">正限位 / 负限位</span><span>X5 <span class="led"></span> | X6 <span class="led"></span></span></div>
+            <div class="dro-box"><span class="dro-label">原点传感器 (X1)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">当前电流 / 负载率</span><span>2.1A / 45%</span></div>
+            <div class="dro-box"><span class="dro-label">位置滞后误差</span><span>0.008 mm</span></div>
+          </div>
+        </div>
+
+        <!-- X2 轴伺服状态 -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">X2 轴伺服驱动器状态 (SV2)</span><span class="led green"></span></div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+            <div class="dro-box"><span class="dro-label">驱动使能 (SON)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">定位完成 (In-Pos)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">正限位 / 负限位</span><span>X7 <span class="led"></span> | X10 <span class="led"></span></span></div>
+            <div class="dro-box"><span class="dro-label">原点传感器 (X2)</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">当前电流 / 负载率</span><span>0.9A / 18%</span></div>
+            <div class="dro-box"><span class="dro-label">位置滞后误差</span><span>0.005 mm</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         Page 07: IO监控画面 (page-io) 100% 真实点表
+         ========================================== -->
+    <section class="page" id="page-io">
+      <div style="display:flex; flex-direction:column; height:100%; gap:8px;">
+        <!-- 筛选与控制栏 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-panel); padding:8px 12px; border-radius:4px;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="font-size:12px; color:var(--text-muted);">模块分类:</span>
+            <select id="ioModuleFilter" onchange="renderIoTable()" style="background:var(--bg-input); color:#fff; border:1px solid var(--border-color); padding:4px 8px; border-radius:4px; font-size:12px;">
+              <option value="all">全部模块 (71 DI / 48 DO)</option>
+              <option value="cpu_di">CPU 本机输入 (X0 ~ X17)</option>
+              <option value="ext_di">扩展 DI 模块 1~4 (X10 ~ X77)</option>
+              <option value="remote_di">远程 IO 输入 (X120 ~ X133)</option>
+              <option value="cpu_do">CPU 本机输出 (Y0 ~ Y27)</option>
+              <option value="ext_do">扩展 DO 模块 1~2 (Y30 ~ Y57)</option>
+            </select>
+            <input type="text" id="ioSearchInput" placeholder="搜索点位/变量名..." oninput="renderIoTable()" style="background:var(--bg-input); color:#fff; border:1px solid var(--border-color); padding:4px 8px; border-radius:4px; font-size:12px; width:180px;">
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span class="status-badge" style="background:rgba(255, 179, 0, 0.1); border-color:var(--warning); color:var(--warning);">
+              强制仿真测试模式 (点击电位强制翻转)
+            </span>
+          </div>
+        </div>
+
+        <!-- 真实端子排表格 -->
+        <div class="panel" style="flex:1; overflow-y:auto; padding:0;">
+          <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">
             <thead>
-              <tr>
-                <th style="width:40px;">#</th>
-                <th style="width:80px;">报警码</th>
-                <th style="width:70px;">级别</th>
-                <th style="width:140px;">发生时间</th>
-                <th>报警内容</th>
-                <th style="width:60px;">状态</th>
-                <th style="width:140px;">处理建议</th>
+              <tr style="background:#151b26; color:var(--text-muted); border-bottom:1px solid var(--border-color); height:32px;">
+                <th style="padding:0 12px; width:80px;">地址</th>
+                <th style="padding:0 12px; width:180px;">变量标识符</th>
+                <th style="padding:0 12px;">功能描述与物理连接</th>
+                <th style="padding:0 12px; width:100px;">信号电位</th>
+                <th style="padding:0 12px; width:80px; text-align:center;">状态</th>
+                <th style="padding:0 12px; width:100px; text-align:center;">调试操作</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td class="alarm-code">AL-101</td>
-                <td><span class="led red"></span> 严重</td>
-                <td>08-06 10:15:32</td>
-                <td>紧急停止按钮被按下</td>
-                <td><span style="color:#69f0ae;">已解除</span></td>
-                <td style="font-size:10px; color:#8892b0;">旋转急停按钮复位</td>
-              </tr>
-              <tr class="active">
-                <td>2</td>
-                <td class="alarm-code">AL-258</td>
-                <td><span class="led red" style="animation:blink 0.8s infinite;"></span> 故障</td>
-                <td>08-06 14:28:11</td>
-                <td>打胶机抓料检测1异常</td>
-                <td><span style="color:#ff5252;">● 活动</span></td>
-                <td style="font-size:10px; color:#ff8a80;">检查抓料传感器 S924</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td class="alarm-code">AL-112</td>
-                <td><span class="led yellow"></span> 警告</td>
-                <td>08-06 12:03:45</td>
-                <td>与组框机通讯异常</td>
-                <td><span style="color:#69f0ae;">已解除</span></td>
-                <td style="font-size:10px; color:#8892b0;">检查RS485通信线与站号</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td class="alarm-code">AL-203</td>
-                <td><span class="led yellow"></span> 警告</td>
-                <td>08-06 11:42:08</td>
-                <td>X1轴伺服报警</td>
-                <td><span style="color:#69f0ae;">已解除</span></td>
-                <td style="font-size:10px; color:#8892b0;">检查伺服驱动器报警码</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td class="alarm-code">AL-312</td>
-                <td><span class="led yellow"></span> 提示</td>
-                <td>08-06 09:55:17</td>
-                <td>无料延时报警</td>
-                <td><span style="color:#69f0ae;">已解除</span></td>
-                <td style="font-size:10px; color:#8892b0;">补充来料或延长延时参数</td>
-              </tr>
-              <tr>
-                <td>6</td>
-                <td class="alarm-code">AL-110</td>
-                <td><span class="led red"></span> 严重</td>
-                <td>08-05 16:20:33</td>
-                <td>安全门3打开</td>
-                <td><span style="color:#69f0ae;">已解除</span></td>
-                <td style="font-size:10px; color:#8892b0;">关闭安全门并确认锁扣</td>
-              </tr>
-              <tr>
-                <td>7</td>
-                <td class="alarm-code">AL-262</td>
-                <td><span class="led yellow"></span> 警告</td>
-                <td>08-05 14:08:12</td>
-                <td>打胶机允许送料状态异常</td>
-                <td><span style="color:#69f0ae;">已解除</span></td>
-                <td style="font-size:10px; color:#8892b0;">检查打胶机就绪状态</td>
-              </tr>
+            <tbody id="ioTableBody">
+              <!-- 由 script.js 动态渲染 71 DI / 48 DO 完整数据 -->
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-    <div class="page-footer">
-      <div>FB_2001 V3.0.0 | 报警总数: 49类 (安全9+设备24+传感42+系统5 = 80类/去重后49)</div>
-      <div>历史记录: 最近 500 条 | 自动滚动: 开</div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 09 打胶机交互 (V1.6 工艺方向纠正：本机→送边框→打胶机→组框机) -->
-  <div class="page" id="page-glue">
-    <div class="page-header">
-      <div class="page-title">🧲 本机(边框缓存机) ↔ 打胶机 交互</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>通信正常</div>
-        <div class="status-item"><span class="led yellow"></span>送料中</div>
-        <div class="status-item" id="clockGlue">14:32:05</div>
-      </div>
-    </div>
-    <div class="iface-close-btn" onclick="goPage('main')" title="关闭返回主画面">✕</div>
-    <div class="page-body" style="padding:0;">
-      <div class="xbody">
-        <div class="xtitle">
-          <div class="t">FB_1004 · 本机把边框送给打胶机（打胶完成后打胶机转给组框机）</div>
-          <div class="s">
-            <span class="xpill g">● 送边框到打胶机 5/8</span>
-            <span class="xpill">今日送料: 318次 · 超时: 2次</span>
+    <!-- ==========================================
+         Page 08: 报警管理画面 (page-alarm)
+         ========================================== -->
+    <section class="page" id="page-alarm">
+      <div style="display:flex; flex-direction:column; height:100%; gap:12px;">
+        <div class="panel" style="flex:1.2; display:flex; flex-direction:column;">
+          <div class="panel-header">
+            <span class="panel-title">当前实时报警列表 (First-Out 首出高亮)</span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn sm warning" onclick="muteBuzzer()">🔕 报警消音 (M105)</button>
+              <button class="btn sm primary" onclick="ackAlarm()">✔ 全部确认/复位</button>
+            </div>
+          </div>
+          <div style="flex:1; overflow-y:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+              <thead>
+                <tr style="background:#151b26; color:var(--text-muted); border-bottom:1px solid var(--border-color); height:30px;">
+                  <th style="padding:0 8px; width:70px;">代码</th>
+                  <th style="padding:0 8px; width:80px;">等级</th>
+                  <th style="padding:0 8px; width:100px;">工站</th>
+                  <th style="padding:0 8px;">报警描述与触发条件</th>
+                  <th style="padding:0 8px; width:140px;">触发时间</th>
+                  <th style="padding:0 8px; width:100px; text-align:center;">排障 SOP</th>
+                </tr>
+              </thead>
+              <tbody id="alarmTableBody">
+                <tr style="border-bottom:1px solid var(--border-color); background:rgba(255, 61, 0, 0.1);">
+                  <td style="padding:8px; color:var(--danger); font-weight:bold;">E1002</td>
+                  <td style="padding:8px;"><span class="badge" style="background:var(--danger);">致命故障</span></td>
+                  <td style="padding:8px;">工站1 · L1</td>
+                  <td style="padding:8px; color:#fff;">L1 分料气缸推出超时 (超过 3000ms 未检测到到位)</td>
+                  <td style="padding:8px; color:var(--text-muted);">2026-08-24 22:15:02</td>
+                  <td style="padding:8px; text-align:center;"><button class="btn sm primary" onclick="showSopModal('E1002')">查看SOP</button></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="xgrid">
-          <!-- 送料握手: 本机(发边框) ⇄ 打胶机上游(收边框) -->
-          <div class="xblock in">
-            <div class="xcol l1 hl">
-              <div class="xcol-head">
-                <span class="cname">边框缓存机（本机）</span>
-                <span class="cdir">送出边框 (1)(4)(5)(7) 发</span>
-              </div>
-              <div class="xsig"><div class="xn">1</div><div class="xnm">本机准备好给打胶机送边框</div><div class="xa">M200</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">4</div><div class="xnm">本机收到打胶机回传的边框ID</div><div class="xa">M203 · S932</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">5</div><div class="xnm">本机允许打胶机进入安全区取边框</div><div class="xa">Y47 安全区</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">7</div><div class="xnm">本机通知打胶机：边框已放到取料位</div><div class="xa">Y44 允许抓料</div><div class="xl y"></div></div>
-            </div>
-            <div class="xcol l2 hl">
-              <div class="xcol-head">
-                <span class="cname">打胶机（上游入口）</span>
-                <span class="cdir">收取边框 (2)(3)(6)(8) 收</span>
-              </div>
-              <div class="xsig"><div class="xn">2</div><div class="xnm">打胶机准备好 可以接收边框</div><div class="xa">X76 允许送料</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">3</div><div class="xnm">打胶机传给本机 边框ID匹配</div><div class="xa">S932</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">6</div><div class="xnm">打胶机请求本机 送边框过来</div><div class="xa">M206 请求送料</div><div class="xl r"></div></div>
-              <div class="xsig"><div class="xn">8</div><div class="xnm">打胶机回复本机 边框已取走</div><div class="xa">X102 取料完成</div><div class="xl o"></div></div>
-            </div>
-            <div class="xact">
-              <button class="xbtn in">送 料 异 常 放 行</button>
-            </div>
-          </div>
-          <!-- 打胶机→组框机(下游示意) -->
-          <div class="xblock out">
-            <div class="xcol r1 hl">
-              <div class="xcol-head">
-                <span class="cname">打胶机（打胶完成）</span>
-                <span class="cdir">出成品 (1)(4)(5)(7) 发</span>
-              </div>
-              <div class="xsig"><div class="xn">1</div><div class="xnm">打胶机完成打胶 准备出成品</div><div class="xa">X111 准备好</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">4</div><div class="xnm">打胶机确认组框机已收ID</div><div class="xa">X114</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">5</div><div class="xnm">打胶机允许组框机来取成品</div><div class="xa">X115</div><div class="xl o"></div></div>
-              <div class="xsig"><div class="xn">7</div><div class="xnm">打胶机通知组框机 成品到位</div><div class="xa">X117</div><div class="xl o"></div></div>
-            </div>
-            <div class="xcol r2 hl">
-              <div class="xcol-head">
-                <span class="cname">组框机（下游 收成品）</span>
-                <span class="cdir">收成品 (2)(3)(6)(8) 收</span>
-              </div>
-              <div class="xsig"><div class="xn">2</div><div class="xnm">组框机准备好 接打胶完成品</div><div class="xa">M220</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">3</div><div class="xnm">组框机回传 成品ID给打胶机</div><div class="xa">M223</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">6</div><div class="xnm">组框机请求打胶机 给成品</div><div class="xa">M226</div><div class="xl y"></div></div>
-              <div class="xsig"><div class="xn">8</div><div class="xnm">组框机回复打胶机 成品已取走</div><div class="xa">X108</div><div class="xl o"></div></div>
-            </div>
-            <div class="xact">
-              <button class="xbtn out">组 框 接 收 异 常 放 行</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="xfoot" style="margin-top:-2px;">
-      <div>💡 工艺方向：本机边框缓存机 →(送边框)→ 打胶机打胶 →(送打胶成品)→ 组框机组框；握手8步闭环：(1)准备→(2)对端准备→(3)(4)ID交换→(5)允许→(6)请求→(7)到位→(8)完成</div>
-      <div class="warn">⚠ 绿=已达成 黄=进行中 红闪=超时异常 灰=未触发；异常放行仅超时用</div>
-    </div>
-  </div>
 
-  <!-- 10 机器人交互 (V1.6 工艺方向纠正：机器人→放边框→本机平台) -->
-  <div class="page" id="page-robot">
-    <div class="page-header">
-      <div class="page-title">🤖 机器人 ↔ 本机(边框缓存机) 交互</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led green"></span>通信正常</div>
-        <div class="status-item"><span class="led green"></span>码料中</div>
-        <div class="status-item" id="clockRobot">14:32:05</div>
-      </div>
-    </div>
-    <div class="iface-close-btn" onclick="goPage('main')" title="关闭返回主画面">✕</div>
-    <div class="page-body" style="padding:0;">
-      <div class="xbody">
-        <div class="xtitle">
-          <div class="t">机器人把边框放到本机平台上 · 4×6×3 = 72格/盘（标准握手）</div>
-          <div class="s">
-            <span class="xpill g">● 机器人放料到本机 6/8</span>
-            <span class="xpill y">码料进度 15/72 · 第1盘第1层第6格</span>
+        <!-- MES 10 条去重队列看板 -->
+        <div class="panel" style="flex:0.8; display:flex; flex-direction:column;">
+          <div class="panel-header">
+            <span class="panel-title">MES 报警通信队列 (ST_CommonAlarm.aiMesAlarmQueue 10条循环缓冲)</span>
           </div>
-        </div>
-        <div class="xgrid">
-          <!-- 放料握手: 机器人(发边框) ⇄ 本机缓存机(收边框上平台) -->
-          <div class="xblock in">
-            <div class="xcol l1 hl">
-              <div class="xcol-head">
-                <span class="cname">机器人（放料端）</span>
-                <span class="cdir">把边框放到本机平台 (1)(4)(5)(7) 发</span>
-              </div>
-              <div class="xsig"><div class="xn">1</div><div class="xnm">机器人准备好 来放边框</div><div class="xa">M240</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">4</div><div class="xnm">机器人收到本机回传的料位ID</div><div class="xa">M243</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">5</div><div class="xnm">机器人允许本机准备接收边框</div><div class="xa">M106</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">7</div><div class="xnm">机器人通知本机：边框已放到平台上</div><div class="xa">M247 有料确认</div><div class="xl y"></div></div>
-            </div>
-            <div class="xcol l2 hl">
-              <div class="xcol-head">
-                <span class="cname">边框缓存机（本机 上料平台）</span>
-                <span class="cdir">收边框到平台 (2)(3)(6)(8) 收</span>
-              </div>
-              <div class="xsig"><div class="xn">2</div><div class="xnm">本机平台准备好 可以接边框</div><div class="xa">M104 自动中</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">3</div><div class="xnm">本机传给机器人 当前放料位ID/坐标</div><div class="xa">M243 ID匹配</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">6</div><div class="xnm">本机请求机器人 把边框放过来</div><div class="xa">M246 请求码料</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">8</div><div class="xnm">本机回复机器人 边框已放好收到</div><div class="xa">M105 码料完成</div><div class="xl r"></div></div>
-            </div>
-            <div class="xact">
-              <button class="xbtn tk">机 器 人 放 料 异 常 放 行</button>
-            </div>
-          </div>
-          <!-- 本机缓存机→送料到打胶机(下游示意 已在打胶机页) -->
-          <div class="xblock out">
-            <div class="xcol r1 hl">
-              <div class="xcol-head">
-                <span class="cname">边框缓存机（本机 出料端）</span>
-                <span class="cdir">发边框去打胶机 (1)(4)(5)(7) 发</span>
-              </div>
-              <div class="xsig"><div class="xn">1</div><div class="xnm">本机准备好 把边框送给打胶机</div><div class="xa">M260</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">4</div><div class="xnm">本机收到打胶机回传 边框ID匹配</div><div class="xa">M263</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">5</div><div class="xnm">本机允许打胶机进入安全区取料</div><div class="xa">M266</div><div class="xl o"></div></div>
-              <div class="xsig"><div class="xn">7</div><div class="xnm">本机通知打胶机 边框已到取料位</div><div class="xa">M268</div><div class="xl o"></div></div>
-            </div>
-            <div class="xcol r2 hl">
-              <div class="xcol-head">
-                <span class="cname">打胶机（入料口·详见打胶机交互页）</span>
-                <span class="cdir">收边框 (2)(3)(6)(8) 收</span>
-              </div>
-              <div class="xsig"><div class="xn">2</div><div class="xnm">打胶机准备好 收边框</div><div class="xa">M271</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">3</div><div class="xnm">打胶机传给本机 边框ID</div><div class="xa">M274</div><div class="xl g"></div></div>
-              <div class="xsig"><div class="xn">6</div><div class="xnm">打胶机请求本机 送边框</div><div class="xa">M275</div><div class="xl y"></div></div>
-              <div class="xsig"><div class="xn">8</div><div class="xnm">打胶机回复本机 边框取走完成</div><div class="xa">M107 停止码料</div><div class="xl o"></div></div>
-            </div>
-            <div class="xact">
-              <button class="xbtn dp">本 机 出 料 异 常 放 行</button>
-            </div>
+          <div class="grid-4" id="mesQueueContainer">
+            <!-- 由 script.js 渲染 -->
           </div>
         </div>
       </div>
-    </div>
-    <div class="xfoot" style="margin-top:-2px;">
-      <div>💡 工艺方向：机器人 →(放边框到本机平台)→ 边框缓存机 →(送边框)→ 打胶机 →(打胶完成)→ 组框机；故障信号 M108机器人故障/M109急停/M110通信</div>
-      <div class="warn">⚠ 今日平均码料 2.1s/格 · 效率 92.3% · 料盘布局与坐标见主画面</div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 11 系统设置 -->
-  <div class="page" id="page-system">
-    <div class="page-header">
-      <div class="page-title">🔧 系统设置画面</div>
-      <div class="page-status">
-        <div class="status-item"><span class="led yellow"></span>管理员权限</div>
-        <div class="status-item"><span class="led green"></span>设置已保存</div>
-        <div class="status-item" id="clockSystem">14:32:05</div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="sidebar">
-        <button class="side-btn" onclick="goPage('main')">◀ 返回主画面</button>
-        <button class="side-btn" style="background:#1a4a8a;">基本设置</button>
-        <button class="side-btn">通信设置</button>
-        <button class="side-btn">用户管理</button>
-        <button class="side-btn">日期时间</button>
-        <button class="side-btn">历史数据</button>
-        <button class="side-btn">版本信息</button>
-      </div>
-      <div class="main-area">
-        <div class="card">
-          <div class="tabs-inline">
-            <button class="tab-inline active">基本设置</button>
-            <button class="tab-inline">通信设置</button>
-            <button class="tab-inline">用户管理</button>
-            <button class="tab-inline">版本信息</button>
+    <!-- ==========================================
+         Page 09: 打胶机交互画面 (page-glue) STD-820 符号化
+         ========================================== -->
+    <section class="page" id="page-glue">
+      <div style="display:flex; gap:12px; height:100%;">
+        <div class="panel" style="flex:1.5; display:flex; flex-direction:column;">
+          <div class="panel-header">
+            <span class="panel-title">STD-820 八步安全握手状态机 (stDownstream)</span>
+            <span class="status-badge"><span class="led green" id="glueCommOkLed"></span>STD-820 4.0s 双向心跳正常</span>
           </div>
-          <div class="param-grid">
-            <div class="param-item"><span class="label">系统语言</span>
-              <select class="input-field" style="background:#0a192f; border:1px solid #233554; border-radius:3px; color:#e6f1ff;">
-                <option>中文(简体)</option><option>English</option>
-              </select>
-            </div>
-            <div class="param-item"><span class="label">操作超时退出</span><input class="input-field" value="5"><span style="font-size:11px;color:#8892b0;">分钟</span></div>
-            <div class="param-item"><span class="label">屏幕保护延时</span><input class="input-field" value="10"><span style="font-size:11px;color:#8892b0;">分钟</span></div>
-            <div class="param-item"><span class="label">蜂鸣器音量</span><input class="input-field" value="70"><span style="font-size:11px;color:#8892b0;">%</span></div>
-            <div class="param-item"><span class="label">屏幕亮度</span><input class="input-field" value="80"><span style="font-size:11px;color:#8892b0;">%</span></div>
-            <div class="param-item"><span class="label">历史数据保留</span><input class="input-field" value="30"><span style="font-size:11px;color:#8892b0;">天</span></div>
-            <div class="param-item"><span class="label">报警记录条数</span><input class="input-field" value="500"><span style="font-size:11px;color:#8892b0;">条</span></div>
-            <div class="param-item"><span class="label">启动默认画面</span>
-              <select class="input-field" style="background:#0a192f; border:1px solid #233554; border-radius:3px; color:#e6f1ff;">
-                <option>登录画面</option><option selected>主画面</option><option>手动控制</option>
-              </select>
-            </div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:8px; overflow-y:auto;">
+            <div class="dro-box" id="glue_step_0"><span class="dro-label">Step 0: bMachine_ReadyOut 待机准备 (X2 回到待机位)</span><span class="led"></span></div>
+            <div class="dro-box" id="glue_step_1"><span class="dro-label">Step 1: 承接取放料边框 (X2 移动至接料位 D620)</span><span class="led"></span></div>
+            <div class="dro-box ok" id="glue_step_2"><span class="dro-label">Step 2: 移至打胶位，bSafetyZoneSignal 置位关闭 (Y47)</span><span class="led green"></span></div>
+            <div class="dro-box" id="glue_step_3"><span class="dro-label">Step 3: 等待 bDownstream_LineReady 允许送料 (X76)</span><span class="led"></span></div>
+            <div class="dro-box" id="glue_step_4"><span class="dro-label">Step 4: 输出 bMachine_OutfeedReq 允许抓料 (Y44)</span><span class="led"></span></div>
+            <div class="dro-box" id="glue_step_5"><span class="dro-label">Step 5: 等待 bDownstream_OutfeedArrived 取料完成 (X102)</span><span class="led"></span></div>
+            <div class="dro-box" id="glue_step_6"><span class="dro-label">Step 6: 复位 bMachine_OutfeedReq，X2 轴退回待机位</span><span class="led"></span></div>
+            <div class="dro-box" id="glue_step_7"><span class="dro-label">Step 7: 复位 bSafetyZoneSignal 释放安全区，握手周期完成</span><span class="led"></span></div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-title">◉ PLC通信设置</div>
-          <div class="param-grid">
-            <div class="param-item"><span class="label">通信方式</span>
-              <select class="input-field" style="background:#0a192f; border:1px solid #233554; border-radius:3px; color:#e6f1ff;">
-                <option selected>RS-485 串口</option><option>Ethernet TCP</option>
-              </select>
-            </div>
-            <div class="param-item"><span class="label">波特率</span>
-              <select class="input-field" style="background:#0a192f; border:1px solid #233554; border-radius:3px; color:#e6f1ff;">
-                <option>9600</option><option>19200</option><option>57600</option><option selected>115200</option>
-              </select>
-            </div>
-            <div class="param-item"><span class="label">数据位</span><input class="input-field" value="8" readonly></div>
-            <div class="param-item"><span class="label">停止位</span><input class="input-field" value="1" readonly></div>
-            <div class="param-item"><span class="label">校验</span>
-              <select class="input-field" style="background:#0a192f; border:1px solid #233554; border-radius:3px; color:#e6f1ff;">
-                <option selected>None</option><option>Even</option><option>Odd</option>
-              </select>
-            </div>
-            <div class="param-item"><span class="label">PLC站号</span><input class="input-field" value="0"></div>
-            <div class="param-item"><span class="label">协议</span><input class="input-field" value="MC Protocol" readonly></div>
-            <div class="param-item"><span class="label">通信超时</span><input class="input-field" value="500"><span style="font-size:11px;color:#8892b0;">ms</span></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">ℹ 版本信息</div>
-          <div class="row">
-            <div class="label">PLC版本</div>
-            <div class="value-box ok">DJ-2026-005 V9.1.0</div>
-            <div class="label">HMI版本</div>
-            <div class="value-box ok">HMI-V1.3.0</div>
-            <div class="label">Boot版本</div>
-            <div class="value-box">V2.08</div>
-          </div>
-          <div class="row">
-            <div class="label">OB1 版本</div>
-            <div class="value-box">V9.0.0</div>
-            <div class="label">FB_1002 输送机</div>
-            <div class="value-box">V11.0.0</div>
-            <div class="label">FB_1003 取放料</div>
-            <div class="value-box">V8.0.0</div>
-          </div>
-          <div class="row" style="margin-top:10px;">
-            <button class="btn btn-ghost">📦 导出配置文件</button>
-            <button class="btn btn-warn">📥 导入配置文件</button>
-            <button class="btn btn-success">💾 保存全部设置</button>
-            <button class="btn btn-danger" style="margin-left:auto;">↺ 恢复出厂设置</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="page-footer">
-      <div>HMI硬件: ProFace GP4501ww (10" 800×400 TFT) | HMI软件: GP-Pro EX</div>
-      <div>修改设置需重启HMI生效 · 权限: ADM 管理员</div>
-    </div>
-  </div>
 
-</div>
+        <div class="panel" style="flex:1; display:flex; flex-direction:column;">
+          <div class="panel-header"><span class="panel-title">下游打胶机信号状态与模拟调试 (STD-820)</span></div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div class="dro-box">
+              <span class="dro-label">bDownstream_LineReady <span style="font-size:10px; color:var(--text-dim);">(X76)</span></span>
+              <span class="led green" id="glueX76Led"></span>
+              <button class="btn sm" onclick="toggleIo('X76')">模拟触发</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">bDownstream_OutfeedArrived <span style="font-size:10px; color:var(--text-dim);">(X102)</span></span>
+              <span class="led" id="glueX102Led"></span>
+              <button class="btn sm" onclick="toggleIo('X102')">模拟触发</button>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">bMachine_OutfeedReq <span style="font-size:10px; color:var(--text-dim);">(Y44)</span></span>
+              <span class="led green" id="glueY44Led"></span>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">bSafetyZoneSignal <span style="font-size:10px; color:var(--text-dim);">(Y47)</span></span>
+              <span class="led red" id="glueY47Led"></span>
+            </div>
+            <div class="dro-box">
+              <span class="dro-label">bMachine_HeartbeatToDown</span>
+              <span class="led green" id="glueHbLed"></span>
+            </div>
+            <button class="btn primary" style="margin-top:10px;" onclick="runGlueHandshakeAuto()">▶ 运行单次 STD-820 自动握手流程</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         Page 10: 机器人交互画面 (page-robot) STD-820 符号化
+         ========================================== -->
+    <section class="page" id="page-robot">
+      <div class="grid-2" style="flex:1;">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">上游机器人供料交互 (stUpstream)</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="dro-box"><span class="dro-label">bMachine_ReadyIn 机器准备好进料</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">bMachine_AllowInfeed 允许上游进料</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">bUpstream_InfeedReq 上游供料请求</span><span class="led"></span></div>
+            <div class="dro-box"><span class="dro-label">bUpstream_InfeedArrivedAck 供料到位确认</span><span class="led green"></span></div>
+            <div class="dro-box"><span class="dro-label">bMachine_HeartbeatToUp 4.0s 心跳</span><span class="led green"></span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">4 层料仓缺料/叫料调度</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="dro-box"><span class="dro-label">L4 顶层料仓叫料</span><span class="badge" style="background:var(--success);">正常供料中</span></div>
+            <div class="dro-box"><span class="dro-label">L3 三层料仓叫料</span><span class="badge" style="background:var(--warning);">缺料请求中</span></div>
+            <div class="dro-box"><span class="dro-label">L2 二层料仓叫料</span><span class="badge" style="background:var(--success);">正常供料中</span></div>
+            <div class="dro-box"><span class="dro-label">L1 底层料仓叫料</span><span class="badge" style="background:var(--success);">正常供料中</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         Page 11: 系统设置画面 (page-system)
+         ========================================== -->
+    <section class="page" id="page-system">
+      <div class="grid-2" style="flex:1;">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">通信与网络配置</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+            <div class="dro-box"><span class="dro-label">PLC IP 地址</span><span>192.168.1.100 : 502</span></div>
+            <div class="dro-box"><span class="dro-label">HMI 触摸屏 IP</span><span>192.168.1.105</span></div>
+            <div class="dro-box"><span class="dro-label">子网掩码 / 网关</span><span>255.255.255.0 / 192.168.1.1</span></div>
+            <div class="dro-box"><span class="dro-label">通信协议模式</span><span>Mitsubishi MC 3E / Modbus TCP</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">固件版本与资产信息</span></div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+            <div class="dro-box"><span class="dro-label">SCL 控制程序版本</span><span>V7.1.1 (2026-08-24)</span></div>
+            <div class="dro-box"><span class="dro-label">HMI 原型版本</span><span>V2.0.0 (High-Fidelity)</span></div>
+            <div class="dro-box"><span class="dro-label">PLCopen 伺服规范</span><span>ST_ServoAxis V3.0</span></div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <button class="btn sm" style="flex:1;" onclick="exportLogCsv()">导出报警日志 CSV</button>
+              <button class="btn sm warning" style="flex:1;" onclick="backupParams()">备份参数到 U 盘</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 4. 底部报警横条 -->
+  <footer class="bottom-alarm-bar">
+    <div class="alarm-content">
+      <span class="led red"></span>
+      <span style="font-weight:bold; color:#fff;">[首出报警]</span>
+      <span id="bottomAlarmText">E1002 · L1 分料气缸推出超时 (D110: 1002)</span>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn sm danger" onclick="showSopModal('E1002')">📖 查看排障 SOP</button>
+      <button class="btn sm" onclick="goPage('alarm')">进入报警画面 ➔</button>
+    </div>
+  </footer>
 
 </div>
 </div>
 
+<!-- SOP 模态弹窗 -->
+<div class="modal-overlay" id="sopModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="sopModalTitle">故障排查指南 SOP (E1002)</span>
+      <button class="modal-close" onclick="closeSopModal()">×</button>
+    </div>
+    <div id="sopModalContent" style="font-size:13px; color:var(--text-main); line-height:1.6;"></div>
+    <div style="display:flex; justify-content:flex-end;">
+      <button class="btn primary" onclick="closeSopModal()">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 数字参数键盘弹窗 -->
+<div class="modal-overlay" id="numpadModal">
+  <div class="modal-box" style="width:360px;">
+    <div class="modal-header">
+      <span class="modal-title" id="numpadTitle">参数修改</span>
+      <button class="modal-close" onclick="closeNumpad()">×</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <input type="text" id="numpadDisplay" style="width:100%; height:42px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--cyan); font-family:var(--font-mono); font-size:22px; text-align:right; padding:0 12px; border-radius:4px;" readonly>
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+        <button class="btn lg" onclick="numpadInput('7')">7</button>
+        <button class="btn lg" onclick="numpadInput('8')">8</button>
+        <button class="btn lg" onclick="numpadInput('9')">9</button>
+        <button class="btn lg" onclick="numpadInput('4')">4</button>
+        <button class="btn lg" onclick="numpadInput('5')">5</button>
+        <button class="btn lg" onclick="numpadInput('6')">6</button>
+        <button class="btn lg" onclick="numpadInput('1')">1</button>
+        <button class="btn lg" onclick="numpadInput('2')">2</button>
+        <button class="btn lg" onclick="numpadInput('3')">3</button>
+        <button class="btn lg" onclick="numpadInput('.')">.</button>
+        <button class="btn lg" onclick="numpadInput('0')">0</button>
+        <button class="btn lg danger" onclick="numpadBackspace()">⌫</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn warning" style="flex:1;" onclick="numpadClear()">清空</button>
+        <button class="btn success lg" style="flex:1;" onclick="numpadConfirm()">确认写入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="hmi-components.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

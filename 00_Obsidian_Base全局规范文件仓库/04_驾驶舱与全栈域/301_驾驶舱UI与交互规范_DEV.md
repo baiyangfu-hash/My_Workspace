@@ -1,11 +1,12 @@
 ---
-spec_id: CP-301
+spec_id: DEV-301
 title: "驾驶舱UI与交互规范"
 version: "V1.1.0"
 domain: cockpit
 lifecycle: stable
 canonical_path: "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/301_驾驶舱UI与交互规范_DEV.md"
 tags: ["驾驶舱", "UI/UX", "SCADA", "HMI", "DJ-2026-005实践"]
+aliases: ["CP-301"]
 changelog:
   - version: V1.1.0
     date: 2026-08-09

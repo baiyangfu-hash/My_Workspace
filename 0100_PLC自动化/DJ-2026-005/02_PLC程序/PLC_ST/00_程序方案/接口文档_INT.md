@@ -56,7 +56,7 @@ tags: ["接口文档", "PLC程序"]
 |------|--------|------|
 | VAR_IN_OUT | 1 | io_stGlobal: ST_CommonAlarm |
 
-### 4.5 FB_ExternalDeviceInteraction（外部设备交互）
+### 4.5 FB_3001_ExternalInteraction（DJ005 基准实现：FB_ExternalDeviceInteraction）
 
 | 方向 | 参数数 | 说明 |
 |------|--------|------|
@@ -68,7 +68,7 @@ tags: ["接口文档", "PLC程序"]
 
 ```
 DATA_BLOCK GlobalVars
-├── stExternal  : ST_ExternalDevice         ← FB_ExternalDeviceInteraction
+├── stExternal  : ST_ExternalDevice         ← FB_3001_ExternalInteraction（DJ005实现名：FB_ExternalDeviceInteraction）
 ├── stConveyor  : ST_SingleLayerConveyor    ← 4×FB_1002 (展开调用)
 ├── stPickPlace : ST_PickPlace              ← FB_1003_PickPlace
 ├── stFeeder    : ST_GlueFeeder             ← FB_1004_GlueMachineFeeder

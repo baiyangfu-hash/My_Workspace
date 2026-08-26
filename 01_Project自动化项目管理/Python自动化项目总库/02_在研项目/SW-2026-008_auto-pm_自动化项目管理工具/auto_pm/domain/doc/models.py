@@ -1,20 +1,20 @@
 """Domain models for doc-as-code and self-auditing."""
 from dataclasses import dataclass, field
-from typing import List, Optional
+
 
 @dataclass
 class CliCommandDTO:
     name: str
     group: str
     doc: str
-    args: List[str] = field(default_factory=list)
+    args: list[str] = field(default_factory=list)
     file_source: str = ""
 
 @dataclass
 class BridgeMethodDTO:
     bridge_name: str
     method_name: str
-    args: List[str] = field(default_factory=list)
+    args: list[str] = field(default_factory=list)
     is_slot: bool = True
     is_signal: bool = False
     doc: str = ""

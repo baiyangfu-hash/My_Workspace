@@ -27,6 +27,7 @@ import logging
 import os
 import re
 from dataclasses import dataclass
+from datetime import datetime
 
 from auto_pm.utils.file_utils import StaleFileError, read_file_snapshot, write_file
 
@@ -324,6 +325,78 @@ def update_spec_snapshot(
     return True
 
 
+def ensure_spec_snapshot_section(
+    pm_session_path: str,
+    registry: dict[str, str],
+    spec_ids: list[str] | None = None,
+    snapshot_date: str | None = None,
+) -> bool:
+    """确保 PM_SESSION 中存在可解析的 Spec Snapshot 章节。
+
+    当章节缺失或内容失效时，按给定规范清单重建该章节。
+    若已存在章节，则整体替换该章节内容；否则追加到文末。
+    """
+    if not registry:
+        return False
+
+    if not os.path.isfile(pm_session_path):
+        log.warning("PM_SESSION 文件不存在，无法补齐 Spec Snapshot: %s", pm_session_path)
+        return False
+
+    content, original_mtime = read_file_snapshot(pm_session_path)
+    if not content:
+        log.warning("读取 PM_SESSION 失败，无法补齐 Spec Snapshot: %s", pm_session_path)
+        return False
+
+    section = render_spec_snapshot_section(
+        registry=registry,
+        spec_ids=spec_ids,
+        snapshot_date=snapshot_date,
+    )
+    pattern = re.compile(
+        r"^##\s+Spec\s+Snapshot[^\n]*\n.*?(?=^##\s+|\Z)",
+        re.IGNORECASE | re.MULTILINE | re.DOTALL,
+    )
+
+    if pattern.search(content):
+        new_content = pattern.sub(section + "\n", content, count=1)
+    else:
+        new_content = content.rstrip() + "\n\n" + section + "\n"
+
+    if new_content == content:
+        return False
+
+    try:
+        write_file(pm_session_path, new_content, expected_mtime=original_mtime)
+    except (OSError, StaleFileError) as e:
+        log.warning("写入 Spec Snapshot 章节失败: %s (%s)", pm_session_path, e)
+        return False
+
+    log.info("Spec Snapshot 章节已补齐: %s", pm_session_path)
+    return True
+
+
+def render_spec_snapshot_section(
+    registry: dict[str, str],
+    spec_ids: list[str] | None = None,
+    snapshot_date: str | None = None,
+) -> str:
+    """生成标准化的 Spec Snapshot Markdown 章节。"""
+    date_text = snapshot_date or datetime.now().strftime("%Y-%m-%d")
+    ordered_ids = _resolve_snapshot_spec_ids(registry, spec_ids)
+    rows = "\n".join(
+        f"| {spec_id} | {registry[spec_id]} | {date_text} | 基线版本锁定 |"
+        for spec_id in ordered_ids
+    )
+    return (
+        "## Spec Snapshot（初始化时锁定，供后续版本漂移检测）\n\n"
+        "> 以下版本号在项目补齐时从 spec_registry.json 读取并填入。\n\n"
+        "| 规范编号 | 版本号 | 记录日期 | 说明 |\n"
+        "|---------|--------|---------|------|\n"
+        f"{rows}"
+    )
+
+
 def _split_table_row(row: str) -> list[str]:
     """拆分 Markdown 表格行为单元格列表
 
@@ -342,6 +415,17 @@ def _split_table_row(row: str) -> list[str]:
     if stripped.endswith("|"):
         stripped = stripped[:-1]
     return stripped.split("|")
+
+
+def _resolve_snapshot_spec_ids(
+    registry: dict[str, str],
+    spec_ids: list[str] | None,
+) -> list[str]:
+    if spec_ids:
+        ordered = [spec_id for spec_id in spec_ids if spec_id in registry]
+        if ordered:
+            return ordered
+    return sorted(registry)
 
 
 def _parse_version(version: str) -> tuple[int, int, int] | None:

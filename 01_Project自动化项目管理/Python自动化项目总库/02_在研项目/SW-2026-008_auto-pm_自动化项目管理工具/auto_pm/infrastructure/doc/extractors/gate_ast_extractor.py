@@ -1,15 +1,16 @@
 """Static AST extractor for PLC gatekeeper checker methods."""
 import ast
 from pathlib import Path
-from typing import List
+
 from auto_pm.domain.doc.models import GateRuleDTO
+
 
 class GateAstExtractor:
     """Extracts PlcChecker gate rules statically."""
 
     @staticmethod
-    def extract_from_checker(checker_file: Path) -> List[GateRuleDTO]:
-        rules: List[GateRuleDTO] = []
+    def extract_from_checker(checker_file: Path) -> list[GateRuleDTO]:
+        rules: list[GateRuleDTO] = []
         if not checker_file.exists():
             return rules
 

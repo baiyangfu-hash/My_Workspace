@@ -60,8 +60,37 @@ class SpecScanner:
         if not base_dir.exists():
             return []
         if self.project_root:
-            return sorted(base_dir.glob("PM_SESSION_*.md"))
-        return sorted(base_dir.rglob("PM_SESSION_*.md"))
+            candidates = sorted(base_dir.glob("PM_SESSION_*.md"))
+        else:
+            candidates = sorted(base_dir.rglob("PM_SESSION_*.md"))
+        # Windows 文件系统大小写不敏感，glob/rglob 会把 pm_session_guide.md
+        # 之类的说明文档也卷进来；这里再做一次严格文件名过滤。
+        return [
+            path for path in candidates
+            if (
+                path.name.startswith("PM_SESSION_")
+                and path.suffix == ".md"
+                and not self._is_archived_pm_session(path)
+            )
+        ]
+
+    def _is_archived_pm_session(self, file_path: Path) -> bool:
+        lower_name = file_path.name.lower()
+        if "pm_session_template" in lower_name:
+            return True
+        if "_archive_" in lower_name or lower_name.endswith("_archive.md"):
+            return True
+
+        for part in file_path.parts:
+            lower_part = part.lower()
+            if lower_part in {"_archive", "archive", "templates"}:
+                return True
+            if lower_part == ".trae":
+                continue
+            if lower_part == "project-bootstrap":
+                return True
+
+        return False
 
     def _extract_spec_number(self, file_path: Path) -> str | None:
         name = file_path.stem

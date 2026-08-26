@@ -1,9 +1,8 @@
-﻿"""Clean CLI 命令：一键清扫工作区根目录游离临时日志、脚本及缓存 (CHG-SCPT-2026-155)"""
+"""Clean CLI 命令：一键清扫工作区根目录游离临时日志、脚本及缓存 (CHG-SCPT-2026-155)"""
 
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import click
 from rich.console import Console
@@ -38,7 +37,6 @@ def clean_cmd(ctx: click.Context, cache: bool, dry_run: bool) -> None:
     table.add_column("说明")
 
     for issue in report.temp_files:
-        table.add_column if False else None
         table.add_row(issue.relative_path, issue.issue_type, issue.description)
 
     for issue in report.unauthorized_files:

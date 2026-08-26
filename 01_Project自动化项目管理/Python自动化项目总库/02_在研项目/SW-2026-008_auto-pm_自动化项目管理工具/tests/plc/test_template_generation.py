@@ -84,7 +84,7 @@ class TestTemplateGeneration:
         template_dir = os.path.join(path, "template")
         for d in STD_DIRS:
             # 项目管理目录：接受任一候选（01_启动 或 00_项目管理）
-            if d == "00_项目管理":
+            if d in PM_DIR_CANDIDATES or d in ("00_项目管理", "01_启动"):
                 assert any(
                     os.path.isdir(os.path.join(template_dir, c))
                     for c in PM_DIR_CANDIDATES
@@ -99,11 +99,16 @@ class TestTemplateGeneration:
         path = template_service.get_template_path("plc-standard-project")
         template_dir = os.path.join(path, "template")
 
-        assert os.path.isfile(
+        has_proj_file = os.path.isfile(
             os.path.join(
                 template_dir, "01_启动", "003_{{ project_id }}_项目立项表_PROJ.md.jinja"
             )
+        ) or os.path.isfile(
+            os.path.join(
+                template_dir, "00_项目管理", "01_立项与需求", "003_{{ project_id }}_项目立项表_PROJ.md.jinja"
+            )
         )
+        assert has_proj_file, "缺少项目立项表模板文件"
         for asset_name in (
             "README.md.jinja",
             "io_points.csv.jinja",

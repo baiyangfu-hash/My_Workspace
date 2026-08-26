@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "auto-pm: PLC 门禁全检 (DJ-2026-005)",
+      "type": "shell",
+      "command": "auto-pm plc check DJ-2026-005",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "auto-pm: 全系统文档与版本锁门禁 (doc check)",
+      "type": "shell",
+      "command": "auto-pm doc check",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "auto-pm: 自动化测试套件 (pytest)",
+      "type": "shell",
+      "command": "pytest tests/",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "auto-pm: SCL 标点与格式一键自愈 (repair auto-fix)",
+      "type": "shell",
+      "command": "auto-pm plc repair DJ-2026-005 --auto-fix",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

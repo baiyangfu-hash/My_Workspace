@@ -45,14 +45,14 @@ tags: ["详细设计", "PLC程序"]
 | FB_1003 | `pickplace/FB_1003_*.scl` | FUNCTION_BLOCK | 1 | 42+14=56 | 6步状态机、伺服轴直控、双夹爪取放 |
 | FB_1004 | `feeder/FB_1004_*.scl` | FUNCTION_BLOCK | 1 | 14+9=23 | 4步状态机、安全区管理、打胶机协作 |
 | FB_2001 | `common/FB_2001_*.scl` | FUNCTION_BLOCK | 1 | 3+10=13 | ~50类报警汇总、MES队列、指示灯控制 |
-| FB_External | `external/FB_External*.scl` | FUNCTION_BLOCK | 1 | 27+20=47 | 安全门/急停/外设交互/总线健康位 |
+| FB_3001 | `external/FB_ExternalDeviceInteraction.scl` | FUNCTION_BLOCK | 1 | 27+20=47 | 安全门/急停/外设交互/总线健康位（DJ005 基准实现文件；模板归一命名：FB_3001_ExternalInteraction） |
 | GlobalVars | `DB1/GlobalVars.db` | DATA_BLOCK | 1 | - | I/O映射中心(~220+变量, 5个STRUCT+3轴数组) |
 
 ### 3.3 调用关系
 
 ```
 OB1 (主循环)
-  ├── Step 1: fbExternalDevice (FB_ExternalDeviceInteraction)
+  ├── Step 1: fbExternalDevice (DJ005实现：FB_ExternalDeviceInteraction；模板归一命名：FB_3001_ExternalInteraction)
   │   ← stExternal.i_* (27输入) → stExternal.o_* (20输出)
   │
   ├── Step 2: fbConveyor_L1~L4 (4×FB_1002, FOR i:=1 TO 4)
@@ -150,7 +150,7 @@ OB1 (主循环)
 ### 7.1 命名规范
 
 - 遵循 LSP-905 §3 小驼峰风格
-- 前缀体系：`i_`(输入), `q_`(输出), `st_`(结构体), `a_`(数组), `fb_`(FB实例), `e_`(枚举)
+- 前缀体系：`i_`(输入), `o_`/`q_`(输出，`q_` 为兼容旧项目), `io_`(输入输出), `s_`(FB内部静态变量), `fb_`(FB实例), `arr`(数组类型标识)
 
 ### 7.2 GlobalVars 数据块结构
 
@@ -176,5 +176,5 @@ OB1 (主循环)
 | 取放料 | `pickplace/PRD/详细设计说明书_DSN-FB1003-PickPlace.md` |
 | 送料 | `feeder/PRD/详细设计说明书_DSN-FB1004-GlueMachineFeeder.md` |
 | 公共报警 | `common/PRD/详细设计说明书_DSN-FB2001-CommonAlarm.md` |
-| 外部设备 | `external/PRD/详细设计说明书_DSN-FB-ExternalDeviceInteraction.md` |
+| 外部设备 | `external/PRD/详细设计说明书_DSN-FB-ExternalDeviceInteraction.md`（DJ005 基准实现；模板归一命名：FB_3001_ExternalInteraction） |
 | GlobalVars | `DB1/PRD/接口文档_IFC-GlobalVars.md` |

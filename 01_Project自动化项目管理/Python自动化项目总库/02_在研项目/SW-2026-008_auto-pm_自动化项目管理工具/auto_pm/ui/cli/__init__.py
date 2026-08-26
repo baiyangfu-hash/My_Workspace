@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -19,6 +20,9 @@ def write_ai_context(
     project_name: str = "",
     stack: str = "",
     phase: str = "",
+    *,
+    entry_mode: str = "direct",
+    active_page: str = "workspace",
 ) -> bool:
     """写入 AI 上下文文件（.auto-pm/ai_context.json）
 
@@ -35,10 +39,26 @@ def write_ai_context(
     Returns:
         True 表示写入成功
     """
+    stack_lower = stack.lower()
+    if stack_lower == "plc":
+        intent = "plc_review"
+        target_skill = "plc-electrical-engineer"
+    elif stack_lower == "python":
+        intent = "project_followup"
+        target_skill = "fullstack-engineer"
+    else:
+        intent = "project_followup"
+        target_skill = "pm-workflow"
+
+    session_ref = f"PM_SESSION_{project_id}.md" if project_id else ""
     context = {
         "generated_at": datetime.now(UTC).isoformat(),
         "source": "auto-pm CLI",
         "workspace_root": str(Path(workspace_root).resolve()),
+        "request_id": f"CLI-{uuid.uuid4().hex[:12].upper()}",
+        "entry_mode": entry_mode,
+        "intent": intent,
+        "target_skill": target_skill,
         "active_project": {
             "id": project_id,
             "name": project_name,
@@ -46,7 +66,13 @@ def write_ai_context(
             "phase": phase,
         },
         "active_change": None,
-        "active_page": "workspace",
+        "active_page": active_page,
+        "product_context": {
+            "goal_ref": f"{session_ref}#product-goal" if session_ref else "",
+            "hypothesis_ref": f"{session_ref}#hypothesis-ledger" if session_ref else "",
+            "success_metric_ref": "",
+            "active_hypothesis": {},
+        },
     }
 
     try:

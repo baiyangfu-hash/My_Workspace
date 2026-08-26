@@ -1,4 +1,4 @@
-﻿"""PLC-HMI 概念映射：CLI 命令行入口（CLI 主入口（命令路由/参数解析））
+"""PLC-HMI 概念映射：CLI 命令行入口（CLI 主入口（命令路由/参数解析））
 
 像 PLC 的调试终端/工程师站，通过命令行直接操作功能块。
 不经过 HMI 画面，直接调用 FB 或 SFB。
@@ -47,6 +47,7 @@ import click  # noqa: E402
 from rich.console import Console  # noqa: E402
 
 from auto_pm.app_context import AppContext  # noqa: E402
+from auto_pm import __version__  # noqa: E402
 from auto_pm.cli.change import change_group  # noqa: E402
 from auto_pm.cli.clean import clean_cmd  # noqa: E402
 from auto_pm.cli.constraint import constraint_group  # noqa: E402
@@ -70,7 +71,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 console = Console()
 
 
-@click.version_option(version="1.1.0", package_name="auto_pm", message="auto-pm, version %(version)s")
+@click.version_option(version=__version__, package_name="auto_pm", message="auto-pm, version %(version)s")
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "--workspace",

@@ -260,3 +260,42 @@ class TestCLIEntry:
         runner = CliRunner()
         result = runner.invoke(cli, ["--help"])
         assert result.exit_code == 0
+
+
+# ── QML 静态语法与完整性测试 ────────────────────────────
+
+
+@pytest.mark.smoke
+class TestQmlIntegrity:
+    """QML 组件语法与加载完整性测试 (DEV-216/DEV-300)"""
+
+    def test_all_qml_components_loadable(self) -> None:
+        """所有 QML 文件必须能被 QQmlComponent 成功解析无语法错误"""
+        from PySide6.QtCore import QCoreApplication, QUrl
+        from PySide6.QtQml import QQmlComponent, QQmlEngine
+
+        app = QCoreApplication.instance()
+        if app is None:
+            app = QCoreApplication([])
+
+        engine = QQmlEngine()
+        qml_dir = Path(__file__).parent.parent / "auto_pm" / "ui" / "qml"
+        engine.addImportPath(str(qml_dir))
+        engine.addImportPath(str(qml_dir / "components"))
+        engine.addImportPath(str(qml_dir / "views"))
+        engine.addImportPath(str(qml_dir / "views" / "workspace"))
+        engine.addImportPath(str(qml_dir / "dialogs"))
+        engine.addImportPath(str(qml_dir / "theme"))
+
+        all_qml = list(qml_dir.rglob("*.qml"))
+        assert len(all_qml) > 0, "未找到任何 QML 文件"
+
+        errors: list[str] = []
+        for qml_file in all_qml:
+            component = QQmlComponent(engine, QUrl.fromLocalFile(str(qml_file)))
+            if component.isError():
+                err_msgs = "; ".join(e.toString() for e in component.errors())
+                errors.append(f"{qml_file.name}: {err_msgs}")
+
+        assert not errors, f"发现 {len(errors)} 个 QML 语法/加载错误:\n" + "\n".join(errors)
+

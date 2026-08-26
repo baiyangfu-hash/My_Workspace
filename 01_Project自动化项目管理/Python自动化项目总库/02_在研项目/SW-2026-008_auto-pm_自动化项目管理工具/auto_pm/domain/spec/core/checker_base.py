@@ -875,34 +875,75 @@ class DocIndexValidityChecker(BaseChecker):
     CHG-SCPT-2026-153: P1-2 修复 — 排除模板文件、占位符路径和忽略清单。
     """
 
-    _SECTION_4_RE = re.compile(r'^##\s*4\.?\s', re.MULTILINE)
+    _SECTION_4_RE = re.compile(r'^##\s*4\.?\s*(?:(?:Artifacts?|File)\s+)?(?:Index)?', re.MULTILINE)
     _NEXT_SECTION_RE = re.compile(r'^##\s*\d', re.MULTILINE)
     _DOC_ENTRY_RE = re.compile(
-        r'^-\s*(req|int|dsn|tec)\s*:\s*(.+)$', re.MULTILINE | re.IGNORECASE
+        r'^-\s*(prd|req|int|dsn|tec)\s*:\s*(.+)$', re.MULTILINE | re.IGNORECASE
+    )
+    _COMPONENT_PM_SESSION_RE = re.compile(
+        r"^PM_SESSION_(?:FB|FC|DB|OB|UDT)[A-Za-z0-9_-]*\.md$",
+        re.IGNORECASE,
     )
     _REQUIRED_DOCS = {"req", "int", "dsn", "tec"}
-
-    # 占位符/哨兵值（非真实路径，跳过有效性检查）
-    _PLACEHOLDER_VALUES: frozenset[str] = frozenset({
-        "-", "--", "---", "待补充", "(待补充)", "TBD", "N/A", "TODO",
-        "none", "None", "无", "略",
-    })
-
-    # 模板目录（避免扫描 PM_SESSION_TEMPLATE.md）
-    _TEMPLATE_DIR_MARKERS: tuple[str, ...] = (".trae", "project-bootstrap")
-
-    def _is_placeholder_path(self, path: str) -> bool:
-        """检查路径是否为占位符/哨兵值"""
-        normalized = path.strip().rstrip(".,;:)]}>")
-        return normalized in self._PLACEHOLDER_VALUES or len(normalized) <= 1
+    _DOC_TYPE_ALIASES = {"prd": "req"}
+    _LEGACY_DOC_CANDIDATES: dict[str, tuple[str, ...]] = {
+        "req": ("PRD/需求分析文档_REQ.md",),
+        "int": ("PRD/接口文档_INT.md",),
+        "dsn": ("PRD/详细设计说明书_DSN.md",),
+        "tec": ("PRD/技术方案文档_TEC.md",),
+    }
+    _TEMPLATE_DIR_MARKERS = (
+        ".trae/project-bootstrap",
+        "templates",
+    )
+    _PLACEHOLDER_PATH_MARKERS = {
+        "",
+        "-",
+        "无",
+        "none",
+        "null",
+        "n/a",
+        "na",
+        "待补充",
+        "待填写",
+        "待完善",
+        "待更新",
+        "待创建",
+        "todo",
+        "tbd",
+        "placeholder",
+    }
 
     def _is_template_file(self, pm_file: Path) -> bool:
-        """检查 PM_SESSION 文件是否位于模板目录中"""
         path_str = str(pm_file).replace("\\", "/")
         for marker in self._TEMPLATE_DIR_MARKERS:
             if f"/{marker}/" in path_str:
                 return True
         return "PM_SESSION_TEMPLATE" in pm_file.name
+
+    def _is_placeholder_path(self, doc_path_str: str) -> bool:
+        normalized = doc_path_str.strip()
+        if not normalized:
+            return True
+
+        lowered = normalized.lower()
+        if lowered in self._PLACEHOLDER_PATH_MARKERS:
+            return True
+
+        wrapped = lowered.strip("()[]{}<> \t")
+        if wrapped in self._PLACEHOLDER_PATH_MARKERS:
+            return True
+
+        # 模板变量或占位表达式不应被当成真实路径校验。
+        if "{{" in normalized or "}}" in normalized:
+            return True
+        if re.search(r"\{[A-Za-z0-9_]+\}", normalized):
+            return True
+
+        return False
+
+    def _should_skip_pm_file(self, pm_file: Path) -> bool:
+        return bool(self._COMPONENT_PM_SESSION_RE.match(pm_file.name))
 
     def _extract_section_4(self, content: str) -> str:
         m = self._SECTION_4_RE.search(content)
@@ -914,6 +955,15 @@ class DocIndexValidityChecker(BaseChecker):
         if nm:
             return content[start : start + len(m.group(0)) + nm.start()]
         return content[start:]
+
+    def _discover_legacy_docs(self, project_root: Path) -> dict[str, str]:
+        inferred: dict[str, str] = {}
+        for doc_type, candidates in self._LEGACY_DOC_CANDIDATES.items():
+            for candidate in candidates:
+                if (project_root / candidate).exists():
+                    inferred[doc_type] = candidate
+                    break
+        return inferred
 
     def check(
         self,
@@ -928,6 +978,8 @@ class DocIndexValidityChecker(BaseChecker):
         for pm_file in pm_files:
             # 跳过模板文件（CHG-SCPT-2026-153: P1-2）
             if self._is_template_file(pm_file):
+                continue
+            if self._should_skip_pm_file(pm_file):
                 continue
 
             project_root = pm_file.parent
@@ -944,11 +996,16 @@ class DocIndexValidityChecker(BaseChecker):
             found_docs: dict[str, str] = {}
             for match in self._DOC_ENTRY_RE.finditer(section4):
                 doc_type = match.group(1).lower()
+                doc_type = self._DOC_TYPE_ALIASES.get(doc_type, doc_type)
                 doc_path_str = match.group(2).strip().split()[0]  # 取路径部分（去掉注释）
                 # 跳过占位符（CHG-SCPT-2026-153: P1-2）
                 if self._is_placeholder_path(doc_path_str):
                     continue
                 found_docs[doc_type] = doc_path_str
+
+            if found_docs.keys() != self._REQUIRED_DOCS:
+                for doc_type, legacy_path in self._discover_legacy_docs(project_root).items():
+                    found_docs.setdefault(doc_type, legacy_path)
 
             # 检查必需文档是否齐全
             missing = self._REQUIRED_DOCS - set(found_docs.keys())
@@ -987,6 +1044,79 @@ class DocIndexValidityChecker(BaseChecker):
         return results
 
 
+
+class NumberConflictChecker(BaseChecker):
+    """SHC-015: 检测跨前缀编号冲突（如 TOOL-906 与 LSP-906 编号相同）
+
+    规范编号（number 字段）在全局注册表中必须唯一，不区分 type_prefix。
+    编号冲突会导致 AI 在引用"906 规范"时产生歧义。
+    """
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        # 构建 number → [spec_id, ...] 的映射
+        number_map: dict[str, list[str]] = {}
+        for spec_id, spec_info in registry._specs.items():
+            num = spec_info.number
+            if num:
+                number_map.setdefault(num, []).append(spec_id)
+
+        for num, spec_ids in number_map.items():
+            if len(spec_ids) > 1:
+                results.append(
+                    CheckResult(
+                        check_id="SHC-015",
+                        severity=Severity.WARNING,
+                        message=f"编号 {num} 存在跨前缀冲突",
+                        details=f"冲突条目: {', '.join(spec_ids)}",
+                        fix_suggestion=(
+                            "为其中一个条目分配唯一编号，或在规范 ID 中"
+                            "明确区分（如 TOOL-9060 vs LSP-906）"
+                        ),
+                    )
+                )
+        return results
+
+
+class DriftWarningChecker(BaseChecker):
+    """SHC-016: 将所有含 drift_warning 字段的规范条目作为强制告警输出
+
+    drift_warning 字段存在于 spec_registry.json 原始数据中，
+    但在 SpecRegistry.load() 中被 clean.pop() 剥离，导致告警被静默忽略。
+    此 Checker 从 registry._raw 直接读取原始数据，确保漂移警告可见。
+    """
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        results: list[CheckResult] = []
+        raw_specs: dict[str, object] = registry.raw.get("specs", {})
+        for spec_id, raw_info in raw_specs.items():
+            if not isinstance(raw_info, dict):
+                continue
+            drift = raw_info.get("drift_warning")
+            if drift:
+                results.append(
+                    CheckResult(
+                        check_id="SHC-016",
+                        severity=Severity.WARNING,
+                        message=f"{spec_id} 存在规范漂移警告",
+                        details=str(drift),
+                        fix_suggestion=(
+                            "同步项目副本版本至真源版本，或移除已解决的 "
+                            "drift_warning 字段"
+                        ),
+                    )
+                )
+        return results
+
+
 _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-001": DuplicateChecker,
     "SHC-002": VersionMismatchChecker,
@@ -1002,7 +1132,10 @@ _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-012": TestCountConsistencyChecker,
     "SHC-013": VerificationStatusChecker,
     "SHC-014": DocIndexValidityChecker,
+    "SHC-015": NumberConflictChecker,
+    "SHC-016": DriftWarningChecker,
 }
+
 
 
 class HealthChecker:

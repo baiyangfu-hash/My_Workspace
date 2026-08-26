@@ -4,7 +4,7 @@ title: "PLC接口文档模板"
 version: "V1.1.0"
 domain: plc
 lifecycle: stable
-canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/815_PLC接口文档模板_INT.md"
+canonical_path: "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/815_PLC接口文档模板_INT.md"
 tags: ["接口", "文档模板", "PLC"]
 ---
 

@@ -60,6 +60,17 @@ class IndexService:
 
         return output
 
+    @staticmethod
+    def _iter_registry_specs(raw: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+        specs = raw.get("specs", {})
+        if not isinstance(specs, dict):
+            return []
+        return [
+            (spec_id, info)
+            for spec_id, info in specs.items()
+            if isinstance(spec_id, str) and isinstance(info, dict)
+        ]
+
     def _get_specs_by_domain(
         self,
         raw: dict[str, Any],
@@ -69,7 +80,7 @@ class IndexService:
         if lifecycle_filter is None:
             lifecycle_filter = ["stable", "draft"]
         specs = []
-        for spec_id, info in raw.get("specs", {}).items():
+        for spec_id, info in self._iter_registry_specs(raw):
             if info.get("domain") == domain and info.get("lifecycle") in lifecycle_filter:
                 entry = dict(info)
                 entry["spec_id"] = spec_id
@@ -81,7 +92,7 @@ class IndexService:
         if lifecycles is None:
             lifecycles = ["deprecated", "archived"]
         specs = []
-        for spec_id, info in raw.get("specs", {}).items():
+        for spec_id, info in self._iter_registry_specs(raw):
             if info.get("domain") == domain and info.get("lifecycle") in lifecycles:
                 entry = dict(info)
                 entry["spec_id"] = spec_id
@@ -103,7 +114,7 @@ class IndexService:
         lines.append(f"> {AUTO_GENERATED_HEADER}")
         lines.append(f"> **版本**: {registry_version} (自动生成)")
         lines.append(f"> **生成日期**: {now}")
-        lines.append("> **权威来源**: 各技术栈规范目录为最终权威基准")
+        lines.append("> **权威来源**: `spec_registry.json` + Obsidian 规范真源文件")
         lines.append("> **注册表**: spec_registry.json")
         lines.append("")
         lines.append("---")
@@ -131,14 +142,14 @@ class IndexService:
 
         lines.append("---")
         lines.append("")
-        lines.append("## ⚠️ 技术栈规范位置（已迁移）")
+        lines.append("## ⚠️ 技术栈规范位置（当前真源）")
         lines.append("")
         lines.append("| 技术栈 | 规范位置 | 包含内容 |")
         lines.append("|--------|----------|----------|")
-        lines.append("| **PLC** | `0100_PLC自动化/00_通用规范/PLC编程/` | LSP-903~907 + 接口模板 + 文档模板 |")
-        lines.append("| **Python** | `01_Project自动化项目管理/00_通用规范/Python开发/` | 编程/审查/打包 + 接口模板 |")
+        lines.append("| **PLC** | `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/` | LSP-903~907、STD-820/830/840/850/860 等 PLC 真源规范 |")
+        lines.append("| **Python** | `00_Obsidian_Base全局规范文件仓库/02_Python开发域/` | DEV-210/211/216/217/218/220 等 Python 真源规范 |")
         lines.append("")
-        lines.append("**冲突处理**: 当全局PM规范与技术栈规范冲突时，以**技术栈所在目录**为准")
+        lines.append("**冲突处理**: 当全局PM规范与技术栈编码/架构规范冲突时，以本索引列出的技术栈真源目录为准")
         lines.append("")
         lines.append("---")
         lines.append("")

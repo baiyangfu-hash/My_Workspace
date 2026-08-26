@@ -101,7 +101,7 @@ FB_2001_CommonAlarm_AllStation 是一个**纯逻辑功能块**，作为边框缓
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                     主控程序 (PRG_MainControl_DJ2026005)                  │
 │                                                                          │
-│  Step1: FB_ExternalDeviceInteraction  ──外部设备交互                      │
+│  Step1: FB_3001_ExternalInteraction（DJ005实现名：FB_ExternalDeviceInteraction）──外部设备交互 │
 │  Step2: FB_1001_Conveyor4Layer        ──四层输送机控制                   │
 │  Step3: FB_1003_PickPlace             ──取放料机构                       │
 │  Step4: FB_1004_GlueMachineFeeder     ──打胶机送料                       │

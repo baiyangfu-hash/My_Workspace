@@ -5,6 +5,47 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.2.3] - 2026-08-23
+
+### Changed - CHG-SCPT-2026-164 驾驶舱 P2 代码质量收敛与工控现场友好排障增强
+
+- **静态代码检查彻底清零 (0 Ruff Warnings)**：
+  - 在 `pyproject.toml` 中为 QML Bridge、ModbusService 与 Logging 模块配置专用白名单（豁免 QML 约定的 `N802/N815` 驼峰规则），`ruff check` 实现 100% Clean Exit (0 告警)。
+- **工控异常统一转译器正式上线 (`IndustrialErrorMapper`)**：
+  - 新增 `auto_pm/infrastructure/error_handling/error_mapper.py`，将底层 Python 原生异常（`WinError 10061` 连接拒绝、`10060` 通信超时、`10049` 网卡不可用、`10054` 远端重置、`struct.error` 字节序解析失败等）自动转译为带有现场明确排障操作指引的中文诊断信息。
+- **Modbus QML 桥接友好排障改造 (`ModbusBridge`)**：
+  - 全面接入 `IndustrialErrorMapper`，在保证 IEC 62443 完整堆栈日志可审计性的同时，向 QML 前端提供现场友好诊断信息。
+- **自动化测试集补充**：
+  - 新增 `tests/infrastructure/test_error_mapper.py`（10 项单测），全量回归测试集增至 1637 项并 100% 通过。
+
+## [1.2.2] - 2026-08-22
+
+### Fixed - CHG-SCPT-2026-163 驾驶舱 P1 级架构安全加固与工控全域测试安全网深化
+
+- **Bridge 层异常可审计性全面加固 (IEC 62443)**：
+  - 改造 7 个 QML Bridge 桥接文件（`workbench`, `change`, `delivery`, `file_watcher`, `spec`, `ai_context`, `modbus`），统一接入 `logger.warning(..., exc_info=True)`，消除 120+ 处异常静默吞噬，实现工控现场丢帧与异常的毫秒级追踪。
+- **PLC 项目检查器核心矩阵单测建立 (`PlcChecker`)**：
+  - 新增 `tests/plc/test_plc_checker_matrix.py`（5 项矩阵单测），覆盖 `.plc.json` 必填项/库路径校验、`PM_SESSION` 行数阈值（150/300行警告与阻断）、`PRD/` 标准四件套识别与 `02_PLC程序` SCL 规范深度集成。
+- **Modbus QML 桥接多线程单测建立 (`ModbusBridge`)**：
+  - 新增 `tests/modbus/test_modbus_bridge.py`（4 项桥接单测），全面验证 `getNetworkInterfaces()` 本地网卡枚举、`connectDevice/disconnectDevice` 状态机流转、`readRegisters/writeRegister` 信号槽推送及 JSON 配置流转。
+
+## [1.2.1] - 2026-08-22
+
+### Fixed - CHG-SCPT-2026-162 驾驶舱严苛审计缺陷修复与工业级安全加固
+
+- **P0 运行时 NameError 彻底根治**：
+  - 修复 `auto_pm/ui/qml/bridges/system_bridge.py` 顶层缺失 `Path` 导入（F821），彻底解决 QML 调用 `syncDocs` 与 `checkDocs` 时触发的隐形 `NameError`。
+  - 修复 `auto_pm/application/workbench_facade.py:815` 属性引用错误（修正为 `self._project_service.workspace_root`），保障 5 大过程组 Stage-Gate 门禁评估正常流转。
+  - 修复 `auto_pm/application/core/prototype_service.py:357` 降级分支模板变量 `html_code` 未定义缺陷。
+- **工控通信与 PLC 门禁测试安全网全面补齐**：
+  - 修正 `pyproject.toml` 的 pytest 覆盖率路径与源目录映射（`--cov=auto_pm`，`source = ["auto_pm"]`）。
+  - 新增 `tests/modbus/test_modbus_service_unit.py`（13 项全量单测），全面覆盖 CDAB 浮点解码、FC01~FC06 报文编解码及 JSON 配置流转。
+  - 新增 `tests/plc/test_checker_lsp905_rules.py`（7 项防御性单测），覆盖 CASE ELSE、TON 定时器三段式、T# 字面量及变量前缀规范。
+- **代码质量与类型安全全面收敛**：
+  - 通过 Ruff 修复 68 处静态代码问题，清除无效表达式、未用变量及无用导入。
+  - 彻底清零 `auto_pm` 生产源码中的 mypy 类型报错（DTO 参数构造、CLI 配置类型转换）。
+  - 规范化 Bridge 层异常日志上报，引入 `logger.warning(..., exc_info=True)`，消除静默吞噬。
+
 ## [1.2.0] - 2026-08-21
 
 ### Added - CHG-SCPT-2026-161 驾驶舱工业逆向摄取 (PlcIngest) 与 HMI 拓扑自适应标准 (STD-909) 落地

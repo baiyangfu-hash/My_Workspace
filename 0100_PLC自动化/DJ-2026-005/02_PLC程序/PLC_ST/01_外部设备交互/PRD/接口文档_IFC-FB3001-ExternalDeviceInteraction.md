@@ -1,10 +1,10 @@
-# 接口文档 FB_ExternalDeviceInteraction
+# 接口文档 FB_3001_ExternalInteraction
 
 ## 1. 文档基础信息
 
 | 属性 | 值 |
 |------|-----|
-| **文档标题** | FB_ExternalDeviceInteraction 外部设备交互接口定义 |
+| **文档标题** | FB_3001_ExternalInteraction 外部设备交互接口定义（DJ005实现名：FB_ExternalDeviceInteraction） |
 | **文档版本** | V9.1.0 |
 | **关联源码** | 01_外部设备交互/FB_ExternalDeviceInteraction.scl |
 | **编制日期** | 2026-04-27 |

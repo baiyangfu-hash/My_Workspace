@@ -23,7 +23,6 @@ import os
 import re
 
 import yaml
-
 from auto_pm.core.asset_summary_service import AssetSummaryService
 from auto_pm.models import ProjectInfo
 from auto_pm.models.enums import Stack
@@ -621,9 +620,9 @@ class ProjectScanner:
             entry_path = os.path.join(path, entry)
             if not os.path.isdir(entry_path):
                 continue
-            if entry.startswith(".") or entry.startswith("__"):
+            if entry.startswith(".") or entry.startswith("__") or entry.startswith("_"):
                 continue
-            if "归档" in entry or "archive" in entry.lower():
+            if "归档" in entry or "archive" in entry.lower() or "trash" in entry.lower():
                 continue
 
             # 判断是否是项目目录

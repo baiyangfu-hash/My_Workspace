@@ -23,7 +23,7 @@ Rectangle {
     // ── 公开状态 ────────────────────────────────────────
     property string searchText: ""
     property string stackFilter: "all"  // all/plc/python/unknown
-    property string phaseFilter: "all"  // all/developing/commissioning/production/archived
+    property string phaseFilter: "all"  // all/initiating/planning/developing/commissioning/production/archived
     property string sortField: "name"   // name/project_id/version
     property string sortDir: "asc"      // asc/desc
     property int pageSize: 20
@@ -303,6 +303,8 @@ Rectangle {
                         Layout.preferredHeight: 24
                         text: {
                             var phaseMap = {
+                                "initiating": "启动",
+                                "planning": "规划",
                                 "developing": "在研",
                                 "commissioning": "调试",
                                 "production": "生产",

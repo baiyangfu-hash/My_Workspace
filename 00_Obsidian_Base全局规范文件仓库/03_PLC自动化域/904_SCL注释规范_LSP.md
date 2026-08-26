@@ -4,7 +4,7 @@ title: "SCL注释规范"
 version: "V1.2.0"
 domain: plc
 lifecycle: stable
-canonical_path: "0100_PLC自动化/00_通用规范/PLC编程/904_SCL注释规范_LSP.md"
+canonical_path: "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/904_SCL注释规范_LSP.md"
 tags: ["SCL", "注释", "LSP"]
 ---
 

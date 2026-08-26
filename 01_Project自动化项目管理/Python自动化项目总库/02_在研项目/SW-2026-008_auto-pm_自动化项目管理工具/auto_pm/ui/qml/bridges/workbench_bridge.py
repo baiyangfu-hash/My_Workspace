@@ -332,7 +332,7 @@ class WorkbenchBridge(QObject):
 
                     doc_dir = os.path.join(proj_dir, "06_文档与交付")
                     if os.path.exists(doc_dir):
-                        for root, _, files in os.walk(doc_dir):
+                        for _root, _, files in os.walk(doc_dir):
                             for f in files:
                                 f_lower = f.lower()
                                 if "fat" in f_lower or "sat" in f_lower or "验收" in f_lower:

@@ -19,6 +19,7 @@ def test_scl_linter_detects_valid_clean_code() -> None:
     END_VAR
     VAR
         s_iStep : INT;
+        s_arrMesAlarmQueue : ARRAY[0..9] OF INT;
     END_VAR
     BEGIN
         CASE s_iStep OF
@@ -33,6 +34,26 @@ def test_scl_linter_detects_valid_clean_code() -> None:
     assert report.is_clean
     assert report.errors_count == 0
     assert report.total_violations == 0
+
+
+def test_scl_linter_detects_invalid_array_type_identifier() -> None:
+    bad_array_scl = """
+    FUNCTION_BLOCK FB_1001_ArrayPrefix
+    VAR
+        s_iStep : INT;
+        s_aiMesAlarmQueue : ARRAY[0..9] OF INT;
+    END_VAR
+    BEGIN
+        CASE s_iStep OF
+            0:
+                ;
+            ELSE
+                ;
+        END_CASE;
+    END_FUNCTION_BLOCK
+    """
+    report = SclLinter.lint_text(bad_array_scl, file_path="bad_array_prefix.scl")
+    assert any(v.rule_id == "LSP-905-VAR-ARRAY-TYPE-PREFIX" for v in report.violations)
 
 
 def test_scl_linter_detects_missing_prefixes() -> None:
@@ -147,4 +168,3 @@ def test_scl_linter_detects_missing_timer_q() -> None:
     report = SclLinter.lint_text(missing_q_scl, file_path="missing_q.scl")
     assert not report.is_clean
     assert any(v.rule_id == "LSP-906-TIMER-MISSING-Q" for v in report.violations)
-

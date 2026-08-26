@@ -1,15 +1,16 @@
 """Static AST extractor for QML QObject Bridges."""
 import ast
 from pathlib import Path
-from typing import List
+
 from auto_pm.domain.doc.models import BridgeMethodDTO
+
 
 class BridgeAstExtractor:
     """Extracts PyQt6 QML Bridge slots and signals statically."""
 
     @staticmethod
-    def extract_from_directory(bridges_dir: Path) -> List[BridgeMethodDTO]:
-        methods: List[BridgeMethodDTO] = []
+    def extract_from_directory(bridges_dir: Path) -> list[BridgeMethodDTO]:
+        methods: list[BridgeMethodDTO] = []
         if not bridges_dir.exists():
             return methods
 

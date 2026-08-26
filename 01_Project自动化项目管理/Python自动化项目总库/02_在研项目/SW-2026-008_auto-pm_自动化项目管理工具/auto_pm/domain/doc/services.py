@@ -1,11 +1,12 @@
 """Domain services for doc sync and consistency auditing."""
 from pathlib import Path
-from typing import List, Tuple, Dict
+
 from auto_pm.domain.doc.models import DocCheckResult
-from auto_pm.infrastructure.doc.extractors.cli_ast_extractor import CliAstExtractor
 from auto_pm.infrastructure.doc.extractors.bridge_ast_extractor import BridgeAstExtractor
+from auto_pm.infrastructure.doc.extractors.cli_ast_extractor import CliAstExtractor
 from auto_pm.infrastructure.doc.extractors.gate_ast_extractor import GateAstExtractor
 from auto_pm.infrastructure.doc.injector.marker_injector import MarkdownMarkerInjector
+
 
 class DocSyncService:
     """Synchronizes code AST metadata into living Markdown documents."""
@@ -14,12 +15,12 @@ class DocSyncService:
         self.ws = workspace_root
         self.app_root = workspace_root / "01_Project自动化项目管理" / "Python自动化项目总库" / "02_在研项目" / "SW-2026-008_auto-pm_自动化项目管理工具"
 
-    def sync_all(self) -> List[str]:
-        logs: List[str] = []
+    def sync_all(self) -> list[str]:
+        logs: list[str] = []
         # 1. Extract CLI Commands
         cli_dir = self.app_root / "auto_pm" / "ui" / "cli"
         cli_commands = CliAstExtractor.extract_from_directory(cli_dir)
-        
+
         # Format CLI table
         cli_table = "| 命令分组 | 模块源文件 | 核心职责说明 |\n|:---|:---|:---|\n"
         for cmd in sorted(cli_commands, key=lambda x: x.group):
@@ -67,9 +68,9 @@ class DocCheckService:
         self.ws = workspace_root
         self.app_root = workspace_root / "01_Project自动化项目管理" / "Python自动化项目总库" / "02_在研项目" / "SW-2026-008_auto-pm_自动化项目管理工具"
 
-    def check_all(self) -> List[DocCheckResult]:
-        results: List[DocCheckResult] = []
-        
+    def check_all(self) -> list[DocCheckResult]:
+        results: list[DocCheckResult] = []
+
         # Check 1: CLI modules exist in USER_GUIDE
         user_guide = self.app_root / "06_交付物" / "001_用户操作指南与排障手册_USER_GUIDE.md"
         cli_dir = self.app_root / "auto_pm" / "ui" / "cli"
@@ -105,7 +106,7 @@ class DocCheckService:
             for line in pm_session.read_text(encoding="utf-8").splitlines():
                 if "version:" in line:
                     ver_pm = line.split(":")[-1].strip().strip('"').replace("V", "")
-        
+
         passed_ver = bool(ver_pyproject and ver_pm and ver_pyproject in ver_pm)
         results.append(DocCheckResult(
             check_id="DOC-004",

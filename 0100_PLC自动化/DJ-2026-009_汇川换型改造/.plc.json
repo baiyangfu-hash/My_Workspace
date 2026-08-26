@@ -1,0 +1,8 @@
+{
+  "name": "DJ-2026-009",
+  "description": "汇川换型改造",
+  "version": "V1.0.0",
+  "libraries": [
+    "../01_SharedLibraries/SysLib"
+  ]
+}

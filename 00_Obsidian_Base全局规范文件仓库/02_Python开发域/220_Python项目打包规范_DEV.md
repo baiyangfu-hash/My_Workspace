@@ -177,7 +177,7 @@ PyOxidizer是一个现代化的Python打包工具，使用Rust实现。
 
 | 项目类型 | 推荐模式 | 安装方式 |
 |----------|----------|----------|
-| CLI 工具（如 auto-pm、specmgr） | hatchling + pyproject.toml | `pip install .` 或 `pip install -e .` |
+| CLI 工具（如 auto-pm、其他 Click CLI 工具） | hatchling + pyproject.toml | `pip install .` 或 `pip install -e .` |
 | 库/SDK | hatchling + pyproject.toml | `pip install .` 或 `pip install -e .` |
 | 桌面 GUI 应用（PySide6/PyQt） | PyInstaller exe | 双击 exe 运行 |
 
@@ -203,8 +203,8 @@ dependencies = [
 ]
 
 [project.scripts]
-auto-pm = "cli.__main__:cli"
-specmgr = "cli.specmgr:main"
+auto-pm = "auto_pm.cli.__main__:cli"
+my-tool = "my_tool.cli.__main__:cli"
 
 [project.optional-dependencies]
 dev = [
