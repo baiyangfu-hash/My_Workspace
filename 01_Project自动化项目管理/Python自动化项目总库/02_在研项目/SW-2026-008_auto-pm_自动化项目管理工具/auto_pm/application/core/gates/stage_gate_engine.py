@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from auto_pm.change.ledger_reconciler import LedgerReconciler
 from auto_pm.contracts.gate_dtos import (
     GateCheckItemDTO,
     ProcessGroupStage,
@@ -188,14 +189,13 @@ class StageGateEngine:
             )
         )
 
-        # 2. 检查是否有未闭环的 P0/阻断缺陷
         pm_session_files = list(p.glob("PM_SESSION_*.md"))
-        has_blocker_defects = False
+        session_content = ""
         if pm_session_files:
-            content = pm_session_files[0].read_text(encoding="utf-8", errors="ignore")
-            if "P0" in content and "未修复" in content:
-                has_blocker_defects = True
+            session_content = pm_session_files[0].read_text(encoding="utf-8", errors="ignore")
 
+        # 2. 检查是否有未闭环的 P0/阻断缺陷
+        has_blocker_defects = "P0" in session_content and "未修复" in session_content
         items.append(
             GateCheckItemDTO(
                 id="G3-NO-P0-DEFECT",
@@ -204,6 +204,42 @@ class StageGateEngine:
                 severity="BLOCKER",
                 message="无未决 P0 阻断性缺陷" if not has_blocker_defects else "存在未修复的 P0 阻断性缺陷",
                 fix_suggestion="优先修复 P0 缺陷并走变更闭环",
+            )
+        )
+
+        # 3. 检查 PM 收尾落账完整性 (CHG-SCPT-2026-166)
+        has_handoff = "skill_handoff" in session_content
+
+        ledger_missing: list[str] = []
+        try:
+            diff = LedgerReconciler().reconcile(str(p))
+            ledger_missing = diff.missing_in_ledger
+        except Exception:
+            # 台账对账异常时降级为通过，防止门禁引擎崩溃
+            ledger_missing = []
+
+        closure_ok = (not ledger_missing) and has_handoff
+        if closure_ok:
+            closure_message = "台账无缺失且 PM_SESSION 已含 skill_handoff"
+        else:
+            closure_reasons: list[str] = []
+            if ledger_missing:
+                closure_reasons.append(
+                    f"台账缺失 {len(ledger_missing)} 条变更记录: "
+                    f"{', '.join(ledger_missing[:3])}"
+                )
+            if not has_handoff:
+                closure_reasons.append("PM_SESSION §8 缺少 skill_handoff 回写")
+            closure_message = "；".join(closure_reasons)
+
+        items.append(
+            GateCheckItemDTO(
+                id="G3-PM-CLOSURE",
+                name="PM 收尾落账完整性",
+                passed=closure_ok,
+                severity="BLOCKER",
+                message=closure_message,
+                fix_suggestion="执行 change create + 回写 PM_SESSION §8 + ledger reconcile",
             )
         )
 

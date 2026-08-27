@@ -5,22 +5,22 @@ FUNCTION_BLOCK FB_3001_ExternalInteraction
  * 遵循规范: STD-820 (8步握手 + 4s ON / 4s OFF 心跳)
  * ============================================================================== *)
 VAR_INPUT
-    i_bEnable           : BOOL;         (* 功能块总使能 *)
-    i_bAutoMode         : BOOL;         (* 自动运行模式 *)
-    i_bResetCmd         : BOOL;         (* 故障复位指令 *)
-    i_bMachineReadyIn   : BOOL;         (* 本机进料就绪 (工位空闲) *)
-    i_bMachineReadyOut  : BOOL;         (* 本机出料就绪 (加工完成) *)
-    i_bInfeedArrivedSens: BOOL;         (* 本机进料到位光电传感器 *)
-    i_sSendModuleID     : STRING[32];   (* 本机待发出的组件 ID *)
+    i_bEnable           : BOOL;         // 功能块总使能
+    i_bAutoMode         : BOOL;         // 自动运行模式
+    i_bResetCmd         : BOOL;         // 故障复位指令
+    i_bMachineReadyIn   : BOOL;         // 本机进料就绪 (工位空闲)
+    i_bMachineReadyOut  : BOOL;         // 本机出料就绪 (加工完成)
+    i_bInfeedArrivedSens: BOOL;         // 本机进料到位光电传感器
+    i_sSendModuleID     : STRING[32];   // 本机待发出的组件 ID
 END_VAR
 
 VAR_OUTPUT
-    q_bAllowInfeedAct   : BOOL;         (* 触发本机进料动作输出 *)
-    q_bAllowOutfeedAct  : BOOL;         (* 触发本机出料动作输出 *)
-    q_bUpstreamDone     : BOOL;         (* 本次进料交握事务完成脉冲 *)
-    q_bDownstreamDone   : BOOL;         (* 本次出料交握事务完成脉冲 *)
-    q_bComAlarm         : BOOL;         (* 外部通讯中断综合报警 *)
-    q_wErrorCode        : WORD;         (* 故障诊断字 *)
+    q_bAllowInfeedAct   : BOOL;         // 触发本机进料动作输出
+    q_bAllowOutfeedAct  : BOOL;         // 触发本机出料动作输出
+    q_bUpstreamDone     : BOOL;         // 本次进料交握事务完成脉冲
+    q_bDownstreamDone   : BOOL;         // 本次出料交握事务完成脉冲
+    q_bComAlarm         : BOOL;         // 外部通讯中断综合报警
+    q_wErrorCode        : WORD;         // 故障诊断字
 END_VAR
 
 VAR_IN_OUT
@@ -28,13 +28,13 @@ VAR_IN_OUT
 END_VAR
 
 VAR
-    // --- 4s ON / 4s OFF 心跳发生器与监视定时器 ---
-    s_dHeartbeatPulse   : DINT := 4000;
-    s_dHeartbeatTimer   : DINT := 0;
-    s_bHeartbeatState   : BOOL := FALSE;
+    // --- STD-820 心跳: 4s ON / 4s OFF 方波 + 12s 超时监视 (LSP-903: FB_TON + DINT 毫秒) ---
+    s_dHeartbeatPulse   : DINT := 4000;    // 心跳半周期 4000ms
+    s_dHbTimeoutMs      : DINT := 12000;   // 心跳超时阈值 12000ms
+    s_tHbToggle         : FB_TON;          // 心跳翻转定时器
+    s_tUpTimeout        : FB_TON;          // 上游心跳超时定时器
+    s_tDownTimeout      : FB_TON;          // 下游心跳超时定时器
 
-    s_dUpTimeout        : DINT := 0;
-    s_dDownTimeout      : DINT := 0;
     s_bLastUpHeartbeat  : BOOL := FALSE;
     s_bLastDownHeartbeat: BOOL := FALSE;
 
@@ -43,14 +43,22 @@ VAR
 END_VAR
 
 BEGIN
+    // --- 定时器顶部无条件批量调用 (LSP-906/903) ---
+    s_tHbToggle(IN := s_tHbToggle.IN, PT := s_tHbToggle.PT,
+                Q => s_tHbToggle.Q, ET => s_tHbToggle.ET);
+    s_tUpTimeout(IN := s_tUpTimeout.IN, PT := s_tUpTimeout.PT,
+                 Q => s_tUpTimeout.Q, ET => s_tUpTimeout.ET);
+    s_tDownTimeout(IN := s_tDownTimeout.IN, PT := s_tDownTimeout.PT,
+                   Q => s_tDownTimeout.Q, ET => s_tDownTimeout.ET);
+
     (* 0. 复位处理 *)
     IF i_bResetCmd THEN
         io_stExternal.stUpstream.bUpstreamComFault := FALSE;
         io_stExternal.stDownstream.bDownstreamComFault := FALSE;
         io_stExternal.bAnyComFault := FALSE;
         q_wErrorCode := 16#0000;
-        s_dUpTimeout := 0;
-        s_dDownTimeout := 0;
+        s_tUpTimeout.IN := FALSE;
+        s_tDownTimeout.IN := FALSE;
     END_IF;
 
     IF NOT i_bEnable THEN
@@ -58,29 +66,47 @@ BEGIN
         io_stExternal.stUpstream.bMachine_AllowInfeed := FALSE;
         io_stExternal.stDownstream.bMachine_ReadyOut := FALSE;
         io_stExternal.stDownstream.bMachine_OutfeedReq := FALSE;
+        io_stExternal.stUpstream.bMachine_HeartbeatToUp := FALSE;
+        io_stExternal.stDownstream.bMachine_HeartbeatToDown := FALSE;
+        s_tHbToggle.IN := FALSE;
+        s_tUpTimeout.IN := FALSE;
+        s_tDownTimeout.IN := FALSE;
         s_iInfeedStep := 0;
         s_iOutfeedStep := 0;
         RETURN;
     END_IF;
 
     (* 1. 心跳生成 (4s ON / 4s OFF) 与 12s 超时监视 *)
-    // (此处在PLC周期中执行4s翻转与超时累加)
-    s_bHeartbeatState := NOT s_bHeartbeatState; // 简化展示，实际配合定时器4s翻转
-    io_stExternal.stUpstream.bMachine_HeartbeatToUp := s_bHeartbeatState;
-    io_stExternal.stDownstream.bMachine_HeartbeatToDown := s_bHeartbeatState;
+    // 心跳翻转: FB_TON 定时翻转, 输出 4s 方波
+    s_tHbToggle.IN := NOT s_tHbToggle.Q;
+    s_tHbToggle.PT := s_dHeartbeatPulse;
+    io_stExternal.stUpstream.bMachine_HeartbeatToUp := s_tHbToggle.Q;
+    io_stExternal.stDownstream.bMachine_HeartbeatToDown := s_tHbToggle.Q;
 
-    // 上游心跳边沿检测
+    // 上游心跳边沿检测 + 12s 超时监视
     IF io_stExternal.stUpstream.bUpstream_HeartbeatFromUp <> s_bLastUpHeartbeat THEN
         s_bLastUpHeartbeat := io_stExternal.stUpstream.bUpstream_HeartbeatFromUp;
-        s_dUpTimeout := 0;
+        s_tUpTimeout.IN := FALSE;
         io_stExternal.stUpstream.bUpstreamComFault := FALSE;
+    ELSE
+        s_tUpTimeout.IN := TRUE;
+    END_IF;
+    s_tUpTimeout.PT := s_dHbTimeoutMs;
+    IF s_tUpTimeout.Q THEN
+        io_stExternal.stUpstream.bUpstreamComFault := TRUE;
     END_IF;
 
-    // 下游心跳边沿检测
+    // 下游心跳边沿检测 + 12s 超时监视
     IF io_stExternal.stDownstream.bDownstream_HeartbeatFromDown <> s_bLastDownHeartbeat THEN
         s_bLastDownHeartbeat := io_stExternal.stDownstream.bDownstream_HeartbeatFromDown;
-        s_dDownTimeout := 0;
+        s_tDownTimeout.IN := FALSE;
         io_stExternal.stDownstream.bDownstreamComFault := FALSE;
+    ELSE
+        s_tDownTimeout.IN := TRUE;
+    END_IF;
+    s_tDownTimeout.PT := s_dHbTimeoutMs;
+    IF s_tDownTimeout.Q THEN
+        io_stExternal.stDownstream.bDownstreamComFault := TRUE;
     END_IF;
 
     io_stExternal.bAnyComFault := io_stExternal.stUpstream.bUpstreamComFault OR io_stExternal.stDownstream.bDownstreamComFault;

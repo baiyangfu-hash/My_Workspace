@@ -7,6 +7,8 @@
 | 用途 | 路径 |
 |------|------|
 | 跨 AI 共存与路由 | `.cursor/rules/workspace-ai-coexistence.mdc` |
+| 跨 AI 适配入口（非 Trae，纯引用） | `.agent/rules/project-rule.md` |
+| 技能注册表 | `.agents/skills.json` |
 | 全局开发规则 | `.trae/rules/project-rule.md` |
 | 跨技能公共契约 | `.trae/skills/shared/refs/skill_coordination.md` |
 | PM 主入口 | `.trae/skills/pm-workflow/SKILL.md` |
@@ -31,7 +33,13 @@
    - **若输入要素缺失或意图模糊，严禁直接脑补出实施计划，PM 必须先发起《需求澄清提问清单》向用户提问**；只有在用户澄清核心事实后，方可进入阶段 1。
 2. **阶段 1【报批】**：PM 角色输出《需求分析与技术实施计划》（注明依据规范 PM-042/PM-033、受影响文件及 HTML 原型方案），**必须显式停下来等待用户确认**（“请确认是否批准开工？”）；
 3. **阶段 2【执行】**：仅在用户明确回复“同意/批准”后，方可派发给对应执行技能（PLC / 全栈）编写代码与自动化测试；
-4. **阶段 3【验收】**：运行驾驶舱门禁（`auto-pm plc check` / `doc check` / `pytest`），呈报交付清单与测试报告，由用户最终验收结项。
+4. **阶段 3【验收】**：执行端回执后，主 Agent 必须先完成 **PM 收尾落账**（`change create` 变更单 → 回写 PM_SESSION §8/§3 → `ledger reconcile` 对账），再运行驾驶舱门禁（`auto-pm plc check` / `doc check` / `pytest`），呈报交付清单与测试报告，由用户最终验收结项。**PM 落账未完成前，严禁宣布收口或结项。**
+
+## 子代理物理隔离法则（执行权剥离）
+
+1. **明确边界**：主会话（主 Agent）仅限业务路由、需求澄清、架构设计（PMBOK 启动/规划过程组）与交付验收（收尾过程组）。
+2. **剥离执行权**：四阶段门禁进入【阶段 2 执行】时，主 Agent 褫夺编码权，仅做派发与验收，不亲自写代码。
+3. **强制契约化交接**：派发前必须生成结构化 `skill_context`（含 baseline_documents、goal、strict_constraints）；执行端以 `handoff_result` 回执，严禁口头转述需求。主 Agent 收到回执后，必须执行 `handoff_result.pm_closure` 指定的收尾落账（变更单 + PM_SESSION 回写 + 台账对账），不得跳过。
 
 ## AI 工程师主动担当与零负担交付铁律 (Zero-Burden Law)
 
@@ -56,5 +64,5 @@
 
 ## 版本库策略
 
-- **纳入 Git**：`.trae/skills/`、`.trae/rules/`、`.cursor/rules/`、`AGENTS.md`
+- **纳入 Git**：`.trae/skills/`、`.trae/rules/`、`.cursor/rules/`、`.agent/rules/`、`.agents/skills.json`、`AGENTS.md`
 - **不纳入 Git**：`.cursor/` 下除 `rules/`、`commands/` 外的本地状态；`.trae/tmp_*` 等临时文件（见根目录 `.gitignore`）

@@ -2,6 +2,8 @@
 
 > 本文档是 pm-workflow / 执行技能的按需参考文档。
 
+变更单编号格式：`CHG-{DOMAIN}-{YYYY}-{XXX}`（DOMAIN ∈ ELEC/MECH/PLC/HMI/SCPT/DOCU/SAFE）。
+
 ## 1. handoff_result 结构（执行技能返回给 PM 的标准结构）
 
 ```json

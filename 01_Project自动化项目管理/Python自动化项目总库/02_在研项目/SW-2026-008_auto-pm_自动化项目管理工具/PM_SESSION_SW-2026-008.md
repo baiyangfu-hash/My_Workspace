@@ -5,7 +5,7 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-08-13
+- last_updated: 2026-08-27
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -17,22 +17,23 @@
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: **2026-08-23 实施并闭环 CHG-SCPT-2026-164：008 驾驶舱 P2 代码质量收敛与工控现场友好排障增强（Ruff 规则白名单彻底 0 告警 / IndustrialErrorMapper 统一转译 / V1.2.3 发布）**。
+- current_focus: **2026-08-27 实施并闭环 CHG-SCPT-2026-167：新增契约对账检查器 SHC-017（SkillContractDriftChecker），以代码为唯一真源动态校验技能文档与代码实现的口径一致，从根消除文档-代码漂移**。
 - risks_dependencies:
   - Ruff 静态代码检查已实现 100% Clean Exit (0 告警)
   - IndustrialErrorMapper 统一异常转译上线并补充 10 项单测
-  - 全量 1637 项 pytest 回归 100% 通过
-  - 系统版本成功升级至 V1.2.3
+  - 新增 SHC-017 契约对账器，覆盖 C1~C4 四条契约（阈值/状态机/编号格式/门禁口径）
+  - spec 检查器总量增至 SHC-001~017，tests/spec 回归 174 passed
 - spec_compliance:
   - last_check: 2026-08-23
   - result: 代码基线 V1.2.3（CHG-SCPT-2026-164 落地完成，P2 质量收敛与友好排障全部闭环，全量单测全绿）。
 
 ## 3. Status Summary
 
-- current_status: [已验证] 代码基线 V1.2.3，完成 P0/P1/P2 全链路深化治理与排障体验增强，全量门禁与健康诊断全绿。
+- current_status: [已验证] 代码基线 V1.2.3，CHG-SCPT-2026-167 已闭环：新增 SHC-017 契约对账检查器，从根消除技能文档-代码口径漂移，tests/spec 回归 174 passed + mypy 全绿。
 - in_progress: 持续推进异构 PLC（欧姆龙/倍福）逆向解析适配器库。
 - completed_milestones:
-  - 2026-08-23 [已验证] CHG-SCPT-2026-164 驾驶舱 P2 质量收敛与工控友好排障增强（V1.2.3 发布）。
+  - 2026-08-27 [已验证] CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源校验技能文档（C1~C4）。
+  - 2026-08-27 [已验证] CHG-SCPT-2026-166 落账门禁下沉：StageGateEngine G3 新增落账完整性 BLOCKER，PmSessionCheckService 新增落账新鲜度 WARN。
   - 2026-08-22 [已验证] CHG-SCPT-2026-163 驾驶舱 P1 级架构加固与测试深化（V1.2.2 发布）。
   - 2026-08-22 [已验证] CHG-SCPT-2026-162 驾驶舱严苛审计缺陷修复与安全加固（V1.2.1 发布）。
   - 2026-08-22 [已验证] 完成基于 ISO/IEC 25010 与 IEC 62443 的 100% 真实数据全维度严苛技术审计。
@@ -55,6 +56,8 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-08-27 CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源动态校验技能文档（阈值/状态机/编号格式/门禁口径），从根消除文档-代码口径漂移。
+  - 2026-08-27 CHG-SCPT-2026-166 落账门禁下沉：将 PM 收尾落账（变更单 + PM_SESSION 回写 + 台账对账）下沉为驾驶舱 PASS/FAIL 硬门禁，与 plc check 同等级，从根消除落账遗漏。
   - 2026-08-23 CHG-SCPT-2026-164 008 驾驶舱 P2 代码质量收敛与工控现场友好排障增强：Ruff 白名单实现 0 告警，构建 IndustrialErrorMapper 统一转译工控异常，发布 V1.2.3。
   - 2026-08-22 CHG-SCPT-2026-163 008 驾驶舱 P1 级架构安全加固与工控全域测试安全网深化：Bridge 层 120+ 处异常日志规范化，新增 PlcChecker 矩阵单测与 ModbusBridge 异步测试集，发布 V1.2.2。
   - 2026-08-22 CHG-SCPT-2026-162 008 驾驶舱全维度严苛审计缺陷修复与工业级安全加固：根治 P0 运行时 Bug，补齐 Modbus/PLC 核心测试，修复覆盖率配置，收敛 Ruff/mypy。
@@ -64,6 +67,8 @@
 
 ## 6. Execution Log Summary
 
+- 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-167，新增 SHC-017 SkillContractDriftChecker 契约对账器，tests/spec 回归 174 passed + mypy 全绿 + spec check -c SHC-017 通过。
+- 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-166，落地 StageGateEngine G3 落账 BLOCKER 与 PmSessionCheckService 落账新鲜度 WARN，全量 1741 项 pytest 全绿。
 - 2026-08-23：[已验证] 实施并闭环 CHG-SCPT-2026-164，落地 IndustrialErrorMapper 与 Ruff 白名单，发布 V1.2.3。
 - 2026-08-22：[已验证] 实施并闭环 CHG-SCPT-2026-163，完成 Bridge 异常审计与核心单测补齐，发布 V1.2.2。
 - 2026-08-22：[已验证] 实施并闭环 CHG-SCPT-2026-162，根治 P0 Bug，补齐 Modbus/PLC 核心测试，发布 V1.2.1。
@@ -73,23 +78,23 @@
 
 ## 8. Handoff Notes
 
-- current_state: [已验证] auto-pm V1.2.3 架构稳固，P0/P1/P2 隐患与质量债全部清零，测试安全网覆盖 1637 项全绿。
+- current_state: [已验证] auto-pm V1.2.3 架构稳固，CHG-SCPT-2026-167 契约对账器已闭环，SHC-017 从根消除技能文档-代码口径漂移。
 - 代码基线 V1.2.3
 - next_focus:
-  1. [P0] 验证真实项目 DJ-2026-009 逆向工程与 SCL 状态机建模闭环；
+  1. [P0] 验证真实项目 DJ-2026-009 落账门禁闭环（plc check + pm-session check + ledger reconcile）；
   2. [P1] 持续推进异构 PLC（欧姆龙/倍福）逆向解析适配器库。
-- skill_handoff: 无需跨技能切换，由 pm-workflow 推进后续业务项目管理。
+- skill_handoff: fullstack-engineer 已完成 SHC-017 契约对账器编码并回执，pm-workflow 已完成收尾落账（变更单 completed + PM_SESSION 回写 + 台账对账）。
 - watchouts:
   - 测试约束: GUI 测试必须支持可见模式截图，严禁使用 --tb=no 隐藏错误。
   - 代码约束: 所有跨层调用必须经由 application/ 门面与 contracts/ 契约，严禁 UI 直接导入 domain 内部模块。
   - 路径约束: 严格遵循 5 大过程组目录命名，禁止使用临时非标目录。
 - read_first:
-  - 04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-164.md
+  - 04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-167.md
 
 ## 9. Next Actions
 
-- [x] 任务 1: 获得用户批准后流转 CHG-SCPT-2026-164 状态至 APPROVED 并开工
-- [x] 任务 2: 配置 pyproject.toml 中的 ruff per-file-ignores 白名单实现 0 告警
-- [x] 任务 3: 实现 IndustrialErrorMapper 统一转译器并改造 ModbusBridge
-- [x] 任务 4: 编写 test_error_mapper.py 自动化测试集
-- [x] 任务 5: 运行全量回归门禁与 auto-pm doctor，升级并结项关闭变更单 (V1.2.3)
+- [x] 任务 1: 流转变更单 CHG-SCPT-2026-167 至 implementing 并派发 fullstack-engineer 编码
+- [x] 任务 2: 落地 SHC-017 SkillContractDriftChecker（skill_contracts.py + checker_base.py 注册 + test_skill_contracts.py）
+- [x] 任务 3: 全量门禁验收（tests/spec 174 passed / mypy 改动文件全绿 / spec check -c SHC-017 通过）
+- [x] 任务 4: 流转变更单至 completed，回写 PM_SESSION §3/§8，台账对账
+- [ ] 任务 5: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）

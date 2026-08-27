@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import importlib
 import re
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
@@ -1117,6 +1118,67 @@ class DriftWarningChecker(BaseChecker):
         return results
 
 
+class SkillContractDriftChecker(BaseChecker):
+    """SHC-017: 技能文档↔代码契约漂移对账器（CHG-SCPT-2026-167）
+
+    以「代码为唯一真源」动态提取关键常量，校验技能文档
+    （<workspace>/.trae/skills/**）是否仍包含这些值；漂移即报 SHC-017。
+    """
+
+    def check(
+        self,
+        registry: SpecRegistry,
+        scanner: SpecScanner,
+    ) -> list[CheckResult]:
+        from .skill_contracts import SKILL_CONTRACTS
+
+        results: list[CheckResult] = []
+        for contract in SKILL_CONTRACTS:
+            truth_values: list[str] = []
+            for ct in contract.code_truths:
+                try:
+                    module = importlib.import_module(ct.module)
+                    attr = getattr(module, ct.attribute)
+                except (ImportError, AttributeError):
+                    continue
+                if ct.kind == "value":
+                    truth_values.append(str(attr))
+                elif ct.kind == "keys":
+                    try:
+                        truth_values.extend(str(k) for k in attr.keys())
+                    except AttributeError:
+                        continue
+            truth_values.extend(contract.literals)
+            if not truth_values:
+                continue
+
+            for relpath in contract.doc_relpaths:
+                doc_path = scanner.workspace / relpath
+                if not doc_path.exists():
+                    continue
+                try:
+                    content = doc_path.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    continue
+                for value in truth_values:
+                    if value not in content:
+                        results.append(
+                            CheckResult(
+                                check_id="SHC-017",
+                                severity=contract.severity,
+                                message=(
+                                    f"{contract.contract_id} {contract.title} 漂移："
+                                    f"文档缺失真源值 {value}"
+                                ),
+                                details=f"文档: {relpath}",
+                                fix_suggestion=(
+                                    f"同步 {relpath}，使其包含代码真源值 {value}"
+                                ),
+                            )
+                        )
+        return results
+
+
 _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-001": DuplicateChecker,
     "SHC-002": VersionMismatchChecker,
@@ -1134,6 +1196,7 @@ _CHECKER_MAP: dict[str, type[BaseChecker]] = {
     "SHC-014": DocIndexValidityChecker,
     "SHC-015": NumberConflictChecker,
     "SHC-016": DriftWarningChecker,
+    "SHC-017": SkillContractDriftChecker,
 }
 
 

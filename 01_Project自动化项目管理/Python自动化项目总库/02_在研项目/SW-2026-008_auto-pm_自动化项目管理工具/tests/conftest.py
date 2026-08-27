@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import json
+import os
 import random
 from collections.abc import Generator
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+
+# 测试环境禁用审计日志文件写入：默认路径 ~/.auto-pm/audit/ 在 Trae Sandbox 等
+# 受限环境下不可写，写操作会被沙箱拦截并污染 pytest 退出码（TD 修复统一收口）。
+# 需在 auto_pm 任何 audit_log 触发前设置，故置于 conftest 顶层。
+os.environ.setdefault("AUTO_PM_AUDIT_DIR", "off")
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QApplication

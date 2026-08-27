@@ -30,7 +30,7 @@ SECTION_HEADER_PATTERN = re.compile(r"^##\s+(\d+)\.\s+(.+)$")
 
 # 健康检查阈值（CHG-087 Stage 1 基线：170 行 / 62KB）
 MAX_FILE_SIZE_KB = 150  # 主文件最大 150KB
-MAX_FILE_LINES = 300  # 主文件最大 300 行
+MAX_FILE_LINES = 150  # 主文件最大 150 行
 
 # 必须存在的章节（Stage 1 后基线，§7 已归档删除）
 REQUIRED_SECTIONS = {"0", "1", "2", "3", "4", "5", "6", "8", "9"}
@@ -51,6 +51,30 @@ SECTION8_ARCHIVE_NOTE_PREFIX = ">"
 
 # 归档文件大小阈值（超过则切分到新文件，防止单文件过大无法 Read）
 ARCHIVE_FILE_MAX_SIZE_KB = 200
+
+# 变更信号文件扫描（CHG-SCPT-2026-166: 落账新鲜度 WARN 检查）
+CHANGE_SIGNAL_PATTERNS: tuple[str, ...] = ("CHG-*.md", "*.scl", "*.py")
+SCAN_SKIP_DIRS: frozenset[str] = frozenset(
+    {
+        ".git",
+        ".hg",
+        ".svn",
+        ".venv",
+        "venv",
+        "__pycache__",
+        "node_modules",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".tox",
+        ".nox",
+        "htmlcov",
+        "coverage",
+        "dist",
+        "build",
+        "site-packages",
+    }
+)
 
 
 @dataclass
@@ -209,6 +233,35 @@ class PmSessionCheckService:
     def __init__(self, parser: PmSessionParser | None = None) -> None:
         self.parser = parser or PmSessionParser()
 
+    def _check_ledger_freshness(self, file_path: Path) -> str | None:
+        """落账新鲜度检查（CHG-SCPT-2026-166）
+
+        若 PM_SESSION 之后仍有变更信号文件更新，返回告警文案（WARN 级软提示，
+        不影响 is_healthy 判定）；无锚点文件或未滞后时返回 None。
+
+        Args:
+            file_path: PM_SESSION 文件路径（约定位于项目根目录）
+
+        Returns:
+            告警文案或 None
+        """
+        project_dir = file_path.parent
+        anchor_files: list[Path] = []
+        for pattern in CHANGE_SIGNAL_PATTERNS:
+            for path in project_dir.rglob(pattern):
+                if not path.is_file():
+                    continue
+                if any(part in SCAN_SKIP_DIRS for part in path.parts):
+                    continue
+                anchor_files.append(path)
+        if not anchor_files:
+            return None
+        session_mtime = file_path.stat().st_mtime
+        latest = max(f.stat().st_mtime for f in anchor_files)
+        if latest > session_mtime:
+            return "落账可能滞后：检测到 PM_SESSION 之后仍有变更文件更新"
+        return None
+
     def check(self, file_path: Path) -> CheckResult:
         """检查 PM_SESSION 文件健康状态
 
@@ -242,6 +295,11 @@ class PmSessionCheckService:
             warnings.append(
                 f"文件行数 {result.total_lines} 超过阈值 {MAX_FILE_LINES}"
             )
+
+        # CHG-SCPT-2026-166: 落账新鲜度 WARN（不影响 is_healthy）
+        freshness_warning = self._check_ledger_freshness(file_path)
+        if freshness_warning is not None:
+            warnings.append(freshness_warning)
 
         return CheckResult(
             file_path=file_path,

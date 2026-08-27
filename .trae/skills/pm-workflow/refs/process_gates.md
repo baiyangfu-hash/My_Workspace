@@ -16,8 +16,9 @@
 **CHG 章节完整性**（12 章节全部非空）：
 §5变更前后 / §6.1五大约束 / §6.2跨领域 / §6.3传播链 / §7实施计划 / §8.1审批流程 / §8.2审批结论 / §9实施记录 / §10.1验证清单 / §10.2跨领域验证 / §10.3验证结论 / §11版本说明 / §12附录
 
-**状态流转合法性**（严格 9 步顺序）：
-`draft → submitted → under_review → approved → implementing → pending_acceptance → accepting → completed → closed`
+**状态流转合法性**（12 态状态机，对齐代码 STATUS_FLOW）：
+主链：`draft → submitted → under_review → approved → implementing → pending_acceptance → accepting → completed → closed`
+分支：`under_review → conditionally_approved / rejected`；`conditionally_approved → implementing`；`rejected → draft`；`completed → archived`（终态）
 
 `accepting → closed` **非法**，必须经 `completed`。
 

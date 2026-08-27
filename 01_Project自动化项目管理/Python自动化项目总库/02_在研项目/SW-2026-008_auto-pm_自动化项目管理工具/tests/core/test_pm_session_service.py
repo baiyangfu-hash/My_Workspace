@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -229,6 +230,35 @@ class TestPmSessionCheckService:
         svc = PmSessionCheckService()
         with pytest.raises(FileNotFoundError):
             svc.check(tmp_path / "nonexistent.md")
+
+    def test_freshness_no_change_files_no_warning(self, tmp_path: Path) -> None:
+        pm_file = tmp_path / "PM_SESSION_TEST.md"
+        pm_file.write_text(SAMPLE_PM_SESSION, encoding="utf-8")
+        svc = PmSessionCheckService()
+        result = svc.check(pm_file)
+        assert not any("落账可能滞后" in w for w in result.warnings)
+
+    def test_freshness_change_file_older_no_warning(self, tmp_path: Path) -> None:
+        pm_file = tmp_path / "PM_SESSION_TEST.md"
+        pm_file.write_text(SAMPLE_PM_SESSION, encoding="utf-8")
+        chg_file = tmp_path / "CHG-PLC-2026-001.md"
+        chg_file.write_text("# CHG-001\n- status: closed\n", encoding="utf-8")
+        os.utime(pm_file, (1000.0, 1000.0))
+        os.utime(chg_file, (500.0, 500.0))
+        svc = PmSessionCheckService()
+        result = svc.check(pm_file)
+        assert not any("落账可能滞后" in w for w in result.warnings)
+
+    def test_freshness_change_file_newer_warns(self, tmp_path: Path) -> None:
+        pm_file = tmp_path / "PM_SESSION_TEST.md"
+        pm_file.write_text(SAMPLE_PM_SESSION, encoding="utf-8")
+        chg_file = tmp_path / "CHG-PLC-2026-001.md"
+        chg_file.write_text("# CHG-001\n- status: closed\n", encoding="utf-8")
+        os.utime(pm_file, (1000.0, 1000.0))
+        os.utime(chg_file, (2000.0, 2000.0))
+        svc = PmSessionCheckService()
+        result = svc.check(pm_file)
+        assert any("落账可能滞后" in w for w in result.warnings)
 
 
 # ---------- PmSessionArchiveService 测试 ----------

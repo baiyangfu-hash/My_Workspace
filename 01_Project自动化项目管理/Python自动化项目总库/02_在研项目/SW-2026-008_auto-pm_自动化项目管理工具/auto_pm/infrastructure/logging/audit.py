@@ -24,20 +24,33 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from auto_pm.logging.logging import _SilentTimedRotatingFileHandler
 
+# AUTO_PM_AUDIT_DIR 设为以下值时禁用审计日志（不创建目录、不写文件）
+_AUDIT_DISABLED_VALUES = {"off", "disabled", "none", "0", "false", ""}
 
-def _get_audit_dir() -> Path:
-    """获取审计日志目录路径（~/.auto-pm/audit/）
 
-    目录不存在时自动创建。
+def _get_audit_dir() -> Path | None:
+    """获取审计日志目录路径。
+
+    默认 ``~/.auto-pm/audit/``，可通过环境变量 ``AUTO_PM_AUDIT_DIR`` 覆盖。
+    设为 off/disabled/none 等值，或目录创建失败时返回 ``None`` 表示禁用
+    （静默降级，避免 Trae Sandbox 等限制用户目录写入时污染退出码）。
     """
-    audit_dir = Path.home() / ".auto-pm" / "audit"
-    audit_dir.mkdir(parents=True, exist_ok=True)
+    audit_dir_env = os.environ.get("AUTO_PM_AUDIT_DIR")
+    if audit_dir_env is not None and audit_dir_env.strip().lower() in _AUDIT_DISABLED_VALUES:
+        return None
+
+    audit_dir = Path(audit_dir_env).expanduser() if audit_dir_env else Path.home() / ".auto-pm" / "audit"
+    try:
+        audit_dir.mkdir(parents=True, exist_ok=True)
+    except (OSError, PermissionError):
+        return None
     return audit_dir
 
 
@@ -57,9 +70,14 @@ def _get_audit_logger() -> logging.Logger:
     logger.propagate = False
 
     if not logger.handlers:
+        audit_dir = _get_audit_dir()
+        if audit_dir is None:
+            # 审计日志被禁用或目录不可写：不挂文件 handler，audit_log 静默 no-op
+            _audit_logger = logger
+            return logger
+
         formatter = logging.Formatter("%(asctime)s | %(message)s")
         try:
-            audit_dir = _get_audit_dir()
             # 使用 _SilentTimedRotatingFileHandler：emit 失败时静默移除自身，
             # 避免 Trae Sandbox 等限制 ~/.auto-pm/ 写入时污染 stderr（影响 Click 测试）。
             handler = _SilentTimedRotatingFileHandler(
