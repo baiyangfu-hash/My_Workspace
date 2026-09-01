@@ -2,6 +2,8 @@
 
 统一 CLI 管理 PLC/Python 多技术栈项目的脚手架工具。
 
+> 迁移状态：本目录保留为 `SW-2026-008` 历史母体、研发记录与回退参考；工作空间默认运行入口已迁至 `00_Infrastructure/auto_pm`。
+
 ## 模块成熟度矩阵 (Module Maturity)
 
 为清晰产品边界与功能稳定性，auto-pm 模块按以下分类收口：
@@ -28,15 +30,17 @@ GUI 驾驶舱亦可在 **系统设置 (Settings)** 页面右上角点击 **🩺 
 ### 开发模式安装
 
 ```bash
-# 克隆仓库
-git clone <repo-url>
-cd SW-2026-008_auto-pm_自动化项目管理工具
+# 进入工作空间根目录
+cd <工作空间根>
 
 # 激活工作空间虚拟环境
-& "<工作空间根>\.venv\Scripts\Activate.ps1"
+& ".\.venv\Scripts\Activate.ps1"
 
-# 安装为可编辑模式
-pip install -e .
+# 安装基础设施运行位为可编辑模式
+python -m pip install -e "00_Infrastructure/auto_pm" --no-deps
+
+# 验证驾驶舱健康状态
+python -m auto_pm doctor
 ```
 
 ### 依赖

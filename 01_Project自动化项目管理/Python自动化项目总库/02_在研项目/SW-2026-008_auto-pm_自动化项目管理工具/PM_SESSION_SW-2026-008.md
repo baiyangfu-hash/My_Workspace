@@ -5,7 +5,10 @@
 - project_id: SW-2026-008
 - project_name: auto-pm（自动化项目管理工具）
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
-- last_updated: 2026-08-27
+- runtime_root: 00_Infrastructure/auto_pm
+- runtime_status: 双轨运行中，基础设施位为默认运行入口，旧项目母体保留为历史记录与回退来源
+- version: V1.2.3
+- last_updated: 2026-09-01
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -78,6 +81,13 @@
 
 ## 8. Handoff Notes
 
+- 2026-09-01 | from=Codex | mode=工作空间基础设施迁移第二批
+  - current_state: [双轨运行] 工作空间根入口与 editable install 默认指向 `00_Infrastructure/auto_pm`；本目录继续保留 SW-2026-008 项目历史、设计文档与回退参考。
+  - actions:
+    - 基础设施位文档服务优先读取 `00_Infrastructure/auto_pm` 代码源。
+    - 历史 `02_规划/` 与 `06_交付物/` 文档未迁走前，Doc-as-Code 同步/检查继续回灌旧母体文档，避免文档账断链。
+    - README 增加迁移状态提示，降低误从旧目录安装运行的风险。
+  - next_focus: 后续批次再评估是否迁移 `02_规划/`、`06_交付物/` 与变更单档案；未完成验证前不删除旧母体。
 - current_state: [已验证] auto-pm V1.2.3 架构稳固，CHG-SCPT-2026-167 契约对账器已闭环，SHC-017 从根消除技能文档-代码口径漂移。
 - 代码基线 V1.2.3
 - next_focus:
