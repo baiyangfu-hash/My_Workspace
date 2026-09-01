@@ -4,6 +4,19 @@
 *.suo
 *.user
 
+# 根目录一次性临时脚本（DEV-TMP-001 铁律：任务完成后必须即时删除，gitignore 作为最后防线）
+/fix_*.py
+/debug_*.py
+/verify_*.py
+/test_*.py
+/tmp_*.py
+/PROJECT.md
+/ORIGINAL_REQUEST.md
+/DIAGNOSTIC_*.md
+/RCA_*.md
+/TEST_READY.md
+
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -72,6 +85,10 @@ gittoken.txt
 !.cursor/commands/
 !.cursor/commands/**
 
+# Agent 协作：仅保留技能注册表，忽略运行日志与过程文件
+.agents/*
+!.agents/skills.json
+
 # 大文件：交付物打包和构建产物（超过 GitHub 100MB 限制）
 06_交付物/
 06_交付物打包/
@@ -95,8 +112,11 @@ gittoken.txt
 .auto-pm/*.db-journal
 .auto-pm/index.db
 .auto-pm/data.db
+.auto-pm/cache/
 .auto-pm/logs/
+.auto-pm/reports/
 .auto-pm/scratch/
+.auto-pm/transactions/
 coverage/
 .coverage
 htmlcov/
