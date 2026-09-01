@@ -221,7 +221,7 @@ VAR_INPUT
     i_b使能   : BOOL;  // 总使能信号
     i_b自动模式 : BOOL;  // 自动运行模式选择
     //#endregion 110_系统控制信号
-
+    
     //#region 120_工艺参数 来自HMI设定或配方
     i_r输送速度 : REAL;  // 输送带速度设定
     //#endregion 120_工艺参数

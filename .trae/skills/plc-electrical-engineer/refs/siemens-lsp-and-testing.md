@@ -41,28 +41,11 @@
 > 🔴 **配置硬规则**：
 > 1. 字段名必须是 `libraries`（不得拼错为 `libraryDirectories` 等无效字段）。
 > 2. 路径分隔符必须使用正斜杠 `/`。
-> 3. 当项目调用 SysLib 等公共库 FB 时，必须在 `libraries` 中注册对应库的相对路径。
-
----
-
-## 2. 西门子 SCL 源程序 (`.scl`) 编码避坑硬性规则
-
-针对西门子 TIA Portal 与 LSP 扩展的解析限制，在编写或审查 `.scl` 源码时必须严格遵循以下规则：
-
-### 2.1 语法与结构禁忌
-1. **禁用 `METHOD` 语法**：
-   - LSP 扩展与西门子原生 SCL 导入不支持 METHOD 声明。
-   - 所有算法与逻辑必须使用标准 FB/FC 内的 `CASE` 状态机或常规代码块实现。
-2. **定时器 `PT`/`ET` 类型声明**：
-   - LSP 扩展编译器不支持纯 `TIME` 类型变量。
-   - 所有 FB_TON 定时器的 `PT`（设定时间）和 `ET`（经过时间）参数，在 `.scl` 中必须映射为 `DINT`（毫秒整数值）。
-3. **定时器数组禁用索引直接调用**：
-   - 严禁对定时器数组通过 `fbTimer[i](IN:=...)` 方式直接调用。
-   - 定时器实例必须独立声明并在无条件区按周期扫描。
-4. **注释分工与嵌套禁令**：
+> 3. 当项目调用 SysLib 4. **注释分工与嵌套禁令 (由 `doc check` 静态门禁强卡)**：
    - 变量与行内注释必须使用 `//`。
    - 逻辑块与流程注释使用 `(* ... *)`。
    - 严禁嵌套注释 `(* (* ... *) *)`，且注释内禁止使用中文全角标点。
+   - 源码必须保持 ≥10% 注释覆盖率，由 `python -m auto_pm doc check` 强制校验。
 5. **极性与输出所有权**：
    - 信号映射必须使用显式 `IF/ELSE` 表达，禁止隐式 `NOT` 缩写。
    - 关键输出/报警在 `.scl` 中必须保持单一 Owner（变量前缀遵循 `LSP-905 §3` 小驼峰与 `q_` 前缀）。
@@ -111,6 +94,42 @@ END_TEST_CASE
 为解决在终端控制台中无硬件测试调用的痛点，008 工具集成底层 `siemens-lsp` 解释引擎：
 - 运行命令：`auto-pm plc test <项目ID>`
 - **模拟机制**：在内存中建立 SCL 虚拟扫描周期（Scan Cycles），在控制台中直接打印逐条 `TEST_CASE` 的 PASS/FAIL 日志。
+
+---
+
+## 4. 共享库 (SysLib) 依赖与 Breaking Change 预警
+
+1. **依赖图谱**：公共库 `SysLib` 被多层级工程（如 `DJ-2026-000` / `DJ-2026-005`）共同引用。
+2. **Breaking Change 隔离规则**：
+   - 当修改 `SysLib` 下的 FB（如 `FB_1011` / `FB_1012`）或结构体（如 `ST_Cylinder`）时，**必须先查阅全局依赖引用**。
+   - 修改 FB 引脚后，必须运行 `auto-pm plc check` 扫描上层引用工程，确保调用的 `OB1` 与底层 FB 保持强类型与版本一致。
+
+---
+
+## 5. 本地 LSP 验证与工程分工边界 (AI 本地 LSP 验证 vs 现场/硬件)
+
+为了确保工程交付的高效与严谨，项目建立清晰的 Pair Programming 验证边界：
+
+### 5.1 验证职责划分表
+
+| 验证领域 | 验证主体 | 验证工具 / 方法 | 验证内容与输出 |
+|---|---|---|---|
+| **本地 LSP 语法诊断** | **AI 智能体** | Siemens LSP (VS Code) + `view_file` | 检查 SCL 语法、标识符前缀（`i_`/`q_`/`s_`）、禁用 METHOD、定时器 `PT`/`ET` 为 `DINT` 毫秒、注释分工 |
+| **工程配置与合规** | **AI 智能体** | `auto-pm plc check <PID> --json` | 校验 `.plc.json` 路径、SysLib 依赖映射、Spec Snapshot、PM_SESSION 结构完整性 |
+| **文档与注释门禁** | **AI 智能体** | `auto-pm doc check` | 校验 SCL 注释覆盖率（AST扫描）、`TEC.md`/`USAGE.md` 存在性与 TODO 清零状态 |
+| **单元测试与 DSL** | **AI 智能体** | `auto-pm plc test <PID>` + `.scltest` | 在 `Test/` 目录编写/排查 `TEST_CASE`, `RESET` 块，执行无硬件控制台动态推演 |
+| **变更与台账闭环** | **AI 智能体** | `auto-pm change` + `ledger reconcile` | 自动管理 CHG 变更单并与版本变更台帐对账 |
+| **TIA Portal 全量编译** | **用户** | Siemens TIA Portal V16/V17/V18 | 工程导入、官方 SCL 语法/链接编译器全量编译、硬件组态校验 |
+| **真实硬件 / 现场调试** | **用户** | 实体 PLC (S7-1200/1500) / PLCSIM 虚拟机 | 现场以太网通信、伺服/气缸物理动作推演、安全门/急停物理回路调试 |
+
+### 5.2 本地 LSP 验证执行标准化流程
+
+智能体在执行“本地 LSP 验证”任务时，必须严格执行以下五步：
+1. **008 配置与语法检测**：运行 `auto-pm plc check <PID> --json` 检查物理配置与语法白名单。
+2. **文档与注释达标检测**：运行 `auto-pm doc check` 验证注释率与核心文档非空。
+3. **SCL 源码查阅**：先通过 `view_file` 阅读目标 `.scl` 声明，核对极性与类型。
+4. **.scltest 用例审查与测试**：运行 `auto-pm plc test <PID>` 审查 `Test/` 目录下 `.scltest` 文件的测试覆盖率与重置段。
+5. **台账对账**：若涉及变更，运行 `auto-pm ledger reconcile <PID>` 确保闭环。��（Scan Cycles），在控制台中直接打印逐条 `TEST_CASE` 的 PASS/FAIL 日志。
 
 ---
 

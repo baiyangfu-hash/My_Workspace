@@ -28,6 +28,7 @@
 ruff check auto_pm/
 mypy auto_pm/
 pytest --no-cov -q
+python -m auto_pm -w "<工作空间根>" doc check --strict
 ```
 
 ## 3. retrofit 模式（先实施后补单）
@@ -47,7 +48,7 @@ python -m auto_pm -w "<工作空间根>" change create --retrofit \
 
 | 声明类型 | 验证方式 |
 |:---|:---|
-| 门禁声明（ruff/mypy/pytest 结果） | 必须运行时实测 |
+| 门禁声明（ruff/mypy/pytest 结果） | 必须运行时实测，并列明改动文件 |
 | 文件存在性声明 | 必须用工具验证 |
 | 代码行为声明 | 必须读源码验证 |
 

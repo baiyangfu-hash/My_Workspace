@@ -1,4 +1,4 @@
-# PM_SESSION_SYS-2026-001
+﻿# PM_SESSION_SYS-2026-001
 
 ## 0. Meta
 - project_id: SYS-2026-001
@@ -18,6 +18,7 @@
 - milestone: 治理账本 V1.1.0 重基线 ✅ 已完成
 - code_baseline: V1.0.0 (2026-06) → V1.1.0 (2026-08)
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅
+- 代码基线 V1.1.0
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
@@ -36,28 +37,13 @@
   - result: 项目编号 `SYS-2026-001` 符合 `DEV-001` 语义约束；已校正为 `auto-pm` 口径
 
 ## 4. Artifacts Index（文档索引）
-- charter:
-  - 00_项目基础信息/01_项目章程_PM.md
-- req:
-  - 01_项目文档/01_需求分析_REQ.md
-- dsn:
-  - 01_项目文档/02_工作区治理方案_DES.md
-- int: (待创建)
-- tec: (待创建)
-- roadmap:
-  - 01_项目文档/03_分阶段整改路线图_PM.md
-- risk:
-  - 01_项目文档/04_风险登记册_REP.md
-- governance_rule:
-  - 01_项目文档/05_变更准入规则_DEV.md
-- workspace_entry:
-  - ..\README.md
-  - ..\.trae\documents\README.md
-- inherited_plans:
-  - ..\.trae\documents\工作空间重构分阶段治理建议计划.md
-  - ..\.trae\documents\workspace-health-remediation-plan.md
-  - ..\.trae\documents\workspace-temp-files-cleanup-plan.md
-  - ..\.trae\documents\project-rule-optimization-plan.md
+- charter: 00_项目基础信息/01_项目章程_PM.md
+- req: 01_项目文档/01_需求分析_REQ.md
+- dsn: 01_项目文档/02_工作区治理方案_DES.md
+- tec: 01_项目文档/03_分阶段整改路线图_PM.md
+- int: 01_项目文档/05_变更准入规则_DEV.md
+- risk: 01_项目文档/04_风险登记册_REP.md
+- governance_rule: 01_项目文档/05_变更准入规则_DEV.md
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -147,16 +133,24 @@
     - ~~现有 `pm-mgr` 模板面向 `software/plc`，暂未直接覆盖 `SYS`~~（2026-08-26已解决：工具链统一至 `auto-pm`）
 
 ## 8. Handoff Notes
+- 2026-09-01 | from=pm-workflow | skill=Antigravity | event=根目录治理
+  - trigger: 根目录发现 9 个违规文件（临时脚本 + 过程报告 + Teamwork 残留）
+  - actions:
+    - 删除: debug_parity.py / fix_change.py / fix_handoff_service.py / fix_immutability.py / fix_pm.py / test_regex.py / verify_cleanup.py / ORIGINAL_REQUEST.md / PROJECT.md
+    - 归档: DIAGNOSTIC_ASSESSMENT_REPORT.md / RCA_REPORT.md / TEST_READY.md → .auto-pm/reports/
+    - 保留: main.py (合法工作区快捷启动入口)
+    - 防线加固: .gitignore 新增 /fix_*.py / /debug_*.py / /verify_*.py / /test_*.py 等根目录临时脚本拦截模式
+  - result: 根目录文件从 18 个压缩至 10 个，100% 合规
 - 2026-06-16 | from=pm-workflow | mode=P2节奏固化启动
-  - current_state: P1移交完成，P2节奏固化启动
-  - next_focus: P2.1 Git原子性提交，P2.2 PLC域规范分类归属调整
+  - current_state: P1移交完成，P2节奏固化启动 [已验证]
+  - next_focus: P2.1 Git原子性提交，P2.2 PLC域规范分类归属调整 [待验证]
   - watchouts:
     - Git原子性提交需梳理Phase 1-3所有变更，按逻辑分组为7次提交
     - PLC域规范分类归属调整需确认TOOL-902/908的当前归属和目标归属
   - read_first:
     - PM_SESSION_SYS-2026-001.md
     - 01_项目文档/03_分阶段整改路线图_PM.md
-- 代码基线 V1.0.0
+- 代码基线 V1.1.0
 
 ## 9. Next Actions
 - [当前] ✅ 治理账本重基线完成（2026-08-26） | done_when=路径修正+工具链口径统一+风险台账对齐+PM_SESSION精简 全部完成
@@ -175,3 +169,4 @@
 | PM-004 | V1.2.0 | 2026-06-16 | PM_WORKFLOW总控Skill使用说明 |
 | PM-042 | V1.0.0 | 2026-08 | PM_SESSION管理规程（按pm-workflow当前规程） |
 | PROJ-016 | V1.0.0 | 2026-06-16 | 通用项目结构模板 |
+

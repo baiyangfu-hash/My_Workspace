@@ -27,10 +27,10 @@
 
 | intent 值 | PM 应执行的剧本 |
 |:---|:---|
-| `initiate_project` | 阶段0门禁：核查3必备要素。若缺失，**严禁直接提问**，必须先全局检索 Obsidian库（`00_Obsidian_Base全局规范文件仓库`）。若查到标准则直接套用；若查不到方可向用户发起《需求澄清提问清单》 |
-| `plan_documents`   | 生成6件套文档（REQ/INT/TEC/DSN/IO/FLOW）→ doc check 全绿 → 呈报用户审批 |
+| `initiate_project` | 阶段0门禁：核查3必备要素。若缺失，**严禁直接提问**，必须先检索 Obsidian 规范库（`00_Obsidian_Base全局规范文件仓库`）**与目标项目代码基 (Codebase)**。若查到标准或代码事实则直接套用；若查不到且确实缺失物理硬件事实时方可向用户发起《需求澄清提问清单》 |
+| `plan_documents`   | 由 Copier 脚手架模板初始化 6 件套骨架 → 针对性填空 → doc check 校验通过 → 呈报用户审批 |
 | `spec_check`       | 进入规范治理模式：执行规范巡检/索引/同步相关剧本，按 `specCenter` 上下文优先处理 Obsidian 真源与注册表一致性 |
-| `implement_change` | 已有流程：变更/缺陷执行（不变） |
+| `implement_change` | 阶段0探路：**代码基优先 (Codebase First)**。通过工具直接检索代码或派发 Grooming 预研子代理（`--mode grooming`）获取受影响文件与符号事实；严禁向用户询问代码中已有的参数；基于事实输出变更计划等待审批 |
 | `plc_review`       | 已有流程：PLC 项目推进（不变） |
 | `project_followup` | 已有流程：默认兜底（不变） |
 

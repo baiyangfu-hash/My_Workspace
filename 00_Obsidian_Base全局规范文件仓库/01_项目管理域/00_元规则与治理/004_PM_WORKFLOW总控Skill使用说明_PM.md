@@ -43,10 +43,10 @@ canonical_path: "00_Obsidian_Base全局规范文件仓库/01_项目管理域/00_
 
 ### 3.2 例行更新（每次活动结束必须做）
 把所有项目活动统一为 8 类事件（每次只处理一种）：
-- Event A：需求新增/需求变更（Scope Change）— 必须前置执行《输入齐套性审查》，核查 CAD/轴系/动作时序 3 要素；输入不齐时强制发起提问清单，禁止擅自脑补
+- Event A：需求新增/需求变更（Scope Change）— 必须前置执行【代码基优先门禁 (Codebase-First Gating)】与《输入齐套性审查》。在研迭代项目强制执行代码基逆向与上下文探路（使用工具检索源码或派发 Grooming 预研子代理），严禁代码盲问（Zero-Stupid-Questions Redline）；只有在代码库探路完毕且仍存在无法推导的真实业务决策/未接线硬件时，方可向用户发起提问
 - Event B：迭代推进（Iteration）
 - Event C：重构/技术债（Refactor）
-- Event D：缺陷审查/修复（Bug）
+- Event D：缺陷审查/修复（Bug）— 必须前置通过工具或 Grooming 预研模式勘测复现路径与涉及源码位置，严禁未经代码查验直接询问用户已有逻辑
 - Event E：交付/发布（Delivery）
 - Event F：规范巡检（Spec Check）— 规范引用/升级/漂移检查
 - Event G：项目初始化（Init）— 空文件夹 → 完整项目骨架
