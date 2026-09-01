@@ -42,10 +42,14 @@ if exist "requirements.txt" (
     pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 )
 
-:: 4. 安装 auto-pm 本地开发包
-set "CORE_PATH=01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具"
+:: 4. 安装 auto-pm 本地开发包（优先工作空间基础设施运行位，旧项目路径回退）
+set "CORE_PATH=00_Infrastructure\auto_pm"
+set "LEGACY_CORE_PATH=01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具"
+if not exist "%CORE_PATH%" (
+    set "CORE_PATH=%LEGACY_CORE_PATH%"
+)
 if exist "%CORE_PATH%" (
-    echo [4/4] 正在挂接 auto-pm 核心模块...
+    echo [4/4] 正在挂接 auto-pm 核心模块: %CORE_PATH%
     pip install -e "%CORE_PATH%" --no-deps
 )
 

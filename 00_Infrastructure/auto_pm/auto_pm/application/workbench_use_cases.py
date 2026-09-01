@@ -441,7 +441,9 @@ class WorkbenchUseCases:
                         "workspace_root": workspace_root,
                     },
                 )
-            with open(get_config_file_path(), "w", encoding="utf-8") as file:
+            config_file = get_config_file_path()
+            os.makedirs(os.path.dirname(config_file), exist_ok=True)
+            with open(config_file, "w", encoding="utf-8") as file:
                 file.write(workspace_root)
             payload: dict[str, Any] = {
                 "config_saved": True,

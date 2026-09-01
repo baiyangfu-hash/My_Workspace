@@ -130,8 +130,29 @@ def join_path(*parts: str) -> str:
 def get_config_file_path() -> str:
     """获取全局配置文件 (.auto-pm-workspace) 的路径
 
-    统一位于工具根目录下。
+    统一位于工作空间运行态目录 .auto-pm/ 下。
     """
+    env_workspace = os.environ.get("AUTO_PM_WORKSPACE", "").strip()
+    if env_workspace:
+        return os.path.join(env_workspace, ".auto-pm", ".auto-pm-workspace")
+
+    anchors = (
+        "AGENTS.md",
+        "00_Obsidian_Base全局规范文件仓库",
+        "0100_PLC自动化",
+        "01_Project自动化项目管理",
+    )
+    tool_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    for start in (os.getcwd(), tool_dir):
+        curr = os.path.abspath(start)
+        while True:
+            if any(os.path.exists(os.path.join(curr, anchor)) for anchor in anchors):
+                return os.path.join(curr, ".auto-pm", ".auto-pm-workspace")
+            parent = os.path.dirname(curr)
+            if parent == curr:
+                break
+            curr = parent
+
     tool_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     return os.path.join(tool_dir, ".auto-pm-workspace")
 
