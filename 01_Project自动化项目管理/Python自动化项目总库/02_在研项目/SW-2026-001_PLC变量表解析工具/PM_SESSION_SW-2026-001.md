@@ -15,6 +15,7 @@
 ## 2. Current Focus（当前焦点）
 - current_focus: CLI集成到FB开发标准流程完成，plc-rules.md+SKILL.md已更新，待Step 7.5端到端触发验证 (2026-06-18)
 - milestone: V1.3.0 — CLI集成到FB开发标准流程（规范+技能流程化）
+- 代码基线 V1.0.0
 - acceptance: plc-rules.md新增"接口文档变量表自动输出"章节；SKILL.md Step 7新增Step 5；PLC技能修改SysLib FB接口文档后自动调用CLI输出变量表
 
 ## 3. Status Summary（当前状态摘要）
@@ -34,17 +35,13 @@
   - CLI集成依赖plc-var-parser已安装，venv重装后需重新pip install -e .
 
 ## 4. Artifacts Index（文档索引）
-- prd:
-  - 00_项目基础信息/0-项目立项表_PROJ.md
-- req:
-  - 01_项目文档/1-需求分析文档_REQ.md
-- des:
-  - 01_项目文档/2-详细设计说明书_DES.md
-- test:
-  - 01_项目文档/6-验收核验报告_REP.md
-  - 02_开发文件/tests/
-- delivery:
-  - 01_项目文档/6-验收核验报告_REP.md
+- prd: README.md
+- req: README.md
+- int: 02_开发文件/samples/test_FB_INT.md
+- dsn: README.md
+- tec: README.md
+- test: 02_开发文件/tests/
+- delivery: README.md
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -259,6 +256,7 @@
     - 自定义输出: plc-var-parser "<INT.md路径>" -o "<输出路径>"
     - 成功判断: $LASTEXITCODE -eq 0 (PowerShell) 或 $? -eq 0 (Bash)
     - 结果解析: stdout输出JSON，含status/variables/struct_fields/output_path
+- 代码基线 V1.0.0 [已验证]
 
 ## 9. Next Actions
 - [P1] 设计IntDocParser解析器 | precondition=需求已确认 | done_when=能解析FB_1011接口文档的VAR_INPUT/VAR_OUTPUT/VAR/结构体定义 | status=已完成(2026-06-18)

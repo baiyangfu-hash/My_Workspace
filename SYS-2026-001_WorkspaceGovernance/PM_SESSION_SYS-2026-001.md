@@ -161,6 +161,19 @@
     - ~~现有 `pm-mgr` 模板面向 `software/plc`，暂未直接覆盖 `SYS`~~（2026-08-26已解决：工具链统一至 `auto-pm`）
 
 ## 8. Handoff Notes
+- 2026-09-01 | from=Codex | mode=迁移前工作树治理收口
+  - current_state: 未启动 SW-2026-008 驾驶舱迁移；已先完成迁移前工作树清理。
+  - actions:
+    - 建立备份分支 `codex-backup-worktree-governance-20260901`，保留治理前现场。
+    - 恢复 `.dockerignore`、`docs/` Docker/交接文档、历史设备样例资产到 Git 基线，避免未验证删除进入提交。
+    - 恢复通用规范 README 与 SW-2026-009 运行态数据库到 Git 基线，避免自动格式化和运行态数据混入业务账。
+    - 对 DJ/SW 历史 PM_SESSION 追加最小 SHC-011/013/014 合规补丁，因为 `auto-pm spec check` 证明部分漂移是新门禁所需结构契约。
+  - verification:
+    - `git status --short --untracked-files=all`：恢复后无残留脏项，仅治理账本与历史 PM_SESSION 合规补丁待提交。
+    - `auto_pm spec check --workspace C:\Users\fubai\Documents\My_Workspace --format table`：所有检查通过。
+    - `auto_pm doctor`：环境与依赖健康诊断通过，根目录纯净。
+  - next_focus: 工作树治理提交完成后，再单独规划 SW-2026-008 驾驶舱迁移。
+  - watchouts: 后续若需要 PM_SESSION 格式统一，应作为独立 SYS 治理任务处理，并逐项目跑门禁，不应混入驾驶舱迁移。
 - 2026-09-01 | from=Codex | mode=迁移前治理接手
   - current_state: SW-2026-008 驾驶舱迁移继续暂停；工作树已完成第一轮可验证提交。
   - next_focus: 先让 Git 工作树归零，再重启驾驶舱迁移方案设计与执行。
@@ -186,7 +199,7 @@
 - 代码基线 V1.1.0
 
 ## 9. Next Actions
-- [当前] 工作树剩余高风险项裁决 | done_when=明确恢复或提交 `.dockerignore`/`docs/docker`/历史设备样例删除与 SW PM_SESSION/db 漂移
+- [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
 - [后续] SW-2026-008 驾驶舱迁移重启 | precondition=Git 工作树归零 | done_when=迁移方案报批后再进入执行
 
 ## Spec Snapshot（更新至2026-08-26）

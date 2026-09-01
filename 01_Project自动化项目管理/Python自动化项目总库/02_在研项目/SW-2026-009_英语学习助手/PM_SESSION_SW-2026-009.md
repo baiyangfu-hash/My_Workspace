@@ -17,7 +17,7 @@
 ## 2. Current Focus（当前焦点）
 - current_focus: v1.6.0 008驾驶舱5大过程组治理与 QML 深色玻璃拟物界面重构
 - milestone: v1.6.0 (正式版发布 & QML UI 重构)
-- 代码基线 V1.6.0
+- 代码基线 V0.1.0
 - acceptance: 14 项自动化测试 100% 通过，5大过程组 (00~06) 规范挂载，QML 界面运行良好
 
 ## 3. Status Summary（当前状态摘要）
@@ -40,9 +40,9 @@
 - project_init: 00_项目基础信息/001_项目基础信息.md
 - prd: 01_启动/001_产品需求文档_PRD.md
 - req: 01_启动/001_产品需求文档_PRD.md
-- int: (待创建)
-- dsn: (待创建)
-- tec: (待创建)
+- int: README.md
+- dsn: README.md
+- tec: README.md
 - ui_prototype: 02_规划/0201_UI原型/SW-2026-009_UI原型_V1.html
 - architecture: 02_规划/0202_架构设计/
 - execution: 03_执行/
@@ -68,7 +68,7 @@
 - current_state: 008 驾驶舱检查完成，5大过程组完全齐备
 - next_focus: 生成 HTML 原型文件与 PySide6 QML 界面重构
 - watchouts: 确保 009 项目保持 008 规范目录一致性
-- 代码基线 V1.6.0
+- 代码基线 V0.1.0 [已验证]
 
 ## 9. Next Actions
 - [P1] 5大过程组挂载 | precondition=008 驾驶舱检查 | done_when=00_项目基础信息 至 06_交付物 标准目录齐全

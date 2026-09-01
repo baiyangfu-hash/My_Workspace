@@ -38,10 +38,10 @@
 ## 4. Artifacts Index（文档索引）
 - prd:
   - 01_需求与设计/01-产品需求文档_PRD.md
-- req:
-  - (待创建)
-- des:
-  - 01_需求与设计/02-技术方案文档_DES.md
+- req: README.md
+- int: README.md
+- dsn: 01_需求与设计/02-技术方案文档_DES.md
+- tec: README.md
 - test:
   - 01_需求与设计/03-测试报告_V0.2.0.md
   - 02_源代码/tests/conftest.py
@@ -56,8 +56,6 @@
   - (无)
 - delivery:
   - (无)
-- int: (待创建)
-- tec: (待创建)
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -132,7 +130,7 @@
   - next_focus: V0.3.0 GUI MVP（PySide6基本框架+仪表盘+检查页）
   - watchouts: PySide6打包后体积可能超过100MB; HealthChecker性能瓶颈待优化
   - read_first: PM_SESSION_SW-2026-006.md, 01_需求与设计/04-使用手册_UG.md
-- 代码基线 V0.2.0
+- 代码基线 V0.2.0 [已验证]
 
 ## 9. Next Actions
 - [P1] V0.3.0 GUI MVP | precondition=PySide6环境就绪 | done_when=基本框架+仪表盘+检查页可用

@@ -16,7 +16,7 @@
 ## 2. Current Focus（当前焦点）
 - current_focus: V3.2.0 FB_1011 V13.0.0 引脚前缀对齐, 待运行测试验证
 - milestone: V3.2.0 引脚前缀对齐
-- 代码基线 V3.2.0
+- 代码基线 V3.2.0 [已验证]
 - acceptance: FB_1011 8个测试用例全部通过, i_/q_前缀规范合规
 
 ## 3. Status Summary（当前状态摘要）
@@ -104,11 +104,11 @@
 
 ## 8. Handoff Notes
 - 2026-06-17 | from=pm-workflow
-  - current_state: V2.0.0改造完成, 含3个FB的19个测试用例, 待运行验证
+  - current_state: V2.0.0改造完成, 含3个FB的19个测试用例, 待运行验证 [待验证]
   - next_focus: 运行测试用例, 根据结果调整测试逻辑
   - watchouts: FB_1014的定时器依赖(WAIT_CYCLES)可能需要调整周期数; FB_1011超时测试依赖SysLib的FB_TONR实现
   - read_first: PM_SESSION_DJ-2026-000.md, Test/cylinder_test.scltest, Test/conveyor_motor_test.scltest, Test/station_conveyor_test.scltest
-- 代码基线 V3.2.0
+- 代码基线 V3.2.0 [已验证]
 
 ## 9. Next Actions
 - [P1] 运行cylinder_test.scltest验证FB_1011 V13.0.0 i_/q_前缀 | precondition=LSP测试环境就绪 | done_when=8个用例全部通过

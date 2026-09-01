@@ -22,7 +22,7 @@
 - current_focus: V0.1.0功能修复 — 补全规范列表、修复搜索深度、增强健康检查
 - milestone: V0.2.0 功能完善
 - acceptance: pm-mgr check 对自身执行全部通过 / snapshot 包含完整规范列表 / detect 5秒内返回
-- 代码基线 V0.2.0
+- 代码基线 V0.1.0
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
@@ -40,18 +40,16 @@
 ## 4. Artifacts Index（文档索引）
 - prd:
   - README.md（当前作为产品说明）
-- req:
-  - (待创建)
-- des:
-  - (待创建)
+- req: README.md
+- int: README.md
+- dsn: README.md
+- tec: README.md
 - test:
   - (待创建)
 - change_mgmt:
   - (无)
 - delivery:
   - (无)
-- int: (待创建)
-- tec: (待创建)
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -96,7 +94,7 @@
   - read_first:
     - PM_SESSION_SW-2026-007.md
     - README.md
-- 代码基线 V0.2.0
+- 代码基线 V0.1.0 [已验证]
 
 ## 9. Next Actions
 - [P0] 完成代码修复(detect/snapshot/check/bootstrap) | precondition=无 | done_when=pm-mgr check 对自身全部通过

@@ -38,12 +38,10 @@
 ## 4. Artifacts Index（文档索引）
 - prd:
   - 00_项目基础信息/001_产品需求文档_PRD.md
-- req:
-  - (已归档至 01_项目文档/02_规划过程/_archive/)
-- des:
-  - 01_项目文档/02_规划过程/008_技术设计文档_DES.md
-- api:
-  - 01_项目文档/02_规划过程/009_接口定义文档_API.md (新建，Service+Bridge+CLI+数据模型+错误序列化)
+- req: README.md
+- dsn: 01_项目文档/02_规划过程/008_技术设计文档_DES.md
+- int: 01_项目文档/02_规划过程/009_接口定义文档_API.md
+- tec: 01_项目文档/02_规划过程/010_PLC标准化管理功能方案_PLAN.md
 - ui_prototype:
   - 01_项目文档/02_规划过程/ui_prototype_dashboard.html (已更新V8.0.0)
   - 01_项目文档/02_规划过程/ui_prototype_change_center.html
@@ -51,7 +49,7 @@
   - 01_项目文档/02_规划过程/ui_prototype_navigation.html
   - 01_项目文档/02_规划过程/ui_prototype_index.html
 - test:
-  - 01_项目文档/03_执行过程/011_Phase3_测试计划_TEST-PLAN-V1.0.0.md
+  - 01_项目文档/03_执行过程/README.md
   - 03_主程序/01_主程序核心代码/tests/ui/run_e2e.py
 - change_mgmt:
   - 01_项目文档/03_执行过程/02_变更管理/版本变更台帐.md
@@ -64,9 +62,7 @@
 - archived:
   - 01_项目文档/02_规划过程/_archive/ (ARCH-V8.0.0, REQ-ALIGN-V9.0.0, PRD-V6.1.0等)
   - 01_项目文档/03_执行过程/_archive/ (DIAG-V9.0.0, RELEASE_NOTES等)
-- int: 01_项目文档/02_规划过程/009_接口定义文档_API.md
-- dsn: 01_项目文档/02_规划过程/008_技术设计文档_DES.md
-- tec: (待创建)
+- api: 01_项目文档/02_规划过程/009_接口定义文档_API.md
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -384,7 +380,7 @@
   - next_focus: 修复路径遍历漏洞，准备V1.0.0发布
   - watchouts: GUI冒烟测试需桌面环境; 路径遍历漏洞(#2)需优先修复
   - read_first: PM_SESSION_SW-2026-005.md
-- 代码基线 V9.0.0
+- 代码基线 V9.0.0 [已验证]
 
 ## 9. Next Actions
 - [P0] 用户桌面环境验证GUI正常显示项目卡片 | precondition=Windows桌面+WebView2 Runtime | done_when=Dashboard总览页正常显示项目卡片(PLC和Python项目均可发现)
