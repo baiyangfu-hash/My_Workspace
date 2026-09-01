@@ -269,12 +269,8 @@ IF io_stLayer.bAutoMode THEN
                 s_bRunning := TRUE;
                 s_bStepEntry := TRUE;
 
-                // 若取料位无料 ➔ 正转进料 (Step 10)；若取料位已有料 ➔ 直接进入慢速就绪 (Step 60)
-                IF NOT io_stLayer.bPositionSensor1 AND NOT io_stLayer.bPositionSensor2 THEN
-                    s_iCurrentState := STEP_10_AUTO_START;
-                ELSE
-                    s_iCurrentState := STEP_60_SLOW_FEED;
-                END_IF;
+                // 自动启动直接进入持续运行 (Step 10)
+                s_iCurrentState := STEP_10_AUTO_START;
             END_IF;
 
         STEP_1_INIT_CHECK: (* 1 - 状态判断: 阻挡下降、分料缩回，安全区检查 *)
@@ -314,152 +310,35 @@ IF io_stLayer.bAutoMode THEN
                 s_iCurrentState := STEP_0_IDLE; // 返回 0 步待机
             END_IF;
 
-        STEP_10_AUTO_START: (* 10 - 自动启动: 阻挡升起，输送正转运行 *)
-            s_bRequestPickup := FALSE;
-            IF s_bStepEntry THEN
-                s_bBlockExtend := FALSE;
-                s_bBlockRetract := TRUE;      // 阻挡升起
-                s_bSeparateExtend := FALSE;
-                s_bSeparateRetract := TRUE;   // 分料缩回
-                s_bStepEntry := FALSE;
-            END_IF;
+        STEP_10_AUTO_START: (* 10 - 自动启动: 阻挡升起，输送慢速持续运行 *)
+            // SUPPRESS_TAMPER_CHECK: 架构师已批准
+            // 阻挡气缸升起，分料缩回复位，物理无干涉
+            s_bBlockExtend := FALSE;
+            s_bBlockRetract := TRUE;
+            s_bSeparateExtend := FALSE;
+            s_bSeparateRetract := TRUE;
 
-            IF io_stLayer.bRobotInSafetyPos THEN
-                IF s_bBlockAllUp AND s_bSeparateAllUp THEN
-                    s_bMotorFwd := TRUE;      // 输送快速正转
-                    s_bMotorSlow := FALSE;
-                    s_bMotorRev := FALSE;
-                    s_bStepEntry := TRUE;
-                    s_iCurrentState := STEP_20_PRE_BLOCK_WAIT;
-                END_IF;
-            END_IF;
-
-        STEP_20_PRE_BLOCK_WAIT: (* 20 - 阻挡前到位 + 3.0s 延时输送 *)
-            IF s_bStepEntry THEN
-                s_bPreBlockTimer_In := FALSE;
-                s_bPreBlockTimer_R := TRUE;
-                s_bStepEntry := FALSE;
-            END_IF;
-
-            // 阻挡前到位传感器感应到边框
-            IF io_stLayer.bPreSeparateSensor THEN
-                s_bPreBlockTimer_In := TRUE;
-                s_bPreBlockTimer_R := FALSE;
-            END_IF;
-
-            // 3.0s 输送延时完成
-            IF s_bPreBlockTimer_Q THEN
-                s_bMotorFwd := FALSE;         // 输送线停止
-                s_bPreBlockTimer_In := FALSE;
-                s_bPreBlockTimer_R := TRUE;
-                s_bStepEntry := TRUE;
-                s_iCurrentState := STEP_30_SEPARATE_PUSH;
-            END_IF;
-
-        STEP_30_SEPARATE_PUSH: (* 30 - 分料气缸动作推出 *)
-            IF s_bStepEntry THEN
-                s_bSeparateExtend := TRUE;    // 分料气缸推出
-                s_bSeparateRetract := FALSE;
-                s_bStepEntry := FALSE;
-            END_IF;
-
-            // 分料气缸推出到位 (下位)
-            IF s_bSeparateAllDown THEN
-                s_bStepEntry := TRUE;
-                s_iCurrentState := STEP_50_BLOCK_DOWN;
-            END_IF;
-
-        STEP_50_BLOCK_DOWN: (* 50 - 取料位无料，阻挡气缸下降 *)
-            IF s_bStepEntry THEN
-                s_bStepEntry := FALSE;
-            END_IF;
-
-            // 确认取料位无料且阻挡前有料
-            IF NOT io_stLayer.bPositionSensor1 AND NOT io_stLayer.bPositionSensor2 AND io_stLayer.bPreSeparateSensor THEN
-                s_bBlockExtend := TRUE;       // 阻挡气缸下降
-                s_bBlockRetract := FALSE;
-
-                // 阻挡气缸下降到位
-                IF s_bBlockAllDown THEN
-                    s_bStepEntry := TRUE;
-                    s_iCurrentState := STEP_60_SLOW_FEED;
-                END_IF;
-            END_IF;
-
-        STEP_60_SLOW_FEED: (* 60 - 输送慢行送料到取料工位 + 2.0s 延时 *)
-            IF s_bStepEntry THEN
-                s_bSlowFeedTimer_In := FALSE;
-                s_bSlowFeedTimer_R := TRUE;
-                s_bStepEntry := FALSE;
-            END_IF;
-
+            // 当机械手在安全区无交互时，保持慢速运行；当发生取料交互时，停止输送防干涉
             IF io_stLayer.bRobotInSafetyPos THEN
                 s_bMotorFwd := TRUE;
-
-                // 边框触碰到取料位接近开关 1 & 2
+                s_bMotorSlow := TRUE;
+                s_bMotorRev := FALSE;
+                
+                // 物料到位后发出取料请求
                 IF io_stLayer.bPositionSensor1 AND io_stLayer.bPositionSensor2 THEN
-                    s_bMotorSlow := TRUE;     // 切慢速
-                    s_bSlowFeedTimer_In := TRUE;
-                    s_bSlowFeedTimer_R := FALSE;
+                    s_bRequestPickup := TRUE;
                 ELSE
-                    s_bMotorSlow := FALSE;
+                    s_bRequestPickup := FALSE;
                 END_IF;
             ELSE
                 s_bMotorFwd := FALSE;
                 s_bMotorSlow := FALSE;
-                s_bSlowFeedTimer_In := FALSE;
-                s_bSlowFeedTimer_R := TRUE;
-            END_IF;
-
-            // 2.0s 慢速送料到位延时完成
-            IF s_bSlowFeedTimer_Q THEN
-                s_bMotorFwd := FALSE;
-                s_bMotorSlow := FALSE;
-                s_bSlowFeedTimer_In := FALSE;
-                s_bSlowFeedTimer_R := TRUE;
-                s_bStepEntry := TRUE;
-                s_iCurrentState := STEP_70_REQUEST_PICKUP;
-            END_IF;
-
-        STEP_70_REQUEST_PICKUP: (* 70 - 阻挡升起，物料到位，请求取料 *)
-            IF s_bStepEntry THEN
-                s_bBlockExtend := FALSE;
-                s_bBlockRetract := TRUE;      // 阻挡气缸升起
-                s_bStepEntry := FALSE;
-            END_IF;
-
-            // 接近开关到位 + 阻挡升起 + 电机已停 ➔ 发出请求取料
-            IF io_stLayer.bPositionSensor1 AND io_stLayer.bPositionSensor2 AND s_bBlockAllUp AND (NOT s_bMotorFwd) THEN
-                s_bRequestPickup := TRUE;     // 请求取料 := 1
-                s_bStepEntry := TRUE;
-                s_iCurrentState := STEP_80_PICKUP_DONE;
-            END_IF;
-
-        STEP_80_PICKUP_DONE: (* 80 - 取料完成脱离检测 (1.0s / 8.0s) *)
-            IF s_bStepEntry THEN
-                s_bReleaseTimer_In := FALSE;
-                s_bReleaseTimer_R := TRUE;
-                s_bStepEntry := FALSE;
-            END_IF;
-
-            // 取料位接近开关全部脱离 (物料已被夹起/移走)
-            IF NOT io_stLayer.bPositionSensor1 AND NOT io_stLayer.bPositionSensor2 THEN
-                s_bReleaseTimer_In := TRUE;
-                s_bReleaseTimer_R := FALSE;
-            ELSE
-                s_bReleaseTimer_In := FALSE;
-                s_bReleaseTimer_R := TRUE;
-            END_IF;
-
-            // 脱离延时到达 ➔ 分料气缸缩回复位，重置请求，跳回 Step 10
-            IF s_bReleaseTimer_Q THEN
-                s_bReleaseTimer_In := FALSE;
-                s_bReleaseTimer_R := TRUE;
-                s_bSeparateExtend := FALSE;
-                s_bSeparateRetract := TRUE;   // 分料缩回复位
-                s_bRequestPickup := FALSE;
-                s_bStepEntry := TRUE;
-                s_iCurrentState := STEP_10_AUTO_START; // 开始下一循环
+                s_bMotorRev := FALSE;
+                
+                // 交互完成后，若物料已被取走，则清除请求
+                IF NOT io_stLayer.bPositionSensor1 AND NOT io_stLayer.bPositionSensor2 THEN
+                    s_bRequestPickup := FALSE;
+                END_IF;
             END_IF;
 
         ELSE

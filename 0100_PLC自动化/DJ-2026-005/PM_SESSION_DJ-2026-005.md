@@ -54,6 +54,7 @@
 - hmi-tag:      03_HMI设计\hmi_tag_mapping.json (120+ 变量与全量 71 DI / 48 DO 点表映射字典)
 
 ## 5. Changelog（变更日志）
+- 2026-09-01 | CHG-PLC-2026-011: 4层输送机切换为持续慢速运行机制，机器人安全区无交互时慢速输送，取料交互时停机防干涉，取料结束后自动恢复。
 - 2026-08-26 | 基准真源净化: 同步 Spec Snapshot 至当前规范版本，并统一 DJ005 对外部交互模块的模板归一命名说明，避免基准项目继续输出旧口径。
 - 2026-08-25 | STD-820 跨机动态安全防御闭环: 落实打胶机全套安全状态(急停/故障/心跳/允许)持续监视、小车运行途中突发异常紧急制动拦截、以及取料后 4 卡槽物理光电脱离闭环，彻底杜绝撞机风险。
 - 2026-08-25 | 源程序真源对齐与对象化重构: 依据原版梯形图 PDF 深度对齐输送机(10s退料/满料防侧翻)、取放料(4槽位光电调度/10组配方)、打胶送料(STD-820交握)，全量 12 个 SCL 达成 0-Warn (Pass=51, Warn=0, Fail=0)。
@@ -62,6 +63,7 @@
 - 2026-08-24 | HMI 原型工业级高保真重构 V2.0.0: 补全 71 DI/48 DO 全真端子排与 11 画面全结构化重塑。
 
 ## 6. Implementation Log
+- 2026-09-01 | CHG-PLC-2026-011 落账完成: 修改 FB_1002 STEP_10_AUTO_START，收敛原 STEP 20/30/50/60/70/80 分段送料为单步持续慢速策略；plc check Pass=51 Warn=0 Fail=0 -> ALL PASS [已验证]
 - 2026-08-26 | 基准项目真源净化完成: Spec Snapshot 漂移归零，REQ/DSN/INT 旧前缀与外部交互模块命名说明完成收口 | plc check 51 PASS, 0 WARN, 0 FAIL [已验证]
 - 2026-08-25 | 源程序梯形图工艺还原闭环: FB_1002 / FB_1003 / FB_1004 全量重构对齐，通过全量门禁与单测 | plc check 51 PASS, 0 WARN, 0 FAIL [已验证]
 - 2026-08-25 | LSP-905 0-Warn 纯净化达成: 全量 SCL 静态扫描 Warning 彻底清零 | plc check 51 PASS, 0 WARN, 0 FAIL [已验证]
@@ -69,6 +71,10 @@
 - 2026-08-24 | HMI 原型 V2.0.0 全真重构与全物理点表补完完成，11 页面全功能通过 [已验证]
 
 ## 8. Handoff Notes
+- 2026-09-01 | from=pm-workflow | to=plc-electrical-engineer | reason=CHG-PLC-2026-011 收尾治理
+  - task_dispatched: 复核 4层输送机持续慢速运行改动，剔除未实现 CHG-PLC-2026-012 与旧版 USAGE 草稿，避免混入迁移前工作树。
+  - execution_result: FB_1002 静态门禁通过；PM_SESSION 乱码污染已移除；版本台账仅保留已实现并关闭的 CHG-PLC-2026-011。
+  - pm_acceptance: 准许作为独立 PLC 变更提交；TIA Portal 实机编译仍由现场环境后续闭环。
 - 2026-08-25 | from=pm-workflow | to=plc-electrical-engineer | reason=源程序梯形图工艺真源对齐
   - task_dispatched: 派发基于 01_梯形图.pdf / 04_FB_FUN.pdf 的输送机 9 步状态机、取放料 4 槽位供需调度与 10 组配方、打胶送料 X2 轴 STD-820 交握重构。
   - execution_result: plc-electrical-engineer 完成全量 SCL 编码与门禁验证，达成 Pass=51, Warn=0, Fail=0 全绿。 [已验证]
