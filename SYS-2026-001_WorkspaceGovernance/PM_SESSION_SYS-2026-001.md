@@ -4,7 +4,7 @@
 - project_id: SYS-2026-001
 - project_name: WorkspaceGovernance
 - project_root: c:\Users\fubai\Documents\My_Workspace\SYS-2026-001_WorkspaceGovernance
-- last_updated: 2026-08-26
+- last_updated: 2026-09-01
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -14,18 +14,18 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: （治理账本重基线已完成，2026-08-26）
-- milestone: 治理账本 V1.1.0 重基线 ✅ 已完成
+- current_focus: 迁移驾驶舱前工作树治理与可提交成果收敛（2026-09-01）
+- milestone: 工作树治理第一轮 ✅ 已完成；高风险删除项待用户显式确认
 - code_baseline: V1.0.0 (2026-06) → V1.1.0 (2026-08)
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅
 - 代码基线 V1.1.0
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - （当前无活跃治理事项）
+  - 工作树剩余高风险删除与未验证运行态漂移待最终决策
 - next_up:
-  - 按需触发治理审查（不再强制每周/每月）
-  - 当出现新的跨项目治理议题时恢复活跃状态
+  - 用户确认后恢复或提交高风险删除项
+  - 工作树归零后再启动 SW-2026-008 驾驶舱迁移
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - hooks/handoffs 已由 `auto-pm` 统一支持，无需单独补充
@@ -47,6 +47,7 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-09-01 迁移前工作树治理：已提交忽略规则、规范治理、DJ-2026-009、DJ-2026-005；高风险删除项暂缓处理
   - 2026-06-15 P1计划收编：4份历史长期计划映射完成，执行状态评估完成，遗留事项已登记
   - 2026-06-16 P1移交完成：6项遗留事项移交至SW-2026-006，2项移交至SW-2026-004，2项归属SYS-2026-001自身
   - 2026-06-16 P2节奏固化启动：路线图更新，P2执行事项登记
@@ -66,6 +67,17 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-01 | skill=pm-workflow | mode=迁移前工作树治理
+  - goal: 暂停 SW-2026-008 驾驶舱迁移，先清理工作树并提交可验证的干净成果
+  - changed_files:
+    - .gitignore: 收紧根目录临时脚本、Agent 运行态、auto-pm 报告/事务与 Python 构建元数据忽略规则
+    - 00_Obsidian_Base全局规范文件仓库/: 修正规范注册表版本/编号漂移与死链
+    - .trae/skills/: 补齐 fullstack mypy 门禁与变更文件回执要求
+    - 0100_PLC自动化/DJ-2026-009_汇川换型改造/: 提交 PLC 工位控制与 OPC UA python_bridge
+    - 0100_PLC自动化/DJ-2026-005/: 提交 CHG-PLC-2026-011 持续慢速输送策略与收尾落账
+  - impact: 可验证成果已拆分为原子提交；迁移前工作树噪音显著收敛
+  - risks: `.dockerignore`、`docs/docker/*`、`管理工具测试/6.边框缓存机-buffer framing/*` 大批删除及 SW PM_SESSION/db 漂移仍未判定，不应在未确认前提交
+  - commits: 3e27e20, 6594de6, 00731f9, dd67754
 - 2026-08-26 | skill=pm-workflow | mode=治理账本重基线
   - goal: 修正2026-06遗留失真，统一auto-pm口径，恢复PM_SESSION可信度
   - changed_files:
@@ -102,6 +114,22 @@
   - risks: 历史计划尚未全部收编，后续仍需持续清理
 
 ## 7. Verification Log
+- 2026-09-01 | 迁移前工作树治理验证
+  - verified:
+    - `auto_pm spec lint --workspace ... --format json`: 0 lint results
+    - `auto_pm spec check --workspace ... --format table`: 所有检查通过
+    - `auto_pm plc check DJ-2026-009`: Pass=45 Warn=0 Fail=0 -> ALL PASS
+    - `DJ-2026-009/python_bridge`: pytest 4 passed, ruff pass, mypy pass
+    - `auto_pm plc check DJ-2026-005`: Pass=51 Warn=0 Fail=0 -> ALL PASS
+  - not_verified:
+    - 高风险历史资料删除是否为用户真实意图
+    - SW-2026-* PM_SESSION 自动规范化漂移是否应作为正式治理提交
+  - method:
+    - Git 分组审查
+    - auto-pm 静态门禁
+    - Python 单元测试与 ruff/mypy
+  - result: ✅ 可提交成果已提交；剩余脏项需显式决策后处理
+
 - 2026-08-26 | 治理账本重基线验证
   - verified:
     - 路径引用一致性：`Desktop` → `Documents` 已全局修正
@@ -133,6 +161,11 @@
     - ~~现有 `pm-mgr` 模板面向 `software/plc`，暂未直接覆盖 `SYS`~~（2026-08-26已解决：工具链统一至 `auto-pm`）
 
 ## 8. Handoff Notes
+- 2026-09-01 | from=Codex | mode=迁移前治理接手
+  - current_state: SW-2026-008 驾驶舱迁移继续暂停；工作树已完成第一轮可验证提交。
+  - next_focus: 先让 Git 工作树归零，再重启驾驶舱迁移方案设计与执行。
+  - watchouts: 不要把 Docker 文档删除、历史设备样例删除、SW 项目数据库/会话漂移混入驾驶舱迁移提交。
+  - read_first: 本文件、AGENTS.md、SW-2026-008 驾驶舱项目、最近 4 个治理提交。
 - 2026-09-01 | from=pm-workflow | skill=Antigravity | event=根目录治理
   - trigger: 根目录发现 9 个违规文件（临时脚本 + 过程报告 + Teamwork 残留）
   - actions:
@@ -153,8 +186,8 @@
 - 代码基线 V1.1.0
 
 ## 9. Next Actions
-- [当前] ✅ 治理账本重基线完成（2026-08-26） | done_when=路径修正+工具链口径统一+风险台账对齐+PM_SESSION精简 全部完成
-- [后续] 按需触发治理审查 | trigger=工作空间出现新的跨项目治理议题 | 不再强制每周/每月
+- [当前] 工作树剩余高风险项裁决 | done_when=明确恢复或提交 `.dockerignore`/`docs/docker`/历史设备样例删除与 SW PM_SESSION/db 漂移
+- [后续] SW-2026-008 驾驶舱迁移重启 | precondition=Git 工作树归零 | done_when=迁移方案报批后再进入执行
 
 ## Spec Snapshot（更新至2026-08-26）
 
