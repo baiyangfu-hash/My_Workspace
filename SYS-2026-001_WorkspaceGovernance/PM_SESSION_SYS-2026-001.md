@@ -161,6 +161,22 @@
     - ~~现有 `pm-mgr` 模板面向 `software/plc`，暂未直接覆盖 `SYS`~~（2026-08-26已解决：工具链统一至 `auto-pm`）
 
 ## 8. Handoff Notes
+- 2026-09-01 | from=Codex | mode=SW-2026-008 驾驶舱迁移第一批
+  - current_state: [已验证] 驾驶舱已建立工作空间级基础设施运行位，默认入口已从项目母体切换到 `00_Infrastructure/auto_pm`。
+  - actions:
+    - 新建 `00_Infrastructure/auto_pm`，迁入 `auto_pm/`、`templates/`、`tests/`、`pyproject.toml`、`README.md`、`CHANGELOG.md` 与基础配置文件。
+    - 明确排除 `.git`、`.auto-pm`、缓存、`build/`、`dist/`、`coverage/`、`reports/` 等运行/构建产物。
+    - 根目录 `main.py` 与 `setup_env.bat` 优先指向基础设施运行位，旧 `SW-2026-008` 项目路径作为回退。
+    - `get_config_file_path()` 改为优先落到工作空间 `.auto-pm/.auto-pm-workspace`，避免工具配置继续寄居项目母体。
+  - verification:
+    - `python -c "import main; ..."`：根入口解析到 `C:\Users\fubai\Documents\My_Workspace\00_Infrastructure\auto_pm`。
+    - `python -c "import auto_pm; ..."`：当前虚拟环境加载 `00_Infrastructure\auto_pm\auto_pm\__init__.py`，版本 `1.2.3`。
+    - `python -m auto_pm --help`：通过。
+    - `python -m auto_pm doctor`：通过，根目录纯净。
+    - `python -m auto_pm spec check --workspace C:\Users\fubai\Documents\My_Workspace --format table`：所有检查通过。
+    - `pytest tests/core/test_paths.py tests/core/test_template_service.py tests/cli/test_template.py -q`：29 passed。
+  - next_focus: 第二批迁移再处理旧 `SW-2026-008` 项目母体降级标注、测试范围扩大、内部路径命名进一步提纯。
+  - watchouts: 旧母体暂不删除；若基础设施位继续优化，需同步确认是否仍需要回灌旧项目，避免双源长期分叉。
 - 2026-09-01 | from=Codex | mode=迁移前工作树治理收口
   - current_state: 未启动 SW-2026-008 驾驶舱迁移；已先完成迁移前工作树清理。
   - actions:
@@ -200,7 +216,8 @@
 
 ## 9. Next Actions
 - [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
-- [后续] SW-2026-008 驾驶舱迁移重启 | precondition=Git 工作树归零 | done_when=迁移方案报批后再进入执行
+- [完成] SW-2026-008 驾驶舱迁移第一批 | result=基础设施运行位建立，根入口与 editable install 已切换，旧项目母体保留回退
+- [后续] SW-2026-008 驾驶舱迁移第二批 | precondition=第一批稳定运行 | done_when=旧母体降级标注、测试范围扩大、内部路径进一步提纯
 
 ## Spec Snapshot（更新至2026-08-26）
 
