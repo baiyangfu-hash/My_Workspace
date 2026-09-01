@@ -14,24 +14,25 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 迁移驾驶舱前工作树治理与可提交成果收敛（2026-09-01）
-- milestone: 工作树治理第一轮 ✅ 已完成；高风险删除项待用户显式确认
+- current_focus: SW-2026-008 驾驶舱工作空间基础设施迁移（第二批收口，2026-09-01）
+- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一批 ✅ 已完成；第二批路径去母体化 ✅ 已验证
 - code_baseline: V1.0.0 (2026-06) → V1.1.0 (2026-08)
-- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅
+- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅
 - 代码基线 V1.1.0
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 工作树剩余高风险删除与未验证运行态漂移待最终决策
+  - SW-2026-008 驾驶舱持续优化改以 `00_Infrastructure/auto_pm` 为默认运行位推进
 - next_up:
-  - 用户确认后恢复或提交高风险删除项
-  - 工作树归零后再启动 SW-2026-008 驾驶舱迁移
+  - 评估是否迁移 `02_规划/`、`06_交付物/` 与历史变更单档案，或继续保留在旧母体作为项目文档沉淀
+  - 扩大驾驶舱核心测试范围，并评估 DOC-004 版本锁是否从提示型检查升级为硬门禁
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - hooks/handoffs 已由 `auto-pm` 统一支持，无需单独补充
 - risks_dependencies:
   - 依赖现有规范仓库路径稳定
   - 依赖 `auto-pm` 作为统一工具链入口
+  - 双轨期需防止旧 `SW-2026-008` 母体代码与基础设施位代码长期分叉
 - spec_compliance:
   - last_check: 2026-08-26
   - result: 项目编号 `SYS-2026-001` 符合 `DEV-001` 语义约束；已校正为 `auto-pm` 口径
@@ -67,6 +68,17 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008驾驶舱迁移第二批
+  - goal: 在不删除旧项目母体的前提下，继续降低驾驶舱对 `SW-2026-008` 旧路径的运行依赖
+  - changed_files:
+    - 00_Infrastructure/auto_pm/auto_pm/domain/doc/services.py: Doc-as-Code 服务拆分 `source_root` 与 `docs_root`，代码源优先解析基础设施位，旧母体文档作为双轨期回灌位置
+    - 00_Infrastructure/auto_pm/tests/doc/test_doc_system.py: 增加基础设施优先、旧母体回退与 `pyproject` 版本解析防回归测试
+    - 00_Infrastructure/auto_pm/README.md: 更新基础设施位安装与健康检查入口
+    - SW-2026-008/README.md: 标注旧母体角色，避免误从旧路径安装运行
+    - SW-2026-008/PM_SESSION_SW-2026-008.md: 记录 `runtime_root`、双轨状态与版本锁
+  - impact: 驾驶舱默认运行根进一步从项目母体解绑；旧文档沉淀链保持不断裂
+  - risks: `02_规划/`、`06_交付物/`、历史变更单档案尚未迁入基础设施位；双轨期仍需防止代码/文档分叉
+  - commits: 8721ae5（驾驶舱第二批代码/文档口径），本提交（SYS治理台账）
 - 2026-09-01 | skill=pm-workflow | mode=迁移前工作树治理
   - goal: 暂停 SW-2026-008 驾驶舱迁移，先清理工作树并提交可验证的干净成果
   - changed_files:
@@ -114,6 +126,23 @@
   - risks: 历史计划尚未全部收编，后续仍需持续清理
 
 ## 7. Verification Log
+- 2026-09-01 | SW-2026-008 驾驶舱迁移第二批验证
+  - verified:
+    - 根入口烟测：`AUTO_PM_PROJECT_DIR` 解析为 `C:\Users\fubai\Documents\My_Workspace\00_Infrastructure\auto_pm`
+    - `auto_pm doc check`：DOC-001 PASS，覆盖 33 组 CLI 命令；DOC-004 PASS，`pyproject=1.2.3`，`PM_SESSION=1.2.3`
+    - `pytest tests/doc/test_doc_system.py tests/core/test_paths.py tests/cli/test_template.py -q`：25 passed
+    - `ruff check auto_pm/domain/doc/services.py tests/doc/test_doc_system.py`：All checks passed
+    - `auto_pm doctor`：通过，根目录纯净
+    - `auto_pm spec check --workspace C:\Users\fubai\Documents\My_Workspace --format table`：所有检查通过
+  - not_verified:
+    - 未迁移旧母体 `02_规划/`、`06_交付物/` 与历史变更单档案
+    - 未运行驾驶舱全量测试集与 GUI 真机冒烟
+  - method:
+    - 双轨路径解析单测
+    - CLI/文档/规范/环境多门禁交叉验证
+    - 测试产物清理后复查工作树
+  - result: ✅ 第二批路径去母体化通过；可进入下一批迁移评估
+
 - 2026-09-01 | 迁移前工作树治理验证
   - verified:
     - `auto_pm spec lint --workspace ... --format json`: 0 lint results
@@ -161,6 +190,19 @@
     - ~~现有 `pm-mgr` 模板面向 `software/plc`，暂未直接覆盖 `SYS`~~（2026-08-26已解决：工具链统一至 `auto-pm`）
 
 ## 8. Handoff Notes
+- 2026-09-01 | from=Codex | mode=SW-2026-008 驾驶舱迁移第二批
+  - current_state: [已验证] 驾驶舱文档服务已拆分代码源与文档沉淀源，默认代码源为 `00_Infrastructure/auto_pm`，旧 `SW-2026-008` 母体保留为文档沉淀与回退来源。
+  - actions:
+    - 消除 `auto_pm/domain/doc/services.py` 对旧 `SW-2026-008` 代码根的唯一硬编码依赖。
+    - 保持 Doc-as-Code 在双轨期继续回灌旧母体 `02_规划/` 与 `06_交付物/`，防止历史文档链断裂。
+    - 修复 `pyproject` 版本解析误读 `required-version` 的问题，并补防回归测试。
+    - README 与 SW PM_SESSION 同步标注基础设施默认运行位和旧母体角色。
+  - verification:
+    - `auto_pm doc check`：DOC-001/DOC-004 PASS，版本锁显示 `1.2.3` 一致。
+    - `pytest tests/doc/test_doc_system.py tests/core/test_paths.py tests/cli/test_template.py -q`：25 passed。
+    - `ruff check`、`auto_pm doctor`、`auto_pm spec check`：全部通过。
+  - next_focus: 第三批评估是否迁移设计/交付文档与历史变更单档案；若继续优化代码，应只改基础设施位，旧母体仅作历史与回退。
+  - watchouts: 双轨期不要同时在旧母体和基础设施位修同一份代码；DOC-004 当前已能读准版本，但是否升级为严格失败门禁需另立小批次处理。
 - 2026-09-01 | from=Codex | mode=SW-2026-008 驾驶舱迁移第一批
   - current_state: [已验证] 驾驶舱已建立工作空间级基础设施运行位，默认入口已从项目母体切换到 `00_Infrastructure/auto_pm`。
   - actions:
@@ -217,7 +259,8 @@
 ## 9. Next Actions
 - [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
 - [完成] SW-2026-008 驾驶舱迁移第一批 | result=基础设施运行位建立，根入口与 editable install 已切换，旧项目母体保留回退
-- [后续] SW-2026-008 驾驶舱迁移第二批 | precondition=第一批稳定运行 | done_when=旧母体降级标注、测试范围扩大、内部路径进一步提纯
+- [完成] SW-2026-008 驾驶舱迁移第二批 | result=Doc-as-Code 代码源优先基础设施位，旧母体降级标注完成，版本解析防回归测试通过
+- [后续] SW-2026-008 驾驶舱迁移第三批 | precondition=第二批稳定运行 | done_when=明确 `02_规划/`、`06_交付物/` 与历史变更单档案是否迁入基础设施位，并完成对应验证
 
 ## Spec Snapshot（更新至2026-08-26）
 
