@@ -17,8 +17,12 @@ BEGIN
     // ============================================================================
     // 第2部分：工位1 动作机构 (ST_Station1)
     // ============================================================================
-    GlobalVars.fbStation1(io_stStation := GlobalVars.stStation1);
+    GlobalVars.fbStation1(
+        io_stStation := GlobalVars.stStation1,
+        io_stExternal := GlobalVars.stExternal
+    );
     GlobalVars.stStation1 := GlobalVars.fbStation1.io_stStation;
+    GlobalVars.stExternal := GlobalVars.fbStation1.io_stExternal;
 
     // ============================================================================
     // 第3部分：公共报警与 OMAC 状态机 (ST_CommonAlarm)

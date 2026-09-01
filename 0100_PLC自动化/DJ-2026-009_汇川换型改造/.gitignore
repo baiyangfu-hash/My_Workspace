@@ -8,23 +8,28 @@ Thumbs.db
 *.swp
 *.swo
 
-# 编译输出（三菱 GX Works3 / TIA Portal / Proface）
+# PLC / HMI compiler outputs
 *.gx3
 *.prx
 *.apj
 
-# 临时文件
+# Temporary files
 *.tmp
 *.bak
 *~
 ~*
 
-# 导出文件
+# Python caches and build metadata
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Exports
 export/
 
-# 编译器导出 PDF
+# Compiler-exported PDFs and optional image assets
 **/编译器导出PDF*/
 **/*PDF(*)*/
-
-# 图片资源（按需）
 image/

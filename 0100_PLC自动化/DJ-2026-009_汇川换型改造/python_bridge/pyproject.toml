@@ -1,0 +1,38 @@
+[project]
+name = "python-bridge"
+version = "1.0.0"
+description = "OPC UA Bridge for PLC"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "asyncua",
+    "pydantic",
+    "PySide6"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-qt",
+    "ruff",
+    "mypy"
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.per-file-ignores]
+"src/bridge/worker.py" = ["BLE001"]
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["asyncua", "asyncua.*"]
+ignore_missing_imports = true
