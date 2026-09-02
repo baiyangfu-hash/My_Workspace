@@ -18,6 +18,27 @@ from auto_pm.core.governance_service import GovernanceService
 console = Console()
 
 
+def _runtime_version() -> tuple[str, str]:
+    """Read the version from the active infrastructure package, not workspace cwd."""
+    package_version = ""
+    try:
+        from auto_pm import __version__
+
+        package_version = str(__version__).strip()
+    except (ImportError, AttributeError):
+        pass
+    if package_version:
+        package_root = Path(__file__).resolve().parents[3]
+        return package_version, str(package_root / "pyproject.toml")
+
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+
+        return version("auto-pm"), "importlib.metadata:auto-pm"
+    except (ImportError, PackageNotFoundError):
+        return "unknown", "unresolved"
+
+
 def resolve_workspace(workspace_root: str | None = None) -> str:
     if workspace_root:
         return os.path.abspath(workspace_root)
@@ -44,20 +65,8 @@ def run_doctor_check(workspace_root: str | None = None) -> dict[str, Any]:
         spec = importlib.util.find_spec(dep)
         dep_results[dep] = spec is not None
 
-    # 3. pyproject.toml 版本
-    pyproject_path = Path(root) / "pyproject.toml"
-    version_str = "1.1.0"
-    if pyproject_path.exists():
-        try:
-            import tomli as tomllib
-        except ImportError:
-            import tomllib
-        try:
-            with open(pyproject_path, "rb") as f:
-                data = tomllib.load(f)
-                version_str = data.get("project", {}).get("version", "1.1.0")
-        except Exception:
-            pass
+    # 3. 当前实际加载包的版本，避免工作空间根目录无 pyproject 时回退到旧常量
+    version_str, version_source = _runtime_version()
 
     # 4. Git 工作区检查
     git_dir = Path(root) / ".git"
@@ -75,6 +84,7 @@ def run_doctor_check(workspace_root: str | None = None) -> dict[str, Any]:
         "python_ok": py_ok,
         "dependencies": dep_results,
         "project_version": version_str,
+        "version_source": version_source,
         "git_found": git_ok,
         "sanitation_pure": sanitation_report.is_pure,
         "sanitation_issues": sanitation_report.total_issues,
@@ -100,7 +110,11 @@ def doctor_command(workspace: str | None) -> None:
     table.add_row("Python 版本", py_status, f"{res['python_version']} (要求 >= 3.11)")
 
     # 版本
-    table.add_row("源码版本号", "[blue]ℹ INFO[/blue]", f"pyproject.toml version: {res['project_version']}")
+    table.add_row(
+        "源码版本号",
+        "[blue]ℹ INFO[/blue]",
+        f"{res['project_version']} | source: {res['version_source']}",
+    )
 
     # 依赖项
     for dep, ok in res["dependencies"].items():

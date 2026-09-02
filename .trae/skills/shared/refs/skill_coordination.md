@@ -24,7 +24,7 @@
      - **严禁代码盲问 (Zero-Stupid-Questions Redline)**：严禁在未检索代码库的情况下直接向用户提问。任何可在项目源码、配置文件（`.plc.json` / `pyproject.toml`）、接口文档（`INT.md` / `VAR.md`）、数据结构（DTO / UDT）或规范库中读取到的参数、变量名、调用关系与目录路径，**绝对禁止向用户发问**；
      - **二分法处理原则 (Greenfield vs Brownfield)**：
        - **全新建仓 (Greenfield)**：审查 CAD/轴系/动作时序 3 要素。若缺失，先检索 Obsidian 规范库与模板库；仍缺失物理硬件事实时方可向用户提问；
-       - **在研迭代/缺陷变更 (Brownfield)**：**强制执行代码基逆向与上下文探路 (Codebase Reconnaissance)**。PM 必须优先调用工具（`grep_search` / `find_by_name` / `view_file`）或派发 Grooming 预研子代理（`python -m auto_pm handoff --to <plc|fullstack> --pid <PID> --mode grooming`）勘测已有逻辑；
+       - **在研迭代/缺陷变更 (Brownfield)**：**强制执行代码基逆向与上下文探路 (Codebase Reconnaissance)**。PM 必须优先调用工具（`grep_search` / `find_by_name` / `view_file`）或先用 `auto-pm handoff create --pid <PID> --to <skill> --summary "..." --mode grooming` 派发 Grooming 预研请求；
      - **有效提问门槛**：只有当代码库探路完毕，且发现涉及无法推导的真实业务决策抉择（Trade-off）、新增未接线硬件定义或客户冲突诉求时，方可发起《高质量澄清提问清单》；
    - **阶段 1【报批】**：PM 角色输出《需求分析与技术实施计划》（含 HTML 交互原型与架构设计），由 Copier 脚手架就绪 `TEC.md`/`USAGE.md` 文档骨架，**必须显式停下来等待用户审批确认**；
    - **阶段 2【执行】**：只有在用户明确批准后，方可派发给执行技能（PLC / 全栈）修改代码与测试。**严禁在对话框要求或输出长篇说明书草稿**，所有非功能性文档直接在物理文件中填空；

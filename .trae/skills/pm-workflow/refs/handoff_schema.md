@@ -1,57 +1,79 @@
-# handoff_schema.md — 交接结构规范
+# handoff_schema.md - handoff.v1 交接结构规范
 
-> 本文档是 pm-workflow / 执行技能的按需参考文档。
+> 本文档是 pm-workflow 与执行技能之间的交接参考。交接包是一次性消息，不是第二套项目账本。
 
 变更单编号格式：`CHG-{DOMAIN}-{YYYY}-{XXX}`（DOMAIN ∈ ELEC/MECH/PLC/HMI/SCPT/DOCU/SAFE）。
 
-## 1. handoff_result 结构（执行技能返回给 PM 的标准结构）
+## 1. 生命周期与文件
+
+- 请求文件：`.auto-pm/handoffs/<request_id>.json`
+- 结果可以通过 `--result-file` 提供给 `handoff close`，也可以由 PM 组装为关闭结果。
+- 状态：`pending` -> `consumed`；`in_progress`、`completed`、`failed` 仅用于执行侧过程状态。
+- `request_id` 是安全文件名和幂等定位键，禁止使用路径穿越字符。
+- PM 消费成功后，才允许把结果回写 `PM_SESSION`、`.auto-pm/ai_feedback.json`、变更单和台账。
+
+## 2. 请求与结果结构
 
 ```json
 {
-  "request_id": "AI-20260821-001",
+  "schema_version": "handoff.v1",
+  "request_id": "AI-20260901-001",
+  "project_id": "DJ-2026-005",
   "executor_skill": "plc-electrical-engineer",
-  "summary": "完成了 FB_1002 SCL 状态机重写与 plc check 全绿",
-  "changed_files": ["02_PLC程序/PLC_ST/02_叠垛移载机械手/FB_1002.scl"],
+  "summary": "完成 PLC 静态规范检查",
+  "status": "pending",
+  "mode": "execution",
+  "goal": "说明目标和验收边界",
+  "skill_context": {
+    "injected_specs": ["LSP-905", "STD-840"],
+    "baseline_documents": ["TEC.md", "VAR.md"]
+  },
+  "changed_files": [],
   "verification": {
-    "lint_result": "auto-pm plc check Pass=43 Warn=1 Fail=0",
-    "test_result": "静态规范自检通过",
+    "lint_result": "auto-pm plc check PASS",
+    "test_result": "pytest PASS",
     "other_checks": [],
     "not_run": ["TIA Portal 实机编译（无硬件环境）"]
   },
-  "risks": ["SCL 需现场 PLCSIM 编译验证"],
-  "next_actions": [
-    {
-      "action": "TIA Portal 编译验证",
-      "precondition": "具备现场 S7-1500 或 PLCSIM 环境",
-      "done_when": "编译 0 error 0 warning"
-    }
-  ],
-  "watchouts": ["FB_1002 VAR_IN_OUT 结构体版本须与 OB1 调用处保持一致"],
-  "read_first": ["02_PLC程序/程序文档/PLC变量定义文档_VAR.md"],
-  "chg_updates": "CHG-PLC-2026-001 已更新至 implementing 状态",
+  "risks": [],
+  "next_actions": [],
+  "watchouts": [],
+  "read_first": ["TEC.md"],
+  "artifacts": [],
+  "chg_updates": ["CHG-PLC-2026-001: verified"],
   "product_impact": {
     "hypothesis_id": "HYP-001",
     "impact_type": "safety_and_yield",
-    "engineering_signal": "在 FB_1002 中增加了安全区极性校验，防止伺服在气缸未退回时提前使能",
-    "verification_mode": "physical_hardware",
-    "validation_stage": "现场上电打样时观测",
+    "engineering_signal": "具体的可观测工程信号",
+    "verification_mode": "code_static",
+    "validation_stage": "静态验收",
     "needs_user_validation": true
   },
-  "pm_closure": "请 PM 执行 ledger reconcile 完成台账对账"
+  "pm_closure": {
+    "required": true,
+    "suggested_event": "iteration",
+    "suggested_status": "pending_review"
+  }
 }
 ```
 
-## 2. §8 Handoff Notes 标准字段（PM_SESSION 中）
+## 3. 关闭门禁
+
+`handoff close` 必须满足：
+
+1. `summary` 非空。
+2. `verification.lint_result`、`verification.test_result`、`verification.other_checks` 或 `artifacts` 至少一项有实际证据。
+3. `changed_files` 非空时，`chg_updates` 也必须非空。
+4. 相同幂等键和相同结果重复关闭返回原记录；不同结果禁止覆盖已消费记录。
+
+## 4. PM_SESSION §8 字段
 
 | 字段 | 说明 | 数量约束 |
 |:---|:---|:---:|
 | `current_state` | 1-2 句话 + 版本号 + 关键阻塞 | 1 条 |
-| `next_focus` | 下一步行动，带 precondition + done_when | ≤ 5 条 |
+| `next_focus` | 下一步行动，带 precondition + done_when | <= 5 条 |
 | `skill_handoff` | 切换原因 + 目标技能 + 起手任务 | 严格 1 条（最新） |
-| `watchouts` | 分类管理（测试/代码/流程/环境约束） | 每类 ≤ 5 条 |
-| `read_first` | 文件路径，按优先级排序 | ≤ 5 个 |
+| `watchouts` | 分类管理（测试/代码/流程/环境约束） | 每类 <= 5 条 |
+| `read_first` | 文件路径，按优先级排序 | <= 5 个 |
 
-**禁止**：
-- §8 中存在未标注 `[已验证]` / `[待验证]` 的诊断结论
-- `skill_handoff` 保留超过 1 条（早期归档到历史目录）
-- watchouts 总数超过 20 条未分类
+禁止在 PM_SESSION §8 保留未标注 `[已验证]` / `[待验证]` 的诊断结论，或堆积历史 `skill_handoff`。

@@ -115,6 +115,8 @@ gittoken.txt
 .auto-pm/data.db
 .auto-pm/cache/
 .auto-pm/logs/
+.auto-pm/handoffs/
+.auto-pm/worktrees/
 .auto-pm/reports/
 .auto-pm/scratch/
 .auto-pm/transactions/
