@@ -71,6 +71,7 @@ def check_cmd(ctx: click.Context, pid: str) -> None:
         console.print("[green]✓ 原型检查全部通过[/green]")
     else:
         console.print("[red]✗ 原型检查发现未通过项[/red]")
+        raise click.exceptions.Exit(1)
 
 @prototype_cmd.command(name="archive", help="快照归档当前原型")
 @click.option("--pid", "-p", required=True, help="项目 ID")
@@ -113,4 +114,3 @@ def init_cmd(ctx: click.Context, pid: str, template: str, topology: str) -> None
         console.print(f"[green]✓ 原型脚手架初始化成功: {res.output_path}[/green]")
     else:
         console.print(f"[red]✗ 初始化失败: {res.message}[/red]")
-

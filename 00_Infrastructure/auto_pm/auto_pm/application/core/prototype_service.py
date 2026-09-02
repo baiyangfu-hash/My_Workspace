@@ -185,11 +185,25 @@ class PrototypeService:
                 errors.append(f"检测到导航死链: goPage('{target}') 对应的页面容器 'page-{target}' 不存在")
 
         # --------------------------------------------------------------
-        # 2. 内联 JS 函数完整性检查
+        # 2. JS 依赖与函数完整性检查
         # --------------------------------------------------------------
         if js_path and os.path.exists(js_path):
-            with open(js_path, encoding="utf-8") as f:
+            with open(js_path, encoding="utf-8", errors="replace") as f:
                 js_content = f.read()
+            # 原型可拆分为多个脚本，收集 HTML 声明的本地依赖后再做函数检查。
+            for source in re.findall(
+                r'<script\s+[^>]*src=["\']([^"\']+)["\'][^>]*>\s*</script>',
+                content,
+                flags=re.IGNORECASE,
+            ):
+                if source.startswith(("http://", "https://", "//")):
+                    continue
+                dependency_path = os.path.normpath(
+                    os.path.join(os.path.dirname(html_path), source)
+                )
+                if os.path.isfile(dependency_path) and dependency_path != js_path:
+                    with open(dependency_path, encoding="utf-8", errors="replace") as f:
+                        js_content += "\n" + f.read()
             defined_funcs = set(re.findall(r"function\s+([a-zA-Z0-9_$]+)\s*\(", js_content))
             # 也支持 const func = () => / let func = function
             defined_funcs.update(re.findall(r"(?:const|let|var)\s+([a-zA-Z0-9_$]+)\s*=\s*(?:function|\()", js_content))

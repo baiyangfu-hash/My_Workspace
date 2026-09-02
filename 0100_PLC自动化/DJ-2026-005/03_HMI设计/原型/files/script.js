@@ -312,6 +312,71 @@ function saveAllParams() {
   alert('参数已成功写入 PLC 保持寄存器 (D510~D710)，校验和验证通过！');
 }
 
+// 7.1 纯前端仿真控制句柄
+// 这些函数只驱动 HTML 原型状态，不连接 PLC、变频器或现场安全回路。
+function startAuto() { triggerAutoStart(); }
+function pauseAuto() { triggerAutoPause(); }
+function stopAuto() { triggerReset(); simState.isRunning = false; }
+
+function jogConveyor(layer, direction) {
+  const conveyor = simState.conveyors[layer - 1];
+  if (!conveyor) return;
+  conveyor.running = true;
+  conveyor.direction = direction;
+  const status = document.getElementById('topStatusText');
+  if (status) status.textContent = `L${layer} 层${direction === 'fwd' ? '正转' : '反转'}点动`;
+}
+
+function stopConveyor(layer) {
+  const conveyor = simState.conveyors[layer - 1];
+  if (conveyor) conveyor.running = false;
+}
+
+function toggleStopper(layer) {
+  const conveyor = simState.conveyors[layer - 1];
+  if (conveyor) conveyor.stopper = !conveyor.stopper;
+}
+
+function toggleSeparator(layer) {
+  const conveyor = simState.conveyors[layer - 1];
+  if (conveyor) conveyor.separator = !conveyor.separator;
+}
+
+function homeAxis(axis) {
+  const axes = axis === 'all' ? ['z', 'x1', 'x2'] : [axis];
+  axes.forEach(name => {
+    if (simState.servo[name]) simState.servo[name].pos = 0;
+  });
+  updateServoDisplays();
+}
+
+function toggleGlueZone() {
+  const led = document.getElementById('manGlueSafetyLed');
+  if (led) led.className = led.className.includes('red') ? 'led green' : 'led red';
+}
+
+function simulateGlueFeed() {
+  alert('已在原型中模拟 STD-820 送料握手：允许送料 → 安全区确认 → 取料完成。');
+}
+
+function releaseBrake() {
+  alert('原型动作：Z 轴抱闸释放请求已记录（不输出实际硬件信号）。');
+}
+
+function resetVfdAll() {
+  alert('原型动作：全线变频器复位请求已记录（不输出实际硬件信号）。');
+}
+
+function muteBuzzer() {
+  const alarmText = document.getElementById('bottomAlarmText');
+  if (alarmText) alarmText.textContent = '蜂鸣器已消音，报警记录仍保留';
+}
+
+function ackAlarm() { triggerReset(); }
+function runGlueHandshakeAuto() { simulateGlueFeed(); }
+function backupParams() { alert('原型动作：参数备份包已生成（未写入 U 盘）。'); }
+function exportLogCsv() { alert('原型动作：报警日志 CSV 导出已准备（未写入现场文件）。'); }
+
 // 8. 手动与自动控制交互
 function triggerAutoStart() {
   simState.isRunning = true;

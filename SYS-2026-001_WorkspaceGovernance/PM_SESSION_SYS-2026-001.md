@@ -14,17 +14,17 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: SW-2026-008 驾驶舱 Dogfooding WBS 7 执行（WBS 0/1/2/3/4/5/6 已完成，2026-09-01）
-- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 ✅ 已完成；WBS 1 ✅ 已完成；WBS 2 ✅ 已完成；WBS 3 ✅ 已完成；WBS 4 ✅ 已完成；WBS 5 ✅ 已完成；WBS 6 ✅ 已完成；WBS 7 ▶ 执行中
+- current_focus: SW-2026-008 驾驶舱 Dogfooding WBS 8 执行（WBS 0/1/2/3/4/5/6/7 已完成，2026-09-01）
+- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 ✅ 已完成；WBS 1 ✅ 已完成；WBS 2 ✅ 已完成；WBS 3 ✅ 已完成；WBS 4 ✅ 已完成；WBS 5 ✅ 已完成；WBS 6 ✅ 已完成；WBS 7 ✅ 已完成；WBS 8 ▶ 执行中
 - code_baseline: SW-2026-008 当前代码基线 V1.2.3，默认运行位为 `00_Infrastructure/auto_pm`
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 以 DJ-2026-005 为 PLC 域标杆，完成驾驶舱 checker、模板、变量表和 HTML 原型的静态消费验收
+  - 以 DJ-2026-005 为 PLC 域标杆，完成静态消费验收并进入第二批中风险 handoff 工作队列 Dogfood
 - next_up:
-  - 完成 WBS 7：形成 PLC 域验收矩阵，区分已验证、待验证和真实硬件外部验证
-  - WBS 7 完成后进入 WBS 8：选择第二个中风险 Dogfood 功能
+  - WBS 7 已完成：PLC 域验收矩阵区分已验证、待验证和真实硬件外部验证
+  - WBS 8：在候选 worktree 实现第二个中风险 handoff 工作队列能力
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI 与基础原子消费；PM_SESSION、变更单和反馈的统一落账仍属于后续 Saga 工作包
@@ -52,6 +52,7 @@
 - sw_doc_audit: 01_项目文档/06_SW-2026-008_文档资产评估_REP.md
 - cockpit_dogfood_plan: 01_项目文档/07_SW-2026-008_驾驶舱Dogfooding迭代方案与WBS_PM.md
 - source_of_truth_matrix: 01_项目文档/08_SW-2026-008_唯一真源矩阵与版本指纹_REP.md
+- plc_domain_acceptance: 01_项目文档/09_SW-2026-008_WBS7_DJ-2026-005_PLC域验收矩阵_REP.md
 
 ## 5. Logs（按事件沉淀）
 - change_log:
@@ -121,16 +122,23 @@
   - evidence: doctor 实机输出 `1.2.3` 并显示基础设施包 pyproject source；7 个 doctor/dogfood 相关测试通过；ruff 通过
   - decision: 版本优先来自当前加载的 `auto_pm.__version__`，不再使用 `1.1.0` 硬编码；版本源路径显式展示
   - result: ✅ WBS 6 完成；仍未触碰真实 PLC/HMI 硬件
+- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 7 DJ-2026-005 PLC 域消费验收
+  - goal: 用真实 PLC 标杆验证驾驶舱的项目结构、SCL 门禁、文档、变量表解析、HTML 原型和变更账能力
+  - artifact: `01_项目文档/09_SW-2026-008_WBS7_DJ-2026-005_PLC域验收矩阵_REP.md`
+  - evidence: `plc check=51 PASS/0 WARN/0 FAIL`；`plc check --substance=14 PASS/2 WARN/0 FAIL`；变量表=119点（71 DI/48 DO）；prototype 函数完整性通过；`change verify --ledger-check` 通过
+  - actions: 修正变更目录选择逻辑；补齐 DJ005 HTML 纯前端仿真句柄；保留 CHG-HMI-2026-001 并清理无文件 04_监控兼容壳
+  - decision: 变量映射 28 个提示暂缓；INT/TEC 字数提示保留；TIA/GX/GP-Pro EX 编译下装与 I/O 联调归为外部验证
+  - result: ✅ WBS 7 完成；静态域消费通过，允许进入 WBS 8
 
 ## 8. Handoff Notes
 - archive: 2026-09-01 历史交接记录已完整保存至 `05_收尾/PM_SESSION归档/Handoff_Notes_SYS-2026-001_20260901.md`
 - current_state: 当前工作空间级控制面为 `00_Infrastructure/auto_pm`，旧 SW 母体保留产品文档、变更历史和回退参考。
-- current_focus: 以受控 Dogfooding 迭代驾驶舱，WBS 0/1/2/3/4/5/6 已完成；当前进入 DJ-2026-005 PLC 域消费验收。
+- current_focus: 以受控 Dogfooding 迭代驾驶舱，WBS 0/1/2/3/4/5/6/7 已完成；当前进入 WBS 8 handoff 工作队列验收。
 - handoff_gap: handoff.v1 已具备预检、原子消费、失败证据和重试；PM_SESSION、CHG、台账和反馈的业务落账仍保持 PM 单一 owner。
 - gate: 候选版本必须通过自身测试和稳定版外部复核，PM_SESSION、CHG、台账和反馈完成对账后才可收口。
 - watchouts: PLC 技能只做域验收；不得将 `DJ-2026-005` 未全绿研发现场混入驾驶舱治理提交。
 - 代码基线 V1.2.3
-- status: [已验证] WBS 0/1/2/3/4/5/6 完成；WBS 7 执行中；工作树在每个提交门前保持可解释
+- status: [已验证] WBS 0/1/2/3/4/5/6/7 完成；WBS 8 执行中；工作树在每个提交门前保持可解释
 
 ## 9. Next Actions
 - [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
@@ -145,7 +153,8 @@
 - [完成] SW-2026-008 驾驶舱 Dogfooding WBS 4 | result=prepare/inspect/review 隔离 runner 已完成；候选只能位于 `.auto-pm/worktrees/`；稳定脏树拒绝创建候选；外部复核报告可留存
 - [完成] SW-2026-008 驾驶舱 Dogfooding WBS 5 | result=实际创建 `AI-20260901-WBS5` 只读请求；preflight 与 PM close 均成功；changed_files 为空；未产生产品变更
 - [完成] SW-2026-008 驾驶舱 Dogfooding WBS 6 | result=doctor 版本来自当前基础设施包 `__version__`，实机显示 1.2.3；回归测试与 ruff 通过
-- [进行中] SW-2026-008 驾驶舱 Dogfooding WBS 7 | precondition=WBS 6 低风险代码闭环完成 | done_when=DJ-2026-005 的 PLC checker、文档、变量表、HTML 原型静态验收矩阵完成；真实硬件项明确为外部验证
+- [完成] SW-2026-008 驾驶舱 Dogfooding WBS 7 | result=DJ-2026-005 PLC 结构 51/0/0；实质文档 14/2/0；变量表 119 点；HTML 原型函数完整性通过；CHG-HMI-2026-001 已关闭；矩阵已落账
+- [进行中] SW-2026-008 驾驶舱 Dogfooding WBS 8 | precondition=WBS 7 静态域消费通过 | done_when=候选 worktree 中完成 handoff 工作队列能力，稳定版外部复核通过，PM 变更/台账/反馈闭环
 
 ## Spec Snapshot（更新至2026-08-26）
 

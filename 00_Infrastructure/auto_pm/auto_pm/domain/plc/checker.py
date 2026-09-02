@@ -972,13 +972,20 @@ class _LegacyPlcCheckerCore:
             os.path.join(project_path, "04_监控"),
             os.path.join(project_path, "11_监控"),
         ]
-        # 优先选择包含 01_变更单 或 02_变更记录 的目录
-        active_chg_dir = None
-        for d in chg_candidates:
-            if os.path.isdir(d):
-                if os.path.isdir(os.path.join(d, "01_变更单")) or os.path.isdir(os.path.join(d, "02_变更记录")):
-                    active_chg_dir = d
-                    break
+        # 选择最完整的变更管理根目录。历史项目可能同时保留空的标准路径
+        # 和包含真实 CHG/台帐的 11_监控路径，不能因候选顺序误选空壳。
+        def _change_dir_score(directory: str) -> tuple[int, int, int]:
+            has_tickets = os.path.isdir(os.path.join(directory, "01_变更单"))
+            records_dir = os.path.join(directory, "02_变更记录")
+            has_records = os.path.isdir(records_dir)
+            has_ledger = has_records and any(
+                "变更台帐" in name or "变更台账" in name or "台帐" in name
+                for name in os.listdir(records_dir)
+            )
+            return (int(has_ledger), int(has_tickets), int(has_records))
+
+        existing_candidates = [d for d in chg_candidates if os.path.isdir(d)]
+        active_chg_dir = max(existing_candidates, key=_change_dir_score) if existing_candidates else None
         if not active_chg_dir:
             active_chg_dir = next((d for d in chg_candidates if os.path.isdir(d)), None)
 
