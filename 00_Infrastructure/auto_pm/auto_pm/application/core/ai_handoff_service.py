@@ -43,6 +43,7 @@ class AiHandoffService:
     REQUIRED_FIELDS = ("request_id", "project_id", "executor_skill", "summary")
     ALLOWED_EXECUTOR_SKILLS = frozenset({"fullstack-engineer", "plc-electrical-engineer"})
     ALLOWED_STATUSES = frozenset({"pending", "in_progress", "completed", "failed", "consumed"})
+    STATUS_ORDER = ("pending", "in_progress", "completed", "failed", "consumed")
     REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$")
     LOCK_STALE_SECONDS = 300
     RESULT_FIELDS = (
@@ -193,6 +194,39 @@ class AiHandoffService:
             key=lambda item: str(item.get("closed_at") or item.get("generated_at") or ""),
             reverse=True,
         )
+
+    def queue_snapshot(self, project_id: str = "", *, limit: int = 10) -> dict[str, Any]:
+        """Return a read-only aggregate view of the handoff inbox."""
+        if limit < 1 or limit > 100:
+            raise HandoffValidationError("queue limit 必须在 1 到 100 之间")
+
+        requests = self.list_requests(project_id=project_id)
+        counts = dict.fromkeys(self.STATUS_ORDER, 0)
+        failure_by_request: dict[str, int] = {}
+        failure_total = 0
+        for request in requests:
+            status = str(request.get("status", "pending"))
+            if status in counts:
+                counts[status] += 1
+            request_id = str(request.get("request_id", ""))
+            events = self.list_failure_events(request_id)
+            if events:
+                failure_by_request[request_id] = len(events)
+                failure_total += len(events)
+
+        return {
+            "schema_version": "handoff.queue.v1",
+            "project_id": project_id,
+            "as_of": datetime.now(UTC).isoformat(),
+            "read_only": True,
+            "total": len(requests),
+            "status_counts": counts,
+            "failure_events": {
+                "total": failure_total,
+                "by_request": failure_by_request,
+            },
+            "latest": requests[:limit],
+        }
 
     def get_pending(self, request_id: str) -> dict[str, Any] | None:
         """Return one valid pending handoff by request id."""

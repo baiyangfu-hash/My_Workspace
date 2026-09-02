@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from auto_pm.cli.__main__ import cli
+from auto_pm.core.ai_handoff_service import AiHandoffService
 from click.testing import CliRunner
 
 
@@ -226,3 +227,91 @@ def test_handoff_cli_preflight_does_not_consume(tmp_path: Path) -> None:
         ],
     )
     assert json.loads(shown.output)["status"] == "pending"
+
+
+def test_handoff_queue_snapshot_is_read_only_and_aggregates_statuses(tmp_path: Path) -> None:
+    runner = CliRunner()
+    for request_id, summary in (
+        ("AI-20260902-QUEUE-PENDING", "保留待处理请求"),
+        ("AI-20260902-QUEUE-CONSUMED", "完成可统计请求"),
+    ):
+        created = runner.invoke(
+            cli,
+            [
+                "-w",
+                str(tmp_path),
+                "handoff",
+                "create",
+                "--pid",
+                "SW-2026-008",
+                "--to",
+                "fullstack-engineer",
+                "--summary",
+                summary,
+                "--request-id",
+                request_id,
+            ],
+        )
+        assert created.exit_code == 0, created.output
+
+    closed = runner.invoke(
+        cli,
+        [
+            "-w",
+            str(tmp_path),
+            "handoff",
+            "close",
+            "AI-20260902-QUEUE-CONSUMED",
+            "--summary",
+            "完成只读队列统计",
+            "--other-check",
+            "queue snapshot PASS",
+        ],
+    )
+    assert closed.exit_code == 0, closed.output
+
+    queue = runner.invoke(
+        cli,
+        [
+            "-w",
+            str(tmp_path),
+            "handoff",
+            "queue",
+            "--pid",
+            "SW-2026-008",
+            "--limit",
+            "1",
+            "--json-output",
+        ],
+    )
+    assert queue.exit_code == 0, queue.output
+    payload = json.loads(queue.output)
+    assert payload["schema_version"] == "handoff.queue.v1"
+    assert payload["read_only"] is True
+    assert payload["total"] == 2
+    assert payload["status_counts"] == {
+        "pending": 1,
+        "in_progress": 0,
+        "completed": 0,
+        "failed": 0,
+        "consumed": 1,
+    }
+    assert len(payload["latest"]) == 1
+
+    shown = runner.invoke(
+        cli,
+        [
+            "-w",
+            str(tmp_path),
+            "handoff",
+            "show",
+            "AI-20260902-QUEUE-PENDING",
+            "--json-output",
+        ],
+    )
+    assert shown.exit_code == 0, shown.output
+    assert json.loads(shown.output)["status"] == "pending"
+
+    service = AiHandoffService(tmp_path)
+    snapshot = service.queue_snapshot("SW-2026-008")
+    assert snapshot["status_counts"]["pending"] == 1

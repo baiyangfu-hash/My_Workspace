@@ -157,6 +157,47 @@ def list_handoffs(
         )
 
 
+@handoff_group.command(name="queue")
+@click.option("--pid", "project_id", default="", help="按项目编号过滤")
+@click.option(
+    "--limit",
+    type=click.IntRange(1, 50),
+    default=10,
+    show_default=True,
+    help="最多显示最近请求数",
+)
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def queue_handoffs(ctx: click.Context, project_id: str, limit: int, as_json: bool) -> None:
+    """查看 handoff 工作队列快照；此命令只读，不改变交接状态。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.queue_snapshot(project_id=project_id, limit=limit)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+        return
+
+    scope = project_id or "全部项目"
+    click.echo(f"handoff 工作队列快照（只读） | 项目: {scope}")
+    click.echo(f"总请求数: {payload['total']}")
+    counts = payload["status_counts"]
+    click.echo("状态统计: " + " | ".join(f"{status}={counts[status]}" for status in AiHandoffService.STATUS_ORDER))
+    failures = payload["failure_events"]
+    click.echo(f"失败事件: {failures['total']}")
+    latest = payload["latest"]
+    if not latest:
+        click.echo("最近请求: 无")
+        return
+    click.echo("最近请求:")
+    for item in latest:
+        click.echo(
+            f"{item['request_id']} | {item['status']} | {item['project_id']} | "
+            f"{item['executor_skill']} | {item['summary']}"
+        )
+
+
 @handoff_group.command(name="show")
 @click.argument("request_id")
 @click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
