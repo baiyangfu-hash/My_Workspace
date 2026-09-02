@@ -14,17 +14,17 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: SW-2026-008 驾驶舱 Dogfooding 可行性评估与迭代规划（第四批，规划态，2026-09-01）
-- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding 架构与 WBS ✅ 待审批
+- current_focus: SW-2026-008 驾驶舱 Dogfooding WBS 1 准备（WBS 0 已完成，2026-09-01）
+- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 ✅ 已完成；WBS 1 ⏸ 待审批
 - code_baseline: SW-2026-008 当前代码基线 V1.2.3，默认运行位为 `00_Infrastructure/auto_pm`
-- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅
+- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 审核驾驶舱、PM 技能、全栈技能和 PLC 技能组成受控 Dogfooding 闭环的可行性，不启动代码实现
+  - 维持 WBS 0 后的干净稳定基线；准备 WBS 1 唯一真源锁定，不启动驾驶舱代码实现
 - next_up:
-  - 用户批准后先执行 WBS 0，以规划前 243 条变更快照及本规划新增 SYS 资产为范围，分组收口并恢复干净基线
-  - 基线干净后另行报批 PM handoff 契约修复和稳定/候选双环境隔离
+  - 待用户单独批准后执行 WBS 1：记录 infra/SW/SYS 真源矩阵、入口版本指纹和双轨退出条件
+  - WBS 1 完成后再具体报批 PM handoff 契约修复及稳定/候选双环境隔离
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 目前只有待办读取与 GUI 收口上下文，CLI 创建/消费/Saga 收口尚未实现；PM 技能命令需与驾驶舱能力重新对齐
@@ -35,6 +35,7 @@
   - 活跃规划/交付文档暂留旧母体，后续迁移前需先确定唯一真源，避免文档双份维护
   - `CHG-SCPT-2026-161` 至 `164` 保留历史结构告警，后续单独治理，不在本批改写审计证据
   - 驾驶舱迭代自身存在循环自证风险，必须采用稳定控制面复核候选开发面的双钥匙门禁
+  - WBS 0 中发现的 22 个未验证 PLC 研发现场文件已停放于 `.auto-pm/reports/archive/wbs0-backup-20260901/parked-current/`，仅作为可回退备份，不纳入治理提交
 - spec_compliance:
   - last_check: 2026-08-26
   - result: 项目编号 `SYS-2026-001` 符合 `DEV-001` 语义约束；已校正为 `auto-pm` 口径
@@ -74,23 +75,23 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
-    - 01_项目文档/03_分阶段整改路线图_PM.md
-    - 01_项目文档/04_风险登记册_REP.md
-    - 01_项目文档/05_变更准入规则_DEV.md
-    - ..\README.md
-    - ..\.trae\documents\README.md
-  - artifacts:
-    - `SYS-2026-001_WorkspaceGovernance/`
-  - impact: 工作区级变更具备统一入口、文档骨架和治理边界
-  - risks: 历史计划尚未全部收编，后续仍需持续清理
+- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 0 基线治理
+  - goal: 在不启动驾驶舱代码迭代的前提下，将规划前工作树变更按风险分流并恢复可回退的干净基线
+  - scope: 规划前 243 条变更快照、Dogfooding 规划资产及其关联运行态；未验证 PLC 现场文件不纳入提交
+  - actions: 保留文件级备份；恢复未验证的删除/漂移；清理根目录 `.coverage`；恢复旧 PLC 工作树漂移；将 22 个未验证 PLC 文件可逆停放到备份目录
+  - evidence: `git status --short --untracked-files=all` 为空；PM_SESSION 门禁通过；规范检查通过；未修改驾驶舱运行代码
+  - backup: `.auto-pm/reports/archive/wbs0-backup-20260901/`（含状态、差异补丁和现场文件清单）
+  - result: ✅ WBS 0 完成；基线可进入 WBS 1 评估，尚未启动 handoff CLI/Saga 或稳定/候选隔离实现
 
 ## 8. Handoff Notes
-- archive: 2026-09-01 历史交接记录已完整保存至 `05_收尾/PM_SESSION归档/PM_SESSION_SYS-2026-001_handoff_notes_20260901.md`
+- archive: 2026-09-01 历史交接记录已完整保存至 `05_收尾/PM_SESSION归档/Handoff_Notes_SYS-2026-001_20260901.md`
 - current_state: 当前工作空间级控制面为 `00_Infrastructure/auto_pm`，旧 SW 母体保留产品文档、变更历史和回退参考。
-- current_focus: 以受控 Dogfooding 迭代驾驶舱，先完成 WBS 0 基线分流，再修复 handoff CLI/Saga 和稳定/候选双环境。
+- current_focus: 以受控 Dogfooding 迭代驾驶舱，WBS 0 基线分流已完成；下一步先锁定唯一真源，再修复 handoff CLI/Saga 和稳定/候选双环境。
 - handoff_gap: PM 技能描述的 handoff CLI 尚未实现，现有代码仅覆盖待办读取和 GUI PM 收口上下文。
 - gate: 候选版本必须通过自身测试和稳定版外部复核，PM_SESSION、CHG、台账和反馈完成对账后才可收口。
 - watchouts: PLC 技能只做域验收；不得将 `DJ-2026-005` 未全绿研发现场混入驾驶舱治理提交。
+- 代码基线 V1.2.3
+- status: [已验证] WBS 0 基线治理完成；工作树干净，WBS 1 尚未启动
 
 ## 9. Next Actions
 - [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
@@ -98,7 +99,8 @@
 - [完成] SW-2026-008 驾驶舱迁移第二批 | result=Doc-as-Code 代码源优先基础设施位，旧母体降级标注完成，版本解析防回归测试通过
 - [已验证] SW-2026-008 文档资产第一轮治理 | precondition=旧母体文档资产完成分类 | done_when=完成验证、台账对账和治理提交；变更管理资产保持 archive-only
 - [后续] SW-2026-008 活跃文档迁移评估 | precondition=本批验证通过且唯一真源/同步策略明确 | done_when=决定是否迁移活跃规划/交付文档，不自动迁移历史变更档案
-- [待审批] SW-2026-008 驾驶舱 Dogfooding WBS 0 | precondition=用户批准本方案 | done_when=规划前 243 条跨项目变更及本规划新增 SYS 资产完成分组裁决，形成干净且可回退的稳定基线
+- [完成] SW-2026-008 驾驶舱 Dogfooding WBS 0 | result=规划前变更已分组裁决；未验证漂移恢复；未验证 PLC 现场文件可逆停放；备份与证据已保留；工作树干净
+- [待审批] SW-2026-008 驾驶舱 Dogfooding WBS 1 | precondition=WBS 0 已完成且工作树干净 | done_when=形成 infra/SW/SYS 唯一真源矩阵、入口版本指纹和双轨退出条件；本阶段不实现 handoff CLI
 
 ## Spec Snapshot（更新至2026-08-26）
 
