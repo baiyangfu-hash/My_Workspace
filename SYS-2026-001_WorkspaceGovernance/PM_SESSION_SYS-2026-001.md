@@ -4,7 +4,7 @@
 - project_id: SYS-2026-001
 - project_name: WorkspaceGovernance
 - project_root: c:\Users\fubai\Documents\My_Workspace\SYS-2026-001_WorkspaceGovernance
-- last_updated: 2026-09-01
+- last_updated: 2026-09-02
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -14,7 +14,7 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: SW-2026-008 驾驶舱迁移收口后观察期与活跃文档真源治理（WBS 0/1/2/3/4/5/6/7/8/9 已完成，2026-09-01）
+- current_focus: SW-2026-008 PM + 驾驶舱强制闭环增强；迁移 WBS 0 至 9 保持已完成，新 WBS-C1 至 C7 已完成 Grooming，待阶段 1 用户批准（2026-09-02）
 - milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 ✅ 已完成；WBS 1 ✅ 已完成；WBS 2 ✅ 已完成；WBS 3 ✅ 已完成；WBS 4 ✅ 已完成；WBS 5 ✅ 已完成；WBS 6 ✅ 已完成；WBS 7 ✅ 已完成；WBS 8 ✅ 已完成；WBS 9 ✅ 已完成
 - code_baseline: SW-2026-008 当前代码基线 V1.2.3，默认运行位为 `00_Infrastructure/auto_pm`
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅
@@ -55,9 +55,11 @@
 - plc_domain_acceptance: 01_项目文档/09_SW-2026-008_WBS7_DJ-2026-005_PLC域验收矩阵_REP.md
 - handoff_queue_acceptance: 01_项目文档/10_SW-2026-008_WBS8_handoff工作队列验收矩阵_REP.md
 - migration_closure: 01_项目文档/11_SW-2026-008_迁移收口与退路决策_REP.md
+- cockpit_enforced_closure_handoff: 01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-09-02 PM + 驾驶舱强制闭环 Grooming：驾驶舱创建并由 Fullstack 只读预研 `AI-20260902-140735-8DB7AB48`，PM 已消费；确认现有能力缺少事实包硬门禁、技能启动生命周期、决策包、Quick/Full 强制连接、真实证据校验和跨资产 Saga；形成 WBS-C1 至 C7 及对话交接文档，本轮未改源码
   - 2026-09-01 驾驶舱 Dogfooding 评估：结论为有条件可行；采用 PM 总控、全栈实现、PLC 域验收、稳定版驾驶舱外部复核的受控自托管模型
   - 2026-09-01 驾驶舱 Dogfooding WBS 8：候选 worktree 实现只读 handoff 工作队列快照，稳定版外部复核通过，变更单和台账闭环；进入 WBS 9 迁移收口评估
   - 2026-09-01 驾驶舱迁移收口：代码单轨切换至基础设施位；旧母体保留历史文档和灾备回退；不执行旧代码删除；进入迁移后观察期
@@ -83,70 +85,24 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 0 基线治理
-  - goal: 在不启动驾驶舱代码迭代的前提下，将规划前工作树变更按风险分流并恢复可回退的干净基线
-  - scope: 规划前 243 条变更快照、Dogfooding 规划资产及其关联运行态；未验证 PLC 现场文件不纳入提交
-  - actions: 保留文件级备份；恢复未验证的删除/漂移；清理根目录 `.coverage`；恢复旧 PLC 工作树漂移；将 22 个未验证 PLC 文件可逆停放到备份目录
-  - evidence: `git status --short --untracked-files=all` 为空；PM_SESSION 门禁通过；规范检查通过；未修改驾驶舱运行代码
-  - backup: `.auto-pm/reports/archive/wbs0-backup-20260901/`（含状态、差异补丁和现场文件清单）
-  - result: ✅ WBS 0 完成；基线可进入 WBS 1 评估，尚未启动 handoff CLI/Saga 或稳定/候选隔离实现
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 1 唯一真源锁定
-  - goal: 明确驾驶舱代码、产品账、治理账、规范库、技能库、PLC 标杆和运行态的唯一活跃 owner，记录可复核版本指纹
-  - artifact: `01_项目文档/08_SW-2026-008_唯一真源矩阵与版本指纹_REP.md`
-  - evidence: 根入口解析到 `00_Infrastructure/auto_pm`；包/CLI/pyproject/CHANGELOG/产品与治理 PM_SESSION 均为 `V1.2.3`；Git tree 与入口 SHA 已记录
-  - decision: 旧母体代码冻结为只读回退参考；活跃产品文档和历史变更资产暂留 SW 母体；WBS 2 起需单独报批
-  - result: ✅ WBS 1 完成；未修改驾驶舱代码、未迁移活跃文档、未删除变更管理资产
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 2 handoff.v1 契约修复
-  - goal: 让 PM 技能声明的 handoff create/list/show/close 命令与驾驶舱实现一致，并锁定执行技能回执边界
-  - artifact: `00_Infrastructure/auto_pm/auto_pm/application/core/ai_handoff_service.py`、`00_Infrastructure/auto_pm/auto_pm/ui/cli/handoff.py`、`.trae/skills/pm-workflow/refs/handoff_schema.md`
-  - evidence: 11 个 handoff 核心/CLI 测试通过；CLI help、create、list、show、close 实机冒烟通过；ruff 通过；运行态 handoff 目录已加入忽略规则
-  - decision: 使用 `handoff.v1`；执行技能只写结果回执，PM 负责消费和业务台账落账；保留旧文件名扫描兼容；WBS 3 继续强化 Saga 故障恢复
-  - result: ✅ WBS 2 完成；未迁移历史变更档案，未修改 Obsidian 规范内容
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 3 Saga 原子收口
-  - goal: 为 handoff 消费增加预检、失败证据、幂等重试和跨项目身份保护，确保失败不留下半成品
-  - artifact: `00_Infrastructure/auto_pm/auto_pm/application/core/ai_handoff_service.py`、`00_Infrastructure/auto_pm/auto_pm/ui/cli/handoff.py`
-  - evidence: 16 个 handoff 核心/CLI 测试通过；覆盖预检不消费、跨项目拒绝、原子写入故障注入、失败事件记录、锁释放和 retry_close；ruff 通过
-  - decision: 失败只保留 `pending` 并记录至被忽略的 `.auto-pm/reports/dogfood/handoff-saga/`；成功后才原子切换 `consumed`；重试复用相同幂等协议
-  - result: ✅ WBS 3 完成；跨 PM_SESSION/CHG/ledger/feedback 的业务落账仍由 PM 负责，WBS 4 开始隔离基建
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 4 稳定/候选隔离基建
-  - goal: 让稳定控制面能够从外部读取候选 worktree 的状态、指纹、路径白名单和运行态污染，不执行候选代码
-  - artifact: `00_Infrastructure/auto_pm/auto_pm/application/core/dogfood_runner.py`、`00_Infrastructure/auto_pm/auto_pm/ui/cli/dogfood.py`
-  - evidence: 6 个隔离核心/CLI 测试通过；覆盖候选路径限制、稳定侧指纹、白名单违规、运行态变化、干净树创建候选和报告临时文件清理；ruff 通过
-  - decision: 候选 worktree 只能创建在 `.auto-pm/worktrees/`；`prepare` 拒绝脏稳定树，`review` 只由 stable-control-plane 生成 verdict；证据写入忽略的 `.auto-pm/reports/dogfood/`
-  - result: ✅ WBS 4 完成；尚未对当前工作树执行真实候选创建，原因是 WBS2/3 变更尚未取得 Git 提交权限
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 5 只读 Grooming Pilot
-  - goal: 用驾驶舱管理自身的只读预研请求，验证 create/list/show/preflight/close 和 PM 消费链
-  - artifact: `.auto-pm/handoffs/AI-20260901-WBS5.json`（运行态）及 `.auto-pm/handoffs/AI-20260901-WBS5.result.json`（运行态回执）
-  - evidence: 驾驶舱实际创建请求；preflight 返回 `ok=true, already_consumed=false`；PM close 返回 `status=consumed`；`changed_files=[]`；请求和回执均未进入 Git
-  - decision: 只读 Pilot 不修改产品代码，不伪造 CHG；候选 worktree 真实复核留待稳定提交权限恢复后补跑
-  - result: ✅ WBS 5 完成（只读闭环通过）；候选发布仍未批准
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 6 doctor 版本真源修复
-  - goal: 消除 doctor 在工作空间根目录缺少 pyproject.toml 时回退到旧版本常量的问题
-  - artifact: `00_Infrastructure/auto_pm/auto_pm/ui/cli/doctor.py`、`00_Infrastructure/auto_pm/tests/cli/test_doctor.py`
-  - evidence: doctor 实机输出 `1.2.3` 并显示基础设施包 pyproject source；7 个 doctor/dogfood 相关测试通过；ruff 通过
-  - decision: 版本优先来自当前加载的 `auto_pm.__version__`，不再使用 `1.1.0` 硬编码；版本源路径显式展示
-  - result: ✅ WBS 6 完成；仍未触碰真实 PLC/HMI 硬件
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 7 DJ-2026-005 PLC 域消费验收
-  - goal: 用真实 PLC 标杆验证驾驶舱的项目结构、SCL 门禁、文档、变量表解析、HTML 原型和变更账能力
-  - artifact: `01_项目文档/09_SW-2026-008_WBS7_DJ-2026-005_PLC域验收矩阵_REP.md`
-  - evidence: `plc check=51 PASS/0 WARN/0 FAIL`；`plc check --substance=14 PASS/2 WARN/0 FAIL`；变量表=119点（71 DI/48 DO）；prototype 函数完整性通过；`change verify --ledger-check` 通过
-  - actions: 修正变更目录选择逻辑；补齐 DJ005 HTML 纯前端仿真句柄；保留 CHG-HMI-2026-001 并清理无文件 04_监控兼容壳
-  - decision: 变量映射 28 个提示暂缓；INT/TEC 字数提示保留；TIA/GX/GP-Pro EX 编译下装与 I/O 联调归为外部验证
-  - result: ✅ WBS 7 完成；静态域消费通过，允许进入 WBS 8
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 8 handoff 工作队列
-  - goal: 在不改变 handoff 状态和 PM 台账 owner 的前提下，增加可审计的只读队列快照能力
-  - artifact: `01_项目文档/10_SW-2026-008_WBS8_handoff工作队列验收矩阵_REP.md`、`CHG-SCPT-2026-169`、`f73f5eb`
-  - evidence: 候选 handoff 测试 5 passed；Ruff、Mypy、git diff --check 通过；稳定版外部复核 passed=true；候选三文件均在基础设施白名单内；无运行态变化；变更台账对账通过
-  - decision: 只读队列视图不替代 handoff 消费、PM_SESSION、变更单和版本台账；旧母体继续保留回退参考；真实硬件不适用
-  - result: ✅ WBS 8 完成；具备进入 WBS 9 单轨退出条件评估的第二批稳定证据
-- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008 Dogfooding WBS 9 迁移收口与退路决策
-  - goal: 评估基础设施位作为唯一活跃代码源的稳定性，并在不误删历史资产的前提下确定旧母体回退策略
-  - artifact: `01_项目文档/11_SW-2026-008_迁移收口与退路决策_REP.md`
-  - evidence: 根入口和安装入口均优先基础设施位；稳定版本 `b603bd4`、`f73f5eb` 已通过对应批次门禁；旧母体与基础设施位 180 个对应 Python 文件中 169 个一致、11 个存在差异；旧母体活跃文档和变更历史已核实
-  - decision: 代码运行单轨成立；旧母体代码冻结并作为灾备参考保留；本轮不删除旧代码，不把 WBS 总体批准解释为删除授权
-  - result: ✅ WBS 9 完成；进入迁移后观察期和活跃文档真源治理
+- 2026-09-02 | skill=pm-workflow | mode=强制闭环增强阶段 0
+  - request_id: `AI-20260902-140735-8DB7AB48`
+  - result: Fullstack Grooming 已由 PM 消费；形成 WBS-C1 至 C7 差距和阶段 1 决策包，本轮未修改驾驶舱源码
+  - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
+- 2026-09-01 | migration_wbs_archive
+  - scope: Dogfooding WBS 0 至 9 的完整实施、验证和决策记录
+  - artifacts: `01_项目文档/07_SW-2026-008_驾驶舱Dogfooding迭代方案与WBS_PM.md` 至 `11_SW-2026-008_迁移收口与退路决策_REP.md`
+  - git_evidence: `0430c92`、`a009b21`、`51f4978`、`b603bd4`、`f73f5eb`、`2ca6c00`
+  - retention: 历史明细保留在上述文档和 Git 历史，活跃 PM_SESSION 只保留索引
 
 ## 8. Handoff Notes
+- 2026-09-02 | from=Codex/pm-workflow | mode=PM + 驾驶舱强制闭环阶段 0
+  - request_id: `AI-20260902-140735-8DB7AB48`
+  - status: `consumed`
+  - evidence_fingerprint: `47ded581d00f672a26ba2697115ddc6959967371d1e05d8ba3279134cc398b8e`
+  - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
+  - decision: 旧迁移 WBS 保持已完成；新增工作固定命名 WBS-C1 至 C7；推荐复用并重定基线 `CHG-SCPT-2026-156`
+  - gate: 当前停在阶段 1 报批前；未经用户明确批准不得修改驾驶舱源码、技能契约或变更单
 - archive: 2026-09-01 历史交接记录已完整保存至 `05_收尾/PM_SESSION归档/Handoff_Notes_SYS-2026-001_20260901.md`
 - current_state: 当前工作空间级控制面为 `00_Infrastructure/auto_pm`，旧 SW 母体保留产品文档、变更历史和回退参考。
 - current_focus: 以受控 Dogfooding 运行基础设施位驾驶舱，WBS 0/1/2/3/4/5/6/7/8/9 已完成；当前进入迁移后观察期。
@@ -157,6 +113,8 @@
 - status: [已验证] WBS 0/1/2/3/4/5/6/7/8/9 完成；代码单轨成立；旧母体回退保留；工作树在每个提交门前保持可解释
 
 ## 9. Next Actions
+- [待批准] SW-2026-008 强制闭环增强 WBS-C1 | scope=事实包与真正不污染 Git 的只读预检；复用 CHG-SCPT-2026-156 前须由用户批准 | done_when=无事实包不能出正式方案、查询不修改跟踪文件、门禁全绿
+- [后续] SW-2026-008 强制闭环增强 WBS-C2 至 C7 | precondition=WBS-C1 验收且逐批批准 | done_when=执行生命周期、决策包、Quick/Full、领域证据、PM Saga 和完整 Dogfood 依次闭环
 - [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
 - [完成] SW-2026-008 驾驶舱迁移第一批 | result=基础设施运行位建立，根入口与 editable install 已切换，旧项目母体保留回退
 - [完成] SW-2026-008 驾驶舱迁移第二批 | result=Doc-as-Code 代码源优先基础设施位，旧母体降级标注完成，版本解析防回归测试通过
