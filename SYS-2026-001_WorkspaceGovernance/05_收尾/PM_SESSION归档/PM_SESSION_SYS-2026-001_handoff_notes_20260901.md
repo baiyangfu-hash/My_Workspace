@@ -1,0 +1,80 @@
+# PM_SESSION_SYS-2026-001 §8 Handoff Notes Archive
+
+- archive_date: 2026-09-01
+- source: PM_SESSION_SYS-2026-001.md §8
+
+## 8. Handoff Notes
+- 2026-09-01 | from=Codex | mode=SW-2026-008 驾驶舱迁移第二批
+  - current_state: [已验证] 驾驶舱文档服务已拆分代码源与文档沉淀源，默认代码源为 `00_Infrastructure/auto_pm`，旧 `SW-2026-008` 母体保留为文档沉淀与回退来源。
+  - actions:
+    - 消除 `auto_pm/domain/doc/services.py` 对旧 `SW-2026-008` 代码根的唯一硬编码依赖。
+    - 保持 Doc-as-Code 在双轨期继续回灌旧母体 `02_规划/` 与 `06_交付物/`，防止历史文档链断裂。
+    - 修复 `pyproject` 版本解析误读 `required-version` 的问题，并补防回归测试。
+    - README 与 SW PM_SESSION 同步标注基础设施默认运行位和旧母体角色。
+  - verification:
+    - `auto_pm doc check`：DOC-001/DOC-004 PASS，版本锁显示 `1.2.3` 一致。
+    - `pytest tests/doc/test_doc_system.py tests/core/test_paths.py tests/cli/test_template.py -q`：25 passed。
+    - `ruff check`、`auto_pm doctor`、`auto_pm spec check`：全部通过。
+  - next_focus: 第三批评估是否迁移设计/交付文档与历史变更单档案；若继续优化代码，应只改基础设施位，旧母体仅作历史与回退。
+  - watchouts: 双轨期不要同时在旧母体和基础设施位修同一份代码；DOC-004 当前已能读准版本，但是否升级为严格失败门禁需另立小批次处理。
+- 2026-09-01 | from=Codex | mode=SW-2026-008 文档资产评估与归档治理
+  - current_state: [已验证收口] 活跃规划/交付入口已更新为当前 V1.2.3 与基础设施运行口径；闭环变更单、历史原型、V1.1.0交付物、旧迭代计划和过期诊断报告已移入 archive。
+  - actions:
+    - 变更管理资产只做归档，不做删除或内容重写。
+    - 保留 V15/V16 活跃原型和 144/145/153/156 未闭环变更草稿。
+    - 新增文档资产评估报告，记录分类依据、物理操作、残余风险和后续迁移前置条件。
+  - verification: Markdown 链接缺失数为 0；Doc-as-Code 通过；doctor 通过；ledger reconcile 无差异；聚焦回归测试 25 passed；spec check 仅保留 161-164 历史结构告警。
+  - next_focus: 验证通过后再决定是否迁移活跃规划/交付文档；在此之前不扩大迁移范围。
+  - watchouts: `CHG-SCPT-2026-161` 至 `164` 的历史结构告警单独治理，不在本批改写变更证据。
+- 2026-09-01 | from=Codex | mode=SW-2026-008 驾驶舱迁移第一批
+  - current_state: [已验证] 驾驶舱已建立工作空间级基础设施运行位，默认入口已从项目母体切换到 `00_Infrastructure/auto_pm`。
+  - actions:
+    - 新建 `00_Infrastructure/auto_pm`，迁入 `auto_pm/`、`templates/`、`tests/`、`pyproject.toml`、`README.md`、`CHANGELOG.md` 与基础配置文件。
+    - 明确排除 `.git`、`.auto-pm`、缓存、`build/`、`dist/`、`coverage/`、`reports/` 等运行/构建产物。
+    - 根目录 `main.py` 与 `setup_env.bat` 优先指向基础设施运行位，旧 `SW-2026-008` 项目路径作为回退。
+    - `get_config_file_path()` 改为优先落到工作空间 `.auto-pm/.auto-pm-workspace`，避免工具配置继续寄居项目母体。
+  - verification:
+    - `python -c "import main; ..."`：根入口解析到 `C:\Users\fubai\Documents\My_Workspace\00_Infrastructure\auto_pm`。
+    - `python -c "import auto_pm; ..."`：当前虚拟环境加载 `00_Infrastructure\auto_pm\auto_pm\__init__.py`，版本 `1.2.3`。
+    - `python -m auto_pm --help`：通过。
+    - `python -m auto_pm doctor`：通过，根目录纯净。
+    - `python -m auto_pm spec check --workspace C:\Users\fubai\Documents\My_Workspace --format table`：所有检查通过。
+    - `pytest tests/core/test_paths.py tests/core/test_template_service.py tests/cli/test_template.py -q`：29 passed。
+  - next_focus: 第二批迁移再处理旧 `SW-2026-008` 项目母体降级标注、测试范围扩大、内部路径命名进一步提纯。
+  - watchouts: 旧母体暂不删除；若基础设施位继续优化，需同步确认是否仍需要回灌旧项目，避免双源长期分叉。
+- 2026-09-01 | from=Codex | mode=迁移前工作树治理收口
+  - current_state: 未启动 SW-2026-008 驾驶舱迁移；已先完成迁移前工作树清理。
+  - actions:
+    - 建立备份分支 `codex-backup-worktree-governance-20260901`，保留治理前现场。
+    - 恢复 `.dockerignore`、`docs/` Docker/交接文档、历史设备样例资产到 Git 基线，避免未验证删除进入提交。
+    - 恢复通用规范 README 与 SW-2026-009 运行态数据库到 Git 基线，避免自动格式化和运行态数据混入业务账。
+    - 对 DJ/SW 历史 PM_SESSION 追加最小 SHC-011/013/014 合规补丁，因为 `auto-pm spec check` 证明部分漂移是新门禁所需结构契约。
+  - verification:
+    - `git status --short --untracked-files=all`：恢复后无残留脏项，仅治理账本与历史 PM_SESSION 合规补丁待提交。
+    - `auto_pm spec check --workspace C:\Users\fubai\Documents\My_Workspace --format table`：所有检查通过。
+    - `auto_pm doctor`：环境与依赖健康诊断通过，根目录纯净。
+  - next_focus: 工作树治理提交完成后，再单独规划 SW-2026-008 驾驶舱迁移。
+  - watchouts: 后续若需要 PM_SESSION 格式统一，应作为独立 SYS 治理任务处理，并逐项目跑门禁，不应混入驾驶舱迁移。
+- 2026-09-01 | from=Codex | mode=迁移前治理接手
+  - current_state: SW-2026-008 驾驶舱迁移继续暂停；工作树已完成第一轮可验证提交。
+  - next_focus: 先让 Git 工作树归零，再重启驾驶舱迁移方案设计与执行。
+  - watchouts: 不要把 Docker 文档删除、历史设备样例删除、SW 项目数据库/会话漂移混入驾驶舱迁移提交。
+  - read_first: 本文件、AGENTS.md、SW-2026-008 驾驶舱项目、最近 4 个治理提交。
+- 2026-09-01 | from=pm-workflow | skill=Antigravity | event=根目录治理
+  - trigger: 根目录发现 9 个违规文件（临时脚本 + 过程报告 + Teamwork 残留）
+  - actions:
+    - 删除: debug_parity.py / fix_change.py / fix_handoff_service.py / fix_immutability.py / fix_pm.py / test_regex.py / verify_cleanup.py / ORIGINAL_REQUEST.md / PROJECT.md
+    - 归档: DIAGNOSTIC_ASSESSMENT_REPORT.md / RCA_REPORT.md / TEST_READY.md → .auto-pm/reports/
+    - 保留: main.py (合法工作区快捷启动入口)
+    - 防线加固: .gitignore 新增 /fix_*.py / /debug_*.py / /verify_*.py / /test_*.py 等根目录临时脚本拦截模式
+  - result: 根目录文件从 18 个压缩至 10 个，100% 合规
+- 2026-06-16 | from=pm-workflow | mode=P2节奏固化启动
+  - current_state: P1移交完成，P2节奏固化启动 [已验证]
+  - next_focus: P2.1 Git原子性提交，P2.2 PLC域规范分类归属调整 [待验证]
+  - watchouts:
+    - Git原子性提交需梳理Phase 1-3所有变更，按逻辑分组为7次提交
+    - PLC域规范分类归属调整需确认TOOL-902/908的当前归属和目标归属
+  - read_first:
+    - PM_SESSION_SYS-2026-001.md
+    - 01_项目文档/03_分阶段整改路线图_PM.md
+- 代码基线 V1.2.3

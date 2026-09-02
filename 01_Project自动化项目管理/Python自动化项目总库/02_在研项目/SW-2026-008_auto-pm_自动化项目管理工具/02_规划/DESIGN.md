@@ -1,8 +1,8 @@
 ---
-version: "V1.0.0"
+version: "V1.1.0"
 status: "APPROVED"
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-09-01"
 project_id: "SW-2026-008"
 title: "auto-pm 真实 GUI 架构原型与设计规范说明书 (DESIGN.md)"
 author: "Product PM & Lead Industrial Engineer"
@@ -11,6 +11,8 @@ author: "Product PM & Lead Industrial Engineer"
 # auto-pm 真实 GUI 架构原型与设计规范说明书 (DESIGN.md)
 
 本文档（`DESIGN.md`）作为 **auto-pm 自动化项目管理工具 (SW-2026-008)** 真实 QML 运行代码（`auto_pm/ui/qml/main.qml` 与 11 大 View 组件）的 UI/UX 原型设计规范真源。
+
+> 2026-09-01 迁移说明：当前默认运行源码位于工作空间基础设施目录 `00_Infrastructure/auto_pm`；本目录保留设计文档、历史原型和旧母体回退材料。继续优化运行代码时应优先修改基础设施位，文档沉淀仍回写本项目目录。
 
 ---
 
@@ -90,4 +92,4 @@ author: "Product PM & Lead Industrial Engineer"
 
 ## 4. 总结
 
-本 `DESIGN.md` 已与最新的 [`021_UI架构原型_V16_新一代全功能驾驶舱.html`](file:///c:/Users/fubai/Documents/My_Workspace/01_Project%E8%87%AA%E5%8A%A8%E5%8C%96%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86/Python%E8%87%AA%E5%8A%A8%E5%8C%96%E9%A1%B9%E7%9B%AE%E6%80%BB%E5%BA%93/02_%E5%9C%A8%E7%A0%94%E9%A1%B9%E7%9B%AE/SW-2026-008_auto-pm_%E8%87%AA%E5%8A%A8%E5%8C%96%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/02_%E8%A7%84%E5%88%92/Html%E5%8E%9F%E5%9E%8B%E9%A2%84%E8%A7%88/021_UI%E6%9E%B6%E6%9E%84%E5%8E%9F%E5%9E%8B_V16_%E6%96%B0%E4%B8%80%E4%BB%A3%E5%85%A8%E5%8A%9F%E8%83%BD%E9%A9%BE%E9%A9%B6%E8%88%B1.html) 及真实的 QML 代码 `main.qml` 做到 100% 完全对齐，并完美包含截图中的拖放上传组件规范！
+本 `DESIGN.md` 已与最新的 [`021_UI架构原型_V16_新一代全功能驾驶舱.html`](Html原型预览/021_UI架构原型_V16_新一代全功能驾驶舱.html) 及真实的 QML 代码 `main.qml` 对齐，并包含截图中的拖放上传组件规范。

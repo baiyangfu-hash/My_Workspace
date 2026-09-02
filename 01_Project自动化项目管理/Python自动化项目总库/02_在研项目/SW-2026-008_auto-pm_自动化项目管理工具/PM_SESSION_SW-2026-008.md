@@ -20,7 +20,7 @@
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: **2026-08-27 实施并闭环 CHG-SCPT-2026-167：新增契约对账检查器 SHC-017（SkillContractDriftChecker），以代码为唯一真源动态校验技能文档与代码实现的口径一致，从根消除文档-代码漂移**。
+- current_focus: **2026-09-01 文档资产评估与归档治理：在不删除旧母体、不删除变更管理资产的前提下，区分活文档、历史计划、历史原型、历史交付物与闭环变更单档案，为后续文档迁移降低风险**。
 - risks_dependencies:
   - Ruff 静态代码检查已实现 100% Clean Exit (0 告警)
   - IndustrialErrorMapper 统一异常转译上线并补充 10 项单测
@@ -32,8 +32,8 @@
 
 ## 3. Status Summary
 
-- current_status: [已验证] 代码基线 V1.2.3，CHG-SCPT-2026-167 已闭环：新增 SHC-017 契约对账检查器，从根消除技能文档-代码口径漂移，tests/spec 回归 174 passed + mypy 全绿。
-- in_progress: 持续推进异构 PLC（欧姆龙/倍福）逆向解析适配器库。
+- current_status: [治理中] 代码基线 V1.2.3 已迁至工作空间基础设施运行位；旧母体保留文档、变更管理、原型和交付档案，闭环资产正按可追溯原则归档。
+- in_progress: 文档资产治理与后续文档迁移评估；异构 PLC（欧姆龙/倍福）逆向解析适配器库暂不在本批次推进。
 - completed_milestones:
   - 2026-08-27 [已验证] CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源校验技能文档（C1~C4）。
   - 2026-08-27 [已验证] CHG-SCPT-2026-166 落账门禁下沉：StageGateEngine G3 新增落账完整性 BLOCKER，PmSessionCheckService 新增落账新鲜度 WARN。
@@ -59,6 +59,7 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-09-01 文档资产评估与归档治理：已将闭环 CHG-SCPT、历史 HTML 原型、V1.1.0 历史交付包、旧迭代计划和过期诊断报告移入对应 archive；活区仅保留当前可用入口和未闭环草稿单。
   - 2026-08-27 CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源动态校验技能文档（阈值/状态机/编号格式/门禁口径），从根消除文档-代码口径漂移。
   - 2026-08-27 CHG-SCPT-2026-166 落账门禁下沉：将 PM 收尾落账（变更单 + PM_SESSION 回写 + 台账对账）下沉为驾驶舱 PASS/FAIL 硬门禁，与 plc check 同等级，从根消除落账遗漏。
   - 2026-08-23 CHG-SCPT-2026-164 008 驾驶舱 P2 代码质量收敛与工控现场友好排障增强：Ruff 白名单实现 0 告警，构建 IndustrialErrorMapper 统一转译工控异常，发布 V1.2.3。
@@ -81,6 +82,15 @@
 
 ## 8. Handoff Notes
 
+- 2026-09-01 | from=Codex | mode=SW-2026-008 文档资产评估与归档治理
+  - current_state: [治理中] 旧母体文档区已按“活文档保留、历史证据归档、变更管理只归档不删除”原则完成第一轮物理整理；本批不启动文档搬迁到基础设施位。
+  - actions:
+    - 已闭环 `CHG-SCPT-2026-101~143/146~152/154~155/157~159/161~168` 移至 `04_监控/01_变更管理/01_变更单/CHG-SCPT/archive/`。
+    - 未闭环草稿 `CHG-SCPT-2026-144/145/153/156` 保留在活区。
+    - HTML 原型活区仅保留 `020_UI架构原型_V15_Modbus工坊专项.html` 与 `021_UI架构原型_V16_新一代全功能驾驶舱.html`，V8~V14 移入 archive。
+    - V1.1.0 历史发布包与分发目录移入 `06_交付物/archive/V1.1.0_20260817/`。
+    - 旧迭代计划和过期综合诊断报告移入各自 archive。
+  - next_focus: 先验证台账链接、Doc-as-Code、规范检查和驾驶舱健康检查；验证通过后再判断是否把活文档迁至 `00_Infrastructure/auto_pm/docs` 或继续留在旧母体。
 - 2026-09-01 | from=Codex | mode=工作空间基础设施迁移第二批
   - current_state: [双轨运行] 工作空间根入口与 editable install 默认指向 `00_Infrastructure/auto_pm`；本目录继续保留 SW-2026-008 项目历史、设计文档与回退参考。
   - actions:
@@ -99,7 +109,7 @@
   - 代码约束: 所有跨层调用必须经由 application/ 门面与 contracts/ 契约，严禁 UI 直接导入 domain 内部模块。
   - 路径约束: 严格遵循 5 大过程组目录命名，禁止使用临时非标目录。
 - read_first:
-  - 04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-167.md
+  - 04_监控/01_变更管理/01_变更单/CHG-SCPT/archive/CHG-SCPT-2026-167.md
 
 ## 9. Next Actions
 
@@ -107,4 +117,5 @@
 - [x] 任务 2: 落地 SHC-017 SkillContractDriftChecker（skill_contracts.py + checker_base.py 注册 + test_skill_contracts.py）
 - [x] 任务 3: 全量门禁验收（tests/spec 174 passed / mypy 改动文件全绿 / spec check -c SHC-017 通过）
 - [x] 任务 4: 流转变更单至 completed，回写 PM_SESSION §3/§8，台账对账
-- [ ] 任务 5: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）
+- [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）
+- [ ] 任务 6: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）

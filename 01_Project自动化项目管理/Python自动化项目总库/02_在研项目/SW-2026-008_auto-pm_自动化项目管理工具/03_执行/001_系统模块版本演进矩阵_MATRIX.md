@@ -1,8 +1,8 @@
 ---
-version: "V1.2.0"
+version: "V1.2.3"
 status: "ACTIVE"
 created: "2026-08-16"
-updated: "2026-08-16"
+updated: "2026-09-01"
 project_id: "SW-2026-008"
 title: "auto-pm 核心模块版本演进与 Breaking Changes 矩阵 (MATRIX)"
 author: "Lead Full-stack Engineer"
@@ -25,7 +25,12 @@ author: "Lead Full-stack Engineer"
 | **V1.1.0** | CHG-SCPT-152 | V2.1.0 | V2.2.0 | - | - | 跨技能协同公共契约 (`skill_coordination.md`) 确立 |
 | **V1.1.1** | CHG-SCPT-156 | V2.2.0 | V2.3.0 (`AiContextV2`) | - | - | `ai_context.json` V2 升级，PM 成为唯一回写 owner |
 | **V1.1.2** | CHG-SCPT-157 | V2.3.0 | V2.4.0 (`SpecBridge`) | - | V1.0.0 (`LSP-905`) | 引入 SCL 工艺状态机离线生成器与 LSP-905 规范排查器 |
-| **V1.2.0 (当前)** | **CHG-SCPT-158** | **V3.0.0** | **V3.0.0** | **V1.0.0 (`G1~G4`)** | **V1.1.0** | **5 大过程组 Stage-Gate 阶段门禁规则引擎与 DTO 契约构建** |
+| **V1.2.0** | CHG-SCPT-158 | V3.0.0 | V3.0.0 | V1.0.0 (`G1~G4`) | V1.1.0 | 5 大过程组 Stage-Gate 阶段门禁规则引擎与 DTO 契约构建 |
+| **V1.2.1** | CHG-SCPT-162 | V3.1.0 | V3.1.0 | V1.1.0 | V1.2.0 | 严苛审计缺陷修复与工业级安全加固 |
+| **V1.2.2** | CHG-SCPT-163 | V3.2.0 | V3.2.0 | V1.1.0 | V1.2.1 | P1 级架构安全加固与工控全域测试安全网深化 |
+| **V1.2.3 (当前代码基线)** | **CHG-SCPT-164/166/167** | **V3.3.0** | **V3.3.0** | **V1.2.0 (`G3落账门禁`)** | **V1.2.2** | **P2 质量收敛、友好排障、落账门禁与 SHC-017 契约对账器闭环** |
+
+> 2026-09-01 说明：工作空间基础设施迁移由 `SYS-2026-001_WorkspaceGovernance` 承接，不作为 `SW-2026-008` 业务功能版本号追加。
 
 ---
 

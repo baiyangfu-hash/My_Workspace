@@ -1,0 +1,134 @@
+# PM_SESSION 归档
+
+> 由 auto-pm pm-session archive 自动生成
+
+## 7. Verification Log
+- 2026-09-01 | SW-2026-008 驾驶舱迁移第二批验证
+  - verified:
+    - 根入口烟测：`AUTO_PM_PROJECT_DIR` 解析为 `C:\Users\fubai\Documents\My_Workspace\00_Infrastructure\auto_pm`
+    - `auto_pm doc check`：DOC-001 PASS，覆盖 33 组 CLI 命令；DOC-004 PASS，`pyproject=1.2.3`，`PM_SESSION=1.2.3`
+    - `pytest tests/doc/test_doc_system.py tests/core/test_paths.py tests/cli/test_template.py -q`：25 passed
+    - `ruff check auto_pm/domain/doc/services.py tests/doc/test_doc_system.py`：All checks passed
+    - `auto_pm doctor`：通过，根目录纯净
+    - `auto_pm spec check --workspace C:\Users\fubai\Documents\My_Workspace --format table`：所有检查通过
+  - not_verified:
+    - 未迁移旧母体 `02_规划/`、`06_交付物/` 与历史变更单档案
+    - 未运行驾驶舱全量测试集与 GUI 真机冒烟
+  - method:
+    - 双轨路径解析单测
+    - CLI/文档/规范/环境多门禁交叉验证
+    - 测试产物清理后复查工作树
+  - result: ✅ 第二批路径去母体化通过；可进入下一批迁移评估
+
+- 2026-09-01 | 迁移前工作树治理验证
+  - verified:
+    - `auto_pm spec lint --workspace ... --format json`: 0 lint results
+    - `auto_pm spec check --workspace ... --format table`: 所有检查通过
+    - `auto_pm plc check DJ-2026-009`: Pass=45 Warn=0 Fail=0 -> ALL PASS
+    - `DJ-2026-009/python_bridge`: pytest 4 passed, ruff pass, mypy pass
+    - `auto_pm plc check DJ-2026-005`: Pass=51 Warn=0 Fail=0 -> ALL PASS
+  - not_verified:
+    - 高风险历史资料删除是否为用户真实意图
+    - SW-2026-* PM_SESSION 自动规范化漂移是否应作为正式治理提交
+  - method:
+    - Git 分组审查
+    - auto-pm 静态门禁
+    - Python 单元测试与 ruff/mypy
+  - result: ✅ 可提交成果已提交；剩余脏项需显式决策后处理
+
+- 2026-08-26 | 治理账本重基线验证
+  - verified:
+    - 路径引用一致性：`Desktop` → `Documents` 已全局修正
+    - 工具链口径统一：`auto-pm` 已作为唯一入口，废弃 `SpecMgr`/`pm-mgr` 相关遗留任务
+    - 风险台账对齐：R6 已关闭，本轮结论已更新
+    - PM_SESSION 精简：已恢复为当前快照形式，历史已完成事项已归档或移除
+  - not_verified:
+    - 历史计划归档迁移（已完成，无需进一步验证）
+    - hooks/handoffs 注入（2026-09-01 复核：仅有待办读取与 GUI 上下文，CLI 与原子收口仍待补齐）
+  - method:
+    - 文档交叉引用检查
+    - 工具链口径一致性验证
+    - 风险状态对齐检查
+  - result: ✅ 治理账本重基线完成，与工作空间当前真源一致
+
+- 2026-06-15
+  - verified:
+    - `SYS-2026-001_WorkspaceGovernance` 项目根已建立
+    - PM_SESSION 与 6 份治理文档已建立
+    - 根目录入口与 `.trae/documents` 职责说明已建立
+  - not_verified:
+    - 历史计划归档迁移
+    - hooks/handoffs 注入（截至 2026-09-01 仍未形成可执行闭环）
+    - 自动化命令支持 `SYS` 类型
+  - method:
+    - 文件存在性检查
+    - 内容一致性人工检查
+  - blocker:
+    - ~~现有 `pm-mgr` 模板面向 `software/plc`，暂未直接覆盖 `SYS`~~（2026-08-26已解决：工具链统一至 `auto-pm`）
+
+## 6. Implementation Log
+- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008驾驶舱Dogfooding可行性评估
+  - goal: 评估 PM 技能、驾驶舱、全栈技能和 PLC 技能能否在不发生循环自证的前提下迭代驾驶舱自身
+  - findings: 基础设施运行位和只读 handoff 收件箱已具备；PM 技能声明的 handoff CLI 与原子收口尚未实现；规划前工作树 243 条变更不满足自托管启动门槛；doctor 仍使用旧版硬编码回退值
+  - decision: 有条件可行；必须先清理基线、修复可执行契约，并建立稳定控制面/候选开发面双环境
+  - artifact: 01_项目文档/07_SW-2026-008_驾驶舱Dogfooding迭代方案与WBS_PM.md
+  - status: 规划完成，等待用户审批；本批未修改驾驶舱代码
+- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008文档资产评估与归档治理
+  - goal: 在不删除旧母体和变更管理资产的前提下，区分活文档、历史证据和未闭环变更草稿，降低后续文档迁移风险
+  - changed_files:
+    - SW-2026-008/02_规划/: 更新项目立项、技术方案、里程碑、产品化计划、UI原型说明和设计说明的当前口径
+    - SW-2026-008/03_执行/: 更新当前基线与版本演进矩阵；旧迭代计划移入归档
+    - SW-2026-008/04_监控/01_变更管理/: 63份闭环 CHG-SCPT 仅移动至 archive，并修正版本变更台帐链接
+    - SW-2026-008/04_监控/02_整改项/: 过期综合诊断报告移入 archive
+    - SW-2026-008/06_交付物/: 更新 README、用户指南、发布说明；V1.1.0历史交付物移入 archive
+    - SYS-2026-001/01_项目文档/06_SW-2026-008_文档资产评估_REP.md: 新增分类决策、保护边界和后续建议
+  - impact: 活跃入口与历史证据分层，变更管理可追溯性保持不变；旧母体仍是文档沉淀与回退来源
+  - risks: 活跃规划/交付文档尚未迁入基础设施位，后续仍需确定唯一真源和同步策略
+  - commits: 待本批验证通过后提交
+- 2026-09-01 | skill=pm-workflow | mode=SW-2026-008驾驶舱迁移第二批
+  - goal: 在不删除旧项目母体的前提下，继续降低驾驶舱对 `SW-2026-008` 旧路径的运行依赖
+  - changed_files:
+    - 00_Infrastructure/auto_pm/auto_pm/domain/doc/services.py: Doc-as-Code 服务拆分 `source_root` 与 `docs_root`，代码源优先解析基础设施位，旧母体文档作为双轨期回灌位置
+    - 00_Infrastructure/auto_pm/tests/doc/test_doc_system.py: 增加基础设施优先、旧母体回退与 `pyproject` 版本解析防回归测试
+    - 00_Infrastructure/auto_pm/README.md: 更新基础设施位安装与健康检查入口
+    - SW-2026-008/README.md: 标注旧母体角色，避免误从旧路径安装运行
+    - SW-2026-008/PM_SESSION_SW-2026-008.md: 记录 `runtime_root`、双轨状态与版本锁
+  - impact: 驾驶舱默认运行根进一步从项目母体解绑；旧文档沉淀链保持不断裂
+  - risks: `02_规划/`、`06_交付物/`、历史变更单档案尚未迁入基础设施位；双轨期仍需防止代码/文档分叉
+  - commits: 8721ae5（驾驶舱第二批代码/文档口径），本提交（SYS治理台账）
+- 2026-09-01 | skill=pm-workflow | mode=迁移前工作树治理
+  - goal: 暂停 SW-2026-008 驾驶舱迁移，先清理工作树并提交可验证的干净成果
+  - changed_files:
+    - .gitignore: 收紧根目录临时脚本、Agent 运行态、auto-pm 报告/事务与 Python 构建元数据忽略规则
+    - 00_Obsidian_Base全局规范文件仓库/: 修正规范注册表版本/编号漂移与死链
+    - .trae/skills/: 补齐 fullstack mypy 门禁与变更文件回执要求
+    - 0100_PLC自动化/DJ-2026-009_汇川换型改造/: 提交 PLC 工位控制与 OPC UA python_bridge
+    - 0100_PLC自动化/DJ-2026-005/: 提交 CHG-PLC-2026-011 持续慢速输送策略与收尾落账
+  - impact: 可验证成果已拆分为原子提交；迁移前工作树噪音显著收敛
+  - risks: `.dockerignore`、`docs/docker/*`、`管理工具测试/6.边框缓存机-buffer framing/*` 大批删除及 SW PM_SESSION/db 漂移仍未判定，不应在未确认前提交
+  - commits: 3e27e20, 6594de6, 00731f9, dd67754
+- 2026-08-26 | skill=pm-workflow | mode=治理账本重基线
+  - goal: 修正2026-06遗留失真，统一auto-pm口径，恢复PM_SESSION可信度
+  - changed_files:
+    - PM_SESSION_SYS-2026-001.md: 更新Meta/Current Focus/Status/Next Actions/Spec Snapshot
+    - 00_项目基础信息/01_项目章程_PM.md: 修正路径 Desktop→Documents
+    - 01_项目文档/03_分阶段整改路线图_PM.md: 废弃SpecMgr/SW相关任务，更新P2.4状态
+    - 01_项目文档/04_风险登记册_REP.md: 关闭R6，更新本轮结论
+    - 01_项目文档/05_变更准入规则_DEV.md: 修正路径 Desktop→Documents
+  - impact: 治理账本与工作空间当前真源一致，工具链口径统一为auto-pm
+  - risks: 无新增风险，历史遗留任务已清理或标记废弃
+- 2026-06-15 | skill=pm-workflow | mode=P1计划收编
+  - goal: 将4份历史长期计划映射进SYS-2026-001，评估执行状态，登记遗留事项
+  - changed_files:
+    - 01_项目文档/03_分阶段整改路线图_PM.md: P0标记完成，P1增加历史计划映射表+Phase4遗留事项，P2增加候选事项
+    - 01_项目文档/04_风险登记册_REP.md: 新增R8-R12风险（来自历史计划），增加风险状态追踪表
+    - PM_SESSION_SYS-2026-001.md: 更新§2焦点/§3状态/§5日志
+  - impact: 4份历史计划完成映射（3份已完成+1份部分完成），10项遗留事项已登记并分配归属
+  - risks: Phase 4遗留事项跨多个项目（SW-2026-006/SW-2026-004），需逐项移交
+- 2026-06-15 | skill=pm-workflow | mode=项目初始化/治理
+  - goal: 为整个工作空间建立系统级治理项目入口
+  - changed_files:
+    - PM_SESSION_SYS-2026-001.md
+    - 00_项目基础信息/01_项目章程_PM.md
+    - 01_项目文档/01_需求分析_REQ.md
+    - 01_项目文档/02_工作区治理方案_DES.md
