@@ -1,4 +1,4 @@
-// ModbusScannerGrid.qml — 寄存器扫描探测器网格（对齐 V13 原型）
+// ModbusScannerGrid.qml — 寄存器扫描探测器网格（对齐 V15 专项原型）
 //
 // 功能：
 //   - 10×10 共 100 个地址格子，展示寄存器扫描结果

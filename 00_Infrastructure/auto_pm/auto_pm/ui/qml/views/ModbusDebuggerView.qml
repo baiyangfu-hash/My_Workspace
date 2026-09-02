@@ -1,6 +1,6 @@
-// ModbusDebuggerView.qml — PLC Modbus 联调测试工坊主视图（V13 原型落地）
+// ModbusDebuggerView.qml — PLC Modbus 联调测试工坊主视图（V15 专项原型落地）
 //
-// 功能对齐 018_UI架构原型_V13.html：
+// 功能对齐 020_UI架构原型_V15_Modbus工坊专项.html：
 //   - 📡 Ping 链路诊断（建立 Modbus 连接前的网络层探路）
 //   - Modbus TCP 连接参数配置（IP/Port/UnitID/仿真模式开关）
 //   - 读取功能码选择：FC01/02/03/04/07/17/20/22/23/24/43（共 11 个）

@@ -9,7 +9,7 @@ V1.0.0 接口设计原则：
 - 耗时操作（scan）在 QThread 中执行并通过 Signal 异步回传进度
 - 轮询模式使用 QTimer 定时触发（频率：1000ms，由 QML 控制开关）
 
-设计参考：02_设计/Html原型预览/018_UI架构原型_V13.html
+设计参考：02_规划/Html原型预览/020_UI架构原型_V15_Modbus工坊专项.html
 """
 from __future__ import annotations
 

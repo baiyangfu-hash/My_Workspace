@@ -13,7 +13,7 @@ V1.0.0（仿真模式优先）：
 - 仿真模式下生成正弦/余弦波形数据模拟真实 PLC 变量
 - 真实 pymodbus 连接路径已预留注释，后续版本接入
 
-设计参考：02_设计/Html原型预览/018_UI架构原型_V13.html
+设计参考：02_规划/Html原型预览/020_UI架构原型_V15_Modbus工坊专项.html
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ from typing import Any
 
 @dataclass
 class RegisterEntry:
-    """单条寄存器数据（对齐 V13 监测表的一行）"""
+    """单条寄存器数据（对齐 V15 监测表的一行）"""
     address: int          # 物理地址偏移（如：0 → 40001）
     physical: str         # 物理地址显示字符串（如：40001）
     tag: str              # 绑定符号注释（如：DB10.DBW0）
@@ -81,7 +81,7 @@ class ScanCell:
 # 仿真信号发生器
 # ─────────────────────────────────────────────
 
-# 预置标签字典（对齐 V13 原型 siemens_fan / temp_monitor 预设）
+# 预置标签字典（对齐 V15 原型 siemens_fan / temp_monitor 预设）
 _PRESET_TAGS: dict[str, list[dict[str, Any]]] = {
     "siemens_fan": [
         {"tag": "Fan_Start_CMD (启动给定)", "val": 1},
