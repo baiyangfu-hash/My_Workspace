@@ -51,6 +51,7 @@ from auto_pm.app_context import AppContext  # noqa: E402
 from auto_pm.cli.change import change_group  # noqa: E402
 from auto_pm.cli.clean import clean_cmd  # noqa: E402
 from auto_pm.cli.constraint import constraint_group  # noqa: E402
+from auto_pm.cli.decision import decision_group  # noqa: E402
 from auto_pm.cli.delivery import delivery_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
 from auto_pm.cli.doctor import doctor_command  # noqa: E402
@@ -107,6 +108,7 @@ cli.add_command(template_group)
 cli.add_command(vartable_group)
 cli.add_command(gui_command)
 cli.add_command(handoff_group)
+cli.add_command(decision_group)
 cli.add_command(pm_group)
 cli.add_command(pm_session_group)
 cli.add_command(ledger_group)
