@@ -1,10 +1,12 @@
-﻿# PM_SESSION_SYS-2026-001
+# PM_SESSION_SYS-2026-001
 
 ## 0. Meta
 - project_id: SYS-2026-001
 - project_name: WorkspaceGovernance
 - project_root: c:\Users\fubai\Documents\My_Workspace\SYS-2026-001_WorkspaceGovernance
 - last_updated: 2026-09-03
+- owners: fubai
+
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -14,23 +16,19 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: SW-2026-008 RC1 已完成 PM 收口：C1 事实包/只读预检与 C2a execution lifecycle 已完成并消费；C3 至 C7 仍是后续独立报批范围。
-- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 ✅ 已完成；WBS 1 ✅ 已完成；WBS 2 ✅ 已完成；WBS 3 ✅ 已完成；WBS 4 ✅ 已完成；WBS 5 ✅ 已完成；WBS 6 ✅ 已完成；WBS 7 ✅ 已完成；WBS 8 ✅ 已完成；WBS 9 ✅ 已完成
-- code_baseline: SW-2026-008 当前代码基线 V1.2.3，默认运行位为 `00_Infrastructure/auto_pm`
-- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1-0 至 RC1-12 收口证据 ✅
+- current_focus: 已连续完成微迭代：双技术栈实战与空壳单根治（a4c27b0）、W0-1 决策包契约与 CLI（44aa14d）、W0-2 Handoff 决策包强校验（8fbfbb4）、W1-1 跨领域关联单穿透门禁（dbb4baf）。
+- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 至 9 ✅ 全部通过；RC1 PM 收口 ✅；W0-1/W0-2/W1-1 微迭代 ✅ 已闭环
+- code_baseline: 驾驶舱当前代码基线 Commit dbb4baf，运行位为 `00_Infrastructure/auto_pm`
+- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - RC1 已完成四份 execution handoff 消费和控制面落账，等待用户验收与提交决策
+  - W0（决策包连接）与 W1-1（跨领域关联穿透）已闭环落账，随时可冷启动续接
 - next_up:
-  - 复核 RC1 的用户验收与 Git 提交决策；不得自动提交
-  - C3 至 C7 继续保持未启动，必须重新经过阶段 0 和阶段 1 报批
+  - W1-2（证据门禁扩展：跨资产与决策包预检）或 W2（可恢复 PM Saga 事务日志）
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI、基础原子消费和只读队列快照；PM_SESSION、变更单和反馈仍由 PM 单一 owner 收口
-- risks_dependencies:
-  - 依赖现有规范仓库路径稳定
-  - 依赖 `auto-pm` 作为统一工具链入口
   - 双轨期需防止旧 `SW-2026-008` 母体代码与基础设施位代码长期分叉
   - 活跃规划/交付文档暂留旧母体，后续迁移前需先确定唯一真源，避免文档双份维护
   - `CHG-SCPT-2026-161` 至 `164` 保留历史结构告警，后续单独治理，不在本批改写审计证据
