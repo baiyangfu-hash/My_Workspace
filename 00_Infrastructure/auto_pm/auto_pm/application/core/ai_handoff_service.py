@@ -60,6 +60,7 @@ class AiHandoffService:
         "read_first",
         "artifacts",
         "chg_updates",
+        "change_substance",
         "product_impact",
         "pm_closure",
     )
@@ -109,6 +110,7 @@ class AiHandoffService:
         specs: list[str] | None = None,
         read_first: list[str] | None = None,
         request_id: str = "",
+        change_id: str = "",
         skill_context: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Create a pending request, or return the same request idempotently."""
@@ -127,6 +129,8 @@ class AiHandoffService:
         context.setdefault("mode", mode)
         context.setdefault("injected_specs", list(specs or []))
         context.setdefault("baseline_documents", list(read_first or []))
+        if change_id:
+            context["change_id"] = change_id
 
         payload: dict[str, Any] = {
             "schema_version": self.SCHEMA_VERSION,
@@ -142,6 +146,7 @@ class AiHandoffService:
             },
             "mode": mode,
             "goal": goal,
+            "change_id": change_id,
             "generated_at": generated_at,
             "created_by": "pm-workflow",
             "skill_context": context,
@@ -550,6 +555,31 @@ class AiHandoffService:
                     )
 
                 self._validate_closure(merged)
+
+                # 自动注入变更单实质内容
+                target_chg_id = (
+                    merged.get("change_id")
+                    or merged.get("skill_context", {}).get("change_id")
+                    or (merged.get("change_substance", {}) or {}).get("change_number")
+                )
+                if target_chg_id:
+                    try:
+                        from auto_pm.domain.change.substance_injector import SubstanceInjector
+                        substance = merged.get("change_substance") or {}
+                        changed_files = merged.get("changed_files") or []
+                        executor_id = str(merged.get("execution", {}).get("executor_id", "ai-executor"))
+                        SubstanceInjector.inject(
+                            workspace_root=self._workspace_root,
+                            change_number=target_chg_id,
+                            substance=substance,
+                            changed_files=changed_files,
+                            executor_id=executor_id,
+                            project_id=merged.get("project_id", ""),
+                        )
+                    except Exception as exc:
+                        # 记录日志，若明确找不到文件或严重错误则视需要阻断
+                        pass
+
                 now = datetime.now(UTC).isoformat()
                 merged.update(
                     {

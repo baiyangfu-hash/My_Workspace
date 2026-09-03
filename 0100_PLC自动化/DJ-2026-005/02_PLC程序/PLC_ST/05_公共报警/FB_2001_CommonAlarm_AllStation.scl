@@ -27,10 +27,12 @@ VAR
 END_VAR
 
 VAR CONSTANT
-    QUEUE_SIZE     : INT := 10;     // 报警队列大小
-    QUEUE_MASK     : INT := 9;      // 队列索引掩码 (用于循环队列)
-    ALM_NONE       : INT := 0;      // 无报警值
-    ALM_WORD_ZERO  : WORD := 0;     // 报警字零值
+    QUEUE_SIZE              : INT := 10;     // 报警队列大小
+    QUEUE_MASK              : INT := 9;      // 队列索引掩码 (用于循环队列)
+    ALM_NONE                : INT := 0;      // 无报警值
+    ALM_WORD_ZERO           : WORD := 0;     // 报警字零值
+    ALM_CODE_SAFETY_TIMEOUT : INT := 2009;   // 安全回看看门狗超时报警代码 (STD-860)
+    ALM_BIT_SAFETY_TIMEOUT  : WORD := 16#0008; // 报警字第3位: 安全回路看门狗超时
 END_VAR
 
 (* -------------------------------------------------------------------------- *)
@@ -84,6 +86,12 @@ END_IF;
 
 IF s_bFeederAlarmActive THEN
     io_stGlobal.o_wGlobalAlarmWord := io_stGlobal.o_wGlobalAlarmWord OR INT_TO_WORD(io_stGlobal.i_iFeederAlarm);
+END_IF;
+
+IF (io_stGlobal.i_iConveyorAlarm = ALM_CODE_SAFETY_TIMEOUT) OR
+   (io_stGlobal.i_iPickPlaceAlarm = ALM_CODE_SAFETY_TIMEOUT) OR
+   (io_stGlobal.i_iFeederAlarm = ALM_CODE_SAFETY_TIMEOUT) THEN
+    io_stGlobal.o_wGlobalAlarmWord := io_stGlobal.o_wGlobalAlarmWord OR ALM_BIT_SAFETY_TIMEOUT;
 END_IF;
 
 (* -------------------------------------------------------------------------- *)

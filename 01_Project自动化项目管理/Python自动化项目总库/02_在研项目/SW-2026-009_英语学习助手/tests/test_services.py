@@ -31,6 +31,42 @@ class TestServiceLayer(unittest.TestCase):
         self.assertIsNotNone(res)
         self.assertIn('cefr_level', res)
         self.assertEqual(res['cefr_level'], 'A1')
+
+        # 边界与入参清洗测试（空格修剪、空字符串、None、非字符串等）
+        # 1. 验证前后空格输入清洗 lookup('  apple  ')
+        res_spaces = service.lookup("  apple  ")
+        self.assertIsNotNone(res_spaces)
+        self.assertEqual(res_spaces['word'], 'apple')
+        self.assertEqual(res_spaces['cefr_level'], 'A1')
+
+        # 2. 验证空字符串与仅空格输入安全返回 None，杜绝异常
+        self.assertIsNone(service.lookup(""))
+        self.assertIsNone(service.lookup("   \t\n  "))
+        self.assertIsNone(service.lookup(None))
+        self.assertIsNone(service.lookup(12345))
+
+        # 3. 验证 query_word 接口及参数清洗
+        q_res = service.query_word("  apple  ")
+        self.assertIsNotNone(q_res)
+        self.assertEqual(q_res['word'], 'apple')
+        self.assertIsNone(service.query_word(""))
+        self.assertIsNone(service.query_word("   "))
+        self.assertIsNone(service.query_word(None))
+
+        # 4. 验证 search 前缀搜索清洗
+        search_res = service.search("  app  ")
+        self.assertIsInstance(search_res, list)
+        self.assertEqual(service.search(""), [])
+        self.assertEqual(service.search("   "), [])
+        self.assertEqual(service.search(None), [])
+
+        # 5. 验证静态辅助方法 sanitize_word
+        self.assertEqual(DictionaryService.sanitize_word("  hello  "), "hello")
+        self.assertEqual(DictionaryService.sanitize_word(""), "")
+        self.assertEqual(DictionaryService.sanitize_word("   "), "")
+        self.assertEqual(DictionaryService.sanitize_word(None), "")
+        self.assertEqual(DictionaryService.sanitize_word(123), "")
+
         service.close()
 
     def test_study_service(self):

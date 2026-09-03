@@ -485,26 +485,33 @@ def cmd_create(
 @click.argument("project_id")
 @click.option("--ledger-check", "ledger_check", is_flag=True, default=False,
               help="CHG-108 缺陷3: 对账门禁——校验变更单文件 vs 台账记录一致性，差异时报错退出")
+@click.option("--substance-check", "substance_check", is_flag=True, default=False,
+              help="实质内容门禁——扫描全量非草稿变更单，严禁空壳单（Phantom Ticket）")
+@click.option("--chg", "change_number", default="", help="指定校验单个变更单编号（如 CHG-PLC-2026-012）")
 @click.pass_context
 def cmd_verify(
     ctx: click.Context,
     project_id: str,
     ledger_check: bool,
+    substance_check: bool,
+    change_number: str,
 ) -> None:
-    """变更单验证（CHG-108 缺陷 3：对账门禁）
+    """变更单验证（对账门禁 + 实质内容门禁）
 
     \b
     --ledger-check: 对账门禁，检测台账与 CHG 文件的一致性
-      退出码 0 = 对账无差异（门禁通过）
-      退出码 1 = 项目不存在
-      退出码 2 = 有差异（门禁失败，需用 ledger reconcile --fix 修复）
+    --substance-check: 实质内容门禁，检测变更单是否含有空壳占位符与残缺内容
+    --chg <CHG-NUM>: 仅校验指定单号的实质内容
     """
-    if not ledger_check:
-        console.print("[yellow]请指定验证项，目前支持: --ledger-check[/yellow]")
+    if not ledger_check and not substance_check:
+        console.print("[yellow]请指定验证项，目前支持: --ledger-check, --substance-check[/yellow]")
         ctx.exit(1)
 
     from auto_pm.change.ledger_reconciler import LedgerReconciler
     from auto_pm.core.project_service import ProjectService
+    from auto_pm.change.path_resolver import scan_change_files
+    from auto_pm.domain.change.substance_checker import SubstanceChecker
+    from pathlib import Path
 
     app_ctx: AppContext = ctx.obj
     svc = ProjectService(app_ctx.workspace_root)
@@ -513,26 +520,58 @@ def cmd_verify(
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
-    reconciler = LedgerReconciler()
-    diff = reconciler.reconcile(project_path)
+    has_error = False
 
-    console.print()
-    console.print(f"[bold cyan]═══ 变更单对账门禁: {project_id} ═══[/bold cyan]")
-    console.print(f"  [cyan]结果:[/cyan] {diff.summary()}")
+    if ledger_check:
+        reconciler = LedgerReconciler()
+        diff = reconciler.reconcile(project_path)
 
-    if diff.is_clean:
-        console.print("[green]✅ 门禁通过: 台账与变更单文件一致[/green]")
-        ctx.exit(0)
-    else:
-        console.print("[red]❌ 门禁失败: 检测到差异[/red]")
-        if diff.missing_in_ledger:
-            console.print(f"  [red]台账缺失 {len(diff.missing_in_ledger)} 条: {', '.join(diff.missing_in_ledger)}[/red]")
-        if diff.orphan_in_ledger:
-            console.print(f"  [yellow]台账孤儿 {len(diff.orphan_in_ledger)} 条: {', '.join(diff.orphan_in_ledger)}[/yellow]")
-        if diff.status_mismatches:
-            console.print(f"  [red]状态不一致 {len(diff.status_mismatches)} 条[/red]")
-        console.print("[dim]提示: 运行 `auto-pm ledger reconcile <PID> --fix` 自动修复缺失行和状态不一致[/dim]")
+        console.print()
+        console.print(f"[bold cyan]═══ 变更单对账门禁: {project_id} ═══[/bold cyan]")
+        console.print(f"  [cyan]结果:[/cyan] {diff.summary()}")
+
+        if diff.is_clean:
+            console.print("[green]✅ 门禁通过: 台账与变更单文件一致[/green]")
+        else:
+            has_error = True
+            console.print("[red]❌ 门禁失败: 检测到差异[/red]")
+            if diff.missing_in_ledger:
+                console.print(f"  [red]台账缺失 {len(diff.missing_in_ledger)} 条: {', '.join(diff.missing_in_ledger)}[/red]")
+            if diff.orphan_in_ledger:
+                console.print(f"  [yellow]台账孤儿 {len(diff.orphan_in_ledger)} 条: {', '.join(diff.orphan_in_ledger)}[/yellow]")
+            if diff.status_mismatches:
+                console.print(f"  [red]状态不一致 {len(diff.status_mismatches)} 条[/red]")
+            console.print("[dim]提示: 运行 `auto-pm ledger reconcile <PID> --fix` 自动修复缺失行和状态不一致[/dim]")
+
+    if substance_check:
+        console.print()
+        console.print(f"[bold cyan]═══ 变更单实质内容门禁: {project_id} ═══[/bold cyan]")
+        chg_files = scan_change_files(project_path)
+        if change_number:
+            chg_files = [f for f in chg_files if change_number in f]
+            if not chg_files:
+                console.print(f"[red]错误: 未找到指定变更单: {change_number}[/red]")
+                ctx.exit(1)
+        substance_errors: dict[str, list[str]] = {}
+        for f in chg_files:
+            violations = SubstanceChecker.check_file(f)
+            if violations:
+                fname = Path(f).name
+                substance_errors[fname] = violations
+
+        if not substance_errors:
+            console.print(f"[green]✅ 门禁通过: 已扫描 {len(chg_files)} 份变更单，实质内容完备，0 个空壳占位符[/green]")
+        else:
+            has_error = True
+            console.print(f"[red]❌ 门禁失败: 检测到 {len(substance_errors)} 份变更单存在实质内容违规（空壳单）[/red]")
+            for fname, v_list in substance_errors.items():
+                console.print(f"  [red]{fname}:[/red]")
+                for v in v_list:
+                    console.print(f"    - {v}")
+
+    if has_error:
         ctx.exit(2)
+    ctx.exit(0)
 
 
 @change_group.command(name="transition")

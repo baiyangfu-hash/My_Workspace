@@ -22,6 +22,7 @@ tags: ["接口文档", "PLC程序"]
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 |
 |--------|----------|--------|----------|
+| V9.1.0 | 补充 FB_2001 安全回看看门狗超时报警代码 (2009) 与报警字位映射 (STD-860) | plc-electrical-engineer | 2026-09-03 |
 | V9.0.0 | 全工站 5 大 FB 升级结构体整块传递模式 (VAR_IN_OUT)，OB1 瘦身至 5 行顶级调度器 | Trae | 2026-07-26 |
 | V7.1.1 | 填写实际内容 | Trae | 2026-06-23 |
 | V1.0.0 | 初始创建 | auto-pm | 2026-06-19 |
@@ -55,6 +56,17 @@ tags: ["接口文档", "PLC程序"]
 | 方向 | 参数数 | 说明 |
 |------|--------|------|
 | VAR_IN_OUT | 1 | io_stGlobal: ST_CommonAlarm |
+
+#### 4.4.1 安全回看看门狗超时报警映射 (STD-860)
+
+FB_2001 遵循汽车级首出诊断标准 (STD-860) 与 LSP-905 编程规范，定义安全回看看门狗超时专用报警常量与全局报警字位映射：
+
+- **报警代码常量**：`ALM_CODE_SAFETY_TIMEOUT : INT := 2009;`（安全回看看门狗超时报警代码，STD-860）
+- **报警字位掩码**：`ALM_BIT_SAFETY_TIMEOUT : WORD := 16#0008;`（全局报警字 `o_wGlobalAlarmWord` 第 3 位：安全回路看门狗超时）
+- **映射逻辑与处理规则**：
+  1. 当输送机 (`i_iConveyorAlarm`)、取放料 (`i_iPickPlaceAlarm`) 或打胶送料 (`i_iFeederAlarm`) 任一工站上报报警码为 2009 时，全局报警字自动通过位或置位 `16#0008`。
+  2. 报警码 2009 参与最高优先级（数值最小）判定，若无更小报警码（如 1 急停、2~9 安全门），则赋给 `o_iCurrentAlarmCode`。
+  3. 支持上升沿触发新报警标志 `o_bNewAlarmFlag` 与 MES 报警队列去重记录。
 
 ### 4.5 FB_3001_ExternalInteraction（DJ005 基准实现：FB_ExternalDeviceInteraction）
 

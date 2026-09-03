@@ -52,12 +52,18 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-09-03 13:17:00 CHG-SCPT-2026-002 闭环归档：完成 DictionaryService 入参 sanitize_word 清洗与边界防御单测加固，pytest 13 PASS，python check PASS，实质内容与对账双门禁 100% 通过。
   - 2026-08-06 06:48:00 008 驾驶舱全面检查 SW-2026-009 项目，补齐 00~06 五大过程组与 README.md 文件。
   - 2026-08-06 06:30:00 008 驾驶舱正式接管 SW-2026-009 项目，完成标准治理文档挂载。
   - 2026-08-06 06:19:57 修复 Windows Python `.pth` 编码阻断问题，14 项自动化测试全通过。
   - 2026-08-06 05:58:45 项目初始化，完成 27 出差场景与 9 大 UI 模块开发。
 
 ## 6. Implementation Log
+- 2026-09-03 13:17:00 | skill=fullstack-engineer | mode=execution
+  - goal: DictionaryService 查询参数清洗防御与单元测试加固 (CHG-SCPT-2026-002 / AI-20260903-200923-A6B9B6B3)
+  - changed_files: src/services/dictionary_service.py, tests/test_services.py
+  - impact: 遵循 DEV-300 Google SRE 零崩溃规范，提高桌面端输入鲁棒性与异常早退保护
+  - risks: 无，单元测试 13 项全量通过
 - 2026-08-06 06:48:00 | skill=008-auto-pm | mode=5大过程组补齐
   - goal: 使用 008 驾驶舱补齐 009 项目的 5 大 PM 过程组目录与标准治理框架
   - changed_files: PM_SESSION_SW-2026-009.md, README.md, 00_项目基础信息~06_交付物 目录文档
@@ -65,7 +71,8 @@
   - risks: 无
 
 ## 8. Handoff Notes
-- current_state: 008 驾驶舱检查完成，5大过程组完全齐备
+- current_state: CHG-SCPT-2026-002 已闭环关闭，变更单实质内容 100% 完备，0 个空壳占位符
+- last_handoff: AI-20260903-200923-A6B9B6B3 (fullstack-engineer, consumed)
 - next_focus: 生成 HTML 原型文件与 PySide6 QML 界面重构
 - watchouts: 确保 009 项目保持 008 规范目录一致性
 - 代码基线 V0.1.0 [已验证]
