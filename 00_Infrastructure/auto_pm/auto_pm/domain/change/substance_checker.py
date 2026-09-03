@@ -64,12 +64,14 @@ class SubstanceChecker:
         cls,
         cr: ChangeRequest,
         target_status: str | None = None,
+        workspace_root: Path | None = None,
     ) -> list[str]:
         """检查变更单实质内容
 
         Args:
             cr: 已解析的 ChangeRequest 对象
             target_status: 目标状态（若为空则使用 cr.status）
+            workspace_root: 工作空间根目录（用于跨领域单据穿透检测）
 
         Returns:
             违规清单，空列表表示检查通过。
@@ -107,12 +109,56 @@ class SubstanceChecker:
                 if "不通过" in cr.section_10_conclusion:
                     violations.append("§10.3 验证结论包含'不通过'")
 
+            # 4. 跨领域受影响声明穿透校验
+            cross_violations = cls.check_cross_domain_links(cr, workspace_root=workspace_root)
+            if cross_violations:
+                violations.extend(cross_violations)
+
         return violations
 
     @classmethod
-    def check_file(cls, file_path: str | Path, target_status: str | None = None) -> list[str]:
+    def check_cross_domain_links(
+        cls,
+        cr: ChangeRequest,
+        workspace_root: Path | None = None,
+    ) -> list[str]:
+        """检查 §6.2 声明的跨领域关联单据物理存在性与合法性"""
+        violations: list[str] = []
+        sections = getattr(cr, "sections", {}) or {}
+        s6_text = sections.get("6", "")
+        if not s6_text:
+            return violations
+
+        ws = workspace_root or Path.cwd()
+
+        for line in s6_text.splitlines():
+            line_str = line.strip()
+            if line_str.startswith("|") and ("☑是" in line_str or "☑ 是" in line_str):
+                parts = [p.strip() for p in line_str.split("|") if p.strip()]
+                if parts:
+                    assoc_col = parts[-1]
+                    if assoc_col in ("本单", "无", "-", "N/A", "无关联变更单"):
+                        continue
+                    m = re.search(r"CHG-[A-Z0-9]+-\d{4}-\d+", assoc_col)
+                    if not m:
+                        violations.append(f"已勾选跨领域影响但未指定有效关联变更单号: '{assoc_col}'")
+                    else:
+                        target_chg_num = m.group(0)
+                        matches = list(ws.glob(f"**/{target_chg_num}.md"))
+                        if not matches:
+                            violations.append(f"跨领域声明的关联变更单在工作空间中不存在: '{target_chg_num}'")
+
+        return violations
+
+    @classmethod
+    def check_file(
+        cls,
+        file_path: str | Path,
+        target_status: str | None = None,
+        workspace_root: Path | None = None,
+    ) -> list[str]:
         """直接检查指定变更单文件（静态全量文件检查）"""
-        p = Path(file_path)
+        p = Path(file_path).resolve()
         if not p.is_file():
             return [f"变更单文件不存在: {file_path}"]
         parser = ChgParser()
@@ -121,7 +167,16 @@ class SubstanceChecker:
         except Exception as e:
             return [f"变更单文件解析失败: {e}"]
 
-        violations = cls.check_substance(cr, target_status=target_status)
+        ws = workspace_root
+        if ws is None:
+            for parent in [p] + list(p.parents):
+                if (parent / ".git").exists() or (parent / "00_Infrastructure").exists():
+                    ws = parent
+                    break
+            if ws is None:
+                ws = Path.cwd()
+
+        violations = cls.check_substance(cr, target_status=target_status, workspace_root=ws)
         status = target_status or cr.status
         if status in ("completed", "closed"):
             sections = getattr(cr, "sections", {}) or {}
