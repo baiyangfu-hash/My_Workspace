@@ -111,6 +111,7 @@ gittoken.txt
 *.sqlite3
 .auto-pm/*.db
 .auto-pm/*.db-journal
+.auto-pm/ai_context.json
 .auto-pm/index.db
 .auto-pm/data.db
 .auto-pm/cache/
