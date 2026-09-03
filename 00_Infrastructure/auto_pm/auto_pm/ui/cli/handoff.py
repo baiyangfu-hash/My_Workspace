@@ -87,6 +87,7 @@ def handoff_group() -> None:
 @click.option("--read-first", multiple=True, help="执行前必读文件，可重复")
 @click.option("--request-id", default="", help="可选的幂等请求编号")
 @click.option("--change-id", default="", help="绑定的变更单编号（如 CHG-PLC-2026-012）")
+@click.option("--decision-id", default="", help="绑定的阶段 1 审批决策包编号（如 DEC-20260903-XXXX）")
 @click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
 @click.pass_context
 def create_handoff(
@@ -100,6 +101,7 @@ def create_handoff(
     read_first: tuple[str, ...],
     request_id: str,
     change_id: str,
+    decision_id: str,
     as_json: bool,
 ) -> None:
     """创建交接请求，默认状态为 pending。"""
@@ -115,6 +117,7 @@ def create_handoff(
             read_first=list(read_first),
             request_id=request_id,
             change_id=change_id,
+            decision_id=decision_id,
         )
     except HandoffError as error:
         _handle_error(error)

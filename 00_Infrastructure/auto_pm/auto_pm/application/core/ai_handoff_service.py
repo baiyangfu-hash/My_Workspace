@@ -111,6 +111,7 @@ class AiHandoffService:
         read_first: list[str] | None = None,
         request_id: str = "",
         change_id: str = "",
+        decision_id: str = "",
         skill_context: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Create a pending request, or return the same request idempotently."""
@@ -132,6 +133,26 @@ class AiHandoffService:
         if change_id:
             context["change_id"] = change_id
 
+        if decision_id:
+            from auto_pm.domain.change.decision_service import DecisionError, DecisionService
+            try:
+                dec_svc = DecisionService(self._workspace_root)
+                dec = dec_svc.get_decision(decision_id)
+                if dec.project_id and dec.project_id != project_id:
+                    raise HandoffValidationError(
+                        f"决策包项目编号不匹配: 期望 {project_id}，实际 {dec.project_id}"
+                    )
+                if change_id and dec.change_id != change_id:
+                    raise HandoffValidationError(
+                        f"决策包关联变更单不匹配: 期望 {change_id}，实际 {dec.change_id}"
+                    )
+                context["decision_id"] = decision_id
+                context["approved_scope"] = dec.approved_scope
+                context["approved_files"] = dec.approved_files
+                context["decision_conclusion"] = dec.decision_conclusion
+            except DecisionError as e:
+                raise HandoffValidationError(f"决策包验证失败: {e}") from e
+
         payload: dict[str, Any] = {
             "schema_version": self.SCHEMA_VERSION,
             "request_id": resolved_request_id,
@@ -147,6 +168,7 @@ class AiHandoffService:
             "mode": mode,
             "goal": goal,
             "change_id": change_id,
+            "decision_id": decision_id,
             "generated_at": generated_at,
             "created_by": "pm-workflow",
             "skill_context": context,
