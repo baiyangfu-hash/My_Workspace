@@ -27,7 +27,8 @@ Rectangle {
     property string domainFilter: "all"
     property string searchText: ""
     property string viewMode: "split"  // "split" | "ledger"
-    property var pendingHandoffs: []
+    property var activeHandoffs: []
+    property var completedHandoffs: []
 
     // ── 信号 ────────────────────────────────────────────
     signal backToProjectList()
@@ -51,17 +52,35 @@ Rectangle {
         applyFilters(changes)
     }
 
-    function refreshPendingHandoffs() {
+    function refreshHandoffs() {
         if (typeof aiContextBridge === "undefined" || aiContextBridge === null) {
-            pendingHandoffs = []
+            activeHandoffs = []
+            completedHandoffs = []
             return
         }
-        pendingHandoffs = aiContextBridge.listPendingHandoffs(root.selectedProjectId) || []
+        activeHandoffs = aiContextBridge.listActiveHandoffs(root.selectedProjectId) || []
+        completedHandoffs = aiContextBridge.listCompletedHandoffs(root.selectedProjectId) || []
+    }
+
+    function handoffQueueSummary() {
+        var counts = {}
+        for (var i = 0; i < activeHandoffs.length; i++) {
+            var status = activeHandoffs[i].status || "pending"
+            counts[status] = (counts[status] || 0) + 1
+        }
+        var labels = []
+        if (counts.pending) labels.push("待领取 " + counts.pending)
+        if (counts.claimed) labels.push("已领取 " + counts.claimed)
+        if (counts.in_progress) labels.push("执行中 " + counts.in_progress)
+        if (counts.completed) labels.push("待收口 " + counts.completed)
+        if (counts.failed) labels.push("失败 " + counts.failed)
+        if (counts.expired) labels.push("超时 " + counts.expired)
+        return labels.length > 0 ? labels.join(" / ") : "无活跃交接"
     }
 
     function preparePmClosure() {
-        if (pendingHandoffs.length === 0 || typeof aiContextBridge === "undefined") return
-        var handoff = pendingHandoffs[0]
+        if (completedHandoffs.length === 0 || typeof aiContextBridge === "undefined") return
+        var handoff = completedHandoffs[0]
         var detail = root.selectedChangeDetail || {}
         var result = aiContextBridge.writePmClosureContext(
             handoff.request_id,
@@ -122,7 +141,7 @@ Rectangle {
         root.selectedChangeNumber = changeNumber
         root.selectedProjectId = projectId || ""
         root.selectedChangeDetail = changeBridge.getChangeRequest(changeNumber, root.selectedProjectId)
-        root.refreshPendingHandoffs()
+        root.refreshHandoffs()
         console.log("[QML] ChangeCenterView: 加载变更详情 " + changeNumber + " (项目: " + root.selectedProjectId + ") →" + (Object.keys(root.selectedChangeDetail).length) + " 字段")
     }
 
@@ -207,16 +226,24 @@ Rectangle {
                             changeBridge.refreshChanges()
                         }
                         root.loadChanges()
-                        root.refreshPendingHandoffs()
+                        root.refreshHandoffs()
                     }
                 }
 
                 PrimaryButton {
-                    text: "待 PM 收口 (" + root.pendingHandoffs.length + ")"
-                    type: root.pendingHandoffs.length > 0 ? "primary" : "ghost"
+                    text: "待 PM 收口 (" + root.completedHandoffs.length + ")"
+                    type: root.completedHandoffs.length > 0 ? "primary" : "ghost"
                     Layout.preferredWidth: 120
-                    enabled: root.pendingHandoffs.length > 0
+                    enabled: root.completedHandoffs.length > 0
                     onClicked: root.preparePmClosure()
+                }
+
+                Text {
+                    text: root.handoffQueueSummary()
+                    font.pixelSize: Theme.fontSizeXs
+                    color: Theme.textSecondary
+                    Layout.preferredWidth: 160
+                    elide: Text.ElideRight
                 }
 
                 PrimaryButton {
@@ -460,6 +487,6 @@ Rectangle {
     // ── 初始加载 ────────────────────────────────────────
     Component.onCompleted: {
         loadChanges()
-        refreshPendingHandoffs()
+        refreshHandoffs()
     }
 }

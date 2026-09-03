@@ -6,8 +6,10 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,33 +34,30 @@ def can_auto_fix(result: CheckResult) -> bool:
     return result.check_id in _AUTO_FIXABLE_IDS
 
 
-import json
-import time
-
 class BoundedHealingTracker:
     def __init__(self, workspace: Path):
         pid = workspace.name.split('_')[0] if '_' in workspace.name else 'UNKNOWN'
         self.tracker_file = workspace / ".auto-pm" / f"retry_tracker_{pid}.json"
-        
+
     def check_and_record(self) -> bool:
         if not self.tracker_file.parent.exists():
             self.tracker_file.parent.mkdir(parents=True, exist_ok=True)
-            
+
         data = {"retries": 0, "last_reset": time.time()}
         if self.tracker_file.exists():
             try:
                 data = json.loads(self.tracker_file.read_text(encoding="utf-8"))
             except Exception:
                 pass
-                
+
         now = time.time()
         # Reset tracker every 24 hours
         if now - data.get("last_reset", 0) > 86400:
             data = {"retries": 0, "last_reset": now}
-            
+
         if data["retries"] >= 3:
             return False # Exceeded 3 retries
-            
+
         data["retries"] += 1
         self.tracker_file.write_text(json.dumps(data), encoding="utf-8")
         return True
@@ -79,21 +78,21 @@ class FixService:
         fixable = [r for r in results if can_auto_fix(r)]
         if not fixable:
             return fix_results
-            
+
         if not dry_run:
             tracker = BoundedHealingTracker(self.workspace)
             if not tracker.check_and_record():
                 log.warning("Subagent bounded healing limit reached (>=3 retries). Escaping infinite loop.")
                 return fix_results
-                
+
         for result in fixable:
             handler = getattr(self, f"_fix_{result.check_id.replace('-', '_').lower()}", None)
             if handler:
                 fix_results.append(handler(result, dry_run))
-                
+
         if not dry_run and any(fr.applied for fr in fix_results):
             self.registry.save()
-            
+
         return fix_results
 
     def _fix_shc_002(self, result: CheckResult, dry_run: bool) -> FixResult:
@@ -138,7 +137,7 @@ class FixService:
             )
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except (OSError, UnicodeDecodeError) as e:
             return FixResult(check_id=result.check_id, applied=False, message=f"读取文件失败: {e}")
@@ -202,7 +201,7 @@ class FixService:
             return FixResult(check_id=result.check_id, applied=False, message=f"规范 {spec_num} 不在注册表中")
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except (OSError, UnicodeDecodeError) as e:
             return FixResult(check_id=result.check_id, applied=False, message=f"读取文件失败: {e}")
@@ -276,7 +275,7 @@ class FixService:
         if not file_path.exists() or not new_canonical_path:
             return
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except (OSError, UnicodeDecodeError):
             return

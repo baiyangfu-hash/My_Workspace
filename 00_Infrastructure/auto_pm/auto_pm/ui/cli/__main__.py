@@ -59,6 +59,7 @@ from auto_pm.cli.gui import gui_command  # noqa: E402
 from auto_pm.cli.handoff import handoff_group  # noqa: E402
 from auto_pm.cli.ledger import ledger_group  # noqa: E402
 from auto_pm.cli.plc import plc_group  # noqa: E402
+from auto_pm.cli.pm import pm_group  # noqa: E402
 from auto_pm.cli.project import project_group  # noqa: E402
 from auto_pm.cli.prototype import prototype_cmd  # noqa: E402
 from auto_pm.cli.python import python_group  # noqa: E402
@@ -106,6 +107,7 @@ cli.add_command(template_group)
 cli.add_command(vartable_group)
 cli.add_command(gui_command)
 cli.add_command(handoff_group)
+cli.add_command(pm_group)
 cli.add_command(pm_session_group)
 cli.add_command(ledger_group)
 cli.add_command(constraint_group)

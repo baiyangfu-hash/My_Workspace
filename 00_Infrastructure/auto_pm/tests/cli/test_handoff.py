@@ -291,11 +291,14 @@ def test_handoff_queue_snapshot_is_read_only_and_aggregates_statuses(tmp_path: P
     assert payload["total"] == 2
     assert payload["status_counts"] == {
         "pending": 1,
+        "claimed": 0,
         "in_progress": 0,
         "completed": 0,
         "failed": 0,
+        "expired": 0,
         "consumed": 1,
     }
+    assert payload["lifecycle_state_counts"] == {"awaiting_pickup": 1, "consumed": 1}
     assert len(payload["latest"]) == 1
 
     shown = runner.invoke(
@@ -315,3 +318,106 @@ def test_handoff_queue_snapshot_is_read_only_and_aggregates_statuses(tmp_path: P
     service = AiHandoffService(tmp_path)
     snapshot = service.queue_snapshot("SW-2026-008")
     assert snapshot["status_counts"]["pending"] == 1
+
+
+def test_handoff_cli_execution_lifecycle_requires_lease_owner(tmp_path: Path) -> None:
+    runner = CliRunner()
+    request_id = "AI-20260903-LIFECYCLE"
+    created = runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path), "handoff", "create", "--pid", "SW-2026-008",
+            "--to", "fullstack-engineer", "--summary", "执行生命周期", "--request-id", request_id,
+        ],
+    )
+    assert created.exit_code == 0, created.output
+
+    claimed = runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "handoff", "claim", request_id, "--executor-id", "codex-worker"],
+    )
+    assert claimed.exit_code == 0, claimed.output
+
+    rejected = runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "handoff", "start", request_id, "--executor-id", "other-worker"],
+    )
+    assert rejected.exit_code == 1
+    assert "租约持有者" in rejected.output
+
+    started = runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "handoff", "start", request_id, "--executor-id", "codex-worker"],
+    )
+    assert started.exit_code == 0, started.output
+
+    result_file = tmp_path / "handoff-result.json"
+    result_file.write_text(
+        json.dumps({"summary": "完成", "verification": {"test_result": "1 passed"}}),
+        encoding="utf-8",
+    )
+    submitted = runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path), "handoff", "result-submit", request_id,
+            "--executor-id", "codex-worker", "--result-file", str(result_file), "--json-output",
+        ],
+    )
+    assert submitted.exit_code == 0, submitted.output
+    assert json.loads(submitted.output)["status"] == "completed"
+    queue = runner.invoke(
+        cli,
+        ["-w", str(tmp_path), "handoff", "queue", "--pid", "SW-2026-008", "--json-output"],
+    )
+    assert queue.exit_code == 0, queue.output
+    assert json.loads(queue.output)["total"] == 1
+
+
+def test_handoff_cli_requeue_requires_pm_reason_and_preserves_history(tmp_path: Path) -> None:
+    runner = CliRunner()
+    request_id = "AI-20260903-REQUEUE"
+    created = runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path), "handoff", "create", "--pid", "SW-2026-008",
+            "--to", "fullstack-engineer", "--summary", "重新派发测试", "--request-id", request_id,
+        ],
+    )
+    assert created.exit_code == 0, created.output
+    claimed = runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path), "handoff", "claim", request_id, "--executor-id", "offline-worker",
+            "--lease-seconds", "60",
+        ],
+    )
+    assert claimed.exit_code == 0, claimed.output
+
+    service = AiHandoffService(tmp_path)
+    request = service.get_request(request_id)
+    assert request is not None
+    request["status"] = "expired"
+    service._write_atomic(service._find_request_path(request_id), request)
+
+    requeued = runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path), "handoff", "requeue", request_id, "--pm-id", "pm-workflow",
+            "--reason", "executor lease expired", "--json-output",
+        ],
+    )
+    assert requeued.exit_code == 0, requeued.output
+    payload = json.loads(requeued.output)
+    assert payload["status"] == "pending"
+    assert payload["dispatch"]["state"] == "awaiting_pickup"
+    assert payload["execution"]["requeue_history"][-1]["pm_id"] == "pm-workflow"
+
+    rejected = runner.invoke(
+        cli,
+        [
+            "-w", str(tmp_path), "handoff", "requeue", request_id, "--pm-id", "pm-workflow",
+            "--reason", "should reject active pending request",
+        ],
+    )
+    assert rejected.exit_code == 1
+    assert "仅允许重新派发" in rejected.output

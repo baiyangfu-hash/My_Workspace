@@ -15,7 +15,7 @@ import time
 import uuid
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 
@@ -42,8 +42,12 @@ class AiHandoffService:
     SCHEMA_VERSION = "handoff.v1"
     REQUIRED_FIELDS = ("request_id", "project_id", "executor_skill", "summary")
     ALLOWED_EXECUTOR_SKILLS = frozenset({"fullstack-engineer", "plc-electrical-engineer"})
-    ALLOWED_STATUSES = frozenset({"pending", "in_progress", "completed", "failed", "consumed"})
-    STATUS_ORDER = ("pending", "in_progress", "completed", "failed", "consumed")
+    ALLOWED_STATUSES = frozenset(
+        {"pending", "claimed", "in_progress", "completed", "failed", "expired", "consumed"}
+    )
+    STATUS_ORDER = ("pending", "claimed", "in_progress", "completed", "failed", "expired", "consumed")
+    ACTIVE_STATUSES = frozenset({"pending", "claimed", "in_progress", "completed"})
+    DEFAULT_LEASE_SECONDS = 900
     REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$")
     LOCK_STALE_SECONDS = 300
     RESULT_FIELDS = (
@@ -131,6 +135,11 @@ class AiHandoffService:
             "executor_skill": executor_skill,
             "summary": summary,
             "status": "pending",
+            "lifecycle_version": "handoff.lifecycle.v2",
+            "dispatch": {
+                "adapter": "manual",
+                "state": "awaiting_pickup",
+            },
             "mode": mode,
             "goal": goal,
             "generated_at": generated_at,
@@ -167,6 +176,14 @@ class AiHandoffService:
         """Return valid pending handoffs, newest first, optionally by project."""
         return self.list_requests(project_id=project_id, status="pending")
 
+    def list_active(self, project_id: str = "") -> list[dict[str, Any]]:
+        """Return requests that still need executor or PM attention."""
+        return [
+            request
+            for request in self.list_requests(project_id=project_id)
+            if request.get("status") in self.ACTIVE_STATUSES
+        ]
+
     def list_requests(
         self,
         project_id: str = "",
@@ -180,6 +197,9 @@ class AiHandoffService:
 
         handoffs: list[dict[str, Any]] = []
         for path in sorted(self.inbox_dir.glob("*.json")):
+            # Executor receipts are evidence sidecars, never queue entries.
+            if path.name.endswith(".result.json"):
+                continue
             payload = self._read_valid(path)
             if payload is None:
                 continue
@@ -202,12 +222,15 @@ class AiHandoffService:
 
         requests = self.list_requests(project_id=project_id)
         counts = dict.fromkeys(self.STATUS_ORDER, 0)
+        lifecycle_counts: dict[str, int] = {}
         failure_by_request: dict[str, int] = {}
         failure_total = 0
         for request in requests:
             status = str(request.get("status", "pending"))
             if status in counts:
                 counts[status] += 1
+            lifecycle = self._lifecycle_state(request)
+            lifecycle_counts[lifecycle] = lifecycle_counts.get(lifecycle, 0) + 1
             request_id = str(request.get("request_id", ""))
             events = self.list_failure_events(request_id)
             if events:
@@ -221,12 +244,167 @@ class AiHandoffService:
             "read_only": True,
             "total": len(requests),
             "status_counts": counts,
+            "lifecycle_state_counts": dict(sorted(lifecycle_counts.items())),
             "failure_events": {
                 "total": failure_total,
                 "by_request": failure_by_request,
             },
             "latest": requests[:limit],
         }
+
+    def claim_request(
+        self,
+        request_id: str,
+        *,
+        executor_id: str,
+        adapter: str = "manual",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+    ) -> dict[str, Any]:
+        """Claim a pending request with a renewable executor lease."""
+        self._validate_executor(executor_id, adapter, lease_seconds)
+        return self._transition_execution(
+            request_id,
+            executor_id=executor_id,
+            allowed_statuses={"pending"},
+            next_status="claimed",
+            adapter=adapter,
+            lease_seconds=lease_seconds,
+            event="claimed",
+        )
+
+    def start_request(self, request_id: str, *, executor_id: str) -> dict[str, Any]:
+        """Mark a claimed request as actively executing."""
+        return self._transition_execution(
+            request_id,
+            executor_id=executor_id,
+            allowed_statuses={"claimed"},
+            next_status="in_progress",
+            event="started",
+        )
+
+    def heartbeat_request(
+        self,
+        request_id: str,
+        *,
+        executor_id: str,
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+    ) -> dict[str, Any]:
+        """Renew the lease for its owner without changing execution status."""
+        self._validate_executor(executor_id, "manual", lease_seconds)
+        return self._transition_execution(
+            request_id,
+            executor_id=executor_id,
+            allowed_statuses={"claimed", "in_progress"},
+            next_status="",
+            lease_seconds=lease_seconds,
+            event="heartbeat",
+        )
+
+    def submit_result(
+        self,
+        request_id: str,
+        *,
+        executor_id: str,
+        result: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Persist a verified executor result before PM consumes the handoff."""
+        self._validate_request_id(request_id)
+        with self._transaction_lock():
+            path = self._find_request_path(request_id)
+            current = self._read_valid(path)
+            if current is None:
+                raise HandoffNotFoundError(f"找不到有效 handoff: {request_id}")
+            self._require_executor_owner(current, executor_id, {"in_progress"})
+            merged = self._merge_result(current, result)
+            self._validate_closure(merged)
+            now = datetime.now(UTC).isoformat()
+            merged["status"] = "completed"
+            merged["result_submitted_at"] = now
+            execution = dict(merged.get("execution") or {})
+            execution.update({"last_event": "result_submitted", "last_heartbeat_at": now})
+            merged["execution"] = execution
+            self._write_atomic(path, merged)
+            self._write_result_atomic(request_id, result)
+        merged["file"] = str(path)
+        return merged
+
+    def fail_request(
+        self,
+        request_id: str,
+        *,
+        executor_id: str,
+        reason: str,
+    ) -> dict[str, Any]:
+        """Record an executor-owned failure without consuming the request."""
+        if not reason.strip():
+            raise HandoffValidationError("失败原因不能为空")
+        return self._transition_execution(
+            request_id,
+            executor_id=executor_id,
+            allowed_statuses={"claimed", "in_progress"},
+            next_status="failed",
+            event="failed",
+            reason=reason,
+        )
+
+    def expire_stale_requests(self, project_id: str = "") -> list[dict[str, Any]]:
+        """Mark elapsed execution leases as expired and return affected requests."""
+        expired: list[dict[str, Any]] = []
+        with self._transaction_lock():
+            for request in self.list_requests(project_id=project_id):
+                if request.get("status") not in {"claimed", "in_progress"} or not self._lease_expired(request):
+                    continue
+                path = self._find_request_path(str(request["request_id"]))
+                request["status"] = "expired"
+                execution = dict(request.get("execution") or {})
+                execution["last_event"] = "timeout"
+                execution["expired_at"] = datetime.now(UTC).isoformat()
+                request["execution"] = execution
+                self._write_atomic(path, request)
+                request["file"] = str(path)
+                expired.append(request)
+        return expired
+
+    def requeue_request(self, request_id: str, *, pm_id: str, reason: str) -> dict[str, Any]:
+        """Return a stale or failed request to PM-controlled pending dispatch."""
+        self._validate_request_id(request_id)
+        if not pm_id.strip():
+            raise HandoffValidationError("pm_id 不能为空")
+        if not reason.strip():
+            raise HandoffValidationError("重新派发原因不能为空")
+
+        with self._transaction_lock():
+            path = self._find_request_path(request_id)
+            current = self._read_valid(path)
+            if current is None:
+                raise HandoffNotFoundError(f"找不到有效 handoff: {request_id}")
+            status = str(current.get("status", "pending"))
+            can_requeue = status in {"expired", "failed"} or (
+                status in {"claimed", "in_progress"} and self._lease_expired(current)
+            )
+            if not can_requeue:
+                raise HandoffConflictError("仅允许重新派发 failed、expired 或租约已过期的请求")
+
+            now = datetime.now(UTC).isoformat()
+            execution = dict(current.get("execution") or {})
+            history = list(execution.get("requeue_history") or [])
+            history.append(
+                {
+                    "at": now,
+                    "pm_id": pm_id.strip(),
+                    "reason": reason.strip(),
+                    "previous_status": status,
+                    "previous_executor_id": execution.get("executor_id", ""),
+                }
+            )
+            execution.update({"last_event": "requeued", "requeue_history": history})
+            execution.pop("lease_expires_at", None)
+            current["status"] = "pending"
+            current["dispatch"] = {"adapter": "manual", "state": "awaiting_pickup"}
+            current["execution"] = execution
+            self._write_atomic(path, current)
+        current["file"] = str(path)
+        return current
 
     def get_pending(self, request_id: str) -> dict[str, Any] | None:
         """Return one valid pending handoff by request id."""
@@ -415,6 +593,106 @@ class AiHandoffService:
 
         return {"valid": len(warnings) == 0, "warnings": warnings}
 
+    def _transition_execution(
+        self,
+        request_id: str,
+        *,
+        executor_id: str,
+        allowed_statuses: set[str],
+        next_status: str,
+        adapter: str = "",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        event: str,
+        reason: str = "",
+    ) -> dict[str, Any]:
+        self._validate_request_id(request_id)
+        if not executor_id.strip():
+            raise HandoffValidationError("executor_id 不能为空")
+        with self._transaction_lock():
+            path = self._find_request_path(request_id)
+            current = self._read_valid(path)
+            if current is None:
+                raise HandoffNotFoundError(f"找不到有效 handoff: {request_id}")
+            self._require_executor_owner(current, executor_id, allowed_statuses, allow_pending=event == "claimed")
+            now = datetime.now(UTC)
+            execution = dict(current.get("execution") or {})
+            if event == "claimed":
+                execution.update(
+                    {
+                        "executor_id": executor_id,
+                        "adapter": adapter,
+                        "claimed_at": now.isoformat(),
+                    }
+                )
+                current["dispatch"] = {"adapter": adapter, "state": "claimed"}
+            if next_status:
+                current["status"] = next_status
+            if event in {"claimed", "started", "heartbeat"}:
+                execution["lease_expires_at"] = (
+                    now + timedelta(seconds=lease_seconds)
+                ).isoformat()
+                execution["last_heartbeat_at"] = now.isoformat()
+            execution["last_event"] = event
+            if reason:
+                execution["failure_reason"] = reason.strip()
+                execution["failed_at"] = now.isoformat()
+            current["execution"] = execution
+            self._write_atomic(path, current)
+        current["file"] = str(path)
+        return current
+
+    def _require_executor_owner(
+        self,
+        payload: Mapping[str, Any],
+        executor_id: str,
+        allowed_statuses: set[str],
+        *,
+        allow_pending: bool = False,
+    ) -> None:
+        status = str(payload.get("status", "pending"))
+        if status not in allowed_statuses:
+            allowed = "/".join(sorted(allowed_statuses))
+            raise HandoffConflictError(f"当前状态 {status} 不允许此操作，要求 {allowed}")
+        if allow_pending:
+            return
+        if self._lease_expired(payload):
+            raise HandoffConflictError("执行租约已过期，必须由 PM 重新派发")
+        execution = payload.get("execution")
+        owner = execution.get("executor_id", "") if isinstance(execution, Mapping) else ""
+        if owner != executor_id:
+            raise HandoffConflictError("执行者不是当前租约持有者")
+
+    @staticmethod
+    def _lease_expired(payload: Mapping[str, Any]) -> bool:
+        execution = payload.get("execution")
+        expires_at = execution.get("lease_expires_at", "") if isinstance(execution, Mapping) else ""
+        if not expires_at:
+            return False
+        try:
+            return datetime.fromisoformat(str(expires_at)).astimezone(UTC) <= datetime.now(UTC)
+        except ValueError:
+            return True
+
+    @classmethod
+    def _lifecycle_state(cls, payload: Mapping[str, Any]) -> str:
+        status = str(payload.get("status", "pending"))
+        if status == "pending":
+            return "awaiting_pickup"
+        if status in {"claimed", "in_progress"} and cls._lease_expired(payload):
+            return "stale"
+        if status == "expired":
+            return "stale"
+        return status
+
+    @staticmethod
+    def _validate_executor(executor_id: str, adapter: str, lease_seconds: int) -> None:
+        if not executor_id.strip():
+            raise HandoffValidationError("executor_id 不能为空")
+        if not adapter.strip():
+            raise HandoffValidationError("adapter 不能为空")
+        if lease_seconds < 60 or lease_seconds > 86_400:
+            raise HandoffValidationError("lease_seconds 必须在 60 到 86400 之间")
+
     def _read_valid(self, path: Path) -> dict[str, Any] | None:
         try:
             raw = path.read_text(encoding="utf-8", errors="replace")
@@ -581,6 +859,8 @@ class AiHandoffService:
         if path.is_file():
             return path
         for candidate in sorted(self.inbox_dir.glob("*.json")):
+            if candidate.name.endswith(".result.json"):
+                continue
             payload = self._read_valid(candidate)
             if payload is not None and payload.get("request_id") == request_id:
                 return candidate
@@ -673,6 +953,28 @@ class AiHandoffService:
                 newline="\n",
             ) as stream:
                 json.dump(payload, stream, ensure_ascii=False, indent=2)
+                stream.write("\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temp_path, path)
+        finally:
+            try:
+                temp_path.unlink()
+            except FileNotFoundError:
+                pass
+
+    def _write_result_atomic(self, request_id: str, result: Mapping[str, Any]) -> None:
+        """Persist the executor receipt next to the request for PM preflight."""
+        path = self.inbox_dir / f"{request_id}.result.json"
+        temp_path = self.inbox_dir / f".{path.name}.{uuid.uuid4().hex}.tmp"
+        try:
+            with temp_path.open(
+                "w",
+                encoding="utf-8",
+                errors="replace",
+                newline="\n",
+            ) as stream:
+                json.dump(dict(result), stream, ensure_ascii=False, indent=2)
                 stream.write("\n")
                 stream.flush()
                 os.fsync(stream.fileno())

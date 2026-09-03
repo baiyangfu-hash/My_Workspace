@@ -184,6 +184,10 @@ def queue_handoffs(ctx: click.Context, project_id: str, limit: int, as_json: boo
     click.echo(f"总请求数: {payload['total']}")
     counts = payload["status_counts"]
     click.echo("状态统计: " + " | ".join(f"{status}={counts[status]}" for status in AiHandoffService.STATUS_ORDER))
+    lifecycle_counts = payload["lifecycle_state_counts"]
+    click.echo(
+        "执行态: " + " | ".join(f"{state}={count}" for state, count in lifecycle_counts.items())
+    )
     failures = payload["failure_events"]
     click.echo(f"失败事件: {failures['total']}")
     latest = payload["latest"]
@@ -215,6 +219,194 @@ def show_handoff(ctx: click.Context, request_id: str, as_json: bool) -> None:
         _json_output(payload)
     else:
         click.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+
+
+@handoff_group.command(name="claim")
+@click.argument("request_id")
+@click.option("--executor-id", required=True, help="领取任务的执行者唯一标识")
+@click.option("--adapter", default="manual", show_default=True, help="执行器适配器名称")
+@click.option(
+    "--lease-seconds",
+    type=click.IntRange(60, 86_400),
+    default=AiHandoffService.DEFAULT_LEASE_SECONDS,
+    show_default=True,
+    help="执行租约有效期；到期后必须由 PM 重新派发",
+)
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def claim_handoff(
+    ctx: click.Context,
+    request_id: str,
+    executor_id: str,
+    adapter: str,
+    lease_seconds: int,
+    as_json: bool,
+) -> None:
+    """领取一个待执行 handoff；manual 只表示可领取，不代表启动 IDE。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.claim_request(
+            request_id,
+            executor_id=executor_id,
+            adapter=adapter,
+            lease_seconds=lease_seconds,
+        )
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"已领取 handoff: {request_id} | 租约持有者: {executor_id}")
+
+
+@handoff_group.command(name="start")
+@click.argument("request_id")
+@click.option("--executor-id", required=True, help="租约持有者标识")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def start_handoff(ctx: click.Context, request_id: str, executor_id: str, as_json: bool) -> None:
+    """将已领取 handoff 标记为执行中。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.start_request(request_id, executor_id=executor_id)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"已启动 handoff: {request_id}")
+
+
+@handoff_group.command(name="heartbeat")
+@click.argument("request_id")
+@click.option("--executor-id", required=True, help="租约持有者标识")
+@click.option(
+    "--lease-seconds",
+    type=click.IntRange(60, 86_400),
+    default=AiHandoffService.DEFAULT_LEASE_SECONDS,
+    show_default=True,
+    help="续租时长",
+)
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def heartbeat_handoff(
+    ctx: click.Context,
+    request_id: str,
+    executor_id: str,
+    lease_seconds: int,
+    as_json: bool,
+) -> None:
+    """续租执行 handoff，防止工作队列将其判定为失联。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.heartbeat_request(
+            request_id,
+            executor_id=executor_id,
+            lease_seconds=lease_seconds,
+        )
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"心跳已更新: {request_id}")
+
+
+@handoff_group.command(name="result-submit")
+@click.argument("request_id")
+@click.option("--executor-id", required=True, help="租约持有者标识")
+@click.option("--result-file", required=True, help="执行技能写入的 handoff_result JSON 文件")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def submit_handoff_result(
+    ctx: click.Context,
+    request_id: str,
+    executor_id: str,
+    result_file: str,
+    as_json: bool,
+) -> None:
+    """提交执行回执；成功后仅 PM 可调用 close 消费结果。"""
+    root = _workspace(ctx)
+    service = AiHandoffService(root)
+    try:
+        payload = service.submit_result(
+            request_id,
+            executor_id=executor_id,
+            result=_load_result_file(root, result_file),
+        )
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"执行回执已提交: {request_id}")
+
+
+@handoff_group.command(name="fail")
+@click.argument("request_id")
+@click.option("--executor-id", required=True, help="租约持有者标识")
+@click.option("--reason", required=True, help="失败原因")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def fail_handoff(
+    ctx: click.Context,
+    request_id: str,
+    executor_id: str,
+    reason: str,
+    as_json: bool,
+) -> None:
+    """由租约持有者报告执行失败，保留请求供 PM 处理。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.fail_request(request_id, executor_id=executor_id, reason=reason)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"执行失败已记录: {request_id}")
+
+
+@handoff_group.command(name="timeout")
+@click.option("--pid", "project_id", default="", help="按项目编号过滤")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def timeout_handoffs(ctx: click.Context, project_id: str, as_json: bool) -> None:
+    """将租约到期的 claimed/in_progress 请求显式标记为 expired。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.expire_stale_requests(project_id)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"已标记超时请求: {len(payload)}")
+
+
+@handoff_group.command(name="requeue")
+@click.argument("request_id")
+@click.option("--pm-id", required=True, help="执行重新派发的 PM 标识")
+@click.option("--reason", required=True, help="重新派发原因")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def requeue_handoff(
+    ctx: click.Context,
+    request_id: str,
+    pm_id: str,
+    reason: str,
+    as_json: bool,
+) -> None:
+    """由 PM 显式将失联或失败请求重新置为待领取。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.requeue_request(request_id, pm_id=pm_id, reason=reason)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"已由 PM 重新派发 handoff: {request_id}")
 
 
 @handoff_group.command(name="preflight")

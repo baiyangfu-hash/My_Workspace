@@ -24,11 +24,11 @@ for _sub in ("domain", "infrastructure", "application", "ui"):
         __path__.append(_sub_path)
 
 # 导入 5 大标准分层
-import auto_pm.application as application
-import auto_pm.contracts as contracts
-import auto_pm.domain as domain
-import auto_pm.infrastructure as infrastructure
-import auto_pm.ui as ui
+import auto_pm.application as application  # noqa: E402 - requires __path__ extension above
+import auto_pm.contracts as contracts  # noqa: E402 - requires __path__ extension above
+import auto_pm.domain as domain  # noqa: E402 - requires __path__ extension above
+import auto_pm.infrastructure as infrastructure  # noqa: E402 - requires __path__ extension above
+import auto_pm.ui as ui  # noqa: E402 - requires __path__ extension above
 
 __all__ = [
     "__app_name__",

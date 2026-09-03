@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import click
 from rich.console import Console
@@ -550,7 +551,7 @@ def cmd_lint(
         console.print(f"[red]错误: 找不到 spec_registry.json: {registry_path}[/red]")
         raise SystemExit(1)
 
-    registry: dict = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry: dict[str, Any] = json.loads(registry_path.read_text(encoding="utf-8"))
     run_all = "all" in rule
     issues: list[dict[str, str]] = []
 
@@ -578,7 +579,7 @@ def cmd_lint(
         ]
         registered_paths: set[Path] = set()
         for _spec_id, spec in _iter_registry_specs(registry):
-            cp = spec.get("canonical_path", "")
+            cp = str(spec.get("canonical_path", ""))
             if cp:
                 registered_paths.add((ws / cp).resolve())
 
@@ -603,7 +604,7 @@ def cmd_lint(
     # ── LINT-003: path_drift ──────────────────────────────────────────────
     if run_all or "path_drift" in rule:
         for spec_id, spec in _iter_registry_specs(registry):
-            cp = spec.get("canonical_path", "")
+            cp = str(spec.get("canonical_path", ""))
             if not cp:
                 continue
             full_path = (ws / cp).resolve()
@@ -625,7 +626,7 @@ def cmd_lint(
         field_aliases = {"spec_id": {"spec_id", "id"}, "title": {"title", "name"}, "lifecycle": {"lifecycle", "status"}}
 
         for spec_id, spec in _iter_registry_specs(registry):
-            cp = spec.get("canonical_path", "")
+            cp = str(spec.get("canonical_path", ""))
             if not cp:
                 continue
             if _should_skip_schema_mismatch(spec):

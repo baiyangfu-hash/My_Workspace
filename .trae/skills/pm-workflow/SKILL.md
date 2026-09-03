@@ -10,6 +10,7 @@ description: "统一项目管理主入口，仅保留核心流转法则与 auto_
 ## 核心行动纲领
 
 1. **Step 0 代码基先行 (Codebase First & Zero-Stupid-Questions)**：
+   - **冷启动硬入口**：处理已有项目时，先执行 `python -m auto_pm -w "<ws>" pm resume <PID> --json`。只消费其 `read_set` 中最多 3 个证据；仅在 `expansion_triggers` 命中时才允许 Glob/Grep 扩展检索。正式阶段 1 方案必须引用 `evidence_id` 与 `next_legal_action`；
    - **代码盲问红线**：严禁在未检索代码库的情况下直接向用户提问。凡可在代码库（`.scl` / `.py` / `.plc.json` / `pyproject.toml` / `INT.md` / `VAR.md` / DTO）中读取到的参数、变量名与现有逻辑，**绝对禁止向用户发问**；
    - **简单任务**：直接使用 `grep_search` / `find_by_name` / `view_file` 工具主动检索目标工程代码与配置；
    - **复杂领域任务**：使用 `handoff create` 创建 `handoff.v1` 交接包，再由目标技能执行 Grooming 预研并写回结果；
@@ -21,6 +22,7 @@ description: "统一项目管理主入口，仅保留核心流转法则与 auto_
 
 ```powershell
 # 1. 阶段 0 预研探路 (Grooming) [只读勘测代码基]
+python -m auto_pm -w "<ws>" pm resume <PID> --json
 python -m auto_pm -w "<ws>" handoff create --pid <PID> --to plc-electrical-engineer --summary "预研 <PID>" --mode grooming
 python -m auto_pm -w "<ws>" handoff create --pid <PID> --to fullstack-engineer --summary "预研 <PID>" --mode grooming
 python -m auto_pm -w "<ws>" handoff list --pid <PID> --status pending

@@ -106,7 +106,7 @@ class SystemBridge(QObject):
         """执行 GUI 一键环境健康自检"""
         from auto_pm.cli.doctor import run_doctor_check
         try:
-            return run_doctor_check()
+            return dict(run_doctor_check())
         except Exception as e:
             logger.warning("runDoctorCheck failed: %s", e, exc_info=True)
             return {"all_passed": False, "message": str(e)}

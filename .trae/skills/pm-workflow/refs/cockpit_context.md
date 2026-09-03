@@ -15,6 +15,12 @@
 4. 跳过 Step 0（venv/project show/PM_SESSION 读取）和 Step 1（模式选择）
 5. 若 `intent == "close_handoff"`，先消费 `.auto-pm/handoffs/<request_id>.json`，由 pm-workflow 统一落账
 
+当用户直接从已有项目恢复工作、且没有有效 cockpit 请求时：
+
+1. 必须先运行 `auto_pm pm resume <PID> --json`；`pm-resume.v1` 是冷启动索引，不是第二套台账。
+2. 只读取 `read_set`；`expansion_triggers` 未命中时不得全仓搜索或打开模型专用交接文档。
+3. 方案和 handoff 必须保留 `evidence_id`；事实变更时重新 resume。
+
 ## 2. 技能路由规则
 
 | 条件 | 派发目标 |

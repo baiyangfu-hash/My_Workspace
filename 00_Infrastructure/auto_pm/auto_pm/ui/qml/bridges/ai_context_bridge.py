@@ -16,7 +16,7 @@ import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from PySide6.QtCore import QObject, Slot
 
@@ -239,7 +239,20 @@ class AiContextBridge(QObject):
     @Slot(str, result="QVariant")
     def listPendingHandoffs(self, project_id: str = "") -> list[dict[str, Any]]:
         """Expose pending executor handoffs for the cockpit work queue."""
-        return self._handoff_service().list_pending(project_id)
+        return cast(list[dict[str, Any]], self._handoff_service().list_pending(project_id))
+
+    @Slot(str, result="QVariant")
+    def listActiveHandoffs(self, project_id: str = "") -> list[dict[str, Any]]:
+        """Expose every handoff that still needs executor or PM attention."""
+        return cast(list[dict[str, Any]], self._handoff_service().list_active(project_id))
+
+    @Slot(str, result="QVariant")
+    def listCompletedHandoffs(self, project_id: str = "") -> list[dict[str, Any]]:
+        """Expose executor receipts that are eligible for PM closure only."""
+        return cast(
+            list[dict[str, Any]],
+            self._handoff_service().list_requests(project_id=project_id, status="completed"),
+        )
 
     @Slot(str, str, str, str, str, str, str, str, result="QVariant")
     def writePmClosureContext(
@@ -253,14 +266,14 @@ class AiContextBridge(QObject):
         change_title: str,
         current_page: str,
     ) -> dict[str, Any]:
-        """Write a PM-only closure context for one pending handoff.
+        """Write a PM-only closure context for one completed handoff.
 
         The method deliberately leaves the handoff unchanged.  It is consumed by
         pm-workflow, the sole writer of PM_SESSION and ai_feedback.json.
         """
-        handoff = self._handoff_service().get_pending(request_id)
-        if handoff is None:
-            return {"success": False, "message": "未找到待收口交接包"}
+        handoff = self._handoff_service().get_request(request_id)
+        if handoff is None or handoff.get("status") != "completed":
+            return {"success": False, "message": "交接包尚未提交执行回执，不能进入 PM 收口"}
 
         change_number_value = change_number or str(handoff.get("change_number", ""))
         change_title_value = change_title or str(handoff.get("change_title", ""))

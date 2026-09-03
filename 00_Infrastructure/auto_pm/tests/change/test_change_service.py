@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from auto_pm.change.change_service import ChangeService
 from auto_pm.change.constants import (
     SpecViolationError,
@@ -459,6 +458,27 @@ class TestChapterCompleteness:
         content = self._build_full_chapters_content()
         missing = svc._check_chapter_completeness(content)
         assert missing == [], f"应无缺失章节，实际缺失: {missing}"
+
+    def test_check_chapter_completeness_accepts_generator_h2_sections(
+        self, tmp_path: Path
+    ) -> None:
+        """生成器的二级章节标题也必须满足 closed 完整性门禁。"""
+        svc = self._make_service(tmp_path)
+        content = self._build_full_chapters_content().replace("###", "##")
+        missing = svc._check_chapter_completeness(content)
+        assert missing == [], f"二级章节模板应可关闭，实际缺失: {missing}"
+
+    def test_check_chapter_completeness_keeps_h3_content_under_h2_section(
+        self, tmp_path: Path
+    ) -> None:
+        """二级父章节的三级子章节是正文，不能被误判为下一必需章节。"""
+        svc = self._make_service(tmp_path)
+        content = self._build_full_chapters_content().replace(
+            "### §5 变更前后\n内容",
+            "## 5. 变更前后\n\n### 5.1 变更前\n内容",
+        )
+        missing = svc._check_chapter_completeness(content)
+        assert missing == [], f"H2 父章节中的 H3 正文应被识别，实际缺失: {missing}"
 
     def test_check_chapter_completeness_missing(self, tmp_path: Path) -> None:
         """缺失 §11/§12 时返回对应章节名"""

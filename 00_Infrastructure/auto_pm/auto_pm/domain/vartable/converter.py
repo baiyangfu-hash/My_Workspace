@@ -139,11 +139,11 @@ class VariableConverter:
             ValueError: 无任何 table
         """
         if parse_result.var_table is not None:
-            return parse_result.var_table.to_dict()
+            return dict(parse_result.var_table.to_dict())
         if parse_result.block_table is not None:
-            return parse_result.block_table.to_dict()
+            return dict(parse_result.block_table.to_dict())
         if parse_result.channel_table is not None:
-            return parse_result.channel_table.to_dict()
+            return dict(parse_result.channel_table.to_dict())
         raise ValueError("ParseResult 无任何 table（var/block/channel 均为 None）")
 
     @staticmethod
