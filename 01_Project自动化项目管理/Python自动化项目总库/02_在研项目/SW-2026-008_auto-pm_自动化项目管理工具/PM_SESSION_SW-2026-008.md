@@ -35,6 +35,7 @@
 - current_status: [治理中] 代码基线 V1.2.3 已迁至工作空间基础设施运行位；旧母体保留文档、变更管理、原型和交付档案，闭环资产正按可追溯原则归档。
 - in_progress: 文档资产治理与后续文档迁移评估；异构 PLC（欧姆龙/倍福）逆向解析适配器库暂不在本批次推进。
 - completed_milestones:
+  - 2026-09-03 [已验证] CHG-SCPT-2026-170 驾驶舱防空壳实质化体系、结构化决策包契约（W0）与跨领域穿透门禁（W1-1）落地闭环。
   - 2026-08-27 [已验证] CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源校验技能文档（C1~C4）。
   - 2026-08-27 [已验证] CHG-SCPT-2026-166 落账门禁下沉：StageGateEngine G3 新增落账完整性 BLOCKER，PmSessionCheckService 新增落账新鲜度 WARN。
   - 2026-08-22 [已验证] CHG-SCPT-2026-163 驾驶舱 P1 级架构加固与测试深化（V1.2.2 发布）。

@@ -56,6 +56,7 @@ from auto_pm.cli.delivery import delivery_group  # noqa: E402
 from auto_pm.cli.doc import doc_group  # noqa: E402
 from auto_pm.cli.doctor import doctor_command  # noqa: E402
 from auto_pm.cli.dogfood import dogfood_group  # noqa: E402
+from auto_pm.cli.git_hook import git_hook_group  # noqa: E402
 from auto_pm.cli.gui import gui_command  # noqa: E402
 from auto_pm.cli.handoff import handoff_group  # noqa: E402
 from auto_pm.cli.ledger import ledger_group  # noqa: E402
@@ -109,6 +110,7 @@ cli.add_command(vartable_group)
 cli.add_command(gui_command)
 cli.add_command(handoff_group)
 cli.add_command(decision_group)
+cli.add_command(git_hook_group)
 cli.add_command(pm_group)
 cli.add_command(pm_session_group)
 cli.add_command(ledger_group)
