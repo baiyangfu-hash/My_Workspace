@@ -14,14 +14,14 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: WBS-1 全量只读差异事实包与 proposal-only 决策链纠偏方案已完成并独立复核；工程门禁仍为 NO-GO。
-- milestone: 单向发布目标架构 ✅；WBS-2 Bootstrap R0 ✅；WBS-1 事实包 ✅；实际 disposition 与 R1/R2/R3 回收、双槽部署、切流和回退 ⛔ 未授权
+- current_focus: WBS-1D 已建立不可变 disposition，正式阻断 `DEC-20260904-3362BFFF` 被未来恢复、提交、部署或发布流程消费；工程门禁仍为 NO-GO。
+- milestone: 单向发布目标架构 ✅；WBS-2 Bootstrap R0 ✅；WBS-1 事实包 ✅；WBS-1D disposition ✅；supersession、R1/R2/R3、双槽部署、切流和回退 ⛔ 未授权
 - code_baseline: 当前物理 import 仍来自 `00_Infrastructure/auto_pm`，但已批准的目标基线将 SW-2026-008 定义为唯一研发母体，基础设施位仅作稳定部署容器
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅ + Scope Gating 与真实证据硬门禁 ✅
 
 ## 3. Status Summary（当前状态摘要）
-- in_progress: 冻结 26 个既有 staged 候选；保持母体、基础设施位与入口不变，等待下一批用户决策
-- next_up: 由 User 单独批准或否决新的不可变 disposition/supersession 记录，以及 R1/R2/R3 中的具体回收批次
+- in_progress: 冻结 26 个既有 staged 候选；保持母体、基础设施位与入口不变，等待 R1 用户决策
+- next_up: 由 User 单独批准或否决 R1：仅将 CHG-174 的 `change_transaction.py` 与对应测试回收到母体；supersession 继续延期
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI、基础原子消费和只读队列快照；PM_SESSION、变更单和反馈仍由 PM 单一 owner 收口
@@ -29,7 +29,7 @@
   - 活跃规划/交付文档暂留旧母体，后续迁移前需先确定唯一真源，避免文档双份维护
   - `CHG-SCPT-2026-161` 至 `164` 保留历史结构告警，后续单独治理，不在本批改写审计证据
   - 驾驶舱迭代自身存在循环自证风险，必须采用稳定控制面复核候选开发面的双钥匙门禁
-  - 当前 `DEC-20260904-3362BFFF` 在决策 JSON 与 WBS-2 法证批准原文之间存在语义冲突；不得改写旧证据，必须新建纠偏记录
+  - `DISP-20260904-3362BFFF-01` 已将 `DEC-20260904-3362BFFF` 标记为 `BLOCKED_SEMANTIC_CONFLICT`，仅限制未来消费且不改写旧证据
   - 当前 `.venv` 仍通过 editable `.pth` 挂接基础设施位，与已批准的目标架构不符；本轮未授权修改
   - WBS 0 中发现的 22 个未验证 PLC 研发现场文件已停放于 `.auto-pm/reports/archive/wbs0-backup-20260901/parked-current/`，仅作为可回退备份，不纳入治理提交
   - WBS 1 后代码真源已锁定，但活跃产品文档仍在 SW 母体；文档单轨迁移必须等待同步策略和门禁先行
@@ -66,7 +66,7 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
-- 2026-09-04 | skill=fullstack-engineer + pm-workflow | mode=WBS-1 read-only fact pack | result=941 条文件级事实完成，same 489 / hash_different 119 / infrastructure_only 37 / mother_only 296；报告哈希与分类计数独立复算通过；`AI-20260904-WBS1-FACT` 依次 claim/start/result-submit/preflight/close 并 consumed；`CHG-DOCU-2026-001` closed；未修改源码或入口 | evidence=`DEC-20260904-94CCE59D`、两份 `.auto-pm/reports/SW-2026-008_WBS1_*_20260904` 证据
+- 2026-09-04 | skill=fullstack-engineer + pm-workflow | mode=WBS-1/WBS-1D | result=941 条文件级事实独立复核；`DISP-20260904-3362BFFF-01` 以目标哈希和 8 项 basis evidence 前向阻断冲突 DEC；两份 handoff 均正式 consumed；`CHG-DOCU-2026-001/002` closed；未修改源码或入口 | evidence=`DEC-20260904-94CCE59D`、`DEC-20260904-C1F94B77`、disposition SHA-256 `c380c4c7ee18e2e0ff4125e4ce5b270310a8c5235fa6b78fbf0a19aff96f6091`
 - 2026-09-04 | skill=pm-workflow | mode=SW-2026-008 单向发布架构规划 | result=User 批准目标架构与四份规划产物；工程 NO-GO，不授权 WBS-3、文件/入口操作、提交或发布 | evidence=`RESUME-8A40C46458D08312`、`FACT-CA141A67B032FDFA`、`GO-NOGO-SW008-20260904-001`
 - 2026-09-04 | skill=pm-workflow | mode=W2 PM closure
   - request_id: `AI-20260904-025057-B2D157BC`
@@ -86,7 +86,7 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
-- 2026-09-04 | from=fullstack-engineer | mode=WBS-1 fact pack | request_id=`AI-20260904-WBS1-FACT` | status=`consumed` | gate=纠偏文档仅为 proposal，不构成 WBS-3、源码回收、提交或部署授权
+- 2026-09-04 | from=fullstack-engineer | mode=WBS-1/WBS-1D | request_ids=`AI-20260904-WBS1-FACT`,`AI-20260904-WBS1D-DISP` | status=`consumed` | gate=冲突 DEC 已阻断未来消费；supersession 与 R1/R2/R3 仍未授权
 - 2026-09-04 | from=pm-workflow | mode=SW-2026-008 architecture baseline | status=planning approved / engineering frozen | decision=SW 母体、infra stable、`.auto-pm` 状态、Obsidian 规范 | gate=WBS-3 后续须 User 再批准
 - 2026-09-04 | from=pm-workflow | mode=W2 closure
   - request_id: `AI-20260904-025057-B2D157BC`
@@ -112,8 +112,8 @@
 
 ## 9. Next Actions
 - [已完成] 批准 SW-2026-008 研发母体 + 稳定部署单向发布架构 | result=ADR、差异回收方案、WBS 与验收标准已编制；不代表实施授权
-- [已完成] WBS-1 全量差异事实包 + 决策链纠偏方案 | result=941 条文件级矩阵及哈希证据完成独立复核；CHG 与 handoff 已闭环；纠偏方案为 proposal-only
-- [待报批] 新增不可变 disposition/supersession 记录及 R1/R2/R3 具体回收批次 | precondition=User 明文批准具体记录与文件白名单 | done_when=每批独立 CHG/DEC、精确 pathspec 与门禁证据成立
+- [已完成] WBS-1/WBS-1D 全量差异事实包与不可变 disposition | result=941 条矩阵、目标 DEC 哈希及 8 项证据完成独立复核；冲突 DEC 不再可作为未来动作授权；supersession 延后
+- [待报批] R1：CHG-174 最小母体回收批次 | precondition=User 明文批准 `change_transaction.py` 与对应测试的精确母体 pathspec | done_when=独立 CHG/DEC、源哈希、母体门禁与阶段提交证据成立
 - [未授权] WBS-3 至 WBS-8 | gate=不得移动、覆盖、删除、修复、提交、Tag、部署、切流或回退
 - [已完成] SW-2026-008 W2 C6 可恢复 PM Saga 事务日志 | result=AI-20260904-025057-B2D157BC 已消费；CHG-SCPT-2026-172 已 closed；Saga 事务日志与补偿全绿
 - [已完成] SW-2026-008 W1-2 证据门禁扩展：跨资产与决策包预检 | result=AI-20260904-015823-38A19B9C 已消费；CHG-SCPT-2026-171 已 closed；Scope Gating 与真实证据门禁全绿
