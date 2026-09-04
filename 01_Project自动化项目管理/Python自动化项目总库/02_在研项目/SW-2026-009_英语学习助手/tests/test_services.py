@@ -1,22 +1,28 @@
 """
 服务层单元测试 - 验证 StudyService, DictionaryService, GrammarService, CourseService, DatabaseManager
 """
-import sys
 import os
+import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from services import (
-    DatabaseManager, get_db,
-    StudyService, DictionaryService, GrammarService, CourseService
+    CourseService,
+    DatabaseManager,
+    DictionaryService,
+    GrammarService,
+    StudyService,
+    get_db,
 )
+
 
 class TestServiceLayer(unittest.TestCase):
     def setUp(self):
         self.db_manager = get_db()
 
     def test_database_manager(self):
+        self.assertIsInstance(self.db_manager, DatabaseManager)
         with self.db_manager.session() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -101,5 +107,45 @@ class TestServiceLayer(unittest.TestCase):
         self.assertIn('tasks', plan)
         self.assertIn('estimated_minutes', plan)
 
+        # 1. 正常合法等级设置（如 'B2'，验证返回的 current_level 为 'B2'）
+        res_b2 = service.set_user_level("B2")
+        self.assertEqual(res_b2.get("current_level"), "B2")
+        self.assertEqual(service.get_user_progress().get("current_level"), "B2")
+
+        # 2. 带有空格与小写的等级输入（如 '  b1  '，验证清洗后生效为 'B1'）
+        res_b1 = service.set_user_level("  b1  ")
+        self.assertEqual(res_b1.get("current_level"), "B1")
+        self.assertEqual(service.get_user_progress().get("current_level"), "B1")
+
+        # 3. 非法等级字符串（如 'XYZ'，验证兜底回退为 'A1'）
+        res_invalid = service.set_user_level("XYZ")
+        self.assertEqual(res_invalid.get("current_level"), "A1")
+        self.assertEqual(service.get_user_progress().get("current_level"), "A1")
+
+        # 4. 异常类型与边界输入（如 None, 123, ""，验证不崩溃并安全兜底为 'A1'）
+        res_none = service.set_user_level(None)
+        self.assertEqual(res_none.get("current_level"), "A1")
+        res_num = service.set_user_level(123)
+        self.assertEqual(res_num.get("current_level"), "A1")
+        res_empty = service.set_user_level("")
+        self.assertEqual(res_empty.get("current_level"), "A1")
+        res_spaces = service.set_user_level("   \t\n  ")
+        self.assertEqual(res_spaces.get("current_level"), "A1")
+
+        # 5. 单元测试 CourseService.sanitize_level 静态方法
+        self.assertEqual(CourseService.VALID_CEFR_LEVELS, ("A1", "A2", "B1", "B2", "C1", "C2"))
+        self.assertEqual(CourseService.sanitize_level("b2"), "B2")
+        self.assertEqual(CourseService.sanitize_level("  c1  "), "C1")
+        self.assertEqual(CourseService.sanitize_level("A1"), "A1")
+        self.assertEqual(CourseService.sanitize_level("XYZ"), "A1")
+        self.assertEqual(CourseService.sanitize_level(""), "A1")
+        self.assertEqual(CourseService.sanitize_level("   "), "A1")
+        self.assertEqual(CourseService.sanitize_level(None), "A1")
+        self.assertEqual(CourseService.sanitize_level(123), "A1")
+        self.assertEqual(CourseService.sanitize_level([], default="B1"), "B1")
+        self.assertEqual(CourseService.sanitize_level("unknown", default="B2"), "B2")
+
+
 if __name__ == '__main__':
     unittest.main()
+

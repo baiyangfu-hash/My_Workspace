@@ -52,6 +52,7 @@
 
 ## 5. Logs（按事件沉淀）
 - change_log:
+  - 2026-09-04 02:31:00 CHG-SCPT-2026-003 闭环归档：完成 CourseService 入参 sanitize_level 清洗与 CEFR 白名单防御单测加固，pytest 13 PASS，python check PASS，W1-2 范围门禁与对账 100% 通过。
   - 2026-09-03 13:17:00 CHG-SCPT-2026-002 闭环归档：完成 DictionaryService 入参 sanitize_word 清洗与边界防御单测加固，pytest 13 PASS，python check PASS，实质内容与对账双门禁 100% 通过。
   - 2026-08-06 06:48:00 008 驾驶舱全面检查 SW-2026-009 项目，补齐 00~06 五大过程组与 README.md 文件。
   - 2026-08-06 06:30:00 008 驾驶舱正式接管 SW-2026-009 项目，完成标准治理文档挂载。
@@ -59,6 +60,11 @@
   - 2026-08-06 05:58:45 项目初始化，完成 27 出差场景与 9 大 UI 模块开发。
 
 ## 6. Implementation Log
+- 2026-09-04 02:30:00 | skill=fullstack-engineer | mode=execution
+  - goal: CourseService 用户等级入参清洗与 CEFR 白名单防御加固 (CHG-SCPT-2026-003 / AI-20260904-022726-D8658F8B)
+  - changed_files: src/services/course_service.py, tests/test_services.py
+  - impact: 落实 DEV-300 Google SRE 零崩溃规范，杜绝非字符串或非法等级输入导致的崩溃，提升服务层防御性
+  - risks: 无，pytest 13 PASS，ruff PASS，mypy PASS
 - 2026-09-03 13:17:00 | skill=fullstack-engineer | mode=execution
   - goal: DictionaryService 查询参数清洗防御与单元测试加固 (CHG-SCPT-2026-002 / AI-20260903-200923-A6B9B6B3)
   - changed_files: src/services/dictionary_service.py, tests/test_services.py
@@ -71,8 +77,8 @@
   - risks: 无
 
 ## 8. Handoff Notes
-- current_state: CHG-SCPT-2026-002 已闭环关闭，变更单实质内容 100% 完备，0 个空壳占位符
-- last_handoff: AI-20260903-200923-A6B9B6B3 (fullstack-engineer, consumed)
+- current_state: CHG-SCPT-2026-003 已闭环关闭，变更单实质内容 100% 完备，0 个空壳占位符
+- last_handoff: AI-20260904-022726-D8658F8B (fullstack-engineer, consumed)
 - next_focus: 生成 HTML 原型文件与 PySide6 QML 界面重构
 - watchouts: 确保 009 项目保持 008 规范目录一致性
 - 代码基线 V0.1.0 [已验证]

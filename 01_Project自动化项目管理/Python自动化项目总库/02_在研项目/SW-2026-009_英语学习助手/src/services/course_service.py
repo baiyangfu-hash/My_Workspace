@@ -1,12 +1,28 @@
 """
 课程服务模块 - 封装课程路线图、每日学习计划与等级大纲生成逻辑
 """
+from typing import Any
+
 from course_manager import CourseManager
+
+VALID_CEFR_LEVELS = ("A1", "A2", "B1", "B2", "C1", "C2")
 
 
 class CourseService:
+    VALID_CEFR_LEVELS = VALID_CEFR_LEVELS
+
     def __init__(self, db_manager=None):
         self.course_manager = CourseManager()
+
+    @staticmethod
+    def sanitize_level(level: Any, default: str = "A1") -> str:
+        """清洗并校验 CEFR 等级入参，兜底保障零崩溃 (DEV-300)"""
+        if level is None or not isinstance(level, str):
+            return default
+        clean = str(level).strip().upper()
+        if clean in VALID_CEFR_LEVELS:
+            return clean
+        return default
 
     def get_user_progress(self):
         """获取当前用户学习进度与等级"""
@@ -24,6 +40,8 @@ class CourseService:
         """更新学习进度"""
         return self.course_manager.update_progress(vocab_count, grammar_count)
 
-    def set_user_level(self, level: str):
+    def set_user_level(self, level: Any):
         """设置当前用户等级 (A1, A2, B1, B2, C1, C2)"""
-        return self.course_manager.set_user_level(level)
+        clean_level = self.sanitize_level(level)
+        return self.course_manager.set_user_level(clean_level)
+
