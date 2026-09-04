@@ -14,14 +14,14 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: User 已批准 SW-2026-008 “研发母体 + 稳定部署”单向发布架构；当前仅完成 ADR、差异回收方案、发布/回退 WBS 与验收标准，工程门禁仍为 NO-GO。
-- milestone: 单向发布目标架构 ✅ 已批准；WBS-2 Bootstrap R0 ✅ PASS；差异回收、双槽部署、切流和回退实施 ⛔ 未授权
+- current_focus: WBS-1 全量只读差异事实包与 proposal-only 决策链纠偏方案已完成并独立复核；工程门禁仍为 NO-GO。
+- milestone: 单向发布目标架构 ✅；WBS-2 Bootstrap R0 ✅；WBS-1 事实包 ✅；实际 disposition 与 R1/R2/R3 回收、双槽部署、切流和回退 ⛔ 未授权
 - code_baseline: 当前物理 import 仍来自 `00_Infrastructure/auto_pm`，但已批准的目标基线将 SW-2026-008 定义为唯一研发母体，基础设施位仅作稳定部署容器
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅ + Scope Gating 与真实证据硬门禁 ✅
 
 ## 3. Status Summary（当前状态摘要）
-- in_progress: 架构决策已落账；冻结 HEAD、index、母体、基础设施位与 WBS-2 证据，等待 WBS-1 独立批准
-- next_up: 报批只读全量差异事实包 + `DEC-20260904-3362BFFF` 语义冲突纠偏方案
+- in_progress: 冻结 26 个既有 staged 候选；保持母体、基础设施位与入口不变，等待下一批用户决策
+- next_up: 由 User 单独批准或否决新的不可变 disposition/supersession 记录，以及 R1/R2/R3 中的具体回收批次
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI、基础原子消费和只读队列快照；PM_SESSION、变更单和反馈仍由 PM 单一 owner 收口
@@ -66,6 +66,7 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-04 | skill=fullstack-engineer + pm-workflow | mode=WBS-1 read-only fact pack | result=941 条文件级事实完成，same 489 / hash_different 119 / infrastructure_only 37 / mother_only 296；报告哈希与分类计数独立复算通过；`AI-20260904-WBS1-FACT` 依次 claim/start/result-submit/preflight/close 并 consumed；`CHG-DOCU-2026-001` closed；未修改源码或入口 | evidence=`DEC-20260904-94CCE59D`、两份 `.auto-pm/reports/SW-2026-008_WBS1_*_20260904` 证据
 - 2026-09-04 | skill=pm-workflow | mode=SW-2026-008 单向发布架构规划 | result=User 批准目标架构与四份规划产物；工程 NO-GO，不授权 WBS-3、文件/入口操作、提交或发布 | evidence=`RESUME-8A40C46458D08312`、`FACT-CA141A67B032FDFA`、`GO-NOGO-SW008-20260904-001`
 - 2026-09-04 | skill=pm-workflow | mode=W2 PM closure
   - request_id: `AI-20260904-025057-B2D157BC`
@@ -85,6 +86,7 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
+- 2026-09-04 | from=fullstack-engineer | mode=WBS-1 fact pack | request_id=`AI-20260904-WBS1-FACT` | status=`consumed` | gate=纠偏文档仅为 proposal，不构成 WBS-3、源码回收、提交或部署授权
 - 2026-09-04 | from=pm-workflow | mode=SW-2026-008 architecture baseline | status=planning approved / engineering frozen | decision=SW 母体、infra stable、`.auto-pm` 状态、Obsidian 规范 | gate=WBS-3 后续须 User 再批准
 - 2026-09-04 | from=pm-workflow | mode=W2 closure
   - request_id: `AI-20260904-025057-B2D157BC`
@@ -110,16 +112,13 @@
 
 ## 9. Next Actions
 - [已完成] 批准 SW-2026-008 研发母体 + 稳定部署单向发布架构 | result=ADR、差异回收方案、WBS 与验收标准已编制；不代表实施授权
-- [待报批] WBS-1 全量差异事实包 + 决策链纠偏记录 | precondition=User 对只读事实包与新 disposition/supersession 的明文批准 | done_when=完整哈希/Git/来源矩阵生成并独立复核
+- [已完成] WBS-1 全量差异事实包 + 决策链纠偏方案 | result=941 条文件级矩阵及哈希证据完成独立复核；CHG 与 handoff 已闭环；纠偏方案为 proposal-only
+- [待报批] 新增不可变 disposition/supersession 记录及 R1/R2/R3 具体回收批次 | precondition=User 明文批准具体记录与文件白名单 | done_when=每批独立 CHG/DEC、精确 pathspec 与门禁证据成立
 - [未授权] WBS-3 至 WBS-8 | gate=不得移动、覆盖、删除、修复、提交、Tag、部署、切流或回退
 - [已完成] SW-2026-008 W2 C6 可恢复 PM Saga 事务日志 | result=AI-20260904-025057-B2D157BC 已消费；CHG-SCPT-2026-172 已 closed；Saga 事务日志与补偿全绿
 - [已完成] SW-2026-008 W1-2 证据门禁扩展：跨资产与决策包预检 | result=AI-20260904-015823-38A19B9C 已消费；CHG-SCPT-2026-171 已 closed；Scope Gating 与真实证据门禁全绿
 - [已完成] SW-2026-008 RC1（C1 与 C2a 已批准范围） | result=四份 execution handoff 已消费；PM 收口与独立门禁验收已完成；不代表 C3 至 C7 完成
 - [后续] SW-2026-008 强制闭环增强 WBS-C3 至 C7 | precondition=新的阶段 0 与阶段 1 用户批准 | done_when=决策包、Quick/Full、领域证据、PM Saga 和完整 Dogfood 逐批闭环
-- [待决策] RC1 Git 提交 | precondition=用户验收 | done_when=用户明确同意提交或明确保留工作树
-- [完成] 工作树剩余高风险项裁决 | result=已恢复 `.dockerignore`/`docs/docker`/历史设备样例删除、通用 README 与 SW-2026-009 db 漂移；PM_SESSION 漂移经门禁证明后转为最小合规补丁
-- [完成] SW-2026-008 驾驶舱迁移第一批 | result=基础设施运行位建立，根入口与 editable install 已切换，旧项目母体保留回退
-- [完成] SW-2026-008 驾驶舱迁移第二批 | result=Doc-as-Code 代码源优先基础设施位，旧母体降级标注完成，版本解析防回归测试通过
 - [已验证] SW-2026-008 文档资产第一轮治理 | precondition=旧母体文档资产完成分类 | done_when=完成验证、台账对账和治理提交；变更管理资产保持 archive-only
 - [后续] SW-2026-008 活跃文档迁移评估 | precondition=本批验证通过且唯一真源/同步策略明确 | done_when=决定是否迁移活跃规划/交付文档，不自动迁移历史变更档案
 - [完成] SW-2026-008 驾驶舱 Dogfooding WBS 0 | result=规划前变更已分组裁决；未验证漂移恢复；未验证 PLC 现场文件可逆停放；备份与证据已保留；工作树干净
