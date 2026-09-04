@@ -35,6 +35,7 @@
 - current_status: [治理中] 代码基线 V1.2.3 已迁至工作空间基础设施运行位；旧母体保留文档、变更管理、原型和交付档案，闭环资产正按可追溯原则归档。
 - in_progress: 文档资产治理与后续文档迁移评估；异构 PLC（欧姆龙/倍福）逆向解析适配器库暂不在本批次推进。
 - completed_milestones:
+  - 2026-09-04 [已验证] CHG-SCPT-2026-173 Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义：实现 TransactionStatus 枚举及 5 个工作流核心 DTO，单测 17 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-172 W2批次可恢复 PM Saga 事务日志：实现 8 步 WAL 顺序日志、Checkpoint 故障恢复、补偿回滚与 CLI 扩展。
   - 2026-09-04 [已验证] CHG-SCPT-2026-171 证据门禁扩展：Scope Gating 决策包白名单越界拦截、跨资产变更单存在性与真实证据物理硬门禁闭环。
   - 2026-09-03 [已验证] CHG-SCPT-2026-170 驾驶舱防空壳实质化体系、结构化决策包契约（W0）与跨领域穿透门禁（W1-1）落地闭环。
@@ -62,18 +63,22 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-09-04 CHG-SCPT-2026-173 Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义：落地 TransactionStatus 枚举与 5 个工作流核心 DTO，单测 17 passed。
   - 2026-09-04 CHG-SCPT-2026-172 W2批次 PM Saga 事务日志：落地 PmClosureSagaCoordinator，建立事务日志，支持失败注入与 checkpoint 恢复，单测 17 passed。
   - 2026-09-04 CHG-SCPT-2026-171 证据门禁扩展：在 AiHandoffService._validate_closure 中下沉 Scope Gating 白名单越界拦截、跨资产单据物理存在性校验与交付物真实性硬门禁，补充 5 组全量单测用例。
   - 2026-09-01 文档资产评估与归档治理：已将闭环 CHG-SCPT、历史 HTML 原型、V1.1.0 历史交付包、旧迭代计划和过期诊断报告移入对应 archive；活区仅保留当前可用入口和未闭环草稿单。
 
 ## 6. Execution Log Summary
 
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-173，落地 Cockpit OS Phase 0 契约层 DTO，单测 17 passed + Ruff / Mypy 0 errors。
 - 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-172，落地 C6 可恢复 PM Saga 事务日志与补偿机制，单元测试 17 passed 全绿。
 - 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-171，落地 Scope Gating 与真实证据门禁，单元测试 9 passed + 全量门禁全绿。
 - 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-167，新增 SHC-017 SkillContractDriftChecker 契约对账器，tests/spec 回归 174 passed + mypy 全绿 + spec check -c SHC-017 通过。
 
 ## 8. Handoff Notes
 
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-173 Phase 0 闭环
+  - current_state: [已验证] Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义完成消费并落账闭环。
 - 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-172 W2 闭环
   - current_state: [已验证] W2 批次 C6 可恢复 PM Saga 事务日志完成消费并落账闭环。
 - 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-171 W1-2 闭环
@@ -83,6 +88,8 @@
 
 ## 9. Next Actions
 
+- [x] 任务 9: 实施并闭环 CHG-SCPT-2026-173（Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义）
+- [ ] 任务 10: 实施 CHG-SCPT-2026-174（Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager）
 - [x] 任务 8: 实施并闭环 CHG-SCPT-2026-172（W2 C6 可恢复 PM Saga 事务日志与补偿编排）
 - [x] 任务 7: 实施并闭环 CHG-SCPT-2026-171（W1-2 证据门禁扩展与 Scope Gating）
 - [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）

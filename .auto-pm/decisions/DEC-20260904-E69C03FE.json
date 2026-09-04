@@ -1,0 +1,16 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260904-E69C03FE",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-173",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/auto_pm/contracts/workflow_dtos.py",
+    "00_Infrastructure/auto_pm/tests/contracts/test_workflow_dtos.py"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-04T03:24:34.000017+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [],
+  "metadata": {}
+}
