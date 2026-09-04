@@ -30,14 +30,23 @@ python -m auto_pm -w "<ws>" handoff list --pid <PID> --status pending
 # 2. 阶段 2 执行交付 (Execution) [支持精准 RAG 注入]
 python -m auto_pm -w "<ws>" handoff create --pid <PID> --to fullstack-engineer --summary "执行 <PID>" --mode execution --specs LSP-905,STD-840
 
-# 3. AI PM 批准捷径 (绕过死板的状态机)
+# 3. 变更单状态机流转
+# 捷径（轻量变更快速批准）：
 python -m auto_pm -w "<ws>" change transition <CHG-单号> --fast-track
+# 标准状态机完整流转路径：
+# draft -> submitted -> under_review -> approved -> implementing -> pending_acceptance -> accepting -> completed -> closed
+python -m auto_pm -w "<ws>" change transition <CHG-单号> --to pending_acceptance
+python -m auto_pm -w "<ws>" change transition <CHG-单号> --to accepting
+python -m auto_pm -w "<ws>" change transition <CHG-单号> --to completed --approver <user> --verification-conclusion "全量门禁通过"
+python -m auto_pm -w "<ws>" change transition <CHG-单号> --to closed --approver <user> --comment "闭环归档"
 
 # 4. 任务闭环收尾 (PM 消费结构化回执)
+# 预检（必须显式挂接 --result-file）：
+python -m auto_pm -w "<ws>" handoff preflight <request_id> --result-file .auto-pm/handoffs/<request_id>.result.json
 python -m auto_pm -w "<ws>" handoff show <request_id>
 python -m auto_pm -w "<ws>" handoff close <request_id> --result-file .auto-pm/handoffs/<request_id>.result.json
-# 兼容旧调用：仅当 <PID> 下恰好只有一个 pending 请求时可用
-python -m auto_pm -w "<ws>" handoff close --pid <PID> --result-file <handoff_result.json>
+# 台账对账与修复：
+python -m auto_pm -w "<ws>" ledger reconcile <PID> --fix
 
 # 5. 项目管理与原型
 python -m auto_pm -w "<ws>" project create|show|retrofit|delete

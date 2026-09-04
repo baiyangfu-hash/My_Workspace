@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-09-03T14:16:10.034420+00:00",
+  "status": "accepted",
+  "skill": "pm-workflow",
+  "summary": "SW-2026-008 RC1 技术收口已获用户验收通过：四份已批准 execution handoff 均已由 PM 消费，C1/C2a 控制面、CHG、PM_SESSION、feedback 与 ledger 已落账；C3 至 C7 未启动。",
+  "request_ids": [
+    "AI-20260903-C1R-C1S-EXEC",
+    "AI-20260903-C2A-EXEC",
+    "AI-20260902-WBSC1-EXEC",
+    "AI-20260902-WBSC1-BASELINE-EXEC"
+  ],
+  "change_number": "CHG-SCPT-2026-156",
+  "next_action": "等待明确的 Git 提交或保留工作树决定；C3 至 C7 需重新阶段 0/阶段 1 报批。"
+}

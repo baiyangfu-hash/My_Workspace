@@ -4,9 +4,7 @@
 - project_id: SYS-2026-001
 - project_name: WorkspaceGovernance
 - project_root: c:\Users\fubai\Documents\My_Workspace\SYS-2026-001_WorkspaceGovernance
-- last_updated: 2026-09-03
-- owners: fubai
-
+- last_updated: 2026-09-04
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -16,16 +14,16 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 已完成复盘整改：SW-2026-008 补账闭环（CHG-SCPT-2026-170）与 Git Pre-commit/commit-msg 物理硬锁装配激活（Commit 4a55603）。
-- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 至 9 ✅ 全部通过；RC1 PM 收口 ✅；W0-1/W0-2/W1-1 微迭代 ✅ 已闭环；Git 物理硬锁与台账合规 ✅ 已闭环
-- code_baseline: 驾驶舱当前代码基线 Commit 4a55603，运行位为 `00_Infrastructure/auto_pm`
-- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅ + Git 物理提交硬锁与破坏性演练 ✅
+- current_focus: 已完成 W1-2 证据门禁扩展：跨资产与决策包预检闭环（CHG-SCPT-2026-171 与消费 AI-20260904-015823-38A19B9C），下沉 Scope Gating 与证据真实性硬门禁。
+- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 至 9 ✅ 全部通过；RC1 PM 收口 ✅；W0-1/W0-2/W1-1/W1-2 微迭代 ✅ 已闭环；Git 物理硬锁与台账合规 ✅ 已闭环
+- code_baseline: 驾驶舱当前代码基线包含 W1-2，运行位为 `00_Infrastructure/auto_pm`
+- acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅ + Scope Gating 与真实证据硬门禁 ✅
 
 ## 3. Status Summary（当前状态摘要）
 - in_progress:
-  - 驾驶舱防绕过物理硬锁已激活，存量变更单与全仓台账 100% 对齐，具备完美冷启动基线
+  - W0、W1-1、W1-2（决策包连接、跨领域关联穿透、Scope Gating 越界拦截与证据真实性）已全部闭环落账，存量变更单与全仓台账 100% 对齐
 - next_up:
-  - W1-2（证据门禁扩展：跨资产与决策包预检）或 W2（可恢复 PM Saga 事务日志）
+  - W2（可恢复 PM Saga 事务日志）或 WBS-C6 PM Saga 收口增强
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI、基础原子消费和只读队列快照；PM_SESSION、变更单和反馈仍由 PM 单一 owner 收口
@@ -56,23 +54,6 @@
 - cockpit_enforced_closure_handoff: 01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md
 
 ## 5. Logs（按事件沉淀）
-- change_log:
-  - 2026-09-02 PM + 驾驶舱强制闭环 Grooming：驾驶舱创建并由 Fullstack 只读预研 `AI-20260902-140735-8DB7AB48`，PM 已消费；确认现有能力缺少事实包硬门禁、技能启动生命周期、决策包、Quick/Full 强制连接、真实证据校验和跨资产 Saga；形成 WBS-C1 至 C7 及对话交接文档，本轮未改源码
-  - 2026-09-03 SW-2026-008 RC1 收口：四份 execution handoff 经最终 preflight 后由 `pm-workflow` 消费；全量 pytest、Ruff、Mypy 与 diff check 通过；CHG-SCPT-2026-156、控制面 PM_SESSION、ai_feedback 与 ledger 同批回写。C3 至 C7 未纳入本批。
-  - 2026-09-01 驾驶舱 Dogfooding 评估：结论为有条件可行；采用 PM 总控、全栈实现、PLC 域验收、稳定版驾驶舱外部复核的受控自托管模型
-  - 2026-09-01 驾驶舱 Dogfooding WBS 8：候选 worktree 实现只读 handoff 工作队列快照，稳定版外部复核通过，变更单和台账闭环；进入 WBS 9 迁移收口评估
-  - 2026-09-01 驾驶舱迁移收口：代码单轨切换至基础设施位；旧母体保留历史文档和灾备回退；不执行旧代码删除；进入迁移后观察期
-  - 2026-09-01 SW-2026-008 文档资产评估：闭环变更单、V8-V14原型、V1.1.0历史交付物、旧迭代计划和过期诊断报告移入归档；不删除变更管理资产
-  - 2026-09-01 迁移前工作树治理：已提交忽略规则、规范治理、DJ-2026-009、DJ-2026-005；高风险删除项暂缓处理
-  - 2026-09-01 Dogfooding WBS 1：唯一真源矩阵、版本/Git 指纹、旧母体代码冻结规则和双轨退出条件已完成；未改代码、未迁移文档
-  - 2026-06-15 P1计划收编：4份历史长期计划映射完成，执行状态评估完成，遗留事项已登记
-  - 2026-06-16 P1移交完成：6项遗留事项移交至SW-2026-006，2项移交至SW-2026-004，2项归属SYS-2026-001自身
-  - 2026-06-16 P2节奏固化启动：路线图更新，P2执行事项登记
-  - 2026-06-15 创建 `SYS-2026-001` 治理项目，建立工作区级 PM_SESSION
-- iteration_log:
-  - P0 启动: 统一工作区治理入口和职责边界
-  - P1 计划收编: 4份历史计划映射+执行状态评估+遗留事项登记+跨项目移交 ✅
-  - P2 节奏固化: 进行中
 - 2026-06-16 P2节奏固化完成：P2.1-P2.4全部完成（2026-08-26重基线：P2.4已吸收进工具链统一口径）
 - bug_log:
   - 2026-06-15 识别到错误使用 `SW-` 立项的语义风险，已改为 `SYS-`
@@ -84,6 +65,14 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-04 | skill=pm-workflow | mode=W2 PM closure
+  - request_id: `AI-20260904-025057-B2D157BC`
+  - result: fullstack execution 已通过 preflight 并消费为 `consumed`；CHG-SCPT-2026-172 已闭环流转至 closed；PmClosureSagaCoordinator 落地，8 步顺序事务日志、失败注入与 checkpoint 恢复验证全绿。
+  - evidence: `DEC-20260904-AE50166C`、`AI-20260904-025057-B2D157BC.result.json`
+- 2026-09-04 | skill=pm-workflow | mode=W1-2 PM closure
+  - request_id: `AI-20260904-015823-38A19B9C`
+  - result: fullstack execution 已通过 preflight 并消费为 `consumed`；CHG-SCPT-2026-171 已闭环流转至 closed；Scope Gating 与跨资产真实性门禁落地，全量回归全绿。
+  - evidence: `DEC-20260904-77ED7B63`、`AI-20260904-015823-38A19B9C.result.json`
 - 2026-09-03 | skill=pm-workflow | mode=RC1-11 PM closure
   - request_ids: `AI-20260903-C1R-C1S-EXEC`、`AI-20260903-C2A-EXEC`、`AI-20260902-WBSC1-EXEC`、`AI-20260902-WBSC1-BASELINE-EXEC`
   - result: 四份 completed execution result 已通过 preflight 并消费为 `consumed`；CHG、PM_SESSION、feedback 与 ledger 进入同批收口。
@@ -92,25 +81,21 @@
   - request_id: `AI-20260902-140735-8DB7AB48`
   - result: Fullstack Grooming 已由 PM 消费；形成 WBS-C1 至 C7 差距和阶段 1 决策包，本轮未修改驾驶舱源码
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
-- 2026-09-01 | migration_wbs_archive
-  - scope: Dogfooding WBS 0 至 9 的完整实施、验证和决策记录
-  - artifacts: `01_项目文档/07_SW-2026-008_驾驶舱Dogfooding迭代方案与WBS_PM.md` 至 `11_SW-2026-008_迁移收口与退路决策_REP.md`
-  - git_evidence: `0430c92`、`a009b21`、`51f4978`、`b603bd4`、`f73f5eb`、`2ca6c00`
-  - retention: 历史明细保留在上述文档和 Git 历史，活跃 PM_SESSION 只保留索引
 
 ## 8. Handoff Notes
+- 2026-09-04 | from=pm-workflow | mode=W2 closure
+  - request_id: `AI-20260904-025057-B2D157BC`
+  - status: `consumed`
+  - decision: W2 C6 可恢复 PM Saga 事务日志完成消费并落账闭环。
+- 2026-09-04 | from=pm-workflow | mode=W1-2 closure
+  - request_id: `AI-20260904-015823-38A19B9C`
+  - status: `consumed`
+  - decision: W1-2 证据门禁扩展（Scope Gating、变更单存在性、交付物真实性）完成消费并落账闭环。
 - 2026-09-03 | from=pm-workflow | mode=RC1-11/RC1-12 closure
   - request_ids: `AI-20260903-C1R-C1S-EXEC`、`AI-20260903-C2A-EXEC`、`AI-20260902-WBSC1-EXEC`、`AI-20260902-WBSC1-BASELINE-EXEC`
   - status: `consumed` (all four)
   - decision: RC1 仅关闭 C1 与 C2a 已批准交付；C3 至 C7 仍不得因本次收口自动启动。
   - gate: 全量 pytest、Ruff、Mypy、`git diff --check` 与 ledger reconcile 必须全部通过，随后仅等待用户验收和提交决策。
-- 2026-09-02 | from=Codex/pm-workflow | mode=PM + 驾驶舱强制闭环阶段 0
-  - request_id: `AI-20260902-140735-8DB7AB48`
-  - status: `consumed`
-  - evidence_fingerprint: `47ded581d00f672a26ba2697115ddc6959967371d1e05d8ba3279134cc398b8e`
-  - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
-  - decision: 旧迁移 WBS 保持已完成；新增工作固定命名 WBS-C1 至 C7；推荐复用并重定基线 `CHG-SCPT-2026-156`
-  - gate: 当前停在阶段 1 报批前；未经用户明确批准不得修改驾驶舱源码、技能契约或变更单
 - archive: 2026-09-01 历史交接记录已完整保存至 `05_收尾/PM_SESSION归档/Handoff_Notes_SYS-2026-001_20260901.md`
 - current_state: 当前工作空间级控制面为 `00_Infrastructure/auto_pm`，旧 SW 母体保留产品文档、变更历史和回退参考。
 - current_focus: 以受控 Dogfooding 运行基础设施位驾驶舱，WBS 0/1/2/3/4/5/6/7/8/9 已完成；当前进入迁移后观察期。
@@ -121,6 +106,8 @@
 - status: [已验证] WBS 0/1/2/3/4/5/6/7/8/9 完成；代码单轨成立；旧母体回退保留；工作树在每个提交门前保持可解释
 
 ## 9. Next Actions
+- [已完成] SW-2026-008 W2 C6 可恢复 PM Saga 事务日志 | result=AI-20260904-025057-B2D157BC 已消费；CHG-SCPT-2026-172 已 closed；Saga 事务日志与补偿全绿
+- [已完成] SW-2026-008 W1-2 证据门禁扩展：跨资产与决策包预检 | result=AI-20260904-015823-38A19B9C 已消费；CHG-SCPT-2026-171 已 closed；Scope Gating 与真实证据门禁全绿
 - [已完成] SW-2026-008 RC1（C1 与 C2a 已批准范围） | result=四份 execution handoff 已消费；PM 收口与独立门禁验收已完成；不代表 C3 至 C7 完成
 - [后续] SW-2026-008 强制闭环增强 WBS-C3 至 C7 | precondition=新的阶段 0 与阶段 1 用户批准 | done_when=决策包、Quick/Full、领域证据、PM Saga 和完整 Dogfood 逐批闭环
 - [待决策] RC1 Git 提交 | precondition=用户验收 | done_when=用户明确同意提交或明确保留工作树
