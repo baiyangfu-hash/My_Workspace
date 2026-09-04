@@ -1,0 +1,18 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260904-13E722FB",
+  "project_id": "DJ-2026-005",
+  "change_id": "CHG-PLC-2026-013",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "0100_PLC自动化/DJ-2026-005/02_PLC程序/PLC_ST/05_公共报警/FB_2001_CommonAlarm_AllStation.scl",
+    "0100_PLC自动化/DJ-2026-005/02_PLC程序/PLC_ST/00_程序方案/接口文档_INT.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-04T02:21:30.602167+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "严格遵循 LSP-905 与 STD-860，必须通过 plc check 51 项静态门禁"
+  ],
+  "metadata": {}
+}

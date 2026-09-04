@@ -575,3 +575,75 @@ def close_handoff(
     else:
         click.echo(f"已消费 handoff: {payload['request_id']}")
         click.echo("PM 收口状态: consumed")
+
+
+@handoff_group.group(name="saga")
+def saga_group() -> None:
+    """管理 PM 收口跨资产 Saga 事务与检查点日志。"""
+
+
+@saga_group.command(name="status")
+@click.argument("request_id")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def saga_status(ctx: click.Context, request_id: str, as_json: bool) -> None:
+    """查看 handoff PM 收口 Saga 事务状态与检查点。"""
+    service = AiHandoffService(_workspace(ctx))
+    payload = service.get_saga_status(request_id)
+    if payload is None:
+        raise click.ClickException(f"找不到 Saga 事务日志: {request_id}")
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(f"Saga 编号: {payload.get('saga_id', '')}")
+        click.echo(
+            f"请求编号: {payload.get('request_id', '')} | 项目: {payload.get('project_id', '')}"
+        )
+        click.echo(
+            f"当前状态: {payload.get('status', '')} | 当前步骤: {payload.get('current_step', '')}"
+        )
+        click.echo(
+            f"已完成步骤: {', '.join(payload.get('completed_steps') or []) or '无'}"
+        )
+        if payload.get("error"):
+            click.echo(f"错误信息: {payload['error']}")
+
+
+@saga_group.command(name="resume")
+@click.argument("request_id")
+@click.option("--actor", default="pm-workflow", show_default=True, help="收口方")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def saga_resume(ctx: click.Context, request_id: str, actor: str, as_json: bool) -> None:
+    """从断点恢复并继续执行未完成的 Saga 步骤。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.resume_saga(request_id, actor=actor)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(
+            f"Saga 恢复完成: {payload.get('saga_id', '')} | 状态: {payload.get('status', '')}"
+        )
+
+
+@saga_group.command(name="compensate")
+@click.argument("request_id")
+@click.option("--actor", default="pm-workflow", show_default=True, help="补偿执行方")
+@click.option("--json-output", "as_json", is_flag=True, help="以 JSON 输出")
+@click.pass_context
+def saga_compensate(ctx: click.Context, request_id: str, actor: str, as_json: bool) -> None:
+    """补偿回滚已失败或需撤销的 Saga 事务，恢复所有修改文件。"""
+    service = AiHandoffService(_workspace(ctx))
+    try:
+        payload = service.compensate_saga(request_id, actor=actor)
+    except HandoffError as error:
+        _handle_error(error)
+    if as_json:
+        _json_output(payload)
+    else:
+        click.echo(
+            f"Saga 补偿回滚完成: {payload.get('saga_id', '')} | 状态: {payload.get('status', '')}"
+        )

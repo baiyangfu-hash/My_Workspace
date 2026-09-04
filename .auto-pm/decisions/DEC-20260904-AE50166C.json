@@ -1,0 +1,18 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260904-AE50166C",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-172",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/auto_pm/application/core/pm_saga_service.py",
+    "00_Infrastructure/auto_pm/auto_pm/application/core/ai_handoff_service.py",
+    "00_Infrastructure/auto_pm/auto_pm/ui/cli/handoff.py",
+    "00_Infrastructure/auto_pm/tests/core/test_pm_closure_saga.py"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-04T02:50:48.950359+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [],
+  "metadata": {}
+}

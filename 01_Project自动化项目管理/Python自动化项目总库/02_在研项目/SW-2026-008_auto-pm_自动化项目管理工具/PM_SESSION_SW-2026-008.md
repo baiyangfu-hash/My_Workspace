@@ -35,6 +35,8 @@
 - current_status: [治理中] 代码基线 V1.2.3 已迁至工作空间基础设施运行位；旧母体保留文档、变更管理、原型和交付档案，闭环资产正按可追溯原则归档。
 - in_progress: 文档资产治理与后续文档迁移评估；异构 PLC（欧姆龙/倍福）逆向解析适配器库暂不在本批次推进。
 - completed_milestones:
+  - 2026-09-04 [已验证] CHG-SCPT-2026-172 W2批次可恢复 PM Saga 事务日志：实现 8 步 WAL 顺序日志、Checkpoint 故障恢复、补偿回滚与 CLI 扩展。
+  - 2026-09-04 [已验证] CHG-SCPT-2026-171 证据门禁扩展：Scope Gating 决策包白名单越界拦截、跨资产变更单存在性与真实证据物理硬门禁闭环。
   - 2026-09-03 [已验证] CHG-SCPT-2026-170 驾驶舱防空壳实质化体系、结构化决策包契约（W0）与跨领域穿透门禁（W1-1）落地闭环。
   - 2026-08-27 [已验证] CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源校验技能文档（C1~C4）。
   - 2026-08-27 [已验证] CHG-SCPT-2026-166 落账门禁下沉：StageGateEngine G3 新增落账完整性 BLOCKER，PmSessionCheckService 新增落账新鲜度 WARN。
@@ -60,63 +62,28 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-09-04 CHG-SCPT-2026-172 W2批次 PM Saga 事务日志：落地 PmClosureSagaCoordinator，建立事务日志，支持失败注入与 checkpoint 恢复，单测 17 passed。
+  - 2026-09-04 CHG-SCPT-2026-171 证据门禁扩展：在 AiHandoffService._validate_closure 中下沉 Scope Gating 白名单越界拦截、跨资产单据物理存在性校验与交付物真实性硬门禁，补充 5 组全量单测用例。
   - 2026-09-01 文档资产评估与归档治理：已将闭环 CHG-SCPT、历史 HTML 原型、V1.1.0 历史交付包、旧迭代计划和过期诊断报告移入对应 archive；活区仅保留当前可用入口和未闭环草稿单。
-  - 2026-08-27 CHG-SCPT-2026-167 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源动态校验技能文档（阈值/状态机/编号格式/门禁口径），从根消除文档-代码口径漂移。
-  - 2026-08-27 CHG-SCPT-2026-166 落账门禁下沉：将 PM 收尾落账（变更单 + PM_SESSION 回写 + 台账对账）下沉为驾驶舱 PASS/FAIL 硬门禁，与 plc check 同等级，从根消除落账遗漏。
-  - 2026-08-23 CHG-SCPT-2026-164 008 驾驶舱 P2 代码质量收敛与工控现场友好排障增强：Ruff 白名单实现 0 告警，构建 IndustrialErrorMapper 统一转译工控异常，发布 V1.2.3。
-  - 2026-08-22 CHG-SCPT-2026-163 008 驾驶舱 P1 级架构安全加固与工控全域测试安全网深化：Bridge 层 120+ 处异常日志规范化，新增 PlcChecker 矩阵单测与 ModbusBridge 异步测试集，发布 V1.2.2。
-  - 2026-08-22 CHG-SCPT-2026-162 008 驾驶舱全维度严苛审计缺陷修复与工业级安全加固：根治 P0 运行时 Bug，补齐 Modbus/PLC 核心测试，修复覆盖率配置，收敛 Ruff/mypy。
-  - 2026-08-21 CHG-SCPT-2026-161 驾驶舱工业级逆向摄取流水线 (PlcIngest) 与 HMI 拓扑自适应标准 (STD-909) 落地：彻底净化模板底座，重塑 PM/PLC 双技能协同契约。
-  - 2026-08-17 CHG-SCPT-2026-160 全景 GUI 交互矩阵与 18 个弹窗遮罩/动效一致性加固：消灭透明穿透与接口参数不匹配，20 维真机冒烟测试全通。
-  - 2026-08-16 CHG-SCPT-2026-159 auto_pm 源码 Clean Architecture 5 层整洁架构物理重构：将 19 个平铺物理目录收拢为 contracts, domain, infrastructure, application, ui 5 大分层，1585 项测试全通。
 
 ## 6. Execution Log Summary
 
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-172，落地 C6 可恢复 PM Saga 事务日志与补偿机制，单元测试 17 passed 全绿。
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-171，落地 Scope Gating 与真实证据门禁，单元测试 9 passed + 全量门禁全绿。
 - 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-167，新增 SHC-017 SkillContractDriftChecker 契约对账器，tests/spec 回归 174 passed + mypy 全绿 + spec check -c SHC-017 通过。
-- 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-166，落地 StageGateEngine G3 落账 BLOCKER 与 PmSessionCheckService 落账新鲜度 WARN，全量 1741 项 pytest 全绿。
-- 2026-08-23：[已验证] 实施并闭环 CHG-SCPT-2026-164，落地 IndustrialErrorMapper 与 Ruff 白名单，发布 V1.2.3。
-- 2026-08-22：[已验证] 实施并闭环 CHG-SCPT-2026-163，完成 Bridge 异常审计与核心单测补齐，发布 V1.2.2。
-- 2026-08-22：[已验证] 实施并闭环 CHG-SCPT-2026-162，根治 P0 Bug，补齐 Modbus/PLC 核心测试，发布 V1.2.1。
-- 2026-08-21：[已验证] 实施 CHG-SCPT-2026-161，落地 `PlcIngestService` 工业逆向引擎与 Prototype 拓扑自适应裁剪。
-- 2026-08-17：[已验证] 实施全景 GUI 弹窗遮罩与动效重构，修复 ProjectEdit/PmInit/Archive 弹窗接口，20 步交互测试通过。
-- 2026-08-16：[已验证] 实施 CHG-SCPT-2026-159 物理架构分层重构，收拢为 5 大整洁分层，全量测试回归。
 
 ## 8. Handoff Notes
 
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-172 W2 闭环
+  - current_state: [已验证] W2 批次 C6 可恢复 PM Saga 事务日志完成消费并落账闭环。
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-171 W1-2 闭环
+  - current_state: [已验证] W1-2 证据门禁扩展（Scope Gating、变更单存在性、交付物真实性）完成消费并落账闭环。
+  - actions: AiHandoffService._validate_closure 下沉白名单越界拦截与跨资产物理真实性门禁。
 - 2026-09-01 | from=Codex | mode=SW-2026-008 文档资产评估与归档治理
-  - current_state: [治理中] 旧母体文档区已按“活文档保留、历史证据归档、变更管理只归档不删除”原则完成第一轮物理整理；本批不启动文档搬迁到基础设施位。
-  - actions:
-    - 已闭环 `CHG-SCPT-2026-101~143/146~152/154~155/157~159/161~168` 移至 `04_监控/01_变更管理/01_变更单/CHG-SCPT/archive/`。
-    - 未闭环草稿 `CHG-SCPT-2026-144/145/153/156` 保留在活区。
-    - HTML 原型活区仅保留 `020_UI架构原型_V15_Modbus工坊专项.html` 与 `021_UI架构原型_V16_新一代全功能驾驶舱.html`，V8~V14 移入 archive。
-    - V1.1.0 历史发布包与分发目录移入 `06_交付物/archive/V1.1.0_20260817/`。
-    - 旧迭代计划和过期综合诊断报告移入各自 archive。
-  - next_focus: 先验证台账链接、Doc-as-Code、规范检查和驾驶舱健康检查；验证通过后再判断是否把活文档迁至 `00_Infrastructure/auto_pm/docs` 或继续留在旧母体。
-- 2026-09-01 | from=Codex | mode=工作空间基础设施迁移第二批
-  - current_state: [双轨运行] 工作空间根入口与 editable install 默认指向 `00_Infrastructure/auto_pm`；本目录继续保留 SW-2026-008 项目历史、设计文档与回退参考。
-  - actions:
-    - 基础设施位文档服务优先读取 `00_Infrastructure/auto_pm` 代码源。
-    - 历史 `02_规划/` 与 `06_交付物/` 文档未迁走前，Doc-as-Code 同步/检查继续回灌旧母体文档，避免文档账断链。
-    - README 增加迁移状态提示，降低误从旧目录安装运行的风险。
-  - next_focus: 后续批次再评估是否迁移 `02_规划/`、`06_交付物/` 与变更单档案；未完成验证前不删除旧母体。
-- current_state: [已验证] auto-pm V1.2.3 架构稳固，CHG-SCPT-2026-167 契约对账器已闭环，SHC-017 从根消除技能文档-代码口径漂移。
-- 代码基线 V1.2.3
-- next_focus:
-  1. [P0] 验证真实项目 DJ-2026-009 落账门禁闭环（plc check + pm-session check + ledger reconcile）；
-  2. [P1] 持续推进异构 PLC（欧姆龙/倍福）逆向解析适配器库。
-- skill_handoff: fullstack-engineer 已完成 SHC-017 契约对账器编码并回执，pm-workflow 已完成收尾落账（变更单 completed + PM_SESSION 回写 + 台账对账）。
-- watchouts:
-  - 测试约束: GUI 测试必须支持可见模式截图，严禁使用 --tb=no 隐藏错误。
-  - 代码约束: 所有跨层调用必须经由 application/ 门面与 contracts/ 契约，严禁 UI 直接导入 domain 内部模块。
-  - 路径约束: 严格遵循 5 大过程组目录命名，禁止使用临时非标目录。
-- read_first:
-  - 04_监控/01_变更管理/01_变更单/CHG-SCPT/archive/CHG-SCPT-2026-167.md
 
 ## 9. Next Actions
 
-- [x] 任务 1: 流转变更单 CHG-SCPT-2026-167 至 implementing 并派发 fullstack-engineer 编码
-- [x] 任务 2: 落地 SHC-017 SkillContractDriftChecker（skill_contracts.py + checker_base.py 注册 + test_skill_contracts.py）
-- [x] 任务 3: 全量门禁验收（tests/spec 174 passed / mypy 改动文件全绿 / spec check -c SHC-017 通过）
-- [x] 任务 4: 流转变更单至 completed，回写 PM_SESSION §3/§8，台账对账
+- [x] 任务 8: 实施并闭环 CHG-SCPT-2026-172（W2 C6 可恢复 PM Saga 事务日志与补偿编排）
+- [x] 任务 7: 实施并闭环 CHG-SCPT-2026-171（W1-2 证据门禁扩展与 Scope Gating）
 - [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）
 - [ ] 任务 6: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）

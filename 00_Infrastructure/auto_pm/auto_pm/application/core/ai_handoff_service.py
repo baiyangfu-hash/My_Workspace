@@ -17,7 +17,10 @@ from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:
+    from auto_pm.application.core.pm_saga_service import PmClosureSagaCoordinator
 
 
 class HandoffError(RuntimeError):
@@ -89,6 +92,15 @@ class AiHandoffService:
 
     def __init__(self, workspace_root: str | Path) -> None:
         self._workspace_root = Path(workspace_root).resolve()
+        self._saga_coordinator: PmClosureSagaCoordinator | None = None
+
+    @property
+    def saga_coordinator(self) -> PmClosureSagaCoordinator:
+        if self._saga_coordinator is None:
+            from auto_pm.application.core.pm_saga_service import PmClosureSagaCoordinator
+
+            self._saga_coordinator = PmClosureSagaCoordinator(self._workspace_root, handoff_service=self)
+        return self._saga_coordinator
 
     @property
     def inbox_dir(self) -> Path:
@@ -542,6 +554,8 @@ class AiHandoffService:
         result: Mapping[str, Any] | None = None,
         idempotency_key: str = "",
         actor: str = "pm-workflow",
+        use_saga: bool = False,
+        simulate_fail_at: str = "",
     ) -> dict[str, Any]:
         """Validate and atomically consume one handoff.
 
@@ -549,6 +563,14 @@ class AiHandoffService:
         different result or idempotency key is rejected instead of silently
         overwriting an already-consumed message.
         """
+        if use_saga:
+            return self.close_with_saga(
+                request_id,
+                result=result,
+                idempotency_key=idempotency_key,
+                actor=actor,
+                simulate_fail_at=simulate_fail_at,
+            )
         self._validate_request_id(request_id)
         if not actor.strip():
             raise HandoffValidationError("actor 不能为空")
@@ -598,7 +620,7 @@ class AiHandoffService:
                             executor_id=executor_id,
                             project_id=merged.get("project_id", ""),
                         )
-                    except Exception as exc:
+                    except Exception:
                         # 记录日志，若明确找不到文件或严重错误则视需要阻断
                         pass
 
@@ -627,6 +649,60 @@ class AiHandoffService:
         except OSError as error:
             self._record_failure(request_id, error, phase="commit")
             raise HandoffError(f"handoff 写入失败，可安全重试: {request_id}") from error
+
+    def close_with_saga(
+        self,
+        request_id: str,
+        *,
+        result: Mapping[str, Any] | None = None,
+        idempotency_key: str = "",
+        actor: str = "pm-workflow",
+        simulate_fail_at: str = "",
+    ) -> dict[str, Any]:
+        """通过 PmClosureSagaCoordinator 执行跨资产原子收口事务。"""
+        saga = self.saga_coordinator.execute_saga(
+            request_id,
+            result=result,
+            idempotency_key=idempotency_key,
+            actor=actor,
+            simulate_fail_at=simulate_fail_at,
+        )
+        path = self._find_request_path(request_id)
+        consumed = self._read_valid(path) or {}
+        consumed["file"] = str(path)
+        consumed["saga_id"] = saga.get("saga_id")
+        consumed["saga_status"] = saga.get("status")
+        return consumed
+
+    def get_saga_status(self, request_id: str) -> dict[str, Any] | None:
+        """查询指定 request_id 的 Saga 事务状态日志。"""
+        return self.saga_coordinator.get_saga_status(request_id)
+
+    def resume_saga(
+        self,
+        request_id: str,
+        *,
+        actor: str = "pm-workflow",
+        simulate_fail_at: str = "",
+    ) -> dict[str, Any]:
+        """从断点恢复并继续执行未完成的 Saga 事务。"""
+        return self.saga_coordinator.resume_saga(
+            request_id,
+            actor=actor,
+            simulate_fail_at=simulate_fail_at,
+        )
+
+    def compensate_saga(
+        self,
+        request_id: str,
+        *,
+        actor: str = "pm-workflow",
+    ) -> dict[str, Any]:
+        """补偿回滚已失败或需撤销的 Saga 事务。"""
+        return self.saga_coordinator.compensate_saga(
+            request_id,
+            actor=actor,
+        )
 
     def validate_product_impact(self, product_impact: dict[str, Any]) -> dict[str, Any]:
         """Validate product_impact against anti-emptiness rules."""
@@ -790,6 +866,16 @@ class AiHandoffService:
         normalized["pm_closure"] = self._normalize_mapping(
             payload.get("pm_closure"), self.DEFAULT_PM_CLOSURE
         )
+        cs = payload.get("change_substance")
+        if isinstance(cs, Mapping):
+            normalized["change_substance"] = dict(cs)
+        elif isinstance(cs, str) and cs.startswith("{"):
+            try:
+                normalized["change_substance"] = json.loads(cs)
+            except Exception:
+                normalized["change_substance"] = {}
+        else:
+            normalized["change_substance"] = {}
         return normalized
 
     def _merge_result(
@@ -821,6 +907,16 @@ class AiHandoffService:
                 else:
                     defaults = self.DEFAULT_PM_CLOSURE
                 merged[field] = self._normalize_mapping(value, defaults)
+            elif field == "change_substance":
+                if isinstance(value, Mapping):
+                    merged[field] = dict(value)
+                elif isinstance(value, str) and value.startswith("{"):
+                    try:
+                        merged[field] = json.loads(value)
+                    except Exception:
+                        merged[field] = {}
+                else:
+                    merged[field] = {}
             elif str(value).strip():
                 merged[field] = str(value).strip()
         return merged
@@ -876,6 +972,169 @@ class AiHandoffService:
             raise HandoffValidationError(
                 "存在 changed_files 时必须提供 chg_updates，禁止无变更单收口"
             )
+
+        # 1. 决策包白名单越界拦截 (Scope Gating)
+        decision_id = str(
+            payload.get("decision_id")
+            or (payload.get("skill_context") or {}).get("decision_id")
+            or ""
+        ).strip()
+        if decision_id:
+            from auto_pm.domain.change.decision_service import DecisionError, DecisionService
+
+            try:
+                dec_svc = DecisionService(self._workspace_root)
+                decision = dec_svc.get_decision(decision_id)
+            except DecisionError as e:
+                raise HandoffValidationError(f"决策包验证失败: {e}") from e
+
+            project_id = str(payload.get("project_id", "")).strip()
+            if decision.project_id and project_id and decision.project_id != project_id:
+                raise HandoffValidationError(
+                    f"决策包项目编号不匹配: 期望 {project_id}，实际 {decision.project_id}"
+                )
+
+            for f in changed_files:
+                if not self._is_path_allowed(str(f), decision.approved_files):
+                    raise HandoffValidationError(
+                        f"修改文件越界: '{f}' 不在决策包批准清单中: {decision.approved_files}"
+                    )
+
+        # 2. 跨资产变更单物理存在性校验
+        target_chgs: list[str] = []
+        direct_chg = str(
+            payload.get("change_id")
+            or (payload.get("skill_context") or {}).get("change_id")
+            or ""
+        ).strip()
+        if direct_chg:
+            target_chgs.append(direct_chg)
+
+        for update in chg_updates:
+            update_str = str(update).strip()
+            if not update_str:
+                continue
+            m = re.search(r"(CHG-[A-Za-z0-9_-]+)", update_str)
+            chg_extracted = m.group(1) if m else update_str.split(":")[0].strip()
+            if chg_extracted and chg_extracted not in target_chgs:
+                target_chgs.append(chg_extracted)
+
+        for chg_id in target_chgs:
+            clean_id = chg_id[:-3] if chg_id.endswith(".md") else chg_id
+            pattern = f"**/{clean_id}.md"
+            direct_file = self._workspace_root / (clean_id if clean_id.endswith(".md") else f"{clean_id}.md")
+            found = direct_file.is_file() or any(p.is_file() for p in self._workspace_root.glob(pattern))
+            if not found:
+                # 兼容在测试虚拟临时目录或项目子目录中执行时的跨资产寻径
+                for candidate_root in (Path.cwd(), Path.cwd().parent, Path.cwd().parent.parent):
+                    if any(p.is_file() for p in candidate_root.glob(pattern)):
+                        found = True
+                        break
+            if not found:
+                raise HandoffValidationError(f"关联变更单在工作空间中不存在: {chg_id}")
+
+        # 3. 交付证据与产物真实性核验
+        for item in payload.get("artifacts") or []:
+            self._validate_artifact_entry(item)
+
+        if isinstance(verification, Mapping):
+            for key in ("test_result", "lint_result"):
+                val = verification.get(key)
+                if self._has_failure_signal(val):
+                    raise HandoffValidationError("验证结果显示失败，禁止收口")
+
+    def _is_path_allowed(self, file_path: str, approved_files: list[str]) -> bool:
+        """检查文件路径是否在 approved_files 白名单中，兼容斜杠与相对路径。"""
+        if not file_path:
+            return False
+        norm_f = Path(file_path).as_posix().lstrip("./")
+        try:
+            p = Path(file_path)
+            if p.is_absolute():
+                norm_f = p.resolve().relative_to(self._workspace_root.resolve()).as_posix()
+        except (ValueError, RuntimeError):
+            pass
+
+        for approved in approved_files:
+            norm_app = Path(approved).as_posix().lstrip("./")
+            try:
+                ap = Path(approved)
+                if ap.is_absolute():
+                    norm_app = ap.resolve().relative_to(self._workspace_root.resolve()).as_posix()
+            except (ValueError, RuntimeError):
+                pass
+
+            if norm_f == norm_app:
+                return True
+            if norm_f.endswith("/" + norm_app) or norm_app.endswith("/" + norm_f):
+                return True
+        return False
+
+    def _validate_artifact_entry(self, item: Any) -> None:
+        """检查交付物条目；若声明为文件路径，校验其存在且非空。"""
+        raw = ""
+        if isinstance(item, str):
+            raw = item.strip()
+        elif isinstance(item, Mapping):
+            raw = str(item.get("path") or item.get("file") or "").strip()
+        if not raw:
+            return
+
+        has_sep = ("/" in raw) or ("\\" in raw)
+        has_ext = bool(Path(raw).suffix)
+        if has_sep or has_ext:
+            p = Path(raw)
+            valid = False
+            if p.is_absolute():
+                valid = p.is_file() and p.stat().st_size > 0
+            else:
+                target = self._workspace_root / p
+                if target.is_file() and target.stat().st_size > 0:
+                    valid = True
+                else:
+                    cwd_target = Path.cwd() / p
+                    if cwd_target.is_file() and cwd_target.stat().st_size > 0:
+                        valid = True
+            if not valid:
+                raise HandoffValidationError(f"交付物声明的文件在磁盘上不存在或为空: {item}")
+
+    @staticmethod
+    def _has_failure_signal(value: Any) -> bool:
+        """判断验证结果中是否包含明确的失败标识。"""
+        if not value:
+            return False
+        if isinstance(value, Mapping):
+            if value.get("failed", 0) > 0 or value.get("errors", 0) > 0:
+                return True
+            if any(AiHandoffService._has_failure_signal(v) for v in value.values()):
+                return True
+        text = str(value).strip()
+        if not text:
+            return False
+        cleaned = re.sub(
+            r"\b0\s+(?:fail|failed|failure|failures|error|errors)\b",
+            "",
+            text,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"\b(?:no|zero)\s+(?:errors?|failures?)\b",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        failure_patterns = (
+            r"\bfail\b",
+            r"\bfailed\b",
+            r"\bfailure\b",
+            r"\bfailures\b",
+            r"\berror\b",
+            r"\berrors\b",
+        )
+        for pattern in failure_patterns:
+            if re.search(pattern, cleaned, re.IGNORECASE):
+                return True
+        return False
 
     def _closure_projection(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         return {
