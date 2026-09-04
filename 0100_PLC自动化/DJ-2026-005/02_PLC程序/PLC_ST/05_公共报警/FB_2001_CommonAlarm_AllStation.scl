@@ -33,6 +33,8 @@ VAR CONSTANT
     ALM_WORD_ZERO           : WORD := 0;     // 报警字零值
     ALM_CODE_SAFETY_TIMEOUT : INT := 2009;   // 安全回看看门狗超时报警代码 (STD-860)
     ALM_BIT_SAFETY_TIMEOUT  : WORD := 16#0008; // 报警字第3位: 安全回路看门狗超时
+    ALM_CODE_HEARTBEAT_LOST : INT := 2010;   // 外部设备通信心跳丢失报警代码 (STD-860/820)
+    ALM_BIT_HEARTBEAT_LOST  : WORD := 16#0010; // 报警字第4位: 外部设备通信心跳丢失
 END_VAR
 
 (* -------------------------------------------------------------------------- *)
@@ -92,6 +94,12 @@ IF (io_stGlobal.i_iConveyorAlarm = ALM_CODE_SAFETY_TIMEOUT) OR
    (io_stGlobal.i_iPickPlaceAlarm = ALM_CODE_SAFETY_TIMEOUT) OR
    (io_stGlobal.i_iFeederAlarm = ALM_CODE_SAFETY_TIMEOUT) THEN
     io_stGlobal.o_wGlobalAlarmWord := io_stGlobal.o_wGlobalAlarmWord OR ALM_BIT_SAFETY_TIMEOUT;
+END_IF;
+
+IF (io_stGlobal.i_iConveyorAlarm = ALM_CODE_HEARTBEAT_LOST) OR
+   (io_stGlobal.i_iPickPlaceAlarm = ALM_CODE_HEARTBEAT_LOST) OR
+   (io_stGlobal.i_iFeederAlarm = ALM_CODE_HEARTBEAT_LOST) THEN
+    io_stGlobal.o_wGlobalAlarmWord := io_stGlobal.o_wGlobalAlarmWord OR ALM_BIT_HEARTBEAT_LOST;
 END_IF;
 
 (* -------------------------------------------------------------------------- *)
