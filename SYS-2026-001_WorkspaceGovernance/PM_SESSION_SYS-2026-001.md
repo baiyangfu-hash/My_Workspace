@@ -14,16 +14,14 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: 已完成 W1-2 证据门禁扩展：跨资产与决策包预检闭环（CHG-SCPT-2026-171 与消费 AI-20260904-015823-38A19B9C），下沉 Scope Gating 与证据真实性硬门禁。
-- milestone: 工作树治理第一轮 ✅ 已完成；驾驶舱迁移第一/二批 ✅ 已验证；文档资产第一轮归档 ✅ 已验证；Dogfooding WBS 0 至 9 ✅ 全部通过；RC1 PM 收口 ✅；W0-1/W0-2/W1-1/W1-2 微迭代 ✅ 已闭环；Git 物理硬锁与台账合规 ✅ 已闭环
-- code_baseline: 驾驶舱当前代码基线包含 W1-2，运行位为 `00_Infrastructure/auto_pm`
+- current_focus: User 已批准 SW-2026-008 “研发母体 + 稳定部署”单向发布架构；当前仅完成 ADR、差异回收方案、发布/回退 WBS 与验收标准，工程门禁仍为 NO-GO。
+- milestone: 单向发布目标架构 ✅ 已批准；WBS-2 Bootstrap R0 ✅ PASS；差异回收、双槽部署、切流和回退实施 ⛔ 未授权
+- code_baseline: 当前物理 import 仍来自 `00_Infrastructure/auto_pm`，但已批准的目标基线将 SW-2026-008 定义为唯一研发母体，基础设施位仅作稳定部署容器
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅ + Scope Gating 与真实证据硬门禁 ✅
 
 ## 3. Status Summary（当前状态摘要）
-- in_progress:
-  - W0、W1-1、W1-2（决策包连接、跨领域关联穿透、Scope Gating 越界拦截与证据真实性）已全部闭环落账，存量变更单与全仓台账 100% 对齐
-- next_up:
-  - W2（可恢复 PM Saga 事务日志）或 WBS-C6 PM Saga 收口增强
+- in_progress: 架构决策已落账；冻结 HEAD、index、母体、基础设施位与 WBS-2 证据，等待 WBS-1 独立批准
+- next_up: 报批只读全量差异事实包 + `DEC-20260904-3362BFFF` 语义冲突纠偏方案
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI、基础原子消费和只读队列快照；PM_SESSION、变更单和反馈仍由 PM 单一 owner 收口
@@ -31,6 +29,8 @@
   - 活跃规划/交付文档暂留旧母体，后续迁移前需先确定唯一真源，避免文档双份维护
   - `CHG-SCPT-2026-161` 至 `164` 保留历史结构告警，后续单独治理，不在本批改写审计证据
   - 驾驶舱迭代自身存在循环自证风险，必须采用稳定控制面复核候选开发面的双钥匙门禁
+  - 当前 `DEC-20260904-3362BFFF` 在决策 JSON 与 WBS-2 法证批准原文之间存在语义冲突；不得改写旧证据，必须新建纠偏记录
+  - 当前 `.venv` 仍通过 editable `.pth` 挂接基础设施位，与已批准的目标架构不符；本轮未授权修改
   - WBS 0 中发现的 22 个未验证 PLC 研发现场文件已停放于 `.auto-pm/reports/archive/wbs0-backup-20260901/parked-current/`，仅作为可回退备份，不纳入治理提交
   - WBS 1 后代码真源已锁定，但活跃产品文档仍在 SW 母体；文档单轨迁移必须等待同步策略和门禁先行
 - spec_compliance:
@@ -52,6 +52,7 @@
 - handoff_queue_acceptance: 01_项目文档/10_SW-2026-008_WBS8_handoff工作队列验收矩阵_REP.md
 - migration_closure: 01_项目文档/11_SW-2026-008_迁移收口与退路决策_REP.md
 - cockpit_enforced_closure_handoff: 01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md
+- sw008_architecture_pack: ../01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/`005_ADR`、`006_MATRIX`、`007_TEC`、`GO_NOGO_CHECK_REPORT.md`
 
 ## 5. Logs（按事件沉淀）
 - 2026-06-16 P2节奏固化完成：P2.1-P2.4全部完成（2026-08-26重基线：P2.4已吸收进工具链统一口径）
@@ -65,6 +66,7 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-04 | skill=pm-workflow | mode=SW-2026-008 单向发布架构规划 | result=User 批准目标架构与四份规划产物；工程 NO-GO，不授权 WBS-3、文件/入口操作、提交或发布 | evidence=`RESUME-8A40C46458D08312`、`FACT-CA141A67B032FDFA`、`GO-NOGO-SW008-20260904-001`
 - 2026-09-04 | skill=pm-workflow | mode=W2 PM closure
   - request_id: `AI-20260904-025057-B2D157BC`
   - result: fullstack execution 已通过 preflight 并消费为 `consumed`；CHG-SCPT-2026-172 已闭环流转至 closed；PmClosureSagaCoordinator 落地，8 步顺序事务日志、失败注入与 checkpoint 恢复验证全绿。
@@ -83,6 +85,7 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
+- 2026-09-04 | from=pm-workflow | mode=SW-2026-008 architecture baseline | status=planning approved / engineering frozen | decision=SW 母体、infra stable、`.auto-pm` 状态、Obsidian 规范 | gate=WBS-3 后续须 User 再批准
 - 2026-09-04 | from=pm-workflow | mode=W2 closure
   - request_id: `AI-20260904-025057-B2D157BC`
   - status: `consumed`
@@ -98,7 +101,7 @@
   - gate: 全量 pytest、Ruff、Mypy、`git diff --check` 与 ledger reconcile 必须全部通过，随后仅等待用户验收和提交决策。
 - archive: 2026-09-01 历史交接记录已完整保存至 `05_收尾/PM_SESSION归档/Handoff_Notes_SYS-2026-001_20260901.md`
 - current_state: 当前工作空间级控制面为 `00_Infrastructure/auto_pm`，旧 SW 母体保留产品文档、变更历史和回退参考。
-- current_focus: 以受控 Dogfooding 运行基础设施位驾驶舱，WBS 0/1/2/3/4/5/6/7/8/9 已完成；当前进入迁移后观察期。
+- historical_focus_superseded: 旧口径曾记录“基础设施位作为代码真源且 Dogfooding WBS 0-9 完成”；该口径已被 2026-09-04 的单向发布架构决策取代，仅保留为历史证据。
 - handoff_gap: handoff.v1 已具备预检、原子消费、失败证据、重试和只读队列快照；PM_SESSION、CHG、台账和反馈的业务落账仍保持 PM 单一 owner。
 - gate: 候选版本必须通过自身测试和稳定版外部复核，PM_SESSION、CHG、台账和反馈完成对账后才可收口。
 - watchouts: PLC 技能只做域验收；不得将 `DJ-2026-005` 未全绿研发现场混入驾驶舱治理提交。
@@ -106,6 +109,9 @@
 - status: [已验证] WBS 0/1/2/3/4/5/6/7/8/9 完成；代码单轨成立；旧母体回退保留；工作树在每个提交门前保持可解释
 
 ## 9. Next Actions
+- [已完成] 批准 SW-2026-008 研发母体 + 稳定部署单向发布架构 | result=ADR、差异回收方案、WBS 与验收标准已编制；不代表实施授权
+- [待报批] WBS-1 全量差异事实包 + 决策链纠偏记录 | precondition=User 对只读事实包与新 disposition/supersession 的明文批准 | done_when=完整哈希/Git/来源矩阵生成并独立复核
+- [未授权] WBS-3 至 WBS-8 | gate=不得移动、覆盖、删除、修复、提交、Tag、部署、切流或回退
 - [已完成] SW-2026-008 W2 C6 可恢复 PM Saga 事务日志 | result=AI-20260904-025057-B2D157BC 已消费；CHG-SCPT-2026-172 已 closed；Saga 事务日志与补偿全绿
 - [已完成] SW-2026-008 W1-2 证据门禁扩展：跨资产与决策包预检 | result=AI-20260904-015823-38A19B9C 已消费；CHG-SCPT-2026-171 已 closed；Scope Gating 与真实证据门禁全绿
 - [已完成] SW-2026-008 RC1（C1 与 C2a 已批准范围） | result=四份 execution handoff 已消费；PM 收口与独立门禁验收已完成；不代表 C3 至 C7 完成
