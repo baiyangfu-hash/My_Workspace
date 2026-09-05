@@ -1,0 +1,19 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260904-94CCE59D",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-DOCU-2026-001",
+  "approved_scope": "LOCAL",
+  "approved_files": [
+    ".auto-pm/reports/SW-2026-008_WBS1_full_diff_fact_pack_20260904.json",
+    ".auto-pm/reports/SW-2026-008_WBS1_decision_chain_disposition_20260904.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-04T21:42:12.557021+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "仅生成只读事实与纠偏方案，不移动、覆盖、删除或修复任何源码",
+    "单个执行任务最长 20 分钟，超时即停止并提交阶段性证据"
+  ],
+  "metadata": {}
+}

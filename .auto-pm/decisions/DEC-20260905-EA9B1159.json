@@ -1,0 +1,23 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-EA9B1159",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-DOCU-2026-005",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/.gitignore",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/06_交付物/001_用户操作指南与排障手册_USER_GUIDE.md",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-DOCU/CHG-DOCU-2026-005.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T20:44:16.603118+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Only recover the single user guide, unignore that exact file, update stale source-of-truth text, and validate the candidate reference.",
+    "No stable deployment, entrypoint, runtime, dependency, Obsidian, main-index or other delivery-output mutation."
+  ],
+  "metadata": {}
+}

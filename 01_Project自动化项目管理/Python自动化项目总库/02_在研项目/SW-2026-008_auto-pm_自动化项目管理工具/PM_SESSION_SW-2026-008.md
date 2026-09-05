@@ -7,8 +7,10 @@
 - project_root: 01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具
 - runtime_root: 00_Infrastructure/auto_pm
 - runtime_status: 双轨运行中，基础设施位为默认运行入口，旧项目母体保留为历史记录与回退来源
+- target_source_of_truth: SW-2026-008 为唯一研发母体；00_Infrastructure/auto_pm 只作稳定部署容器
+- architecture_transition_status: 目标架构已批准，物理迁移、入口切换和发布尚未授权
 - version: V1.2.3
-- last_updated: 2026-09-01
+- last_updated: 2026-09-05
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -20,7 +22,7 @@
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: **2026-09-01 文档资产评估与归档治理：在不删除旧母体、不删除变更管理资产的前提下，区分活文档、历史计划、历史原型、历史交付物与闭环变更单档案，为后续文档迁移降低风险**。
+- current_focus: **NG-WP-10 母体全量 Gate 1 已整改复跑全绿（10 项门禁 Exit 0，pytest 1900 passed）；当前执行 NG-WP-11 冻结候选提交与制品构建（User 已于 2026-09-05 批准）；NG-WP-12 起未授权**。
 - risks_dependencies:
   - Ruff 静态代码检查已实现 100% Clean Exit (0 告警)
   - IndustrialErrorMapper 统一异常转译上线并补充 10 项单测
@@ -32,8 +34,9 @@
 
 ## 3. Status Summary
 
-- current_status: [治理中] 代码基线 V1.2.3 已迁至工作空间基础设施运行位；旧母体保留文档、变更管理、原型和交付档案，闭环资产正按可追溯原则归档。
-- in_progress: 文档资产治理与后续文档迁移评估；异构 PLC（欧姆龙/倍福）逆向解析适配器库暂不在本批次推进。
+- 2026-09-05 [已验证] NG-WP-03 至 NG-WP-10：在 detached candidate 完成契约、事务、决策、编排器与归档的逐包回收加固，Gate 1 整改复跑 10 项门禁全绿（pytest 1900 passed/16 skipped），candidate 变更 100% 位于批准白名单。
+- current_status: [架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。
+- in_progress: NG-WP-11 冻结候选提交、制品构建、manifest 与隔离安装验证（授权：CHG-SCPT-2026-013）。
 - completed_milestones:
   - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：实现执行流水线、项目/单据/白名单强门禁、事务沙箱原子回滚、verify_only预检与auto_commit提交，单测 21 passed 全绿。
@@ -51,7 +54,7 @@
   - 2026-08-21 [已验证] CHG-SCPT-2026-161 驾驶舱工业逆向摄取 (PlcIngest) 与 HMI 拓扑自适应标准 (STD-909) 落地。
   - 2026-08-17 [已验证] 20 维全景 GUI 交互与弹窗深度矩阵测试通过，20 张真机快照存档。
   - 2026-08-16 [已验证] CHG-SCPT-2026-159 Clean Architecture 5 层整洁架构物理重构完成，消除平铺目录。
-- open_questions: 
+- open_questions:
   - [技术债已消除] 驾驶舱项目管理硬删除技术债已于 2026-09-04 通过 CHG-SCPT-2026-177 彻底消除，已全面建立领域就近路由、三道硬门禁、台账自动化与逆向恢复引擎。
 
 ## 4. Artifacts Index
@@ -109,6 +112,9 @@
 - 2026-09-01 | from=Codex | mode=SW-2026-008 文档资产评估与归档治理
 
 ## 9. Next Actions
+
+- [已完成] 单向发布架构规划基线 | result=ADR-SW008-001、差异回收方案、发布/回退 WBS 与验收标准已编制；治理在 SYS-2026-001 落账
+- [待报批] WBS-1 全量只读差异事实包 + 决策链纠偏记录 | gate=未批准前不修复、移动、覆盖、删除、提交、发布或切流
 
 - [x] 任务 13: [高优先技术债 / 必做] 实施 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎（ProjectService.archive/restore、三道硬门禁、台账自动化、CLI/GUI双视图）
 - [x] 任务 12: 实施并闭环 CHG-SCPT-2026-176（Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute）

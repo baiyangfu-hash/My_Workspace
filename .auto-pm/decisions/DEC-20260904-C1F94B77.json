@@ -1,0 +1,19 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260904-C1F94B77",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-DOCU-2026-002",
+  "approved_scope": "LOCAL",
+  "approved_files": [
+    ".auto-pm/decisions/dispositions/DISP-20260904-3362BFFF-01.json"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-04T22:05:08.493134+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "仅新增 decision_disposition.v1 记录；不得修改 DEC-20260904-3362BFFF 或历史法证文件",
+    "effect 仅面向未来动作；不批准 R1/R2/R3、源码回收、Git stage/commit、部署、切流或清理",
+    "目标 DEC SHA-256 必须精确等于 5845ffe07b71a399a45062b0afc7e5c0e93f48b0384b942ca09d4ba36969462c；不一致则 Fail-Closed"
+  ],
+  "metadata": {}
+}
