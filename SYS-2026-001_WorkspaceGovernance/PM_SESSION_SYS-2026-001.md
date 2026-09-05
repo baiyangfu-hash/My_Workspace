@@ -73,6 +73,7 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-14 | result=首个候选 release `1.2.3-d41eb38`（450 文件）持锁构建并逐文件 SHA-256 登记；Gate 2 十用例净化验证全过（provenance/17 CLI help/doctor/只读 list/doc check/spec check/GUI import/smoke 子集 27 passed/篡改检出/指针未动）；发现并修复真实入口 API 缺陷（run_qml_app→run_qml_gui，两侧历史均无 run_qml_app，旧根入口自重构起即无法启动）；指针保持 null，切流移交 NG-WP-15 | evidence=`CHG-SCPT-2026-016`、`DEC-20260905-042E7439`、`NG-WP-14_gate2_report_2026-09-05.md`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-13 | result=生产入口双槽化：根 main.py 重写为 bootstrap 双槽解析（active→previous 唯一回退，双槽无效非零退出，删除母体/平铺回退，provenance 硬断言）；容器新增 stdlib-only bootstrap.py，launch.py 重构复用；setup_env.bat 移除 editable 安装；钩子 v3 以 PYTHONPATH 注入容器解除 editable 依赖；`.venv` 卸载 auto-pm editable；全量回归 1946 passed/18 skip；六场景隔离矩阵全过且无母体泄漏；candidate `d41eb38` + 双树逐字节一致 | evidence=`CHG-SCPT-2026-015`、`DEC-20260905-6CDEC2DB`、`NG-WP-13_isolation_evidence_2026-09-05.md`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-12 | result=稳定容器骨架落地：launcher（解析校验、fail-closed，不执行 release）、releases/ 空槽、双指针 null 未初始化、空 manifest、`.lock` 运行期互斥语义；母体 `DeploymentContainer`（release-id 校验/releases containment/指针原子写/manifest SHA-256 核验/独占锁）提交 `92e2c94`；全量 1936 passed/17 skip、Ruff/Mypy/provenance/doc 全 Exit 0；隔离矩阵 8 用例通过且真实容器只读；遗留钩子模板缺陷已在稳定侧 `git_hook.py` 修复（再生成与本地修复版逐字节一致），candidate 提交验证钩子真实生效；未切入口、未部署 active、主工作区未提交 | evidence=`CHG-SCPT-2026-014`、`DEC-20260905-3DB6BE6C`、`NG-WP-12_isolation_evidence_2026-09-05.md`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-11 | result=主工作区一次收口提交 `efee250`；candidate 冻结提交 `87183fb29d5d99730c90fe25db2ca6a020098ab3`（262 文件）；从冻结 commit `git archive` 导出 886 文件构建 `auto_pm-1.2.3-py3-none-any.whl`（SHA-256 `ca47b787f8cb55ef2ec48ac01e2747e65f138e848fc3a96b326077a5c823bde7`）；逐文件 SHA-256 manifest、requirements.lock 副本、构建环境元数据落盘 `.auto-pm/artifacts/sw-2026-008/NG-WP-11/`；空隔离目录安装 + `python -S` provenance 探针通过且无稳定部署泄漏；制品可仅由 source commit 重建 | evidence=`CHG-SCPT-2026-013`、`DEC-20260905-89511831`、`build_metadata.json`、`install_verification.json`
@@ -105,6 +106,7 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
+- 2026-09-05 | from=fullstack-engineer | mode=NG-WP-14 | status=`completed / gate2 green, inactive slot deployed` | decision=`DEC-20260905-042E7439` | gate=NG-WP-15 原子切流（Tag + 指针翻转会 + launcher 冒烟 + 回归）
 - 2026-09-05 | from=fullstack-engineer | mode=NG-WP-13 | status=`completed / entry decoupled, awaiting release` | decision=`DEC-20260905-6CDEC2DB` | gate=active 未初始化期间 main.py 非零退出（连续作业窗口，由 NG-WP-15 切流恢复）；NG-WP-14 部署非活动槽做 Gate 2，NG-WP-15 原子切流
 - 2026-09-05 | from=fullstack-engineer | mode=NG-WP-12 | status=`completed / skeleton-only` | decision=`DEC-20260905-3DB6BE6C` | gate=NG-WP-13（根入口与环境解耦）需独立 CHG/DEC；git_hook.py 母体回收待后续回收包；治理落账提交待用户授权
 - 2026-09-05 | from=fullstack-engineer | mode=NG-WP-11 | status=`completed / candidate-frozen + artifact built` | decision=`DEC-20260905-89511831` | gate=NG-WP-12（稳定部署双槽骨架）需独立 CHG/DEC 且不继承本批准；本包 PM 落账后的台账/PM_SESSION 提交需下一次提交授权（本次授权仅一次提交）
