@@ -1,0 +1,24 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-74C2F7A1",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-003",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/contracts/workflow_dtos.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/contracts/test_workflow_dtos.py",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    ".agents/sw-2026-008_ng-wp-02_handoff_result.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-003.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T04:04:19.141813+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "仅在 detached candidate 修改两个白名单路径；部署侧、稳定部署、入口、运行状态与冻结 index 不得改动。",
+    "必须保留源 SHA 533632561dcb6be5e195a2c5e14ade5b07e79ee247b7fe6d432763f37f7e5057 和 AC5117823c3fe26b6b8b82e1791526702d4c63e01c9275eaf3c2ee935a292b64 的行为，并在 -S 隔离进程通过专项测试。"
+  ],
+  "metadata": {}
+}
