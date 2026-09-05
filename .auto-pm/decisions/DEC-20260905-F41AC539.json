@@ -1,0 +1,26 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-F41AC539",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-004",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/change_transaction.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/test_change_transaction.py",
+    ".agents/sw-2026-008_ng-wp-04_skill_context.json",
+    ".agents/sw-2026-008_ng-wp-04_handoff_result.json",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-004.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T04:27:18.422653+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "只在 detached candidate 写入两个产品路径；稳定部署、根入口、.trae、Obsidian、真实 .auto-pm 运行状态和冻结 index 禁止修改。",
+    "修复工作区外绝对路径、..、symlink/reparse 越界；回滚失败保留 backup 和错误状态，不得宣称 ROLLED_BACK。",
+    "每个写入、移动、恢复步骤须故障注入；仅候选临时目录可被测试写入；必须通过专项 pytest、Ruff、Mypy、import provenance 与 diff check。"
+  ],
+  "metadata": {}
+}
