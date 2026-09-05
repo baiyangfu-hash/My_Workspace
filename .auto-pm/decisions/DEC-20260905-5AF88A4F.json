@@ -1,0 +1,25 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-5AF88A4F",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-006",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/workflow_orchestrator.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/test_workflow_orchestrator.py",
+    ".agents/sw-2026-008_ng-wp-06_skill_context.json",
+    ".agents/sw-2026-008_ng-wp-06_handoff_result.json",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-006.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T04:51:05.672745+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Only detached candidate product files; no stable, entrypoint, runtime, .trae, Obsidian, or main-index writes.",
+    "Remove implicit git add/commit; canonical containment; no arbitrary metadata callback; verify_only zero write; partial verification default false; resume fail-closed."
+  ],
+  "metadata": {}
+}
