@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from auto_pm.core.project_service import ProjectService
 from auto_pm.db.connection import DatabaseManager
 from auto_pm.db.repository import ChangeRequestRepository
@@ -341,3 +340,37 @@ class TestGitHooks:
         assert unres["success"] is True
         assert svc.is_git_hooks_installed(str(tmp_path)) is False
         assert not hook_file.is_file()
+
+
+# ── Project Archive & Restore 方法测试 ─────────────────────
+
+
+class TestProjectArchiveMethods:
+    """ProjectService 归档、恢复与删除方法测试"""
+
+    def test_delete_project_without_force_raises(self, tmp_path: Path) -> None:
+        """测试未传 force=True 时拒绝硬删除"""
+        proj_dir = tmp_path / "SW-2026-TEST"
+        proj_dir.mkdir()
+        (proj_dir / ".copier-answers.yml").write_text("project_id: SW-2026-TEST\n", encoding="utf-8")
+
+        svc = ProjectService(str(tmp_path))
+        with pytest.raises(RuntimeError, match="推荐使用 archive_project"):
+            svc.delete_project("SW-2026-TEST", force=False)
+
+    def test_delete_project_not_found(self, tmp_path: Path) -> None:
+        """测试删除不存在的项目抛出 FileNotFoundError"""
+        svc = ProjectService(str(tmp_path))
+        with pytest.raises(FileNotFoundError, match="项目不存在"):
+            svc.delete_project("NOT-EXIST", force=True)
+
+    def test_delete_project_with_force(self, tmp_path: Path) -> None:
+        """测试指定 force=True 执行物理硬删除"""
+        proj_dir = tmp_path / "SW-2026-TEST"
+        proj_dir.mkdir()
+        (proj_dir / ".copier-answers.yml").write_text("project_id: SW-2026-TEST\n", encoding="utf-8")
+
+        svc = ProjectService(str(tmp_path))
+        svc.delete_project("SW-2026-TEST", force=True)
+        assert not proj_dir.exists()
+

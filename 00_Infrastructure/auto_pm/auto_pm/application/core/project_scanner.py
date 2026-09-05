@@ -632,3 +632,82 @@ class ProjectScanner:
             else:
                 # 非项目目录，继续递归
                 self._scan(entry_path, results, depth + 1, max_depth)
+
+    def scan_archived(self, scan_depth: int = 4) -> list[ProjectInfo]:
+        """扫描工作空间中的归档项目
+
+        Args:
+            scan_depth: 最大扫描深度（默认4层）
+
+        Returns:
+            归档项目列表，按 project_id 排序
+        """
+        raw_results: list[ProjectInfo] = []
+        self._scan_archived(
+            self.workspace_root, raw_results, depth=0, max_depth=scan_depth, in_archive=False
+        )
+        results = self._deduplicate_projects(raw_results)
+        for p in results:
+            if not p.phase:
+                p.phase = "archived"
+        results.sort(key=lambda p: p.project_id)
+        log.info(
+            "归档项目扫描完成: 发现 %d 个项目（去重前 %d）",
+            len(results),
+            len(raw_results),
+        )
+        return results
+
+    def _scan_archived(
+        self,
+        path: str,
+        results: list[ProjectInfo],
+        depth: int,
+        max_depth: int,
+        in_archive: bool = False,
+    ) -> None:
+        """递归扫描工作空间中的归档目录并识别归档项目"""
+        if depth > max_depth:
+            return
+
+        try:
+            entries = os.listdir(path)
+        except OSError:
+            return
+
+        for entry in entries:
+            entry_path = os.path.join(path, entry)
+            if not os.path.isdir(entry_path):
+                continue
+            if entry.startswith(".") or entry.startswith("__") or "trash" in entry.lower():
+                continue
+
+            entry_lower = entry.lower()
+            is_archive_container = (
+                entry == "_archive"
+                or "归档" in entry
+                or "archive" in entry_lower
+            )
+
+            if in_archive:
+                info = self.try_identify_project(entry_path)
+                if info is not None:
+                    if not info.phase:
+                        info.phase = "archived"
+                    results.append(info)
+                else:
+                    self._scan_archived(
+                        entry_path, results, depth + 1, max_depth, in_archive=True
+                    )
+            else:
+                if is_archive_container:
+                    self._scan_archived(
+                        entry_path, results, depth + 1, max_depth, in_archive=True
+                    )
+                else:
+                    if entry.startswith("_") and entry != "_archive":
+                        continue
+                    self._scan_archived(
+                        entry_path, results, depth + 1, max_depth, in_archive=False
+                    )
+

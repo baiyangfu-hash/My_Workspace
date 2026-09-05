@@ -128,6 +128,16 @@ def project_group(ctx: click.Context) -> None:
     help="关键字搜索（匹配项目编号/名称/描述）",
 )
 @click.option(
+    "--include-archived",
+    is_flag=True,
+    help="包含已归档的项目",
+)
+@click.option(
+    "--archived-only",
+    is_flag=True,
+    help="仅列出已归档的项目",
+)
+@click.option(
     "--json",
     "output_json",
     is_flag=True,
@@ -140,12 +150,22 @@ def cmd_list(
     stack: str | None,
     phase: str | None,
     search: str | None,
+    include_archived: bool,
+    archived_only: bool,
     output_json: bool,
 ) -> None:
     """列出工作空间内所有项目"""
     app_ctx: AppContext = ctx.obj
     svc = ProjectService(app_ctx.workspace_root)
-    projects = svc.list_projects()
+    if archived_only:
+        projects = svc.list_archived_projects()
+    elif include_archived:
+        active = svc.list_projects()
+        archived = svc.list_archived_projects()
+        seen = {p.project_id for p in active}
+        projects = active + [p for p in archived if p.project_id not in seen]
+    else:
+        projects = svc.list_projects()
 
     if business_line is not None:
         projects = [p for p in projects if p.project_id.split("-", 1)[0] == business_line]
@@ -609,7 +629,7 @@ def cmd_edit(
 @click.option("--confirm", is_flag=True, help="确认删除（破坏性操作）")
 @click.pass_context
 def cmd_delete(ctx: click.Context, project_id: str, confirm: bool) -> None:
-    """删除项目（破坏性操作，需 --confirm）"""
+    """删除项目（破坏性操作，强烈建议使用 archive 代替）"""
     app_ctx: AppContext = ctx.obj
     svc = ProjectService(app_ctx.workspace_root)
     proj = svc.get_project(project_id)
@@ -618,9 +638,13 @@ def cmd_delete(ctx: click.Context, project_id: str, confirm: bool) -> None:
         console.print(f"[red]错误: 项目不存在: {project_id}[/red]")
         ctx.exit(1)
 
+    console.print(
+        "[yellow]⚠️ 警告: 硬删除为破坏性操作，将永久销毁代码与资产！推荐使用 `auto-pm project archive <ID>` 进行安全归档。[/yellow]"
+    )
+
     if not confirm:
-        console.print(f"[yellow]警告: 即将删除项目: {proj.path}[/yellow]")
-        console.print("[yellow]请使用 --confirm 确认删除[/yellow]")
+        console.print(f"[yellow]即将删除项目: {proj.path}[/yellow]")
+        console.print("[yellow]请使用 --confirm 确认删除（强烈建议优先使用 auto-pm project archive 安全归档）[/yellow]")
         ctx.exit(1)
 
     try:
@@ -637,6 +661,65 @@ def cmd_delete(ctx: click.Context, project_id: str, confirm: bool) -> None:
     except OSError as e:
         console.print(f"[red]删除失败: {e}[/red]")
         ctx.exit(1)
+
+
+@project_group.command(name="archive")
+@click.argument("project_id")
+@click.option("--reason", default="", help="归档原因")
+@click.option("--operator", default="fubai", help="归档操作人")
+@click.option("--force", is_flag=True, help="强制跳过 Git 脏状态检查等硬门禁")
+@click.pass_context
+def cmd_archive(
+    ctx: click.Context,
+    project_id: str,
+    reason: str,
+    operator: str,
+    force: bool,
+) -> None:
+    """归档项目（物理迁移并建立历史归档台账）"""
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    try:
+        result = svc.archive_project(
+            project_id=project_id,
+            reason=reason,
+            operator=operator,
+            force=force,
+        )
+        console.print(f"[green]项目归档成功: {project_id}[/green]")
+        console.print(f"  归档编号: {result.get('archive_code', '-')}")
+        console.print(f"  归档路径: {result.get('archive_path', '-')}")
+    except Exception as e:
+        console.print(f"[red]归档失败: {e}[/red]")
+        ctx.exit(1)
+
+
+@project_group.command(name="restore")
+@click.argument("project_id")
+@click.option("--dest", "dest_dir", default=None, help="目标在研目录（默认自动逆向路由推导）")
+@click.option("--operator", default="fubai", help="恢复操作人")
+@click.pass_context
+def cmd_restore(
+    ctx: click.Context,
+    project_id: str,
+    dest_dir: str | None,
+    operator: str,
+) -> None:
+    """从归档目录恢复项目回活跃在研目录"""
+    app_ctx: AppContext = ctx.obj
+    svc = ProjectService(app_ctx.workspace_root)
+    try:
+        result = svc.restore_project(
+            project_id=project_id,
+            dest_dir=dest_dir,
+            operator=operator,
+        )
+        console.print(f"[green]项目恢复成功: {project_id}[/green]")
+        console.print(f"  恢复路径: {result.get('restored_path', '-')}")
+    except Exception as e:
+        console.print(f"[red]恢复失败: {e}[/red]")
+        ctx.exit(1)
+
 
 
 @project_group.command(name="retrofit")

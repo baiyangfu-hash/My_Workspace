@@ -35,6 +35,10 @@
 - current_status: [治理中] 代码基线 V1.2.3 已迁至工作空间基础设施运行位；旧母体保留文档、变更管理、原型和交付档案，闭环资产正按可追溯原则归档。
 - in_progress: 文档资产治理与后续文档迁移评估；异构 PLC（欧姆龙/倍福）逆向解析适配器库暂不在本批次推进。
 - completed_milestones:
+  - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
+  - 2026-09-04 [已验证] CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：实现执行流水线、项目/单据/白名单强门禁、事务沙箱原子回滚、verify_only预检与auto_commit提交，单测 21 passed 全绿。
+  - 2026-09-04 [已验证] CHG-SCPT-2026-175 Cockpit OS Phase 2 WBS 2.1 工作流编排内核流水线 WorkflowOrchestrator.plan：实现方案规划流水线、项目校验、草稿复用/生成、规范动态绑定与决策包锁死，单测 15 passed 全绿。
+  - 2026-09-04 [已验证] CHG-SCPT-2026-174 Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager 与 WBS 1.2 自动化测试：实现 ChangeTransaction 与 ChangeTransactionManager，快照备份、新建追踪、原子提交与回滚上下文管理器，单测 19 passed 100% 覆盖率全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-173 Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义：实现 TransactionStatus 枚举及 5 个工作流核心 DTO，单测 17 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-172 W2批次可恢复 PM Saga 事务日志：实现 8 步 WAL 顺序日志、Checkpoint 故障恢复、补偿回滚与 CLI 扩展。
   - 2026-09-04 [已验证] CHG-SCPT-2026-171 证据门禁扩展：Scope Gating 决策包白名单越界拦截、跨资产变更单存在性与真实证据物理硬门禁闭环。
@@ -47,7 +51,8 @@
   - 2026-08-21 [已验证] CHG-SCPT-2026-161 驾驶舱工业逆向摄取 (PlcIngest) 与 HMI 拓扑自适应标准 (STD-909) 落地。
   - 2026-08-17 [已验证] 20 维全景 GUI 交互与弹窗深度矩阵测试通过，20 张真机快照存档。
   - 2026-08-16 [已验证] CHG-SCPT-2026-159 Clean Architecture 5 层整洁架构物理重构完成，消除平铺目录。
-- open_questions: 无阻塞性技术问题。
+- open_questions: 
+  - [技术债已消除] 驾驶舱项目管理硬删除技术债已于 2026-09-04 通过 CHG-SCPT-2026-177 彻底消除，已全面建立领域就近路由、三道硬门禁、台账自动化与逆向恢复引擎。
 
 ## 4. Artifacts Index
 
@@ -63,6 +68,10 @@
 ## 5. Logs（按事件沉淀）
 
 - change_log:
+  - 2026-09-04 CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：落地 ProjectArchiveService、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，单测 45 passed。
+  - 2026-09-04 CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：落地执行流水线与 ChangeTransactionManager 事务沙箱集成与自动回滚，单测 21 passed。
+  - 2026-09-04 CHG-SCPT-2026-175 Cockpit OS Phase 2 WBS 2.1 工作流编排内核流水线 WorkflowOrchestrator.plan：打通方案规划流水线，组合领域服务，单测 15 passed。
+  - 2026-09-04 CHG-SCPT-2026-174 Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager：落地快照备份隔离、新建追踪、原子回滚与提交、异常上下文管理器，单测 19 passed 100% 覆盖率。
   - 2026-09-04 CHG-SCPT-2026-173 Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义：落地 TransactionStatus 枚举与 5 个工作流核心 DTO，单测 17 passed。
   - 2026-09-04 CHG-SCPT-2026-172 W2批次 PM Saga 事务日志：落地 PmClosureSagaCoordinator，建立事务日志，支持失败注入与 checkpoint 恢复，单测 17 passed。
   - 2026-09-04 CHG-SCPT-2026-171 证据门禁扩展：在 AiHandoffService._validate_closure 中下沉 Scope Gating 白名单越界拦截、跨资产单据物理存在性校验与交付物真实性硬门禁，补充 5 组全量单测用例。
@@ -70,6 +79,10 @@
 
 ## 6. Execution Log Summary
 
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-177，落地 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎，单测 45 passed + Ruff / Mypy 0 errors。
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-176，落地 Cockpit OS Phase 2 WorkflowOrchestrator.execute，单测 21 passed + Ruff / Mypy 0 errors。
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-175，落地 Cockpit OS Phase 2 WorkflowOrchestrator.plan，单测 15 passed + Ruff / Mypy 0 errors。
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-174，落地 Cockpit OS Phase 1 事务沙箱 ChangeTransactionManager，单测 19 passed 100% 覆盖率 + Ruff / Mypy 0 errors。
 - 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-173，落地 Cockpit OS Phase 0 契约层 DTO，单测 17 passed + Ruff / Mypy 0 errors。
 - 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-172，落地 C6 可恢复 PM Saga 事务日志与补偿机制，单元测试 17 passed 全绿。
 - 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-171，落地 Scope Gating 与真实证据门禁，单元测试 9 passed + 全量门禁全绿。
@@ -77,6 +90,15 @@
 
 ## 8. Handoff Notes
 
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-177 Phase 3 WBS 3.1 闭环
+  - current_state: [已验证] Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎完成消费并落账闭环。
+  - actions: 落地 ProjectArchiveService 核心引擎、三道硬门禁、台账自动化、逆向恢复与 CLI/GUI 双视图。
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-176 Phase 2 WBS 2.2 闭环
+  - current_state: [已验证] Cockpit OS Phase 2 WBS 2.2 方案执行流水线 WorkflowOrchestrator.execute 完成消费并落账闭环。
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-175 Phase 2 WBS 2.1 闭环
+  - current_state: [已验证] Cockpit OS Phase 2 WBS 2.1 方案规划流水线 WorkflowOrchestrator.plan 完成消费并落账闭环。
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-174 Phase 1 闭环
+  - current_state: [已验证] Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager 与 WBS 1.2 自动化测试完成消费并落账闭环。
 - 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-173 Phase 0 闭环
   - current_state: [已验证] Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义完成消费并落账闭环。
 - 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-172 W2 闭环
@@ -88,8 +110,11 @@
 
 ## 9. Next Actions
 
+- [x] 任务 13: [高优先技术债 / 必做] 实施 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎（ProjectService.archive/restore、三道硬门禁、台账自动化、CLI/GUI双视图）
+- [x] 任务 12: 实施并闭环 CHG-SCPT-2026-176（Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute）
+- [x] 任务 11: 实施并闭环 CHG-SCPT-2026-175（Cockpit OS Phase 2 WBS 2.1 工作流编排内核流水线 WorkflowOrchestrator.plan）
+- [x] 任务 10: 实施并闭环 CHG-SCPT-2026-174（Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager）
 - [x] 任务 9: 实施并闭环 CHG-SCPT-2026-173（Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义）
-- [ ] 任务 10: 实施 CHG-SCPT-2026-174（Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager）
 - [x] 任务 8: 实施并闭环 CHG-SCPT-2026-172（W2 C6 可恢复 PM Saga 事务日志与补偿编排）
 - [x] 任务 7: 实施并闭环 CHG-SCPT-2026-171（W1-2 证据门禁扩展与 Scope Gating）
 - [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）

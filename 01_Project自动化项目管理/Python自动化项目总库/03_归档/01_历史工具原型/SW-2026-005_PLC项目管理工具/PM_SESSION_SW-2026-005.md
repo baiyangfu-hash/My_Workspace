@@ -1,10 +1,15 @@
 # PM_SESSION_SW-2026-005
 
+> **归档通知**: 本项目（SW-2026-005 PLC项目管理工具）已于 2026-09-04 归档。
+> 早期 PyWebView 前端探索已结束，PLC 项目看板、结构合规检查与 STD 门禁规范已统一由 `auto_pm` 驾驶舱与 `plc-electrical-engineer` 承担。
+> 本项目不再维护，仅供历史参考与审计。详见《00_历史工具归档与吸收台账.md》。
+
 ## 0. Meta
 - project_id: SW-2026-005
 - project_name: PLC项目管理工具
-- project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-005_PLC项目管理工具
-- last_updated: 2026-06-06 (需求对齐: PRD V8.0.0→V8.1.0 + AC-01.6筛选功能实现 + pywebview 6.x兼容性修复)
+- status: 已归档
+- project_root: 01_Project自动化项目管理/Python自动化项目总库/03_归档/01_历史工具原型/SW-2026-005_PLC项目管理工具
+- last_updated: 2026-09-04
 - owners: 电气工程师(用户) + Trae AI(开发)
 
 ## 1. Positioning（项目定位）

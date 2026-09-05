@@ -1,10 +1,15 @@
 # PM_SESSION_SW-2026-004
 
+> **归档通知**: 本项目（SW-2026-004 Python项目管理工具）已于 2026-09-04 归档。
+> 早期 PyQt5 架构已被现代化的 PySide6 + QML 5层整洁架构全面取代（参见 SW-2026-008 与 `00_Infrastructure/auto_pm`）。
+> 本项目不再维护，仅供历史参考与审计。详见《00_历史工具归档与吸收台账.md》。
+
 ## 0. Meta
 - project_id: SW-2026-004
 - project_name: Python项目管理工具
-- project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-004_Python项目管理工具
-- last_updated: 2026-06-16
+- status: 已归档
+- project_root: 01_Project自动化项目管理/Python自动化项目总库/03_归档/01_历史工具原型/SW-2026-004_Python项目管理工具
+- last_updated: 2026-09-04
 - current_version: V2.8.0
 - owners: 技术团队
 

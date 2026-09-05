@@ -1,10 +1,15 @@
 # PM_SESSION_SW-2026-001
 
+> **归档通知**: 本项目（SW-2026-001 PLC变量表解析工具）已于 2026-09-04 归档。
+> 核心变量表解析引擎已被统一重构吸收至 `00_Infrastructure/auto_pm/auto_pm/domain/vartable/`，CLI 入口为 `python -m auto_pm vartable`。
+> 本项目不再维护，仅供历史参考与审计。详见《00_历史工具归档与吸收台账.md》。
+
 ## 0. Meta
 - project_id: SW-2026-001
 - project_name: PLC变量表解析工具
-- project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-001_PLC变量表解析工具
-- last_updated: 2026-06-18 (CLI集成到FB开发标准流程完成: plc-rules.md新增章节+SKILL.md Step 7新增Step 5)
+- status: 已归档
+- project_root: 01_Project自动化项目管理/Python自动化项目总库/03_归档/01_历史工具原型/SW-2026-001_PLC变量表解析工具
+- last_updated: 2026-09-04
 - owners: 技术团队
 
 ## 1. Positioning（项目定位）

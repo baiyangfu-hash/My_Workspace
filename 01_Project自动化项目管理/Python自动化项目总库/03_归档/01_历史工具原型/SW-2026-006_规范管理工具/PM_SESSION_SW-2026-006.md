@@ -1,10 +1,15 @@
 # PM_SESSION_SW-2026-006
 
+> **归档通知**: 本项目（SW-2026-006 规范管理工具 SpecMgr）已于 2026-09-04 归档。
+> 其核心规范扫描引擎（scanner/registry/checker）已被全面吸收至 `00_Infrastructure/auto_pm/auto_pm/domain/spec/`，CLI 入口为 `python -m auto_pm spec`。
+> 本项目不再维护，仅供历史参考与审计。详见《00_历史工具归档与吸收台账.md》。
+
 ## 0. Meta
 - project_id: SW-2026-006
 - project_name: 规范管理工具 (SpecMgr)
-- project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-006_规范管理工具
-- last_updated: 2026-06-16
+- status: 已归档
+- project_root: 01_Project自动化项目管理/Python自动化项目总库/03_归档/01_历史工具原型/SW-2026-006_规范管理工具
+- last_updated: 2026-09-04
 - owners: fubai
 
 ## 1. Positioning（项目定位）

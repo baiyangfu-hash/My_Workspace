@@ -1182,3 +1182,97 @@ exit 0
         except Exception as e:
             log.error("卸载 Git 提交门禁钩子失败: %s", e)
             return {"success": False, "message": f"卸载钩子失败: {e}"}
+
+    # ── 归档与恢复引擎 (Phase 3 WBS 3.1) ─────────────────
+
+    def archive_project(
+        self,
+        project_id: str,
+        reason: str = "",
+        operator: str = "fubai",
+        force: bool = False,
+    ) -> dict[str, Any]:
+        """将项目安全归档至就近归档目录
+
+        Args:
+            project_id: 项目编号
+            reason: 归档原因
+            operator: 操作人
+            force: 强制归档（跳过 Git 脏状态拦截）
+
+        Returns:
+            归档结果字典
+        """
+        from auto_pm.core.project_archive_service import ProjectArchiveService
+
+        svc = ProjectArchiveService(self.workspace_root, db=self.db)
+        return cast(
+            dict[str, Any],
+            svc.archive_project(
+                project_id=project_id,
+                reason=reason,
+                operator=operator,
+                force=force,
+            ),
+        )
+
+    def restore_project(
+        self,
+        project_id: str,
+        dest_dir: str | None = None,
+        operator: str = "fubai",
+    ) -> dict[str, Any]:
+        """将已归档项目逆向恢复至活跃在研目录
+
+        Args:
+            project_id: 项目编号
+            dest_dir: 恢复目标父目录（若为 None 则按逆向路由推导）
+            operator: 操作人
+
+        Returns:
+            恢复结果字典
+        """
+        from auto_pm.core.project_archive_service import ProjectArchiveService
+
+        svc = ProjectArchiveService(self.workspace_root, db=self.db)
+        return cast(
+            dict[str, Any],
+            svc.restore_project(
+                project_id=project_id,
+                dest_dir=dest_dir,
+                operator=operator,
+            ),
+        )
+
+    def list_archived_projects(self) -> list[ProjectInfo]:
+        """列出工作空间内所有已归档项目"""
+        return cast(list[ProjectInfo], self._scanner.scan_archived())
+
+
+    def delete_project(self, project_id: str, force: bool = False) -> None:
+        """删除项目（硬删除危险操作）
+
+        ⚠️ 警告: 物理删除将永久销毁所有代码与版本记录！推荐使用 archive_project 安全归档。
+
+        Args:
+            project_id: 项目编号
+            force: 确认硬删除
+
+        Raises:
+            FileNotFoundError: 项目不存在
+            RuntimeError: 未指定 force=True 拒绝硬删除
+        """
+        import shutil
+
+        proj = self.get_project(project_id)
+        if proj is None:
+            raise FileNotFoundError(f"项目不存在: {project_id}")
+
+        if not force:
+            raise RuntimeError(
+                f"硬删除危险操作被拒绝: 物理删除将永久销毁 {project_id} ({proj.path}) 的所有代码与资产！"
+                "推荐使用 archive_project 代替删除。若必须硬删除请指定 force=True。"
+            )
+
+        shutil.rmtree(proj.path)
+        log.warning("项目已被硬删除: %s (%s)", project_id, proj.path)

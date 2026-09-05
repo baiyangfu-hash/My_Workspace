@@ -8,8 +8,8 @@
 - project_id: SW-2026-007
 - project_name: pm工作流工具链 (pm-mgr)
 - status: 已归档
-- project_root: c:\Users\fubai\Desktop\My_Workspace\01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-007_pm工作流工具链
-- last_updated: 2026-06-19
+- project_root: 01_Project自动化项目管理/Python自动化项目总库/03_归档/01_历史工具原型/SW-2026-007_pm工作流工具链
+- last_updated: 2026-09-04
 - owners: fubai
 
 ## 1. Positioning（项目定位）
