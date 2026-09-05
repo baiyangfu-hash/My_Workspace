@@ -1,0 +1,25 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-F00BB376",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-001",
+  "approved_scope": "MODULE/SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/pyproject.toml",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/requirements.lock",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    ".agents/sw-2026-008_ng-wp-02_handoff_result.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T03:46:42.902576+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "所有代码和配置修改只发生在 detached candidate；主工作区母体文件只作为 DEC pathspec 语义锚点，不得改写。",
+    "锁文件必须只包含 auto-pm 运行与开发闭包的固定版本，不得包含 auto_pm 或 python_bridge editable 包。",
+    "禁止 .venv 安装、稳定部署、.pth、入口、运行状态和冻结 index 修改；候选提交仅包含 pyproject.toml 与 requirements.lock。"
+  ],
+  "metadata": {}
+}

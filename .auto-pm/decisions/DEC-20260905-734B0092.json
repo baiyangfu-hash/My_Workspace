@@ -1,0 +1,24 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-734B0092",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-DOCU-2026-004",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    ".agents/sw-2026-008_ng-wp-02_candidate_runner.py",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    ".agents/sw-2026-008_ng-wp-02_handoff_result.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-DOCU/CHG-DOCU-2026-004.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T03:40:21.106518+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "唯一 .venv 仅作为解释器和第三方依赖载体；候选运行必须使用 python -S 并显式设置 sys.path，禁止加载任何 .pth。",
+    "候选 auto_pm provenance 必须完全位于 detached candidate 母体；稳定部署、.venv .pth、入口、.auto-pm 运行状态及冻结 Git index 均不得修改。",
+    "允许只读 pytest、Ruff、Mypy 和 pip check；报告仅写入工作空间外的 NG-WP-02 证据目录。"
+  ],
+  "metadata": {}
+}

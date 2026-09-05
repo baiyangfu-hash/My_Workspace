@@ -1,0 +1,26 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-32CE308F",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-002",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    ".venv/Lib/site-packages",
+    ".venv/Scripts",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/requirements.lock",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    ".agents/sw-2026-008_ng-wp-02_handoff_result.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-002.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T03:52:59.920982+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "只允许从 NG-WP-02/wheels 离线安装；wheel manifest SHA-256 必须为 20f43b79fc69725705a5274c5f03ec8253efa8df1e09014dc78856b8c723c380。",
+    "安装前先执行 --dry-run；安装后必须执行 pip check、版本清单和候选 -S provenance。",
+    "禁止稳定部署、.pth、入口、.auto-pm 运行状态和冻结 index 修改；候选锁文件必须排除 editable auto_pm 与 python_bridge。"
+  ],
+  "metadata": {}
+}
