@@ -1,0 +1,30 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-ACE2F65D",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-008",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/project_archive_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/project_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/project_scanner.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/core/test_project_archive.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/core/test_project_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/core/test_project_scanner.py",
+    ".agents/sw-2026-008_ng-wp-08_skill_context.json",
+    ".agents/sw-2026-008_ng-wp-08_handoff_result.json",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-008.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T10:17:20.925821+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Candidate-only six product paths; project_service and project_scanner changes must be hunk-level and preserve unrelated mother behavior.",
+    "No hard-delete, CLI, stable deployment, real project, runtime, .trae, Obsidian or main-index mutation; all mutation tests use isolated temporary workspaces.",
+    "CHG/Git/ledger/path/link/concurrency failures are zero-side-effect and fail closed; every effect failure compensates in reverse order through the transaction boundary."
+  ],
+  "metadata": {}
+}
