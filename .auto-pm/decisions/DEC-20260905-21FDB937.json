@@ -1,0 +1,23 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-21FDB937",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-011",
+  "approved_scope": "LOCAL",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/templates/plc-standard-project/template/02_PLC程序/工程资产/io_points.csv.jinja",
+    ".agents/sw-2026-008_ng-wp-09_skill_context.json",
+    ".agents/sw-2026-008_ng-wp-09_handoff_result.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-011.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T15:20:00.827044+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Recover exact stable template bytes with SHA-256 aa72a1e41735b8288f6b0fab689953f246f0f2cb541adf84e8535ebf433b1cdb and rerun the failing real project-create test plus full project CLI regression.",
+    "No generator/test weakening or unrelated template changes; include in the single NG-WP-09 candidate commit."
+  ],
+  "metadata": {}
+}

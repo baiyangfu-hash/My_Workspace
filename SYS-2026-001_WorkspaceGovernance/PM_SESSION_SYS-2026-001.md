@@ -4,7 +4,7 @@
 - project_id: SYS-2026-001
 - project_name: WorkspaceGovernance
 - project_root: c:\Users\fubai\Documents\My_Workspace\SYS-2026-001_WorkspaceGovernance
-- last_updated: 2026-09-04
+- last_updated: 2026-09-05
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -14,14 +14,21 @@
 - key_principle: 先建立单一真源，再做渐进收编；先做映射和边界，后做清理和自动化
 
 ## 2. Current Focus（当前焦点）
-- current_focus: WBS-1D 已建立不可变 disposition，正式阻断 `DEC-20260904-3362BFFF` 被未来恢复、提交、部署或发布流程消费；工程门禁仍为 NO-GO。
+- current_focus: NG-WP-01 至 NG-WP-08 已依次完成候选提交；NG-WP-08 已实现默认无 hard-delete、可恢复且 fail-closed 的 archive/restore 核心。连续执行授权至少覆盖至 NG-WP-10；稳定部署仍未切换，工程发布门禁保持 NO-GO。
 - milestone: 单向发布目标架构 ✅；WBS-2 Bootstrap R0 ✅；WBS-1 事实包 ✅；WBS-1D disposition ✅；supersession、R1/R2/R3、双槽部署、切流和回退 ⛔ 未授权
 - code_baseline: 当前物理 import 仍来自 `00_Infrastructure/auto_pm`，但已批准的目标基线将 SW-2026-008 定义为唯一研发母体，基础设施位仅作稳定部署容器
 - acceptance: 路径修正 ✅ + 工具链口径统一 ✅ + 风险台账对齐 ✅ + PM_SESSION精简 ✅ + 基础设施双轨运行 ✅ + 活文档/历史档案分层 ✅ + WBS 0 基线清洁与可回退 ✅ + WBS 1 真源与版本指纹锁定 ✅ + RC1 收口证据 ✅ + 双技术栈实战 ✅ + 决策包契约与跨领域穿透门禁 ✅ + Scope Gating 与真实证据硬门禁 ✅
 
 ## 3. Status Summary（当前状态摘要）
-- in_progress: 冻结 26 个既有 staged 候选；保持母体、基础设施位与入口不变，等待 R1 用户决策
-- next_up: 由 User 单独批准或否决 R1：仅将 CHG-174 的 `change_transaction.py` 与对应测试回收到母体；supersession 继续延期
+- in_progress: 主工作区仍冻结 26 个既有 staged 候选与原始 SW PM_SESSION 未暂存差异；候选链已推进至 `036685c`，未合并、未部署。
+- next_up: 依 User 连续执行授权，为 NG-WP-09 建立独立精确 CHG/DEC，将 archive/restore/list CLI 接入同一安全服务并移除门禁绕过；不得提供 hard-delete。
+- 2026-09-05 NG-WP-08：依据 `CHG-SCPT-2026-008` / `DEC-20260905-ACE2F65D`，候选实现工作区全局锁、锁后事实重读、NG-WP-04 事务、严格反向补偿、精确 archive_code/原 phase 恢复及显式 scanner 根。140 项回归通过、2 项因 Windows symlink 权限环境性跳过，Ruff、Mypy、provenance 和 diff/hash 全绿，候选提交 `036685c`。
+- 2026-09-05 NG-WP-07：依据 `CHG-SCPT-2026-007` / `DEC-20260905-A7DE4108`，候选新增只含 archive/restore 的类型化领域契约，覆盖不可变授权、canonical 路径、状态机、故障/测试矩阵、并发/幂等和反向补偿。37 项专项 pytest、Ruff、Mypy、provenance 和 diff/hash 门禁全绿，候选提交 `ca09431`。
+- 2026-09-05 NG-WP-06：依据 `CHG-SCPT-2026-006` / `DEC-20260905-5AF88A4F`，候选编排器实施 canonical 白名单、verify-only 零写、拒绝任意 callback/auto_commit、禁止 partial verification，并对未实现 resume 明确 fail-closed。22 项专项 pytest、Ruff、Mypy、`python -S` provenance 和 diff/hash 门禁全绿，候选提交 `31da305`。
+- 2026-09-05 NG-WP-04：依据 `CHG-SCPT-2026-004` / `DEC-20260905-F41AC539`，候选 transaction 拒绝工作区外、`..` 与 reparse 越界；回滚/清理失败保留 backup 并进入 FAILED。19 项专项 pytest、Ruff、Mypy、`python -S` provenance 和 diff check 全绿，候选提交 `5b4b56f`。
+- 2026-09-05 NG-WP-05：依据 `CHG-SCPT-2026-005` / `DEC-20260905-7D85019F`，候选决策服务对 disposition、目标 SHA-256、状态冲突和损坏 JSON fail-closed；16 项专项 pytest、Ruff、Mypy、`python -S` provenance 和 diff check 全绿，候选提交 `67697c1`。
+- 2026-09-05 NG-WP-02：受控离线轮子闭包已安装到唯一 `.venv`，生成 94 项候选 `requirements.lock` 并完成 `pip check`、离线 dry-run、`python -S` candidate provenance；候选配置提交 `6241f934`。全量候选 Ruff 35 项与 Mypy 50 项为既有存量质量债，未在环境工作包修改。
+- 2026-09-05 NG-WP-03：依据 `CHG-SCPT-2026-003` / `DEC-20260905-74C2F7A1`，隔离 candidate 回收 `workflow_dtos.py` 与 17 项契约测试；`python -S` provenance、pytest、Ruff、Mypy 与 staged diff 检查全绿，候选提交 `f0899ab`。稳定部署、入口、运行态和主 index 未触及。
 - open_questions:
   - 项目简称保持 `WorkspaceGovernance`（已确认）
   - `handoff` 已完成 v1 CLI、基础原子消费和只读队列快照；PM_SESSION、变更单和反馈仍由 PM 单一 owner 收口
@@ -66,6 +73,14 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-09 | result=安全 archive/restore/archive-list CLI、真实 DEC/CHG 策略适配器及两项精确依赖恢复完成；119 passed、2 Windows 权限 skip、0 failed；候选提交 `8bbda79`，无硬删除/force，未触及稳定部署、真实项目或主 index | evidence=`CHG-SCPT-2026-009/010/011`、`DEC-20260905-A094BAEF/5A97778D/21FDB937`
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-08 | result=可恢复 archive/restore 核心、全局锁、锁后复核与严格补偿落地；140 passed、2 Windows 权限 skip、0 failed；候选提交 `036685c`，无真实项目操作 | evidence=`CHG-SCPT-2026-008`、`DEC-20260905-ACE2F65D`
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-07 | result=候选归档领域契约只暴露 archive/restore，默认无 hard-delete；37 项专项测试和静态门禁全绿；候选提交 `ca09431`，未移动真实项目、未合并或部署 | evidence=`CHG-SCPT-2026-007`、`DEC-20260905-A7DE4108`
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-06 | result=候选编排器完成 canonical 白名单、verify-only 零写、拒绝隐式 Git/任意 callback、禁止 partial verification；22 项专项测试和静态门禁全绿；候选提交 `31da305`，未合并或部署 | evidence=`CHG-SCPT-2026-006`、`DEC-20260905-5AF88A4F`
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-05 | result=候选决策契约强制消费 blocked/superseded disposition，验证 SHA-256、白名单与审批元数据；16 项专项测试和静态门禁全绿；候选提交 `67697c1`，未合并或部署 | evidence=`CHG-SCPT-2026-005`、`DEC-20260905-7D85019F`
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-04 | result=候选 transaction 建立 canonical containment 与 fail-closed 故障恢复；19 项专项测试、Ruff、Mypy、`python -S` provenance 全绿；候选提交 `5b4b56f`，未合并或部署 | evidence=`CHG-SCPT-2026-004`、`DEC-20260905-F41AC539`
+- 2026-09-05 | skill=pm-workflow | mode=NG-WP-03 | result=以稳定部署冻结源 SHA-256 为依据，在 detached candidate 仅新增 workflow DTO 与对应测试；17 项 pytest、Ruff、Mypy 和 `python -S` provenance 全绿；候选提交 `f0899ab`，未合并或部署 | evidence=`CHG-SCPT-2026-003`、`DEC-20260905-74C2F7A1`
+- 2026-09-05 | skill=pm-workflow | mode=NG-WP-01/NG-WP-02 | result=`CHG-DOCU-2026-003` 与 `DEC-20260905-A646F158` 建立旧方案 `HISTORICAL_SUPERSEDED` 治理索引；固定 `313d60f` detached candidate 成功且源码 provenance 指向母体；candidate 无项目内解释器/依赖锁，现有 `.venv` 的 `_editable_impl_auto_pm.pth` 指向稳定部署，故 NG-WP-02 标记 `BLOCKED_PORTABLE_INTERPRETER`；未修改源码、入口、稳定部署、运行状态或 Git index | evidence=`NG-WP-00_RECOVERY_SUMMARY.md`、`NG-WP-02_ISOLATION_EVIDENCE.md`
 - 2026-09-04 | skill=fullstack-engineer + pm-workflow | mode=WBS-1/WBS-1D | result=941 条文件级事实独立复核；`DISP-20260904-3362BFFF-01` 以目标哈希和 8 项 basis evidence 前向阻断冲突 DEC；两份 handoff 均正式 consumed；`CHG-DOCU-2026-001/002` closed；未修改源码或入口 | evidence=`DEC-20260904-94CCE59D`、`DEC-20260904-C1F94B77`、disposition SHA-256 `c380c4c7ee18e2e0ff4125e4ce5b270310a8c5235fa6b78fbf0a19aff96f6091`
 - 2026-09-04 | skill=pm-workflow | mode=SW-2026-008 单向发布架构规划 | result=User 批准目标架构与四份规划产物；工程 NO-GO，不授权 WBS-3、文件/入口操作、提交或发布 | evidence=`RESUME-8A40C46458D08312`、`FACT-CA141A67B032FDFA`、`GO-NOGO-SW008-20260904-001`
 - 2026-09-04 | skill=pm-workflow | mode=W2 PM closure
@@ -86,6 +101,9 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
+- 2026-09-05 | from=fullstack-engineer | mode=NG-WP-04 | status=`completed / candidate-only` | decision=`DEC-20260905-F41AC539` | gate=NG-WP-05 必须创建独立精确 CHG/DEC；稳定部署继续只读
+- 2026-09-05 | from=pm-workflow | mode=NG-WP-02/NG-WP-03 | status=`completed / candidate-only` | decision=`DEC-20260905-32CE308F` 完成受控依赖闭包，`DEC-20260905-74C2F7A1` 完成 workflow DTO 契约回收 | gate=NG-WP-04 必须获得独立 CHG、DEC 和 User 明示批准；稳定部署继续只读
+- 2026-09-05 | from=pm-workflow | mode=NG-WP-01/NG-WP-02 | status=`implementing / BLOCKED_PORTABLE_INTERPRETER` | decision=旧方案仅作历史证据；candidate 只能在新环境门禁解除后用于 NG-WP-03 前的验证 | gate=新 CHG/DEC、锁定依赖、candidate-local interpreter、stable editable `.pth` 处置与隔离复核
 - 2026-09-04 | from=fullstack-engineer | mode=WBS-1/WBS-1D | request_ids=`AI-20260904-WBS1-FACT`,`AI-20260904-WBS1D-DISP` | status=`consumed` | gate=冲突 DEC 已阻断未来消费；supersession 与 R1/R2/R3 仍未授权
 - 2026-09-04 | from=pm-workflow | mode=SW-2026-008 architecture baseline | status=planning approved / engineering frozen | decision=SW 母体、infra stable、`.auto-pm` 状态、Obsidian 规范 | gate=WBS-3 后续须 User 再批准
 - 2026-09-04 | from=pm-workflow | mode=W2 closure
@@ -111,6 +129,10 @@
 - status: [已验证] WBS 0/1/2/3/4/5/6/7/8/9 完成；代码单轨成立；旧母体回退保留；工作树在每个提交门前保持可解释
 
 ## 9. Next Actions
+- [完成] NG-WP-02 候选环境闭包 | result=受控离线轮子、94 项 lock、`pip check`、离线 dry-run 与 `python -S` 候选 provenance 已复核；候选提交 `6241f934`
+- [完成] NG-WP-03 workflow DTO 契约层 | result=冻结源哈希一致、17 项契约测试及专项 Ruff/Mypy 全绿；候选提交 `f0899ab`；未合并、未部署
+- [完成] NG-WP-04 事务边界和失败恢复 | result=fail-closed containment 与故障恢复通过 19 项专项测试；候选提交 `5b4b56f`；未合并、未部署
+- [未授权] NG-WP-04 至 NG-WP-17 | gate=每批必须新的 CHG、DEC 和 User 明示批准；不得自动源码回收、入口修改、部署、切流或回退
 - [已完成] 批准 SW-2026-008 研发母体 + 稳定部署单向发布架构 | result=ADR、差异回收方案、WBS 与验收标准已编制；不代表实施授权
 - [已完成] WBS-1/WBS-1D 全量差异事实包与不可变 disposition | result=941 条矩阵、目标 DEC 哈希及 8 项证据完成独立复核；冲突 DEC 不再可作为未来动作授权；supersession 延后
 - [待报批] R1：CHG-174 最小母体回收批次 | precondition=User 明文批准 `change_transaction.py` 与对应测试的精确母体 pathspec | done_when=独立 CHG/DEC、源哈希、母体门禁与阶段提交证据成立

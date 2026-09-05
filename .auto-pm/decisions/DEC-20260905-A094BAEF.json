@@ -1,0 +1,25 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-A094BAEF",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-009",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/ui/cli/project.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/cli/test_project_archive.py",
+    ".agents/sw-2026-008_ng-wp-09_skill_context.json",
+    ".agents/sw-2026-008_ng-wp-09_handoff_result.json",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-009.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T15:01:30.905054+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Candidate-only CLI and split CLI tests; archive/restore/list call the NG-WP-08 service; no delete command, force option, shutil.rmtree, stable, runtime or main-index mutation.",
+    "Execution commands require explicit request-id, change-id, decision-id, project-id, canonical source and destination; decision must contain exact archive-operation=<operation> and exact file allow-list."
+  ],
+  "metadata": {}
+}
