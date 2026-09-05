@@ -1,0 +1,34 @@
+{
+ "schema_version": "decision_package.v1",
+ "decision_id": "DEC-20260905-6CDEC2DB",
+ "project_id": "SYS-2026-001",
+ "change_id": "CHG-SCPT-2026-015",
+ "approved_scope": "SYSTEM",
+ "approved_files": [
+  "00_Infrastructure/auto_pm/launcher/bootstrap.py",
+  "00_Infrastructure/auto_pm/launcher/launch.py",
+  "00_Infrastructure/auto_pm/auto_pm/ui/cli/git_hook.py",
+  "main.py",
+  "setup_env.bat",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/test_deployment_bootstrap.py",
+  ".agents/sw-2026-008_ng-wp-13_skill_context.json",
+  ".agents/sw-2026-008_ng-wp-13_handoff_result.json",
+  ".auto-pm/reports/NG-WP-13_isolation_evidence_2026-09-05.md",
+  "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/PM_SESSION_SW-2026-008.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-015.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+ ],
+ "approver": "fubai",
+ "approved_at": "2026-09-05T22:27:21.161079+00:00",
+ "decision_conclusion": "approved",
+ "conditions": [
+  "Entry loads active release only, with approved previous as the sole fallback; both slots invalid exits non-zero; no mother or flat-source fallback anywhere.",
+  "Container files written byte-identically to main workspace and candidate worktree (hash-verified); editable auto-pm uninstalled from .venv only after hook v3 is verified.",
+  "No active deployment or pointer flip in this package; GUI downtime window is accepted within the continuous 13-14-15 batch.",
+  "All gates Exit 0 including full pytest with new bootstrap tests and the six-scenario isolation matrix asserting no mother import."
+ ],
+ "metadata": {
+  "user_quote": "13-14-15连续作业，每完成一wbs任务就要做一次回归测试，没问题，就提交一次，然后继续下一个任务。直到15完成"
+ }
+}
