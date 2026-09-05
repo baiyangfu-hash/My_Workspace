@@ -34,13 +34,14 @@
 
 ## 3. Status Summary
 
+- 2026-09-05 [已验证] NG-WP-15 正式发布与原子切流：release `1.2.3-d41eb38` 上线（Tag + 持锁原子指针翻转 + 三连冒烟 + 全量回归）；单向发布链“母体 Commit → 候选制品 → 非活动槽验证 → User 批准 → 原子切流”首次完整落地；13→14→15 连续作业收口，NG-WP-16 起待独立批准。
 - 2026-09-05 [已验证] NG-WP-14 Gate 2：非活动槽 release `1.2.3-d41eb38` 部署与净化验证全过；根入口 API 缺陷修复（run_qml_gui）；发布申请要素齐备（source commit/version/manifest 哈希/目标槽/回退目标 null）。
 - 2026-09-05 [已验证] NG-WP-13 根入口与环境解耦：main.py/bootstrap/launch/钩子 v3 全部双槽化且去 editable；全量回归 1946 passed/18 skip；隔离矩阵六场景全过、provenance 无母体泄漏；candidate `d41eb38`。
 - 2026-09-05 [已验证] NG-WP-12 稳定部署双槽骨架：`00_Infrastructure/auto_pm` 新增 launcher/releases/双指针/manifest（未部署 active、未切入口）；母体 `auto_pm/application/core/deployment_service.py` fail-closed 双槽服务提交 `92e2c94`；稳定侧 `git_hook.py` 模板遗留修复完成。
 - 2026-09-05 [已验证] NG-WP-11 冻结候选提交与制品构建：candidate `87183fb`（262 文件）+ wheel `auto_pm-1.2.3` SHA-256 `ca47b787…`，886 文件 manifest、依赖锁副本、空目录安装验证与 provenance 探针全通过。
 - 2026-09-05 [已验证] NG-WP-03 至 NG-WP-10：在 detached candidate 完成契约、事务、决策、编排器与归档的逐包回收加固，Gate 1 整改复跑 10 项门禁全绿（pytest 1900 passed/16 skipped），candidate 变更 100% 位于批准白名单。
 - current_status: [架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。
-- in_progress: NG-WP-14 已完成：release `1.2.3-d41eb38`（450 文件）持锁构建登记，Gate 2 十用例净化验证全过，并修复真实入口 API 缺陷（run_qml_app→run_qml_gui）；指针仍为 null，NG-WP-15 原子切流。
+- in_progress: NG-WP-15 已完成：Tag `sw-2026-008-1.2.3-d41eb38` 签发，active 原子指向该 release（previous=null），launcher/main/--version 冒烟全过，全量回归 Exit 0；**生产运行自此由稳定容器 release 承载**。
 - completed_milestones:
   - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：实现执行流水线、项目/单据/白名单强门禁、事务沙箱原子回滚、verify_only预检与auto_commit提交，单测 21 passed 全绿。

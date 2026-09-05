@@ -1,0 +1,31 @@
+{
+ "schema_version": "decision_package.v1",
+ "decision_id": "DEC-20260905-B49E47F6",
+ "project_id": "SYS-2026-001",
+ "change_id": "CHG-SCPT-2026-017",
+ "approved_scope": "SYSTEM",
+ "approved_files": [
+  "00_Infrastructure/auto_pm/active_release.json",
+  "00_Infrastructure/auto_pm/previous_release.json",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/test_deployment_bootstrap.py",
+  ".auto-pm/reports/NG-WP-15_switchover_report_2026-09-05.md",
+  ".agents/sw-2026-008_ng-wp-15_skill_context.json",
+  ".agents/sw-2026-008_ng-wp-15_handoff_result.json",
+  "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/PM_SESSION_SW-2026-008.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-017.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+ ],
+ "approver": "fubai",
+ "approved_at": "2026-09-05T22:46:34.344431+00:00",
+ "decision_conclusion": "approved",
+ "conditions": [
+  "Single annotated tag sw-2026-008-1.2.3-d41eb38 on source commit d41eb38 only; release content untouched.",
+  "Switchover under .lock via DeploymentContainer atomic pointer writes: active=1.2.3-d41eb38, previous stays null (first release); verify_release re-checked after flip.",
+  "Mother test real-container assertion updated to post-switchover state; full pytest regression Exit 0 before commit.",
+  "No hard-delete, no quarantine cleanup, no automatic rollback implementation (NG-WP-16 scope); on failure the candidate is marked rejected and the scene preserved."
+ ],
+ "metadata": {
+  "user_quote": "13-14-15连续作业，每完成一wbs任务就要做一次回归测试，没问题，就提交一次，然后继续下一个任务。直到15完成"
+ }
+}
