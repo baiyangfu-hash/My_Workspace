@@ -1,0 +1,32 @@
+{
+ "schema_version": "decision_package.v1",
+ "decision_id": "DEC-20260905-89511831",
+ "project_id": "SYS-2026-001",
+ "change_id": "CHG-SCPT-2026-013",
+ "approved_scope": "SYSTEM",
+ "approved_files": [
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/.gitignore",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/06_交付物/001_用户操作指南与排障手册_USER_GUIDE.md",
+  ".agents/sw-2026-008_ng-wp-11_skill_context.json",
+  ".agents/sw-2026-008_ng-wp-11_handoff_result.json",
+  ".auto-pm/artifacts/sw-2026-008/NG-WP-11",
+  "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/PM_SESSION_SW-2026-008.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-013.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+ ],
+ "approver": "fubai",
+ "approved_at": "2026-09-05T21:05:50.813746+00:00",
+ "decision_conclusion": "approved",
+ "conditions": [
+  "One closure commit in main workspace for NG-WP-10 evidence with explicit pathspecs only; one freeze commit in the detached candidate limited to auto_pm/**, tests/**, .gitignore and the single recovered user guide.",
+  "Artifacts built only from a git-archive export of the freeze commit into .auto-pm/artifacts/sw-2026-008/NG-WP-11/ with per-file SHA-256 manifest, dependency lock and interpreter/build tool versions; install verification from an empty isolated directory.",
+  "No stable deployment, entrypoint, .venv, Obsidian, .trae mutation; no tag, deploy, switchover or rollback; candidate worktree must stay clean after the freeze commit.",
+  "NG-WP-12 and later require separate approval."
+ ],
+ "metadata": {
+  "user_quote": "批准，可以git提交一次,然后进行NG-WP-11"
+ }
+}

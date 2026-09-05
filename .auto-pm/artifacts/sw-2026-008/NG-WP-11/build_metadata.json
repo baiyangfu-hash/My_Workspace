@@ -1,0 +1,32 @@
+{
+ "package": "NG-WP-11",
+ "freeze_commit": "87183fb29d5d99730c90fe25db2ca6a020098ab3",
+ "candidate_baseline": "8bbda79d5e1393f1052d92b4236e774e3c0f167f + 262 files",
+ "main_workspace_commit": "efee250",
+ "authorization": {
+  "change_id": "CHG-SCPT-2026-013",
+  "decision_id": "DEC-20260905-89511831"
+ },
+ "source_export": {
+  "method": "git archive --format=tar <freeze_commit> -- <SW project path>, plain tar extract, top dir renamed to source/",
+  "file_count": 886,
+  "manifest": "source_manifest.csv",
+  "retained": false,
+  "regenerate": "git archive --format=tar 87183fb29d5d99730c90fe25db2ca6a020098ab3 -- <SW project path> | tar -x; rename top dir to source/"
+ },
+ "wheel": {
+  "path": "wheel/auto_pm-1.2.3-py3-none-any.whl",
+  "sha256": "ca47b787f8cb55ef2ec48ac01e2747e65f138e848fc3a96b326077a5c823bde7",
+  "bytes": 702946,
+  "entries": 285
+ },
+ "dependency_lock": "requirements.lock.from_freeze_commit (copied verbatim from freeze commit's requirements.lock, 97 lines)",
+ "build_env": {
+  "python": "3.12.14",
+  "pip": "pip 26.2.1 from C:\\Users\\fubai\\Documents\\My_Workspace\\.venv\\Lib\\site-packages\\pip (python 3.12)",
+  "build_backend": "hatchling (PEP 517 build isolation; version resolved by pip)",
+  "command": "python -m pip wheel --no-deps -w wheel ./source",
+  "pip_freeze": "build_env_pip_freeze.txt"
+ },
+ "built_at": "2026-09-05T21:21:37.426842+00:00"
+}

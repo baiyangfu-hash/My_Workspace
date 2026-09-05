@@ -1,0 +1,8 @@
+{
+ "install_command": "pip install --no-deps --target <empty tmp dir> <wheel>",
+ "install_exit": 0,
+ "import_probe": "python -S with sys.path=[target, venv site-packages]",
+ "import_probe_exit": 0,
+ "provenance": "auto_pm resolved inside isolated target; no stable deployment leak",
+ "target_dir": "C:\\Users\\fubai\\AppData\\Local\\Temp\\ngwp11_install_zb7m4c9f"
+}

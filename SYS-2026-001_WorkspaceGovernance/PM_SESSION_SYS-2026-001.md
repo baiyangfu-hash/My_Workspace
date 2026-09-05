@@ -73,6 +73,8 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-12 | result=稳定容器骨架落地：launcher（解析校验、fail-closed，不执行 release）、releases/ 空槽、双指针 null 未初始化、空 manifest、`.lock` 运行期互斥语义；母体 `DeploymentContainer`（release-id 校验/releases containment/指针原子写/manifest SHA-256 核验/独占锁）提交 `92e2c94`；全量 1936 passed/17 skip、Ruff/Mypy/provenance/doc 全 Exit 0；隔离矩阵 8 用例通过且真实容器只读；遗留钩子模板缺陷已在稳定侧 `git_hook.py` 修复（再生成与本地修复版逐字节一致），candidate 提交验证钩子真实生效；未切入口、未部署 active、主工作区未提交 | evidence=`CHG-SCPT-2026-014`、`DEC-20260905-3DB6BE6C`、`NG-WP-12_isolation_evidence_2026-09-05.md`
+- 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-11 | result=主工作区一次收口提交 `efee250`；candidate 冻结提交 `87183fb29d5d99730c90fe25db2ca6a020098ab3`（262 文件）；从冻结 commit `git archive` 导出 886 文件构建 `auto_pm-1.2.3-py3-none-any.whl`（SHA-256 `ca47b787f8cb55ef2ec48ac01e2747e65f138e848fc3a96b326077a5c823bde7`）；逐文件 SHA-256 manifest、requirements.lock 副本、构建环境元数据落盘 `.auto-pm/artifacts/sw-2026-008/NG-WP-11/`；空隔离目录安装 + `python -S` provenance 探针通过且无稳定部署泄漏；制品可仅由 source commit 重建 | evidence=`CHG-SCPT-2026-013`、`DEC-20260905-89511831`、`build_metadata.json`、`install_verification.json`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-10 | result=Gate 1 整改复跑全绿：import provenance、pytest 全量 1900 passed/16 skipped、Ruff check/format、Mypy strict、doc check、spec check（project scope + 主工作区只读 registry）、死链/dynamic smoke、CLI 注册、git diff --check 共 10 项 Exit 0；candidate 262 处变更逐一比对全部位于 `auto_pm/**`、`tests/**`、`.gitignore`、单一用户指南白名单内；首轮 NO-GO 的 17 failed/54 errors、153 ruff、226 格式、51 mypy、SHC-000 全部消除 | evidence=`CHG-SCPT-2026-012`、`DEC-20260905-B95B7ABB`、`CHG-DOCU-2026-005`、`DEC-20260905-EA9B1159`、`NG-WP-10_Gate1_remedy_report_2026-09-05.md`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-09 | result=安全 archive/restore/archive-list CLI、真实 DEC/CHG 策略适配器及两项精确依赖恢复完成；119 passed、2 Windows 权限 skip、0 failed；候选提交 `8bbda79`，无硬删除/force，未触及稳定部署、真实项目或主 index | evidence=`CHG-SCPT-2026-009/010/011`、`DEC-20260905-A094BAEF/5A97778D/21FDB937`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-08 | result=可恢复 archive/restore 核心、全局锁、锁后复核与严格补偿落地；140 passed、2 Windows 权限 skip、0 failed；候选提交 `036685c`，无真实项目操作 | evidence=`CHG-SCPT-2026-008`、`DEC-20260905-ACE2F65D`
@@ -102,6 +104,8 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
+- 2026-09-05 | from=fullstack-engineer | mode=NG-WP-12 | status=`completed / skeleton-only` | decision=`DEC-20260905-3DB6BE6C` | gate=NG-WP-13（根入口与环境解耦）需独立 CHG/DEC；git_hook.py 母体回收待后续回收包；治理落账提交待用户授权
+- 2026-09-05 | from=fullstack-engineer | mode=NG-WP-11 | status=`completed / candidate-frozen + artifact built` | decision=`DEC-20260905-89511831` | gate=NG-WP-12（稳定部署双槽骨架）需独立 CHG/DEC 且不继承本批准；本包 PM 落账后的台账/PM_SESSION 提交需下一次提交授权（本次授权仅一次提交）
 - 2026-09-05 | from=fullstack-engineer | mode=NG-WP-10 | status=`completed / gates green` | decision=`DEC-20260905-B95B7ABB`+`DEC-20260905-EA9B1159` | gate=独立 AI 复核仍待安排；candidate 冻结提交属 NG-WP-11，需 User 单独批准（本条落账时 User 已口头批准 NG-WP-11，见 CHG-SCPT-2026-013）
 - 2026-09-05 | from=fullstack-engineer | mode=NG-WP-04 | status=`completed / candidate-only` | decision=`DEC-20260905-F41AC539` | gate=NG-WP-05 必须创建独立精确 CHG/DEC；稳定部署继续只读
 - 2026-09-05 | from=pm-workflow | mode=NG-WP-02/NG-WP-03 | status=`completed / candidate-only` | decision=`DEC-20260905-32CE308F` 完成受控依赖闭包，`DEC-20260905-74C2F7A1` 完成 workflow DTO 契约回收 | gate=NG-WP-04 必须获得独立 CHG、DEC 和 User 明示批准；稳定部署继续只读

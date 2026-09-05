@@ -34,9 +34,11 @@
 
 ## 3. Status Summary
 
+- 2026-09-05 [已验证] NG-WP-12 稳定部署双槽骨架：`00_Infrastructure/auto_pm` 新增 launcher/releases/双指针/manifest（未部署 active、未切入口）；母体 `auto_pm/application/core/deployment_service.py` fail-closed 双槽服务提交 `92e2c94`；稳定侧 `git_hook.py` 模板遗留修复完成。
+- 2026-09-05 [已验证] NG-WP-11 冻结候选提交与制品构建：candidate `87183fb`（262 文件）+ wheel `auto_pm-1.2.3` SHA-256 `ca47b787…`，886 文件 manifest、依赖锁副本、空目录安装验证与 provenance 探针全通过。
 - 2026-09-05 [已验证] NG-WP-03 至 NG-WP-10：在 detached candidate 完成契约、事务、决策、编排器与归档的逐包回收加固，Gate 1 整改复跑 10 项门禁全绿（pytest 1900 passed/16 skipped），candidate 变更 100% 位于批准白名单。
 - current_status: [架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。
-- in_progress: NG-WP-11 冻结候选提交、制品构建、manifest 与隔离安装验证（授权：CHG-SCPT-2026-013）。
+- in_progress: NG-WP-12 已完成：双槽骨架落地（launcher/releases/双指针 null/manifest），母体 `DeploymentContainer` 提交 `92e2c94`（全量 1936 passed），稳定侧钩子模板已修复；治理落账等待下一次提交授权。
 - completed_milestones:
   - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：实现执行流水线、项目/单据/白名单强门禁、事务沙箱原子回滚、verify_only预检与auto_commit提交，单测 21 passed 全绿。

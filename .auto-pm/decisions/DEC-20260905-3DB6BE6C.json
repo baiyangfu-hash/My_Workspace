@@ -1,0 +1,37 @@
+{
+ "schema_version": "decision_package.v1",
+ "decision_id": "DEC-20260905-3DB6BE6C",
+ "project_id": "SYS-2026-001",
+ "change_id": "CHG-SCPT-2026-014",
+ "approved_scope": "SYSTEM",
+ "approved_files": [
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/deployment_service.py",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/test_deployment_service.py",
+  "00_Infrastructure/auto_pm/launcher",
+  "00_Infrastructure/auto_pm/releases/.gitkeep",
+  "00_Infrastructure/auto_pm/active_release.json",
+  "00_Infrastructure/auto_pm/previous_release.json",
+  "00_Infrastructure/auto_pm/deployment_manifest.json",
+  "00_Infrastructure/auto_pm/.lock",
+  "00_Infrastructure/auto_pm/auto_pm/ui/cli/git_hook.py",
+  ".agents/sw-2026-008_ng-wp-12_skill_context.json",
+  ".agents/sw-2026-008_ng-wp-12_handoff_result.json",
+  ".auto-pm/reports/NG-WP-12_isolation_evidence_2026-09-05.md",
+  "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+  "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/PM_SESSION_SW-2026-008.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-014.md",
+  "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+ ],
+ "approver": "fubai",
+ "approved_at": "2026-09-05T22:00:41.576163+00:00",
+ "decision_conclusion": "approved",
+ "conditions": [
+  "Mother changes only via commits in the detached candidate worktree on top of 87183fb (deployment_service.py + its tests); stable container receives only the skeleton files and the single git_hook.py template fix listed in CHG-SCPT-2026-014.",
+  "No entry switch (main.py, 双击启动驾驶舱.bat, .venv untouched), no real active release, pointers stay null/uninitialized, no .auto-pm runtime writes, no main-workspace git commit in this package.",
+  "All mother gates Exit 0 (targeted+full pytest, ruff check/format, mypy strict, import provenance, doc check); stable skeleton isolation tests run against temp copies only.",
+  "git_hook.py: only the two embedded hook template root-resolution blocks may change; NG-WP-13+ and hook-template recovery into the mother require separate approval."
+ ],
+ "metadata": {
+  "user_quote": "/NG-WP-12,执行，遗留事项一并修复。"
+ }
+}
