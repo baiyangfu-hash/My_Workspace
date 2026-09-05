@@ -1,0 +1,27 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260905-7D85019F",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-005",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/contracts/decision_package.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/domain/change/decision_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/domain/change/test_decision_service.py",
+    ".agents/sw-2026-008_ng-wp-05_skill_context.json",
+    ".agents/sw-2026-008_ng-wp-05_handoff_result.json",
+    ".agents/sw-2026-008_ng-wp-02_checkpoint.json",
+    "SYS-2026-001_WorkspaceGovernance/PM_SESSION_SYS-2026-001.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-005.md",
+    "SYS-2026-001_WorkspaceGovernance/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-05T04:39:55.362968+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "只在 detached candidate 修改三个产品路径；不得修改稳定部署、历史 .auto-pm 决策文件、入口、.trae、Obsidian、运行态或冻结 index。",
+    "必须以 disposition、目标 SHA-256、白名单、批准人与时间为约束；目标缺失、哈希失配、文件损坏、状态冲突均 fail-closed。",
+    "专项测试必须覆盖旧 DEC 被 blocked disposition 拒绝；必须通过 pytest、Ruff、Mypy、candidate import provenance 与 diff check。"
+  ],
+  "metadata": {}
+}
