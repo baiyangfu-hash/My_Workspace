@@ -73,6 +73,7 @@
   - 2026-06-15 按 `DEV-001` 与 `PM-004` 校正治理项目类型和会话载体
 
 ## 6. Implementation Log
+- 2026-09-05 | skill=ZCode | mode=CHG-SCPT-2026-020 P3 首批 | result=14 个缺失模块 verbatim 回收进 candidate 母体（含 CLI 注册补全与 ai_handoff_service 恢复至稳定版全量）；迁移 5 个对应测试；candidate 全量 1981 passed/18 skipped、ruff 全绿、mypy strict 203 文件 0 问题、提交 `3871d49`；156 文件漂移对账与 4 个上下文依赖测试适配登记为后续批次（另行立项） | evidence=`CHG-SCPT-2026-020`、candidate `3871d49`
 - 2026-09-05 | skill=ZCode | mode=CHG-SCPT-2026-019 | result=测试基础设施专项收口：以临时哨兵探针定位 qml 污染源为 tests/ui/test_qml_syntax.py 的裸 QCoreApplication 创建（NTFS 枚举序非稳定，ui/qml 先后顺序非确定）；修复为复用根 conftest session 级 qapp；candidate 全量 1968 passed ×2（含 Gemini 22 项新测试）、平铺全量 1901 passed（4 既有失败）且 0 qml 污染，回归门禁恢复可用 | evidence=`CHG-SCPT-2026-019`、candidate `76e6d37`
 - 2026-09-05 | skill=pm-workflow | mode=CHG-SCPT-2026-018 回退切流 | result=依 User 决策回退 NG-WP-15 切流：双槽指针重置 null（原子写）、根 main.py 恢复平铺源码运行态（入口修正为 run_qml_gui）、setup_env.bat 回退 efee250；平铺运行时无窗口验证全过；闪退三大问题簇（启动可诊断性/FK 首同步兼容/release 功能差距：缺 14 模块、156 文件漂移）与全部证据已整理为移交说明，修复工作移交 Gemini | evidence=`CHG-SCPT-2026-018`、`01_项目文档/18_SW-2026-008_切流回退与问题移交_GEMINI.md`
 - 2026-09-05 | skill=fullstack-engineer + pm-workflow | mode=NG-WP-15 | result=首个正式 release 切流完成：Tag `sw-2026-008-1.2.3-d41eb38` 签发；持锁原子翻转 active→`1.2.3-d41eb38`（previous 保持 null）；verify_release 450 文件复核通过；launcher/根 main.py resolve-only/净化 --version 三连冒烟全过；生产入口自此加载已验证 release；全量 pytest 回归 Exit 0（母体测试更新为检出版本无关的容器一致性契约） | evidence=`CHG-SCPT-2026-017`、`DEC-20260905-B49E47F6`、`NG-WP-15_switchover_report_2026-09-05.md`
