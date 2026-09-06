@@ -1,0 +1,24 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-53B9449C",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-025",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/build",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/dist",
+    ".auto-pm/reports",
+    "00_Infrastructure/auto_pm/releases/1.2.3-813105c",
+    "00_Infrastructure/auto_pm/deployment_manifest.json",
+    "00_Infrastructure/auto_pm/launcher"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T04:36:45.717201+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Build only from candidate commit 813105c; record wheel/sdist SHA-256, source manifest, dependencies, interpreter and builder versions.",
+    "Do not write active_release.json or previous_release.json, do not create a tag, and do not modify any content below releases/1.2.3-d41eb38.",
+    "Verify manifest SHA-256, isolated import provenance, launcher failure modes, CLI/doc/spec dry-run, GUI smoke and an isolated rollback drill before reporting a cutover candidate."
+  ],
+  "metadata": {}
+}

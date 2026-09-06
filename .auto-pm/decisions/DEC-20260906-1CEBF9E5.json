@@ -1,0 +1,23 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-1CEBF9E5",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-181",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/launcher/bootstrap.py",
+    "00_Infrastructure/auto_pm/launcher/launch.py",
+    "main.py",
+    "tests/test_ngwp15_release_entry.py",
+    ".auto-pm/reports/NG-WP-15_runtime_entry_f950525_2026-09-06.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T13:35:51.426268+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Bootstrap must remain stdlib-only and must verify exact manifest tree, SHA-256, containment, regular-file type, and reparse/link rejection before any release import.",
+    "Launcher and root entry must run release code only through a child interpreter with -B and a sanitized import environment, retain AUTO_PM_ENTRY_RESOLVE_ONLY for isolation testing, and fail closed with the established bootstrap exit codes.",
+    "Use temporary containers for tests. Do not update active_release.json, previous_release.json, deployment_manifest.json, releases/, tag refs, candidate commit, Git index, or any current stable pointer."
+  ],
+  "metadata": {}
+}

@@ -49,3 +49,7 @@ python -m auto_pm -w "<工作空间根>" spec check --check-id SHC-011,SHC-012,S
 | SHC-014 | 文档索引有效性（§4 Artifacts Index 路径有效） |
 
 **ERROR 级问题必须修复后才能回写 PM_SESSION。**
+## 5. CHG-SCPT-2026-178 C1 阈值更正
+
+- C1 的 PM_SESSION 主文件阈值为 `150KB / 200行`：`MAX_FILE_SIZE_KB=150`，`MAX_FILE_LINES=200`。
+- 本条为前向更正，补足自动对账要求；既有归档与历史记录不因本条被覆盖或改写。

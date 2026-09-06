@@ -1,0 +1,21 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-3FC9EC2D",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-184",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/active_release.json",
+    "00_Infrastructure/auto_pm/previous_release.json",
+    ".auto-pm/reports/NG-WP-15_switchover_f950525_2026-09-06.md",
+    ".auto-pm/handoffs/AI-20260906-NGWP15-SWITCHOVER-F950525.json",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/04_监控/01_变更管理/01_变更单/CHG-SCPT/CHG-SCPT-2026-184.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T19:07:12.369749+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "仅切换已核验 release 1.2.3-f950525；active 原子写入，previous 保持 null；创建 tag sw-2026-008-1.2.3-f950525 指向 f950525；失败停止并保留现场，不自动回退；不得修改源码、release payload、manifest 或 Git index。"
+  ],
+  "metadata": {}
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-36963D33",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-180",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/releases/1.2.3-f950525",
+    "00_Infrastructure/auto_pm/deployment_manifest.json",
+    ".auto-pm/reports/NG-WP-11-14-artifacts-f950525",
+    ".auto-pm/reports/NG-WP-14_Gate2_f950525_2026-09-06.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T13:27:18.138653+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Build only from detached candidate f95052537392eae53143e20a5b5e1a9a3d271f11; record source tree 917c50686431de699d2568ddfbe3d2d67bf48b35 and wheel/sdist/source-archive SHA-256 values.",
+    "Verify the release with the f950525 exact-tree verifier. All release-executed Python commands must suppress bytecode writes; final release tree must have no unregistered nodes.",
+    "Run isolated provenance, CLI/doc/spec/QML checks and a temporary-container rollback drill. Do not update active_release.json, previous_release.json, tag refs, main.py, launcher execution logic, or releases/1.2.3-d41eb38 or releases/1.2.3-813105c."
+  ],
+  "metadata": {}
+}

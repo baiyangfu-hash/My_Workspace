@@ -1,0 +1,20 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-19E68867",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-183",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/launcher/launch.py",
+    "tests/test_ngwp15_release_entry.py",
+    ".auto-pm/reports/NG-WP-15_launch_argfix_2026-09-06.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T18:11:18.768297+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Preserve the verified -B -I release child and sanitized environment; only remove the internal release-dir argument from child sys.argv before CLI dispatch.",
+    "Add a temporary-container regression proving main.py --help exits 0 and no release __pycache__ is created; do not modify pointers, release payloads, manifest, tags, or unrelated staged files."
+  ],
+  "metadata": {}
+}

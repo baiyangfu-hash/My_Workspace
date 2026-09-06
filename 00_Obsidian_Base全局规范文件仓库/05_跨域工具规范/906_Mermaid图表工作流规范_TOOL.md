@@ -417,3 +417,54 @@ PLC 工艺流程图 → 强制独立模式
 7. 需求变更时
    → 更新 .mmd → 重新导出 PNG → 更新 .md 文字描述 → 记录 change_log
 ```
+```mermaid
+flowchart TD
+  SYS["SYS-2026-001_WorkspaceGovernance\n治理真源"]
+  OBS["00_Obsidian_Base\nspec_registry + DEV/PM/PLC规范"]
+  PM["PM Workflow\nPM_SESSION / CHG / DEC / ledger"]
+  SW["SW-2026-008 驾驶舱项目\n项目文档、变更、handoff"]
+  MOTHER["研发母体\n02_在研项目/.../SW-2026-008.../auto_pm"]
+  FULL["fullstack-engineer\nPython/Qt/CLI执行代理"]
+  PLC["plc-electrical-engineer\nPLC/HMI执行代理"]
+  INFRA["00_Infrastructure/\nauto_pm稳定基础设施"]
+  RUNTIME[".auto-pm/\n工作区运行态与证据"]
+  TPL["00_Infrastructure/auto_pm/templates/\nCopier模板与脚手架"]
+  GATE["门禁\npytest / ruff / mypy / doc check / ledger"]
+  SETUP["setup_env.bat\n仅准备依赖，不绑定稳定平铺源码"]
+  ROOT["根入口 main.py\nresolve-only / --help"]
+  LAUNCH["stable launcher\nlauncher/bootstrap.py + launch.py"]
+  PTR["active_release.json\nprevious_release.json"]
+  MAN["deployment_manifest.json"]
+  REL["稳定部署 releases/<release-id>\n当前获批 1.2.3-f950525"]
+  ARCH["project archive\n归档/恢复由领域服务执行"]
+
+  SYS --> PM
+  OBS -.规范约束.-> PM
+  OBS --> TPL
+  INFRA --> LAUNCH
+  INFRA --> PTR
+  INFRA --> MAN
+  INFRA --> REL
+  PM --> RUNTIME
+  GATE --> RUNTIME
+  RUNTIME -.报告/事务/交接/锁.-> PM
+  PM --> SW
+  PM -.派发与收尾.-> FULL
+  PM -.派发与收尾.-> PLC
+  SW --> MOTHER
+  FULL --> MOTHER
+  PLC --> SW
+  TPL -.生成约束.-> MOTHER
+  MOTHER -.候选验证.-> GATE
+  SW --> GATE
+  SETUP --> ROOT
+  ROOT --> LAUNCH
+  LAUNCH --> PTR
+  LAUNCH --> MAN
+  PTR --> REL
+  MAN --> REL
+  REL --> ARCH
+  GATE -.批准后发布.-> REL
+  PM -.CHG/DEC批准与证据.-> GATE
+  PM -.稳定切流/回退记录.-> PTR
+```

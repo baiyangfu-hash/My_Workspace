@@ -1,0 +1,24 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-50023594",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-DOCU-2026-005",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/005_源码单轨与双槽部署架构决策_ADR.md",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/006_基础设施位与母体差异回收矩阵_MATRIX.md",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/007_WBS2至WBS8实施路线图与验收规程_TEC.md",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/GO_NOGO_CHECK_REPORT.md",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/02_规划/archive/NG-WP-17-historical/",
+    "SYS-2026-001_WorkspaceGovernance/01_项目文档/17_SW-2026-008_研发母体稳定部署_重制实施方案_PM.md",
+    "SYS-2026-001_WorkspaceGovernance/01_项目文档/18_SW-2026-008_旧方案历史治理索引_PM.md",
+    ".auto-pm/reports/NG-WP-17_inventory_2026-09-06.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T19:47:43.358700+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "仅归档四个已索引旧规划文件；研发母体、active release、protected old release、stable flat auto_pm、templates、入口和manifest均不移动；目标目录须 containment；先复制校验再原子移动；任何引用同步需可逆并记录哈希；不删除、不提交 Git。"
+  ],
+  "metadata": {}
+}

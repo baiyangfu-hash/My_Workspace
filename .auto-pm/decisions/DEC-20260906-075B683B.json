@@ -1,0 +1,29 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-075B683B",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-022",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/main.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/setup_env.bat",
+    "00_Infrastructure/auto_pm/launcher",
+    "00_Infrastructure/auto_pm/active_release.json",
+    "00_Infrastructure/auto_pm/previous_release.json",
+    "00_Infrastructure/auto_pm/deployment_manifest.json",
+    "00_Infrastructure/auto_pm/releases/1.2.3-c0d7d0e",
+    "main.py",
+    "setup_env.bat",
+    ".auto-pm/reports"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T04:11:39.973556+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Do not restore, delete, overwrite, stage, or commit the existing 1.2.3-d41eb38 release-tree deletion scene.",
+    "Deploy only a new release-id from the verified candidate commit; verify SHA-256 manifest, isolated provenance, fail-closed resolver, and rollback before any active-pointer update."
+  ],
+  "metadata": {}
+}

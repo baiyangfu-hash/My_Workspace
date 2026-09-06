@@ -1,0 +1,22 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-FC52DCAD",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-178",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/deployment_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/core/test_deployment_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/PM_SESSION_SW-2026-008.md",
+    ".trae/skills/pm-workflow/refs/pm_session_guide.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T13:08:57.667023+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Verify must reject both missing/mismatched registered paths and any unregistered regular file, symlink, reparse point, or directory beneath the release payload.",
+    "The PM_SESSION correction must preserve historical evidence with a forward-only correction entry and report the current verified test evidence; no historical release claim may be treated as active.",
+    "Do not modify active_release.json, previous_release.json, main.py, releases/1.2.3-d41eb38, releases/1.2.3-813105c, tag refs, or the existing Git index."
+  ],
+  "metadata": {}
+}

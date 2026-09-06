@@ -1,0 +1,19 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-573B5CB6",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-179",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/application/core/deployment_service.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests/application/test_deployment_service.py"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T13:20:57.980290+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Stage and commit only the two listed paths in the detached candidate after rechecking their exact staged diff.",
+    "Do not modify shared working-tree files, stable deployment, pointers, tag refs, main.py, or existing release directories."
+  ],
+  "metadata": {}
+}

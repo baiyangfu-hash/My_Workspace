@@ -1,0 +1,30 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-6D16E016",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-DOCU-2026-004",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/04_监控/01_变更管理/01_变更单/CHG-DOCU/CHG-DOCU-2026-004.md",
+    ".auto-pm/reports/NG-WP-16_rollback_observation_2026-09-06.md",
+    ".auto-pm/handoffs/AI-20260906-NGWP16-ROLLBACK-OBSERVATION.json",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/04_监控/01_变更管理/02_变更记录/01_版本变更台帐.md"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T18:35:43.6037619Z",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "只在 OS 临时目录复制稳定容器并进行故障注入；真实 active_release.json、previous_release.json、release 内容、manifest、tag、入口、源码、Git index 与既有工作树不得修改。",
+    "仅使用已验证候选 1.2.3-f950525；验证 active JSON 损坏时 previous 已验证槽回退；记录短时观察限制，不把短时观察宣称为长期运行保证。",
+    "不执行真实指针切换、发布、回退或清理；所有持久证据仅写入 .auto-pm/reports 与 handoff。"
+  ],
+  "metadata": {
+    "baseline_head": "1e790902960df027bee06496498785aca7a13f36",
+    "release_id": "1.2.3-f950525",
+    "manifest_sha256": "ce0ad61a38184c6e7260d83d08321503f02e7aaef31ab2f8bfab784ef52eba54",
+    "active_pointer_sha256": "259529468a832e660c6482784ef959e1c71d997781564e8dbaf9253cfa0eae51",
+    "previous_pointer_sha256": "214493507143e1b08fabf6675c847bcb59294d2aa3430727bdafe4d16f856ad0",
+    "git_index_sha256": "37dc6a49f826cb83a62827a0a6525d9d78b3d1719f04eb33d5a45436bb631a2a",
+    "generated_at": "2026-09-06T18:35:43.6037619Z"
+  }
+}

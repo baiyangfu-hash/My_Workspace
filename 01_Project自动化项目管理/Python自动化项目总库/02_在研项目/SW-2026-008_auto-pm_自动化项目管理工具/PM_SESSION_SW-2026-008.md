@@ -10,7 +10,7 @@
 - target_source_of_truth: SW-2026-008 为唯一研发母体；00_Infrastructure/auto_pm 只作稳定部署容器
 - architecture_transition_status: 目标架构已批准，物理迁移、入口切换和发布尚未授权
 - version: V1.2.3
-- last_updated: 2026-09-05
+- last_updated: 2026-09-06
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -22,7 +22,7 @@
 
 ## 2. Current Focus（当前焦点）
 
-- current_focus: **NG-WP-10 母体全量 Gate 1 已整改复跑全绿（10 项门禁 Exit 0，pytest 1900 passed）；当前执行 NG-WP-11 冻结候选提交与制品构建（User 已于 2026-09-05 批准）；NG-WP-12 起未授权**。
+- current_focus: **NG-WP-15 真实切流已执行，active=1.2.3-f950525、previous=null；NG-WP-17 已可逆归档四个历史规划文件。CHG-SCPT-2026-184 与 CHG-DOCU-2026-005 均待验收；stable flat 源归档须先解除 setup_env.bat 依赖。**
 - risks_dependencies:
   - Ruff 静态代码检查已实现 100% Clean Exit (0 告警)
   - IndustrialErrorMapper 统一异常转译上线并补充 10 项单测
@@ -41,7 +41,7 @@
 - 2026-09-05 [已验证] NG-WP-11 冻结候选提交与制品构建：candidate `87183fb`（262 文件）+ wheel `auto_pm-1.2.3` SHA-256 `ca47b787…`，886 文件 manifest、依赖锁副本、空目录安装验证与 provenance 探针全通过。
 - 2026-09-05 [已验证] NG-WP-03 至 NG-WP-10：在 detached candidate 完成契约、事务、决策、编排器与归档的逐包回收加固，Gate 1 整改复跑 10 项门禁全绿（pytest 1900 passed/16 skipped），candidate 变更 100% 位于批准白名单。
 - current_status: [架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。
-- in_progress: NG-WP-15 已完成：Tag `sw-2026-008-1.2.3-d41eb38` 签发，active 原子指向该 release（previous=null），launcher/main/--version 冒烟全过，全量回归 Exit 0；**生产运行自此由稳定容器 release 承载**。
+- in_progress: CHG-SCPT-2026-185 已完成 setup_env 入口脱钩；verify_release 465/465 与 resolve-only/--help Exit 0。完整 startup guard 仍有 1 项 Windows cmd.exe timeout（13 passed，Exit 1），stable flat archive 延期；拓扑报告已登记。
 - completed_milestones:
   - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：实现执行流水线、项目/单据/白名单强门禁、事务沙箱原子回滚、verify_only预检与auto_commit提交，单测 21 passed 全绿。
@@ -62,6 +62,12 @@
 - open_questions:
   - [技术债已消除] 驾驶舱项目管理硬删除技术债已于 2026-09-04 通过 CHG-SCPT-2026-177 彻底消除，已全面建立领域就近路由、三道硬门禁、台账自动化与逆向恢复引擎。
 
+- 2026-09-06 [已验证] CHG-SCPT-2026-178 前向治理更正：此前将 `1.2.3-d41eb38` 描述为当前稳定发布的 §3 条目已被本条 supersede；该历史 release 不是当前 active 状态，任何切流结论均不得据此推断。
+  - 当前已核验测试证据：`coverage/junit/test-results.xml`（SHA-256 `5056609f4493b9c004ef67e35eaa2f61a7772c5907886e67b3582f172b2ef2eb`）记录 `pytest 40 passed`、0 failures、0 errors、0 skipped；此条是 SHC-012 的当前对账依据。
+- 2026-09-06 [已验收] NG-WP-16：User 已验收 CHG-DOCU-2026-004 / DEC-20260906-6D16E016 的临时容器回退证据；7 个场景、5/5 短观察和 ledger reconcile SW-2026-008 Exit 0 已闭环，报告=.auto-pm/reports/NG-WP-16_rollback_observation_2026-09-06.md。本次未批准生产长时 soak、真实 active/previous 指针切换或最终 GO。
+- 2026-09-06 [已执行] NG-WP-15 真实切流：CHG-SCPT-2026-184 / DEC-20260906-3FC9EC2D 已在 stable lock 内将 active 原子切至 1.2.3-f950525，previous=null；tag sw-2026-008-1.2.3-f950525 已核验指向 f950525；verify_release 465/465、root resolve-only/--help Exit 0。报告=.auto-pm/reports/NG-WP-15_switchover_f950525_2026-09-06.md；handoff AI-20260906-NGWP15-SWITCHOVER-F950525 已 completed/consumed；CHG 当前 pending_acceptance，生产长时 soak 未运行。
+- 2026-09-06 [已执行] NG-WP-17 历史规划归档：CHG-DOCU-2026-005 / DEC-20260906-C1CFB37C 已可逆归档 4 个历史规划文件，4/4 SHA-256 与字节数匹配，git diff --check Exit 0；报告=.auto-pm/reports/NG-WP-17_archive_2026-09-06.md；handoff AI-20260906-NGWP17-HISTORICAL-ARCHIVE 已 consumed。研发母体源码、stable flat auto_pm、templates、release 均未移动；setup_env.bat 依赖使 stable flat 源归档延期；CHG 保持 pending_acceptance。
+- 2026-09-06 [已执行] NG-WP-17 入口脱钩：CHG-SCPT-2026-185 / DEC-20260906-510CE559 已使 setup_env.bat 不再 editable 安装 stable flat source；verify_release 465/465、resolve-only/--help Exit 0。完整 startup guard 为 13 passed、1 项 Windows cmd.exe timeout（Exit 1），stable flat archive 继续延期；handoff AI-20260906-NGWP17-ENTRY-DECOUPLING 已 consumed。拓扑报告=.auto-pm/reports/SW-2026-008_workflow_topology_2026-09-06.md。
 ## 4. Artifacts Index
 
 - prd: 02_规划/001_产品需求文档_PRD.md
@@ -84,6 +90,7 @@
   - 2026-09-04 CHG-SCPT-2026-172 W2批次 PM Saga 事务日志：落地 PmClosureSagaCoordinator，建立事务日志，支持失败注入与 checkpoint 恢复，单测 17 passed。
   - 2026-09-04 CHG-SCPT-2026-171 证据门禁扩展：在 AiHandoffService._validate_closure 中下沉 Scope Gating 白名单越界拦截、跨资产单据物理存在性校验与交付物真实性硬门禁，补充 5 组全量单测用例。
   - 2026-09-01 文档资产评估与归档治理：已将闭环 CHG-SCPT、历史 HTML 原型、V1.1.0 历史交付包、旧迭代计划和过期诊断报告移入对应 archive；活区仅保留当前可用入口和未闭环草稿单。
+  - 2026-09-06 CHG-SCPT-2026-185 NG-WP-17 入口脱钩：setup_env.bat 移除 stable flat source 的 pip editable 安装，改为检查 stable launcher、active pointer 与 deployment manifest；verify_release 465/465、root main.py resolve-only/--help 均 Exit 0。完整 startup_guard 为 13 passed、1 failed（Windows cmd.exe 10 秒 TimeoutExpired），保持待验收，未执行平铺源码归档。
 
 ## 6. Execution Log Summary
 
@@ -116,8 +123,16 @@
   - actions: AiHandoffService._validate_closure 下沉白名单越界拦截与跨资产物理真实性门禁。
 - 2026-09-01 | from=Codex | mode=SW-2026-008 文档资产评估与归档治理
 
+- 2026-09-06 [已验证] CHG-SCPT-2026-178 前向治理更正
+  - 版本基线 V1.2.3；此前 §8 中的 `1.2.3-d41eb38` 当前稳定发布陈述已被 supersede，历史证据保留但不构成 active/previous 指针或已切流证明。
+  - current_state: 精确发布树核验与治理证据对账正在受控整改；未修改任何 stable release、release pointer、tag 或根入口。
+- 2026-09-06 | from=pm-workflow | mode=NG-WP-17 historical archive | request_id=AI-20260906-NGWP17-HISTORICAL-ARCHIVE | status=consumed | decision=DEC-20260906-C1CFB37C | change=CHG-DOCU-2026-005-pending_acceptance | result=4/4 SHA matched; git diff check Exit 0; stable flat source deferred for setup_env.bat dependency.
+- 2026-09-06 | from=fullstack-engineer | mode=NG-WP-17 entry decoupling | request_id=AI-20260906-NGWP17-ENTRY-DECOUPLING | status=consumed | decision=DEC-20260906-510CE559 | change=CHG-SCPT-2026-185-pending_acceptance | result=setup_env decoupled; verify_release 465/465, resolve-only/--help Exit 0; full startup_guard=13 passed + 1 Windows cmd timeout (Exit 1); flat archive deferred; topology=.auto-pm/reports/SW-2026-008_workflow_topology_2026-09-06.md.
 ## 9. Next Actions
+- [待验收] CHG-DOCU-2026-005 NG-WP-17 历史规划归档 | result=4/4 SHA-256 匹配、git diff --check Exit 0、handoff 已 consumed；gate=CHG 保持 pending_acceptance，stable flat auto_pm 因 setup_env.bat 依赖延期，未移动研发母体源码、templates 或 release。
+- [待验收] CHG-SCPT-2026-185 NG-WP-17 入口脱钩 | result=setup_env 不再绑定 stable flat source、verify_release 465/465 与 resolve-only/--help Exit 0；blocker=完整 startup guard 仍有 1 项 Windows cmd.exe timeout（Exit 1）；gate=stable flat archive 延期。
 
+- [待验收] CHG-SCPT-2026-184 真实切流 | result=active=1.2.3-f950525、previous=null、tag 已核验、verify_release 465/465 与 resolve-only/--help Exit 0；handoff 已 consumed；gate=CHG 保持 pending_acceptance，生产长时 soak 未运行。
 - [已完成] 单向发布架构规划基线 | result=ADR-SW008-001、差异回收方案、发布/回退 WBS 与验收标准已编制；治理在 SYS-2026-001 落账
 - [待报批] WBS-1 全量只读差异事实包 + 决策链纠偏记录 | gate=未批准前不修复、移动、覆盖、删除、提交、发布或切流
 

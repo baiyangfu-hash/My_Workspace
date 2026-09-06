@@ -1,0 +1,21 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-800B0E64",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-182",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "00_Infrastructure/auto_pm/launcher/bootstrap.py",
+    "00_Infrastructure/auto_pm/launcher/launch.py",
+    "main.py",
+    "tests/test_ngwp15_release_entry.py"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T13:55:55.044326+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Use git commit --only with exactly these four paths; do not change or commit any pre-existing staged candidate.",
+    "Preserve report and PM governance working-tree state; do not modify pointer, release, manifest, tag, or candidate worktree."
+  ],
+  "metadata": {}
+}

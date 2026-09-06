@@ -1,0 +1,26 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-D50CE09A",
+  "project_id": "SYS-2026-001",
+  "change_id": "CHG-SCPT-2026-024",
+  "approved_scope": "MODULE",
+  "approved_files": [
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/domain/vartable/parsers/autoshop_parser.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/domain/vartable/parsers/codesys_parser.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/domain/vartable/parsers/intdoc_parser.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/domain/vartable/parsers/scl_parser.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/auto_pm/domain/vartable/parsers/work3_parser.py",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/pyproject.toml",
+    "01_Project自动化项目管理/Python自动化项目总库/02_在研项目/SW-2026-008_auto-pm_自动化项目管理工具/tests",
+    ".auto-pm/reports"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T04:27:34.206950+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "Create a compensating commit; do not reset, amend, rebase, or overwrite the rejected 3346f1a commit.",
+    "Both python -m mypy --strict auto_pm and python -m mypy --config-file pyproject.toml auto_pm must Exit 0 using the declared interpreter; record command paths and versions.",
+    "No stable deployment, pointer, tag, or 1.2.3-d41eb38 release-tree operation."
+  ],
+  "metadata": {}
+}
