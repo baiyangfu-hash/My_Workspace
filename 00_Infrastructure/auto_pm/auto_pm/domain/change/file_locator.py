@@ -186,8 +186,8 @@ class ChangeFileLocator:
                 except ValueError:
                     pass
 
-        # 同步检查台帐中已记录的最大序号（防止文件删除后编号回退）
-        # 注意：必须解析台帐表格的"变更编号"列，而非全文正则匹配，
+        # 同步检查台账中已记录的最大序号（防止文件删除后编号回退）
+        # 注意：必须解析台账表格的"变更编号"列，而非全文正则匹配，
         # 否则描述列中的 CHG 编号引用（如"原 CHG-PLC-2026-006"）会被误判为有效条目
         ledger_path = find_ledger_file(project_path)
         if ledger_path:

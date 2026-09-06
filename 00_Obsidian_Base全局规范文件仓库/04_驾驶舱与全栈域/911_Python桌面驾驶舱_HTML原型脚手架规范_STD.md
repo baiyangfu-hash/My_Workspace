@@ -1,10 +1,12 @@
 ---
-id: STD-911
-name: Python桌面驾驶舱_HTML原型脚手架规范
-version: 1.0.0
-domain: 驾驶舱与全栈域
+spec_id: STD-911
+title: Python桌面驾驶舱_HTML原型脚手架规范
+version: "V1.0.0"
+domain: cockpit
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/911_Python桌面驾驶舱_HTML原型脚手架规范_STD.md"
+tags: ["Python", "驾驶舱", "Glassmorphism", "Bridge", "PySide6", "SW-2026-008"]
 type: STD
-status: active
 author: Antigravity
 created_at: 2026-08-17
 updated_at: 2026-08-17

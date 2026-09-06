@@ -963,7 +963,7 @@ class _LegacyPlcCheckerCore:
         return set(dirs).issubset(allowed_dirs)
 
     def _check_change_management_and_governance(self, project_path: str, result: CheckResult) -> None:
-        """检查变更管理体系与版本变更台帐 (PM-042 / PM-043 / PROJ-016)"""
+        """检查变更管理体系与版本变更台账 (PM-042 / PM-043 / PROJ-016)"""
         # 1. 检查变更管理根目录 (支持 04_监控/01_变更管理 或 11_监控/01_变更管理)
         chg_candidates = [
             os.path.join(project_path, "04_监控", "01_变更管理"),
@@ -973,13 +973,13 @@ class _LegacyPlcCheckerCore:
             os.path.join(project_path, "11_监控"),
         ]
         # 选择最完整的变更管理根目录。历史项目可能同时保留空的标准路径
-        # 和包含真实 CHG/台帐的 11_监控路径，不能因候选顺序误选空壳。
+        # 和包含真实 CHG/台账的 11_监控路径，不能因候选顺序误选空壳。
         def _change_dir_score(directory: str) -> tuple[int, int, int]:
             has_tickets = os.path.isdir(os.path.join(directory, "01_变更单"))
             records_dir = os.path.join(directory, "02_变更记录")
             has_records = os.path.isdir(records_dir)
             has_ledger = has_records and any(
-                "变更台帐" in name or "变更台账" in name or "台帐" in name
+                "变更台账" in name or "变更台账" in name or "台账" in name
                 for name in os.listdir(records_dir)
             )
             return (int(has_ledger), int(has_tickets), int(has_records))
@@ -1000,19 +1000,19 @@ class _LegacyPlcCheckerCore:
             else:
                 result.add("变更单管理体系", "fail", f"缺少 {rel_path}/01_变更单/ 目录")
 
-            # 检查版本变更台帐
+            # 检查版本变更台账
             has_ledger = False
             rec_dir = os.path.join(active_chg_dir, "02_变更记录")
             if os.path.isdir(rec_dir):
                 for f in os.listdir(rec_dir):
-                    if "变更台帐" in f or "变更台账" in f or "台帐" in f:
+                    if "变更台账" in f or "变更台账" in f or "台账" in f:
                         has_ledger = True
                         break
 
             if has_ledger:
-                result.add("版本变更台帐", "pass", "02_变更记录/版本变更台帐 存在")
+                result.add("版本变更台账", "pass", "02_变更记录/版本变更台账 存在")
             else:
-                result.add("版本变更台帐", "fail", f"缺少 {rel_path}/02_变更记录/01_版本变更台帐.md")
+                result.add("版本变更台账", "fail", f"缺少 {rel_path}/02_变更记录/01_版本变更台账.md")
         else:
             result.add(
                 "变更管理目录",

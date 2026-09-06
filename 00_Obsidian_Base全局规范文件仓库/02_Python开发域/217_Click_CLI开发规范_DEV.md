@@ -1,12 +1,13 @@
 ---
+spec_id: "DEV-217"
+title: "Click CLI 开发规范"
 version: "V1.0.0"
-status: "已批准"
+domain: python
+lifecycle: "active"
+canonical_path: "00_Obsidian_Base全局规范文件仓库/02_Python开发域/217_Click_CLI开发规范_DEV.md"
+tags: ["Click", "CLI", "开发规范"]
 created: "2026-06-21"
 updated: "2026-06-21"
-spec_id: "DEV-217"
-domain: "Python开发"
-title: "Click CLI 开发规范"
-lifecycle: "active"
 ---
 
 # Click CLI 开发规范

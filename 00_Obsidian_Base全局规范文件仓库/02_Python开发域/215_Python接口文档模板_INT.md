@@ -4,7 +4,7 @@ title: "Python接口文档模板"
 version: "V1.0.0"
 domain: python
 lifecycle: stable
-canonical_path: "01_Project自动化项目管理/00_通用规范/Python开发/215_Python接口文档模板_INT.md"
+canonical_path: "00_Obsidian_Base全局规范文件仓库/02_Python开发域/215_Python接口文档模板_INT.md"
 tags: ["Python", "接口", "文档模板"]
 ---
 
@@ -275,7 +275,7 @@ print(response.json())
 3. 提供详细的接口示例和说明
 4. 支持RESTful API接口文档
 
-[↑ 返回版本变更记录](#变更记录)
+[↑ 返回版本变更记录](#2-变更记录)
 
 ## 17. 附录
 

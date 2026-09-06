@@ -4,7 +4,7 @@ title: "Mermaid图表工作流规范"
 version: "V2.0.0"
 domain: cross-domain
 lifecycle: stable
-canonical_path: "00_Obsidian_Base全局规范文件仓库/03_执行过程/01_代码开发/02_工具使用规范/906_Mermaid图表工作流规范_TOOL.md"
+canonical_path: "00_Obsidian_Base全局规范文件仓库/05_跨域工具规范/906_Mermaid图表工作流规范_TOOL.md"
 tags: ["Mermaid", "图表", "流程图", "工作流", "mmdc", "PRD", "导出"]
 ---
 

@@ -5,7 +5,7 @@
 
 --- 原始注释 ---
 
-版本变更台帐更新器"""
+版本变更台账更新器"""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 class LedgerUpdater:
-    """版本变更台帐更新器"""
+    """版本变更台账更新器"""
 
     def update(
         self,
@@ -28,10 +28,10 @@ class LedgerUpdater:
         applicant: str = "",
         apply_date: str = "",
     ) -> None:
-        """在台帐的变更单索引部分追加一条记录
+        """在台账的变更单索引部分追加一条记录
 
         Args:
-            ledger_path: 台帐文件路径
+            ledger_path: 台账文件路径
             change_number: 变更编号 (如 CHG-DOCU-2026-001)
             desc: 变更描述
             applicant: 变更申请人（CHG-085 新增，写入"申请人"列）
@@ -39,12 +39,12 @@ class LedgerUpdater:
         """
         content = read_file(ledger_path)
         if not content:
-            log.warning("台帐文件为空或读取失败: %s", ledger_path)
+            log.warning("台账文件为空或读取失败: %s", ledger_path)
             return
 
-        # 去重检查：变更编号已存在于台帐中则跳过追加
+        # 去重检查：变更编号已存在于台账中则跳过追加
         if change_number in content:
-            log.info("台帐中已存在 %s，跳过追加", change_number)
+            log.info("台账中已存在 %s，跳过追加", change_number)
             return
 
         # 提取领域
@@ -70,9 +70,9 @@ class LedgerUpdater:
         updated = self._insert_row_to_index_table(content, new_row)
         if updated != content:
             write_file(ledger_path, updated)
-            log.info("台帐已更新: 追加 %s (序号%03d)", change_number, seq)
+            log.info("台账已更新: 追加 %s (序号%03d)", change_number, seq)
         else:
-            log.warning("台帐更新失败: 未找到变更单索引表格 %s", ledger_path)
+            log.warning("台账更新失败: 未找到变更单索引表格 %s", ledger_path)
 
     def update_status(
         self,
@@ -83,13 +83,13 @@ class LedgerUpdater:
         applicant: str = "",
         apply_date: str = "",
     ) -> None:
-        """更新台帐中指定变更单的状态行（TD-T10 修复 + CHG-085 完成日期回写 + CHG-108 缺陷 2 自愈）
+        """更新台账中指定变更单的状态行（TD-T10 修复 + CHG-085 完成日期回写 + CHG-108 缺陷 2 自愈）
 
         CHG-108 缺陷 2 修复：找不到行时自动补建（自愈），不再静默 warning。
         补建时使用 applicant/apply_date 参数（若提供），desc 用 change_number 占位。
 
         Args:
-            ledger_path: 台帐文件路径
+            ledger_path: 台账文件路径
             change_number: 变更编号（如 CHG-SCPT-2026-064）
             status: 新状态文案（如"✅已关闭"、"✅已归档"、"🔄实施中"）
             complete_date: 完成日期（CHG-085 新增，status 为"✅已关闭"/"✅已归档"时
@@ -99,7 +99,7 @@ class LedgerUpdater:
         """
         content = read_file(ledger_path)
         if not content:
-            log.warning("台帐文件为空或读取失败: %s", ledger_path)
+            log.warning("台账文件为空或读取失败: %s", ledger_path)
             return
 
         lines = content.split("\n")
@@ -117,18 +117,18 @@ class LedgerUpdater:
                     if complete_date and status in ("✅已关闭", "✅已归档"):
                         parts[-3] = f" {complete_date} "
                         log.info(
-                            "台帐完成日期已回写: %s → %s", change_number, complete_date
+                            "台账完成日期已回写: %s → %s", change_number, complete_date
                         )
                     lines[i] = "|".join(parts)
                     updated = True
-                    log.info("台帐状态已更新: %s → %s", change_number, status)
+                    log.info("台账状态已更新: %s → %s", change_number, status)
                     break
 
         if updated:
             write_file(ledger_path, "\n".join(lines))
         else:
             # CHG-108 缺陷 2 修复：自愈补建（找不到行时自动补建，不再静默 warning）
-            log.warning("台帐未找到 %s 的行，触发自愈补建", change_number)
+            log.warning("台账未找到 %s 的行，触发自愈补建", change_number)
             # 提取领域
             parts_cn = change_number.split("-")
             domain = parts_cn[1] if len(parts_cn) >= 2 else ""
@@ -149,18 +149,18 @@ class LedgerUpdater:
             if updated_content != content:
                 write_file(ledger_path, updated_content)
                 log.info(
-                    "台帐自愈补建: %s (序号%03d, 状态=%s)", change_number, seq, status
+                    "台账自愈补建: %s (序号%03d, 状态=%s)", change_number, seq, status
                 )
             else:
                 log.error(
-                    "台帐自愈补建失败: 未找到变更单索引表格 %s", ledger_path
+                    "台账自愈补建失败: 未找到变更单索引表格 %s", ledger_path
                 )
 
     def remove(self, ledger_path: str, change_number: str) -> None:
-        """从台帐中删除指定变更单的行（TD-T10 修复，供测试 fixture 清理用）
+        """从台账中删除指定变更单的行（TD-T10 修复，供测试 fixture 清理用）
 
         Args:
-            ledger_path: 台帐文件路径
+            ledger_path: 台账文件路径
             change_number: 变更编号
         """
         content = read_file(ledger_path)
@@ -173,7 +173,7 @@ class LedgerUpdater:
         for line in lines:
             if change_number in line and line.strip().startswith("|"):
                 removed = True
-                log.info("台帐条目已删除: %s", change_number)
+                log.info("台账条目已删除: %s", change_number)
                 continue  # 跳过该行（删除）
             new_lines.append(line)
 

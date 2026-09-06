@@ -282,14 +282,6 @@ fb_tActionTimer(IN := FALSE, PT := 500, Q => , ET => q_eElapsed);
 
 ---
 
-## 5. Siemens LSP 插件使用指南
-
-### 5.1 插件配置
-
-在 VS Code 中配置 `.vscode/settings.json`：
-
----
-
 ## 4.5 OB1 顶级调度器瘦身规约 (基于DJ-2026-005实践)
 
 1. **OB1 职责单一化**：`OB1.scl` 仅作为最高层级的程序入口，必须保持极简（**行数控制在 10 行以内**）。
@@ -361,6 +353,14 @@ plccheck feeder/FB_1004_GlueMachineFeeder_BufferFraming.scl
 # 输出详细错误信息
 plccheck --verbose .
 ```
+
+---
+
+## 5. Siemens LSP 插件使用指南
+
+### 5.1 插件配置
+
+在 VS Code 中配置 `.vscode/settings.json`：
 
 ---
 

@@ -90,7 +90,7 @@ def _is_verification_passed(conclusion: str) -> bool:
     return "通过" in conclusion
 
 
-# 台帐状态文案映射（TD-T10 修复：transition 流转后自动更新台帐状态行）
+# 台账状态文案映射（TD-T10 修复：transition 流转后自动更新台账状态行）
 _LEDGER_STATUS_MAP = LEDGER_STATUS_MAP  # 向后兼容别名（CHG-108 缺陷 1：常量已提取到 constants.py）
 
 
@@ -192,7 +192,7 @@ class ChangeService:
         1. 生成变更编号 CHG-{DOMAIN}-{YYYY}-{XXX}
         2. 渲染 CHG-040 模板
         3. 保存 Markdown 文件
-        4. 更新版本变更台帐
+        4. 更新版本变更台账
 
         Args:
             retrofit: CHG-108 缺陷 3 修复——"先实施后补"工作流。
@@ -269,8 +269,8 @@ class ChangeService:
         cr.file_path = file_path
         log.info("变更单文件已保存: %s", file_path)
 
-        # 更新台帐
-        # V0.2.1-P2-8: 台帐文件不存在时自动创建（含变更单索引表格骨架）
+        # 更新台账
+        # V0.2.1-P2-8: 台账文件不存在时自动创建（含变更单索引表格骨架）
         # CHG-085：调用 update() 时传入 applicant/apply_date，避免台账字段空缺
         # CHG-108 缺陷 3：retrofit 模式下追加记录后立即更新状态为 ✅已关闭 + 完成日期
         ledger_path = get_or_create_ledger_file(project_path)
@@ -294,9 +294,9 @@ class ChangeService:
                     apply_date=apply_date,
                 )
                 log.info("retrofit 模式: 台账状态直接置为 ✅已关闭: %s", change_number)
-            log.info("台帐已更新: %s", ledger_path)
+            log.info("台账已更新: %s", ledger_path)
         else:
-            log.warning("台帐文件创建失败，跳过更新: %s", project_path)
+            log.warning("台账文件创建失败，跳过更新: %s", project_path)
 
         # M2-3 T53: 同步写入 DB 缓存和影响分析
         if self._repo is not None:
@@ -730,7 +730,7 @@ class ChangeService:
             )
             log.debug("审批历史已写入 DB: %s %s → %s", change_number, current_cr.status, new_status)
 
-        # TD-T10 修复：同步更新台帐状态行（transition 流转后自动回写台帐）
+        # TD-T10 修复：同步更新台账状态行（transition 流转后自动回写台账）
         project_path = self._find_project_root_from_path(file_path)
         if project_path:
             ledger_path = find_ledger_file(project_path)
@@ -748,7 +748,7 @@ class ChangeService:
                     applicant=current_cr.applicant,
                     apply_date=current_cr.apply_date,
                 )
-                log.debug("台帐状态已同步: %s → %s", change_number, status_label)
+                log.debug("台账状态已同步: %s → %s", change_number, status_label)
 
         # 重新解析返回
         result = self._parser.parse(file_path)

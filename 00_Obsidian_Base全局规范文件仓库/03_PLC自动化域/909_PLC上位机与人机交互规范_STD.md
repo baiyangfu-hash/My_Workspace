@@ -1,10 +1,12 @@
 ---
-id: STD-909
-name: PLC上位机与人机交互规范
-version: 1.0.0
-domain: PLC自动化域
+spec_id: STD-909
+title: PLC上位机与人机交互规范
+version: "V1.0.0"
+domain: plc
+lifecycle: stable
+canonical_path: "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/909_PLC上位机与人机交互规范_STD.md"
+tags: ["HMI", "上位机", "选型", "通信分工", "触摸屏", "PC上位机"]
 type: STD
-status: active
 author: Antigravity
 created_at: 2026-08-17
 updated_at: 2026-08-17

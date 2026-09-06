@@ -525,7 +525,7 @@ class PmClosureSagaCoordinator:
             self._backup_file(saga_data, Path(existing_ledger))
         else:
             default_ledger = (
-                project_path / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+                project_path / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
             )
             self._backup_file(saga_data, default_ledger)
 

@@ -437,7 +437,7 @@ def cmd_create(
     urgency: str,
     retrofit: bool,
 ) -> None:
-    """创建变更单（生成 CHG-*.md 文件并更新台帐）"""
+    """创建变更单（生成 CHG-*.md 文件并更新台账）"""
     app_ctx: AppContext = ctx.obj
     svc = ChangeService(app_ctx.workspace_root)
 

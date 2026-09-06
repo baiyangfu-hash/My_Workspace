@@ -64,7 +64,7 @@ def filter_production_files(files: list[str]) -> list[str]:
 
 def enforce_pre_commit(workspace_root: Path) -> int:
     """pre-commit 阶段拦截检查：
-    1. 扫描暂存区关联项目的版本变更台帐一致性；
+    1. 扫描暂存区关联项目的版本变更台账一致性；
     2. 若全仓台账存在缺失/孤儿/不一致，直接 exit 1 阻断。
     """
     staged = get_staged_files(workspace_root)
@@ -87,9 +87,9 @@ def enforce_pre_commit(workspace_root: Path) -> int:
             pid = getattr(p, "id", "")
             if not p_root:
                 continue
-            ledger_file = Path(p_root) / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+            ledger_file = Path(p_root) / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
             if not ledger_file.is_file():
-                ledger_file = Path(p_root) / "11_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+                ledger_file = Path(p_root) / "11_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
             if not ledger_file.is_file():
                 continue
 

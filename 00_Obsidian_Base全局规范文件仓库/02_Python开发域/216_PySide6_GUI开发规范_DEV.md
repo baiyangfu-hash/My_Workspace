@@ -1,13 +1,13 @@
 ---
+spec_id: "DEV-216"
+title: "PySide6 + QML 工业上位机架构规范"
 version: "V2.0.0"
-status: "已批准"
+domain: python
+lifecycle: "active"
+canonical_path: "00_Obsidian_Base全局规范文件仓库/02_Python开发域/216_PySide6_GUI开发规范_DEV.md"
+tags: ["PySide6", "QML", "上位机", "CleanArchitecture", "Bridge", "DTO"]
 created: "2026-06-21"
 updated: "2026-08-22"
-spec_id: "DEV-216"
-domain: "Python开发"
-title: "PySide6 + QML 工业上位机架构规范"
-lifecycle: "active"
-tags: ["PySide6", "QML", "上位机", "CleanArchitecture", "Bridge", "DTO"]
 ---
 
 # PySide6 + QML 工业上位机架构规范
