@@ -9,6 +9,7 @@ CHG-SCPT-2026-018 回退态：恢复稳定部署平铺源码作为运行入口�
 
 import os
 import sys
+import traceback
 from pathlib import Path
 
 # 1. 动态定位当前工作空间根目录
@@ -28,10 +29,9 @@ AUTO_PM_PROJECT_DIR = AUTO_PM_INFRA_DIR
 if not AUTO_PM_PROJECT_DIR.exists():
     AUTO_PM_PROJECT_DIR = AUTO_PM_LEGACY_PROJECT_DIR
 
-if not AUTO_PM_PROJECT_DIR.exists():
+if not AUTO_PM_PROJECT_DIR.exists() and (WORKSPACE_ROOT / "auto_pm").exists():
     # 备选：如果直接是 flat 目录结构
-    if (WORKSPACE_ROOT / "auto_pm").exists():
-        AUTO_PM_PROJECT_DIR = WORKSPACE_ROOT
+    AUTO_PM_PROJECT_DIR = WORKSPACE_ROOT
 
 # 将核心工程加入 sys.path
 if str(AUTO_PM_PROJECT_DIR) not in sys.path:
@@ -41,8 +41,47 @@ if str(AUTO_PM_PROJECT_DIR) not in sys.path:
 os.environ["AUTO_PM_WORKSPACE"] = str(WORKSPACE_ROOT)
 
 if __name__ == "__main__":
-    # 注意：稳定平铺源码的 QML 入口函数是 run_qml_gui（无 run_qml_app）
-    from auto_pm.ui.qml_main_window import run_qml_gui
+    from auto_pm.infrastructure.startup_guard import (
+        EXIT_CRASH,
+        EXIT_DB_LOCKED,
+        EXIT_INSTANCE_LOCKED,
+        DatabaseLockConflictError,
+        InstanceLockError,
+        acquire_instance_lock,
+        install_crash_handler,
+        probe_database_locks,
+        write_crash_log,
+    )
 
-    # 启动桌面驾驶舱
-    sys.exit(run_qml_gui(workspace_root=str(WORKSPACE_ROOT)))
+    crash_log_path = WORKSPACE_ROOT / ".auto-pm" / "logs" / "startup_crash.log"
+    install_crash_handler(crash_log_path)
+
+    lock = None
+    try:
+        try:
+            lock = acquire_instance_lock(WORKSPACE_ROOT)
+        except InstanceLockError:
+            sys.exit(EXIT_INSTANCE_LOCKED)
+
+        try:
+            probe_database_locks(WORKSPACE_ROOT / ".auto-pm" / "index.db")
+        except DatabaseLockConflictError:
+            sys.exit(EXIT_DB_LOCKED)
+
+        # 注意：稳定平铺源码的 QML 入口函数是 run_qml_gui（无 run_qml_app）
+        from auto_pm.ui.qml_main_window import run_qml_gui
+
+        # 启动桌面驾驶舱
+        exit_code = run_qml_gui(workspace_root=str(WORKSPACE_ROOT))
+        if exit_code != 0:
+            write_crash_log(crash_log_path, "QML_EXIT_NON_ZERO", f"驾驶舱异常退出，Exit Code={exit_code}")
+        sys.exit(exit_code)
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        write_crash_log(crash_log_path, "UNHANDLED_EXCEPTION", str(exc), exc_info=sys.exc_info())
+        traceback.print_exc()
+        sys.exit(EXIT_CRASH)
+    finally:
+        if lock is not None:
+            lock.release()

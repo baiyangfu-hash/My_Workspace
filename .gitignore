@@ -119,6 +119,9 @@ gittoken.txt
 .auto-pm/handoffs/
 .auto-pm/worktrees/
 .auto-pm/reports/
+.auto-pm/app.instance.lock
+.auto-pm/app.instance.json
+
 .auto-pm/scratch/
 .auto-pm/transactions/
 coverage/

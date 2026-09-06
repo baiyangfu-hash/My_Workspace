@@ -45,10 +45,19 @@ class ChgParser:
             file_mtime=get_mtime(file_path),
         )
 
+        # 解析开头的 YAML frontmatter（如 id: ..., project_id: ...）
+        frontmatter = self._parse_frontmatter(content)
+        if frontmatter.get("project_id"):
+            cr.project_id = frontmatter["project_id"]
+        if frontmatter.get("id"):
+            cr.change_number = frontmatter["id"]
+
         # 从文件路径提取 domain
         cr.domain = cast(Domain, self._extract_domain_from_path(file_path))
-        # 从文件名提取 change_number
-        cr.change_number = self._extract_change_number(file_path)
+        # 从文件名提取 change_number（若文件名符合规范，优先级高于 frontmatter）
+        extracted_num = self._extract_change_number(file_path)
+        if extracted_num:
+            cr.change_number = extracted_num
 
         # 按章节拆分
         sections = self._split_sections(content)
@@ -92,10 +101,14 @@ class ChgParser:
         # 如果 change_number 未从文件提取到，尝试从内容提取
         if not cr.change_number:
             cr.change_number = self._extract_change_number_from_content(content)
+        if not cr.change_number and frontmatter.get("id"):
+            cr.change_number = frontmatter["id"]
 
-        # 如果 project_id 未从 §3 提取到，从 change_number 推断
+        # 如果 project_id 未从 §3 提取到，从正文提取或回退到 frontmatter
         if not cr.project_id:
             cr.project_id = self._extract_project_id_from_content(content)
+        if not cr.project_id and frontmatter.get("project_id"):
+            cr.project_id = frontmatter["project_id"]
 
         # 填充章节内容标志（门禁校验用）
         self._fill_section_flags(cr, sections)
@@ -195,9 +208,13 @@ class ChgParser:
         s30 = self._find_subsection(text, "3.0")
         if s30:
             table = self._parse_table(s30)
-            cr.change_number = table.get("变更编号", cr.change_number)
-            cr.project_name = table.get("项目名称", cr.project_name)
-            cr.project_id = table.get("项目编号", cr.project_id)
+            if table.get("变更编号"):
+                cr.change_number = table["变更编号"].strip().strip("`")
+            if table.get("项目名称"):
+                cr.project_name = table["项目名称"].strip().strip("`")
+            raw_pid = table.get("项目编号")
+            if raw_pid and raw_pid.strip().strip("`"):
+                cr.project_id = raw_pid.strip().strip("`")
 
         # §3.1 技术领域
         s31 = self._find_subsection(text, "3.1")
@@ -398,9 +415,24 @@ class ChgParser:
         match = re.search(r"CHG-[A-Z]+-\d{4}-\d{3}", content)
         return match.group(0) if match else ""
 
+    def _parse_frontmatter(self, content: str) -> dict[str, str]:
+        """解析开头的 YAML frontmatter (--- ... ---)"""
+        match = re.match(r"^---\s*\r?\n(.*?)\r?\n---\s*(?:\r?\n|$)", content, re.DOTALL)
+        if not match:
+            return {}
+        result: dict[str, str] = {}
+        for line in match.group(1).splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if ":" in line:
+                key, val = line.split(":", 1)
+                result[key.strip()] = val.strip().strip("'\"`")
+        return result
+
     def _extract_project_id_from_content(self, content: str) -> str:
-        """从内容中提取项目编号（从§3.0编号与项目表格）"""
-        match = re.search(r"项目编号[|：:]\s*([A-Z]+-\d{4}-\d{3})", content)
+        """从内容中提取项目编号（从§3.0编号与项目表格或正文提取，兼容反引号与加粗标记）"""
+        match = re.search(r"项目编号\*{0,2}[|：:]\s*[`]?([A-Z]+-\d{4}-\d{3})[`]?", content)
         return match.group(1) if match else ""
 
     def _read_explicit_status(self, section3_text: str) -> str:

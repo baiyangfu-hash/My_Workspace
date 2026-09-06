@@ -336,7 +336,11 @@ class ChangeService:
         summaries: list[ChangeSummary] = []
         for cf in change_files:
             cr = self._parser.parse(cf)
+            if not cr.project_id:
+                cr.project_id = project_id
             summary = self._parser.to_summary(cr)
+            if not summary.project_id:
+                summary.project_id = project_id
             # 筛选
             if status and summary.status != status:
                 continue
