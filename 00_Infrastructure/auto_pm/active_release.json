@@ -1,6 +1,7 @@
 {
  "schema_version": "release_pointer.v1",
  "slot": "active_release.json",
- "release_id": null,
- "updated_at": null
+ "release_id": "1.2.3-f950525",
+ "release_path": "1.2.3-f950525",
+ "updated_at": "2026-09-06T19:07:36.982751+00:00"
 }
