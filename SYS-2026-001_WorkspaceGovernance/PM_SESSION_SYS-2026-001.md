@@ -51,6 +51,10 @@
 - 2026-09-06 [已执行] NG-WP-18 CHG-SPEC-2026-001 Obsidian 规范库 P0 治理修补：依据 DEC-20260906-1AB177AF（39 文件 pathspec/9 条件），实改 29 文件（frontmatter A 型统一×8、registry 同步 6 处、905 纯调序、CHK/OPS/045/042/041 死链修复、INDEX 四域真链接化、活跃区死链清扫），10 文件 verified-no-op。六门禁全绿：spec check Exit 0、活跃区死链=0（冷区 28 登记）、INDEX 覆盖率 67/67=100%、doc check Exit 0、CHK A 类全过、scoped diff --check 全过。CHG 转 pending_acceptance；冷区引用 7 项与驾驶舱拆单 6 项已登记移交。报告=.auto-pm/reports/CHG-SPEC-2026-001_执行报告_2026-09-06.md。
 - 2026-09-06 [已复核] CHG-SPEC-2026-001 PM 验收复核：六门禁独立复跑全绿、33 改动文件 ⊆ 39 白名单∪落账件（越界 0）、905 行多重集相等复算成立、事故 README 字节还原属实；SHA 证据链冻结后 2 文件漂移已补记入 CHG §9（PM_SESSION_SYS=PM 收口写入；00_INDEX=补全注记追加，门禁复验绿）。架构师裁决落地：D-1 结案 TOOL-906 保留 number=9060（spec check 9060 豁免列入 SW 拆单）；"台帐"认定错别字——SYS 台账改名 `01_版本变更台账.md`（031 行字段补全）+ 驾驶舱 dev 源码 8 文件清零（路径常量 7 处，py_compile 绿，dev reconcile SYS Exit 0），release f950525 冻结未动。双索引疑云澄清：第二份索引与图谱散装节点均为 Archive_Cold 冷区 v2 幽灵（Obsidian 图谱默认绘制冷区），活跃区索引唯一。
 - 2026-09-06 [已结项] CHG-SPEC-2026-001：架构师批准结项。CHG §3.4 置 closed 终态、台账 031 行 ✅已关闭（完成日期 2026-09-06）；handoff AI-20260906-P0-SPEC-001-R3 已由 PM close 为 consumed（Exit 0）；证据归档 `.auto-pm/reports/CHG-SPEC-2026-001_P0_evidence/`，99_P0工作区 已按 DEV-TMP-001 清理（回滚移交 git HEAD）；ledger reconcile SYS（dev 源码）结项复验 Exit 0。遗留移交：驾驶舱拆单 8 项（SW-2026-008）+ 冷区引用处置 7 项（待独立批准）。
+- 2026-09-06 [已立项] CHG-SPEC-2026-002/003/004 三单同批立项（架构师指示"p0遗留项，p1，P2做变更单，可以划分多个变更单；p4暂停"）：002=P0 遗留收尾（F19 语义互链/编号宪章/043+040 SPEC 分类）；003=P1 PLC 吸收增强（F07/F08/F15 + B3–B8，新增 SW 拆单 #9=auto_pm io_points 解析器扩列）；004=P2 PM 域模板包（903 立项表补立/URT/TDR/F21 评估）。三单均 V1.0.0 草案、状态 draft、台账 032–034 行 🔄待处理，等待架构师批准；执行顺序 002→003→004（002 的编号宪章是 004 新模板编号的输入）。**P4（STD-817）架构师指示暂停**，恢复另批；P3（816 测试与上机）未提及，维持未立项。
+- 2026-09-06 [已执行] CHG-SPEC-2026-002 P0 遗留收尾（架构师对话指令批准）：003 新增 §13 编号段位宪章（V1.2.0，7 段位表+跨段占用登记不迁移）；040/043 增 SPEC 法典类分类（V2.3.0，8 领域补齐）；00_INDEX 挂载 6 组语义互链（12 链接全解析）并修复 OPS/CHK 版本单元格漂移（V1.0.0→V1.1.0，P0.3 残留）；registry 三条同步。六门禁全绿：spec check 0 错误、活跃区死链 0、覆盖率 67/67、doc check 100%、reconcile 无差异、scoped diff 5/5。CHG 转 pending_acceptance；证据=.auto-pm/reports/CHG-SPEC-2026-002_evidence/。
+- 2026-09-06 [已执行] CHG-SPEC-2026-003 P1 PLC 吸收增强（架构师对话指令"继续"批准）：023 V2.2.0（I/O 表 9 列三安全列、§5.4.3 OB 调度表、状态机表超时→报警号、§8.1 四位报警分段+禁字母前缀、§8.2 B6 三列、§10.1 八列安全矩阵、DJ-005 基因通用化+§14.4 存档）；815 V1.2.0（§4.1 io_points.csv 12 列唯一 schema、§4.2 接口登记册+超时两段式）；909 V1.1.0（F07：交握真源=820，四步降为呈现层视图）；906 V2.1.0（去基因）。六门禁全绿（死链活跃 0/覆盖率 67-67/scoped diff 6-6）。F07/F08/F15 闭环；SW 拆单 #9 在途。证据=.auto-pm/reports/CHG-SPEC-2026-003_evidence/。
+- 2026-09-06 [已结项] CHG-SPEC-2026-002/003 双单验收关闭（架构师对话指令"验收+提交+开工 004 一起来"）：002=P0 遗留三项闭环（编号宪章随即作为 004 新模板编号分配依据生效）；003=F07/F08/F15 闭环（交握真源=820、四位报警分段、io_points 三安全列 schema 生效）。台账 032/033 ✅已关闭；CHG 均置 closed 终态。004（P2）获批开工。
 
 ## 4. Artifacts Index（文档索引）
 - charter: 00_项目基础信息/01_项目章程_PM.md
@@ -92,10 +96,15 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
-- current_state: [已结项] CHG-SPEC-2026-001（NG-WP-18 规范库 P0）已结项关闭（closed）；六门禁独立复跑全绿、裁决落地、handoff consumed、证据归档、临时工作区清理完毕；遗留=驾驶舱拆单 8 项（SW-2026-008）与冷区引用处置 7 项（待独立批准），SYS 侧无未竟动作。
+- current_state: [执行中] CHG-SPEC-2026-004（P2 模板包）获批开工；002/003 已验收结项关闭；P4 暂停、P3 未立项；SW 拆单 9 项与冷区 7 项在途。
 - latest_handoff: 2026-09-06 | from=fullstack-engineer | mode=CHG-SPEC-2026-001 P0 execution | request_id=AI-20260906-P0-SPEC-001-R3（R1 租约过期未及时心跳作废；R2 因 change-id 校验不识别 SYS 户籍 CHG-SPEC 目录废弃；R3 为正式回执，待 PM close 为 consumed） | decision=DEC-20260906-1AB177AF | change=CHG-SPEC-2026-001-pending_acceptance | gates: spec_check=Exit 0, deadlinks_active=0, index_coverage=67/67, doc_check=Exit 0, scoped_diff_check=ALL PASS | evidence=.auto-pm/reports/CHG-SPEC-2026-001_执行报告_2026-09-06.md.
 - archive: historical §8 handoff evidence (including prior current-state snapshots) preserved in 05_收尾/PM_SESSION归档/PM_SESSION_SYS-2026-001_archive_auto.md; section append=NG-WP-16 history retention archive; SHA-256=e4a1f4fc1b0a7eb923fcf8d8d3d7ac4675483d3a514e5f91cf292e3e04e2e18e.
 ## 9. Next Actions
+- [已结项] CHG-SPEC-2026-002 P0 遗留收尾 | result=5 文件实改（003 §13 编号宪章 V1.2.0、040/043 SPEC 分类 V2.3.0、INDEX 6 组互链+OPS/CHK 版本对齐、registry 同步）、六门禁全绿；gate=2026-09-06 架构师验收关闭（closed）；编号宪章已生效为 004 编号输入
+- [已结项] CHG-SPEC-2026-003 P1 PLC 吸收增强 | result=6 文件实改（023 V2.2.0 五处增强+四位分段+基因存档、815 V1.2.0 io_points schema+接口登记册、909 V1.1.0 F07 真源裁决、906 V2.1.0 去基因、INDEX/registry 同步）、六门禁全绿；gate=2026-09-06 架构师验收关闭（closed）；F07/F08/F15 闭环；SW 拆单 #9 在途
+- [执行中] CHG-SPEC-2026-004 P2 PM 域模板包 | 架构师对话指令批准开工（2026-09-06）| result=PLC 立项表补立回收 903 幽灵引用、URT、TDR、F21 十三部低消费模板评估报告（只评估不动存量）；编号按 003 §13 宪章分配
+- [暂停] P4 STD-817 移植一致性核查规范 | 架构师 2026-09-06 指示暂停，恢复另批；DJ-2026-005 TIA Portal 编译验证阶段的移植口径暂按项目内一致性报告执行
+- [未立项] P3 测试与上机（816 模板） | 未列入本批，维持未立项
 - [已结项] CHG-SPEC-2026-001 NG-WP-18 规范库 P0 治理修补 | result=29 文件实改、六门禁经 PM 独立复跑全绿、活跃区死链 0、INDEX 67/67、冷区零接触仅登记；架构师裁决已落地（TOOL-906 保留 9060、SYS 台账改名 + dev 源码 8 文件同步）；gate=2026-09-06 架构师批准结项（closed），handoff R3 consumed，证据归档 CHG-SPEC-2026-001_P0_evidence/；拆单移交 8 项=①change SPEC 域 ②spec index 域覆盖与越权写 ③doc check --strict 语义 ④PATH auto-pm 版本 ⑤冷区汇总报告消费依赖 ⑥手工户籍 CHG 台账回写 ⑦release 重切携带台帐→台账全链改名（SYS 已改、SW/041 模板/.jinja/各项目随重切）⑧spec check 编号唯一性 9060 豁免；另有冷区引用处置 7 项待独立批准。
 - [待验收] CHG-SCPT-2026-185 NG-WP-17 入口脱钩 | result=setup_env 不再绑定 stable flat source、verify_release 465/465 与 resolve-only/--help Exit 0；blocker=完整 startup guard 仍有 1 项 Windows cmd.exe timeout（Exit 1）；gate=stable flat archive 延期。
 - [待验收] CHG-DOCU-2026-005 NG-WP-17 历史规划归档 | result=4/4 SHA-256 匹配、git diff --check Exit 0、handoff 已 consumed；gate=CHG 保持 pending_acceptance，stable flat auto_pm 因 setup_env.bat 依赖延期，未移动研发母体源码、templates 或 release。
