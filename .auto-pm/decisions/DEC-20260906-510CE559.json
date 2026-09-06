@@ -1,0 +1,19 @@
+{
+  "schema_version": "decision_package.v1",
+  "decision_id": "DEC-20260906-510CE559",
+  "project_id": "SW-2026-008",
+  "change_id": "CHG-SCPT-2026-185",
+  "approved_scope": "SYSTEM",
+  "approved_files": [
+    "setup_env.bat"
+  ],
+  "approver": "fubai",
+  "approved_at": "2026-09-06T20:07:50.288091+00:00",
+  "decision_conclusion": "approved",
+  "conditions": [
+    "仅移除对 00_Infrastructure/auto_pm 的 pip editable 安装；保留依赖安装、.venv 创建、根 main.py 稳定 launcher 启动路径。",
+    "不得修改研发母体、旧 release 1.2.3-d41eb38、active/previous pointer、deployment_manifest、Git index 冻结候选。",
+    "入口脱钩验证通过后，平铺源码归档须另列精确白名单并可逆恢复。"
+  ],
+  "metadata": {}
+}

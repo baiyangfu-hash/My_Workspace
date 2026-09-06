@@ -138,3 +138,11 @@ PLC源程序样例/
 # 忽略堆垛机相关文件夹（Autoshop 源程序）
 *堆垛机*/
 **/DJ-2026-009_长边框堆垛机（研发）/
+
+# PLC 工单 Markdown 整理包：本地整理输入，不纳入 Git
+/PLC_工单_Markdown_整理包/
+# 工作区运行备份、离线工具链与本地编辑器计划，不纳入 Git
+.auto-pm/backups/
+.auto-pm/toolchains/
+00_Infrastructure/auto_pm/.auto-pm/
+.zcode/

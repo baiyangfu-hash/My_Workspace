@@ -42,24 +42,36 @@ if exist "requirements.txt" (
     pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 )
 
-:: 4. 安装 auto-pm 本地开发包（优先工作空间基础设施运行位，旧项目路径回退）
-set "CORE_PATH=00_Infrastructure\auto_pm"
-set "LEGACY_CORE_PATH=01_Project自动化项目管理\Python自动化项目总库\02_在研项目\SW-2026-008_auto-pm_自动化项目管理工具"
-if not exist "%CORE_PATH%" (
-    set "CORE_PATH=%LEGACY_CORE_PATH%"
+:: 4. 校验稳定入口（运行时通过 manifest 校验的 active release，不安装平铺源码）
+set "STABLE_LAUNCHER=00_Infrastructure\auto_pm\launcher\launch.py"
+set "ACTIVE_POINTER=00_Infrastructure\auto_pm\active_release.json"
+set "DEPLOYMENT_MANIFEST=00_Infrastructure\auto_pm\deployment_manifest.json"
+if not exist "%STABLE_LAUNCHER%" (
+    echo [错误] 稳定入口缺失: %STABLE_LAUNCHER%
+    pause
+    exit /b 1
 )
-if exist "%CORE_PATH%" (
-    echo [4/4] 正在挂接 auto-pm 核心模块: %CORE_PATH%
-    pip install -e "%CORE_PATH%" --no-deps
+if not exist "%ACTIVE_POINTER%" (
+    echo [错误] active release 指针缺失: %ACTIVE_POINTER%
+    pause
+    exit /b 1
 )
+if not exist "%DEPLOYMENT_MANIFEST%" (
+    echo [错误] 部署 manifest 缺失: %DEPLOYMENT_MANIFEST%
+    pause
+    exit /b 1
+)
+echo [4/4] 稳定入口已就绪: %STABLE_LAUNCHER%
+echo       运行时将由 stable launcher 校验 active release；不安装研发平铺源码。
 
 echo.
 echo ==============================================================================
 echo  [成功] Auto-PM 工作台环境已成功就绪！
 echo.
 echo  • 启动桌面驾驶舱：双击运行 "双击启动驾驶舱.bat" 或执行 "python main.py"
+echo  • 运行 CLI：执行 "python main.py --help"（统一经过 stable launcher）
 echo  • 运行全量单测：pytest
-echo  • 运行规范体检：python -m auto_pm spec sync
+echo  • 运行规范体检：python main.py spec sync（统一经过 stable launcher）
 echo ==============================================================================
 echo.
 pause
