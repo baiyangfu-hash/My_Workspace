@@ -12,6 +12,7 @@ from bootstrap import BootstrapError, resolve_with_fallback
 
 _RELEASE_CHILD = (
     "import runpy, sys; release_dir = sys.argv[1]; "
+    "sys.argv = [sys.argv[0], *sys.argv[2:]]; "
     "sys.path.insert(0, release_dir); runpy.run_module('auto_pm', run_name='__main__')"
 )
 _UNSAFE_PYTHON_ENV = ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE")

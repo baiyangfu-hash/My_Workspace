@@ -84,6 +84,30 @@ def test_valid_release_executes_only_from_verified_release(tmp_path: Path, monke
     assert not list((root / RELEASES_DIR / "active").rglob("__pycache__"))
 
 
+def test_release_child_preserves_user_arguments_without_release_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root, releases = _container(tmp_path)
+    release = root / RELEASES_DIR / "active" / "auto_pm" / "__main__.py"
+    release.write_text(
+        "import os, sys\n"
+        "from pathlib import Path\n"
+        "Path(os.environ['AUTO_PM_TEST_ARGS']).write_text(repr(sys.argv[1:]), encoding='utf-8')\n",
+        encoding="utf-8",
+    )
+    releases["active"] = {
+        path.relative_to(root / RELEASES_DIR / "active").as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in (root / RELEASES_DIR / "active").rglob("*")
+        if path.is_file()
+    }
+    (root / MANIFEST_FILE).write_text(
+        json.dumps({"schema_version": MANIFEST_SCHEMA, "releases": {key: {"files": value} for key, value in releases.items()}}),
+        encoding="utf-8",
+    )
+    args_file = tmp_path / "args.txt"
+    monkeypatch.setenv("AUTO_PM_TEST_ARGS", str(args_file))
+    assert launcher_main(["--help"], container=root) == 0
+    assert args_file.read_text(encoding="utf-8") == "['--help']"
+
+
 def test_tampered_active_release_fails_closed(tmp_path: Path) -> None:
     root, _ = _container(tmp_path, previous=None)
     (root / RELEASES_DIR / "active" / "auto_pm" / "__init__.py").write_text("tampered\n", encoding="utf-8")
