@@ -148,6 +148,6 @@ PLC源程序样例/
 .zcode/
 
 # Obsidian 界面运行态（每次开库变动，无 diff 价值；界面配置 app/appearance/plugins 等仍正常追踪）
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/workspace.json.bak
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
+**/.obsidian/workspace.json.bak
