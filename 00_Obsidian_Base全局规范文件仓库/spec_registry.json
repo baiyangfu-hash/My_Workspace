@@ -1151,6 +1151,61 @@
       "replaced_by": [],
       "aliases": []
     },
+    "PM-053": {
+      "title": "通用PLC工程项目立项表模板",
+      "number": "053",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/01_启动阶段/053_通用PLC工程项目立项表模板_PM.md",
+      "version": "V1.0.0",
+      "type_prefix": "PM",
+      "domain": "pm",
+      "lifecycle": "stable",
+      "sub_domain": "01_启动阶段",
+      "tags": [
+        "PLC",
+        "立项",
+        "模板",
+        "五块信息模型"
+      ],
+      "replaces": [],
+      "replaced_by": []
+    },
+    "URT-054": {
+      "title": "工业需求与追溯一体化模板",
+      "number": "054",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/02_规划阶段/054_工业需求与追溯一体化模板_URT.md",
+      "version": "V1.0.0",
+      "type_prefix": "URT",
+      "domain": "pm",
+      "lifecycle": "stable",
+      "sub_domain": "02_规划阶段",
+      "tags": [
+        "需求",
+        "追溯",
+        "URT",
+        "信号级",
+        "模板"
+      ],
+      "replaces": [],
+      "replaced_by": []
+    },
+    "TDR-055": {
+      "title": "技术决策记录模板",
+      "number": "055",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/02_规划阶段/055_技术决策记录模板_TDR.md",
+      "version": "V1.0.0",
+      "type_prefix": "TDR",
+      "domain": "pm",
+      "lifecycle": "stable",
+      "sub_domain": "02_规划阶段",
+      "tags": [
+        "技术决策",
+        "TDR",
+        "模板",
+        "可追溯"
+      ],
+      "replaces": [],
+      "replaced_by": []
+    },
     "CHG-040": {
       "title": "通用变更单模板",
       "number": "040",
