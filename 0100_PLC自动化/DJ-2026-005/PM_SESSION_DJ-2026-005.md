@@ -48,7 +48,7 @@
 - external:     02_PLC程序\PLC_ST\01_外部设备交互\FB_ExternalDeviceInteraction.scl (DJ005基准实现；模板归一命名映射 FB_3001_ExternalInteraction)
 
 ### 4.3 监控与HMI资产
-- change_mgmt:  11_监控\01_变更管理\02_变更记录\01_版本变更台帐.md
+- change_mgmt:  11_监控\01_变更管理\02_变更记录\01_版本变更台账.md
 - hmi-pro:      03_HMI设计\原型\files\HMI原型设计.html (11页面工业级高保真交互原型 V2.0.0)
 - hmi-archive:  03_HMI设计\原型\archive_v1.6\ (历史原型归档)
 - hmi-tag:      03_HMI设计\hmi_tag_mapping.json (120+ 变量与全量 71 DI / 48 DO 点表映射字典)

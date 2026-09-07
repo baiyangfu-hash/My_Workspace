@@ -272,7 +272,7 @@ END_IF;
 | **详细设计说明书 (DSN)** | 本文档 | BOOL输入分类、49类报警码优先级扫描、环形队列、指示灯/蜂鸣器算法 |
 | **接口文档 (IFC)** | [接口文档_IFC-FB2001-CommonAlarm-V6.0.0.md](./接口文档_IFC-FB2001-CommonAlarm-V6.0.0.md) | ~25输入/10输出的完整接口定义 |
 | **使用说明 (UM)** | [使用说明_UM-FB2001-CommonAlarm-V6.0.0.md](./使用说明_UM-FB2001-CommonAlarm-V6.0.0.md) | ST调用示例、调试指南、常见问题排查 |
-| **变更记录 (CHG)** | [变更记录_CHG-FB2001-CommonAlarm-V6.0.0.md](./变更记录_CHG-FB2001-CommonAlarm-V6.0.0.md) | 版本历史、变更台帐 |
+| **变更记录 (CHG)** | [变更记录_CHG-FB2001-CommonAlarm-V6.0.0.md](./变更记录_CHG-FB2001-CommonAlarm-V6.0.0.md) | 版本历史、变更台账 |
 
 ### 7.2 关联FB文档
 

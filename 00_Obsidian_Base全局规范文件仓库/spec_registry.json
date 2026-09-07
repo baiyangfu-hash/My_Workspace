@@ -1182,16 +1182,16 @@
       "replaced_by": []
     },
     "CHG-041": {
-      "title": "通用版本变更台帐模板",
+      "title": "通用版本变更台账模板",
       "number": "041",
-      "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/04_变更管理/041_通用版本变更台帐模板_CHG.md",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/01_项目管理域/04_变更管理/041_通用版本变更台账模板_CHG.md",
       "version": "V2.1.0",
       "type_prefix": "CHG",
       "domain": "pm",
       "lifecycle": "stable",
       "sub_domain": "04_变更管理",
       "tags": [
-        "变更台帐",
+        "变更台账",
         "模板",
         "CHG"
       ],
