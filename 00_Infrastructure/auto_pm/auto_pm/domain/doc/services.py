@@ -2,6 +2,8 @@
 import tomllib
 from pathlib import Path
 
+from auto_pm.domain.doc.deadlink_checker import DeadLinkChecker
+from auto_pm.domain.doc.index_coverage_checker import IndexCoverageChecker
 from auto_pm.domain.doc.models import DocCheckResult
 from auto_pm.infrastructure.doc.extractors.bridge_ast_extractor import BridgeAstExtractor
 from auto_pm.infrastructure.doc.extractors.cli_ast_extractor import CliAstExtractor
@@ -96,7 +98,7 @@ class DocSyncService:
         return logs
 
 class DocCheckService:
-    """Audits doc-code consistency and version lock."""
+    """Audits doc-code consistency, deadlinks, index coverage, and version lock."""
 
     def __init__(self, workspace_root: Path):
         self.ws = workspace_root
@@ -104,7 +106,29 @@ class DocCheckService:
         self.docs_root = _resolve_docs_root(workspace_root, self.source_root)
         self.app_root = self.source_root
 
-    def check_all(self) -> list[DocCheckResult]:
+    def _find_lib_dir(self) -> tuple[Path | None, Path]:
+        """定位 Obsidian 全局规范库根目录与 repo 根目录。"""
+        cur = self.ws
+        repo_root = self.ws
+        for _ in range(5):
+            if (cur / ".git").exists():
+                repo_root = cur
+                break
+            if cur.parent == cur:
+                break
+            cur = cur.parent
+
+        candidates = [
+            repo_root / "00_Obsidian_Base全局规范文件仓库",
+            self.ws / "00_Obsidian_Base全局规范文件仓库",
+            self.source_root.parent / "00_Obsidian_Base全局规范文件仓库",
+        ]
+        for c in candidates:
+            if c.is_dir():
+                return c, repo_root
+        return None, repo_root
+
+    def check_all(self, strict: bool = False) -> list[DocCheckResult]:
         results: list[DocCheckResult] = []
 
         # Check 1: CLI modules exist in USER_GUIDE
@@ -129,7 +153,76 @@ class DocCheckService:
                     message=f"已覆盖全量 {len(cli_commands)} 组 CLI 命令"
                 ))
 
-        # Check 2: Version lock consistency
+        # Check 2: Obsidian 规范库活跃区死链检查 (DOC-002)
+        lib_dir, repo_root = self._find_lib_dir()
+        if lib_dir and lib_dir.is_dir():
+            deadlink_report = DeadLinkChecker(lib_dir).scan()
+            if deadlink_report.passed:
+                results.append(DocCheckResult(
+                    check_id="DOC-002",
+                    name="Obsidian 规范活跃区死链检查",
+                    passed=True,
+                    message=f"活跃区真实死链数: 0 (冷区仅登记 {len(deadlink_report.cold_deadlinks)} 处)"
+                ))
+            else:
+                detail_msg = "; ".join(f"[{d.error_class}] {d.src} -> {d.target}" for d in deadlink_report.active_deadlinks[:5])
+                results.append(DocCheckResult(
+                    check_id="DOC-002",
+                    name="Obsidian 规范活跃区死链检查",
+                    passed=False,
+                    message=f"活跃区发现 {len(deadlink_report.active_deadlinks)} 处死链: {detail_msg}"
+                ))
+        else:
+            if strict:
+                results.append(DocCheckResult(
+                    check_id="DOC-002",
+                    name="Obsidian 规范活跃区死链检查",
+                    passed=False,
+                    message="严格门禁失败: 未定位到 00_Obsidian_Base全局规范文件仓库"
+                ))
+            else:
+                results.append(DocCheckResult(
+                    check_id="DOC-002",
+                    name="Obsidian 规范活跃区死链检查",
+                    passed=True,
+                    message="规范库未就绪，非 strict 模式已跳过"
+                ))
+
+        # Check 3: 全局规范索引覆盖率 (DOC-003)
+        if lib_dir and lib_dir.is_dir():
+            coverage_report = IndexCoverageChecker(lib_dir, repo_root=repo_root).check()
+            if coverage_report.passed:
+                results.append(DocCheckResult(
+                    check_id="DOC-003",
+                    name="全局规范索引覆盖率 (100%)",
+                    passed=True,
+                    message=f"全局规范索引覆盖率 100% ({coverage_report.total_specs}/{coverage_report.total_specs})"
+                ))
+            else:
+                miss_str = ", ".join(coverage_report.missing_specs[:5])
+                results.append(DocCheckResult(
+                    check_id="DOC-003",
+                    name="全局规范索引覆盖率 (100%)",
+                    passed=False,
+                    message=f"INDEX 覆盖率缺失 {len(coverage_report.missing_specs)} 部规范: {miss_str}"
+                ))
+        else:
+            if strict:
+                results.append(DocCheckResult(
+                    check_id="DOC-003",
+                    name="全局规范索引覆盖率 (100%)",
+                    passed=False,
+                    message="严格门禁失败: 规范索引文件未找到"
+                ))
+            else:
+                results.append(DocCheckResult(
+                    check_id="DOC-003",
+                    name="全局规范索引覆盖率 (100%)",
+                    passed=True,
+                    message="规范索引未就绪，非 strict 模式已跳过"
+                ))
+
+        # Check 4: Version lock consistency (DOC-004)
         pyproject = self.source_root / "pyproject.toml"
         pm_session = self.docs_root / "PM_SESSION_SW-2026-008.md"
         ver_pyproject = ""
@@ -146,10 +239,11 @@ class DocCheckService:
                     ver_pm = line.split(":")[-1].strip().strip('"').replace("V", "")
 
         passed_ver = bool(ver_pyproject and ver_pm and ver_pyproject in ver_pm)
+        is_passed = passed_ver if strict else (passed_ver or True)
         results.append(DocCheckResult(
             check_id="DOC-004",
             name="全系统版本锁一致性",
-            passed=passed_ver or True,
+            passed=is_passed,
             message=f"pyproject={ver_pyproject or 'V1.0.0'}, PM_SESSION={ver_pm or 'V1.0.0'}"
         ))
 

@@ -44,13 +44,13 @@ ChangeStatus = Literal[
 ]
 
 # 技术领域（§3.1，"" 表示未设置）
-Domain = Literal["ELEC", "MECH", "PLC", "HMI", "SCPT", "DOCU", "SAFE", ""]
+Domain = Literal["ELEC", "MECH", "PLC", "HMI", "SCPT", "DOCU", "SAFE", "SPEC", ""]
 
 # 业务性质（§3.2，"" 表示未设置）
 BusinessNature = Literal["REQ", "DEF", "OPT", "CFG", "EMRG", ""]
 
 # 影响范围（§3.3，"" 表示未设置，用于列表项中可能为空的情况）
-ImpactScope = Literal["LOCAL", "MODULE", "SYSTEM", "CROSS", "SAFE", ""]
+ImpactScope = Literal["LOCAL", "MODULE", "SYSTEM", "CROSS", "SAFE", "SPEC", ""]
 
 # 紧急程度（§3.4）
 Urgency = Literal["normal", "urgent", "critical"]

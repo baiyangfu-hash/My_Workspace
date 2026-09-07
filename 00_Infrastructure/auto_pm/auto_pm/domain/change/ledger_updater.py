@@ -105,24 +105,31 @@ class LedgerUpdater:
         lines = content.split("\n")
         updated = False
         for i, line in enumerate(lines):
-            if change_number in line and line.strip().startswith("|"):
-                parts = line.split("|")
-                # 列结构：| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |
-                # split 后：['', ' 序号 ', ' 变更编号 ', ..., ' 状态 ', '']
-                # 状态列 = parts[-2]，完成日期列 = parts[-3]
-                if len(parts) >= 4:  # 至少有内容列（首尾空字符串 + 至少 2 列）
-                    # 状态列是最后一个内容列 = parts[-2]（parts[-1] 是行尾空字符串）
-                    parts[-2] = f" {status} "
-                    # CHG-085：closed/archived 时回写完成日期列（parts[-3]）
-                    if complete_date and status in ("✅已关闭", "✅已归档"):
-                        parts[-3] = f" {complete_date} "
-                        log.info(
-                            "台账完成日期已回写: %s → %s", change_number, complete_date
-                        )
-                    lines[i] = "|".join(parts)
-                    updated = True
-                    log.info("台账状态已更新: %s → %s", change_number, status)
-                    break
+            stripped = line.strip()
+            if not stripped.startswith("|"):
+                continue
+            # 拆分单元格（去除首尾 | 产生的空项）
+            content_cells = [p.strip() for p in stripped.strip("|").split("|")]
+            # 至少有 2 列（例如 变更编号 + 状态）
+            if len(content_cells) < 2:
+                continue
+            # 变更编号列通常在第 2 列（content_cells[1]），若只有 2 列则在第 1 列（content_cells[0]）
+            cn_col_idx = 1 if len(content_cells) > 2 else 0
+            if change_number not in content_cells[cn_col_idx]:
+                continue
+
+            # 最后一列为状态列
+            content_cells[-1] = status
+            # 只有列数 >= 7（包含完成日期列）且为终态时才回写倒数第二列
+            if complete_date and len(content_cells) >= 7 and status in ("✅已关闭", "✅已归档"):
+                content_cells[-2] = complete_date
+                log.info(
+                    "台账完成日期已回写: %s → %s", change_number, complete_date
+                )
+            lines[i] = "| " + " | ".join(content_cells) + " |"
+            updated = True
+            log.info("台账状态已更新: %s → %s", change_number, status)
+            break
 
         if updated:
             write_file(ledger_path, "\n".join(lines))

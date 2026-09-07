@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -13,7 +14,7 @@ from typing import Any
 
 from auto_pm.spec.core.config import (
     AUTO_GENERATED_HEADER,
-    CORE_IDS,
+    DEFAULT_OUTPUT_PATHS,
     DOMAIN_CONFIG,
     WorkspaceConfig,
 )
@@ -41,22 +42,23 @@ class IndexService:
             output.errors.append("注册表为空或不存在")
             return output
 
-        domains_to_generate = domains or ["pm", "plc", "python"]
+        if domains is not None:
+            valid_domains = set(DOMAIN_CONFIG.keys()) | {"all"}
+            for d in domains:
+                if d not in valid_domains:
+                    output.errors.append(f"未知规范域: {d}")
+            if output.errors:
+                return output
 
-        for d in domains_to_generate:
-            try:
-                if d == "pm":
-                    content = self._generate_pm_index(raw)
-                else:
-                    content = self._generate_tech_stack_index(raw, d)
-
-                cfg = DOMAIN_CONFIG[d]
-                output_path = self.workspace / cfg["output_path"]
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                output_path.write_text(content, encoding="utf-8")
-                output.generated_files.append(output_path)
-            except Exception as e:
-                output.errors.append(f"{d}: {e}")
+        try:
+            content = self._generate_global_index(raw)
+            output_rel = self.config.output_paths.get("pm_index", DEFAULT_OUTPUT_PATHS["pm_index"])
+            output_path = self.workspace / output_rel
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(content, encoding="utf-8")
+            output.generated_files.append(output_path)
+        except Exception as e:
+            output.errors.append(f"global_index: {e}")
 
         return output
 
@@ -76,60 +78,138 @@ class IndexService:
         raw: dict[str, Any],
         domain: str,
         lifecycle_filter: list[str] | None = None,
+        existing_order: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         if lifecycle_filter is None:
-            lifecycle_filter = ["stable", "draft"]
+            lifecycle_filter = ["stable", "active", "draft"]
         specs = []
         for spec_id, info in self._iter_registry_specs(raw):
             if info.get("domain") == domain and info.get("lifecycle") in lifecycle_filter:
                 entry = dict(info)
                 entry["spec_id"] = spec_id
                 specs.append(entry)
-        specs.sort(key=lambda s: s.get("number", "999"))
+
+        if existing_order:
+            order_idx = {sid: i for i, sid in enumerate(existing_order)}
+            specs.sort(
+                key=lambda s: (
+                    (0, order_idx[s["spec_id"]])
+                    if s["spec_id"] in order_idx
+                    else (1, str(s.get("number", "999")), s["spec_id"])
+                )
+            )
+        else:
+            specs.sort(key=lambda s: (str(s.get("number", "999")), s["spec_id"]))
         return specs
 
-    def _get_deprecated_specs(self, raw: dict[str, Any], domain: str, lifecycles: list[str] | None = None) -> list[dict[str, Any]]:
+    def _get_deprecated_specs(
+        self,
+        raw: dict[str, Any],
+        domain: str | None = None,
+        lifecycles: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
         if lifecycles is None:
             lifecycles = ["deprecated", "archived"]
         specs = []
         for spec_id, info in self._iter_registry_specs(raw):
-            if info.get("domain") == domain and info.get("lifecycle") in lifecycles:
+            domain_match = (domain is None) or (info.get("domain") == domain)
+            if domain_match and info.get("lifecycle") in lifecycles:
                 entry = dict(info)
                 entry["spec_id"] = spec_id
                 specs.append(entry)
-        specs.sort(key=lambda s: s.get("number", "999"))
+        specs.sort(key=lambda s: (str(s.get("number", "999")), s["spec_id"]))
         return specs
 
     def _generate_pm_index(self, raw: dict[str, Any]) -> str:
-        cfg = DOMAIN_CONFIG["pm"]
-        specs = self._get_specs_by_domain(raw, "pm")
-        deprecated = self._get_deprecated_specs(raw, "pm", ["deprecated"])
-        archived = self._get_deprecated_specs(raw, "pm", ["archived"])
-        now = datetime.now().strftime("%Y-%m-%d")
-        lines: list[str] = []
+        """向后兼容别名，直接生成全局规范索引。"""
+        return self._generate_global_index(raw)
+
+    def _generate_tech_stack_index(self, raw: dict[str, Any], domain: str) -> str:
+        """向后兼容别名，直接生成全局规范索引。"""
+        return self._generate_global_index(raw)
+
+    def _generate_global_index(self, raw: dict[str, Any]) -> str:
+        output_rel = self.config.output_paths.get("pm_index", DEFAULT_OUTPUT_PATHS["pm_index"])
+        existing_path = self.workspace / output_rel
+        existing_text = ""
+        if existing_path.is_file():
+            try:
+                existing_text = existing_path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                existing_text = ""
+
+        # 提取现有文件中的行内手写描述与既有顺序
+        existing_desc: dict[str, str] = {}
+        existing_order: list[str] = []
+        if existing_text:
+            row_re = re.compile(
+                r"^\|\s*([A-Z0-9_-]+)\s*\|\s*\[([^\]]+)\]\(([^)]+)\)\s*\|\s*[^\|]+\|\s*([^\|]+)\|",
+                re.MULTILINE,
+            )
+            for m in row_re.finditer(existing_text):
+                sid = m.group(1).strip()
+                existing_order.append(sid)
+                desc = m.group(4).strip()
+                if desc:
+                    existing_desc[sid] = desc
+
+        # 提取手工维护的语义互链清单
+        semantic_section = ""
+        if existing_text:
+            m_sem = re.search(r"(## 🔗 高价值语义互链清单.*?)(?=\n---\n|\Z)", existing_text, re.DOTALL)
+            if m_sem:
+                semantic_section = m_sem.group(1).strip()
+
+        # 提取手工维护的已归档规范清单
+        archived_section = ""
+        if existing_text:
+            m_arch = re.search(r"(## 已归档规范（Archived）.*?)(?=\n---\n|\Z)", existing_text, re.DOTALL)
+            if m_arch:
+                archived_section = m_arch.group(1).strip()
+
+        # 提取文件头部已有的修订注记
+        rev_notes: list[str] = []
+        if existing_text:
+            for line in existing_text.splitlines():
+                if line.startswith("> **修订注记"):
+                    rev_notes.append(line.strip())
 
         registry_version = raw.get("version", "unknown")
-        lines.append(f"# {cfg['title']} {registry_version}")
-        lines.append("")
-        lines.append(f"> {AUTO_GENERATED_HEADER}")
-        lines.append(f"> **版本**: {registry_version} (自动生成)")
-        lines.append(f"> **生成日期**: {now}")
-        lines.append("> **权威来源**: `spec_registry.json` + Obsidian 规范真源文件")
-        lines.append("> **注册表**: spec_registry.json")
-        lines.append("")
-        lines.append("---")
-        lines.append("")
-        lines.append("## 📋 项目管理域规范")
+        now = datetime.now().strftime("%Y-%m-%d")
 
-        grouped: dict[str, list[dict[str, Any]]] = {}
-        for spec in specs:
+        lines: list[str] = [
+            f"# {DOMAIN_CONFIG['pm']['title']} {registry_version}",
+            "",
+            f"> {AUTO_GENERATED_HEADER}",
+            f"> **版本**: {registry_version} (自动生成)",
+            f"> **生成日期**: {now}",
+            "> **权威来源**: `spec_registry.json` + Obsidian 规范真源文件",
+            "> **注册表**: spec_registry.json",
+        ]
+        for note in rev_notes:
+            lines.append(note)
+        lines.extend([
+            "",
+            "---",
+            "",
+            "## 📋 项目管理域规范",
+        ])
+
+        pm_specs = self._get_specs_by_domain(raw, "pm", existing_order=existing_order)
+        pm_grouped: dict[str, list[dict[str, Any]]] = {}
+        for spec in pm_specs:
             sd = spec.get("sub_domain", "其他")
-            grouped.setdefault(sd, []).append(spec)
+            pm_grouped.setdefault(sd, []).append(spec)
 
-        for sub_domain, label in cfg["sub_domains"].items():
-            group_specs = grouped.get(sub_domain, [])
+        pm_cfg = DOMAIN_CONFIG.get("pm", {})
+        sub_domain_labels = pm_cfg.get("sub_domains", {})
+        rendered_subdomains = set()
+
+        for sub_domain, label in sub_domain_labels.items():
+            group_specs = pm_grouped.get(sub_domain, [])
             if not group_specs:
                 continue
+            rendered_subdomains.add(sub_domain)
             lines.append(f"### {label} ({len(group_specs)}个)")
             lines.append("")
             lines.append("| 编号 | 文件 | 版本 | 说明 |")
@@ -137,150 +217,141 @@ class IndexService:
             for spec in group_specs:
                 fname = Path(spec["canonical_path"]).name
                 rel = spec["canonical_path"].replace("00_Obsidian_Base全局规范文件仓库/", "")
-                lines.append(f"| {spec['spec_id']} | [{fname}]({rel}) | {spec['version']} | {spec['title']} |")
+                desc = existing_desc.get(spec["spec_id"]) or spec.get("title", "")
+                lines.append(f"| {spec['spec_id']} | [{fname}]({rel}) | {spec.get('version', '')} | {desc} |")
             lines.append("")
+
+        for sub_domain, group_specs in pm_grouped.items():
+            if sub_domain not in rendered_subdomains:
+                lines.append(f"### {sub_domain} ({len(group_specs)}个)")
+                lines.append("")
+                lines.append("| 编号 | 文件 | 版本 | 说明 |")
+                lines.append("|------|------|------|------|")
+                for spec in group_specs:
+                    fname = Path(spec["canonical_path"]).name
+                    rel = spec["canonical_path"].replace("00_Obsidian_Base全局规范文件仓库/", "")
+                    desc = existing_desc.get(spec["spec_id"]) or spec.get("title", "")
+                    lines.append(f"| {spec['spec_id']} | [{fname}]({rel}) | {spec.get('version', '')} | {desc} |")
+                lines.append("")
 
         lines.append("---")
         lines.append("")
-        lines.append("## ⚠️ 技术栈规范位置（当前真源）")
+        lines.append("## ⚠️ 技术栈规范真源（PLC / Python / 驾驶舱 / 跨域）")
         lines.append("")
-        lines.append("| 技术栈 | 规范位置 | 包含内容 |")
-        lines.append("|--------|----------|----------|")
-        lines.append("| **PLC** | `00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/` | LSP-903~907、STD-820/830/840/850/860 等 PLC 真源规范 |")
-        lines.append("| **Python** | `00_Obsidian_Base全局规范文件仓库/02_Python开发域/` | DEV-210/211/216/217/218/220 等 Python 真源规范 |")
+
+        plc_specs = self._get_specs_by_domain(raw, "plc", existing_order=existing_order)
+        python_specs = self._get_specs_by_domain(raw, "python", existing_order=existing_order)
+        cockpit_specs = self._get_specs_by_domain(raw, "cockpit", existing_order=existing_order)
+        cross_specs = self._get_specs_by_domain(raw, "cross-domain", existing_order=existing_order)
+
+        total_active = len(pm_specs) + len(plc_specs) + len(python_specs) + len(cockpit_specs) + len(cross_specs)
+        tech_total = len(plc_specs) + len(python_specs) + len(cockpit_specs) + len(cross_specs)
+
+        lines.append(
+            f"> 以下四张域表由 spec_registry.json 驱动生成，数据逐条对齐"
+            f"（{len(pm_specs)} 条 PM 域 + {tech_total} 条技术栈域 = {total_active} 条活跃规范全覆盖）。"
+        )
         lines.append("")
+
+        def _render_table(specs_list: list[dict[str, Any]]) -> list[str]:
+            res: list[str] = [
+                "| 编号 | 文件 | 版本 | 说明 |",
+                "|------|------|------|------|",
+            ]
+            for spec in specs_list:
+                fname = Path(spec["canonical_path"]).name
+                rel = spec["canonical_path"].replace("00_Obsidian_Base全局规范文件仓库/", "")
+                desc = existing_desc.get(spec["spec_id"]) or spec.get("title", "")
+                res.append(f"| {spec['spec_id']} | [{fname}]({rel}) | {spec.get('version', '')} | {desc} |")
+            res.append("")
+            return res
+
+        lines.append(f"### 03_PLC 自动化域（LSP/STD/INT/TOOL） ({len(plc_specs)}个)")
+        lines.append("")
+        lines.extend(_render_table(plc_specs))
+
+        lines.append(f"### 02_Python 开发域（DEV/INT） ({len(python_specs)}个)")
+        lines.append("")
+        lines.extend(_render_table(python_specs))
+
+        lines.append(f"### 04_驾驶舱与全栈域（DEV/STD） ({len(cockpit_specs)}个)")
+        lines.append("")
+        lines.extend(_render_table(cockpit_specs))
+
+        lines.append(f"### 05_跨域工具规范 + 跨域 DEV（TOOL/DEV） ({len(cross_specs)}个)")
+        lines.append("")
+        lines.extend(_render_table(cross_specs))
+
         lines.append("**冲突处理**: 当全局PM规范与技术栈编码/架构规范冲突时，以本索引列出的技术栈真源目录为准")
         lines.append("")
         lines.append("---")
         lines.append("")
 
+        if semantic_section:
+            lines.append(semantic_section)
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+
+        deprecated_specs = self._get_deprecated_specs(raw, domain=None, lifecycles=["deprecated"])
         lines.append("## 已废弃规范（Deprecated）")
         lines.append("")
         lines.append("> 以下规范已被替代，仅供历史参考")
         lines.append("")
-        if deprecated:
+        if deprecated_specs:
             lines.append("| spec_id | 标题 | 替代规范 | 废弃日期 |")
             lines.append("|---------|------|---------|---------|")
-            for spec in deprecated:
+            for spec in deprecated_specs:
                 replaced_by = spec.get("replaced_by", [])
                 replaced_str = ", ".join(replaced_by) if isinstance(replaced_by, list) else str(replaced_by)
                 deprecated_date = spec.get("deprecated_date", "未知")
-                lines.append(f"| {spec['spec_id']} | {spec['title']} | {replaced_str or '无'} | {deprecated_date} |")
+                lines.append(
+                    f"| {spec['spec_id']} | {spec.get('title', '')} | {replaced_str or '无'} | {deprecated_date} |"
+                )
         else:
             lines.append("暂无")
         lines.append("")
 
-        lines.append("## 已归档规范（Archived）")
-        lines.append("")
-        lines.append("> 以下规范已从活跃目录移除")
-        lines.append("")
-        if archived:
-            lines.append("| spec_id | 标题 | 归档路径 | 归档日期 |")
-            lines.append("|---------|------|---------|---------|")
-            for spec in archived:
-                canonical_path = spec.get("canonical_path", "")
-                archived_date = spec.get("archived_date", "未知")
-                lines.append(f"| {spec['spec_id']} | {spec['title']} | {canonical_path} | {archived_date} |")
+        if archived_section:
+            lines.append(archived_section)
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+            archived_count = len(re.findall(r"^\|\s*[A-Z0-9_-]+\s*\|", archived_section, re.MULTILINE))
         else:
-            lines.append("暂无")
-        lines.append("")
-        lines.append("---")
-        lines.append("")
+            archived_specs = self._get_deprecated_specs(raw, domain=None, lifecycles=["archived"])
+            lines.append("## 已归档规范（Archived）")
+            lines.append("")
+            lines.append("> 以下规范已从活跃目录移除")
+            lines.append("")
+            if archived_specs:
+                lines.append("| spec_id | 标题 | 归档路径 | 归档日期 |")
+                lines.append("|---------|------|---------|---------|")
+                for spec in archived_specs:
+                    canonical_path = spec.get("canonical_path", "")
+                    archived_date = spec.get("archived_date", "未知")
+                    lines.append(f"| {spec['spec_id']} | {spec.get('title', '')} | {canonical_path} | {archived_date} |")
+            else:
+                lines.append("暂无")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+            archived_count = len(archived_specs)
 
         lines.append("## 📊 统计")
         lines.append("")
         lines.append("| 指标 | 数值 |")
         lines.append("|------|------|")
-        lines.append(f"| 活跃PM规范 | **{len(specs)}个** |")
-        lines.append(f"| 已废弃规范 | **{len(deprecated)}个** |")
-        lines.append(f"| 已归档规范 | **{len(archived)}个** |")
+        lines.append(f"| 活跃PM规范 | **{len(pm_specs)}个** |")
+        lines.append(f"| PLC自动化域 | **{len(plc_specs)}个** |")
+        lines.append(f"| Python开发域 | **{len(python_specs)}个** |")
+        lines.append(f"| 驾驶舱与全栈域 | **{len(cockpit_specs)}个** |")
+        lines.append(f"| 跨域通用 | **{len(cross_specs)}个** |")
+        lines.append(f"| 活跃规范合计 | **{total_active}个** |")
+        lines.append(f"| 已废弃规范 | **{len(deprecated_specs)}个** |")
+        lines.append(f"| 已归档规范 | **{archived_count}个** |")
         lines.append(f"| 最后更新 | {now} |")
         lines.append("")
-        lines.append(f"*索引自动生成: {now} | 注册表版本: {raw.get('version', 'unknown')}*")
-
-        return "\n".join(lines)
-
-    def _generate_tech_stack_index(self, raw: dict[str, Any], domain: str) -> str:
-        cfg = DOMAIN_CONFIG[domain]
-        specs = self._get_specs_by_domain(raw, domain)
-        cross_domain_specs = self._get_specs_by_domain(raw, "cross-domain") if domain == "plc" else []
-        deprecated = self._get_deprecated_specs(raw, domain, ["deprecated"])
-        archived = self._get_deprecated_specs(raw, domain, ["archived"])
-        now = datetime.now().strftime("%Y-%m-%d")
-        lines: list[str] = []
-
-        lines.append(f"# {cfg['title']}")
-        lines.append("")
-        lines.append(f"> {AUTO_GENERATED_HEADER}")
-        lines.append("> **版本**: 自动生成版")
-        lines.append(f"> **生成日期**: {now}")
-        lines.append("")
-        lines.append("---")
-        lines.append("")
-
-        for sub_domain, label in cfg["sub_domains"].items():
-            sub_specs = [s for s in specs if s.get("sub_domain") == sub_domain]
-            if not sub_specs:
-                continue
-            lines.append(f"## {label} (`{sub_domain}/`)")
-            lines.append("")
-            lines.append("| 规范ID | 文件名 | 版本 | 说明 | 优先级 |")
-            lines.append("|--------|--------|------|------|--------|")
-            core_ids = CORE_IDS.get(domain, [])
-            for spec in sub_specs:
-                fname = Path(spec["canonical_path"]).name
-                priority = "🔴必读" if spec["spec_id"] in core_ids else "🟡配套"
-                lines.append(f"| {spec['spec_id']} | {fname} | {spec['version']} | {spec['title']} | {priority} |")
-            lines.append("")
-
-        if cross_domain_specs and domain == "plc":
-            lines.append("## 跨域工具规范 (`项目管理/`)")
-            lines.append("")
-            lines.append("| 规范ID | 文件名 | 版本 | 说明 |")
-            lines.append("|--------|--------|------|------|")
-            for spec in cross_domain_specs:
-                fname = Path(spec["canonical_path"]).name
-                lines.append(f"| {spec['spec_id']} | {fname} | {spec['version']} | {spec['title']} |")
-            lines.append("")
-
-        lines.append("## 已废弃规范（Deprecated）")
-        lines.append("")
-        lines.append("> 以下规范已被替代，仅供历史参考")
-        lines.append("")
-        if deprecated:
-            lines.append("| spec_id | 标题 | 替代规范 | 废弃日期 |")
-            lines.append("|---------|------|---------|---------|")
-            for spec in deprecated:
-                replaced_by = spec.get("replaced_by", [])
-                replaced_str = ", ".join(replaced_by) if isinstance(replaced_by, list) else str(replaced_by)
-                deprecated_date = spec.get("deprecated_date", "未知")
-                lines.append(f"| {spec['spec_id']} | {spec['title']} | {replaced_str or '无'} | {deprecated_date} |")
-        else:
-            lines.append("暂无")
-        lines.append("")
-
-        lines.append("## 已归档规范（Archived）")
-        lines.append("")
-        lines.append("> 以下规范已从活跃目录移除")
-        lines.append("")
-        if archived:
-            lines.append("| spec_id | 标题 | 归档路径 | 归档日期 |")
-            lines.append("|---------|------|---------|---------|")
-            for spec in archived:
-                canonical_path = spec.get("canonical_path", "")
-                archived_date = spec.get("archived_date", "未知")
-                lines.append(f"| {spec['spec_id']} | {spec['title']} | {canonical_path} | {archived_date} |")
-        else:
-            lines.append("暂无")
-        lines.append("")
-
-        lines.append("---")
-        lines.append("")
-        lines.append("## 溯源信息")
-        lines.append("")
-        lines.append("- **注册表**: `00_Obsidian_Base全局规范文件仓库/spec_registry.json`")
-        lines.append(f"- **生成时间**: {now}")
-        lines.append("")
-        lines.append(f"*{AUTO_GENERATED_HEADER}*")
+        lines.append(f"*索引自动生成: {now} | 注册表版本: {registry_version}*")
 
         return "\n".join(lines)

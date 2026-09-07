@@ -1014,7 +1014,11 @@ class AiHandoffService:
             update_str = str(update).strip()
             if not update_str:
                 continue
-            m = re.search(r"(CHG-[A-Za-z0-9_-]+)", update_str)
+            # 优先匹配规范格式 CHG-{DOMAIN}-{YYYY}-{XXX}，防止形如 .../CHG-SPEC/CHG-SPEC-2026-001.md 被误截为 CHG-SPEC
+            m = re.search(r"(CHG-[A-Za-z]+-\d{4}-\d{3})", update_str)
+            if not m:
+                file_stem = Path(update_str.split(":")[0].strip()).stem
+                m = re.search(r"(CHG-[A-Za-z0-9_-]+)", file_stem)
             chg_extracted = m.group(1) if m else update_str.split(":")[0].strip()
             if chg_extracted and chg_extracted not in target_chgs:
                 target_chgs.append(chg_extracted)
@@ -1025,11 +1029,26 @@ class AiHandoffService:
             direct_file = self._workspace_root / (clean_id if clean_id.endswith(".md") else f"{clean_id}.md")
             found = direct_file.is_file() or any(p.is_file() for p in self._workspace_root.glob(pattern))
             if not found:
-                # 兼容在测试虚拟临时目录或项目子目录中执行时的跨资产寻径
-                for candidate_root in (Path.cwd(), Path.cwd().parent, Path.cwd().parent.parent):
-                    if any(p.is_file() for p in candidate_root.glob(pattern)):
-                        found = True
+                # 兼容在测试虚拟临时目录中执行时引用真实工作区资产（向上查找到 .git 根目录，定向查找，绝不漫游）
+                cur = Path.cwd()
+                repo_root = None
+                for _ in range(5):
+                    if (cur / ".git").exists():
+                        repo_root = cur
                         break
+                    if cur.parent == cur:
+                        break
+                    cur = cur.parent
+                if repo_root:
+                    search_dirs = [
+                        repo_root / "01_Project自动化项目管理",
+                        repo_root / "00_Obsidian_Base全局规范文件仓库",
+                        repo_root / "00_Infrastructure",
+                    ]
+                    for s_dir in search_dirs:
+                        if s_dir.is_dir() and any(p.is_file() for p in s_dir.glob(pattern)):
+                            found = True
+                            break
             if not found:
                 raise HandoffValidationError(f"关联变更单在工作空间中不存在: {chg_id}")
 

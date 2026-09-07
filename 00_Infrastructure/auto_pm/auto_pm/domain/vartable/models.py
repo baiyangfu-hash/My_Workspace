@@ -50,6 +50,9 @@ class VarEntry:
     comment: str
     source_format: str = "io_points_csv"
     line_number: int = 0
+    wiring_level: str = ""
+    fail_safe: str = ""
+    break_action: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         """转换为可序列化字典（供 JSON 输出）"""
@@ -63,6 +66,9 @@ class VarEntry:
             "comment": self.comment,
             "source_format": self.source_format,
             "line_number": self.line_number,
+            "wiring_level": self.wiring_level,
+            "fail_safe": self.fail_safe,
+            "break_action": self.break_action,
         }
 
 

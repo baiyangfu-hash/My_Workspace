@@ -216,10 +216,10 @@ _LEDGER_SEARCH_PATHS = [
     os.path.join("11_监控", "02_变更记录"),
 ]
 
-# 台账文件名匹配模式
+# 台账文件名匹配模式（兼容新标准"台账"与历史存量"台帐"）
 _LEDGER_FILE_PATTERNS = [
-    re.compile(r"版本变更台账.*\.md$", re.IGNORECASE),
-    re.compile(r"变更台账.*\.md$", re.IGNORECASE),
+    re.compile(r"版本变更台[账帐].*\.md$", re.IGNORECASE),
+    re.compile(r"变更台[账帐].*\.md$", re.IGNORECASE),
 ]
 
 

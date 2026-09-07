@@ -150,10 +150,13 @@ class IoPointsParser:
                 signal_type_counts.get(entry.signal_type, 0) + 1
             )
 
+        has_safety_columns = any(col in fieldnames for col in ("wiring_level", "fail_safe", "break_action"))
         metadata = {
             "station_counts": station_counts,
             "signal_type_counts": signal_type_counts,
             "total_rows_read": len(entries) + len(errors),
+            "fieldnames": list(fieldnames),
+            "has_safety_columns": has_safety_columns,
         }
 
         var_table = VarTable(
@@ -198,6 +201,9 @@ class IoPointsParser:
         signal_name = (row.get("signal_name") or "").strip()
         device = (row.get("device") or "").strip()
         comment = (row.get("comment") or "").strip()
+        wiring_level = (row.get("wiring_level") or "").strip()
+        fail_safe = (row.get("fail_safe") or "").strip()
+        break_action = (row.get("break_action") or "").strip()
 
         # 必需字段校验（station/address/tag 不能为空）
         if not station:
@@ -232,4 +238,7 @@ class IoPointsParser:
             comment=comment,
             source_format=SOURCE_FORMAT,
             line_number=line_num,
+            wiring_level=wiring_level,
+            fail_safe=fail_safe,
+            break_action=break_action,
         )

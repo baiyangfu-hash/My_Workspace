@@ -45,14 +45,15 @@ def doc_sync_cmd(ctx: click.Context) -> None:
 
 
 @doc_group.command("check")
+@click.option("--strict", is_flag=True, default=False, help="开启严格门禁模式（强制全量死链与索引覆盖率校验）")
 @click.pass_context
-def doc_check_cmd(ctx: click.Context) -> None:
+def doc_check_cmd(ctx: click.Context, strict: bool) -> None:
     """静态审计文档与代码的一致性及版本锁"""
     app_ctx: AppContext = ctx.obj
     workspace_root = Path(app_ctx.workspace_root or os.getcwd())
 
     service = DocCheckService(workspace_root=workspace_root)
-    results = service.check_all()
+    results = service.check_all(strict=strict)
 
     all_passed = True
     table = Table(title="文档门禁检查报告", show_header=True, header_style="bold cyan")

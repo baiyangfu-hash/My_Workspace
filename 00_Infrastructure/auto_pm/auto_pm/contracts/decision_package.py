@@ -6,9 +6,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 SCHEMA_VERSION = "decision_package.v1"
 
@@ -20,7 +21,7 @@ class DecisionPackageDTO:
     decision_id: str  # 决策包全局唯一标识，如 "DEC-20260903-XXXX"
     project_id: str  # 关联项目编号，如 "DJ-2026-005"
     change_id: str  # 关联变更单编号，如 "CHG-PLC-2026-012"
-    approved_scope: str  # 批准范围："LOCAL" / "MODULE" / "SYSTEM" / "CROSS" / "SAFE"
+    approved_scope: str  # 批准范围："LOCAL" / "MODULE" / "SYSTEM" / "CROSS" / "SAFE" / "SPEC"
     approved_files: list[str] = field(default_factory=list)  # 允许修改的文件相对路径白名单
     approver: str = ""  # 审批人（PM / 架构师）
     approved_at: str = ""  # 批准时间（ISO 8601）
@@ -38,7 +39,7 @@ class DecisionPackageDTO:
             "approved_scope": self.approved_scope,
             "approved_files": list(self.approved_files),
             "approver": self.approver,
-            "approved_at": self.approved_at or datetime.now(timezone.utc).isoformat(),
+            "approved_at": self.approved_at or datetime.now(UTC).isoformat(),
             "decision_conclusion": self.decision_conclusion,
             "conditions": list(self.conditions),
             "metadata": dict(self.metadata),

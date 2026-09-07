@@ -17,8 +17,7 @@ DEFAULT_SPEC_DIRS = [
     "00_Obsidian_Base全局规范文件仓库/02_Python开发域",
     "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域",
     "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域",
-    "0100_PLC自动化/00_通用规范",
-    "01_Project自动化项目管理/00_通用规范",
+    "00_Obsidian_Base全局规范文件仓库/05_跨域工具规范",
 ]
 
 DEFAULT_ARCHIVE_DIR = "00_Obsidian_Base全局规范文件仓库/_archive"
@@ -29,12 +28,14 @@ CHECK_SCOPES = ("workspace", "project")
 
 DEFAULT_OUTPUT_PATHS = {
     "pm_index": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
-    "plc_readme": "0100_PLC自动化/00_通用规范/README.md",
-    "python_readme": "01_Project自动化项目管理/00_通用规范/README.md",
     "report": "00_Obsidian_Base全局规范文件仓库/health_report.md",
 }
 
 DOMAIN_CONFIG: dict[str, dict[str, Any]] = {
+    "global": {
+        "title": "全局规范索引",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
+    },
     "pm": {
         "title": "全局规范索引",
         "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
@@ -48,44 +49,49 @@ DOMAIN_CONFIG: dict[str, dict[str, Any]] = {
         },
     },
     "plc": {
-        "title": "PLC自动化项目通用规范库",
-        "output_path": "0100_PLC自动化/00_通用规范/README.md",
+        "title": "PLC自动化域",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
         "sub_domains": {
             "03_PLC自动化域": "PLC自动化规范",
-            "PLC编程": "PLC编程规范",
-            "项目管理": "项目管理规范",
         },
     },
     "python": {
-        "title": "Python自动化项目通用规范库",
-        "output_path": "01_Project自动化项目管理/00_通用规范/README.md",
+        "title": "Python开发域",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
         "sub_domains": {
             "02_Python开发域": "Python开发规范",
-            "Python开发": "Python开发规范",
         },
     },
     "cockpit": {
-        "title": "驾驶舱与全栈开发规范库",
-        "output_path": "00_Obsidian_Base全局规范文件仓库/04_驾驶舱与全栈域/README.md",
+        "title": "驾驶舱与全栈域",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
         "sub_domains": {
             "04_驾驶舱与全栈域": "驾驶舱与全栈规范",
+        },
+    },
+    "cross-domain": {
+        "title": "跨域通用",
+        "output_path": "00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md",
+        "sub_domains": {
+            "05_跨域工具规范": "跨域工具规范",
         },
     },
 }
 
 CORE_IDS: dict[str, list[str]] = {
     "plc": ["LSP-905", "LSP-907"],
-    "python": ["CODE-210"],
+    "python": ["DEV-210", "CODE-210"],
 }
 
 AUTO_GENERATED_HEADER = "⚠️ 本文件由spec_registry.json自动生成，请勿手动编辑"
 
-DOMAIN_ORDER = ["pm", "plc", "python", "cross-domain"]
+DOMAIN_ORDER = ["pm", "plc", "python", "cockpit", "cross-domain"]
 
 DOMAIN_LABELS = {
     "pm": "项目管理域 (PM)",
     "plc": "PLC自动化域 (PLC)",
     "python": "Python开发域 (Python)",
+    "cockpit": "驾驶舱与全栈域 (Cockpit)",
     "cross-domain": "跨域通用 (Cross-Domain)",
 }
 

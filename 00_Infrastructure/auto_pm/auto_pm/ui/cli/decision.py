@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
 import click
 from rich.console import Console
 from rich.table import Table
@@ -91,11 +92,11 @@ def show_decision(ctx: click.Context, decision_id: str, as_json: bool) -> None:
         console.print(f"  [bold]审批时间:[/bold] {dto.approved_at}")
         console.print(f"  [bold]审批结论:[/bold] {dto.decision_conclusion}")
         console.print(f"  [bold]批准范围:[/bold] {dto.approved_scope}")
-        console.print(f"  [bold]批准文件白名单:[/bold]")
+        console.print("  [bold]批准文件白名单:[/bold]")
         for f in dto.approved_files:
             console.print(f"    - {f}")
         if dto.conditions:
-            console.print(f"  [bold]附加条件:[/bold]")
+            console.print("  [bold]附加条件:[/bold]")
             for c in dto.conditions:
                 console.print(f"    - {c}")
 

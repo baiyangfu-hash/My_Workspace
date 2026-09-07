@@ -139,6 +139,13 @@ class _LegacyPlcCheckerCore:
             "description": "检查 PM_SESSION 中的 Spec Snapshot 表格与 spec_registry.json 是否一致，检测主版本/次版本/补丁版本漂移",
             "spec": "V2.0.3",
         },
+        {
+            "id": "11",
+            "category": "规范",
+            "item": "IO 点位表安全列",
+            "description": "检查 io_points.csv 是否存在及安全列（wiring_level/fail_safe/break_action）完整性（对接 STD-816/815）",
+            "spec": "STD-816 §3 / STD-815 §4.1",
+        },
     ]
 
     def __init__(self, workspace_root: str) -> None:
@@ -218,6 +225,9 @@ class _LegacyPlcCheckerCore:
         # 6. 检查 SCL 代码语法与命名规范 (LSP-905)
         self._check_scl_code_compliance(project_path, result)
 
+        # 7. 检查 IO 点位表与安全列合规性 (STD-816/STD-815，CHG-SCPT-2026-186 拆单 #9)
+        self._check_io_points_compliance(project_path, result)
+
         log.info(
             "项目检查完成: %s - pass=%d warn=%d fail=%d",
             os.path.basename(project_path),
@@ -226,6 +236,69 @@ class _LegacyPlcCheckerCore:
             result.fail_count,
         )
         return result
+
+    def _check_io_points_compliance(self, project_path: str, result: CheckResult) -> None:
+        """检查工程资产中 io_points.csv 的存在性与三安全列完整性 (STD-816/815)"""
+        candidates = [
+            os.path.join(project_path, "02_PLC程序", "工程资产", "io_points.csv"),
+            os.path.join(project_path, "工程资产", "io_points.csv"),
+        ]
+        io_path = next((p for p in candidates if os.path.isfile(p)), None)
+        if not io_path:
+            result.add("IO 点位表安全列", "pass", "未发现 io_points.csv，跳过打点表安全列核验")
+            return
+
+        from auto_pm.domain.vartable.parsers.io_points_parser import IoPointsParser
+
+        parse_result = IoPointsParser().parse(io_path)
+        if not parse_result.success or not parse_result.var_table:
+            err_msg = "; ".join(e.message for e in parse_result.errors[:3])
+            result.add("IO 点位表安全列", "warn", f"io_points.csv 解析异常: {err_msg}")
+            return
+
+        entries = parse_result.var_table.entries
+        has_safety_cols = parse_result.var_table.metadata.get("has_safety_columns", False)
+        if not has_safety_cols:
+            result.add(
+                "IO 点位表安全列",
+                "pass",
+                f"io_points.csv 共 {len(entries)} 个点位（7 列标准基线，建议按 STD-816 升级三安全列）",
+            )
+            return
+
+        # 针对执行器与安全相关点位校验三安全列完整性
+        safety_keywords = ("estop", "safe", "急停", "安全", "门禁", "光栅", "复位", "报警", "阀", "电机", "气缸", "刹车")
+        issues: list[str] = []
+        for entry in entries:
+            is_actuator_or_safety = (
+                entry.signal_type.upper() in ("DO", "AO")
+                or any(
+                    k in entry.tag.lower()
+                    or k in entry.signal_name.lower()
+                    or k in entry.comment.lower()
+                    for k in safety_keywords
+                )
+            )
+            if is_actuator_or_safety:
+                if not entry.wiring_level:
+                    issues.append(f"行 {entry.line_number} ({entry.tag}): 缺少 wiring_level")
+                if not entry.fail_safe:
+                    issues.append(f"行 {entry.line_number} ({entry.tag}): 缺少 fail_safe")
+                if not entry.break_action:
+                    issues.append(f"行 {entry.line_number} ({entry.tag}): 缺少 break_action")
+
+        if issues:
+            result.add(
+                "IO 点位表安全列",
+                "warn",
+                f"发现 {len(issues)} 处三安全列未完整定义: {'; '.join(issues[:3])}",
+            )
+        else:
+            result.add(
+                "IO 点位表安全列",
+                "pass",
+                f"io_points.csv 共 {len(entries)} 个点位，三安全列（wiring_level/fail_safe/break_action）定义完整",
+            )
 
     def _check_scl_code_compliance(self, project_path: str, result: CheckResult) -> None:
         """检查 SCL 文件的命名与语法合规性 (Siemens LSP-905)"""

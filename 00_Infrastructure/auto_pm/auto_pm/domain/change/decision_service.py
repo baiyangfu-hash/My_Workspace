@@ -5,18 +5,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
 import logging
-from pathlib import Path
-import re
-from typing import Any
 import uuid
+from datetime import UTC, datetime
+from pathlib import Path
 
 from auto_pm.change.parser import ChgParser
-from auto_pm.change.path_resolver import scan_change_files
-from auto_pm.contracts.decision_package import DecisionPackageDTO, SCHEMA_VERSION
-from auto_pm.core.project_service import ProjectService
+from auto_pm.contracts.decision_package import SCHEMA_VERSION, DecisionPackageDTO
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +38,7 @@ class DecisionService:
         self.decisions_dir.mkdir(parents=True, exist_ok=True)
 
     def _generate_decision_id(self) -> str:
-        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+        date_str = datetime.now(UTC).strftime("%Y%m%d")
         token = uuid.uuid4().hex[:8].upper()
         return f"DEC-{date_str}-{token}"
 
@@ -120,7 +116,7 @@ class DecisionService:
         effective_files = list(dict.fromkeys(effective_files))
 
         resolved_dec_id = decision_id or self._generate_decision_id()
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_iso = datetime.now(UTC).isoformat()
 
         dto = DecisionPackageDTO(
             decision_id=resolved_dec_id,

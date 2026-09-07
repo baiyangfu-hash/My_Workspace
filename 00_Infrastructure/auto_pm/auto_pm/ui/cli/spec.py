@@ -327,7 +327,7 @@ def _output_check_table(
 @click.option("--workspace", "-w", default=None, help="工作空间根目录（未指定时回退全局 -w）")
 @click.option(
     "--domain",
-    type=click.Choice(["pm", "plc", "python", "all"]),
+    type=click.Choice(["pm", "plc", "python", "cockpit", "cross-domain", "all"]),
     default="all",
     help="只生成指定域（默认 all）",
 )

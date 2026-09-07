@@ -1051,7 +1051,10 @@ class NumberConflictChecker(BaseChecker):
 
     规范编号（number 字段）在全局注册表中必须唯一，不区分 type_prefix。
     编号冲突会导致 AI 在引用"906 规范"时产生歧义。
+    依据 DEV-003 §13.2 与架构师裁决 D-1，存量编号 9060（TOOL-906）享有跨前缀豁免。
     """
+
+    DEFAULT_EXEMPT_NUMBERS: set[str] = {"9060"}
 
     def check(
         self,
@@ -1059,6 +1062,12 @@ class NumberConflictChecker(BaseChecker):
         scanner: SpecScanner,
     ) -> list[CheckResult]:
         results: list[CheckResult] = []
+        exempt_numbers = set(self.DEFAULT_EXEMPT_NUMBERS)
+        # 支持从 registry raw 元数据中动态扩展豁免编号（符合 Obsidian SSOT 律）
+        raw_exemptions = registry.raw.get("exempt_numbers") or registry.raw.get("number_exemptions")
+        if isinstance(raw_exemptions, list):
+            exempt_numbers.update(str(x) for x in raw_exemptions)
+
         # 构建 number → [spec_id, ...] 的映射
         number_map: dict[str, list[str]] = {}
         for spec_id, spec_info in registry._specs.items():
@@ -1067,6 +1076,8 @@ class NumberConflictChecker(BaseChecker):
                 number_map.setdefault(num, []).append(spec_id)
 
         for num, spec_ids in number_map.items():
+            if num in exempt_numbers:
+                continue
             if len(spec_ids) > 1:
                 results.append(
                     CheckResult(

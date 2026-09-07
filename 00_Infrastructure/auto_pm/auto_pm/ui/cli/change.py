@@ -507,11 +507,12 @@ def cmd_verify(
         console.print("[yellow]请指定验证项，目前支持: --ledger-check, --substance-check[/yellow]")
         ctx.exit(1)
 
-    from auto_pm.change.ledger_reconciler import LedgerReconciler
-    from auto_pm.core.project_service import ProjectService
-    from auto_pm.change.path_resolver import scan_change_files
-    from auto_pm.domain.change.substance_checker import SubstanceChecker
     from pathlib import Path
+
+    from auto_pm.change.ledger_reconciler import LedgerReconciler
+    from auto_pm.change.path_resolver import scan_change_files
+    from auto_pm.core.project_service import ProjectService
+    from auto_pm.domain.change.substance_checker import SubstanceChecker
 
     app_ctx: AppContext = ctx.obj
     svc = ProjectService(app_ctx.workspace_root)

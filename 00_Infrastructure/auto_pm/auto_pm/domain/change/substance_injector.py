@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Mapping
 from datetime import date
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from auto_pm.utils.file_utils import read_file, write_file
 
