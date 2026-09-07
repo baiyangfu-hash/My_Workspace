@@ -73,6 +73,7 @@
 - 2026-09-06 [已结项] CHG-SPEC-2026-001（SYS 户籍）架构师批准结项：CHG closed、台账 031 行 ✅已关闭、handoff R3 已 consumed、证据归档 `.auto-pm/reports/CHG-SPEC-2026-001_P0_evidence/`（99_P0工作区 已按 DEV-TMP-001 清理）。SW 承接：拆单 8 项待排（新增 #7 release 重切携带台帐→台账全链改名、#8 spec check 编号唯一性 9060 豁免）；重切前 SYS 的 ledger reconcile 走 dev 源码（release 旧常量会自动重建幽灵台帐）。
 - 2026-09-06 [移交登记] SW 拆单 #9（随 CHG-SPEC-2026-003 P1 立项新增）：auto_pm vartable/ingest 对 io_points.csv 三新增列（wiring_level/fail_safe/break_action）的解析与校验支持——法典侧 schema 定义归 CHG-SPEC-2026-003，驾驶舱解析器/门禁扩列归本单实施；另 P0 遗留中 `doc check --strict` 语义与链接门禁下沉（死链扫描+INDEX 覆盖率物理化）并入原拆单 #4 范围。CHG-SPEC-2026-002/003/004 已立项待批准，P4 暂停。
 - 2026-09-06 [已立单] CHG-SCPT-2026-186（draft 待排期）：SW 拆单 9 项积压整合立单（①SPEC 域枚举 ②spec index 五域化+去越权 ③冷区汇总报告消费解除 ④doc check --strict+链接门禁下沉 ⑤PATH 对齐 ⑥手工户籍 CHG 回写 ⑦release 重切携带台帐→台账全链改名 ⑧spec check 9060 豁免 ⑨io_points 三安全列解析+plc check 门禁），另 handoff 租约语义核实列为第 10 项候选。来源=CHG-SPEC-2026-001~008 法典批次全部移交项；实施需独立工程周期（pytest 回归 + release 重切切流），排期与 WBS 待架构师另批。法典侧配套已全部就绪（043/040 SPEC 分类、编号宪章、io_points schema、STD-816/817）。
+- 2026-09-06 [移交登记] SW 台账存量债（非 CHG-SPEC 批次造成）：ledger reconcile SW-2026-008 报"台账缺失 121 条"——历史 CHG（含 archive 大部）在台帐无登记行，Codex 时代遗留；建议随拆单 #7（台帐→台账重切改名）一并做一次性补登或范围裁决（仅活跃区补登）。另：dev 源码已改"台账"而 SW 台帐文件未改名（随 #7），故重切前 **SW 的 reconcile 必须从 release f950525 运行**（dev 会找不到台账文件）；SYS 相反必须走 dev。
 ## 4. Artifacts Index
 
 - prd: 02_规划/001_产品需求文档_PRD.md
