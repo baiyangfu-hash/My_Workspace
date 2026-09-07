@@ -16,6 +16,7 @@
     "deprecated": "已被新规范替代，保留作参考",
     "archived": "已归档，不再维护"
   },
+  "_governance_note": "spec_registry 只收录工程规范（Laws）。软件工具产品（SW-2026-xxx）已迁移至各自 PM_SESSION 文档，不在此注册。此注释为边界护栏，防止未来再次混入产品条目。",
   "specs": {
     "DEV-001": {
       "title": "通用项目名称命名规范",
@@ -852,7 +853,6 @@
         "CODE-220"
       ]
     },
-    "_governance_note": "spec_registry 只收录工程规范（Laws）。软件工具产品（SW-2026-xxx）已迁移至各自 PM_SESSION 文档，不在此注册。此注释为边界护栏，防止未来再次混入产品条目。",
     "STD-909": {
       "title": "PLC上位机与人机交互规范",
       "number": "909",
@@ -1153,7 +1153,7 @@
       "type_prefix": "STD",
       "domain": "plc",
       "lifecycle": "stable",
-      "sub_domain": "",
+      "sub_domain": "PLC编程",
       "tags": [
         "移植",
         "一致性",

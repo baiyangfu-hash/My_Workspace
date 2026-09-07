@@ -43,6 +43,7 @@
 - current_status: **[SUPERSEDED by NG-WP-15, 2026-09-06]** ~~[架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。~~ → 当前状态以 NG-WP-15 切流执行记录（active=1.2.3-f950525）为准
 - in_progress: CHG-SCPT-2026-185 已完成 setup_env 入口脱钩；verify_release 465/465 与 resolve-only/--help Exit 0。完整 startup guard 仍有 1 项 Windows cmd.exe timeout（13 passed，Exit 1），stable flat archive 延期；拓扑报告已登记。
 - completed_milestones:
+  - 2026-09-07 [已验证] CHG-SCPT-2026-186 驾驶舱 CHG-SPEC 批次拆单整合（9 项拆单积压全闭环）：#8 spec check 编号唯一性 9060 豁免、#1 change 域原生放行 SPEC、#6 ledger 手工户籍回写、#4 doc check --strict 门禁与死链/INDEX 覆盖率下沉、#9 io_points 三安全列解析与 plc check 对接 STD-816、#2 spec index 五域支持与手工区保护（收敛 00_INDEX 唯一合法写入目标）、#3 冷区汇总报告无消费依赖、#5 PATH 与 release 槽位对齐核验、#7 全链台账改名核验。全量门禁通过。
   - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-176 Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute：实现执行流水线、项目/单据/白名单强门禁、事务沙箱原子回滚、verify_only预检与auto_commit提交，单测 21 passed 全绿。
   - 2026-09-04 [已验证] CHG-SCPT-2026-175 Cockpit OS Phase 2 WBS 2.1 工作流编排内核流水线 WorkflowOrchestrator.plan：实现方案规划流水线、项目校验、草稿复用/生成、规范动态绑定与决策包锁死，单测 15 passed 全绿。
@@ -108,59 +109,33 @@
 
 ## 6. Execution Log Summary
 
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-177，落地 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎，单测 45 passed + Ruff / Mypy 0 errors。
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-176，落地 Cockpit OS Phase 2 WorkflowOrchestrator.execute，单测 21 passed + Ruff / Mypy 0 errors。
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-175，落地 Cockpit OS Phase 2 WorkflowOrchestrator.plan，单测 15 passed + Ruff / Mypy 0 errors。
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-174，落地 Cockpit OS Phase 1 事务沙箱 ChangeTransactionManager，单测 19 passed 100% 覆盖率 + Ruff / Mypy 0 errors。
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-173，落地 Cockpit OS Phase 0 契约层 DTO，单测 17 passed + Ruff / Mypy 0 errors。
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-172，落地 C6 可恢复 PM Saga 事务日志与补偿机制，单元测试 17 passed 全绿。
-- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-171，落地 Scope Gating 与真实证据门禁，单元测试 9 passed + 全量门禁全绿。
-- 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-167，新增 SHC-017 SkillContractDriftChecker 契约对账器，tests/spec 回归 174 passed + mypy 全绿 + spec check -c SHC-017 通过。
+- 2026-09-04：[已验证] 实施并闭环 CHG-SCPT-2026-171~177（Cockpit OS Phase 0~3 WBS 契约/事务沙箱/编排执行/生命周期归档引擎，单测与门禁全绿）。
+- 2026-08-27：[已验证] 实施并闭环 CHG-SCPT-2026-167，新增 SHC-017 SkillContractDriftChecker 契约对账器，tests/spec 回归 174 passed。
 
 ## 8. Handoff Notes
 
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-177 Phase 3 WBS 3.1 闭环
-  - current_state: [已验证] Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎完成消费并落账闭环。
-  - actions: 落地 ProjectArchiveService 核心引擎、三道硬门禁、台账自动化、逆向恢复与 CLI/GUI 双视图。
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-176 Phase 2 WBS 2.2 闭环
-  - current_state: [已验证] Cockpit OS Phase 2 WBS 2.2 方案执行流水线 WorkflowOrchestrator.execute 完成消费并落账闭环。
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-175 Phase 2 WBS 2.1 闭环
-  - current_state: [已验证] Cockpit OS Phase 2 WBS 2.1 方案规划流水线 WorkflowOrchestrator.plan 完成消费并落账闭环。
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-174 Phase 1 闭环
-  - current_state: [已验证] Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager 与 WBS 1.2 自动化测试完成消费并落账闭环。
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-173 Phase 0 闭环
-  - current_state: [已验证] Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义完成消费并落账闭环。
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-172 W2 闭环
-  - current_state: [已验证] W2 批次 C6 可恢复 PM Saga 事务日志完成消费并落账闭环。
-- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-171 W1-2 闭环
-  - current_state: [已验证] W1-2 证据门禁扩展（Scope Gating、变更单存在性、交付物真实性）完成消费并落账闭环。
-  - actions: AiHandoffService._validate_closure 下沉白名单越界拦截与跨资产物理真实性门禁。
+- 2026-09-04 | from=pm-workflow | mode=CHG-SCPT-2026-171~177 Phase 0~3 闭环
+  - current_state: [已验证] Cockpit OS Phase 0~3 契约、事务沙箱、方案编排执行与归档恢复引擎全部消费并落账闭环。
 - 2026-09-01 | from=Codex | mode=SW-2026-008 文档资产评估与归档治理
 
 - 2026-09-06 [已验证] CHG-SCPT-2026-178 前向治理更正
   - 版本基线 V1.2.3；此前 §8 中的 `1.2.3-d41eb38` 当前稳定发布陈述已被 supersede，历史证据保留但不构成 active/previous 指针或已切流证明。
   - current_state: 精确发布树核验与治理证据对账正在受控整改；未修改任何 stable release、release pointer、tag 或根入口。
 - 2026-09-06 | from=pm-workflow | mode=NG-WP-17 historical archive | request_id=AI-20260906-NGWP17-HISTORICAL-ARCHIVE | status=consumed | decision=DEC-20260906-C1CFB37C | change=CHG-DOCU-2026-005-pending_acceptance | result=4/4 SHA matched; git diff check Exit 0; stable flat source deferred for setup_env.bat dependency.
-- 2026-09-06 | from=fullstack-engineer | mode=NG-WP-17 entry decoupling | request_id=AI-20260906-NGWP17-ENTRY-DECOUPLING | status=consumed | decision=DEC-20260906-510CE559 | change=CHG-SCPT-2026-185-pending_acceptance | result=setup_env decoupled; verify_release 465/465, resolve-only/--help Exit 0; full startup_guard=13 passed + 1 Windows cmd timeout (Exit 1); flat archive deferred; topology=.auto-pm/reports/SW-2026-008_workflow_topology_2026-09-06.md.
+- 2026-09-07 | from=Antigravity | mode=CHG-SCPT-2026-186 闭环
+  - current_state: [已验证] CHG-SCPT-2026-186 驾驶舱 CHG-SPEC 批次拆单整合（9 项拆单积压全部闭环）完成实施、门禁验证与落账闭环。
+  - actions: spec check 9060 编号豁免、change 域放行 SPEC、ledger 手工户籍回写、doc check --strict (DOC-001~004 全 PASS)、io_points 三安全列解析与 plc check 对接 STD-816、spec index 五域化与手工区保护（收敛 00_INDEX 唯一合法写入目标，杜绝越权写 README）、冷区消费依赖排查确认、release 槽位对齐与全链台账改名核验。
 ## 9. Next Actions
 - [待验收] CHG-DOCU-2026-005 NG-WP-17 历史规划归档 | result=4/4 SHA-256 匹配、git diff --check Exit 0、handoff 已 consumed；gate=CHG 保持 pending_acceptance，stable flat auto_pm 因 setup_env.bat 依赖延期，未移动研发母体源码、templates 或 release。
 - [待验收] CHG-SCPT-2026-185 NG-WP-17 入口脱钩 | result=setup_env 不再绑定 stable flat source、verify_release 465/465 与 resolve-only/--help Exit 0；blocker=完整 startup guard 仍有 1 项 Windows cmd.exe timeout（Exit 1）；gate=stable flat archive 延期。
-
 - [待验收] CHG-SCPT-2026-184 真实切流 | result=active=1.2.3-f950525、previous=null、tag 已核验、verify_release 465/465 与 resolve-only/--help Exit 0；handoff 已 consumed；gate=CHG 保持 pending_acceptance，生产长时 soak 未运行。
 - [已完成] 单向发布架构规划基线 | result=ADR-SW008-001、差异回收方案、发布/回退 WBS 与验收标准已编制；治理在 SYS-2026-001 落账
 - [待报批] WBS-1 全量只读差异事实包 + 决策链纠偏记录 | gate=未批准前不修复、移动、覆盖、删除、提交、发布或切流
 
-- [x] 任务 13: [高优先技术债 / 必做] 实施 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎（ProjectService.archive/restore、三道硬门禁、台账自动化、CLI/GUI双视图）
-- [x] 任务 12: 实施并闭环 CHG-SCPT-2026-176（Cockpit OS Phase 2 WBS 2.2 工作流执行内核流水线 WorkflowOrchestrator.execute）
-- [x] 任务 11: 实施并闭环 CHG-SCPT-2026-175（Cockpit OS Phase 2 WBS 2.1 工作流编排内核流水线 WorkflowOrchestrator.plan）
-- [x] 任务 10: 实施并闭环 CHG-SCPT-2026-174（Cockpit OS Phase 1 WBS 1.1 事务沙箱 ChangeTransactionManager）
-- [x] 任务 9: 实施并闭环 CHG-SCPT-2026-173（Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO 纯净定义）
-- [x] 任务 8: 实施并闭环 CHG-SCPT-2026-172（W2 C6 可恢复 PM Saga 事务日志与补偿编排）
-- [x] 任务 7: 实施并闭环 CHG-SCPT-2026-171（W1-2 证据门禁扩展与 Scope Gating）
-- [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）
+- [x] 任务 5/7/8/9/10/11/12/13: [已验证] Cockpit OS Phase 0~3 核心引擎及架构治理全链路闭环（CHG-SCPT-2026-171~177）
 - [x] 任务 14: 文档体系治理 A0~A3 批次（2026-09-07）—— A0-1/A0-2（dev）/A1-1/A1-2/A2-1~5/A3-1/A3-2 均已完成；launcher Exit 0 已复验
 - [ ] 任务 6: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）
 - [x] 任务 15: [已完成] A3-3 Release 1.2.4-6699a5b 重切 + 台账「台帐→台账」全链改名联动闭环（CHG-SCPT-2026-187）
 - [ ] 任务 16: [待用户手动] E2 全局 PATH 隔离 | cmd: `"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Scripts\pip.exe" uninstall auto-pm -y`
 - [x] 任务 17: [已完成] A0-2 Exit Code 修复已随 Release 1.2.4-6699a5b 成功进入生产
-- [ ] 任务 18: [待排期] CHG-SCPT-2026-186 拆单 10 项（doc check 门禁面/台账存量债/母体分叉同步/SPEC域枚举等）
+- [x] 任务 18: [已完成] CHG-SCPT-2026-186 驾驶舱 CHG-SPEC 批次拆单整合（9 项拆单积压全闭环，doc check --strict 全绿，00_INDEX 五域原生覆盖，已完成 ledger 对账与闭环落账）
