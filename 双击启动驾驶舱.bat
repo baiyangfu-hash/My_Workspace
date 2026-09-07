@@ -4,6 +4,9 @@ title Auto-PM 工业级桌面驾驶舱
 
 cd /d "%~dp0"
 
+rem [A0-1 防复发] 禁止 Python 生成 __pycache__，防止污染 release manifest 导致 bootstrap Exit 4
+set PYTHONDONTWRITEBYTECODE=1
+
 set "PYTHON_EXE="
 set "EXIT_CODE=0"
 set "WORKSPACE_DIR=%~dp0"

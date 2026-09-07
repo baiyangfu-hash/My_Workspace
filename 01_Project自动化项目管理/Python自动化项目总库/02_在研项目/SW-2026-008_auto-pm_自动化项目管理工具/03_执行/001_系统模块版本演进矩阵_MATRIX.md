@@ -29,8 +29,13 @@ author: "Lead Full-stack Engineer"
 | **V1.2.1** | CHG-SCPT-162 | V3.1.0 | V3.1.0 | V1.1.0 | V1.2.0 | 严苛审计缺陷修复与工业级安全加固 |
 | **V1.2.2** | CHG-SCPT-163 | V3.2.0 | V3.2.0 | V1.1.0 | V1.2.1 | P1 级架构安全加固与工控全域测试安全网深化 |
 | **V1.2.3 (当前代码基线)** | **CHG-SCPT-164/166/167** | **V3.3.0** | **V3.3.0** | **V1.2.0 (`G3落账门禁`)** | **V1.2.2** | **P2 质量收敛、友好排障、落账门禁与 SHC-017 契约对账器闭环** |
+| **V1.2.3+Cockpit-P0** | CHG-SCPT-170 | V3.3.0 | V3.3.0 | V1.2.0 | V1.2.2 | 防空壳实质化体系（W0）、结构化决策包契约、W1-1 跨领域穿透门禁 |
+| **V1.2.3+Cockpit-P1** | CHG-SCPT-171/172 | V3.3.0 | V3.3.0 | V1.3.0 (`证据门禁`) | V1.2.2 | 证据门禁 Scope Gating、PM Saga WAL 8 步事务日志与故障恢复 |
+| **V1.2.3+Cockpit-OS** | CHG-SCPT-173~177 | V3.4.0 (`WorkflowFacade`) | V3.3.0 | V1.3.0 | V1.2.2 | **Cockpit OS 全链路**：DTO契约层、ChangeTransactionManager、WorkflowOrchestrator（plan+execute）、ProjectArchiveService（ARC台账+逆向恢复） |
+| **V1.2.3+Release-f950525 (稳定部署)** | NG-WP-11~15 / CHG-SCPT-184 | V3.4.0 | V3.3.0 | V1.3.0 | V1.2.2 | **稳定双槽部署正式生效**：886文件manifest全验证、launcher双槽化、active=`1.2.3-f950525`；母体源码冻结于 2026-08-28 |
 
-> 2026-09-01 说明：工作空间基础设施迁移由 `SYS-2026-001_WorkspaceGovernance` 承接，不作为 `SW-2026-008` 业务功能版本号追加。
+> **[A2-3 补录 2026-09-06]**：上表 Cockpit OS 批次（CHG-171~177）与 NG-WP 发布链路（NG-WP-11~15）均为 2026-09-04~06 执行，
+> 此前矩阵停在 CHG-164。原 V1.2.3 代码基线行保留，后续行追加补录。
 
 ---
 
@@ -45,3 +50,6 @@ author: "Lead Full-stack Engineer"
 | `auto_pm.vartable` | V1.5.0 | 多厂商变量表（Inovance, CoDeSys, Work3）解析与转换 | 90% |
 | `auto_pm.modbus` | V1.1.0 | 异步 Modbus TCP 轮询、环形缓冲数据管道与 Sim 仿真 | 88% |
 | `auto_pm.ui.qml` | V2.0.0 | 11 大 QML 视图组件与 5 大 Bridge 桥接通信 | 100% (138 QML tests) |
+| `auto_pm.application.workflow` | **V1.0.0 (新)** | **WorkflowOrchestrator plan+execute、ChangeTransactionManager 事务沙箱** | **CHG-174~176: 55 passed** |
+| `auto_pm.domain.plc.archive` | **V1.0.0 (新)** | **ProjectArchiveService：ARC 流水号归档、领域就近路由、逆向恢复** | **CHG-177: 45 passed** |
+| `auto_pm.application.saga` | **V1.0.0 (新)** | **PM Saga WAL 事务日志：8 步顺序日志、Checkpoint 故障恢复、补偿回滚** | **CHG-172: 已验证** |

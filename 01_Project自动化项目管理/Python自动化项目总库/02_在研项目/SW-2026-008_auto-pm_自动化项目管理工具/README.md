@@ -267,8 +267,11 @@ auto-pm/
 │   ├── plc-shared-library/         # PLC 共享函数库模板
 │   ├── plc-test-suite/             # PLC 测试套件模板
 │   └── python-tool/                # Python 工具项目模板
-├── tests/                          # 测试（117 文件，含 application/change/core/db/plc/spec/qml 等）
-├── 0100_项目/                      # 历史治理资产与专题资料
+├── tests/                          # 测试（1761 项，2026-09-06 实测；含 application/change/core/db/plc/spec/qml/workflow 等）
+│   ├── plc/                        # PLC 规范检查测试
+│   ├── spec/                       # 规范中心测试（SHC-001~017）
+│   ├── modbus/                     # Modbus 通信测试
+│   └── ...                         # 其余领域测试
 ├── 01_启动/                        # 章程/立项/发布门禁
 ├── 02_规划/                        # PRD/INT/DSN/TEC/里程碑/原型
 ├── 03_执行/                        # 执行阶段资产
@@ -291,6 +294,7 @@ auto-pm/
 | 数据库 | SQLite3 (WAL 模式) |
 | 构建 | hatchling |
 | 代码质量 | ruff + mypy (strict) + pytest |
+
 
 ## 文档导航
 

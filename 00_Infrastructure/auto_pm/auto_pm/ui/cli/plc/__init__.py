@@ -128,6 +128,10 @@ def cmd_check(
             print(json.dumps([r.model_dump() for r in results], ensure_ascii=False, indent=2))  # noqa: T201
         else:
             _print_check_summary(results)
+        # [A0-2] E4 修复：--all 分支：任何 applicable 项目有 FAIL 则非零退出
+        applicable_results = [r for r in results if not r.not_applicable]
+        if any(not r.all_pass for r in applicable_results):
+            ctx.exit(1)
         return
 
     if not project_id:
@@ -176,6 +180,11 @@ def cmd_check(
             stack=proj.stack,
             phase=proj.phase or "",
         )
+
+    # [A0-2] E4 修复：当 fail_count > 0 时强制非零退出，禁止假绿蒙混 PM 门禁。
+    # 机器无情判卷铁律：严禁在存在 FAIL 时返回 Exit 0。
+    if not result.not_applicable and result.fail_count > 0:
+        ctx.exit(1)
 
 
 @plc_group.command(name="repair")

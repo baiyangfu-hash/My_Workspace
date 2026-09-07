@@ -5,7 +5,50 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased] - 后 1.2.3 批次（CHG-165~186 补录）
+
+> **说明**：本段补录 2026-08-27 起至 2026-09-06 间已执行但未入账的 22 张变更单，
+> 分三个子批次：Cockpit OS 功能扩展（CHG-165~177）、稳定发布链路（NG-WP-11~17）、
+> 法典治理（CHG-SPEC-001~008）。待下次正式 release 时合并归版本号。
+
+### Added - Cockpit OS 全链路（CHG-SCPT-2026-165~177）
+
+- **CHG-SCPT-2026-165** 落账门禁下沉基线建立
+- **CHG-SCPT-2026-166** 落账门禁下沉：StageGateEngine G3 新增落账完整性 BLOCKER，PmSessionCheckService 新增落账新鲜度 WARN（2026-08-27）
+- **CHG-SCPT-2026-167** 契约对账器：新增 SHC-017 SkillContractDriftChecker，以代码为唯一真源校验技能文档 C1~C4（2026-08-27）
+- **CHG-SCPT-2026-168~169** 驾驶舱架构整合中间批次
+- **CHG-SCPT-2026-170** 驾驶舱防空壳实质化体系、结构化决策包契约（W0）与跨领域穿透门禁（W1-1）落地闭环（2026-09-03）
+- **CHG-SCPT-2026-171** 证据门禁扩展：Scope Gating 决策包白名单越界拦截、跨资产变更单存在性与真实证据物理硬门禁闭环（2026-09-04）
+- **CHG-SCPT-2026-172** W2 批次可恢复 PM Saga 事务日志：8 步 WAL 顺序日志、Checkpoint 故障恢复、补偿回滚与 CLI 扩展（2026-09-04）
+- **CHG-SCPT-2026-173** Cockpit OS Phase 0 WBS 0.1 契约层强类型 DTO：TransactionStatus 枚举及 5 个工作流核心 DTO，单测 17 passed 全绿（2026-09-04）
+- **CHG-SCPT-2026-174** Cockpit OS Phase 1 WBS 1.1~1.2 事务沙箱 ChangeTransactionManager：快照备份、新建追踪、原子提交与回滚，单测 19 passed（2026-09-04）
+- **CHG-SCPT-2026-175** Cockpit OS Phase 2 WBS 2.1 WorkflowOrchestrator.plan：方案规划流水线、项目校验、草稿复用/生成、规范动态绑定，单测 15 passed（2026-09-04）
+- **CHG-SCPT-2026-176** Cockpit OS Phase 2 WBS 2.2 WorkflowOrchestrator.execute：执行流水线、事务沙箱原子回滚、verify_only 预检，单测 21 passed（2026-09-04）
+- **CHG-SCPT-2026-177** Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：ProjectArchiveService、领域就近路由、三道硬门禁、台账自动化（ARC 流水号），单测 45 passed（2026-09-04）
+
+### Added - 稳定发布链路（NG-WP-11~17）
+
+- **NG-WP-11** 冻结候选提交与制品构建：candidate `87183fb`（262 文件）+ wheel SHA-256 `ca47b787…`，886 文件 manifest 全通过（2026-09-05）
+- **NG-WP-12** 稳定部署双槽骨架：`00_Infrastructure/auto_pm` 新增 launcher/releases/双指针/manifest（2026-09-05）
+- **NG-WP-13** 根入口与环境解耦：main.py/bootstrap/launch 双槽化，全量回归 1946 passed/18 skip（2026-09-05）
+- **NG-WP-14** Gate 2 非活动槽 `1.2.3-d41eb38` 部署与净化验证全过（2026-09-05）
+- **NG-WP-15** 真实切流：CHG-SCPT-2026-184 原子切流 active=`1.2.3-f950525`，verify_release 465/465（2026-09-06）
+- **NG-WP-16** 回退观察验收：7 场景、5/5 短观察和 ledger reconcile 全过（2026-09-06）
+- **NG-WP-17** 历史规划归档：CHG-DOCU-2026-005 可逆归档 4 个历史规划文件（2026-09-06）；入口脱钩 CHG-SCPT-2026-185 完成（setup_env 不再 editable 安装 stable flat）
+
+### Changed - 法典治理批次（CHG-SPEC-2026-001~008）
+
+- **CHG-SPEC-2026-001** Obsidian 规范库 P0 治理修补：六门禁全绿、活跃区死链 0、INDEX 67/67（2026-09-06）
+  - 副产品：拆单 8 项积压至 CHG-SCPT-2026-186 排期，「台帐」→「台账」错别字全链改名（拆单 #7）
+- **CHG-SPEC-2026-002~004** Obsidian 规范库 P1~P4 治理立项（待批准）
+- **CHG-SCPT-2026-186** SW 拆单 10 项整合立单（draft 待排期）：SPEC 域枚举、spec index 五域化、PATH 对齐、release 重切台账改名、spec check 9060 豁免、io_points 三安全列解析等
+
+### Fixed
+
+- **CHG-SCPT-2026-178** 前向治理更正：澄清 `1.2.3-d41eb38` 非当前 active，防止历史 §3 条目被错误推断为切流依据
+
 ## [1.2.3] - 2026-08-23
+
 
 ### Changed - CHG-SCPT-2026-164 驾驶舱 P2 代码质量收敛与工控现场友好排障增强
 

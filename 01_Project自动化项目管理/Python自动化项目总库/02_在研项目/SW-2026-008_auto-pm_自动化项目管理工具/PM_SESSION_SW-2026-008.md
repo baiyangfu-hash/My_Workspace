@@ -8,9 +8,9 @@
 - runtime_root: 00_Infrastructure/auto_pm
 - runtime_status: 双轨运行中，基础设施位为默认运行入口，旧项目母体保留为历史记录与回退来源
 - target_source_of_truth: SW-2026-008 为唯一研发母体；00_Infrastructure/auto_pm 只作稳定部署容器
-- architecture_transition_status: 目标架构已批准，物理迁移、入口切换和发布尚未授权
+- architecture_transition_status: ~~目标架构已批准，物理迁移、入口切换和发布尚未授权~~ **[SUPERSEDED 2026-09-06]** NG-WP-15 切流已实际执行（active=1.2.3-f950525），详见 §3 [已执行] NG-WP-15 条目；本字段历史表述作废，以切流执行记录为准
 - version: V1.2.3
-- last_updated: 2026-09-06
+- last_updated: 2026-09-07
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -40,7 +40,7 @@
 - 2026-09-05 [已验证] NG-WP-12 稳定部署双槽骨架：`00_Infrastructure/auto_pm` 新增 launcher/releases/双指针/manifest（未部署 active、未切入口）；母体 `auto_pm/application/core/deployment_service.py` fail-closed 双槽服务提交 `92e2c94`；稳定侧 `git_hook.py` 模板遗留修复完成。
 - 2026-09-05 [已验证] NG-WP-11 冻结候选提交与制品构建：candidate `87183fb`（262 文件）+ wheel `auto_pm-1.2.3` SHA-256 `ca47b787…`，886 文件 manifest、依赖锁副本、空目录安装验证与 provenance 探针全通过。
 - 2026-09-05 [已验证] NG-WP-03 至 NG-WP-10：在 detached candidate 完成契约、事务、决策、编排器与归档的逐包回收加固，Gate 1 整改复跑 10 项门禁全绿（pytest 1900 passed/16 skipped），candidate 变更 100% 位于批准白名单。
-- current_status: [架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。
+- current_status: **[SUPERSEDED by NG-WP-15, 2026-09-06]** ~~[架构迁移冻结] 目标真源已裁决为 SW-2026-008 母体；detached candidate 已通过全量 Gate 1（NG-WP-03 至 NG-WP-10 逐包收口）；稳定部署 `00_Infrastructure/auto_pm` 保持只读，在 Gate 2 与首个稳定发布完成前不得切换或清理。~~ → 当前状态以 NG-WP-15 切流执行记录（active=1.2.3-f950525）为准
 - in_progress: CHG-SCPT-2026-185 已完成 setup_env 入口脱钩；verify_release 465/465 与 resolve-only/--help Exit 0。完整 startup guard 仍有 1 项 Windows cmd.exe timeout（13 passed，Exit 1），stable flat archive 延期；拓扑报告已登记。
 - completed_milestones:
   - 2026-09-04 [已验证] CHG-SCPT-2026-177 Cockpit OS Phase 3 WBS 3.1 项目全生命周期归档与恢复引擎：实现 ProjectArchiveService 核心引擎、领域就近路由、三道硬门禁、归档台账自动化（ARC-YYYYMMDD-XXX流水号）与逆向恢复，扩展 ProjectScanner.scan_archived 与 CLI archive/restore/list/delete 命令，单测 45 passed 全绿。
@@ -84,6 +84,9 @@
 - matrix: 03_执行/001_系统模块版本演进矩阵_MATRIX.md
 - test_plan: 05_收尾/003_测试策略与验收规程_TEST_PLAN.md
 - user_guide: 06_交付物/001_用户操作指南与排障手册_USER_GUIDE.md
+- cli_reference: 02_规划/009_CLI命令参考.md  # [A2-5 新增 2026-09-07] 22 命令组首次完整文档化
+- sum_report: 05_收尾/001_项目总结报告_SUM.md  # [A3-1 新增 2026-09-07] SUM-025 模板填空
+- pm_report: 05_收尾/002_验收核验报告_PM.md  # [A3-2 新增 2026-09-07] PM-050 模板填空
 
 ## 5. Logs（按事件沉淀）
 
@@ -97,6 +100,10 @@
   - 2026-09-04 CHG-SCPT-2026-171 证据门禁扩展：在 AiHandoffService._validate_closure 中下沉 Scope Gating 白名单越界拦截、跨资产单据物理存在性校验与交付物真实性硬门禁，补充 5 组全量单测用例。
   - 2026-09-01 文档资产评估与归档治理：已将闭环 CHG-SCPT、历史 HTML 原型、V1.1.0 历史交付包、旧迭代计划和过期诊断报告移入对应 archive；活区仅保留当前可用入口和未闭环草稿单。
   - 2026-09-06 CHG-SCPT-2026-185 NG-WP-17 入口脱钩：setup_env.bat 移除 stable flat source 的 pip editable 安装，改为检查 stable launcher、active pointer 与 deployment manifest；verify_release 465/465、root main.py resolve-only/--help 均 Exit 0。完整 startup_guard 为 13 passed、1 failed（Windows cmd.exe 10 秒 TimeoutExpired），保持待验收，未执行平铺源码归档。
+  - 2026-09-07 [文档体系治理-A0] A0-1 清理 release 槽位 __pycache__ 共 69 个→0，追加 PYTHONDONTWRITEBYTECODE=1 至 bat；A0-2 修复 plc check Exit Code 假绿（dev 源码），注：曾误改冻结槽位 releases/1.2.3-f950525/...plc/__init__.py，已通过 git checkout HEAD 完全回滚，SHA-256 恢复 a936b028ef8b，manifest 一致性已确认；launcher 验证 Exit 0 已复验。
+  - 2026-09-07 [文档体系治理-A1] A1-1 PM_SESSION §0/§3 矛盾消歧（SUPERSEDED 标注）；A1-2 CHANGELOG [Unreleased] 补录 22 条断供变更（CHG-166~177/NG-WP-11~17/CHG-SPEC-001~008）。
+  - 2026-09-07 [文档体系治理-A2] A2-1 ARCHITECTURE.md V2.1.0（测试数修正 116→1928，基准套件 dev `00_Infrastructure/auto_pm/tests`，CLI 域数 14→22，Cockpit OS 层补充）；A2-2 README 删幽灵路径 0100_项目/；A2-3 MATRIX.md Cockpit OS 4行+3子领域包；A2-4 Taskfile.yml 归档标注；A2-5 新建 009_CLI命令参考.md（22命令组首次文档化）。
+  - 2026-09-07 [文档体系治理-A3] A3-1 新建 05_收尾/001_项目总结报告_SUM.md（SUM-025模板）；A3-2 新建 05_收尾/002_验收核验报告_PM.md（PM-050模板）；A3-3 Release重切+台账改名延后，待架构师批准排期。
 
 ## 6. Execution Log Summary
 
@@ -150,4 +157,9 @@
 - [x] 任务 8: 实施并闭环 CHG-SCPT-2026-172（W2 C6 可恢复 PM Saga 事务日志与补偿编排）
 - [x] 任务 7: 实施并闭环 CHG-SCPT-2026-171（W1-2 证据门禁扩展与 Scope Gating）
 - [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）
+- [x] 任务 14: 文档体系治理 A0~A3 批次（2026-09-07）—— A0-1/A0-2（dev）/A1-1/A1-2/A2-1~5/A3-1/A3-2 均已完成；launcher Exit 0 已复验
 - [ ] 任务 6: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）
+- [ ] 任务 15: [待架构师批准] A3-3 Release 重切 + 台账「台帐→台账」改名联动 | gate=拆单 #7，联动 A1-3；执行前必须有架构师明确排期批准
+- [ ] 任务 16: [待用户手动] E2 全局 PATH 隔离 | cmd: `"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Scripts\pip.exe" uninstall auto-pm -y`
+- [ ] 任务 17: [待 A3-3 后执行] A0-2 Exit Code 修复进生产（dev 修复已完成，需随 Release 重切带入 active 槽位）
+- [ ] 任务 18: [待排期] CHG-SCPT-2026-186 拆单 10 项（doc check 门禁面/台账存量债/母体分叉同步/SPEC域枚举等）

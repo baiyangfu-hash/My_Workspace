@@ -1,5 +1,10 @@
 version: "3"
 
+# [A2-4 归档标注 2026-09-06]
+# 此文件对应 2026-08-28 冻结前的研发母体口径（SW-2026-008 母体本地开发用）。
+# 当前生产环境请参照 00_Infrastructure/auto_pm（稳定部署容器），
+# CLI 入口已切流至 release 1.2.3-f950525，本 Taskfile 仅供母体开发回退参考。
+
 vars:
   ALL: . tests/
   SOURCES: ./
