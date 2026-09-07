@@ -1,4 +1,4 @@
-"""auto_pm.tests.application.test_workflow_orchestrator - 编排内核单测
+﻿"""auto_pm.tests.application.test_workflow_orchestrator - 编排内核单测
 
 覆盖 DEV-300 SRE 工程可靠性与 DEV-210 编程规范：
 - 非法项目物理拦截与异常保护
@@ -57,9 +57,9 @@ def workspace(tmp_path: Path) -> Path:
         parents=True, exist_ok=True
     )
     # 创建版本变更台账
-    ledger_file = proj_dir / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+    ledger_file = proj_dir / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
     ledger_file.parent.mkdir(parents=True, exist_ok=True)
-    ledger_file.write_text("# 版本变更台帐\n\n| 变更编号 | 状态 |\n|---|---|\n", encoding="utf-8")
+    ledger_file.write_text("# 版本变更台账\n\n| 变更编号 | 状态 |\n|---|---|\n", encoding="utf-8")
 
     return ws
 

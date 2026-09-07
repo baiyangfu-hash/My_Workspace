@@ -20,8 +20,8 @@ def workspace(tmp_path: Path) -> Path:
 def spec_dirs(workspace: Path) -> list[Path]:
     dirs = [
         workspace / "00_Obsidian_Base全局规范文件仓库" / "01_项目管理域",
-        workspace / "0100_PLC自动化" / "00_通用规范",
-        workspace / "01_Project自动化项目管理" / "00_通用规范",
+        workspace / "00_Obsidian_Base全局规范文件仓库" / "03_PLC自动化域",
+        workspace / "00_Obsidian_Base全局规范文件仓库" / "02_Python开发域",
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
@@ -68,7 +68,7 @@ SAMPLE_REGISTRY: dict[str, Any] = {
         "PLC-2026-001": {
             "title": "PLC编程规范",
             "number": "PLC-001",
-            "canonical_path": "0100_PLC自动化/00_通用规范/PLC-2026-001_PLC编程规范_DEV.md",
+            "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/PLC-2026-001_PLC编程规范_DEV.md",
             "version": "V1.0.0",
             "type_prefix": "PLC",
             "domain": "plc",
@@ -81,7 +81,7 @@ SAMPLE_REGISTRY: dict[str, Any] = {
         "CODE-210": {
             "title": "Python编程规范",
             "number": "CODE-210",
-            "canonical_path": "01_Project自动化项目管理/00_通用规范/CODE-210_Python编程规范_DEV.md",
+            "canonical_path": "00_Obsidian_Base全局规范文件仓库/02_Python开发域/CODE-210_Python编程规范_DEV.md",
             "version": "V1.1.0",
             "type_prefix": "CODE",
             "domain": "python",

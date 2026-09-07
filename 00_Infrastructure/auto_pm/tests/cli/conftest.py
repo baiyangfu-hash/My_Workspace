@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 from collections.abc import Callable, Generator
@@ -72,7 +72,7 @@ def plc_project_factory(tmp_path: Path) -> Callable[..., Path]:
             chg_dir = project_dir / "11_监控" / "01_变更管理"
             (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
             (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
-            (chg_dir / "02_变更记录" / "01_版本变更台帐.md").write_text("# 台账\n", encoding="utf-8")
+            (chg_dir / "02_变更记录" / "01_版本变更台账.md").write_text("# 台账\n", encoding="utf-8")
             (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 调试计划\n", encoding="utf-8")
             (project_dir / "06_文档与交付" / "验收交付清单.md").write_text("# 验收\n", encoding="utf-8")
         return project_dir

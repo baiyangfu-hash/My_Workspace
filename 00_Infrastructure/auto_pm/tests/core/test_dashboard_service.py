@@ -141,7 +141,7 @@ class TestDashboardService:
         projects = [
             _make_project_record("DJ-2026-001", "PLC单机A", "plc", "developing", "DJ", file_mtime=1751000000.0),
             _make_project_record("DJ-2026-002", "PLC单机B", "plc", "commissioning", "DJ", file_mtime=1750900000.0),
-            _make_project_record("SW-2026-003", "软件A", "python", "developing", "SW", file_mtime=1782535000.0),
+            _make_project_record("SW-2026-003", "软件A", "python", "developing", "SW", file_mtime=1800000000.0),
             _make_project_record("SW-2026-004", "软件B", "python", "archived", "SW", file_mtime=1750800000.0),
         ]
         assert project_service._repo is not None

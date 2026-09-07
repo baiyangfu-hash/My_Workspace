@@ -298,6 +298,34 @@ class TestNumberConflictChecker:
         assert "901" not in " ".join(conflicts)
         assert "902" not in " ".join(conflicts)
 
+    def test_exempt_number_9060_not_flagged(self, populated_workspace: Path) -> None:
+        """架构师裁决 D-1：编号 9060 享有跨前缀豁免，不应报 SHC-015 冲突"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        from auto_pm.spec.core.registry import SpecInfo
+        # 即使多个条目（如跨前缀）包含 9060 编号，也受豁免保护
+        reg._specs["TOOL-906"] = SpecInfo(spec_id="TOOL-906", number="9060", type_prefix="TOOL", title="Mermaid绘图规范")
+        reg._specs["TOOL-9060"] = SpecInfo(spec_id="TOOL-9060", number="9060", type_prefix="TOOL", title="Mermaid绘图规范副本")
+        scanner = SpecScanner(populated_workspace)
+        checker = NumberConflictChecker()
+        results = checker.check(reg, scanner)
+        conflicts = [r for r in results if r.check_id == "SHC-015" and "9060" in r.message]
+        assert len(conflicts) == 0
+
+    def test_dynamic_exemptions_from_registry_raw(self, populated_workspace: Path) -> None:
+        """支持从 registry raw 数据中动态扩展豁免编号"""
+        reg = SpecRegistry(populated_workspace)
+        reg.load()
+        reg.raw["exempt_numbers"] = ["8888"]
+        from auto_pm.spec.core.registry import SpecInfo
+        reg._specs["TEST-8888A"] = SpecInfo(spec_id="TEST-8888A", number="8888", type_prefix="TEST", title="A")
+        reg._specs["TEST-8888B"] = SpecInfo(spec_id="TEST-8888B", number="8888", type_prefix="DEV", title="B")
+        scanner = SpecScanner(populated_workspace)
+        checker = NumberConflictChecker()
+        results = checker.check(reg, scanner)
+        conflicts = [r for r in results if r.check_id == "SHC-015" and "8888" in r.message]
+        assert len(conflicts) == 0
+
 
 class TestDriftWarningChecker:
     """SHC-016: drift_warning 强制告警"""

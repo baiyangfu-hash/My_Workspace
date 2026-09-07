@@ -56,7 +56,7 @@ _CHG_TEMPLATE = """# 变更单
 """
 
 # 台账骨架（与 LedgerUpdater 期望的列结构对齐）
-_LEDGER_SKELETON = """# 版本变更台帐
+_LEDGER_SKELETON = """# 版本变更台账
 
 ## 变更单索引
 
@@ -73,7 +73,7 @@ def _make_project(tmp_path: Path) -> Path:
     ledger_dir = project / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True)
     # 台账文件
-    (ledger_dir / "01_版本变更台帐.md").write_text(_LEDGER_SKELETON, encoding="utf-8")
+    (ledger_dir / "01_版本变更台账.md").write_text(_LEDGER_SKELETON, encoding="utf-8")
     return project
 
 
@@ -155,7 +155,7 @@ class TestLedgerReconcilerReconcile:
         project = _make_project(tmp_path)
         _make_chg_file(project, "CHG-SCPT-2026-001", status="draft")
         # 台账补一行
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         ledger.write_text(
             _LEDGER_SKELETON + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理"),
             encoding="utf-8",
@@ -174,7 +174,7 @@ class TestLedgerReconcilerReconcile:
         _make_chg_file(project, "CHG-SCPT-2026-001", status="draft")
         _make_chg_file(project, "CHG-SCPT-2026-002", status="draft")
         # 台账只有 001
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         ledger.write_text(
             _LEDGER_SKELETON + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理"),
             encoding="utf-8",
@@ -190,7 +190,7 @@ class TestLedgerReconcilerReconcile:
         project = _make_project(tmp_path)
         _make_chg_file(project, "CHG-SCPT-2026-001", status="draft")
         # 台账有 001 + 999（999 无文件）
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         ledger.write_text(
             _LEDGER_SKELETON
             + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理")
@@ -207,7 +207,7 @@ class TestLedgerReconcilerReconcile:
         """CHG 状态(closed) vs 台账状态(待处理) 不一致"""
         project = _make_project(tmp_path)
         _make_chg_file(project, "CHG-SCPT-2026-001", status="closed")
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         ledger.write_text(
             _LEDGER_SKELETON + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理"),
             encoding="utf-8",
@@ -249,7 +249,7 @@ class TestLedgerReconcilerAutoFix:
         new_diff = r.reconcile(str(project))
         assert new_diff.is_clean is True
         # 台账应包含补建的记录
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         content = ledger.read_text(encoding="utf-8")
         assert "CHG-SCPT-2026-001" in content
         assert "alice" in content  # applicant 已回填
@@ -267,7 +267,7 @@ class TestLedgerReconcilerAutoFix:
         new_diff = r.reconcile(str(project))
         assert new_diff.is_clean is True
         # 台账状态应为 ✅已关闭（非 🔄待处理）
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         content = ledger.read_text(encoding="utf-8")
         assert "✅已关闭" in content
 
@@ -275,7 +275,7 @@ class TestLedgerReconcilerAutoFix:
         """auto_fix 修复状态不一致"""
         project = _make_project(tmp_path)
         _make_chg_file(project, "CHG-SCPT-2026-001", status="closed")
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         ledger.write_text(
             _LEDGER_SKELETON + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理"),
             encoding="utf-8",
@@ -298,7 +298,7 @@ class TestLedgerReconcilerAutoFix:
         """auto_fix 不自动删除孤儿记录（保留人工审核）"""
         project = _make_project(tmp_path)
         _make_chg_file(project, "CHG-SCPT-2026-001", status="draft")
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         ledger.write_text(
             _LEDGER_SKELETON
             + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理")
@@ -320,7 +320,7 @@ class TestLedgerReconcilerAutoFix:
         """auto_fix 对无差异时不修改"""
         project = _make_project(tmp_path)
         _make_chg_file(project, "CHG-SCPT-2026-001", status="draft")
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         original = _LEDGER_SKELETON + _make_ledger_row(1, "CHG-SCPT-2026-001", "🔄待处理")
         ledger.write_text(original, encoding="utf-8")
 
@@ -334,7 +334,7 @@ class TestLedgerReconcilerAutoFix:
         """台账文件不存在，但有变更单文件时，reconcile 返回缺失且 auto_fix 能自动创建台账并补全"""
         project = _make_project(tmp_path)
         # 删掉默认创建的台账文件
-        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台帐.md"
+        ledger = project / "04_监控" / "01_变更管理" / "02_变更记录" / "01_版本变更台账.md"
         if ledger.exists():
             ledger.unlink()
 

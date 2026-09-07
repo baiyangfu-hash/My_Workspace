@@ -481,3 +481,66 @@ SCPT -> PLC -> HMI
         assert analysis.propagation_chain == ""
         assert analysis.related_changes == []
         assert analysis.updated_at != ""
+
+    def test_parse_and_validate_spec_domain(self, tmp_dir: str) -> None:
+        """测试 SPEC 规范法典领域的解析与校验器放行"""
+        content = """# 变更单
+
+## 3. 变更基本信息
+
+### 3.0 编号与项目
+| 字段 | 内容 |
+|------|------|
+| 变更编号 | CHG-SPEC-2026-001 |
+| 项目名称 | 工作空间治理 |
+| 项目编号 | SYS-2026-001 |
+
+### 3.1 技术领域
+| 领域 | 选择 | 说明 |
+|------|------|------|
+| ☑ **SPEC** 规范法典 | **选中** | Obsidian 规范库治理 |
+
+### 3.2 业务性质
+| 性质 | 选择 | 典型场景 |
+|------|------|----------|
+| ☑ **OPT** 优化改进 | **选中** | 规范优化 |
+
+### 3.3 影响范围
+| 范围 | 选择 | 审批要求 |
+|------|------|----------|
+| ☑ **SYSTEM** 系统级变更 | **选中** | 架构师审批 |
+
+### 3.4 申请信息
+| 字段 | 内容 |
+|------|------|
+| 申请人 | ZCode |
+| 申请日期 | 2026-09-06 |
+| 计划完成日期 | 2026-09-06 |
+| 紧急程度 | ☑一般 □紧急 □非常紧急 |
+| 变更状态 | draft |
+
+## 4. 变更原因
+规范治理
+
+## 8. 变更审批
+### 8.2 审批结论
+待审批
+"""
+        chg_dir = os.path.join(tmp_dir, "CHG-SPEC")
+        os.makedirs(chg_dir, exist_ok=True)
+        file_path = os.path.join(chg_dir, "CHG-SPEC-2026-001.md")
+        write_file(file_path, content)
+
+        parser = ChgParser()
+        cr = parser.parse(file_path)
+
+        assert cr.change_number == "CHG-SPEC-2026-001"
+        assert cr.domain == "SPEC"
+        assert cr.business_nature == "OPT"
+
+        # 校验器放行 SPEC，不报枚举错误
+        from auto_pm.domain.change.constants import validate_domain
+        validate_domain("SPEC")  # 校验通过不抛异常
+        sections = {"3": "### 3.0\n### 3.1\n### 3.2\n### 3.3\n### 3.4\n", "4": "原因", "8": "审批"}
+        violations = parser._validate_spec_compliance(cr, sections)
+        assert not any("SPEC" in v for v in violations)

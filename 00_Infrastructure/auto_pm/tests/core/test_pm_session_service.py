@@ -449,7 +449,7 @@ class TestConstants:
         assert MAX_FILE_SIZE_KB > 0
         assert MAX_FILE_LINES > 0
         assert MAX_FILE_SIZE_KB >= 100  # 至少 100KB
-        assert MAX_FILE_LINES >= 200  # 至少 200 行
+        assert MAX_FILE_LINES >= 150  # 至少 150 行 (PM-042)
 
 
 # ---------- archive_section_8 测试（CHG-109）----------

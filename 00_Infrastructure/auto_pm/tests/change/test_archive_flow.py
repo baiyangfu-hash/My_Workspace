@@ -1,4 +1,4 @@
-"""归档流程端到端测试（M4-Iter5）
+﻿"""归档流程端到端测试（M4-Iter5）
 
 测试 PM-042 V2.3.0 §5.2 定义的归档流程：
     completed → archived（终态）
@@ -134,8 +134,8 @@ def archive_workspace(tmp_path: Path) -> str:
     # 创建台帐目录
     ledger_dir = project_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
-    (ledger_dir / "01_版本变更台帐.md").write_text(
-        "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+    (ledger_dir / "01_版本变更台账.md").write_text(
+        "# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
         encoding="utf-8",
     )
     return str(tmp_path)
@@ -159,8 +159,8 @@ def implementing_workspace(tmp_path: Path) -> str:
     # 创建台帐目录
     ledger_dir = project_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
-    (ledger_dir / "01_版本变更台帐.md").write_text(
-        "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+    (ledger_dir / "01_版本变更台账.md").write_text(
+        "# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
         encoding="utf-8",
     )
     return str(tmp_path)

@@ -1,4 +1,4 @@
-"""验收流程端到端测试（M4-Iter4）
+﻿"""验收流程端到端测试（M4-Iter4）
 
 测试 PM-042 V2.2.0 §5.2 定义的完整验收流程：
     implementing → pending_acceptance → accepting → completed
@@ -144,8 +144,8 @@ def acceptance_workspace(tmp_path: Path) -> str:
     # 创建台帐目录
     ledger_dir = project_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
-    (ledger_dir / "01_版本变更台帐.md").write_text(
-        "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+    (ledger_dir / "01_版本变更台账.md").write_text(
+        "# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
         encoding="utf-8",
     )
     return str(tmp_path)
@@ -169,8 +169,8 @@ def acceptance_workspace_no_sec9(tmp_path: Path) -> str:
     # 创建台帐目录
     ledger_dir = project_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
-    (ledger_dir / "01_版本变更台帐.md").write_text(
-        "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+    (ledger_dir / "01_版本变更台账.md").write_text(
+        "# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
         encoding="utf-8",
     )
     return str(tmp_path)

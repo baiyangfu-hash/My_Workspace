@@ -59,7 +59,7 @@ def full_project(tmp_path: Path) -> Path:
     chg_dir = project_dir / "11_监控" / "01_变更管理"
     (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
     (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
-    (chg_dir / "02_变更记录" / "01_版本变更台帐.md").write_text("# 版本变更台帐\n", encoding="utf-8")
+    (chg_dir / "02_变更记录" / "01_版本变更台账.md").write_text("# 版本变更台账\n", encoding="utf-8")
 
     # 交付文档实质化
     (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 现场调试计划\n", encoding="utf-8")
@@ -286,7 +286,7 @@ class TestCheckProject:
         chg_dir = project_dir / "11_监控" / "01_变更管理"
         (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
         (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
-        (chg_dir / "02_变更记录" / "01_版本变更台帐.md").write_text("# 台账\n", encoding="utf-8")
+        (chg_dir / "02_变更记录" / "01_版本变更台账.md").write_text("# 台账\n", encoding="utf-8")
         (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 计划\n", encoding="utf-8")
         (project_dir / "06_文档与交付" / "验收交付清单.md").write_text("# 验收\n", encoding="utf-8")
 
@@ -596,8 +596,8 @@ class TestCheckItemsList:
     """P3-9: plc check --list 检查项清单测试"""
 
     def test_check_items_count(self) -> None:
-        """CHECK_ITEMS 应包含 10 项检查"""
-        assert len(PlcChecker.CHECK_ITEMS) == 10
+        """CHECK_ITEMS 应包含 11 项检查 (包含三安全列检查)"""
+        assert len(PlcChecker.CHECK_ITEMS) == 11
 
     def test_check_items_categories(self) -> None:
         """CHECK_ITEMS 应覆盖 4 个分类（配置/文档/结构/规范）"""
@@ -611,10 +611,10 @@ class TestCheckItemsList:
             assert isinstance(item["spec"], str)
 
     def test_check_items_ids_unique(self) -> None:
-        """检查项 id 应唯一（1-10）"""
+        """检查项 id 应唯一（1-11）"""
         ids = [item["id"] for item in PlcChecker.CHECK_ITEMS]
         assert len(ids) == len(set(ids)), f"检查项 id 存在重复: {ids}"
-        assert sorted(ids, key=int) == [str(i) for i in range(1, 11)]
+        assert sorted(ids, key=int) == [str(i) for i in range(1, 12)]
 
     def test_plc_check_list_cli(self, tmp_path: Path) -> None:
         """plc check --list 应输出检查项清单表格"""
@@ -634,4 +634,66 @@ class TestCheckItemsList:
         for cat in ["配置", "文档", "结构", "规范"]:
             assert cat in result.output
         # 验证检查项数量提示
-        assert "共 10 项检查" in result.output
+        assert "共 11 项检查" in result.output
+
+
+class TestIoPointsCompliance:
+    """IO 点位表与安全列合规性检查测试 (STD-816)"""
+
+    def test_no_io_points_file_passes(self, full_project: Path) -> None:
+        """未找到 io_points.csv 时通过（友好提示）"""
+        checker = PlcChecker(str(full_project))
+        project_dir = full_project / "DJ-2026-FULL_完整项目"
+        result = checker.check_project(str(project_dir))
+        item = next(i for i in result.items if i.item == "IO 点位表安全列")
+        assert item.status == "pass"
+        assert "未发现" in item.message
+
+    def test_legacy_7_cols_passes_with_hint(self, full_project: Path) -> None:
+        """7 列旧点表通过并提示建议升级三安全列"""
+        project_dir = full_project / "DJ-2026-FULL_完整项目"
+        assets_dir = project_dir / "02_PLC程序" / "工程资产"
+        assets_dir.mkdir(parents=True, exist_ok=True)
+        (assets_dir / "io_points.csv").write_text(
+            "station,signal_type,address,tag,signal_name,device,comment\n"
+            "cpu,DI,X0,Z_Home,回零传感器,传感器,正常\n",
+            encoding="utf-8",
+        )
+        checker = PlcChecker(str(full_project))
+        result = checker.check_project(str(project_dir))
+        item = next(i for i in result.items if i.item == "IO 点位表安全列")
+        assert item.status == "pass"
+        assert "7 列标准基线" in item.message
+
+    def test_full_three_safety_cols_passes(self, full_project: Path) -> None:
+        """10 列包含三安全列且定义完整时通过"""
+        project_dir = full_project / "DJ-2026-FULL_完整项目"
+        assets_dir = project_dir / "02_PLC程序" / "工程资产"
+        assets_dir.mkdir(parents=True, exist_ok=True)
+        (assets_dir / "io_points.csv").write_text(
+            "station,signal_type,address,tag,signal_name,device,comment,wiring_level,fail_safe,break_action\n"
+            "cpu,DO,Y0,VALVE_CLAMP,气缸夹紧电磁阀,电磁阀,动作,NO,0,OPEN_AND_ALARM\n",
+            encoding="utf-8",
+        )
+        checker = PlcChecker(str(full_project))
+        result = checker.check_project(str(project_dir))
+        item = next(i for i in result.items if i.item == "IO 点位表安全列")
+        assert item.status == "pass"
+        assert "三安全列（wiring_level/fail_safe/break_action）定义完整" in item.message
+
+    def test_missing_safety_cols_for_actuator_warns(self, full_project: Path) -> None:
+        """执行器缺少安全列时输出 warning"""
+        project_dir = full_project / "DJ-2026-FULL_完整项目"
+        assets_dir = project_dir / "02_PLC程序" / "工程资产"
+        assets_dir.mkdir(parents=True, exist_ok=True)
+        (assets_dir / "io_points.csv").write_text(
+            "station,signal_type,address,tag,signal_name,device,comment,wiring_level,fail_safe,break_action\n"
+            "cpu,DO,Y0,VALVE_CLAMP,气缸夹紧电磁阀,电磁阀,动作,,,\n",
+            encoding="utf-8",
+        )
+        checker = PlcChecker(str(full_project))
+        result = checker.check_project(str(project_dir))
+        item = next(i for i in result.items if i.item == "IO 点位表安全列")
+        assert item.status == "warn"
+        assert "缺少 wiring_level" in item.message
+

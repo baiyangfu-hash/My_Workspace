@@ -77,11 +77,14 @@ class TestIndexService:
         with pytest.raises(FileNotFoundError):
             IndexService(workspace)
 
-    def test_run_all_domains_generates_three_entries(self, populated_workspace: Path) -> None:
-        """all 域应生成 3 个 generated_files 条目（注意 plc/python 输出路径相同）"""
+    def test_run_all_domains_generates_global_index_without_external_pollution(self, populated_workspace: Path) -> None:
+        """all 域生成 1 个全局规范索引，且绝不越权向法典外写入 README"""
         svc = IndexService(populated_workspace)
         output = svc.run()
-        assert len(output.generated_files) == 3
+        assert len(output.generated_files) == 1
+        assert output.generated_files[0] == populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "00_INDEX_全局规范索引.md"
+        assert not (populated_workspace / "0100_PLC自动化" / "00_通用规范" / "README.md").exists()
+        assert not (populated_workspace / "01_Project自动化项目管理" / "00_通用规范" / "README.md").exists()
         assert len(output.errors) == 0
 
     def test_run_pm_only_generates_one_file(self, populated_workspace: Path) -> None:
@@ -129,27 +132,44 @@ class TestIndexService:
         assert "已废弃规范" in content
         assert "PM-2026-002" in content
 
-    def test_run_plc_index_includes_core_ids_marker(self, populated_workspace: Path) -> None:
-        """PLC 索引应为 CORE_IDS 中的规范标记'🔴必读'"""
-        # 修改注册表使 PLC-2026-001 进入 CORE_IDS（实际 CORE_IDS=['LSP-905','LSP-907']，
-        # 这里测试 CORE_IDS 机制本身：将 PLC-2026-001 改为 LSP-905 验证标记）
+    def test_run_plc_index_includes_spec(self, populated_workspace: Path) -> None:
+        """PLC 索引包含 LSP-905 规范条目"""
         import json
         reg_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "spec_registry.json"
         data = json.loads(reg_path.read_text(encoding="utf-8"))
         data["specs"]["LSP-905"] = data["specs"].pop("PLC-2026-001")
         data["specs"]["LSP-905"]["spec_id"] = "LSP-905"
-        data["specs"]["LSP-905"]["canonical_path"] = "0100_PLC自动化/00_通用规范/LSP-905_PLC编程规范_DEV.md"
+        data["specs"]["LSP-905"]["canonical_path"] = "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/905_SCL编程规范_LSP.md"
         reg_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        # 重命名规范文件
-        old_file = populated_workspace / "0100_PLC自动化" / "00_通用规范" / "PLC-2026-001_PLC编程规范_DEV.md"
-        new_file = populated_workspace / "0100_PLC自动化" / "00_通用规范" / "LSP-905_PLC编程规范_DEV.md"
-        old_file.rename(new_file)
 
         svc = IndexService(populated_workspace)
         output = svc.run(domains=["plc"])
         content = output.generated_files[0].read_text(encoding="utf-8")
-        assert "🔴必读" in content
         assert "LSP-905" in content
+
+    def test_run_preserves_manual_sections_and_covers_five_domains(self, populated_workspace: Path) -> None:
+        """测试五域全覆盖且自动保留高价值语义互链与已归档规范"""
+        idx_path = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "00_INDEX_全局规范索引.md"
+        idx_path.write_text(
+            "# 初始\n\n"
+            "## 🔗 高价值语义互链清单\n\n- 820 -> 840\n\n---\n\n"
+            "## 已归档规范（Archived）\n\n- PM-006 已归档\n\n---\n",
+            encoding="utf-8",
+        )
+        svc = IndexService(populated_workspace)
+        output = svc.run()
+        content = output.generated_files[0].read_text(encoding="utf-8")
+        assert "## 📋 项目管理域规范" in content
+        assert "## ⚠️ 技术栈规范真源（PLC / Python / 驾驶舱 / 跨域）" in content
+        assert "### 03_PLC 自动化域" in content
+        assert "### 02_Python 开发域" in content
+        assert "### 04_驾驶舱与全栈域" in content
+        assert "### 05_跨域工具规范" in content
+        assert "## 🔗 高价值语义互链清单" in content
+        assert "- 820 -> 840" in content
+        assert "## 已归档规范（Archived）" in content
+        assert "- PM-006 已归档" in content
+        assert "## 📊 统计" in content
 
     def test_run_idempotent(self, populated_workspace: Path) -> None:
         """重复调用应生成相同内容（幂等性）"""
@@ -228,7 +248,7 @@ class TestFrontmatterService:
     def test_preview_missing_file_returns_error(self, populated_workspace: Path) -> None:
         """规范文件不存在时应返回 status=error"""
         # 删除 PLC-2026-001 文件
-        plc_file = populated_workspace / "0100_PLC自动化" / "00_通用规范" / "PLC-2026-001_PLC编程规范_DEV.md"
+        plc_file = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "03_PLC自动化域" / "PLC-2026-001_PLC编程规范_DEV.md"
         plc_file.unlink()
 
         svc = FrontmatterService(populated_workspace)

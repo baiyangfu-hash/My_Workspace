@@ -1,4 +1,4 @@
-"""PmClosureSagaCoordinator 单元测试与端到端事务验证。
+﻿"""PmClosureSagaCoordinator 单元测试与端到端事务验证。
 
 测试覆盖：
 - 正常全流程 Saga 顺序流转与 checkpoint 记录
@@ -151,8 +151,8 @@ def project_setup(tmp_path: Path) -> dict[str, Any]:
     # 3. 创建台账文件
     ledger_dir = tmp_path / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True, exist_ok=True)
-    ledger_file = ledger_dir / "01_版本变更台帐.md"
-    ledger_content = f"""# 版本变更台帐
+    ledger_file = ledger_dir / "01_版本变更台账.md"
+    ledger_content = f"""# 版本变更台账
 
 > 记录项目所有变更单的索引与状态
 

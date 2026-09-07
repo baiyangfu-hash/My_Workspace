@@ -18,6 +18,7 @@ def _make_plc_project(
     with_std_dirs: bool = False,
     with_pm_session: bool = False,
     with_prd: bool = False,
+    with_complete_docs: bool = False,
 ) -> Path:
     """创建一个由 .plc.json 识别的 PLC 项目（供 CLI 测试使用）
 
@@ -28,33 +29,53 @@ def _make_plc_project(
         with_std_dirs: 是否创建 12 个标准目录
         with_pm_session: 是否创建 PM_SESSION 文件
         with_prd: 是否创建 PRD 目录
+        with_complete_docs: 是否创建全量合规基础文档（台账、PRD文档等）
     """
     project_dir = workspace / f"{project_id}_{name}"
-    project_dir.mkdir()
+    project_dir.mkdir(parents=True, exist_ok=True)
     (project_dir / ".plc.json").write_text(
         json.dumps(
             {
                 "name": project_id,
                 "version": "V1.0.0",
                 "description": name,
+                "type": "standard",
             },
             ensure_ascii=False,
         ),
         encoding="utf-8",
     )
+    if with_complete_docs:
+        with_std_dirs = True
+        with_pm_session = True
+        with_prd = True
+
     if with_pm_session:
         (project_dir / f"PM_SESSION_{project_id}.md").write_text(
             "# PM_SESSION\n", encoding="utf-8"
         )
     if with_prd:
-        (project_dir / "PRD").mkdir()
+        (project_dir / "PRD").mkdir(exist_ok=True)
     if with_std_dirs:
         for d in [
-            "00_项目管理", "01_需求与设计", "02_PLC程序", "03_HMI设计",
-            "04_现场调试", "12_驱动器与设备", "05_测试与验证", "06_文档与交付",
+            "01_启动", "02_PLC程序", "03_HMI设计",
+            "04_现场调试", "05_测试与验证", "06_文档与交付",
             "07_技术支持", "08_备件管理", "09_项目总结", "10_知识库",
+            "11_监控", "12_驱动器与设备",
         ]:
-            (project_dir / d).mkdir()
+            (project_dir / d).mkdir(exist_ok=True)
+
+    if with_complete_docs:
+        chg_dir = project_dir / "11_监控" / "01_变更管理"
+        (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
+        (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
+        (chg_dir / "02_变更记录" / "01_版本变更台账.md").write_text("# 版本变更台账\n", encoding="utf-8")
+        (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 现场调试计划\n", encoding="utf-8")
+        (project_dir / "06_文档与交付" / "验收交付清单.md").write_text("# 验收交付清单\n", encoding="utf-8")
+        prd_dir = project_dir / "PRD"
+        for doc in ["需求分析文档_REQ.md", "接口文档_INT.md", "详细设计说明书_DSN.md", "技术方案文档_TEC.md"]:
+            (prd_dir / doc).write_text(f"# {doc}\n\n待补充\n", encoding="utf-8")
+
     return project_dir
 
 
@@ -101,12 +122,11 @@ def test_plc_check_substance(cli_runner: CliRunner, tmp_path: Path) -> None:
         with_pm_session=True,
         with_std_dirs=True,
     )
-    # 创建 PRD 目录 + 空壳文档（含占位符）
+    # 创建 PRD 目录 + 4 个空壳文档（含占位符）
     prd_dir = project_dir / "PRD"
-    prd_dir.mkdir()
-    (prd_dir / "需求分析文档_REQ.md").write_text(
-        "# 需求分析\n\n待补充", encoding="utf-8"
-    )
+    prd_dir.mkdir(exist_ok=True)
+    for doc in ["需求分析文档_REQ.md", "接口文档_INT.md", "详细设计说明书_DSN.md", "技术方案文档_TEC.md"]:
+        (prd_dir / doc).write_text(f"# {doc}\n\n待补充\n", encoding="utf-8")
 
     result = cli_runner.invoke(
         cli,
@@ -119,9 +139,13 @@ def test_plc_check_substance(cli_runner: CliRunner, tmp_path: Path) -> None:
 
 def test_plc_check_fix(cli_runner: CliRunner, tmp_path: Path) -> None:
     """测试 plc check <ID> --fix（检查后自动修复）"""
+    import shutil
+
     project_id = "DJ-2026-FIX"
-    # 创建缺少标准目录的项目（仅有 .plc.json）
-    project_dir = _make_plc_project(tmp_path, project_id)
+    # 创建缺少 01_启动 目录的项目
+    project_dir = _make_plc_project(tmp_path, project_id, with_complete_docs=True)
+    shutil.rmtree(project_dir / "01_启动")
+    assert not (project_dir / "01_启动").exists()
 
     result = cli_runner.invoke(
         cli,
@@ -220,7 +244,7 @@ def test_plc_check_all_skips_python_project(
     Python 项目不出现在 PLC 检查摘要中
     """
     # PLC 项目（会被 _is_project_dir 识别）
-    _make_plc_project(tmp_path, "DJ-2026-001", "PLC项目")
+    _make_plc_project(tmp_path, "DJ-2026-001", "PLC项目", with_complete_docs=True)
     # Python 项目（应被 _is_project_dir 排除，不出现在 --all 结果中）
     _make_python_project(tmp_path, "SW-2026-PYT", "Python工具")
 

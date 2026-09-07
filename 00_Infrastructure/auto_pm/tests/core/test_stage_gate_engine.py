@@ -1,4 +1,4 @@
-"""tests.core.test_stage_gate_engine - StageGateEngine 单元测试套件"""
+﻿"""tests.core.test_stage_gate_engine - StageGateEngine 单元测试套件"""
 
 from pathlib import Path
 
@@ -51,8 +51,8 @@ def temp_project(tmp_path: Path) -> Path:
     # 台账文件（LedgerReconciler 对账用，含 CHG-PLC-2026-001 记录行）
     ledger_dir = proj / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True)
-    (ledger_dir / "01_版本变更台帐.md").write_text(
-        "# 版本变更台帐\n\n"
+    (ledger_dir / "01_版本变更台账.md").write_text(
+        "# 版本变更台账\n\n"
         "## 变更单索引\n\n"
         "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
         "|------|----------|------|--------|----------|----------|----------|------|\n"
@@ -182,8 +182,8 @@ def test_stage_gate_g3_blocks_when_no_skill_handoff(tmp_path: Path):
 
     ledger_dir = proj / "04_监控" / "01_变更管理" / "02_变更记录"
     ledger_dir.mkdir(parents=True)
-    (ledger_dir / "01_版本变更台帐.md").write_text(
-        "# 版本变更台帐\n\n"
+    (ledger_dir / "01_版本变更台账.md").write_text(
+        "# 版本变更台账\n\n"
         "## 变更单索引\n\n"
         "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
         "|------|----------|------|--------|----------|----------|----------|------|\n"

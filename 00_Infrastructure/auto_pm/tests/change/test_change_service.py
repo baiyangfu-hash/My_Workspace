@@ -1,4 +1,4 @@
-"""ChangeService 单元测试"""
+﻿"""ChangeService 单元测试"""
 
 from __future__ import annotations
 
@@ -224,10 +224,10 @@ class TestChangeService:
         # 完整台账骨架（含 ## 变更单索引 标题 + 8列结构）
         ledger_dir = os.path.join(project_path, "04_监控", "01_变更管理", "02_变更记录")
         os.makedirs(ledger_dir, exist_ok=True)
-        ledger_path = os.path.join(ledger_dir, "01_版本变更台帐.md")
+        ledger_path = os.path.join(ledger_dir, "01_版本变更台账.md")
         with open(ledger_path, "w", encoding="utf-8") as f:
             f.write(
-                "# 版本变更台帐\n\n"
+                "# 版本变更台账\n\n"
                 "## 变更单索引\n\n"
                 "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
                 "|------|----------|------|--------|----------|----------|----------|------|\n"
@@ -576,8 +576,8 @@ class TestChapterCompleteness:
             project_path / "04_监控" / "01_变更管理" / "02_变更记录"
         )
         ledger_dir.mkdir(parents=True, exist_ok=True)
-        (ledger_dir / "01_版本变更台帐.md").write_text(
-            "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+        (ledger_dir / "01_版本变更台账.md").write_text(
+            "# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
             encoding="utf-8",
         )
 
@@ -607,8 +607,8 @@ class TestChapterCompleteness:
             project_path / "04_监控" / "01_变更管理" / "02_变更记录"
         )
         ledger_dir.mkdir(parents=True, exist_ok=True)
-        (ledger_dir / "01_版本变更台帐.md").write_text(
-            "# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
+        (ledger_dir / "01_版本变更台账.md").write_text(
+            "# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n",
             encoding="utf-8",
         )
 

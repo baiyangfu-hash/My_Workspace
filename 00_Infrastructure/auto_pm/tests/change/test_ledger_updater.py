@@ -1,4 +1,4 @@
-"""LedgerUpdater 单元测试"""
+﻿"""LedgerUpdater 单元测试"""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ class TestLedgerUpdaterUpdate:
 
     def test_update_appends_row(self, tmp_path: Path) -> None:
         """update 在台帐变更单索引中追加一行"""
-        ledger = tmp_path / "01_版本变更台帐.md"
+        ledger = tmp_path / "01_版本变更台账.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 描述 |\n"
             "|------|----------|------|\n",
@@ -48,7 +48,7 @@ class TestLedgerUpdaterUpdate:
     def test_update_no_index_table(self, tmp_path: Path) -> None:
         """update 对无变更单索引表格的台帐不写入"""
         ledger = tmp_path / "no_index.md"
-        ledger.write_text("# 版本变更台帐\n\n无索引表格\n", encoding="utf-8")
+        ledger.write_text("# 版本变更台账\n\n无索引表格\n", encoding="utf-8")
 
         updater = LedgerUpdater()
         updater.update(str(ledger), "CHG-PLC-2026-001", "测试")
@@ -60,7 +60,7 @@ class TestLedgerUpdaterUpdate:
         """update 连续追加时序号递增"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 描述 |\n"
             "|------|----------|------|\n"
@@ -156,7 +156,7 @@ class TestLedgerUpdaterUpdateStatus:
         """update_status 更新指定变更单的状态列（最后一列）"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
             "|------|----------|------|--------|----------|----------|----------|------|\n"
@@ -178,7 +178,7 @@ class TestLedgerUpdaterUpdateStatus:
         """CHG-108 缺陷2: update_status 未找到 change_number 时自愈补建新行"""
         ledger = tmp_path / "ledger.md"
         original = (
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 状态 |\n"
             "|------|----------|------|\n"
@@ -220,7 +220,7 @@ class TestLedgerUpdaterUpdateStatus:
         """update_status 多行时只更新目标行"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 状态 |\n"
             "|------|----------|------|\n"
@@ -238,6 +238,42 @@ class TestLedgerUpdaterUpdateStatus:
         # 非目标行保持不变
         assert "CHG-SCPT-2026-001 | 🔄待处理" in content
 
+    def test_update_status_manual_entry_and_description_isolation(self, tmp_path: Path) -> None:
+        """拆单 #6: 手工户籍单回写，且当描述列包含其他单号时不被误命中"""
+        ledger = tmp_path / "01_版本变更台账.md"
+        ledger.write_text(
+            "# 版本变更台账\n\n"
+            "## 变更单索引\n\n"
+            "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
+            "|------|----------|------|--------|----------|----------|----------|------|\n"
+            "| 031 | [→ CHG-SPEC-2026-001](./01_变更单/CHG-SPEC/CHG-SPEC-2026-001.md) | SPEC | GLM | 2026-09-06 | 治理修补 | | 🔄实施中 |\n"
+            "| 032 | [→ CHG-SPEC-2026-002](./01_变更单/CHG-SPEC/CHG-SPEC-2026-002.md) | SPEC | ZCode | 2026-09-06 | 依赖 CHG-SPEC-2026-001 收尾 | | 🔄实施中 |\n",
+            encoding="utf-8",
+        )
+
+        updater = LedgerUpdater()
+        # 更新 CHG-SPEC-2026-001 为 ✅已关闭
+        updater.update_status(
+            str(ledger),
+            "CHG-SPEC-2026-001",
+            "✅已关闭",
+            complete_date="2026-09-06",
+        )
+
+        content = ledger.read_text(encoding="utf-8")
+        lines = [line.strip() for line in content.splitlines() if line.strip().startswith("|")]
+
+        # 031 必须被更新
+        row_031 = lines[2]
+        assert "CHG-SPEC-2026-001" in row_031
+        assert "2026-09-06 | ✅已关闭 |" in row_031
+
+        # 032 虽然描述里提到了 CHG-SPEC-2026-001，但状态绝不能被改动！
+        row_032 = lines[3]
+        assert "CHG-SPEC-2026-002" in row_032
+        assert "🔄实施中 |" in row_032
+        assert "✅已关闭" not in row_032
+
 
 class TestLedgerUpdaterRemove:
     """LedgerUpdater.remove 测试（TD-T10 修复）"""
@@ -246,7 +282,7 @@ class TestLedgerUpdaterRemove:
         """remove 删除指定变更单的行"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 状态 |\n"
             "|------|----------|------|\n"
@@ -266,7 +302,7 @@ class TestLedgerUpdaterRemove:
         """remove 未找到 change_number 时不修改内容"""
         ledger = tmp_path / "ledger.md"
         original = (
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 状态 |\n"
             "|------|----------|------|\n"
@@ -295,7 +331,7 @@ class TestLedgerUpdaterRemove:
         """remove 只删除表格行，保留非表格行（如标题、说明）"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "> 记录项目所有变更单的索引与状态\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 状态 |\n"
@@ -311,7 +347,7 @@ class TestLedgerUpdaterRemove:
         # 表格行已删除
         assert "CHG-SCPT-2026-001" not in content
         # 非表格行保留
-        assert "# 版本变更台帐" in content
+        assert "# 版本变更台账" in content
         assert "记录项目所有变更单的索引与状态" in content
         assert "## 变更单索引" in content
 
@@ -323,7 +359,7 @@ class TestLedgerUpdaterChg085:
         """update 调用时传入 applicant/apply_date，新行第 4/5 列非空"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
             "|------|----------|------|--------|----------|----------|----------|------|\n",
@@ -358,7 +394,7 @@ class TestLedgerUpdaterChg085:
         """update_status 流转到 ✅已关闭 时回写完成日期列"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
             "|------|----------|------|--------|----------|----------|----------|------|\n"
@@ -390,7 +426,7 @@ class TestLedgerUpdaterChg085:
         """update_status 流转到非 closed/archived 状态时不写完成日期"""
         ledger = tmp_path / "ledger.md"
         ledger.write_text(
-            "# 版本变更台帐\n\n"
+            "# 版本变更台账\n\n"
             "## 变更单索引\n\n"
             "| 序号 | 变更编号 | 领域 | 申请人 | 申请日期 | 变更描述 | 完成日期 | 状态 |\n"
             "|------|----------|------|--------|----------|----------|----------|------|\n"

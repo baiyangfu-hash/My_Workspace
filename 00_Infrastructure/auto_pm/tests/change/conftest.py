@@ -1,4 +1,4 @@
-"""变更管理测试共享 fixture"""
+﻿"""变更管理测试共享 fixture"""
 
 from __future__ import annotations
 
@@ -108,9 +108,9 @@ def workspace_root(tmp_dir: str) -> str:
         project_path, "04_监控", "01_变更管理", "02_变更记录"
     )
     os.makedirs(ledger_dir, exist_ok=True)
-    ledger_file = os.path.join(ledger_dir, "01_版本变更台帐.md")
+    ledger_file = os.path.join(ledger_dir, "01_版本变更台账.md")
     with open(ledger_file, "w", encoding="utf-8") as f:
-        f.write("# 版本变更台帐\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n")
+        f.write("# 版本变更台账\n\n| 序号 | 变更编号 | 描述 |\n|------|----------|------|\n")
     return tmp_dir
 
 

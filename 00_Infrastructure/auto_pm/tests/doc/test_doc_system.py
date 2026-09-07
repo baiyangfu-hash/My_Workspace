@@ -124,3 +124,83 @@ required-version = ">=0.8.4"
 
     assert "pyproject=1.2.3" in version_result.message
     assert "PM_SESSION=1.2.3" in version_result.message
+
+
+def test_deadlink_checker_active_and_cold_isolation(tmp_path):
+    from auto_pm.domain.doc.deadlink_checker import DeadLinkChecker
+
+    lib_dir = tmp_path / "00_Obsidian_Base"
+    active_dir = lib_dir / "01_域"
+    cold_dir = lib_dir / "Archive_Cold"
+    active_dir.mkdir(parents=True)
+    cold_dir.mkdir(parents=True)
+
+    # 目标文件
+    (active_dir / "target.md").write_text("# Target Doc\n\n## Section One\nContent\n", encoding="utf-8")
+    
+    # 活跃区文件包含有效链接、代码块内忽略链接、同页锚点
+    (active_dir / "active.md").write_text("""# Active Doc
+[有效链接](target.md#section-one)
+[[target]]
+```markdown
+[代码块内死链忽略](nonexistent.md)
+```
+`[行内代码死链忽略](nonexistent.md)`
+""", encoding="utf-8")
+
+    # 冷区文件包含死链（应被归类为 cold，不阻断门禁）
+    (cold_dir / "cold.md").write_text("[冷区死链](ghost_doc.md)\n", encoding="utf-8")
+
+    checker = DeadLinkChecker(lib_dir)
+    report = checker.scan()
+
+    assert report.passed is True
+    assert len(report.active_deadlinks) == 0
+    assert len(report.cold_deadlinks) == 1
+    assert report.cold_deadlinks[0].target == "ghost_doc.md"
+
+
+def test_index_coverage_checker_100_percent_and_missing(tmp_path):
+    import json
+    from auto_pm.domain.doc.index_coverage_checker import IndexCoverageChecker
+
+    lib_dir = tmp_path / "00_Obsidian_Base"
+    lib_dir.mkdir(parents=True)
+
+    spec_file = lib_dir / "001_Test_STD.md"
+    spec_file.write_text("# Test Spec\n", encoding="utf-8")
+
+    reg_data = {
+        "specs": {
+            "STD-001": {
+                "canonical_path": "00_Obsidian_Base/001_Test_STD.md",
+                "lifecycle": "stable",
+            }
+        }
+    }
+    (lib_dir / "spec_registry.json").write_text(json.dumps(reg_data), encoding="utf-8")
+
+    # 1. 覆盖率 100%
+    (lib_dir / "00_INDEX_全局规范索引.md").write_text("- [STD-001 测试规范](001_Test_STD.md)\n", encoding="utf-8")
+    checker = IndexCoverageChecker(lib_dir, repo_root=tmp_path)
+    report = checker.check()
+    assert report.passed is True
+    assert report.total_specs == 1
+    assert len(report.missing_specs) == 0
+
+    # 2. 存在缺失
+    (lib_dir / "00_INDEX_全局规范索引.md").write_text("- 无规范链接\n", encoding="utf-8")
+    report_missing = checker.check()
+    assert report_missing.passed is False
+    assert "STD-001" in report_missing.missing_specs
+
+
+def test_doc_check_cli_strict_option(tmp_path):
+    from click.testing import CliRunner
+    from auto_pm.ui.cli.doc import doc_group
+
+    runner = CliRunner()
+    result = runner.invoke(doc_group, ["check", "--help"])
+    assert result.exit_code == 0
+    assert "--strict" in result.output
+

@@ -105,6 +105,7 @@ def test_ai_context_bridge_write_pm_closure_context_uses_pending_handoff(tmp_pat
     handoff_dir.mkdir(parents=True)
     handoff = {
         "request_id": "AI-20260813-000001",
+        "status": "completed",  # writePmClosureContext 要求顶级 status == "completed"
         "project_id": "SW-2026-008",
         "executor_skill": "plc-electrical-engineer",
         "summary": "完成 PLC 检查并等待 PM 收口",

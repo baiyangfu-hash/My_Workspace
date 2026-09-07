@@ -133,15 +133,17 @@ class TestIndexCommand:
         assert "全局规范索引" in content
 
     def test_index_python_domain_generates_file(self, populated_workspace: Path) -> None:
-        """--domain python 应生成 Python 索引文件并实际落盘"""
+        """--domain python 应生成规范索引且绝不越权向法典外写入 README"""
         runner = CliRunner()
         result = runner.invoke(
             spec_group,
             ["index", "-w", str(populated_workspace), "--domain", "python"],
         )
         assert result.exit_code == 0
+        global_index = populated_workspace / "00_Obsidian_Base全局规范文件仓库" / "00_INDEX_全局规范索引.md"
+        assert global_index.exists()
         python_readme = populated_workspace / "01_Project自动化项目管理" / "00_通用规范" / "README.md"
-        assert python_readme.exists()
+        assert not python_readme.exists()
 
     def test_index_idempotent(self, populated_workspace: Path) -> None:
         """重复调用应生成相同内容（幂等性）"""
@@ -285,14 +287,12 @@ class TestConfigQuietCommand:
             "workspace: .\n"
             "spec_dirs:\n"
             "  - '00_Obsidian_Base全局规范文件仓库/01_项目管理域'\n"
-            "  - '0100_PLC自动化/00_通用规范'\n"
-            "  - '01_Project自动化项目管理/00_通用规范'\n"
+            "  - '00_Obsidian_Base全局规范文件仓库/02_Python开发域'\n"
+            "  - '00_Obsidian_Base全局规范文件仓库/03_PLC自动化域'\n"
             "archive_dir: '00_Obsidian_Base全局规范文件仓库/_archive'\n"
             "registry_path: '00_Obsidian_Base全局规范文件仓库/spec_registry.json'\n"
             "output_paths:\n"
-            "  pm_index: '01_Project自动化项目管理/00_通用规范/README.md'\n"
-            "  plc_readme: '0100_PLC自动化/00_通用规范/README.md'\n"
-            "  python_readme: '01_Project自动化项目管理/00_通用规范/README.md'\n"
+            "  pm_index: '00_Obsidian_Base全局规范文件仓库/00_INDEX_全局规范索引.md'\n"
             "  report: '00_Obsidian_Base全局规范文件仓库/health_report.md'\n",
             encoding="utf-8",
         )

@@ -12,6 +12,6 @@ def test_doctor_uses_active_infrastructure_version_when_workspace_has_no_pyproje
 ) -> None:
     result = run_doctor_check(tmp_path)
 
-    assert result["project_version"] == "1.2.3"
+    assert result["project_version"] == "1.2.4"
     assert result["version_source"].endswith("pyproject.toml")
     # CHG-SCPT-2026-021: 平铺布局回退 00_Infrastructure，candidate 布局回退包自身 pyproject

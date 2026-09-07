@@ -1,4 +1,4 @@
-"""PlcRepairer 单元测试"""
+﻿"""PlcRepairer 单元测试"""
 
 from __future__ import annotations
 
@@ -135,7 +135,7 @@ def complete_project(tmp_path: Path) -> Path:
     chg_dir = project_dir / "11_监控" / "01_变更管理"
     (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
     (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
-    (chg_dir / "02_变更记录" / "01_版本变更台帐.md").write_text("# 版本变更台帐\n", encoding="utf-8")
+    (chg_dir / "02_变更记录" / "01_版本变更台账.md").write_text("# 版本变更台账\n", encoding="utf-8")
 
     # 交付文档实质化
     (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 现场调试计划\n", encoding="utf-8")

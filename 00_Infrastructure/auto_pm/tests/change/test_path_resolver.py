@@ -1,4 +1,4 @@
-"""变更管理路径解析测试"""
+﻿"""变更管理路径解析测试"""
 
 from __future__ import annotations
 
@@ -153,21 +153,21 @@ class TestFindLedgerFile:
         """存在台帐文件"""
         ledger_dir = tmp_path / "04_监控" / "01_变更管理" / "02_变更记录"
         ledger_dir.mkdir(parents=True)
-        (ledger_dir / "01_版本变更台帐.md").write_text("# 台帐\n", encoding="utf-8")
+        (ledger_dir / "01_版本变更台账.md").write_text("# 台帐\n", encoding="utf-8")
 
         result = find_ledger_file(str(tmp_path))
         assert result is not None
-        assert "01_版本变更台帐.md" in result
+        assert "01_版本变更台账.md" in result
 
     def test_find_ledger_file_in_11_monitoring(self, tmp_path: Path) -> None:
         """兼容在 11_监控 目录下的台帐文件"""
         ledger_dir = tmp_path / "11_监控" / "01_变更管理" / "02_变更记录"
         ledger_dir.mkdir(parents=True)
-        (ledger_dir / "01_版本变更台帐.md").write_text("# 台帐\n", encoding="utf-8")
+        (ledger_dir / "01_版本变更台账.md").write_text("# 台帐\n", encoding="utf-8")
 
         result = find_ledger_file(str(tmp_path))
         assert result is not None
-        assert "01_版本变更台帐.md" in result
+        assert "01_版本变更台账.md" in result
 
     def test_find_ledger_file_not_found(self, tmp_path: Path) -> None:
         """无台帐文件返回 None"""

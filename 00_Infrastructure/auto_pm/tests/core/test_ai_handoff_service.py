@@ -332,3 +332,34 @@ def test_preflight_rejects_cross_project_consumption(tmp_path) -> None:  # type:
             result={"verification": {"other_checks": ["PASS"]}},
             expected_project_id="DJ-2026-005",
         )
+
+
+def test_close_request_extracts_chg_from_path_with_domain_dir(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """修复验证：路径中包含子目录（如 .../CHG-SPEC/CHG-SPEC-2026-001.md）时不被误截断为 CHG-SPEC"""
+    service = AiHandoffService(tmp_path)
+    # 创建目标变更单文件
+    chg_file = tmp_path / "04_监控" / "01_变更管理" / "01_变更单" / "CHG-SPEC" / "CHG-SPEC-2026-001.md"
+    chg_file.parent.mkdir(parents=True, exist_ok=True)
+    chg_file.write_text("# 变更单\n\n## 3. 变更基本信息\n", encoding="utf-8")
+
+    # 创建目标 changed_file
+    target_code = tmp_path / "docs" / "rules.md"
+    target_code.parent.mkdir(parents=True, exist_ok=True)
+    target_code.write_text("content", encoding="utf-8")
+
+    service.create_request(
+        "SYS-2026-001",
+        "fullstack-engineer",
+        "测试 SPEC 路径提取",
+        request_id="AI-20260901-SPEC-PATH",
+    )
+
+    result = {
+        "summary": "通过",
+        "verification": {"lint_result": "PASS"},
+        "changed_files": ["docs/rules.md"],
+        "chg_updates": ["04_监控/01_变更管理/01_变更单/CHG-SPEC/CHG-SPEC-2026-001.md: completed"],
+    }
+
+    closed = service.close_request("AI-20260901-SPEC-PATH", result=result)
+    assert closed["status"] == "consumed"

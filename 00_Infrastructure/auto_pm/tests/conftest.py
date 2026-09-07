@@ -89,7 +89,7 @@ def tmp_workspace(tmp_path: Path) -> Path:
     chg_dir = project_dir / "11_监控" / "01_变更管理"
     (chg_dir / "01_变更单").mkdir(parents=True, exist_ok=True)
     (chg_dir / "02_变更记录").mkdir(parents=True, exist_ok=True)
-    (chg_dir / "02_变更记录" / "01_版本变更台帐.md").write_text("# 版本变更台帐\n", encoding="utf-8")
+    (chg_dir / "02_变更记录" / "01_版本变更台账.md").write_text("# 版本变更台账\n", encoding="utf-8")
 
     # 交付文档实质化
     (project_dir / "04_现场调试" / "现场调试计划.md").write_text("# 现场调试计划\n", encoding="utf-8")
@@ -99,6 +99,11 @@ def tmp_workspace(tmp_path: Path) -> Path:
     (project_dir / "PM_SESSION_DJ-2026-TEST.md").write_text(
         "# PM_SESSION\n", encoding="utf-8"
     )
-    # PRD 目录
-    (project_dir / "PRD").mkdir()
+    # PRD 目录 + 四个必需文档（plc check 门禁要求）
+    prd_dir = project_dir / "PRD"
+    prd_dir.mkdir()
+    (prd_dir / "需求分析文档_REQ.md").write_text("# 需求分析\n\n待补充\n", encoding="utf-8")
+    (prd_dir / "接口文档_INT.md").write_text("# 接口文档\n\n待补充\n", encoding="utf-8")
+    (prd_dir / "详细设计说明书_DSN.md").write_text("# 详细设计\n\n待补充\n", encoding="utf-8")
+    (prd_dir / "技术方案文档_TEC.md").write_text("# 技术方案\n\n待补充\n", encoding="utf-8")
     return tmp_path

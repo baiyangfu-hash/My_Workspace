@@ -142,3 +142,32 @@ class TestIoPointsParserReal:
         # 末条目（RIO1:Y15）
         assert result.var_table.entries[-1].tag == "RearGrip_Release"
         assert result.var_table.entries[-1].address == "RIO1:Y15"
+
+    def test_parse_three_safety_columns(self, tmp_path: Path) -> None:
+        """测试解析包含 wiring_level, fail_safe, break_action 的三安全列 CSV (STD-816)"""
+        csv_path = tmp_path / "io_points_safety.csv"
+        content = """station,signal_type,address,tag,signal_name,device,comment,wiring_level,fail_safe,break_action
+cpu,DI,X0,ESTOP_BTN,总急停按钮,操作台,双通道安全回路,NC,0,E-STOP
+cpu,DO,Y0,VALVE_CLAMP,夹紧气缸电磁阀,夹持模组,气缸夹紧动作,NO,0,OPEN_AND_ALARM
+"""
+        csv_path.write_text(content, encoding="utf-8")
+        result = IoPointsParser().parse(csv_path)
+        assert result.success
+        assert result.var_table is not None
+        assert result.var_table.total_count == 2
+        entry0 = result.var_table.entries[0]
+        assert entry0.tag == "ESTOP_BTN"
+        assert entry0.wiring_level == "NC"
+        assert entry0.fail_safe == "0"
+        assert entry0.break_action == "E-STOP"
+        entry0_dict = entry0.to_dict()
+        assert entry0_dict["wiring_level"] == "NC"
+        assert entry0_dict["fail_safe"] == "0"
+        assert entry0_dict["break_action"] == "E-STOP"
+
+        entry1 = result.var_table.entries[1]
+        assert entry1.tag == "VALVE_CLAMP"
+        assert entry1.wiring_level == "NO"
+        assert entry1.fail_safe == "0"
+        assert entry1.break_action == "OPEN_AND_ALARM"
+
