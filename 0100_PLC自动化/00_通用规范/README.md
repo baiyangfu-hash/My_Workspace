@@ -54,7 +54,7 @@
 
 | spec_id | 标题 | 归档路径 | 归档日期 |
 |---------|------|---------|---------|
-| LSP-903-OLD | Siemens-LSP Go-Gen 插件定时器使用规范(旧版) | 00_Obsidian_Base全局规范文件仓库/_archive/history/903_Siemens-LSP_Go-Gen_定时器使用规范_DEV.md | 未知 |
+| LSP-903-OLD | Siemens-LSP Go-Gen 插件定时器使用规范(旧版) | 00_Obsidian_Base全局规范文件仓库/Archive_Cold/_archive/history/903_Siemens-LSP_Go-Gen_定时器使用规范_DEV.md | 未知 | 
 
 ---
 

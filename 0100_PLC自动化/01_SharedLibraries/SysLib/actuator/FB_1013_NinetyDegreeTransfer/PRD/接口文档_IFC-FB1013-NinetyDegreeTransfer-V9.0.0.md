@@ -10,7 +10,7 @@
 | **编制日期** | 2026-05-29 |
 | **编制人** | Trae |
 | **审核人** | 人工 |
-| **遵循规范** | 801_PLC变量命名与功能块命名规范_DEV-V1.0.5, 905_SCL编程规范_DEV-V7.0.0, PLCopen MC Part 1 |
+| **遵循规范** | 905_SCL编程规范_LSP（原801已归档，职能由905承接）, PLCopen MC Part 1 | 
 | **V9.0.0 变更** | VAR_OUTPUT从70个精简至27个：删除冗余M0~M10/位置BOOL/派生状态共32个；报警合并为WORD类型(q_wAlarm+q_wErrorClass)；NV合并为BYTE(q_byNVState)；新增台面位置枚举(q_iTablePosition) |
 
 ## 1. 功能概述
@@ -431,5 +431,5 @@ i_bManualMode=TRUE 时:
 | ST_Cylinder类型 | ../../types/ST_Cylinder.scl | V1.1.0 |
 | ST_ConveyorMotor类型 | ../../types/ST_ConveyorMotor.scl | V1.1.0 |
 | 取放料机构 IFC | ../../../../DJ-2026-005/02_PLC程序/通用ST程序及变量表/pickplace/PRD/接口文档_IFC-FB1003-PickPlace-V7.0.0.md | V7.0.0 |
-| 规范 | ../../../../../01_需求与设计/10_编程及变量规范/801_PLC变量命名与功能块命名规范_DEV.md | V1.0.5 |
+| 规范 | 905_SCL编程规范_LSP（法典 03_PLC自动化域；原801已归档，职能由905承接） | V1.2.1 | 
 | 905规范 | ../../../../../01_需求与设计/10_编程及变量规范/905_SCL编程规范_DEV.md | V7.0.0 |

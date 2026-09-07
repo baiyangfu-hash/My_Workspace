@@ -58,6 +58,7 @@
 - 2026-09-06 [已执行] CHG-SPEC-2026-004 P2 PM 域模板包（架构师对话指令批准）：新增 3 部规范 PM-053 立项表（五块信息模型+A0 并入，收编 903 幽灵引用）/URT-054（九列单表贯通+追溯六态）/TDR-055（A3 简化十列）；DJ-005 立项表 903 引用改写收编（归档侧 1 处登记不改）；F21 评估报告落 reports（保留 9/合并候选 2/归冷候选 3，未动存量）。registry 67→70，INDEX 覆盖 70/70。六门禁全绿（首扫抓到 053 一条 stale-path 当场修复归零）。CHG 转 pending_acceptance；证据=.auto-pm/reports/CHG-SPEC-2026-004_evidence/。
 - 2026-09-06 [已结项] CHG-SPEC-2026-004 验收关闭（架构师对话指令"继续下一个"）：3 部新规范 PM-053/URT-054/TDR-055 生效（法典 70 条），903 幽灵收编，F21 评估报告在档（保留 9/合并候选 2/归冷候选 3）。台账 034 ✅已关闭；CHG 置 closed。90_方案 P0/P1/P2 三包全部交付闭环。
 - 2026-09-06 [已执行] CHG-SPEC-2026-005 F21 处置（架构师队列指令"按照顺序全部做"批准，含冷区迁移独立批准）：006/007/051/044/029 五文件 git mv 迁入 Archive_Cold（保留相对结构）；DEV-004 V1.2.0 吸收记录（044 严格子集并入、029 走 CHG-040）；registry 移除五条 70→65；INDEX 归档节建立五条冷链接+统计同步（活跃 38/合计 65/已归档 5）。六门禁全绿（死链活跃 0/覆盖率 65-65/scoped diff 全 PASS；执行中自查修复两处：INDEX 误删五行当场恢复、DEV-004 registry 版本漂移补同步）。CHG 转 pending_acceptance；证据=.auto-pm/reports/CHG-SPEC-2026-005_evidence/。
+- 2026-09-06 [已执行并结项] CHG-SPEC-2026-006 冷区引用处置（架构师队列指令批准）：普查修正预期——真实活体死链仅 3 处 5 行（FB_1013 IFC/DSN 801 引用、0100 README 903 旧路径），行级修复完成；#6 迁籍改判（DJ-2026-005 自有 11 份 CHG-PLC 活体系列，冷区件为游离副本维持登记）；#5/#7 维持 SW 拆单 #5 与 .trae 配合项。冷区登记表追加 §5 结算，冷区治理法典侧收口。法典门禁回归全绿。台账 036 已关闭。
 
 ## 4. Artifacts Index（文档索引）
 - charter: 00_项目基础信息/01_项目章程_PM.md
@@ -99,7 +100,7 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
-- current_state: [执行中] CHG-SPEC-2026-006（冷区引用处置）进行中；005（F21 处置）已执行待验收；002/003/004 已结项；P3/P4 待立项；SW 拆单 9 项在途。
+- current_state: [执行中] CHG-SPEC-2026-007（P3：816 测试与上机模板）进行中；002–006 已结项关闭；冷区治理法典侧收口（余 SW 拆单 #5 与 .trae 配合项两条外部线）；P4 恢复待执行；SW 拆单 9 项在途。
 - latest_handoff: 2026-09-06 | from=fullstack-engineer | mode=CHG-SPEC-2026-001 P0 execution | request_id=AI-20260906-P0-SPEC-001-R3（R1 租约过期未及时心跳作废；R2 因 change-id 校验不识别 SYS 户籍 CHG-SPEC 目录废弃；R3 为正式回执，待 PM close 为 consumed） | decision=DEC-20260906-1AB177AF | change=CHG-SPEC-2026-001-pending_acceptance | gates: spec_check=Exit 0, deadlinks_active=0, index_coverage=67/67, doc_check=Exit 0, scoped_diff_check=ALL PASS | evidence=.auto-pm/reports/CHG-SPEC-2026-001_执行报告_2026-09-06.md.
 - archive: historical §8 handoff evidence (including prior current-state snapshots) preserved in 05_收尾/PM_SESSION归档/PM_SESSION_SYS-2026-001_archive_auto.md; section append=NG-WP-16 history retention archive; SHA-256=e4a1f4fc1b0a7eb923fcf8d8d3d7ac4675483d3a514e5f91cf292e3e04e2e18e.
 ## 9. Next Actions
