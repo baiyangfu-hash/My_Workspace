@@ -102,7 +102,7 @@
   - artifact: `01_项目文档/12_SW-2026-008_PM驾驶舱强制闭环_对话交接_PM.md`
 
 ## 8. Handoff Notes
-- current_state: [执行中] SW 拆单 9 项已立单待排期（CHG-SCPT-2026-186 草案，SW 户籍）；SYS 侧 002–008 全部结项关闭，90_方案 P0–P4 五包交付闭环，法典 67 条；冷区外部线=SW 拆单 #5 与 .trae 配合项。
+- current_state: [待命] 90_方案 V3.1 P0–P4 五包全部交付闭环（CHG-SPEC-2026-001~008 全部 closed，法典 67 活跃 + 5 归档）；SW 拆单 9 项已整合立单 CHG-SCPT-2026-186（draft 待排期，含 handoff 租约第 10 项候选）；冷区外部线=拆单 #5 与 .trae 配合项。SYS 侧无未竟动作。
 - latest_handoff: 2026-09-06 | from=fullstack-engineer | mode=CHG-SPEC-2026-001 P0 execution | request_id=AI-20260906-P0-SPEC-001-R3（R1 租约过期未及时心跳作废；R2 因 change-id 校验不识别 SYS 户籍 CHG-SPEC 目录废弃；R3 为正式回执，待 PM close 为 consumed） | decision=DEC-20260906-1AB177AF | change=CHG-SPEC-2026-001-pending_acceptance | gates: spec_check=Exit 0, deadlinks_active=0, index_coverage=67/67, doc_check=Exit 0, scoped_diff_check=ALL PASS | evidence=.auto-pm/reports/CHG-SPEC-2026-001_执行报告_2026-09-06.md.
 - archive: historical §8 handoff evidence (including prior current-state snapshots) preserved in 05_收尾/PM_SESSION归档/PM_SESSION_SYS-2026-001_archive_auto.md; section append=NG-WP-16 history retention archive; SHA-256=e4a1f4fc1b0a7eb923fcf8d8d3d7ac4675483d3a514e5f91cf292e3e04e2e18e.
 ## 9. Next Actions
