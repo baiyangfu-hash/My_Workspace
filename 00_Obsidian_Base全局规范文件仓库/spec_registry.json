@@ -1145,6 +1145,25 @@
       "replaces": [],
       "replaced_by": []
     },
+    "STD-817": {
+      "title": "移植一致性核查规范",
+      "number": "817",
+      "canonical_path": "00_Obsidian_Base全局规范文件仓库/03_PLC自动化域/817_移植一致性核查规范_STD.md",
+      "version": "V1.0.0",
+      "type_prefix": "STD",
+      "domain": "plc",
+      "lifecycle": "stable",
+      "sub_domain": "",
+      "tags": [
+        "移植",
+        "一致性",
+        "核查",
+        "地址映射",
+        "模板"
+      ],
+      "replaces": [],
+      "replaced_by": []
+    },
     "CHG-040": {
       "title": "通用变更单模板",
       "number": "040",
