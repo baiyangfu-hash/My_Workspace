@@ -9,7 +9,7 @@
 - runtime_status: 双轨运行中，基础设施位为默认运行入口，旧项目母体保留为历史记录与回退来源
 - target_source_of_truth: SW-2026-008 为唯一研发母体；00_Infrastructure/auto_pm 只作稳定部署容器
 - architecture_transition_status: ~~目标架构已批准，物理迁移、入口切换和发布尚未授权~~ **[SUPERSEDED 2026-09-06]** NG-WP-15 切流已实际执行（active=1.2.3-f950525），详见 §3 [已执行] NG-WP-15 条目；本字段历史表述作废，以切流执行记录为准
-- version: V1.2.3
+- version: V1.2.4
 - last_updated: 2026-09-07
 - owners: fubai
 
@@ -104,6 +104,7 @@
   - 2026-09-07 [文档体系治理-A1] A1-1 PM_SESSION §0/§3 矛盾消歧（SUPERSEDED 标注）；A1-2 CHANGELOG [Unreleased] 补录 22 条断供变更（CHG-166~177/NG-WP-11~17/CHG-SPEC-001~008）。
   - 2026-09-07 [文档体系治理-A2] A2-1 ARCHITECTURE.md V2.1.0（测试数修正 116→1928，基准套件 dev `00_Infrastructure/auto_pm/tests`，CLI 域数 14→22，Cockpit OS 层补充）；A2-2 README 删幽灵路径 0100_项目/；A2-3 MATRIX.md Cockpit OS 4行+3子领域包；A2-4 Taskfile.yml 归档标注；A2-5 新建 009_CLI命令参考.md（22命令组首次文档化）。
   - 2026-09-07 [文档体系治理-A3] A3-1 新建 05_收尾/001_项目总结报告_SUM.md（SUM-025模板）；A3-2 新建 05_收尾/002_验收核验报告_PM.md（PM-050模板）；A3-3 Release重切+台账改名延后，待架构师批准排期。
+  - 2026-09-07 [已闭环] CHG-SCPT-2026-187 A3-3 Release 1.2.4-6699a5b 重切与全链台账改名：完成活体项目（DJ-2026-005/008/009、SW-2026-009）与 041 模板、jinja 模板全链改名为 `01_版本变更台账.md`；spec_registry.json 与 00_INDEX 完成规范索引更新；构建不可变 release `1.2.4-6699a5b` 槽位，携带 plc check Exit Code 退出码修复进入生产；DeploymentContainer 验证 465/465 文件 exact-tree 全绿，双指针原子切流（previous=1.2.3-f950525, active=1.2.4-6699a5b）；SW 与 SYS 生产对账全部 0 缺失 0 孤儿 0 差异。
 
 ## 6. Execution Log Summary
 
@@ -159,7 +160,7 @@
 - [x] 任务 5: 文档资产第一轮评估与归档治理（不删除变更管理资产）
 - [x] 任务 14: 文档体系治理 A0~A3 批次（2026-09-07）—— A0-1/A0-2（dev）/A1-1/A1-2/A2-1~5/A3-1/A3-2 均已完成；launcher Exit 0 已复验
 - [ ] 任务 6: DJ-2026-009 业务验证（plc check + pm-session check + ledger reconcile）
-- [ ] 任务 15: [待架构师批准] A3-3 Release 重切 + 台账「台帐→台账」改名联动 | gate=拆单 #7，联动 A1-3；执行前必须有架构师明确排期批准
+- [x] 任务 15: [已完成] A3-3 Release 1.2.4-6699a5b 重切 + 台账「台帐→台账」全链改名联动闭环（CHG-SCPT-2026-187）
 - [ ] 任务 16: [待用户手动] E2 全局 PATH 隔离 | cmd: `"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Scripts\pip.exe" uninstall auto-pm -y`
-- [ ] 任务 17: [待 A3-3 后执行] A0-2 Exit Code 修复进生产（dev 修复已完成，需随 Release 重切带入 active 槽位）
+- [x] 任务 17: [已完成] A0-2 Exit Code 修复已随 Release 1.2.4-6699a5b 成功进入生产
 - [ ] 任务 18: [待排期] CHG-SCPT-2026-186 拆单 10 项（doc check 门禁面/台账存量债/母体分叉同步/SPEC域枚举等）
