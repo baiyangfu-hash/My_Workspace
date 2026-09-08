@@ -4,7 +4,7 @@
 - project_id: SYS-2026-001
 - project_name: WorkspaceGovernance
 - project_root: c:\Users\fubai\Documents\My_Workspace\SYS-2026-001_WorkspaceGovernance
-- last_updated: 2026-09-06
+- last_updated: 2026-09-07
 - owners: fubai
 
 ## 1. Positioning（项目定位）
@@ -61,6 +61,7 @@
 - 2026-09-06 [已执行并结项] CHG-SPEC-2026-006 冷区引用处置（架构师队列指令批准）：普查修正预期——真实活体死链仅 3 处 5 行（FB_1013 IFC/DSN 801 引用、0100 README 903 旧路径），行级修复完成；#6 迁籍改判（DJ-2026-005 自有 11 份 CHG-PLC 活体系列，冷区件为游离副本维持登记）；#5/#7 维持 SW 拆单 #5 与 .trae 配合项。冷区登记表追加 §5 结算，冷区治理法典侧收口。法典门禁回归全绿。台账 036 已关闭。
 - 2026-09-06 [已执行并结项] CHG-SPEC-2026-007 P3 测试与上机包（架构师队列指令批准，P3 转立项执行）：新增 STD-816《PLC测试与上机复核模板》V1.0.0（六节：scltest 登记/三强制约定[RESET 防污染/WAIT_CYCLES/断言语义]/fail_safe 打点闭环/两区制上机复核/安全功能验证×3/竣工四节清单；031 绑定不重复定义）。registry 65→66、INDEX PLC 域 15 部。六门禁全绿。台账 037 已关闭。
 - 2026-09-06 [已执行并结项] CHG-SPEC-2026-008 P4 恢复执行（架构师队列指令批准，暂停解除）：新增 STD-817《移植一致性核查规范》V1.0.0（五维判定口径[模块/IO/步序/报警/互锁，不要求地址等价]、地址→语义映射表强制产出、历史模块标注规则[禁止进入交付主控调用链]、核查报告模板；实战来源 DJ-2026-005 一致性报告 V2.0.0）。registry 66→67、INDEX PLC 域 16 部。六门禁全绿。台账 038 已关闭。90_方案 P0–P4 五包全部交付。
+- 2026-09-07 [已执行并结项] CHG-SPEC-2026-009 规范库例行卫生维护与追溯台账补齐（架构师指令批准）：.obsidian 插件与内部过程 specs 移出 Git 追踪；STD-816 补齐 sub_domain: "PLC编程"；TOOL-906 去除本机硬编码绝对路径；README 升级 V3.3.0 同步 5 域架构；产出《清洗台账_追溯备忘录.md》并正式完成 9 个历史 TPL 模板销案（已被 Copier 脚手架取代）。四门禁全绿（spec check Exit 0 / plc check Pass=51 Warn=1 Fail=0 / pytest 13 PASS）。台账 039 ✅已关闭。
 
 ## 4. Artifacts Index（文档索引）
 - charter: 00_项目基础信息/01_项目章程_PM.md

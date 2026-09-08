@@ -2,7 +2,7 @@
 version: "V1.1.0"
 status: "已通过"
 created: "2026-08-17"
-updated: "2026-08-17"
+updated: "2026-09-07"
 spec_id: "TEST_PLAN"
 project_id: "SW-2026-008"
 ---
@@ -10,7 +10,8 @@ project_id: "SW-2026-008"
 # auto-pm 自动化项目管理工具 - 测试策略与验收规程 (TEST_PLAN)
 
 > **适用对象**：QA 工程师、全栈测试人员、验收工程师  
-> **工程基线**：SW-2026-008 (V1.1.0) / Python 3.11+ / PySide6 / QML
+> **工程基线**：SW-2026-008 (V1.2.4-6699a5b) / 全量自动化测试基线 1928+ passed / Python 3.11+ / PySide6 / QML  
+> **编制说明**：本文初版编制于 2026-08-17（历史基线 1585 passed）；2026-09-07 文档体系治理第二批更新门禁与测试基线至 1928+ passed。
 
 ---
 
@@ -24,11 +25,11 @@ project_id: "SW-2026-008"
                     ├────────────────────────────┤
                     │   Facade / Bridge 契约集成  │  tests/application/
                     ├────────────────────────────┤
-                    │   Domain / Logic 单元测试  │  tests/domain/ (1585 passed)
+                    │   Domain / Logic 单元测试  │  tests/ (1928+ passed)
                     └────────────────────────────┘
 ```
 
-1. **底层单元测试（Unit Tests）**：覆盖所有 Domain 核心算法，累计 **1585 个测试用例，100% 通过**，覆盖率 $\ge 76\%$。
+1. **底层单元测试（Unit Tests）**：覆盖所有核心算法与领域服务，累计 **1928+ 个测试用例，100% 通过**，覆盖率 $\ge 76\%$（初版 2026-08-17 为 1585 passed）。
 2. **中层契约测试（Integration Tests）**：验证 Application Facade 与 QML Bridge 的数据传输与错误降级。
 3. **顶层真机交互矩阵（GUI Smoke & Interaction Tests）**：地毯式遍历 8 个主页面、5 个项目工作台 Tab、以及 **7 大核心弹窗对话框**，20 张高清真机快照存档。
 

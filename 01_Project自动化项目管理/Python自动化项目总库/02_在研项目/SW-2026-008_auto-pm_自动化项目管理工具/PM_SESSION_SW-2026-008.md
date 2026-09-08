@@ -75,6 +75,8 @@
 - 2026-09-06 [移交登记] SW 拆单 #9（随 CHG-SPEC-2026-003 P1 立项新增）：auto_pm vartable/ingest 对 io_points.csv 三新增列（wiring_level/fail_safe/break_action）的解析与校验支持——法典侧 schema 定义归 CHG-SPEC-2026-003，驾驶舱解析器/门禁扩列归本单实施；另 P0 遗留中 `doc check --strict` 语义与链接门禁下沉（死链扫描+INDEX 覆盖率物理化）并入原拆单 #4 范围。CHG-SPEC-2026-002/003/004 已立项待批准，P4 暂停。
 - 2026-09-06 [已立单] CHG-SCPT-2026-186（draft 待排期）：SW 拆单 9 项积压整合立单（①SPEC 域枚举 ②spec index 五域化+去越权 ③冷区汇总报告消费解除 ④doc check --strict+链接门禁下沉 ⑤PATH 对齐 ⑥手工户籍 CHG 回写 ⑦release 重切携带台帐→台账全链改名 ⑧spec check 9060 豁免 ⑨io_points 三安全列解析+plc check 门禁），另 handoff 租约语义核实列为第 10 项候选。来源=CHG-SPEC-2026-001~008 法典批次全部移交项；实施需独立工程周期（pytest 回归 + release 重切切流），排期与 WBS 待架构师另批。法典侧配套已全部就绪（043/040 SPEC 分类、编号宪章、io_points schema、STD-816/817）。
 - 2026-09-06 [移交登记] SW 台账存量债（非 CHG-SPEC 批次造成）：ledger reconcile SW-2026-008 报"台账缺失 121 条"——历史 CHG（含 archive 大部）在台帐无登记行，Codex 时代遗留；建议随拆单 #7（台帐→台账重切改名）一并做一次性补登或范围裁决（仅活跃区补登）。另：dev 源码已改"台账"而 SW 台帐文件未改名（随 #7），故重切前 **SW 的 reconcile 必须从 release f950525 运行**（dev 会找不到台账文件）；SYS 相反必须走 dev。
+- 2026-09-07 [已闭环] CHG-DOCU-2026-006 文档体系治理第二批：更新 7 项活文档（INT/DSN/009_CLI/SUM/PM/TEST_PLAN/RELEASE_NOTES）对齐 1.2.4-6699a5b 基线；可逆归档 005/006/008 历史路线图、01_发布说明历史证据、19 篇学习资料、M7 真实试用与 auto-pm.spec；清理 DEV-TMP-001 临时构建产物（含 git rm 跟踪文件）；.gitignore 豁免 06_交付物/**/*.md；06_交付物/README.md 显式声明权威部署指针；doc sync 重注 AST 元数据、doc check --strict (DOC-001~004) 100% 全绿、ledger reconcile 对账 0 差异，单据已闭环入账。
+- 2026-09-07 [已闭环] CHG-DOCU-2026-007 《新版4周上手指南》重构专项：在学习资料/活跃区重构生成 V2.0.0 实战指南共 19 篇 Markdown（1 篇导航总览 + 18 篇分天实战），抽取原教程工控教学框架并全面适配 1.2.4-6699a5b 双槽稳定部署、Cockpit OS 编排、多 Agent 协作与 40 组 CLI 实战；doc check --strict (DOC-001~004) 100% 全绿通过，ledger reconcile SW-2026-008 0 差异通过，单据已闭环入账（序号 124）。
 ## 4. Artifacts Index
 
 - prd: 02_规划/001_产品需求文档_PRD.md
@@ -106,6 +108,8 @@
   - 2026-09-07 [文档体系治理-A2] A2-1 ARCHITECTURE.md V2.1.0（测试数修正 116→1928，基准套件 dev `00_Infrastructure/auto_pm/tests`，CLI 域数 14→22，Cockpit OS 层补充）；A2-2 README 删幽灵路径 0100_项目/；A2-3 MATRIX.md Cockpit OS 4行+3子领域包；A2-4 Taskfile.yml 归档标注；A2-5 新建 009_CLI命令参考.md（22命令组首次文档化）。
   - 2026-09-07 [文档体系治理-A3] A3-1 新建 05_收尾/001_项目总结报告_SUM.md（SUM-025模板）；A3-2 新建 05_收尾/002_验收核验报告_PM.md（PM-050模板）；A3-3 Release重切+台账改名延后，待架构师批准排期。
   - 2026-09-07 [已闭环] CHG-SCPT-2026-187 A3-3 Release 1.2.4-6699a5b 重切与全链台账改名：完成活体项目（DJ-2026-005/008/009、SW-2026-009）与 041 模板、jinja 模板全链改名为 `01_版本变更台账.md`；spec_registry.json 与 00_INDEX 完成规范索引更新；构建不可变 release `1.2.4-6699a5b` 槽位，携带 plc check Exit Code 退出码修复进入生产；DeploymentContainer 验证 465/465 文件 exact-tree 全绿，双指针原子切流（previous=1.2.3-f950525, active=1.2.4-6699a5b）；SW 与 SYS 生产对账全部 0 缺失 0 孤儿 0 差异。
+  - 2026-09-07 [已闭环] CHG-DOCU-2026-006 文档体系治理第二批：更新 7 项活文档（INT/DSN/009_CLI/SUM/PM/TEST_PLAN/RELEASE_NOTES）对齐 1.2.4 基线；可逆归档旧路线图、发布说明、学习资料、M7 试用与 spec；DEV-TMP-001 产物清理；.gitignore 豁免交付物 .md；doc check --strict 全绿，ledger reconcile 0 差异闭环。
+  - 2026-09-07 [已闭环] CHG-DOCU-2026-007 《新版4周上手指南》重构专项：全面重塑工控实战教程为 V2.0.0，在学习资料/活跃区生成 19 篇 Markdown（README 导航 + W1~W4 18 篇教程），涵盖双槽部署、Cockpit OS 编排、多 Agent 协作与 40 组 CLI 实战，doc check --strict 与台账对账均 Exit 0。
 
 ## 6. Execution Log Summary
 
@@ -125,6 +129,10 @@
 - 2026-09-07 | from=Antigravity | mode=CHG-SCPT-2026-186 闭环
   - current_state: [已验证] CHG-SCPT-2026-186 驾驶舱 CHG-SPEC 批次拆单整合（9 项拆单积压全部闭环）完成实施、门禁验证与落账闭环。
   - actions: spec check 9060 编号豁免、change 域放行 SPEC、ledger 手工户籍回写、doc check --strict (DOC-001~004 全 PASS)、io_points 三安全列解析与 plc check 对接 STD-816、spec index 五域化与手工区保护（收敛 00_INDEX 唯一合法写入目标，杜绝越权写 README）、冷区消费依赖排查确认、release 槽位对齐与全链台账改名核验。
+- 2026-09-07 | from=Antigravity | mode=CHG-DOCU-2026-006 闭环
+  - current_state: [已闭环] SW-2026-008 文档体系治理第二批全部验收闭环。7 项活文档对齐 1.2.4-6699a5b 基线；历史资料可逆归档；DEV-TMP-001 清理；doc check --strict 100% 全绿，台账 0 差异。
+- 2026-09-07 | from=Antigravity | mode=CHG-DOCU-2026-007 闭环
+  - current_state: [已闭环] 《新版4周上手指南》重构专项验收闭环。19 篇实战指南就位活跃区，doc check --strict 100% 全绿，台账 0 差异。
 ## 9. Next Actions
 - [待验收] CHG-DOCU-2026-005 NG-WP-17 历史规划归档 | result=4/4 SHA-256 匹配、git diff --check Exit 0、handoff 已 consumed；gate=CHG 保持 pending_acceptance，stable flat auto_pm 因 setup_env.bat 依赖延期，未移动研发母体源码、templates 或 release。
 - [待验收] CHG-SCPT-2026-185 NG-WP-17 入口脱钩 | result=setup_env 不再绑定 stable flat source、verify_release 465/465 与 resolve-only/--help Exit 0；blocker=完整 startup guard 仍有 1 项 Windows cmd.exe timeout（Exit 1）；gate=stable flat archive 延期。
@@ -139,3 +147,5 @@
 - [ ] 任务 16: [待用户手动] E2 全局 PATH 隔离 | cmd: `"C:\Users\fubai\AppData\Local\Programs\Python\Python311\Scripts\pip.exe" uninstall auto-pm -y`
 - [x] 任务 17: [已完成] A0-2 Exit Code 修复已随 Release 1.2.4-6699a5b 成功进入生产
 - [x] 任务 18: [已完成] CHG-SCPT-2026-186 驾驶舱 CHG-SPEC 批次拆单整合（9 项拆单积压全闭环，doc check --strict 全绿，00_INDEX 五域原生覆盖，已完成 ledger 对账与闭环落账）
+- [x] 任务 19: [已闭环] SW-2026-008 文档体系治理第二批（CHG-DOCU-2026-006 报批→执行→验收落账全链路闭环）
+- [x] 任务 20: [已闭环] 《新版4周上手指南》重构专项（CHG-DOCU-2026-007 报批→执行→验收落账全链路闭环）

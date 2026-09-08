@@ -1,38 +1,50 @@
-# auto-pm 桌面驾驶舱接管与维护【4周电气工程师实战手册】
+---
+version: "V2.0.0"
+status: "正式发布"
+created: "2026-09-07"
+updated: "2026-09-07"
+spec_id: "GUIDE_4W"
+project_id: "SW-2026-008"
+title: "auto-pm 工业驾驶舱接管与实战【4周电气工程师实战手册 V2.0.0】"
+---
 
-> 🎯 **手册定位**：专为**兼任项目管理的电气工程师**量身定制。从工控视角（PLC/HMI/继电器/点表）无缝切入，用 4 周（每天 45~60 分钟）帮助你顺利接管 `auto-pm` 桌面驾驶舱，熟练掌握日常使用、Git 版本控制安全防线、5 层架构微调、独立工具扩展与免安装打包。
+# auto-pm 工业驾驶舱接管与实战【4周电气工程师实战手册 V2.0.0】
+
+> 🎯 **手册定位**：专为**兼任项目管理的电气自动化工程师**量身定制。以工控人最直观的“PLC/HMI/继电器/点表/出厂固件”物理心智模型为桥梁，用 4 周时间（每天 45~60 分钟）帮助你全面接管基于 **Release 1.2.4-6699a5b 稳定部署双槽架构**与 **Cockpit OS 编排内核** 的全新 `auto-pm` 桌面驾驶舱。
+> 
+> 💡 **核心主旨**：告别盲目改代码，掌握双槽防篡改机制、事务沙箱原子回滚、多 Agent 契约协同与 40 组 CLI 极客实战，实现从“传统电气工程师”向“一人全栈超级个体”的工程跨越。
 
 ---
 
-## 🗺️ 4 周接管阶梯路线图
+## 🗺️ 4 周接管阶梯路线图 (V2.0.0)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 📅 第 1 周：【安全防线与日常使用】（会用、懂 Git、绝不改崩）                │
-│    • Day 01：Git 核心与工控概念类比（工作区 vs 内存，commit vs 黄金快照）      │
-│    • Day 02：Git 救命三板斧与分支隔离（restore 放弃修改、reset 出厂回滚）    │
-│    • Day 03：驾驶舱全景与项目管理实操（项目大厅、PM_SESSION、Copier 标准立项）│
-│    • Day 04：质量门禁与变量表重构实操（SCL 语法体检、万行点表批量改地址）    │
-│    • Day 05：Modbus 联调工坊与内置体检（模拟波形发生器、auto-pm doctor）    │
+│ 📅 第 1 周：【工业安全防线与双槽部署】（会用、懂部署、绝不改崩）            │
+│    • Day 01：Git 救命防线与工控概念类比（工作区 vs 内存镜像，Commit vs 固件快照）│
+│    • Day 02：Release 双槽稳定部署与不可变制品（双槽指针、manifest 防篡改校验）  │
+│    • Day 03：GUI 深色驾驶舱与 Headless 双模启动（PySide6 磨砂桌面与探针启动）   │
+│    • Day 04：项目全生命周期与 Copier 标准立项（auto-pm project 家族与 PM_SESSION）│
+│    • Day 05：PLC 53 项硬门禁与 SCL 语法体检（auto-pm plc check、STD 状态机检查）│
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 第 2 周：【架构认知与轻量维护】（看懂架构、改界面、改参数）              │
-│    • Day 06：Python 面向对象与 5 层整洁架构（FB 与 Class 对照、分工定位）    │
-│    • Day 07：业务计算与算法参数微调（Modbus 浮点 CDAB 算法、PLC 规则阈值）   │
-│    • Day 08：QML 界面语法与 HMI 组态对照（认识 Item/Layout/Theme，改文案）   │
-│    • Day 09：数据表格与报警高亮修改（ListView 列宽比重、ListModel 报警变红） │
-│    • Day 10：Signal & Slot 前后端通信纽带（硬线中继类比、新增 @Slot 槽函数） │
+│ 📅 第 2 周：【Cockpit OS 编排内核与整洁架构】（看懂内核、事务保障、可逆归档）│
+│    • Day 06：Clean Architecture 5 层架构与工控解耦（Domain/Application/Contracts）│
+│    • Day 07：Workflow 方案规划与结构化决策包（WorkflowOrchestrator.plan 与 DEC）│
+│    • Day 08：ChangeTransaction 事务沙箱与原子回滚（快照隔离、自动回滚与防雪崩） │
+│    • Day 09：ProjectArchive 全生命周期归档与恢复（三道硬门禁与 ARC 流水号还原） │
+│    • Day 10：PM Saga 事务日志 WAL 与故障恢复（PmClosureSagaCoordinator 检查点） │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 第 3 周：【功能扩展与 AI 协同维护】（加小工具、指挥 AI 修 Bug）          │
-│    • Day 11：独立工具页实战 1：QML 界面搭建（新建 MyCustomToolView.qml）     │
-│    • Day 12：独立工具页实战 2：Python Bridge 编写与注入                     │
-│    • Day 13：独立工具页实战 3：导航注册与挂载（Sidebar 与 StackLayout）      │
-│    • Day 14：指挥工作区 AI 协同排障（向 fullstack-engineer 派发与走查验收）  │
-│    • Day 15：运行时排障与日志诊断（控制台 QML Warning 排查、Python 异常处理）│
+│ 📅 第 3 周：【多 Agent 协同与工控 OT-IT 闭环】（指挥 AI、点表转译、通信桥接）│
+│    • Day 11：Handoff 契约化移交总线与物理隔离（skill_context 与 handoff_result）│
+│    • Day 12：阶段 0 预研探路模式 Grooming 实战（只读代码勘测与零代码盲问红线） │
+│    • Day 13：阶段 2 执行交付模式 Execution 填空（物理 TODO 陷阱与机器无情判卷）│
+│    • Day 14：OT-IT 变量表异构转译与 3 安全列规范（AutoShop/CodeSys 嗅探与映射） │
+│    • Day 15：Modbus TCP 与 OPC UA 工业通信桥接（modbus_bridge 与 DTO 序列化）   │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 第 4 周：【实战试运行与独立发布】（真实演练、打包交付）                  │
-│    • Day 16：真实工业变更单流转实战（9 步闭环流转一次轻量变更单）            │
-│    • Day 17：免安装 Release 交付物打包（PyInstaller 一键生成工控机绿色包）  │
-│    • Day 18：日常运维 CheckList 与交接结项（日常自检清单、系统正式接管）     │
+│ 📅 第 4 周：【40 组 CLI 极客实战与 SRE 零负担交付】（全指令实战、无感切流） │
+│    • Day 16：工业变更单 12 态全流程与台账对账（auto-pm change 与 ledger 对账） │
+│    • Day 17：Doc-as-Code 活文档自省与严格门禁（doc sync 自动重注与 doc check） │
+│    • Day 18：双槽无感切流与日常运维 CheckList（原子指针翻转与系统接管清单）    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -40,24 +52,52 @@
 
 ## ⚡ 学习与实操前置环境
 
-在动手操作任何代码或命令前，请确保在终端中激活工作空间虚拟环境：
+在动手操作任何教程中的命令前，请确保在终端（PowerShell）中完成运行环境装配：
 
 ```powershell
 # 1. 打开 PowerShell 并进入工作空间根目录
 cd c:\Users\fubai\Documents\My_Workspace
 
-# 2. 激活虚拟环境
-& ".\.venv\Scripts\Activate.ps1"
+# 2. 注入全局 Python 路径（指向生产稳定发布位容器）
+$env:PYTHONPATH = "00_Infrastructure/auto_pm"
 
-# 3. 验证环境（若显示 Python 3.12.x 则表示就绪）
-python --version
+# 3. 验证稳定发布位与活动指针
+python -m auto_pm --version
+# 正确回显应包含：1.2.4-6699a5b
 ```
 
 ---
 
-## 🛠️ 每日学习方法建议
+## 🛠️ 每日四段式标准学习法
 
-1. **先通读工控类比**：理解这个功能在 PLC 或触摸屏里对应什么概念（5 分钟）；
-2. **动手敲一次实验**：对照教程里的“5 分钟动手实验”亲自敲命令或改代码（15~20 分钟）；
-3. **改崩了不要慌**：随时对照第 1 周学到的 `git restore` 或 `git reset` 1 秒恢复出厂状态；
-4. **完成每日打卡**：核对文末的“今日小结与自测题”（5 分钟）。
+1. **💡 一、工控视角看核心技术**：用你最熟悉的 PLC 梯形图、FB 封装、伺服通讯或 HMI 组态逻辑做类比（5 分钟）；
+2. **⚙️ 二、系统机制与底层原理**：透视当前系统的具体工作流，看清数据与代码在底层是如何流转的（10 分钟）；
+3. **🧪 三、5~10 分钟动手实操实验**：提供保姆级的可复制命令行或微调操作，验证真实控制台输出（15~20 分钟）；
+4. **🛡️ 四、改崩恢复法与今日自测打卡**：万一改崩了怎么 1 秒恢复出厂？并回答 3 道核心思考题固化知识（5 分钟）。
+
+---
+
+## 📚 章节快速导航
+
+- **第 1 周：工业安全防线与双槽部署**
+  - [Day 01：Git 救命防线与工控概念类比](./第1周_工业安全防线与双槽部署/Day01_Git救命防线与工控概念类比.md)
+  - [Day 02：Release 双槽稳定部署与不可变制品](./第1周_工业安全防线与双槽部署/Day02_Release双槽稳定部署与不可变制品.md)
+  - [Day 03：GUI 深色驾驶舱与 Headless 双模启动](./第1周_工业安全防线与双槽部署/Day03_GUI深色驾驶舱与Headless双模启动.md)
+  - [Day 04：项目全生命周期与 Copier 标准立项](./第1周_工业安全防线与双槽部署/Day04_项目全生命周期与Copier标准立项.md)
+  - [Day 05：PLC 53 项硬门禁与 SCL 语法体检](./第1周_工业安全防线与双槽部署/Day05_PLC53项硬门禁与SCL语法体检.md)
+- **第 2 周：Cockpit OS 编排内核与整洁架构**
+  - [Day 06：Clean Architecture 5 层架构与工控解耦](./第2周_CockpitOS编排内核与整洁架构/Day06_CleanArchitecture5层架构与工控解耦.md)
+  - [Day 07：Workflow 方案规划与结构化决策包](./第2周_CockpitOS编排内核与整洁架构/Day07_Workflow方案规划与结构化决策包.md)
+  - [Day 08：ChangeTransaction 事务沙箱与原子回滚](./第2周_CockpitOS编排内核与整洁架构/Day08_ChangeTransaction事务沙箱与原子回滚.md)
+  - [Day 09：ProjectArchive 全生命周期归档与恢复](./第2周_CockpitOS编排内核与整洁架构/Day09_ProjectArchive全生命周期归档与恢复.md)
+  - [Day 10：PM Saga 事务日志 WAL 与故障恢复](./第2周_CockpitOS编排内核与整洁架构/Day10_PMSaga事务日志WAL与故障恢复.md)
+- **第 3 周：多 Agent 协同与工控 OT-IT 闭环**
+  - [Day 11：Handoff 契约化移交总线与物理隔离](./第3周_多Agent协同与工控OTIT闭环/Day11_Handoff契约化移交总线与物理隔离.md)
+  - [Day 12：阶段 0 预研探路模式 Grooming 实战](./第3周_多Agent协同与工控OTIT闭环/Day12_阶段0预研探路模式Grooming实战.md)
+  - [Day 13：阶段 2 执行交付模式 Execution 填空](./第3周_多Agent协同与工控OTIT闭环/Day13_阶段2执行交付模式Execution填空.md)
+  - [Day 14：OT-IT 变量表异构转译与 3 安全列规范](./第3周_多Agent协同与工控OTIT闭环/Day14_OTIT变量表异构转译与3安全列规范.md)
+  - [Day 15：Modbus TCP 与 OPC UA 工业通信桥接](./第3周_多Agent协同与工控OTIT闭环/Day15_ModbusTCP与OPCUA工业通信桥接诊断.md)
+- **第 4 周：40 组 CLI 极客实战与 SRE 零负担交付**
+  - [Day 16：工业变更单 12 态全流程与台账对账](./第4周_40组CLI极客实战与SRE零负担交付/Day16_工业变更单12态全流程与台账对账.md)
+  - [Day 17：Doc-as-Code 活文档自省与严格门禁](./第4周_40组CLI极客实战与SRE零负担交付/Day17_DocAsCode活文档自省与严格门禁.md)
+  - [Day 18：双槽无感切流与日常运维 CheckList](./第4周_40组CLI极客实战与SRE零负担交付/Day18_双槽无感切流与日常运维CheckList.md)

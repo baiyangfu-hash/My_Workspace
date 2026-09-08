@@ -91,10 +91,11 @@ gittoken.txt
 !.agents/skills.json
 
 # 大文件：交付物打包和构建产物（超过 GitHub 100MB 限制）
-06_交付物/
 06_交付物打包/
-**/06_交付物/
 **/06_交付物打包/
+**/06_交付物/**
+!**/06_交付物/**/
+!**/06_交付物/**/*.md
 03_*/01_*/dist/*.exe
 03_*/01_*/build/**/*.pkg
 
@@ -147,7 +148,10 @@ PLC源程序样例/
 00_Infrastructure/auto_pm/.auto-pm/
 .zcode/
 
-# Obsidian 界面运行态（每次开库变动，无 diff 价值；界面配置 app/appearance/plugins 等仍正常追踪）
-**/.obsidian/workspace.json
-**/.obsidian/workspace-mobile.json
-**/.obsidian/workspace.json.bak
+# Obsidian 运行时与配置缓存（统一移出版本库追踪，避免插件二进制与本地视图脏提交）
+.obsidian/
+**/.obsidian/
+
+# 规范库内部过程文件与历史任务规约（避免临时过程文档入库）
+00_Obsidian_Base全局规范文件仓库/.trae/
+**/03_归档/**/.trae/specs/

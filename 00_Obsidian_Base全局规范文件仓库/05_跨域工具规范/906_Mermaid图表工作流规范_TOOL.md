@@ -22,6 +22,7 @@ tags: ["Mermaid", "图表", "流程图", "工作流", "mmdc", "PRD", "导出"]
 
 | 版本号 | 变更内容 | 变更人 | 变更日期 |
 |--------|----------|--------|----------|
+| V2.1.0 | 路径自适应修补：§6.2 去除宿主机绝对路径，改为通用环境发现机制（CHG-SPEC-2026-009） | Antigravity（PM） | 2026-09-07 |
 | V2.1.0 | 基因防污染：正文示例中的 DJ-2026-005 项目专名（边框缓存机工艺流程图/项目编号文件名）替换为通用示例名（F15，CHG-SPEC-2026-003） | ZCode（PM） | 2026-09-06 |
 | V2.0.0 | 从"工具使用指南"升级为"图表工作流规范"，新增用户故事、工作流、图表与文档集成规范 | AI助手 | 2026-05-27 |
 | V1.0.0 | 初始版本（仅工具使用） | AI助手 | 2026-05-27 |
@@ -240,13 +241,13 @@ npm install -g @mermaid-js/mermaid-cli
 mmdc --version
 ```
 
-当前环境路径：
+环境工具与发现机制：
 
-| 项目 | 路径 |
-|------|------|
-| Node.js | `C:\Users\fubai\.trae-cn\binaries\node\versions\24.13.0\node.exe` |
-| mmdc | `C:\Users\fubai\.trae-cn\binaries\node\global\mmdc.cmd` |
-| 一键脚本 | `.trae\bin\export-mermaid.ps1` |
+| 工具 | 推荐配置/发现方式 | 说明 |
+|------|-------------------|------|
+| Node.js | 系统 PATH 或 IDE 内置 Node (`node -v`) | 需 Node.js 18+ 环境 |
+| mmdc | 全局安装或环境变量发现 (`mmdc --version`) | Mermaid CLI 渲染引擎 |
+| 一键脚本 | `.trae\bin\export-mermaid.ps1` | 工作区内置自动化批量导出脚本 |
 
 ### 6.3 单文件导出
 

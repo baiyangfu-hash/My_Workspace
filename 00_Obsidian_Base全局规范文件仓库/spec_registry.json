@@ -1133,7 +1133,7 @@
       "type_prefix": "STD",
       "domain": "plc",
       "lifecycle": "stable",
-      "sub_domain": "",
+      "sub_domain": "PLC编程",
       "tags": [
         "测试",
         "上机",
